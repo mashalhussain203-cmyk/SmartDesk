@@ -98,10 +98,18 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
-            $message->to($user->email, $user->name);
-            $message->subject('Je verificatiecode voor SmartDesk');
-        });
+        try {
+            Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject('Je verificatiecode voor SmartDesk');
+            });
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('verification.notice')->withErrors([
+                'email' => 'Je account is aangemaakt, maar de verificatiemail kon niet worden verzonden. Controleer de SMTP-instellingen.',
+            ]);
+        }
 
         return redirect()->route('verification.notice')->with('success', 'Account aangemaakt. Controleer je e-mail voor de verificatiecode.');
     }
