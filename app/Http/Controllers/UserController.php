@@ -98,7 +98,7 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
+        Mail::queue('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
             $message->to($user->email, $user->name);
             $message->subject('Je verificatiecode voor SmartDesk');
         });
@@ -229,7 +229,7 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.order-confirmation', [
+        Mail::queue('emails.order-confirmation', [
             'user' => $user,
             'orderNumber' => $orderNumber,
             'orderDate' => now()->format('d-m-Y H:i'),
@@ -269,7 +269,7 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
+        Mail::queue('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
             $message->to($user->email, $user->name);
             $message->subject('Je verificatiecode voor SmartDesk');
         });
@@ -329,7 +329,7 @@ class UserController extends Controller
             ]
         );
 
-        Mail::send('emails.password-reset', ['user' => $user, 'token' => $token], function ($message) use ($user) {
+        Mail::queue('emails.password-reset', ['user' => $user, 'token' => $token], function ($message) use ($user) {
             $message->to($user->email, $user->name);
             $message->subject('Wachtwoord herstellen - SmartDesk');
         });
