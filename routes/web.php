@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | Home
@@ -79,26 +80,30 @@ Route::post('/logout', [UserController::class, 'logout'])
 
 /*
 |--------------------------------------------------------------------------
-| Account
+| Mijn account
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
 
-    // Mijn account bekijken
+    // Account bekijken
     Route::get('/account', [UserController::class, 'account'])
         ->name('account');
 
-    // Naam / e-mailadres wijzigen
+    // Naam en e-mailadres wijzigen
     Route::put('/account', [UserController::class, 'updateAccount'])
         ->name('account.update');
+
+    // Wachtwoord wijzigen
+    Route::put('/account/password', [UserController::class, 'updatePassword'])
+        ->name('account.password');
 
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| Auto's / Catalogus
+| Catalogus
 |--------------------------------------------------------------------------
 */
 
