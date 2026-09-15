@@ -15,6 +15,12 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Catalogus auto's
+    |--------------------------------------------------------------------------
+    */
+
     private function catalogCars(): array
     {
         return [
@@ -65,10 +71,22 @@ class UserController extends Controller
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Home
+    |--------------------------------------------------------------------------
+    */
+
     public function home(): View
     {
         return view('site.home');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Registratie
+    |--------------------------------------------------------------------------
+    */
 
     public function register(): View
     {
@@ -86,9 +104,19 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
 
         $user = User::create($data);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verificatiecode aanmaken
+        |--------------------------------------------------------------------------
+        */
+
         $code = random_int(100000, 999999);
 
-        DB::table('email_verification_codes')->where('user_id', $user->id)->delete();
+        DB::table('email_verification_codes')
+            ->where('user_id', $user->id)
+            ->delete();
+
         DB::table('email_verification_codes')->insert([
             'user_id' => $user->id,
             'code' => (string) $code,
@@ -98,13 +126,37 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
-            $message->to($user->email, $user->name);
-            $message->subject('Je verificatiecode voor SmartDesk');
-        });
+        /*
+        |--------------------------------------------------------------------------
+        | Verificatiemail
+        |--------------------------------------------------------------------------
+        */
 
-        return redirect()->route('verification.notice')->with('success', 'Account aangemaakt. Controleer je e-mail voor de verificatiecode.');
+        Mail::send(
+            'emails.verification-code',
+            [
+                'user' => $user,
+                'code' => $code,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject('Je verificatiecode voor SmartDesk');
+            }
+        );
+
+        return redirect()
+            ->route('verification.notice')
+            ->with(
+                'success',
+                'Account aangemaakt. Controleer je e-mail voor de verificatiecode.'
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login
+    |--------------------------------------------------------------------------
+    */
 
     public function login(): View
     {
@@ -117,18 +169,29 @@ class UserController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
+
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('home'))->with('success', 'Je bent ingelogd.');
+            return redirect()
+                ->intended(route('home'))
+                ->with('success', 'Je bent ingelogd.');
         }
 
-        return back()->withErrors([
-            'email' => 'Ongeldige inloggegevens.',
-        ])->onlyInput('email');
+        return back()
+            ->withErrors([
+                'email' => 'Ongeldige inloggegevens.',
+            ])
+            ->onlyInput('email');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
 
     public function logout(Request $request): RedirectResponse
     {
@@ -140,13 +203,247 @@ class UserController extends Controller
         return redirect()->route('home');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mijn account
+    |--------------------------------------------------------------------------
+    */
+
     public function account(): View
     {
         $user = Auth::user();
-        $orders = DB::table('orders')->where('user_id', $user->id)->latest()->get();
+
+        $orders = DB::table('orders')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
 
         return view('site.account', compact('user', 'orders'));
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accountgegevens wijzigen
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateAccount(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email,' . $user->id,
+            ],
+        ]);
+
+        $oldName = $user->name;
+        $oldEmail = $user->email;
+
+        $nameChanged = $oldName !== $data['name'];
+        $emailChanged = strtolower($oldEmail) !== strtolower($data['email']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Naam opslaan
+        |--------------------------------------------------------------------------
+        */
+
+        $user->name = $data['name'];
+
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailadres wijzigen
+        |--------------------------------------------------------------------------
+        |
+        | Bij een nieuw e-mailadres wordt de verificatiestatus verwijderd.
+        | De klant moet het nieuwe adres opnieuw verifiëren.
+        |
+        */
+
+        if ($emailChanged) {
+            $user->email = $data['email'];
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailadres gewijzigd
+        |--------------------------------------------------------------------------
+        */
+
+        if ($emailChanged) {
+            $code = random_int(100000, 999999);
+
+            DB::table('email_verification_codes')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            DB::table('email_verification_codes')->insert([
+                'user_id' => $user->id,
+                'code' => (string) $code,
+                'expires_at' => now()->addMinutes(15),
+                'used_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            /*
+            | Verificatiecode naar het NIEUWE e-mailadres
+            */
+
+            Mail::send(
+                'emails.verification-code',
+                [
+                    'user' => $user,
+                    'code' => $code,
+                ],
+                function ($message) use ($user) {
+                    $message->to($user->email, $user->name);
+                    $message->subject(
+                        'Bevestig je nieuwe e-mailadres - SmartDesk'
+                    );
+                }
+            );
+
+            /*
+            | Bevestigingsmail naar het oude adres
+            */
+
+            if ($oldEmail !== $user->email) {
+                Mail::send(
+                    'emails.email-changed',
+                    [
+                        'user' => $user,
+                        'oldEmail' => $oldEmail,
+                        'newEmail' => $user->email,
+                    ],
+                    function ($message) use ($oldEmail, $oldName) {
+                        $message->to($oldEmail, $oldName);
+                        $message->subject(
+                            'Je SmartDesk-e-mailadres is gewijzigd'
+                        );
+                    }
+                );
+            }
+
+            return redirect()
+                ->route('verification.notice')
+                ->with(
+                    'success',
+                    'Je nieuwe e-mailadres is opgeslagen. We hebben een verificatiecode naar je nieuwe e-mailadres gestuurd.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alleen naam gewijzigd
+        |--------------------------------------------------------------------------
+        */
+
+        if ($nameChanged) {
+            Mail::send(
+                'emails.account-updated',
+                [
+                    'user' => $user,
+                    'oldName' => $oldName,
+                ],
+                function ($message) use ($user) {
+                    $message->to($user->email, $user->name);
+                    $message->subject(
+                        'Je SmartDesk-accountgegevens zijn gewijzigd'
+                    );
+                }
+            );
+
+            return redirect()
+                ->route('account')
+                ->with(
+                    'success',
+                    'Je naam is opgeslagen. We hebben een bevestiging naar je e-mailadres gestuurd.'
+                );
+        }
+
+        return redirect()
+            ->route('account')
+            ->with('success', 'Je gegevens zijn opgeslagen.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord wijzigen terwijl klant is ingelogd
+    |--------------------------------------------------------------------------
+    */
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Huidig wachtwoord controleren
+        |--------------------------------------------------------------------------
+        */
+
+        if (! Hash::check($data['current_password'], $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'Je huidige wachtwoord is niet correct.',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nieuw wachtwoord opslaan
+        |--------------------------------------------------------------------------
+        */
+
+        $user->password = Hash::make($data['password']);
+        $user->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Beveiligingsmail
+        |--------------------------------------------------------------------------
+        */
+
+        Mail::send(
+            'emails.password-changed',
+            [
+                'user' => $user,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject(
+                    'Je SmartDesk-wachtwoord is gewijzigd'
+                );
+            }
+        );
+
+        return redirect()
+            ->route('account')
+            ->with(
+                'success',
+                'Je wachtwoord is gewijzigd. We hebben een bevestiging naar je e-mailadres gestuurd.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Catalogus
+    |--------------------------------------------------------------------------
+    */
 
     public function catalog(): View
     {
@@ -155,9 +452,16 @@ class UserController extends Controller
         return view('site.catalog', compact('cars'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Auto bekijken
+    |--------------------------------------------------------------------------
+    */
+
     public function car(string $id): View
     {
         $cars = $this->catalogCars();
+
         $car = collect($cars)->firstWhere('id', (int) $id);
 
         abort_if(! $car, 404);
@@ -165,14 +469,22 @@ class UserController extends Controller
         return view('site.product', compact('car'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Winkelwagen
+    |--------------------------------------------------------------------------
+    */
+
     public function addToCart(string $id): RedirectResponse
     {
         $cars = $this->catalogCars();
+
         $car = collect($cars)->firstWhere('id', (int) $id);
 
         abort_if(! $car, 404);
 
         $cart = Session::get('cart', []);
+
         $cart[$car['id']] = [
             'id' => $car['id'],
             'brand' => $car['brand'],
@@ -184,66 +496,139 @@ class UserController extends Controller
 
         Session::put('cart', $cart);
 
-        return redirect()->route('cart')->with('success', $car['brand'].' '.$car['model'].' toegevoegd aan je wagen.');
+        return redirect()
+            ->route('cart')
+            ->with(
+                'success',
+                $car['brand'] . ' ' . $car['model'] . ' toegevoegd aan je wagen.'
+            );
     }
 
     public function cart(): View
     {
         $cart = Session::get('cart', []);
-        $total = collect($cart)->sum(fn ($item) => $item['qty'] * $item['price']);
+
+        $total = collect($cart)->sum(
+            fn ($item) => $item['qty'] * $item['price']
+        );
 
         return view('site.cart', compact('cart', 'total'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Checkout
+    |--------------------------------------------------------------------------
+    */
+
     public function checkout(): View
     {
-        abort_unless(Auth::user()->email_verified_at, 403, 'Verifieer eerst je e-mailadres voordat je bestelt.');
+        abort_unless(
+            Auth::user()->email_verified_at,
+            403,
+            'Verifieer eerst je e-mailadres voordat je bestelt.'
+        );
 
         $cart = Session::get('cart', []);
-        $total = collect($cart)->sum(fn ($item) => $item['qty'] * $item['price']);
+
+        $total = collect($cart)->sum(
+            fn ($item) => $item['qty'] * $item['price']
+        );
 
         return view('site.checkout', compact('cart', 'total'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bestelling plaatsen
+    |--------------------------------------------------------------------------
+    */
+
     public function checkoutSubmit(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        abort_unless($user->email_verified_at, 403, 'Verifieer eerst je e-mailadres voordat je bestelt.');
+
+        abort_unless(
+            $user->email_verified_at,
+            403,
+            'Verifieer eerst je e-mailadres voordat je bestelt.'
+        );
+
         $cart = Session::get('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('cart')->withErrors(['cart' => 'Je winkelwagen is leeg.']);
+            return redirect()
+                ->route('cart')
+                ->withErrors([
+                    'cart' => 'Je winkelwagen is leeg.',
+                ]);
         }
 
-        $total = collect($cart)->sum(fn ($item) => $item['qty'] * $item['price']);
-        $orderNumber = 'SD-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
-        $order = DB::table('orders')->insertGetId([
+        $total = collect($cart)->sum(
+            fn ($item) => $item['qty'] * $item['price']
+        );
+
+        $orderNumber =
+            'SD-' .
+            now()->format('Ymd') .
+            '-' .
+            strtoupper(Str::random(6));
+
+        DB::table('orders')->insert([
             'order_number' => $orderNumber,
             'user_id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'items' => json_encode(array_values($cart), JSON_THROW_ON_ERROR),
+            'items' => json_encode(
+                array_values($cart),
+                JSON_THROW_ON_ERROR
+            ),
             'total' => $total,
             'status' => 'placed',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.order-confirmation', [
-            'user' => $user,
-            'orderNumber' => $orderNumber,
-            'orderDate' => now()->format('d-m-Y H:i'),
-            'items' => $cart,
-            'total' => $total,
-        ], function ($message) use ($user) {
-            $message->to($user->email, $user->name);
-            $message->subject('Bestelbevestiging SmartDesk');
-        });
+        /*
+        |--------------------------------------------------------------------------
+        | Bestelbevestiging
+        |--------------------------------------------------------------------------
+        */
+
+        Mail::send(
+            'emails.order-confirmation',
+            [
+                'user' => $user,
+                'orderNumber' => $orderNumber,
+                'orderDate' => now()->format('d-m-Y H:i'),
+                'items' => $cart,
+                'total' => $total,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject('Bestelbevestiging SmartDesk');
+            }
+        );
 
         Session::forget('cart');
 
-        return redirect()->route('account')->with('success', 'Bestelling '.$orderNumber.' geplaatst. De bevestiging is naar '.$user->email.' gestuurd.');
+        return redirect()
+            ->route('account')
+            ->with(
+                'success',
+                'Bestelling ' .
+                $orderNumber .
+                ' geplaatst. De bevestiging is naar ' .
+                $user->email .
+                ' gestuurd.'
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | E-mail verificatie
+    |--------------------------------------------------------------------------
+    */
 
     public function verifyNotice(): View
     {
@@ -253,13 +638,24 @@ class UserController extends Controller
     public function sendVerificationCode(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
+            'email' => [
+                'required',
+                'email',
+                'exists:users,email',
+            ],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where(
+            'email',
+            $request->email
+        )->first();
+
         $code = random_int(100000, 999999);
 
-        DB::table('email_verification_codes')->where('user_id', $user->id)->delete();
+        DB::table('email_verification_codes')
+            ->where('user_id', $user->id)
+            ->delete();
+
         DB::table('email_verification_codes')->insert([
             'user_id' => $user->id,
             'code' => (string) $code,
@@ -269,42 +665,103 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.verification-code', ['user' => $user, 'code' => $code], function ($message) use ($user) {
-            $message->to($user->email, $user->name);
-            $message->subject('Je verificatiecode voor SmartDesk');
-        });
+        Mail::send(
+            'emails.verification-code',
+            [
+                'user' => $user,
+                'code' => $code,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject(
+                    'Je verificatiecode voor SmartDesk'
+                );
+            }
+        );
 
-        return redirect()->route('verification.notice')->with('success', 'Een verificatiecode is per e-mail verzonden.');
+        return redirect()
+            ->route('verification.notice')
+            ->with(
+                'success',
+                'Een verificatiecode is per e-mail verzonden.'
+            );
     }
 
     public function verifyCode(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
-            'code' => ['required', 'digits:6'],
+            'email' => [
+                'required',
+                'email',
+                'exists:users,email',
+            ],
+            'code' => [
+                'required',
+                'digits:6',
+            ],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where(
+            'email',
+            $request->email
+        )->first();
+
         $record = DB::table('email_verification_codes')
             ->where('user_id', $user->id)
             ->where('code', $request->code)
-            ->where('used_at', null)
+            ->whereNull('used_at')
             ->first();
 
         if (! $record || now()->greaterThan($record->expires_at)) {
-            return back()->withErrors(['code' => 'De code is ongeldig of verlopen.'])->onlyInput('email');
+            return back()
+                ->withErrors([
+                    'code' => 'De code is ongeldig of verlopen.',
+                ])
+                ->onlyInput('email');
         }
 
         $user->email_verified_at = now();
         $user->save();
 
-        DB::table('email_verification_codes')->where('id', $record->id)->update([
-            'used_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('email_verification_codes')
+            ->where('id', $record->id)
+            ->update([
+                'used_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return redirect()->route('login')->with('success', 'Je e-mailadres is succesvol geverifieerd.');
+        /*
+        |--------------------------------------------------------------------------
+        | Bevestiging dat e-mail succesvol is geverifieerd
+        |--------------------------------------------------------------------------
+        */
+
+        Mail::send(
+            'emails.email-verified',
+            [
+                'user' => $user,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject(
+                    'Je e-mailadres is geverifieerd - SmartDesk'
+                );
+            }
+        );
+
+        return redirect()
+            ->route('login')
+            ->with(
+                'success',
+                'Je e-mailadres is succesvol geverifieerd. Je hebt hiervan ook een bevestiging per e-mail ontvangen.'
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord vergeten
+    |--------------------------------------------------------------------------
+    */
 
     public function forgotPassword(): View
     {
@@ -314,14 +771,24 @@ class UserController extends Controller
     public function sendResetLink(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
+            'email' => [
+                'required',
+                'email',
+                'exists:users,email',
+            ],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where(
+            'email',
+            $request->email
+        )->first();
+
         $token = Str::random(60);
 
         DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $user->email],
+            [
+                'email' => $user->email,
+            ],
             [
                 'email' => $user->email,
                 'token' => $token,
@@ -329,59 +796,165 @@ class UserController extends Controller
             ]
         );
 
-        Mail::send('emails.password-reset', ['user' => $user, 'token' => $token], function ($message) use ($user) {
-            $message->to($user->email, $user->name);
-            $message->subject('Wachtwoord herstellen - SmartDesk');
-        });
+        Mail::send(
+            'emails.password-reset',
+            [
+                'user' => $user,
+                'token' => $token,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject(
+                    'Wachtwoord herstellen - SmartDesk'
+                );
+            }
+        );
 
-        return redirect()->route('password.request')->with('success', 'Een resetlink is per e-mail verzonden.');
+        return redirect()
+            ->route('password.request')
+            ->with(
+                'success',
+                'Een resetlink is per e-mail verzonden.'
+            );
     }
 
-    public function showResetForm(string $token): View|RedirectResponse
-    {
-        $record = DB::table('password_reset_tokens')->where('token', $token)->first();
+    /*
+    |--------------------------------------------------------------------------
+    | Resetformulier
+    |--------------------------------------------------------------------------
+    */
 
-        if (! $record || now()->diffInMinutes($record->created_at) > 60) {
-            return redirect()->route('password.request')->withErrors(['email' => 'Deze resetlink is verlopen of ongeldig.']);
+    public function showResetForm(
+        string $token
+    ): View|RedirectResponse {
+        $record = DB::table('password_reset_tokens')
+            ->where('token', $token)
+            ->first();
+
+        if (
+            ! $record ||
+            now()->diffInMinutes($record->created_at) > 60
+        ) {
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' =>
+                        'Deze resetlink is verlopen of ongeldig.',
+                ]);
         }
 
-        return view('site.reset-password', compact('token'));
+        return view(
+            'site.reset-password',
+            compact('token')
+        );
     }
 
-    public function resetPassword(Request $request, string $token): RedirectResponse
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord resetten
+    |--------------------------------------------------------------------------
+    */
+
+    public function resetPassword(
+        Request $request,
+        string $token
+    ): RedirectResponse {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'email' => [
+                'required',
+                'email',
+                'exists:users,email',
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
         ]);
 
-        $record = DB::table('password_reset_tokens')->where('token', $token)->where('email', $request->email)->first();
+        $record = DB::table('password_reset_tokens')
+            ->where('token', $token)
+            ->where('email', $request->email)
+            ->first();
 
-        if (! $record || now()->diffInMinutes($record->created_at) > 60) {
-            return back()->withErrors(['email' => 'Deze resetlink is verlopen of ongeldig.']);
+        if (
+            ! $record ||
+            now()->diffInMinutes($record->created_at) > 60
+        ) {
+            return back()
+                ->withErrors([
+                    'email' =>
+                        'Deze resetlink is verlopen of ongeldig.',
+                ]);
         }
 
-        $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
+        $user = User::where(
+            'email',
+            $request->email
+        )->first();
+
+        $user->password = Hash::make(
+            $request->password
+        );
+
         $user->save();
 
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->delete();
 
-        return redirect()->route('login')->with('success', 'Je wachtwoord is opnieuw ingesteld.');
+        /*
+        |--------------------------------------------------------------------------
+        | Beveiligingsmail na reset
+        |--------------------------------------------------------------------------
+        */
+
+        Mail::send(
+            'emails.password-changed',
+            [
+                'user' => $user,
+            ],
+            function ($message) use ($user) {
+                $message->to($user->email, $user->name);
+                $message->subject(
+                    'Je SmartDesk-wachtwoord is gewijzigd'
+                );
+            }
+        );
+
+        return redirect()
+            ->route('login')
+            ->with(
+                'success',
+                'Je wachtwoord is opnieuw ingesteld. We hebben een bevestiging naar je e-mailadres gestuurd.'
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin
+    |--------------------------------------------------------------------------
+    */
 
     public function admin(): View
     {
         $users = User::latest()->get();
 
-        return view('admin.dashboard', compact('users'));
+        return view(
+            'admin.dashboard',
+            compact('users')
+        );
     }
 
     public function index(): View
     {
         $users = User::latest()->get();
 
-        return view('users.index', compact('users'));
+        return view(
+            'users.index',
+            compact('users')
+        );
     }
 
     public function create(): View
@@ -392,15 +965,37 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users',
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
         ]);
 
-        $data['password'] = Hash::make($data['password']);
+        $data['password'] = Hash::make(
+            $data['password']
+        );
 
         User::create($data);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Gebruiker succesvol opgeslagen.');
+        return redirect()
+            ->route('admin.dashboard')
+            ->with(
+                'success',
+                'Gebruiker succesvol opgeslagen.'
+            );
     }
 }
