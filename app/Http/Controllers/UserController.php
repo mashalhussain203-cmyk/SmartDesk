@@ -211,6 +211,7 @@ class UserController extends Controller
 
     public function account(): View
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $orders = DB::table('orders')
@@ -229,6 +230,7 @@ class UserController extends Controller
 
     public function updateAccount(Request $request): RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $data = $request->validate([
@@ -296,7 +298,9 @@ class UserController extends Controller
             ]);
 
             /*
+            |--------------------------------------------------------------------------
             | Verificatiecode naar het NIEUWE e-mailadres
+            |--------------------------------------------------------------------------
             */
 
             Mail::send(
@@ -314,7 +318,9 @@ class UserController extends Controller
             );
 
             /*
+            |--------------------------------------------------------------------------
             | Bevestigingsmail naar het oude adres
+            |--------------------------------------------------------------------------
             */
 
             if ($oldEmail !== $user->email) {
@@ -384,6 +390,7 @@ class UserController extends Controller
 
     public function updatePassword(Request $request): RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $data = $request->validate([
@@ -546,6 +553,7 @@ class UserController extends Controller
 
     public function checkoutSubmit(Request $request): RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
 
         abort_unless(
