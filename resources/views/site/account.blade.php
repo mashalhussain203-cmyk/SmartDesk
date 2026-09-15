@@ -3,103 +3,193 @@
 @section('title', 'SmartDesk | Mijn account')
 
 @section('content')
+
 <section class="form-page">
+
     <div class="form-wrapper">
 
-        {{-- HEADER --}}
+        {{-- ========================================================= --}}
+        {{-- HEADER                                                     --}}
+        {{-- ========================================================= --}}
+
         <div style="margin-bottom: 30px;">
-            <h1 class="form-title">Mijn account</h1>
+
+            <h1 class="form-title">
+                Mijn account
+            </h1>
+
             <p class="form-sub">
-                Welkom terug, {{ $user->name }}. Beheer hier je persoonlijke gegevens,
-                beveiliging en bestellingen.
+                Welkom terug, {{ $user->name }}.
+                Beheer hier je persoonlijke gegevens, beveiliging en bestellingen.
             </p>
+
         </div>
 
-        {{-- SUCCESS MESSAGE --}}
+
+        {{-- ========================================================= --}}
+        {{-- SUCCESS MESSAGE                                             --}}
+        {{-- ========================================================= --}}
+
         @if (session('success'))
-            <div class="success" style="margin-bottom: 25px;">
-                <strong>Gelukt!</strong><br>
+
+            <div
+                class="success"
+                style="margin-bottom: 25px;"
+            >
+                <strong>
+                    Gelukt!
+                </strong>
+
+                <br>
+
                 {{ session('success') }}
             </div>
+
         @endif
 
-        {{-- ERROR MESSAGE --}}
+
+        {{-- ========================================================= --}}
+        {{-- GENERAL ERROR MESSAGE                                      --}}
+        {{-- ========================================================= --}}
+
         @if ($errors->any())
-            <div class="error" style="margin-bottom: 25px;">
-                <strong>Er ging iets mis.</strong>
+
+            <div
+                class="error"
+                style="margin-bottom: 25px;"
+            >
+
+                <strong>
+                    Er ging iets mis.
+                </strong>
 
                 <ul style="margin: 10px 0 0 20px;">
+
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+
+                        <li>
+                            {{ $error }}
+                        </li>
+
                     @endforeach
+
                 </ul>
+
             </div>
+
         @endif
 
 
-        {{-- ACCOUNT STATUS --}}
-        <div class="feature-card" style="margin-bottom: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+        {{-- ========================================================= --}}
+        {{-- ACCOUNT STATUS                                             --}}
+        {{-- ========================================================= --}}
+
+        <div
+            class="feature-card"
+            style="margin-bottom: 30px;"
+        >
+
+            <div
+                style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px;
+                    flex-wrap: wrap;
+                "
+            >
 
                 <div>
+
                     <strong style="font-size: 20px;">
                         Account actief
                     </strong>
 
                     <p style="margin: 8px 0 0;">
-                        Je SmartDesk-account is succesvol gekoppeld aan de database.
+                        Je SmartDesk-account is actief en gekoppeld aan je profiel.
                     </p>
+
                 </div>
 
+
                 <div>
+
                     @if ($user->email_verified_at)
-                        <span style="
-                            display: inline-block;
-                            padding: 8px 14px;
-                            border-radius: 20px;
-                            background: #e8f7ee;
-                            color: #187a42;
-                            font-weight: 600;
-                        ">
+
+                        <span
+                            style="
+                                display: inline-block;
+                                padding: 8px 14px;
+                                border-radius: 20px;
+                                background: #e8f7ee;
+                                color: #187a42;
+                                font-weight: 600;
+                            "
+                        >
                             ✓ E-mail geverifieerd
                         </span>
+
                     @else
-                        <span style="
-                            display: inline-block;
-                            padding: 8px 14px;
-                            border-radius: 20px;
-                            background: #fff4df;
-                            color: #9a6500;
-                            font-weight: 600;
-                        ">
+
+                        <span
+                            style="
+                                display: inline-block;
+                                padding: 8px 14px;
+                                border-radius: 20px;
+                                background: #fff4df;
+                                color: #9a6500;
+                                font-weight: 600;
+                            "
+                        >
                             ⚠ E-mail nog niet geverifieerd
                         </span>
+
                     @endif
+
                 </div>
 
             </div>
+
         </div>
 
 
-        {{-- PERSONAL INFORMATION --}}
+        {{-- ========================================================= --}}
+        {{-- PERSONAL INFORMATION                                      --}}
+        {{-- ========================================================= --}}
+
         <div style="margin-bottom: 40px;">
 
             <h2 style="margin-bottom: 8px;">
                 Persoonlijke gegevens
             </h2>
 
-            <p class="form-sub" style="margin-bottom: 25px;">
+            <p
+                class="form-sub"
+                style="margin-bottom: 25px;"
+            >
                 Pas hieronder je naam of e-mailadres aan.
             </p>
 
-            <form method="POST" action="{{ route('account.update') }}">
+
+            <form
+                method="POST"
+                action="{{ route('account.update') }}"
+            >
+
                 @csrf
+
                 @method('PUT')
+
 
                 <div class="form-row">
 
+                    {{-- NAME --}}
+
                     <div>
-                        <label for="name">Naam</label>
+
+                        <label for="name">
+                            Naam
+                        </label>
 
                         <input
                             id="name"
@@ -111,14 +201,29 @@
                         >
 
                         @error('name')
-                            <small style="color: #c62828;">
+
+                            <small
+                                style="
+                                    display: block;
+                                    margin-top: 6px;
+                                    color: #c62828;
+                                "
+                            >
                                 {{ $message }}
                             </small>
+
                         @enderror
+
                     </div>
 
+
+                    {{-- EMAIL --}}
+
                     <div>
-                        <label for="email">E-mailadres</label>
+
+                        <label for="email">
+                            E-mailadres
+                        </label>
 
                         <input
                             id="email"
@@ -130,26 +235,49 @@
                         >
 
                         @error('email')
-                            <small style="color: #c62828;">
+
+                            <small
+                                style="
+                                    display: block;
+                                    margin-top: 6px;
+                                    color: #c62828;
+                                "
+                            >
                                 {{ $message }}
                             </small>
+
                         @enderror
+
                     </div>
 
                 </div>
 
-                <div style="
-                    margin-top: 15px;
-                    padding: 15px;
-                    border-radius: 8px;
-                    background: #f5f5f5;
-                ">
+
+                {{-- EMAIL WARNING --}}
+
+                <div
+                    style="
+                        margin-top: 15px;
+                        padding: 15px;
+                        border-radius: 8px;
+                        background: #f5f5f5;
+                    "
+                >
+
                     <small>
-                        <strong>Let op:</strong>
-                        Wanneer je je e-mailadres wijzigt, wordt je nieuwe e-mailadres
-                        opnieuw geverifieerd. Je ontvangt hiervoor een nieuwe verificatiecode.
+
+                        <strong>
+                            Let op:
+                        </strong>
+
+                        wanneer je je e-mailadres wijzigt,
+                        wordt het nieuwe e-mailadres opnieuw geverifieerd.
+                        Je ontvangt hiervoor een nieuwe verificatiecode.
+
                     </small>
+
                 </div>
+
 
                 <button
                     type="submit"
@@ -158,15 +286,22 @@
                 >
                     Gegevens opslaan
                 </button>
+
             </form>
 
         </div>
 
 
-        {{-- EMAIL VERIFICATION --}}
+        {{-- ========================================================= --}}
+        {{-- EMAIL VERIFICATION                                         --}}
+        {{-- ========================================================= --}}
+
         @if (! $user->email_verified_at)
 
-            <div class="feature-card" style="margin-bottom: 40px;">
+            <div
+                class="feature-card"
+                style="margin-bottom: 40px;"
+            >
 
                 <h2 style="margin-top: 0;">
                     E-mailadres verifiëren
@@ -174,14 +309,17 @@
 
                 <p>
                     Je e-mailadres is nog niet geverifieerd.
-                    Verifieer je e-mailadres om alle functies van SmartDesk te kunnen gebruiken,
-                    waaronder het plaatsen van bestellingen.
+                    Verifieer je e-mailadres om alle functies van SmartDesk
+                    te kunnen gebruiken, waaronder het plaatsen van bestellingen.
                 </p>
 
                 <a
                     class="primary-btn"
                     href="{{ route('verification.notice') }}"
-                    style="display: inline-block; margin-top: 10px;"
+                    style="
+                        display: inline-block;
+                        margin-top: 10px;
+                    "
                 >
                     E-mailadres verifiëren
                 </a>
@@ -190,10 +328,13 @@
 
         @else
 
-            <div class="feature-card" style="
-                margin-bottom: 40px;
-                border-left: 4px solid #187a42;
-            ">
+            <div
+                class="feature-card"
+                style="
+                    margin-bottom: 40px;
+                    border-left: 4px solid #187a42;
+                "
+            >
 
                 <h2 style="margin-top: 0;">
                     E-mailadres bevestigd
@@ -201,6 +342,7 @@
 
                 <p>
                     Je e-mailadres is geverifieerd op
+
                     <strong>
                         {{ optional($user->email_verified_at)->format('d-m-Y H:i') }}
                     </strong>.
@@ -211,20 +353,35 @@
         @endif
 
 
-        {{-- PASSWORD --}}
+        {{-- ========================================================= --}}
+        {{-- PASSWORD CHANGE                                            --}}
+        {{-- ========================================================= --}}
+
         <div style="margin-bottom: 45px;">
 
             <h2 style="margin-bottom: 8px;">
                 Wachtwoord wijzigen
             </h2>
 
-            <p class="form-sub" style="margin-bottom: 25px;">
-                Gebruik een sterk wachtwoord dat je niet voor andere websites gebruikt.
+            <p
+                class="form-sub"
+                style="margin-bottom: 25px;"
+            >
+                Gebruik een sterk en uniek wachtwoord dat je niet op andere websites gebruikt.
             </p>
 
-            <form method="POST" action="{{ route('account.password') }}">
+
+            <form
+                method="POST"
+                action="{{ route('account.password.update') }}"
+            >
+
                 @csrf
+
                 @method('PUT')
+
+
+                {{-- CURRENT PASSWORD --}}
 
                 <div style="margin-bottom: 20px;">
 
@@ -241,15 +398,25 @@
                     >
 
                     @error('current_password')
-                        <small style="color: #c62828;">
+
+                        <small
+                            style="
+                                display: block;
+                                margin-top: 6px;
+                                color: #c62828;
+                            "
+                        >
                             {{ $message }}
                         </small>
+
                     @enderror
 
                 </div>
 
 
                 <div class="form-row">
+
+                    {{-- NEW PASSWORD --}}
 
                     <div>
 
@@ -266,18 +433,33 @@
                             autocomplete="new-password"
                         >
 
-                        <small style="display: block; margin-top: 6px;">
+                        <small
+                            style="
+                                display: block;
+                                margin-top: 6px;
+                            "
+                        >
                             Minimaal 8 tekens.
                         </small>
 
                         @error('password')
-                            <small style="color: #c62828;">
+
+                            <small
+                                style="
+                                    display: block;
+                                    margin-top: 6px;
+                                    color: #c62828;
+                                "
+                            >
                                 {{ $message }}
                             </small>
+
                         @enderror
 
                     </div>
 
+
+                    {{-- CONFIRM PASSWORD --}}
 
                     <div>
 
@@ -293,6 +475,20 @@
                             minlength="8"
                             autocomplete="new-password"
                         >
+
+                        @error('password_confirmation')
+
+                            <small
+                                style="
+                                    display: block;
+                                    margin-top: 6px;
+                                    color: #c62828;
+                                "
+                            >
+                                {{ $message }}
+                            </small>
+
+                        @enderror
 
                     </div>
 
@@ -312,27 +508,45 @@
         </div>
 
 
-        {{-- ACCOUNT INFORMATION --}}
-        <div class="feature-card" style="margin-bottom: 45px;">
+        {{-- ========================================================= --}}
+        {{-- ACCOUNT INFORMATION                                        --}}
+        {{-- ========================================================= --}}
+
+        <div
+            class="feature-card"
+            style="margin-bottom: 45px;"
+        >
 
             <h2 style="margin-top: 0;">
                 Accountinformatie
             </h2>
 
+
             <div class="form-row">
 
                 <div>
-                    <label>Naam</label>
+
+                    <label>
+                        Naam
+                    </label>
+
                     <p>
                         {{ $user->name }}
                     </p>
+
                 </div>
 
+
                 <div>
-                    <label>E-mailadres</label>
-                    <p>
+
+                    <label>
+                        E-mailadres
+                    </label>
+
+                    <p style="word-break: break-word;">
                         {{ $user->email }}
                     </p>
+
                 </div>
 
             </div>
@@ -341,23 +555,38 @@
             <div class="form-row">
 
                 <div>
-                    <label>E-mailstatus</label>
+
+                    <label>
+                        E-mailstatus
+                    </label>
 
                     <p>
+
                         @if ($user->email_verified_at)
+
                             Geverifieerd
+
                         @else
+
                             Nog niet geverifieerd
+
                         @endif
+
                     </p>
+
                 </div>
 
+
                 <div>
-                    <label>Account aangemaakt</label>
+
+                    <label>
+                        Account aangemaakt
+                    </label>
 
                     <p>
                         {{ optional($user->created_at)->format('d-m-Y H:i') }}
                     </p>
+
                 </div>
 
             </div>
@@ -365,14 +594,20 @@
         </div>
 
 
-        {{-- ORDERS --}}
+        {{-- ========================================================= --}}
+        {{-- ORDERS                                                     --}}
+        {{-- ========================================================= --}}
+
         <div>
 
             <h2 style="margin-bottom: 8px;">
                 Mijn bestellingen
             </h2>
 
-            <p class="form-sub" style="margin-bottom: 25px;">
+            <p
+                class="form-sub"
+                style="margin-bottom: 25px;"
+            >
                 Bekijk hier je recente SmartDesk-bestellingen en de actuele status.
             </p>
 
@@ -384,13 +619,15 @@
                     style="margin-bottom: 15px;"
                 >
 
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        gap: 20px;
-                        flex-wrap: wrap;
-                    ">
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 20px;
+                            flex-wrap: wrap;
+                        "
+                    >
 
                         <div>
 
@@ -400,6 +637,7 @@
 
                             <p style="margin: 8px 0 4px;">
                                 Totaal:
+
                                 <strong>
                                     €{{ number_format($order->total, 0, ',', '.') }}
                                 </strong>
@@ -407,7 +645,7 @@
 
                             <small>
                                 Geplaatst op:
-                                {{ optional($order->created_at)->format('d-m-Y H:i') }}
+                                {{ \Carbon\Carbon::parse($order->created_at)->format('d-m-Y H:i') }}
                             </small>
 
                         </div>
@@ -425,16 +663,21 @@
                                     'cancelled' => 'Geannuleerd',
                                 ];
 
-                                $statusLabel = $statusLabels[$order->status] ?? ucfirst($order->status);
+                                $statusLabel =
+                                    $statusLabels[$order->status]
+                                    ?? ucfirst($order->status);
                             @endphp
 
-                            <span style="
-                                display: inline-block;
-                                padding: 8px 14px;
-                                border-radius: 20px;
-                                background: #f1f1f1;
-                                font-weight: 600;
-                            ">
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    padding: 8px 14px;
+                                    border-radius: 20px;
+                                    background: #f1f1f1;
+                                    font-weight: 600;
+                                "
+                            >
                                 {{ $statusLabel }}
                             </span>
 
@@ -454,8 +697,20 @@
 
                     <p style="margin-bottom: 0;">
                         Je hebt nog geen bestelling geplaatst.
-                        Bekijk onze catalogus wanneer je klaar bent om je eerste auto te bekijken.
+                        Bekijk onze catalogus wanneer je klaar bent
+                        om je eerste auto te bekijken.
                     </p>
+
+                    <a
+                        href="{{ route('catalog') }}"
+                        class="primary-btn"
+                        style="
+                            display: inline-block;
+                            margin-top: 15px;
+                        "
+                    >
+                        Bekijk catalogus
+                    </a>
 
                 </div>
 
@@ -464,5 +719,7 @@
         </div>
 
     </div>
+
 </section>
+
 @endsection
