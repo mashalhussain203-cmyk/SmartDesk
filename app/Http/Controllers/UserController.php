@@ -1355,6 +1355,7 @@ class UserController extends Controller
                 ->withInput();
         }
 
+        $oldName = $user->name;
         $oldEmail = $user->email;
 
         $newEmail = strtolower(
@@ -1442,14 +1443,27 @@ class UserController extends Controller
                 ->delete();
         }
 
-        if (! $verificationSent) {
+        $notificationSent = $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Je accountgegevens zijn bijgewerkt door een beheerder - SmartDesk',
+            'emails.account-updated',
+            [
+                'user' => $user,
+                'oldName' => $oldName,
+                'oldEmail' => $oldEmail,
+                'emailChanged' => $emailChanged,
+            ]
+        );
+
+        if (! $notificationSent || ! $verificationSent) {
             return redirect()
                 ->route('users.index')
                 ->with(
                     'success',
                     'De gegevens van ' .
                     $user->name .
-                    ' zijn bijgewerkt, maar de verificatiemail kon niet worden verzonden.'
+                    ' zijn bijgewerkt, maar niet alle e-mails konden worden verzonden.'
                 );
         }
 
