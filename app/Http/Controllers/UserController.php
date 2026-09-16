@@ -24,7 +24,7 @@ class UserController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Auto catalogus
+    | Catalogus
     |--------------------------------------------------------------------------
     */
 
@@ -78,7 +78,6 @@ class UserController extends Controller
         ];
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Home
@@ -89,7 +88,6 @@ class UserController extends Controller
     {
         return view('site.home');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -102,7 +100,6 @@ class UserController extends Controller
         return view('site.register');
     }
 
-
     public function registerSubmit(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -111,7 +108,6 @@ class UserController extends Controller
                 'string',
                 'max:255',
             ],
-
             'email' => [
                 'required',
                 'string',
@@ -119,7 +115,6 @@ class UserController extends Controller
                 'max:255',
                 'unique:users,email',
             ],
-
             'password' => [
                 'required',
                 'string',
@@ -128,41 +123,30 @@ class UserController extends Controller
             ],
         ]);
 
-
         $user = User::create([
             'name' => trim($data['name']),
-
-            'email' => strtolower(
-                trim($data['email'])
-            ),
-
-            'password' => Hash::make(
-                $data['password']
-            ),
-
+            'email' => strtolower(trim($data['email'])),
+            'password' => Hash::make($data['password']),
             'is_admin' => false,
-
             'email_verified_at' => null,
         ]);
 
-
         $this->createVerificationCode($user);
 
-
-        $this->sendVerificationEmail(
+        $mailSent = $this->sendVerificationEmail(
             $user,
             'Je verificatiecode voor SmartDesk'
         );
 
-
         return redirect()
             ->route('verification.notice')
             ->with(
-                'success',
-                'Je account is aangemaakt. Controleer je e-mail voor de verificatiecode.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Je account is aangemaakt. Controleer je e-mail voor de verificatiecode.'
+                    : 'Je account is aangemaakt, maar de verificatiemail kon niet worden verzonden.'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -175,7 +159,6 @@ class UserController extends Controller
         return view('site.login');
     }
 
-
     public function loginSubmit(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -183,25 +166,19 @@ class UserController extends Controller
                 'required',
                 'email',
             ],
-
             'password' => [
                 'required',
                 'string',
             ],
         ]);
 
-
         $credentials['email'] = strtolower(
             trim($credentials['email'])
         );
 
-
-        $remember = $request->boolean('remember');
-
-
         if (! Auth::attempt(
             $credentials,
-            $remember
+            $request->boolean('remember')
         )) {
             return back()
                 ->withErrors([
@@ -210,36 +187,27 @@ class UserController extends Controller
                 ->onlyInput('email');
         }
 
-
         $request->session()->regenerate();
-
 
         /** @var User $user */
         $user = Auth::user();
 
-
         if ($user->is_admin) {
             return redirect()
-                ->intended(
-                    route('admin.dashboard')
-                )
+                ->intended(route('admin.dashboard'))
                 ->with(
                     'success',
                     'Welkom terug, ' . $user->name . '.'
                 );
         }
 
-
         return redirect()
-            ->intended(
-                route('home')
-            )
+            ->intended(route('home'))
             ->with(
                 'success',
                 'Je bent ingelogd.'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -252,9 +220,7 @@ class UserController extends Controller
         Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
 
         return redirect()
             ->route('home')
@@ -264,10 +230,9 @@ class UserController extends Controller
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Mijn account
+    | Account
     |--------------------------------------------------------------------------
     */
 
@@ -276,15 +241,10 @@ class UserController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-
         $orders = DB::table('orders')
-            ->where(
-                'user_id',
-                $user->id
-            )
+            ->where('user_id', $user->id)
             ->latest()
             ->get();
-
 
         return view(
             'site.account',
@@ -295,10 +255,9 @@ class UserController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Eigen accountgegevens wijzigen
+    | Eigen account wijzigen
     |--------------------------------------------------------------------------
     */
 
@@ -307,58 +266,32 @@ class UserController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-
         $data = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
-
-                Rule::unique(
-                    'users',
-                    'email'
-                )->ignore(
-                    $user->id
-                ),
+                Rule::unique('users', 'email')
+                    ->ignore($user->id),
             ],
         ]);
 
-
-        $newName = trim(
-            $data['name']
-        );
-
-
-        $newEmail = strtolower(
-            trim($data['email'])
-        );
-
+        $newName = trim($data['name']);
+        $newEmail = strtolower(trim($data['email']));
 
         $oldName = $user->name;
-
         $oldEmail = $user->email;
 
+        $nameChanged = $oldName !== $newName;
+        $emailChanged = strtolower($oldEmail) !== $newEmail;
 
-        $nameChanged =
-            $oldName !== $newName;
-
-
-        $emailChanged =
-            strtolower($oldEmail) !==
-            $newEmail;
-
-
-        if (
-            ! $nameChanged &&
-            ! $emailChanged
-        ) {
+        if (! $nameChanged && ! $emailChanged) {
             return redirect()
                 ->route('account')
                 ->with(
@@ -367,45 +300,28 @@ class UserController extends Controller
                 );
         }
 
-
         $user->name = $newName;
-
 
         if ($emailChanged) {
             $user->email = $newEmail;
-
             $user->email_verified_at = null;
         }
 
-
         $user->save();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | E-mailadres gewijzigd
-        |--------------------------------------------------------------------------
-        */
-
         if ($emailChanged) {
-            $this->createVerificationCode(
-                $user
-            );
+            DB::table('password_reset_tokens')
+                ->where('email', $oldEmail)
+                ->delete();
 
+            $this->createVerificationCode($user);
 
-            $this->sendVerificationEmail(
+            $verificationSent = $this->sendVerificationEmail(
                 $user,
                 'Bevestig je nieuwe e-mailadres - SmartDesk'
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Beveiligingsmail naar oude adres
-            |--------------------------------------------------------------------------
-            */
-
-            $this->sendEmailSafely(
+            $oldAddressMailSent = $this->sendEmailSafely(
                 $oldEmail,
                 $oldName,
                 'Je SmartDesk-e-mailadres is gewijzigd',
@@ -417,14 +333,7 @@ class UserController extends Controller
                 ]
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Accountwijziging naar nieuwe adres
-            |--------------------------------------------------------------------------
-            */
-
-            $this->sendEmailSafely(
+            $accountMailSent = $this->sendEmailSafely(
                 $user->email,
                 $user->name,
                 'Je SmartDesk-accountgegevens zijn gewijzigd',
@@ -437,39 +346,19 @@ class UserController extends Controller
                 ]
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Oude resetlinks ongeldig maken
-            |--------------------------------------------------------------------------
-            */
-
-            DB::table(
-                'password_reset_tokens'
-            )
-                ->where(
-                    'email',
-                    $oldEmail
-                )
-                ->delete();
-
-
             return redirect()
                 ->route('verification.notice')
                 ->with(
-                    'success',
-                    'Je nieuwe e-mailadres is opgeslagen. Controleer het nieuwe e-mailadres voor de verificatiecode.'
+                    ($verificationSent && $oldAddressMailSent && $accountMailSent)
+                        ? 'success'
+                        : 'error',
+                    ($verificationSent && $oldAddressMailSent && $accountMailSent)
+                        ? 'Je nieuwe e-mailadres is opgeslagen. Controleer je nieuwe e-mailadres voor de verificatiecode.'
+                        : 'Je gegevens zijn opgeslagen, maar één of meer e-mails konden niet worden verzonden.'
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Alleen naam gewijzigd
-        |--------------------------------------------------------------------------
-        */
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-accountgegevens zijn gewijzigd',
@@ -482,15 +371,15 @@ class UserController extends Controller
             ]
         );
 
-
         return redirect()
             ->route('account')
             ->with(
-                'success',
-                'Je accountgegevens zijn opgeslagen.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Je accountgegevens zijn opgeslagen.'
+                    : 'Je accountgegevens zijn opgeslagen, maar de bevestigingsmail kon niet worden verzonden.'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -503,13 +392,11 @@ class UserController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-
         $data = $request->validate([
             'current_password' => [
                 'required',
                 'string',
             ],
-
             'password' => [
                 'required',
                 'string',
@@ -517,7 +404,6 @@ class UserController extends Controller
                 'confirmed',
             ],
         ]);
-
 
         if (! Hash::check(
             $data['current_password'],
@@ -530,7 +416,6 @@ class UserController extends Controller
                 ]);
         }
 
-
         if (Hash::check(
             $data['password'],
             $user->password
@@ -542,16 +427,13 @@ class UserController extends Controller
                 ]);
         }
 
-
         $user->password = Hash::make(
             $data['password']
         );
 
-
         $user->save();
 
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-wachtwoord is gewijzigd',
@@ -561,15 +443,15 @@ class UserController extends Controller
             ]
         );
 
-
         return redirect()
             ->route('account')
             ->with(
-                'success',
-                'Je wachtwoord is gewijzigd. We hebben hiervan een bevestiging naar je e-mailadres gestuurd.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Je wachtwoord is gewijzigd. We hebben hiervan een bevestiging naar je e-mailadres gestuurd.'
+                    : 'Je wachtwoord is gewijzigd, maar de bevestigingsmail kon niet worden verzonden.'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -581,19 +463,11 @@ class UserController extends Controller
     {
         $cars = $this->catalogCars();
 
-
         return view(
             'site.catalog',
             compact('cars')
         );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Auto bekijken
-    |--------------------------------------------------------------------------
-    */
 
     public function car(string $id): View
     {
@@ -604,12 +478,7 @@ class UserController extends Controller
             (int) $id
         );
 
-
-        abort_if(
-            ! $car,
-            404
-        );
-
+        abort_if(! $car, 404);
 
         return view(
             'site.product',
@@ -617,10 +486,9 @@ class UserController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Winkelwagen toevoegen
+    | Winkelwagen
     |--------------------------------------------------------------------------
     */
 
@@ -633,18 +501,12 @@ class UserController extends Controller
             (int) $id
         );
 
-
-        abort_if(
-            ! $car,
-            404
-        );
-
+        abort_if(! $car, 404);
 
         $cart = Session::get(
             'cart',
             []
         );
-
 
         $cart[$car['id']] = [
             'id' => $car['id'],
@@ -652,17 +514,13 @@ class UserController extends Controller
             'model' => $car['model'],
             'price' => $car['price'],
             'image' => $car['image'],
-
-            'qty' =>
-                ($cart[$car['id']]['qty'] ?? 0) + 1,
+            'qty' => ($cart[$car['id']]['qty'] ?? 0) + 1,
         ];
-
 
         Session::put(
             'cart',
             $cart
         );
-
 
         return redirect()
             ->route('cart')
@@ -675,13 +533,6 @@ class UserController extends Controller
             );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Winkelwagen
-    |--------------------------------------------------------------------------
-    */
-
     public function cart(): View
     {
         $cart = Session::get(
@@ -689,15 +540,10 @@ class UserController extends Controller
             []
         );
 
-
-        $total = collect(
-            $cart
-        )->sum(
+        $total = collect($cart)->sum(
             fn ($item) =>
-                $item['qty'] *
-                $item['price']
+                $item['qty'] * $item['price']
         );
-
 
         return view(
             'site.cart',
@@ -707,7 +553,6 @@ class UserController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -720,28 +565,21 @@ class UserController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-
         abort_unless(
             $user->email_verified_at,
             403,
             'Verifieer eerst je e-mailadres voordat je bestelt.'
         );
 
-
         $cart = Session::get(
             'cart',
             []
         );
 
-
-        $total = collect(
-            $cart
-        )->sum(
+        $total = collect($cart)->sum(
             fn ($item) =>
-                $item['qty'] *
-                $item['price']
+                $item['qty'] * $item['price']
         );
-
 
         return view(
             'site.checkout',
@@ -752,18 +590,10 @@ class UserController extends Controller
         );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Bestelling plaatsen
-    |--------------------------------------------------------------------------
-    */
-
     public function checkoutSubmit(Request $request): RedirectResponse
     {
         /** @var User $user */
         $user = Auth::user();
-
 
         abort_unless(
             $user->email_verified_at,
@@ -771,31 +601,23 @@ class UserController extends Controller
             'Verifieer eerst je e-mailadres voordat je bestelt.'
         );
 
-
         $cart = Session::get(
             'cart',
             []
         );
 
-
         if (empty($cart)) {
             return redirect()
                 ->route('cart')
                 ->withErrors([
-                    'cart' =>
-                        'Je winkelwagen is leeg.',
+                    'cart' => 'Je winkelwagen is leeg.',
                 ]);
         }
 
-
-        $total = collect(
-            $cart
-        )->sum(
+        $total = collect($cart)->sum(
             fn ($item) =>
-                $item['qty'] *
-                $item['price']
+                $item['qty'] * $item['price']
         );
-
 
         $orderNumber =
             'SD-' .
@@ -805,32 +627,22 @@ class UserController extends Controller
                 Str::random(6)
             );
 
-
         DB::table('orders')->insert([
             'order_number' => $orderNumber,
-
             'user_id' => $user->id,
-
             'name' => $user->name,
-
             'email' => $user->email,
-
             'items' => json_encode(
                 array_values($cart),
                 JSON_THROW_ON_ERROR
             ),
-
             'total' => $total,
-
             'status' => 'placed',
-
             'created_at' => now(),
-
             'updated_at' => now(),
         ]);
 
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Bestelbevestiging ' . $orderNumber,
@@ -844,26 +656,21 @@ class UserController extends Controller
             ]
         );
 
-
         Session::forget('cart');
-
 
         return redirect()
             ->route('account')
             ->with(
-                'success',
-                'Bestelling ' .
-                $orderNumber .
-                ' is geplaatst. De bevestiging is naar ' .
-                $user->email .
-                ' gestuurd.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Bestelling ' . $orderNumber . ' is geplaatst. De bevestiging is naar ' . $user->email . ' gestuurd.'
+                    : 'Bestelling ' . $orderNumber . ' is geplaatst, maar de bevestigingsmail kon niet worden verzonden.'
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Verificatiepagina
+    | E-mailverificatie
     |--------------------------------------------------------------------------
     */
 
@@ -871,13 +678,6 @@ class UserController extends Controller
     {
         return view('site.verify');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Nieuwe verificatiecode sturen
-    |--------------------------------------------------------------------------
-    */
 
     public function sendVerificationCode(
         Request $request
@@ -890,17 +690,14 @@ class UserController extends Controller
             ],
         ]);
 
-
         $email = strtolower(
             trim($data['email'])
         );
-
 
         $user = User::where(
             'email',
             $email
         )->firstOrFail();
-
 
         if ($user->email_verified_at) {
             return redirect()
@@ -911,32 +708,24 @@ class UserController extends Controller
                 );
         }
 
-
         $this->createVerificationCode(
             $user
         );
 
-
-        $this->sendVerificationEmail(
+        $mailSent = $this->sendVerificationEmail(
             $user,
             'Je verificatiecode voor SmartDesk'
         );
 
-
         return redirect()
             ->route('verification.notice')
             ->with(
-                'success',
-                'Een nieuwe verificatiecode is per e-mail verzonden.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Een nieuwe verificatiecode is per e-mail verzonden.'
+                    : 'Er is een nieuwe verificatiecode aangemaakt, maar de e-mail kon niet worden verzonden.'
             );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Verificatiecode controleren
-    |--------------------------------------------------------------------------
-    */
 
     public function verifyCode(
         Request $request
@@ -947,29 +736,24 @@ class UserController extends Controller
                 'email',
                 'exists:users,email',
             ],
-
             'code' => [
                 'required',
                 'digits:6',
             ],
         ]);
 
-
         $email = strtolower(
             trim($data['email'])
         );
-
 
         $code = trim(
             $data['code']
         );
 
-
         $user = User::where(
             'email',
             $email
         )->firstOrFail();
-
 
         if ($user->email_verified_at) {
             return redirect()
@@ -980,26 +764,14 @@ class UserController extends Controller
                 );
         }
 
-
         $record = DB::table(
             'email_verification_codes'
         )
-            ->where(
-                'user_id',
-                $user->id
-            )
-            ->where(
-                'code',
-                $code
-            )
-            ->whereNull(
-                'used_at'
-            )
-            ->latest(
-                'created_at'
-            )
+            ->where('user_id', $user->id)
+            ->where('code', $code)
+            ->whereNull('used_at')
+            ->latest('created_at')
             ->first();
-
 
         if (
             ! $record ||
@@ -1017,19 +789,8 @@ class UserController extends Controller
                 ->withInput();
         }
 
-
-        $user->email_verified_at =
-            now();
-
-
+        $user->email_verified_at = now();
         $user->save();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Alle openstaande verificatiecodes opruimen
-        |--------------------------------------------------------------------------
-        */
 
         DB::table(
             'email_verification_codes'
@@ -1040,8 +801,7 @@ class UserController extends Controller
             )
             ->delete();
 
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je e-mailadres is geverifieerd - SmartDesk',
@@ -1051,15 +811,15 @@ class UserController extends Controller
             ]
         );
 
-
         return redirect()
             ->route('login')
             ->with(
-                'success',
-                'Je e-mailadres is succesvol geverifieerd.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Je e-mailadres is succesvol geverifieerd.'
+                    : 'Je e-mailadres is geverifieerd, maar de bevestigingsmail kon niet worden verzonden.'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1074,13 +834,6 @@ class UserController extends Controller
         );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Resetlink versturen
-    |--------------------------------------------------------------------------
-    */
-
     public function sendResetLink(
         Request $request
     ): RedirectResponse {
@@ -1092,41 +845,33 @@ class UserController extends Controller
             ],
         ]);
 
-
         $email = strtolower(
             trim($data['email'])
         );
-
 
         $user = User::where(
             'email',
             $email
         )->firstOrFail();
 
-
         $token = Str::random(64);
-
 
         DB::table(
             'password_reset_tokens'
         )->updateOrInsert(
             [
-                'email' =>
-                    $user->email,
+                'email' => $user->email,
             ],
             [
                 'token' => hash(
                     'sha256',
                     $token
                 ),
-
-                'created_at' =>
-                    now(),
+                'created_at' => now(),
             ]
         );
 
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Wachtwoord herstellen - SmartDesk',
@@ -1137,21 +882,15 @@ class UserController extends Controller
             ]
         );
 
-
         return redirect()
             ->route('password.request')
             ->with(
-                'success',
-                'Een resetlink is per e-mail verzonden.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Een resetlink is per e-mail verzonden.'
+                    : 'De resetlink is aangemaakt, maar de e-mail kon niet worden verzonden.'
             );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Resetformulier
-    |--------------------------------------------------------------------------
-    */
 
     public function showResetForm(
         string $token
@@ -1161,7 +900,6 @@ class UserController extends Controller
             $token
         );
 
-
         $record = DB::table(
             'password_reset_tokens'
         )
@@ -1170,7 +908,6 @@ class UserController extends Controller
                 $hashedToken
             )
             ->first();
-
 
         if (
             ! $record ||
@@ -1188,19 +925,11 @@ class UserController extends Controller
                 ]);
         }
 
-
         return view(
             'site.reset-password',
             compact('token')
         );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Wachtwoord resetten
-    |--------------------------------------------------------------------------
-    */
 
     public function resetPassword(
         Request $request,
@@ -1212,7 +941,6 @@ class UserController extends Controller
                 'email',
                 'exists:users,email',
             ],
-
             'password' => [
                 'required',
                 'string',
@@ -1221,31 +949,21 @@ class UserController extends Controller
             ],
         ]);
 
-
         $email = strtolower(
             trim($data['email'])
         );
-
 
         $hashedToken = hash(
             'sha256',
             $token
         );
 
-
         $record = DB::table(
             'password_reset_tokens'
         )
-            ->where(
-                'email',
-                $email
-            )
-            ->where(
-                'token',
-                $hashedToken
-            )
+            ->where('email', $email)
+            ->where('token', $hashedToken)
             ->first();
-
 
         if (
             ! $record ||
@@ -1263,12 +981,10 @@ class UserController extends Controller
                 ->withInput();
         }
 
-
         $user = User::where(
             'email',
             $email
         )->firstOrFail();
-
 
         if (Hash::check(
             $data['password'],
@@ -1281,14 +997,11 @@ class UserController extends Controller
                 ]);
         }
 
-
         $user->password = Hash::make(
             $data['password']
         );
 
-
         $user->save();
-
 
         DB::table(
             'password_reset_tokens'
@@ -1299,8 +1012,7 @@ class UserController extends Controller
             )
             ->delete();
 
-
-        $this->sendEmailSafely(
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-wachtwoord is gewijzigd',
@@ -1310,24 +1022,15 @@ class UserController extends Controller
             ]
         );
 
-
         return redirect()
             ->route('login')
             ->with(
-                'success',
-                'Je wachtwoord is opnieuw ingesteld.'
+                $mailSent ? 'success' : 'error',
+                $mailSent
+                    ? 'Je wachtwoord is opnieuw ingesteld.'
+                    : 'Je wachtwoord is opnieuw ingesteld, maar de bevestigingsmail kon niet worden verzonden.'
             );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    |--------------------------------------------------------------------------
-    | ADMIN
-    |--------------------------------------------------------------------------
-    |--------------------------------------------------------------------------
-    */
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1339,37 +1042,20 @@ class UserController extends Controller
     {
         $this->ensureAdmin();
 
+        $users = User::latest()->get();
 
-        $users = User::latest()
-            ->get();
+        $totalUsers = $users->count();
 
+        $verifiedUsers = $users
+            ->whereNotNull('email_verified_at')
+            ->count();
 
-        $totalUsers =
-            $users->count();
+        $adminUsers = $users
+            ->where('is_admin', true)
+            ->count();
 
-
-        $verifiedUsers =
-            $users
-                ->whereNotNull(
-                    'email_verified_at'
-                )
-                ->count();
-
-
-        $adminUsers =
-            $users
-                ->where(
-                    'is_admin',
-                    true
-                )
-                ->count();
-
-
-        $totalOrders =
-            DB::table(
-                'orders'
-            )->count();
-
+        $totalOrders = DB::table('orders')
+            ->count();
 
         return view(
             'admin.dashboard',
@@ -1383,10 +1069,9 @@ class UserController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Alle gebruikers
+    | Admin gebruikers
     |--------------------------------------------------------------------------
     */
 
@@ -1394,10 +1079,8 @@ class UserController extends Controller
     {
         $this->ensureAdmin();
 
-
         $users = User::latest()
             ->get();
-
 
         return view(
             'users.index',
@@ -1405,27 +1088,18 @@ class UserController extends Controller
         );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Nieuwe gebruiker formulier
-    |--------------------------------------------------------------------------
-    */
-
     public function create(): View
     {
         $this->ensureAdmin();
-
 
         return view(
             'users.create'
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Gebruiker door admin aanmaken
+    | Admin gebruiker aanmaken
     |--------------------------------------------------------------------------
     */
 
@@ -1434,14 +1108,12 @@ class UserController extends Controller
     ): RedirectResponse {
         $this->ensureAdmin();
 
-
         $data = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'email' => [
                 'required',
                 'string',
@@ -1449,63 +1121,40 @@ class UserController extends Controller
                 'max:255',
                 'unique:users,email',
             ],
-
             'password' => [
                 'required',
                 'string',
                 'min:8',
                 'confirmed',
             ],
-
             'is_admin' => [
                 'nullable',
                 'boolean',
             ],
-
             'email_verified' => [
                 'nullable',
                 'boolean',
             ],
         ]);
 
-
         $user = User::create([
-            'name' => trim(
-                $data['name']
-            ),
-
-            'email' => strtolower(
-                trim($data['email'])
-            ),
-
-            'password' => Hash::make(
-                $data['password']
-            ),
-
-            'is_admin' =>
-                $request->boolean(
-                    'is_admin'
-                ),
-
+            'name' => trim($data['name']),
+            'email' => strtolower(trim($data['email'])),
+            'password' => Hash::make($data['password']),
+            'is_admin' => $request->boolean('is_admin'),
             'email_verified_at' =>
-                $request->boolean(
-                    'email_verified'
-                )
+                $request->boolean('email_verified')
                     ? now()
                     : null,
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | Account-aanmaakmail
+        | Altijd account-aanmaakmail
         |--------------------------------------------------------------------------
-        |
-        | Wachtwoord wordt bewust NIET in de e-mail gezet.
-        |
         */
 
-        $this->sendEmailSafely(
+        $accountMailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-account is aangemaakt',
@@ -1518,25 +1167,35 @@ class UserController extends Controller
             ]
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Niet geverifieerd?
+        | Indien niet geverifieerd ook verificatiecode sturen
         |--------------------------------------------------------------------------
         */
+
+        $verificationMailSent = true;
 
         if (! $user->email_verified_at) {
             $this->createVerificationCode(
                 $user
             );
 
-
-            $this->sendVerificationEmail(
+            $verificationMailSent = $this->sendVerificationEmail(
                 $user,
                 'Verifieer je SmartDesk-account'
             );
         }
 
+        if (! $accountMailSent || ! $verificationMailSent) {
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'error',
+                    'Gebruiker ' .
+                    $user->name .
+                    ' is aangemaakt, maar één of meer e-mails konden niet worden verzonden.'
+                );
+        }
 
         return redirect()
             ->route('users.index')
@@ -1544,14 +1203,13 @@ class UserController extends Controller
                 'success',
                 'Gebruiker ' .
                 $user->name .
-                ' is succesvol aangemaakt.'
+                ' is aangemaakt en per e-mail geïnformeerd.'
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Gebruiker bewerken
+    | Admin gebruiker bewerken
     |--------------------------------------------------------------------------
     */
 
@@ -1559,17 +1217,15 @@ class UserController extends Controller
     {
         $this->ensureAdmin();
 
-
         return view(
             'users.edit',
             compact('user')
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Gebruiker door admin bijwerken
+    | Admin gebruiker bijwerken
     |--------------------------------------------------------------------------
     */
 
@@ -1579,58 +1235,45 @@ class UserController extends Controller
     ): RedirectResponse {
         $this->ensureAdmin();
 
-
         $data = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
-
-                Rule::unique(
-                    'users',
-                    'email'
-                )->ignore(
-                    $user->id
-                ),
+                Rule::unique('users', 'email')
+                    ->ignore($user->id),
             ],
-
             'password' => [
                 'nullable',
                 'string',
                 'min:8',
                 'confirmed',
             ],
-
             'is_admin' => [
                 'nullable',
                 'boolean',
             ],
-
             'email_verified' => [
                 'nullable',
                 'boolean',
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | Eigen administratorrechten beschermen
+        | Eigen adminrechten beschermen
         |--------------------------------------------------------------------------
         */
 
         if (
             Auth::id() === $user->id &&
-            ! $request->boolean(
-                'is_admin'
-            )
+            ! $request->boolean('is_admin')
         ) {
             return back()
                 ->withErrors([
@@ -1640,94 +1283,41 @@ class UserController extends Controller
                 ->withInput();
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Oude waarden bewaren
-        |--------------------------------------------------------------------------
-        */
-
-        $oldName =
-            $user->name;
-
-
-        $oldEmail =
-            $user->email;
-
-
-        $oldIsAdmin =
-            (bool) $user->is_admin;
-
-
-        $oldVerified =
-            $user->email_verified_at !== null;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe waarden
-        |--------------------------------------------------------------------------
-        */
+        $oldName = $user->name;
+        $oldEmail = $user->email;
+        $oldIsAdmin = (bool) $user->is_admin;
+        $oldVerified = $user->email_verified_at !== null;
 
         $newName = trim(
             $data['name']
         );
 
-
         $newEmail = strtolower(
             trim($data['email'])
         );
 
+        $newIsAdmin = $request->boolean(
+            'is_admin'
+        );
 
-        $newIsAdmin =
-            $request->boolean(
-                'is_admin'
-            );
-
-
-        $newVerified =
-            $request->boolean(
-                'email_verified'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Wijzigingen bepalen
-        |--------------------------------------------------------------------------
-        */
+        $newVerified = $request->boolean(
+            'email_verified'
+        );
 
         $nameChanged =
-            $oldName !==
-            $newName;
-
+            $oldName !== $newName;
 
         $emailChanged =
-            strtolower($oldEmail) !==
-            $newEmail;
-
+            strtolower($oldEmail) !== $newEmail;
 
         $adminChanged =
-            $oldIsAdmin !==
-            $newIsAdmin;
-
+            $oldIsAdmin !== $newIsAdmin;
 
         $verifiedChanged =
-            $oldVerified !==
-            $newVerified;
-
+            $oldVerified !== $newVerified;
 
         $passwordChanged =
-            filled(
-                $data['password'] ?? null
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Geen wijzigingen
-        |--------------------------------------------------------------------------
-        */
+            filled($data['password'] ?? null);
 
         if (
             ! $nameChanged &&
@@ -1744,13 +1334,6 @@ class UserController extends Controller
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuw wachtwoord controleren vóór opslaan
-        |--------------------------------------------------------------------------
-        */
-
         if (
             $passwordChanged &&
             Hash::check(
@@ -1766,89 +1349,42 @@ class UserController extends Controller
                 ->withInput();
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Basisgegevens opslaan
-        |--------------------------------------------------------------------------
-        */
-
-        $user->name =
-            $newName;
-
-
-        $user->email =
-            $newEmail;
-
-
-        $user->is_admin =
-            $newIsAdmin;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Verificatiestatus
-        |--------------------------------------------------------------------------
-        */
+        $user->name = $newName;
+        $user->email = $newEmail;
+        $user->is_admin = $newIsAdmin;
 
         if ($newVerified) {
             $user->email_verified_at =
-                $user->email_verified_at
-                ?? now();
+                $user->email_verified_at ?? now();
         } else {
-            $user->email_verified_at =
-                null;
+            $user->email_verified_at = null;
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Wachtwoord
-        |--------------------------------------------------------------------------
-        */
 
         if ($passwordChanged) {
-            $user->password =
-                Hash::make(
-                    $data['password']
-                );
+            $user->password = Hash::make(
+                $data['password']
+            );
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuw e-mailadres blijft ongeverifieerd tenzij admin dit expliciet
-        | als geverifieerd heeft aangevinkt.
-        |--------------------------------------------------------------------------
-        */
 
         if (
             $emailChanged &&
             ! $newVerified
         ) {
-            $user->email_verified_at =
-                null;
+            $user->email_verified_at = null;
         }
 
-
         $user->save();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Werkelijke nieuwe verificatiestatus
-        |--------------------------------------------------------------------------
-        */
 
         $actualNewVerified =
             $user->email_verified_at !== null;
 
-
         /*
         |--------------------------------------------------------------------------
-        | Verificatiecodes beheren
+        | Verificatiecodes
         |--------------------------------------------------------------------------
         */
+
+        $verificationMailSent = true;
 
         if ($actualNewVerified) {
             DB::table(
@@ -1867,17 +1403,15 @@ class UserController extends Controller
                 $user
             );
 
-
-            $this->sendVerificationEmail(
+            $verificationMailSent = $this->sendVerificationEmail(
                 $user,
                 'Verifieer je e-mailadres - SmartDesk'
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Resetlinks verwijderen als e-mailadres verandert
+        | Oude resetlinks verwijderen
         |--------------------------------------------------------------------------
         */
 
@@ -1892,66 +1426,42 @@ class UserController extends Controller
                 ->delete();
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Informatie voor wijzigingsmail
+        | Admin wijzigingsmail
         |--------------------------------------------------------------------------
         */
 
         $mailData = [
-            'user' =>
-                $user,
+            'user' => $user,
 
-            'oldName' =>
-                $oldName,
+            'oldName' => $oldName,
+            'newName' => $newName,
 
-            'newName' =>
-                $newName,
+            'oldEmail' => $oldEmail,
+            'newEmail' => $newEmail,
 
-            'oldEmail' =>
-                $oldEmail,
+            'nameChanged' => $nameChanged,
+            'emailChanged' => $emailChanged,
 
-            'newEmail' =>
-                $newEmail,
+            'adminChanged' => $adminChanged,
+            'oldIsAdmin' => $oldIsAdmin,
+            'newIsAdmin' => $newIsAdmin,
 
-            'nameChanged' =>
-                $nameChanged,
+            'verifiedChanged' => $verifiedChanged,
+            'oldVerified' => $oldVerified,
+            'newVerified' => $actualNewVerified,
 
-            'emailChanged' =>
-                $emailChanged,
+            'passwordChanged' => $passwordChanged,
 
-            'adminChanged' =>
-                $adminChanged,
-
-            'oldIsAdmin' =>
-                $oldIsAdmin,
-
-            'newIsAdmin' =>
-                $newIsAdmin,
-
-            'verifiedChanged' =>
-                $verifiedChanged,
-
-            'oldVerified' =>
-                $oldVerified,
-
-            'newVerified' =>
-                $actualNewVerified,
-
-            'passwordChanged' =>
-                $passwordChanged,
-
-            'changedAt' =>
-                now()->format(
-                    'd-m-Y H:i'
-                ),
+            'changedAt' => now()->format(
+                'd-m-Y H:i'
+            ),
         ];
-
 
         /*
         |--------------------------------------------------------------------------
-        | Overzichtsmail naar huidige / nieuwe e-mailadres
+        | Mail naar huidige / nieuwe adres
         |--------------------------------------------------------------------------
         */
 
@@ -1963,10 +1473,9 @@ class UserController extends Controller
             $mailData
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Bij e-mailadreswijziging ook oude adres waarschuwen
+        | Bij gewijzigd e-mailadres ook oude adres waarschuwen
         |--------------------------------------------------------------------------
         */
 
@@ -1982,18 +1491,41 @@ class UserController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Extra wachtwoordbeveiligingsmail
+        |--------------------------------------------------------------------------
+        */
 
-        if (! $primaryMailSent || ! $oldAddressMailSent) {
+        $passwordMailSent = true;
+
+        if ($passwordChanged) {
+            $passwordMailSent = $this->sendEmailSafely(
+                $user->email,
+                $user->name,
+                'Je SmartDesk-wachtwoord is gewijzigd',
+                'emails.password-changed',
+                [
+                    'user' => $user,
+                ]
+            );
+        }
+
+        if (
+            ! $verificationMailSent ||
+            ! $primaryMailSent ||
+            ! $oldAddressMailSent ||
+            ! $passwordMailSent
+        ) {
             return redirect()
                 ->route('users.index')
                 ->with(
                     'error',
                     'De gegevens van ' .
                     $user->name .
-                    ' zijn wel opgeslagen, maar één of meer e-mails konden niet worden verzonden.'
+                    ' zijn opgeslagen, maar één of meer e-mails konden niet worden verzonden.'
                 );
         }
-
 
         return redirect()
             ->route('users.index')
@@ -2005,10 +1537,9 @@ class UserController extends Controller
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Gebruiker verwijderen
+    | Admin gebruiker verwijderen
     |--------------------------------------------------------------------------
     */
 
@@ -2017,16 +1548,8 @@ class UserController extends Controller
     ): RedirectResponse {
         $this->ensureAdmin();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Eigen account beschermen
-        |--------------------------------------------------------------------------
-        */
-
         if (
-            Auth::id() ===
-            $user->id
+            Auth::id() === $user->id
         ) {
             return redirect()
                 ->route('users.index')
@@ -2036,34 +1559,13 @@ class UserController extends Controller
                 );
         }
 
+        $deletedUserName = $user->name;
+        $deletedUserEmail = $user->email;
+        $wasAdmin = (bool) $user->is_admin;
 
         /*
         |--------------------------------------------------------------------------
-        | Gegevens bewaren voor e-mail
-        |--------------------------------------------------------------------------
-        */
-
-        $deletedUserName =
-            $user->name;
-
-
-        $deletedUserEmail =
-            $user->email;
-
-
-        $wasAdmin =
-            (bool) $user->is_admin;
-
-
-        $deletedAt =
-            now()->format(
-                'd-m-Y H:i'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Gebruiker eerst informeren
+        | Gebruiker vóór verwijderen informeren
         |--------------------------------------------------------------------------
         */
 
@@ -2077,16 +1579,11 @@ class UserController extends Controller
                 'name' => $deletedUserName,
                 'email' => $deletedUserEmail,
                 'wasAdmin' => $wasAdmin,
-                'deletedAt' => $deletedAt,
+                'deletedAt' => now()->format(
+                    'd-m-Y H:i'
+                ),
             ]
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Verificatiecodes verwijderen
-        |--------------------------------------------------------------------------
-        */
 
         DB::table(
             'email_verification_codes'
@@ -2097,13 +1594,6 @@ class UserController extends Controller
             )
             ->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Wachtwoordresetlinks verwijderen
-        |--------------------------------------------------------------------------
-        */
-
         DB::table(
             'password_reset_tokens'
         )
@@ -2113,16 +1603,13 @@ class UserController extends Controller
             )
             ->delete();
 
-
         /*
         |--------------------------------------------------------------------------
-        | Bestellingen worden bewust NIET verwijderd.
+        | Bestellingen worden bewust behouden
         |--------------------------------------------------------------------------
         */
 
-
         $user->delete();
-
 
         if (! $deletionMailSent) {
             return redirect()
@@ -2135,7 +1622,6 @@ class UserController extends Controller
                 );
         }
 
-
         return redirect()
             ->route('users.index')
             ->with(
@@ -2146,19 +1632,9 @@ class UserController extends Controller
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    |--------------------------------------------------------------------------
-    | PRIVATE HELPERS
-    |--------------------------------------------------------------------------
-    |--------------------------------------------------------------------------
-    */
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Administrator controleren
+    | Admin controleren
     |--------------------------------------------------------------------------
     */
 
@@ -2166,16 +1642,15 @@ class UserController extends Controller
     {
         abort_unless(
             Auth::check() &&
-            Auth::user()->is_admin,
+            (bool) Auth::user()->is_admin,
             403,
             'Je hebt geen toestemming om deze beheerpagina te bekijken.'
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Verificatiecode aanmaken
+    | Verificatiecode maken
     |--------------------------------------------------------------------------
     */
 
@@ -2187,13 +1662,6 @@ class UserController extends Controller
             999999
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Oude codes verwijderen
-        |--------------------------------------------------------------------------
-        */
-
         DB::table(
             'email_verification_codes'
         )
@@ -2203,45 +1671,25 @@ class UserController extends Controller
             )
             ->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe code opslaan
-        |--------------------------------------------------------------------------
-        */
-
         DB::table(
             'email_verification_codes'
         )->insert([
-            'user_id' =>
-                $user->id,
-
-            'code' =>
-                (string) $code,
-
-            'expires_at' =>
-                now()->addMinutes(15),
-
-            'used_at' =>
-                null,
-
-            'created_at' =>
-                now(),
-
-            'updated_at' =>
-                now(),
+            'user_id' => $user->id,
+            'code' => (string) $code,
+            'expires_at' => now()->addMinutes(15),
+            'used_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Brevo e-mail veilig versturen
+    | Brevo veilig versturen
     |--------------------------------------------------------------------------
     |
-    | Een fout bij Brevo mag nooit een reeds opgeslagen databasewijziging
-    | veranderen in een 500 Server Error. De exception wordt wel gelogd via
-    | Laravel zodat je hem in Railway Deploy Logs kunt terugvinden.
+    | Mailproblemen mogen opgeslagen wijzigingen niet veranderen in een
+    | HTTP 500. De fout wordt wel gelogd via Laravel.
     |
     */
 
@@ -2269,17 +1717,16 @@ class UserController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Verificatiemail versturen
+    | Verificatiemail
     |--------------------------------------------------------------------------
     */
 
     private function sendVerificationEmail(
         User $user,
         string $subject
-    ): void {
+    ): bool {
         $record = DB::table(
             'email_verification_codes'
         )
@@ -2295,13 +1742,11 @@ class UserController extends Controller
             )
             ->first();
 
-
         if (! $record) {
-            return;
+            return false;
         }
 
-
-        $this->sendEmailSafely(
+        return $this->sendEmailSafely(
             $user->email,
             $user->name,
             $subject,
@@ -2313,4 +1758,3 @@ class UserController extends Controller
         );
     }
 }
-
