@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\BrevoMailService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -17,6 +17,11 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private readonly BrevoMailService $brevoMail
+    ) {
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Auto catalogus
@@ -400,26 +405,16 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            Mail::send(
+            $this->brevoMail->send(
+                $oldEmail,
+                $oldName,
+                'Je SmartDesk-e-mailadres is gewijzigd',
                 'emails.email-changed',
                 [
                     'user' => $user,
                     'oldEmail' => $oldEmail,
                     'newEmail' => $newEmail,
-                ],
-                function ($message) use (
-                    $oldEmail,
-                    $oldName
-                ) {
-                    $message->to(
-                        $oldEmail,
-                        $oldName
-                    );
-
-                    $message->subject(
-                        'Je SmartDesk-e-mailadres is gewijzigd'
-                    );
-                }
+                ]
             );
 
 
@@ -429,24 +424,17 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            Mail::send(
+            $this->brevoMail->send(
+                $user->email,
+                $user->name,
+                'Je SmartDesk-accountgegevens zijn gewijzigd',
                 'emails.account-updated',
                 [
                     'user' => $user,
                     'oldName' => $oldName,
                     'oldEmail' => $oldEmail,
                     'emailChanged' => true,
-                ],
-                function ($message) use ($user) {
-                    $message->to(
-                        $user->email,
-                        $user->name
-                    );
-
-                    $message->subject(
-                        'Je SmartDesk-accountgegevens zijn gewijzigd'
-                    );
-                }
+                ]
             );
 
 
@@ -481,24 +469,17 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-accountgegevens zijn gewijzigd',
             'emails.account-updated',
             [
                 'user' => $user,
                 'oldName' => $oldName,
                 'oldEmail' => $oldEmail,
                 'emailChanged' => false,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-accountgegevens zijn gewijzigd'
-                );
-            }
+            ]
         );
 
 
@@ -570,21 +551,14 @@ class UserController extends Controller
         $user->save();
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
                 'user' => $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-wachtwoord is gewijzigd'
-                );
-            }
+            ]
         );
 
 
@@ -856,39 +830,18 @@ class UserController extends Controller
         ]);
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Bestelbevestiging ' . $orderNumber,
             'emails.order-confirmation',
             [
                 'user' => $user,
-
-                'orderNumber' =>
-                    $orderNumber,
-
-                'orderDate' =>
-                    now()->format(
-                        'd-m-Y H:i'
-                    ),
-
-                'items' =>
-                    $cart,
-
-                'total' =>
-                    $total,
-            ],
-            function ($message) use (
-                $user,
-                $orderNumber
-            ) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Bestelbevestiging ' .
-                    $orderNumber
-                );
-            }
+                'orderNumber' => $orderNumber,
+                'orderDate' => now()->format('d-m-Y H:i'),
+                'items' => $cart,
+                'total' => $total,
+            ]
         );
 
 
@@ -1088,22 +1041,14 @@ class UserController extends Controller
             ->delete();
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je e-mailadres is geverifieerd - SmartDesk',
             'emails.email-verified',
             [
-                'user' =>
-                    $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je e-mailadres is geverifieerd - SmartDesk'
-                );
-            }
+                'user' => $user,
+            ]
         );
 
 
@@ -1181,25 +1126,15 @@ class UserController extends Controller
         );
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Wachtwoord herstellen - SmartDesk',
             'emails.password-reset',
             [
-                'user' =>
-                    $user,
-
-                'token' =>
-                    $token,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Wachtwoord herstellen - SmartDesk'
-                );
-            }
+                'user' => $user,
+                'token' => $token,
+            ]
         );
 
 
@@ -1365,22 +1300,14 @@ class UserController extends Controller
             ->delete();
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
-                'user' =>
-                    $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-wachtwoord is gewijzigd'
-                );
-            }
+                'user' => $user,
+            ]
         );
 
 
@@ -1578,32 +1505,17 @@ class UserController extends Controller
         |
         */
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-account is aangemaakt',
             'emails.admin-account-created',
             [
                 'user' => $user,
-
-                'isAdmin' =>
-                    (bool) $user->is_admin,
-
-                'isVerified' =>
-                    $user->email_verified_at !== null,
-
-                'createdAt' =>
-                    now()->format(
-                        'd-m-Y H:i'
-                    ),
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-account is aangemaakt'
-                );
-            }
+                'isAdmin' => (bool) $user->is_admin,
+                'isVerified' => $user->email_verified_at !== null,
+                'createdAt' => now()->format('d-m-Y H:i'),
+            ]
         );
 
 
@@ -2043,19 +1955,12 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-account is gewijzigd',
             'emails.admin-account-updated',
-            $mailData,
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-account is gewijzigd'
-                );
-            }
+            $mailData
         );
 
 
@@ -2066,22 +1971,12 @@ class UserController extends Controller
         */
 
         if ($emailChanged) {
-            Mail::send(
+            $this->brevoMail->send(
+                $oldEmail,
+                $oldName,
+                'Beveiligingsmelding: je SmartDesk-account is gewijzigd',
                 'emails.admin-account-updated',
-                $mailData,
-                function ($message) use (
-                    $oldEmail,
-                    $oldName
-                ) {
-                    $message->to(
-                        $oldEmail,
-                        $oldName
-                    );
-
-                    $message->subject(
-                        'Beveiligingsmelding: je SmartDesk-account is gewijzigd'
-                    );
-                }
+                $mailData
             );
         }
 
@@ -2158,37 +2053,18 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Mail::send(
+        $this->brevoMail->send(
+            $deletedUserEmail,
+            $deletedUserName,
+            'Je SmartDesk-account is verwijderd',
             'emails.account-deleted',
             [
-                'user' =>
-                    $user,
-
-                'name' =>
-                    $deletedUserName,
-
-                'email' =>
-                    $deletedUserEmail,
-
-                'wasAdmin' =>
-                    $wasAdmin,
-
-                'deletedAt' =>
-                    $deletedAt,
-            ],
-            function ($message) use (
-                $deletedUserEmail,
-                $deletedUserName
-            ) {
-                $message->to(
-                    $deletedUserEmail,
-                    $deletedUserName
-                );
-
-                $message->subject(
-                    'Je SmartDesk-account is verwijderd'
-                );
-            }
+                'user' => $user,
+                'name' => $deletedUserName,
+                'email' => $deletedUserEmail,
+                'wasAdmin' => $wasAdmin,
+                'deletedAt' => $deletedAt,
+            ]
         );
 
 
@@ -2363,29 +2239,15 @@ class UserController extends Controller
         }
 
 
-        Mail::send(
+        $this->brevoMail->send(
+            $user->email,
+            $user->name,
+            $subject,
             'emails.verification-code',
             [
-                'user' =>
-                    $user,
-
-                'code' =>
-                    $record->code,
-            ],
-            function ($message) use (
-                $user,
-                $subject
-            ) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    $subject
-                );
-            }
+                'user' => $user,
+                'code' => $record->code,
+            ]
         );
     }
 }
-
