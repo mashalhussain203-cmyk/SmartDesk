@@ -1477,15 +1477,11 @@ class UserController extends Controller
             );
     }
 
-    public function destroy(
-        User $user
-    ): RedirectResponse {
+    public function destroy(User $user): RedirectResponse
+    {
         $this->ensureAdmin();
 
-        if (
-            Auth::id() ===
-            $user->id
-        ) {
+        if (Auth::id() === $user->id) {
             return redirect()
                 ->route('users.index')
                 ->with(
@@ -1494,36 +1490,46 @@ class UserController extends Controller
                 );
         }
 
-        DB::table(
-            'email_verification_codes'
-        )
-            ->where(
-                'user_id',
-                $user->id
-            )
-            ->delete();
+        // Bewaar de ontvanger voordat het account wordt verwijderd.
+        $name = (string) $user->name;
+        $email = (string) $user->email;
 
-        DB::table(
-            'password_reset_tokens'
-        )
-            ->where(
-                'email',
-                $user->email
-            )
-            ->delete();
+        DB::transaction(function () use ($user, $email) {
+            DB::table('email_verification_codes')
+                ->where('user_id', $user->id)
+                ->delete();
 
-        $name = $user->name;
+            DB::table('password_reset_tokens')
+                ->where('email', $email)
+                ->delete();
 
-        $user->delete();
+            if (! $user->delete()) {
+                throw new \RuntimeException(
+                    'Het account kon niet worden verwijderd.'
+                );
+            }
+        });
+
+        // De verwijdering is opgeslagen voordat de mail wordt verstuurd.
+        $emailSent = $this->sendEmailSafely(
+            $email,
+            $name,
+            'Je SmartDesk-account is verwijderd',
+            'emails.account-deleted',
+            [
+                'name' => $name,
+            ]
+        );
+
+        $message = 'Gebruiker ' . $name . ' is verwijderd.';
+
+        if (! $emailSent) {
+            $message .= ' De bevestigingsmail kon niet worden verzonden.';
+        }
 
         return redirect()
             ->route('users.index')
-            ->with(
-                'success',
-                'Gebruiker ' .
-                $name .
-                ' is verwijderd.'
-            );
+            ->with('success', $message);
     }
 
     /*
