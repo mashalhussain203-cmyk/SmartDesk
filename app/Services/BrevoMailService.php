@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\View;
 use RuntimeException;
@@ -10,7 +11,7 @@ use Throwable;
 class BrevoMailService
 {
     /**
-     * Verstuur één e-mail via de Brevo API.
+     * Verstuur één e-mail via de Brevo HTTPS API.
      */
     public function send(
         string $toEmail,
@@ -19,35 +20,30 @@ class BrevoMailService
         string $view,
         array $data = []
     ): void {
-        $apiKey = (string) config(
+        $apiKey = trim((string) config(
             'services.brevo.api_key',
             ''
-        );
+        ));
 
-        $fromEmail = (string) config(
+        $fromEmail = trim((string) config(
             'services.brevo.from_email',
             ''
-        );
+        ));
 
-        $fromName = (string) config(
+        $fromName = trim((string) config(
             'services.brevo.from_name',
             'SmartDesk'
-        );
+        ));
 
-        $baseUrl = rtrim(
-            (string) config(
-                'services.brevo.base_url',
-                'https://api.brevo.com/v3'
-            ),
-            '/'
-        );
+        $baseUrl = rtrim(trim((string) config(
+            'services.brevo.base_url',
+            'https://api.brevo.com/v3'
+        )), '/');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Configuratie controleren
-        |--------------------------------------------------------------------------
-        */
+        $toEmail = trim($toEmail);
+        $toName = trim($toName);
 
+        // Configuratie controleren.
         if ($apiKey === '') {
             throw new RuntimeException(
                 'BREVO_API_KEY ontbreekt.'
@@ -60,114 +56,114 @@ class BrevoMailService
             );
         }
 
-        if ($baseUrl === '') {
+        if (! filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
             throw new RuntimeException(
-                'BREVO_BASE_URL ontbreekt.'
+                'BREVO_FROM_EMAIL is geen geldig e-mailadres.'
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | E-mailtemplate controleren
-        |--------------------------------------------------------------------------
-        */
+        if (
+            ! filter_var($baseUrl, FILTER_VALIDATE_URL) ||
+            strtolower((string) parse_url($baseUrl, PHP_URL_SCHEME)) !== 'https'
+        ) {
+            throw new RuntimeException(
+                'BREVO_BASE_URL moet een geldige HTTPS-URL zijn.'
+            );
+        }
 
+        if ($fromName === '') {
+            $fromName = 'SmartDesk';
+        }
+
+        // Ontvanger en onderwerp controleren.
+        if (! filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new RuntimeException(
+                'De ontvanger heeft geen geldig e-mailadres.'
+            );
+        }
+
+        if (trim($subject) === '') {
+            throw new RuntimeException(
+                'Het onderwerp van de e-mail ontbreekt.'
+            );
+        }
+
+        // Blade-template controleren en renderen.
         if (! View::exists($view)) {
             throw new RuntimeException(
-                'E-mailtemplate [' .
-                $view .
-                '] bestaat niet.'
+                "E-mailtemplate [{$view}] bestaat niet."
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Blade-template renderen
-        |--------------------------------------------------------------------------
-        */
-
         try {
-            $htmlContent = View::make(
-                $view,
-                $data
-            )->render();
+            $htmlContent = View::make($view, $data)->render();
         } catch (Throwable $exception) {
             throw new RuntimeException(
-                'E-mailtemplate [' .
-                $view .
-                '] kon niet worden gerenderd: ' .
+                "E-mailtemplate [{$view}] kon niet worden gerenderd: " .
                 $exception->getMessage(),
                 0,
                 $exception
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Brevo API aanroepen
-        |--------------------------------------------------------------------------
-        */
+        if (trim($htmlContent) === '') {
+            throw new RuntimeException(
+                "E-mailtemplate [{$view}] levert lege inhoud op."
+            );
+        }
 
+        $recipient = [
+            'email' => $toEmail,
+        ];
+
+        if ($toName !== '') {
+            $recipient['name'] = $toName;
+        }
+
+        // Geen automatische retry: voorkom dubbele verzending
+        // wanneer Brevo de mail accepteert maar het antwoord uitblijft.
         try {
             $response = Http::withHeaders([
                 'api-key' => $apiKey,
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
             ])
+                ->acceptJson()
+                ->asJson()
                 ->connectTimeout(10)
                 ->timeout(20)
-                ->retry(
-                    2,
-                    500
-                )
-                ->post(
-                    $baseUrl . '/smtp/email',
-                    [
-                        'sender' => [
-                            'name' => $fromName,
-                            'email' => $fromEmail,
-                        ],
-
-                        'to' => [
-                            [
-                                'email' => $toEmail,
-                                'name' => $toName,
-                            ],
-                        ],
-
-                        'subject' => $subject,
-
-                        'htmlContent' => $htmlContent,
-                    ]
-                );
-        } catch (Throwable $exception) {
+                ->post($baseUrl . '/smtp/email', [
+                    'sender' => [
+                        'name' => $fromName,
+                        'email' => $fromEmail,
+                    ],
+                    'to' => [$recipient],
+                    'subject' => $subject,
+                    'htmlContent' => $htmlContent,
+                ]);
+        } catch (ConnectionException $exception) {
             throw new RuntimeException(
-                'Er kon geen verbinding met Brevo worden gemaakt: ' .
-                $exception->getMessage(),
+                'Brevo kon niet worden bereikt of reageerde niet op tijd. ' .
+                'Het is niet zeker of de e-mail is geaccepteerd.',
                 0,
                 $exception
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Brevo antwoord controleren
-        |--------------------------------------------------------------------------
-        */
-
-        if ($response->failed()) {
+        // Deze details zijn bedoeld voor de serverlogs.
+        // Toon de bezoeker alleen een algemene foutmelding.
+        if (! $response->successful()) {
             throw new RuntimeException(
-                'Brevo kon de e-mail niet versturen. ' .
-                'HTTP-status: ' .
-                $response->status() .
-                '. Antwoord: ' .
-                $response->body()
+                'Brevo heeft de e-mail niet geaccepteerd. ' .
+                'HTTP-status: ' . $response->status() . '. ' .
+                'Antwoord: ' . $response->body()
             );
         }
     }
 
     /**
-     * Verstuur dezelfde e-mail naar meerdere ontvangers.
+     * Verstuur afzonderlijk naar iedere ontvanger.
+     *
+     * Ontvangers zonder e-mailadres worden overgeslagen.
+     * Bij een verzendfout stopt de verwerking met een exception.
      */
     public function sendToMany(
         array $recipients,
@@ -176,15 +172,18 @@ class BrevoMailService
         array $data = []
     ): void {
         foreach ($recipients as $recipient) {
-            if (
-                ! isset($recipient['email']) ||
-                trim((string) $recipient['email']) === ''
-            ) {
+            if (! is_array($recipient)) {
+                continue;
+            }
+
+            $email = trim((string) ($recipient['email'] ?? ''));
+
+            if ($email === '') {
                 continue;
             }
 
             $this->send(
-                (string) $recipient['email'],
+                $email,
                 (string) ($recipient['name'] ?? ''),
                 $subject,
                 $view,
