@@ -3,21 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\BrevoMailService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use App\Services\BrevoMailService;
+use Throwable;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private readonly BrevoMailService $brevoMail
+    ) {
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Catalogus auto's
@@ -129,10 +134,19 @@ class UserController extends Controller
 
         $this->createVerificationCode($user);
 
-        $this->sendVerificationEmail(
+        $emailSent = $this->sendVerificationEmail(
             $user,
             'Je verificatiecode voor SmartDesk'
         );
+
+        if (! $emailSent) {
+            return redirect()
+                ->route('verification.notice')
+                ->with(
+                    'error',
+                    'Je account is aangemaakt, maar de verificatiemail kon niet worden verzonden. Vraag een nieuwe verificatiecode aan.'
+                );
+        }
 
         return redirect()
             ->route('verification.notice')
@@ -172,10 +186,7 @@ class UserController extends Controller
 
         $remember = $request->boolean('remember');
 
-        if (! Auth::attempt(
-            $credentials,
-            $remember
-        )) {
+        if (! Auth::attempt($credentials, $remember)) {
             return back()
                 ->withErrors([
                     'email' => 'Het e-mailadres of wachtwoord is niet correct.',
@@ -190,9 +201,7 @@ class UserController extends Controller
 
         if ($user->is_admin) {
             return redirect()
-                ->intended(
-                    route('admin.dashboard')
-                )
+                ->intended(route('admin.dashboard'))
                 ->with(
                     'success',
                     'Welkom terug, ' . $user->name . '.'
@@ -200,9 +209,7 @@ class UserController extends Controller
         }
 
         return redirect()
-            ->intended(
-                route('home')
-            )
+            ->intended(route('home'))
             ->with(
                 'success',
                 'Je bent ingelogd.'
@@ -242,10 +249,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         $orders = DB::table('orders')
-            ->where(
-                'user_id',
-                $user->id
-            )
+            ->where('user_id', $user->id)
             ->latest()
             ->get();
 
@@ -317,56 +321,66 @@ class UserController extends Controller
 
         $user->save();
 
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailadres gewijzigd
+        |--------------------------------------------------------------------------
+        */
+
         if ($emailChanged) {
             $this->createVerificationCode($user);
 
-            $this->sendVerificationEmail(
+            $verificationSent = $this->sendVerificationEmail(
                 $user,
                 'Bevestig je nieuwe e-mailadres - SmartDesk'
             );
 
-            Mail::send(
+            /*
+            |--------------------------------------------------------------------------
+            | Beveiligingsmelding naar oude e-mailadres
+            |--------------------------------------------------------------------------
+            */
+
+            $this->sendEmailSafely(
+                $oldEmail,
+                $oldName,
+                'Je SmartDesk-e-mailadres is gewijzigd',
                 'emails.email-changed',
                 [
                     'user' => $user,
                     'oldEmail' => $oldEmail,
                     'newEmail' => $user->email,
-                ],
-                function ($message) use (
-                    $oldEmail,
-                    $oldName
-                ) {
-                    $message->to(
-                        $oldEmail,
-                        $oldName
-                    );
-
-                    $message->subject(
-                        'Je SmartDesk-e-mailadres is gewijzigd'
-                    );
-                }
+                ]
             );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Eventueel ook accountwijziging naar nieuwe adres
+            |--------------------------------------------------------------------------
+            */
+
             if ($nameChanged) {
-                Mail::send(
+                $this->sendEmailSafely(
+                    $user->email,
+                    $user->name,
+                    'Je SmartDesk-accountgegevens zijn gewijzigd',
                     'emails.account-updated',
                     [
                         'user' => $user,
                         'oldName' => $oldName,
                         'oldEmail' => $oldEmail,
                         'emailChanged' => true,
-                    ],
-                    function ($message) use ($user) {
-                        $message->to(
-                            $user->email,
-                            $user->name
-                        );
-
-                        $message->subject(
-                            'Je SmartDesk-accountgegevens zijn gewijzigd'
-                        );
-                    }
+                    ]
                 );
+            }
+
+            if (! $verificationSent) {
+                return redirect()
+                    ->route('verification.notice')
+                    ->with(
+                        'error',
+                        'Je nieuwe e-mailadres is opgeslagen, maar de verificatiemail kon niet worden verzonden. Vraag een nieuwe verificatiecode aan.'
+                    );
             }
 
             return redirect()
@@ -377,26 +391,34 @@ class UserController extends Controller
                 );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Alleen naam gewijzigd
+        |--------------------------------------------------------------------------
+        */
+
         if ($nameChanged) {
-            Mail::send(
+            $emailSent = $this->sendEmailSafely(
+                $user->email,
+                $user->name,
+                'Je SmartDesk-accountgegevens zijn gewijzigd',
                 'emails.account-updated',
                 [
                     'user' => $user,
                     'oldName' => $oldName,
                     'oldEmail' => $oldEmail,
                     'emailChanged' => false,
-                ],
-                function ($message) use ($user) {
-                    $message->to(
-                        $user->email,
-                        $user->name
-                    );
-
-                    $message->subject(
-                        'Je SmartDesk-accountgegevens zijn gewijzigd'
-                    );
-                }
+                ]
             );
+
+            if (! $emailSent) {
+                return redirect()
+                    ->route('account')
+                    ->with(
+                        'success',
+                        'Je accountgegevens zijn opgeslagen. De bevestigingsmail kon niet worden verzonden.'
+                    );
+            }
         }
 
         return redirect()
@@ -459,22 +481,24 @@ class UserController extends Controller
 
         $user->save();
 
-        Mail::send(
+        $emailSent = $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
                 'user' => $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-wachtwoord is gewijzigd'
-                );
-            }
+            ]
         );
+
+        if (! $emailSent) {
+            return redirect()
+                ->route('account')
+                ->with(
+                    'success',
+                    'Je wachtwoord is gewijzigd. De bevestigingsmail kon niet worden verzonden.'
+                );
+        }
 
         return redirect()
             ->route('account')
@@ -674,7 +698,10 @@ class UserController extends Controller
             'updated_at' => now(),
         ]);
 
-        Mail::send(
+        $emailSent = $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Bestelbevestiging ' . $orderNumber,
             'emails.order-confirmation',
             [
                 'user' => $user,
@@ -682,24 +709,21 @@ class UserController extends Controller
                 'orderDate' => now()->format('d-m-Y H:i'),
                 'items' => $cart,
                 'total' => $total,
-            ],
-            function ($message) use (
-                $user,
-                $orderNumber
-            ) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Bestelbevestiging ' .
-                    $orderNumber
-                );
-            }
+            ]
         );
 
         Session::forget('cart');
+
+        if (! $emailSent) {
+            return redirect()
+                ->route('account')
+                ->with(
+                    'success',
+                    'Bestelling ' .
+                    $orderNumber .
+                    ' is geplaatst. De bevestigingsmail kon niet worden verzonden.'
+                );
+        }
 
         return redirect()
             ->route('account')
@@ -755,10 +779,20 @@ class UserController extends Controller
             $user
         );
 
-        $this->sendVerificationEmail(
+        $emailSent = $this->sendVerificationEmail(
             $user,
             'Je verificatiecode voor SmartDesk'
         );
+
+        if (! $emailSent) {
+            return redirect()
+                ->route('verification.notice')
+                ->withErrors([
+                    'email' =>
+                        'De verificatiemail kon niet worden verzonden. Probeer het opnieuw.',
+                ])
+                ->withInput();
+        }
 
         return redirect()
             ->route('verification.notice')
@@ -844,21 +878,14 @@ class UserController extends Controller
                 'updated_at' => now(),
             ]);
 
-        Mail::send(
+        $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Je e-mailadres is geverifieerd - SmartDesk',
             'emails.email-verified',
             [
                 'user' => $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je e-mailadres is geverifieerd - SmartDesk'
-                );
-            }
+            ]
         );
 
         return redirect()
@@ -919,23 +946,35 @@ class UserController extends Controller
             ]
         );
 
-        Mail::send(
+        $emailSent = $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Wachtwoord herstellen - SmartDesk',
             'emails.password-reset',
             [
                 'user' => $user,
                 'token' => $token,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Wachtwoord herstellen - SmartDesk'
-                );
-            }
+            ]
         );
+
+        if (! $emailSent) {
+            DB::table(
+                'password_reset_tokens'
+            )
+                ->where(
+                    'email',
+                    $user->email
+                )
+                ->delete();
+
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' =>
+                        'De resetmail kon niet worden verzonden. Probeer het later opnieuw.',
+                ])
+                ->withInput();
+        }
 
         return redirect()
             ->route('password.request')
@@ -1071,21 +1110,14 @@ class UserController extends Controller
             )
             ->delete();
 
-        Mail::send(
+        $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            'Je SmartDesk-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
                 'user' => $user,
-            ],
-            function ($message) use ($user) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    'Je SmartDesk-wachtwoord is gewijzigd'
-                );
-            }
+            ]
         );
 
         return redirect()
@@ -1224,15 +1256,29 @@ class UserController extends Controller
                     : null,
         ]);
 
+        $verificationSent = true;
+
         if (! $user->email_verified_at) {
             $this->createVerificationCode(
                 $user
             );
 
-            $this->sendVerificationEmail(
-                $user,
-                'Je SmartDesk-account is aangemaakt'
-            );
+            $verificationSent =
+                $this->sendVerificationEmail(
+                    $user,
+                    'Je SmartDesk-account is aangemaakt'
+                );
+        }
+
+        if (! $verificationSent) {
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'success',
+                    'Gebruiker ' .
+                    $user->name .
+                    ' is aangemaakt, maar de verificatiemail kon niet worden verzonden.'
+                );
         }
 
         return redirect()
@@ -1339,8 +1385,7 @@ class UserController extends Controller
                 $user->email_verified_at
                 ?? now();
         } else {
-            $user->email_verified_at =
-                null;
+            $user->email_verified_at = null;
         }
 
         if (! empty(
@@ -1358,11 +1403,12 @@ class UserController extends Controller
                 'email_verified'
             )
         ) {
-            $user->email_verified_at =
-                null;
+            $user->email_verified_at = null;
         }
 
         $user->save();
+
+        $verificationSent = true;
 
         if ($user->email_verified_at) {
             DB::table(
@@ -1378,10 +1424,11 @@ class UserController extends Controller
                 $user
             );
 
-            $this->sendVerificationEmail(
-                $user,
-                'Bevestig je e-mailadres - SmartDesk'
-            );
+            $verificationSent =
+                $this->sendVerificationEmail(
+                    $user,
+                    'Bevestig je e-mailadres - SmartDesk'
+                );
         }
 
         if ($emailChanged) {
@@ -1393,6 +1440,17 @@ class UserController extends Controller
                     $oldEmail
                 )
                 ->delete();
+        }
+
+        if (! $verificationSent) {
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'success',
+                    'De gegevens van ' .
+                    $user->name .
+                    ' zijn bijgewerkt, maar de verificatiemail kon niet worden verzonden.'
+                );
         }
 
         return redirect()
@@ -1464,7 +1522,7 @@ class UserController extends Controller
     {
         abort_unless(
             Auth::check() &&
-            Auth::user()->is_admin,
+            (bool) Auth::user()->is_admin,
             403,
             'Je hebt geen toestemming om deze beheerpagina te bekijken.'
         );
@@ -1503,7 +1561,7 @@ class UserController extends Controller
     private function sendVerificationEmail(
         User $user,
         string $subject
-    ): void {
+    ): bool {
         $record = DB::table(
             'email_verification_codes'
         )
@@ -1520,29 +1578,42 @@ class UserController extends Controller
             ->first();
 
         if (! $record) {
-            return;
+            return false;
         }
 
-        Mail::send(
+        return $this->sendEmailSafely(
+            $user->email,
+            $user->name,
+            $subject,
             'emails.verification-code',
             [
                 'user' => $user,
                 'code' => $record->code,
-            ],
-            function ($message) use (
-                $user,
-                $subject
-            ) {
-                $message->to(
-                    $user->email,
-                    $user->name
-                );
-
-                $message->subject(
-                    $subject
-                );
-            }
+            ]
         );
     }
-}
 
+    private function sendEmailSafely(
+        string $toEmail,
+        string $toName,
+        string $subject,
+        string $view,
+        array $data = []
+    ): bool {
+        try {
+            $this->brevoMail->send(
+                $toEmail,
+                $toName,
+                $subject,
+                $view,
+                $data
+            );
+
+            return true;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return false;
+        }
+    }
+}
