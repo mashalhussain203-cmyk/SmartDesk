@@ -1,4 +1,3 @@
-```blade id="p9r5dk"
 @extends('layouts.admin-layout')
 
 @section('title', 'SmartDesk Admin | Gebruikers')
@@ -10,13 +9,12 @@
 <section class="main-panel">
 
     {{-- ========================================================= --}}
-    {{-- HEADER                                                     --}}
+    {{-- HEADER                                                    --}}
     {{-- ========================================================= --}}
 
     <div class="section-heading">
 
         <div>
-
             <h2>
                 Alle gebruikers
             </h2>
@@ -24,7 +22,6 @@
             <span>
                 Bekijk, beheer, wijzig en verwijder geregistreerde SmartDesk-accounts.
             </span>
-
         </div>
 
 
@@ -39,83 +36,7 @@
 
 
     {{-- ========================================================= --}}
-    {{-- SUCCESS MESSAGE                                            --}}
-    {{-- ========================================================= --}}
-
-    @if (session('success'))
-
-        <div
-            class="success"
-            style="margin-bottom: 24px;"
-        >
-
-            <strong>
-                Gelukt!
-            </strong>
-
-            <br>
-
-            {{ session('success') }}
-
-        </div>
-
-    @endif
-
-
-    {{-- ========================================================= --}}
-    {{-- ERROR MESSAGE                                              --}}
-    {{-- ========================================================= --}}
-
-    @if (session('error'))
-
-        <div
-            class="error"
-            style="margin-bottom: 24px;"
-        >
-
-            <strong>
-                Er ging iets mis.
-            </strong>
-
-            <br>
-
-            {{ session('error') }}
-
-        </div>
-
-    @endif
-
-
-    @if ($errors->any())
-
-        <div
-            class="error"
-            style="margin-bottom: 24px;"
-        >
-
-            <strong>
-                Controleer onderstaande gegevens:
-            </strong>
-
-            <ul style="margin: 10px 0 0 20px;">
-
-                @foreach ($errors->all() as $error)
-
-                    <li>
-                        {{ $error }}
-                    </li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    {{-- ========================================================= --}}
-    {{-- STATISTICS                                                 --}}
+    {{-- STATISTIEKEN                                              --}}
     {{-- ========================================================= --}}
 
     <div
@@ -127,7 +48,7 @@
         "
     >
 
-        {{-- TOTAL USERS --}}
+        {{-- TOTAAL --}}
 
         <div class="stat-card">
 
@@ -146,7 +67,7 @@
         </div>
 
 
-        {{-- VERIFIED --}}
+        {{-- GEVERIFIEERD --}}
 
         <div class="stat-card">
 
@@ -165,7 +86,7 @@
         </div>
 
 
-        {{-- NOT VERIFIED --}}
+        {{-- NIET GEVERIFIEERD --}}
 
         <div class="stat-card">
 
@@ -178,7 +99,7 @@
             </div>
 
             <div class="stat-foot">
-                Wachten nog op verificatie
+                Accounts die nog verificatie nodig hebben
             </div>
 
         </div>
@@ -206,7 +127,7 @@
 
 
     {{-- ========================================================= --}}
-    {{-- USERS TABLE                                                --}}
+    {{-- GEBRUIKERSTABEL                                           --}}
     {{-- ========================================================= --}}
 
     <div class="table-wrap">
@@ -216,7 +137,6 @@
             <thead>
 
                 <tr>
-
                     <th>
                         Gebruiker
                     </th>
@@ -240,7 +160,6 @@
                     <th>
                         Acties
                     </th>
-
                 </tr>
 
             </thead>
@@ -252,9 +171,9 @@
 
                     <tr>
 
-                        {{-- ========================================================= --}}
-                        {{-- USER                                                       --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- GEBRUIKER                                     --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
@@ -308,9 +227,9 @@
                         </td>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- EMAIL                                                      --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- E-MAIL                                        --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
@@ -325,9 +244,9 @@
                         </td>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- ROLE                                                       --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- ROL                                           --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
@@ -354,9 +273,9 @@
                         </td>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- VERIFICATION                                               --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- VERIFICATIE                                   --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
@@ -400,32 +319,42 @@
                         </td>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- CREATED AT                                                 --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- AANGEMAAKT                                    --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
-                            <strong>
-                                {{ $user->created_at->format('d-m-Y') }}
-                            </strong>
+                            @if ($user->created_at)
 
-                            <small
-                                style="
-                                    display: block;
-                                    margin-top: 4px;
-                                    color: var(--muted);
-                                "
-                            >
-                                {{ $user->created_at->format('H:i') }}
-                            </small>
+                                <strong>
+                                    {{ $user->created_at->format('d-m-Y') }}
+                                </strong>
+
+                                <small
+                                    style="
+                                        display: block;
+                                        margin-top: 4px;
+                                        color: var(--muted);
+                                    "
+                                >
+                                    {{ $user->created_at->format('H:i') }}
+                                </small>
+
+                            @else
+
+                                <span style="color: var(--muted);">
+                                    Onbekend
+                                </span>
+
+                            @endif
 
                         </td>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- ACTIONS                                                    --}}
-                        {{-- ========================================================= --}}
+                        {{-- ============================================= --}}
+                        {{-- ACTIES                                        --}}
+                        {{-- ============================================= --}}
 
                         <td>
 
@@ -438,28 +367,44 @@
                                 "
                             >
 
-                                {{-- EDIT --}}
+                                {{-- ===================================== --}}
+                                {{-- WIJZIGEN                              --}}
+                                {{-- ===================================== --}}
+                                {{--
+                                    BELANGRIJK:
+
+                                    Deze knop moet naar:
+
+                                    GET /admin/users/{user}/edit
+
+                                    en NIET naar:
+
+                                    /admin/users/{user}
+                                --}}
 
                                 <a
                                     class="button secondary"
-                                    href="{{ route('users.edit', $user) }}"
+                                    href="{{ route('users.edit', ['user' => $user->id]) }}"
                                 >
                                     Wijzigen
                                 </a>
 
 
-                                {{-- DELETE --}}
+                                {{-- ===================================== --}}
+                                {{-- VERWIJDEREN                           --}}
+                                {{-- ===================================== --}}
 
                                 @if (auth()->id() !== $user->id)
 
                                     <form
                                         method="POST"
-                                        action="{{ route('users.destroy', $user) }}"
+                                        action="{{ route('users.destroy', ['user' => $user->id]) }}"
                                         style="margin: 0;"
-                                        onsubmit="return confirm('Weet je zeker dat je {{ $user->name }} definitief wilt verwijderen?');"
+                                        onsubmit="return confirm('Weet je zeker dat je dit account definitief wilt verwijderen?');"
                                     >
 
                                         @csrf
+
                                         @method('DELETE')
 
 
@@ -498,10 +443,6 @@
 
                 @empty
 
-                    {{-- ========================================================= --}}
-                    {{-- EMPTY STATE                                                --}}
-                    {{-- ========================================================= --}}
-
                     <tr>
 
                         <td
@@ -536,7 +477,7 @@
                                     "
                                 >
                                     Er zijn momenteel nog geen gebruikers geregistreerd.
-                                    Maak de eerste gebruiker aan om te beginnen.
+                                    Maak een gebruiker aan om te beginnen.
                                 </p>
 
 
@@ -563,7 +504,7 @@
 
 
     {{-- ========================================================= --}}
-    {{-- ADMIN INFORMATION                                         --}}
+    {{-- ADMIN INFORMATIE                                          --}}
     {{-- ========================================================= --}}
 
     <div
@@ -598,7 +539,9 @@
             accountgegevens wijzigen, wachtwoorden opnieuw instellen,
             e-mailverificatie beheren, administratorrechten aanpassen
             en gebruikers verwijderen.
-            Je eigen administratoraccount kan niet vanuit deze lijst worden verwijderd.
+
+            Je eigen administratoraccount kan niet vanuit deze lijst
+            worden verwijderd.
         </p>
 
     </div>
@@ -606,4 +549,3 @@
 </section>
 
 @endsection
-```
