@@ -1611,6 +1611,14 @@ class UserController extends Controller
 
             return true;
         } catch (Throwable $exception) {
+            logger()->error('SmartDesk e-mail kon niet worden verzonden.', [
+                'recipient' => $toEmail,
+                'subject' => $subject,
+                'view' => $view,
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
+
             report($exception);
 
             return false;
