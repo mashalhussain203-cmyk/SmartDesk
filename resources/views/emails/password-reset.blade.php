@@ -1,4 +1,3 @@
-```blade
 <!DOCTYPE html>
 <html lang="nl">
 
@@ -479,4 +478,4 @@
 
 </body>
 </html>
-```
+
