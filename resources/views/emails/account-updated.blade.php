@@ -3,20 +3,29 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Je SmartDesk-account is gewijzigd</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Je SmartDesk-account is gewijzigd
+    </title>
 </head>
 
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f4f6f8;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
-">
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222222;
+    "
+>
 
 <table
+    role="presentation"
     width="100%"
     cellpadding="0"
     cellspacing="0"
@@ -30,8 +39,8 @@
     <tr>
         <td align="center">
 
-            <!-- MAIN CONTAINER -->
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -46,7 +55,7 @@
                 "
             >
 
-                <!-- HEADER -->
+                {{-- HEADER --}}
                 <tr>
                     <td
                         style="
@@ -78,9 +87,14 @@
                     </td>
                 </tr>
 
-                <!-- CONTENT -->
+
+                {{-- CONTENT --}}
                 <tr>
-                    <td style="padding: 40px 40px 30px;">
+                    <td
+                        style="
+                            padding: 40px 40px 30px;
+                        "
+                    >
 
                         <h1
                             style="
@@ -116,8 +130,10 @@
                             Hieronder zie je een overzicht van de wijziging.
                         </p>
 
-                        <!-- ACCOUNT CHANGE CARD -->
+
+                        {{-- ACCOUNT CHANGE CARD --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -131,7 +147,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 22px;">
+                                <td
+                                    style="
+                                        padding: 22px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -144,16 +164,21 @@
                                         Wijziging van je account
                                     </div>
 
+
                                     <table
+                                        role="presentation"
                                         width="100%"
                                         cellpadding="0"
                                         cellspacing="0"
                                         border="0"
-                                        style="width: 100%;"
+                                        style="
+                                            width: 100%;
+                                        "
                                     >
 
-                                        <!-- NAME -->
+                                        {{-- NAAM --}}
                                         @if(isset($oldName) && $oldName !== $user->name)
+
                                             <tr>
                                                 <td
                                                     style="
@@ -201,7 +226,9 @@
                                                     {{ $user->name }}
                                                 </td>
                                             </tr>
+
                                         @else
+
                                             <tr>
                                                 <td
                                                     style="
@@ -225,10 +252,13 @@
                                                     {{ $user->name }}
                                                 </td>
                                             </tr>
+
                                         @endif
 
-                                        <!-- EMAIL -->
+
+                                        {{-- EMAIL --}}
                                         @if(isset($oldEmail) && strtolower($oldEmail) !== strtolower($user->email))
+
                                             <tr>
                                                 <td
                                                     style="
@@ -278,7 +308,9 @@
                                                     {{ $user->email }}
                                                 </td>
                                             </tr>
+
                                         @else
+
                                             <tr>
                                                 <td
                                                     style="
@@ -303,11 +335,15 @@
                                                     {{ $user->email }}
                                                 </td>
                                             </tr>
+
                                         @endif
+
                                     </table>
+
                                 </td>
                             </tr>
                         </table>
+
 
                         <p
                             style="
@@ -321,9 +357,12 @@
                             Dan hoef je niets te doen.
                         </p>
 
-                        <!-- EMAIL VERIFICATION MESSAGE -->
+
+                        {{-- EMAIL VERIFICATION MESSAGE --}}
                         @if(isset($emailChanged) && $emailChanged)
+
                             <table
+                                role="presentation"
                                 width="100%"
                                 cellpadding="0"
                                 cellspacing="0"
@@ -336,14 +375,18 @@
                                 "
                             >
                                 <tr>
-                                    <td style="padding: 16px 18px;">
+                                    <td
+                                        style="
+                                            padding: 16px 18px;
+                                        "
+                                    >
 
                                         <div
                                             style="
+                                                margin-bottom: 6px;
                                                 font-size: 14px;
                                                 font-weight: 700;
                                                 color: #1e40af;
-                                                margin-bottom: 6px;
                                             "
                                         >
                                             E-mailadres gewijzigd
@@ -357,16 +400,24 @@
                                             "
                                         >
                                             Je e-mailadres is gewijzigd.
-                                            Daarom moet je nieuwe e-mailadres opnieuw worden geverifieerd.
-                                            Controleer je nieuwe inbox voor de verificatiecode van SmartDesk.
+
+                                            Daarom moet je nieuwe e-mailadres opnieuw
+                                            worden geverifieerd.
+
+                                            Controleer je nieuwe inbox voor de
+                                            verificatiecode van SmartDesk.
                                         </div>
+
                                     </td>
                                 </tr>
                             </table>
+
                         @endif
 
-                        <!-- SECURITY WARNING -->
+
+                        {{-- SECURITY WARNING --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -379,14 +430,18 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 16px 18px;">
+                                <td
+                                    style="
+                                        padding: 16px 18px;
+                                    "
+                                >
 
                                     <div
                                         style="
+                                            margin-bottom: 6px;
                                             font-size: 14px;
                                             font-weight: 700;
                                             color: #7a5700;
-                                            margin-bottom: 6px;
                                         "
                                     >
                                         Beveiligingsmelding
@@ -400,12 +455,15 @@
                                         "
                                     >
                                         Heb je deze wijziging niet zelf uitgevoerd?
+
                                         Wijzig dan zo snel mogelijk je wachtwoord
                                         en neem contact op met SmartDesk.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
+
 
                         <p
                             style="
@@ -416,9 +474,11 @@
                             "
                         >
                             Let op: deze e-mail gaat alleen over wijzigingen
-                            van je accountgegevens. Je wachtwoord wordt nooit
-                            in een e-mail weergegeven.
+                            van je accountgegevens.
+
+                            Je wachtwoord wordt nooit in een e-mail weergegeven.
                         </p>
+
 
                         <p
                             style="
@@ -431,6 +491,7 @@
                             Bedankt dat je gebruikmaakt van SmartDesk.
                         </p>
 
+
                         <p
                             style="
                                 margin: 20px 0 0;
@@ -439,16 +500,19 @@
                                 color: #555555;
                             "
                         >
-                            Met vriendelijke groet,<br>
+                            Met vriendelijke groet,
+                            <br>
 
                             <strong style="color: #111111;">
                                 Het SmartDesk-team
                             </strong>
                         </p>
+
                     </td>
                 </tr>
 
-                <!-- FOOTER -->
+
+                {{-- FOOTER --}}
                 <tr>
                     <td
                         style="
@@ -458,6 +522,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 font-size: 13px;
@@ -479,13 +544,16 @@
                             © {{ date('Y') }} SmartDesk.
                             Alle rechten voorbehouden.
                         </div>
+
                     </td>
                 </tr>
 
             </table>
+
         </td>
     </tr>
 </table>
 
 </body>
 </html>
+

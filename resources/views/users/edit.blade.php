@@ -1,1 +1,426 @@
-@extends('layouts.admin-layout') @section('title', 'SmartDesk Admin | Gebruiker wijzigen') @section('page-title', 'Gebruiker wijzigen') @section('content') <section class="main-panel"> <div class="section-heading"> <div> <h2> {{ $user->name }} </h2> <span> Wijzig accountgegevens, beveiliging en administratorrechten. </span> </div> <a class="button secondary" href="{{ route('users.index') }}" > Terug naar gebruikers </a> </div> <div class="form-wrap"> <form method="POST" action="{{ route('users.update', $user) }}" > @csrf @method('PUT') {{-- NAME --}} <div class="form-row"> <label for="name"> Naam </label> <input id="name" type="text" name="name" value="{{ old('name', $user->name) }}" required autofocus > @error('name') <div class="error"> {{ $message }} </div> @enderror </div> {{-- EMAIL --}} <div class="form-row"> <label for="email"> E-mailadres </label> <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required > @error('email') <div class="error"> {{ $message }} </div> @enderror </div> {{-- NEW PASSWORD --}} <div class="form-row"> <label for="password"> Nieuw wachtwoord </label> <input id="password" type="password" name="password" minlength="8" autocomplete="new-password" placeholder="Leeg laten om niet te wijzigen" > <small style="color: var(--muted);"> Laat leeg wanneer het huidige wachtwoord behouden moet blijven. </small> @error('password') <div class="error"> {{ $message }} </div> @enderror </div> {{-- PASSWORD CONFIRMATION --}} <div class="form-row"> <label for="password_confirmation"> Nieuw wachtwoord bevestigen </label> <input id="password_confirmation" type="password" name="password_confirmation" minlength="8" autocomplete="new-password" placeholder="Herhaal nieuw wachtwoord" > </div> {{-- VERIFIED --}} <div class="form-row"> <label style=" display: flex; align-items: center; gap: 10px; cursor: pointer; " > <input type="checkbox" name="email_verified" value="1" style="width: auto;" {{ old( 'email_verified', $user->email_verified_at ? 1 : 0 ) ? 'checked' : '' }} > E-mailadres geverifieerd </label> </div> {{-- ADMIN --}} <div class="form-row"> <label style=" display: flex; align-items: center; gap: 10px; cursor: pointer; " > <input type="checkbox" name="is_admin" value="1" style="width: auto;" {{ old( 'is_admin', $user->is_admin ? 1 : 0 ) ? 'checked' : '' }} @if (auth()->id() === $user->id) disabled @endif > Administrator </label> @if (auth()->id() === $user->id) <input type="hidden" name="is_admin" value="1" > <small style="color: var(--muted);"> Je kunt je eigen administratorrechten niet uitschakelen. </small> @endif @error('is_admin') <div class="error"> {{ $message }} </div> @enderror </div> {{-- ACCOUNT INFO --}} <div style=" margin: 25px 0; padding: 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); " > <strong> Accountinformatie </strong> <p> Gebruikers-ID: <strong>#{{ $user->id }}</strong> </p> <p> Geregistreerd: <strong> {{ $user->created_at->format('d-m-Y H:i') }} </strong> </p> <p style="margin-bottom: 0;"> Laatste wijziging: <strong> {{ $user->updated_at->format('d-m-Y H:i') }} </strong> </p> </div> {{-- SAVE --}} <div class="topbar-actions"> <button class="button" type="submit" > Wijzigingen opslaan </button> <a class="button secondary" href="{{ route('users.index') }}" > Annuleren </a> </div> </form> {{-- DELETE ACCOUNT --}} @if (auth()->id() !== $user->id) <div style=" margin-top: 35px; padding-top: 25px; border-top: 1px solid var(--line); " > <h3 style="color: var(--danger);"> Gebruiker verwijderen </h3> <p style="color: var(--muted);"> Hiermee wordt het SmartDesk-account van <strong>{{ $user->name }}</strong> verwijderd. </p> <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Weet je zeker dat je deze gebruiker definitief wilt verwijderen?');" > @csrf @method('DELETE') <button class="button danger" type="submit" > Gebruiker definitief verwijderen </button> </form> </div> @endif </div> </section> @endsection
+@extends('layouts.admin-layout')
+
+@section('title', 'SmartDesk Admin | Gebruiker wijzigen')
+
+@section('page-title', 'Gebruiker wijzigen')
+
+@section('content')
+
+<section class="main-panel">
+
+    <div class="section-heading">
+
+        <div>
+            <h2>
+                {{ $user->name }}
+            </h2>
+
+            <span>
+                Wijzig accountgegevens, beveiliging en administratorrechten.
+            </span>
+        </div>
+
+        <a
+            class="button secondary"
+            href="{{ route('users.index') }}"
+        >
+            Terug naar gebruikers
+        </a>
+
+    </div>
+
+
+    <div class="form-wrap">
+
+        <form
+            method="POST"
+            action="{{ route('users.update', ['user' => $user->id]) }}"
+        >
+            @csrf
+            @method('PUT')
+
+
+            {{-- ========================================================= --}}
+            {{-- NAME                                                       --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label for="name">
+                    Naam
+                </label>
+
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value="{{ old('name', $user->name) }}"
+                    required
+                    autofocus
+                    autocomplete="name"
+                >
+
+                @error('name')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- EMAIL                                                      --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label for="email">
+                    E-mailadres
+                </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{ old('email', $user->email) }}"
+                    required
+                    autocomplete="email"
+                >
+
+                @error('email')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- NEW PASSWORD                                               --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label for="password">
+                    Nieuw wachtwoord
+                </label>
+
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    minlength="8"
+                    autocomplete="new-password"
+                    placeholder="Leeg laten om niet te wijzigen"
+                >
+
+                <small
+                    style="
+                        display: block;
+                        margin-top: 6px;
+                        color: var(--muted);
+                    "
+                >
+                    Laat dit veld leeg wanneer het huidige wachtwoord
+                    behouden moet blijven.
+                </small>
+
+                @error('password')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- PASSWORD CONFIRMATION                                      --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label for="password_confirmation">
+                    Nieuw wachtwoord bevestigen
+                </label>
+
+                <input
+                    id="password_confirmation"
+                    type="password"
+                    name="password_confirmation"
+                    minlength="8"
+                    autocomplete="new-password"
+                    placeholder="Herhaal nieuw wachtwoord"
+                >
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- EMAIL VERIFIED                                             --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        cursor: pointer;
+                    "
+                >
+                    <input
+                        type="checkbox"
+                        name="email_verified"
+                        value="1"
+                        style="width: auto;"
+                        {{ old(
+                            'email_verified',
+                            $user->email_verified_at ? 1 : 0
+                        ) ? 'checked' : '' }}
+                    >
+
+                    E-mailadres geverifieerd
+                </label>
+
+                <small
+                    style="
+                        display: block;
+                        margin-top: 6px;
+                        color: var(--muted);
+                    "
+                >
+                    Schakel dit uit om het account opnieuw als
+                    niet-geverifieerd te markeren.
+                </small>
+
+                @error('email_verified')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- ADMIN                                                      --}}
+            {{-- ========================================================= --}}
+
+            <div class="form-row">
+
+                <label
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        cursor: pointer;
+                    "
+                >
+                    <input
+                        type="checkbox"
+                        name="is_admin"
+                        value="1"
+                        style="width: auto;"
+                        {{ old(
+                            'is_admin',
+                            $user->is_admin ? 1 : 0
+                        ) ? 'checked' : '' }}
+                        @if (auth()->id() === $user->id)
+                            disabled
+                        @endif
+                    >
+
+                    Administrator
+                </label>
+
+
+                @if (auth()->id() === $user->id)
+
+                    <input
+                        type="hidden"
+                        name="is_admin"
+                        value="1"
+                    >
+
+                    <small
+                        style="
+                            display: block;
+                            margin-top: 6px;
+                            color: var(--muted);
+                        "
+                    >
+                        Je kunt je eigen administratorrechten
+                        niet uitschakelen.
+                    </small>
+
+                @endif
+
+
+                @error('is_admin')
+                    <div class="error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- ACCOUNT INFORMATION                                        --}}
+            {{-- ========================================================= --}}
+
+            <div
+                style="
+                    margin: 25px 0;
+                    padding: 18px;
+                    border-radius: 12px;
+                    border: 1px solid var(--line);
+                    background: var(--panel);
+                "
+            >
+
+                <strong>
+                    Accountinformatie
+                </strong>
+
+
+                <p>
+                    Gebruikers-ID:
+
+                    <strong>
+                        #{{ $user->id }}
+                    </strong>
+                </p>
+
+
+                <p>
+                    Geregistreerd:
+
+                    <strong>
+                        {{ optional($user->created_at)->format('d-m-Y H:i') }}
+                    </strong>
+                </p>
+
+
+                <p style="margin-bottom: 0;">
+                    Laatste wijziging:
+
+                    <strong>
+                        {{ optional($user->updated_at)->format('d-m-Y H:i') }}
+                    </strong>
+                </p>
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- SAVE                                                       --}}
+            {{-- ========================================================= --}}
+
+            <div class="topbar-actions">
+
+                <button
+                    class="button"
+                    type="submit"
+                >
+                    Wijzigingen opslaan
+                </button>
+
+                <a
+                    class="button secondary"
+                    href="{{ route('users.index') }}"
+                >
+                    Annuleren
+                </a>
+
+            </div>
+
+        </form>
+
+
+        {{-- ============================================================= --}}
+        {{-- DELETE ACCOUNT                                                --}}
+        {{-- ============================================================= --}}
+
+        @if (auth()->id() !== $user->id)
+
+            <div
+                style="
+                    margin-top: 35px;
+                    padding-top: 25px;
+                    border-top: 1px solid var(--line);
+                "
+            >
+
+                <h3
+                    style="
+                        margin-top: 0;
+                        color: var(--danger);
+                    "
+                >
+                    Gebruiker verwijderen
+                </h3>
+
+
+                <p
+                    style="
+                        color: var(--muted);
+                    "
+                >
+                    Hiermee wordt het SmartDesk-account van
+
+                    <strong>
+                        {{ $user->name }}
+                    </strong>
+
+                    definitief verwijderd.
+                </p>
+
+
+                <form
+                    method="POST"
+                    action="{{ route('users.destroy', ['user' => $user->id]) }}"
+                    onsubmit="return confirm('Weet je zeker dat je deze gebruiker definitief wilt verwijderen?');"
+                >
+                    @csrf
+                    @method('DELETE')
+
+                    <button
+                        class="button danger"
+                        type="submit"
+                    >
+                        Gebruiker definitief verwijderen
+                    </button>
+
+                </form>
+
+            </div>
+
+        @else
+
+            <div
+                style="
+                    margin-top: 35px;
+                    padding: 18px;
+                    border-radius: 12px;
+                    border: 1px solid var(--line);
+                    background: var(--panel);
+                    color: var(--muted);
+                "
+            >
+                Je eigen administratoraccount kan via deze pagina
+                niet worden verwijderd.
+            </div>
+
+        @endif
+
+    </div>
+
+</section>
+
+@endsection
+

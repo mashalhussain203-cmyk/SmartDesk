@@ -3,7 +3,6 @@
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-
 /*
 |--------------------------------------------------------------------------
 | Home
@@ -12,13 +11,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [UserController::class, 'home'])
     ->name('home');
-
-
-/*
-|--------------------------------------------------------------------------
-| Gast / authenticatie
-|--------------------------------------------------------------------------
-*/
 
 
 /*
@@ -51,10 +43,6 @@ Route::post('/login', [UserController::class, 'loginSubmit'])
 |--------------------------------------------------------------------------
 | Uitloggen
 |--------------------------------------------------------------------------
-|
-| Uitloggen gebeurt bewust via POST.
-| Daardoor kan een externe link iemand niet zomaar uitloggen.
-|
 */
 
 Route::post('/logout', [UserController::class, 'logout'])
@@ -101,9 +89,6 @@ Route::post('/reset-password/{token}', [UserController::class, 'resetPassword'])
 |--------------------------------------------------------------------------
 | Catalogus
 |--------------------------------------------------------------------------
-|
-| De catalogus is openbaar toegankelijk.
-|
 */
 
 Route::get('/catalog', [UserController::class, 'catalog'])
@@ -118,10 +103,6 @@ Route::get('/car/{id}', [UserController::class, 'car'])
 |--------------------------------------------------------------------------
 | Winkelwagen
 |--------------------------------------------------------------------------
-|
-| Bezoekers mogen auto's aan hun winkelwagen toevoegen.
-| Voor checkout moet de gebruiker wel ingelogd zijn.
-|
 */
 
 Route::get('/cart', [UserController::class, 'cart'])
@@ -149,22 +130,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/account', [UserController::class, 'account'])
         ->name('account');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accountgegevens wijzigen
-    |--------------------------------------------------------------------------
-    */
-
     Route::put('/account', [UserController::class, 'updateAccount'])
         ->name('account.update');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Wachtwoord wijzigen
-    |--------------------------------------------------------------------------
-    */
 
     Route::put('/account/password', [UserController::class, 'updatePassword'])
         ->name('account.password.update');
@@ -175,7 +142,7 @@ Route::middleware('auth')->group(function () {
     | Checkout
     |--------------------------------------------------------------------------
     |
-    | De controller controleert daarnaast of email_verified_at gevuld is.
+    | De controller controleert daarnaast of email_verified_at is ingevuld.
     |
     */
 
@@ -188,77 +155,75 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    |--------------------------------------------------------------------------
-    | ADMIN
-    |--------------------------------------------------------------------------
+    | Admin
     |--------------------------------------------------------------------------
     |
-    | Alle adminroutes vereisen minimaal een ingelogde gebruiker.
+    | Deze routes vereisen een ingelogde gebruiker.
     |
-    | De UserController controleert daarnaast via ensureAdmin()
-    | of de ingelogde gebruiker daadwerkelijk is_admin = true heeft.
-    |
-    | Daardoor kan een normale gebruiker niet simpelweg /admin openen.
+    | De UserController voert daarnaast in elke adminfunctie ensureAdmin()
+    | uit. Daardoor moet de gebruiker is_admin = true hebben.
     |
     */
 
+    Route::prefix('admin')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin dashboard
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/admin', [UserController::class, 'admin'])
-        ->name('admin.dashboard');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Admin - gebruikers bekijken
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/admin/users', [UserController::class, 'index'])
-        ->name('users.index');
+        Route::get('/', [UserController::class, 'admin'])
+            ->name('admin.dashboard');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin - gebruiker toevoegen
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruikersbeheer
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/admin/users/create', [UserController::class, 'create'])
-        ->name('users.create');
-
-    Route::post('/admin/users', [UserController::class, 'store'])
-        ->name('users.store');
+        Route::get('/users', [UserController::class, 'index'])
+            ->name('users.index');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin - gebruiker wijzigen
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker toevoegen
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])
-        ->whereNumber('user')
-        ->name('users.edit');
+        Route::get('/users/create', [UserController::class, 'create'])
+            ->name('users.create');
 
-    Route::put('/admin/users/{user}', [UserController::class, 'update'])
-        ->whereNumber('user')
-        ->name('users.update');
+        Route::post('/users', [UserController::class, 'store'])
+            ->name('users.store');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin - gebruiker verwijderen
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker wijzigen
+        |--------------------------------------------------------------------------
+        */
 
-    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])
-        ->whereNumber('user')
-        ->name('users.destroy');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+            ->whereNumber('user')
+            ->name('users.edit');
+
+        Route::put('/users/{user}', [UserController::class, 'update'])
+            ->whereNumber('user')
+            ->name('users.update');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker verwijderen
+        |--------------------------------------------------------------------------
+        */
+
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])
+            ->whereNumber('user')
+            ->name('users.destroy');
+    });
 });
 

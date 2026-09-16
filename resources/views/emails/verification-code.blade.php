@@ -3,20 +3,29 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Je verificatiecode voor SmartDesk</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Je verificatiecode voor SmartDesk
+    </title>
 </head>
 
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f3f5f7;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
-">
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f3f5f7;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222222;
+    "
+>
 
 <table
+    role="presentation"
     width="100%"
     cellpadding="0"
     cellspacing="0"
@@ -30,8 +39,8 @@
     <tr>
         <td align="center">
 
-            <!-- MAIN EMAIL CONTAINER -->
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -46,7 +55,10 @@
                 "
             >
 
-                <!-- HEADER -->
+                {{-- ========================================================= --}}
+                {{-- HEADER                                                     --}}
+                {{-- ========================================================= --}}
+
                 <tr>
                     <td
                         style="
@@ -55,6 +67,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 color: #ffffff;
@@ -76,14 +89,24 @@
                         >
                             E-mailverificatie &amp; accountbeveiliging
                         </div>
+
                     </td>
                 </tr>
 
-                <!-- CONTENT -->
-                <tr>
-                    <td style="padding: 42px 40px 35px;">
 
-                        <!-- ICON -->
+                {{-- ========================================================= --}}
+                {{-- CONTENT                                                    --}}
+                {{-- ========================================================= --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 42px 40px 35px;
+                        "
+                    >
+
+                        {{-- ICON --}}
+
                         <div
                             style="
                                 width: 64px;
@@ -99,7 +122,9 @@
                             ✉
                         </div>
 
-                        <!-- TITLE -->
+
+                        {{-- TITLE --}}
+
                         <h1
                             style="
                                 margin: 0 0 18px;
@@ -112,7 +137,9 @@
                             Bevestig je e-mailadres
                         </h1>
 
-                        <!-- GREETING -->
+
+                        {{-- GREETING --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -124,7 +151,9 @@
                             Beste {{ $user->name }},
                         </p>
 
-                        <!-- INTRO -->
+
+                        {{-- INTRO --}}
+
                         <p
                             style="
                                 margin: 0 0 25px;
@@ -137,8 +166,13 @@
                             e-mailadres voor SmartDesk te bevestigen.
                         </p>
 
-                        <!-- VERIFICATION CODE -->
+
+                        {{-- ========================================================= --}}
+                        {{-- VERIFICATION CODE                                          --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -158,6 +192,7 @@
                                         text-align: center;
                                     "
                                 >
+
                                     <div
                                         style="
                                             margin-bottom: 10px;
@@ -182,12 +217,18 @@
                                     >
                                         {{ $code }}
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- EXPIRATION NOTICE -->
+
+                        {{-- ========================================================= --}}
+                        {{-- EXPIRATION NOTICE                                          --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -200,7 +241,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 20px;">
+                                <td
+                                    style="
+                                        padding: 18px 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -223,11 +268,16 @@
                                         Deze verificatiecode is 15 minuten geldig.
                                         Daarna moet je een nieuwe code aanvragen.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- INSTRUCTIONS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- INSTRUCTIES                                                --}}
+                        {{-- ========================================================= --}}
+
                         <h2
                             style="
                                 margin: 0 0 12px;
@@ -262,8 +312,13 @@
                             e-mailadres als geverifieerd gemarkeerd.
                         </p>
 
-                        <!-- ACCOUNT DETAILS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- ACCOUNT DETAILS                                            --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -275,8 +330,13 @@
                                 border-bottom: 1px solid #eeeeee;
                             "
                         >
+
                             <tr>
-                                <td style="padding: 18px 0;">
+                                <td
+                                    style="
+                                        padding: 18px 0;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -297,11 +357,16 @@
                                     >
                                         {{ $user->name }}
                                     </div>
+
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding: 0 0 18px;">
+                                <td
+                                    style="
+                                        padding: 0 0 18px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -323,12 +388,19 @@
                                     >
                                         {{ $user->email }}
                                     </div>
+
                                 </td>
                             </tr>
+
                         </table>
 
-                        <!-- SECURITY WARNING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SECURITY WARNING                                           --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -342,7 +414,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 20px;">
+                                <td
+                                    style="
+                                        padding: 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -363,15 +439,22 @@
                                         "
                                     >
                                         Als jij geen verificatiecode hebt aangevraagd,
-                                        kun je deze e-mail negeren. Deel deze code
-                                        nooit met anderen.
+                                        kun je deze e-mail negeren.
+
+                                        Deel deze code nooit met anderen.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- SECURITY INFO -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SECURITY INFO                                              --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -384,7 +467,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 20px;">
+                                <td
+                                    style="
+                                        padding: 18px 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -408,11 +495,16 @@
                                         verificatiecode via e-mail, chat of telefoon
                                         met iemand te delen.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- CLOSING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- CLOSING                                                    --}}
+                        {{-- ========================================================= --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -433,9 +525,14 @@
                                 color: #555555;
                             "
                         >
-                            Met vriendelijke groet,<br>
+                            Met vriendelijke groet,
+                            <br>
 
-                            <strong style="color: #111111;">
+                            <strong
+                                style="
+                                    color: #111111;
+                                "
+                            >
                                 Het SmartDesk-team
                             </strong>
                         </p>
@@ -443,7 +540,11 @@
                     </td>
                 </tr>
 
-                <!-- FOOTER -->
+
+                {{-- ========================================================= --}}
+                {{-- FOOTER                                                     --}}
+                {{-- ========================================================= --}}
+
                 <tr>
                     <td
                         style="
@@ -453,6 +554,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 font-size: 12px;
@@ -475,10 +577,12 @@
                             © {{ date('Y') }} SmartDesk.
                             Alle rechten voorbehouden.
                         </div>
+
                     </td>
                 </tr>
 
             </table>
+
         </td>
     </tr>
 </table>

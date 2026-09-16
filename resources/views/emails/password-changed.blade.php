@@ -3,20 +3,29 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Je SmartDesk-wachtwoord is gewijzigd</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Je SmartDesk-wachtwoord is gewijzigd
+    </title>
 </head>
 
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f3f5f7;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
-">
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f3f5f7;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222222;
+    "
+>
 
 <table
+    role="presentation"
     width="100%"
     cellpadding="0"
     cellspacing="0"
@@ -30,8 +39,8 @@
     <tr>
         <td align="center">
 
-            <!-- MAIN EMAIL CONTAINER -->
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -46,7 +55,10 @@
                 "
             >
 
-                <!-- HEADER -->
+                {{-- ========================================================= --}}
+                {{-- HEADER                                                     --}}
+                {{-- ========================================================= --}}
+
                 <tr>
                     <td
                         style="
@@ -55,6 +67,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 color: #ffffff;
@@ -76,14 +89,24 @@
                         >
                             Accountbeveiliging &amp; persoonlijke gegevens
                         </div>
+
                     </td>
                 </tr>
 
-                <!-- CONTENT -->
-                <tr>
-                    <td style="padding: 42px 40px 35px;">
 
-                        <!-- SUCCESS ICON -->
+                {{-- ========================================================= --}}
+                {{-- CONTENT                                                    --}}
+                {{-- ========================================================= --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 42px 40px 35px;
+                        "
+                    >
+
+                        {{-- SUCCESS ICON --}}
+
                         <div
                             style="
                                 width: 64px;
@@ -100,7 +123,9 @@
                             ✓
                         </div>
 
-                        <!-- TITLE -->
+
+                        {{-- TITLE --}}
+
                         <h1
                             style="
                                 margin: 0 0 18px;
@@ -113,7 +138,9 @@
                             Je wachtwoord is gewijzigd
                         </h1>
 
-                        <!-- GREETING -->
+
+                        {{-- GREETING --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -125,7 +152,9 @@
                             Hallo {{ $user->name }},
                         </p>
 
-                        <!-- INTRO -->
+
+                        {{-- INTRO --}}
+
                         <p
                             style="
                                 margin: 0 0 28px;
@@ -134,12 +163,17 @@
                                 color: #444444;
                             "
                         >
-                            Het wachtwoord van je SmartDesk-account is zojuist
+                            Het wachtwoord van je SmartDesk-account is
                             succesvol gewijzigd.
                         </p>
 
-                        <!-- SUCCESS STATUS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SUCCESS STATUS                                             --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -159,12 +193,13 @@
                                         text-align: center;
                                     "
                                 >
+
                                     <div
                                         style="
+                                            margin-bottom: 8px;
                                             font-size: 16px;
                                             font-weight: 700;
                                             color: #187a42;
-                                            margin-bottom: 8px;
                                         "
                                     >
                                         ✓ Wachtwoord succesvol gewijzigd
@@ -179,11 +214,16 @@
                                     >
                                         Je nieuwe wachtwoord is vanaf nu actief.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- EXPLANATION -->
+
+                        {{-- ========================================================= --}}
+                        {{-- EXPLANATION                                                --}}
+                        {{-- ========================================================= --}}
+
                         <h2
                             style="
                                 margin: 0 0 12px;
@@ -202,8 +242,8 @@
                                 color: #555555;
                             "
                         >
-                            Je oude wachtwoord kan niet meer worden gebruikt om
-                            in te loggen op je SmartDesk-account.
+                            Je oude wachtwoord kan niet meer worden gebruikt
+                            om in te loggen op je SmartDesk-account.
                         </p>
 
                         <p
@@ -218,8 +258,13 @@
                             toegang krijgen tot je account.
                         </p>
 
-                        <!-- ACCOUNT DETAILS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- ACCOUNT DETAILS                                            --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -231,8 +276,13 @@
                                 border-bottom: 1px solid #eeeeee;
                             "
                         >
+
                             <tr>
-                                <td style="padding: 18px 0;">
+                                <td
+                                    style="
+                                        padding: 18px 0;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -253,11 +303,16 @@
                                     >
                                         {{ $user->name }}
                                     </div>
+
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding: 0 0 18px;">
+                                <td
+                                    style="
+                                        padding: 0 0 18px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -279,11 +334,16 @@
                                     >
                                         {{ $user->email }}
                                     </div>
+
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding: 0 0 18px;">
+                                <td
+                                    style="
+                                        padding: 0 0 18px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -304,12 +364,19 @@
                                     >
                                         {{ now()->format('d-m-Y H:i') }}
                                     </div>
+
                                 </td>
                             </tr>
+
                         </table>
 
-                        <!-- SECURITY WARNING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SECURITY WARNING                                           --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -323,7 +390,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 20px;">
+                                <td
+                                    style="
+                                        padding: 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -343,16 +414,23 @@
                                             color: #713030;
                                         "
                                     >
-                                        Als jij deze wijziging niet zelf hebt uitgevoerd,
-                                        kan iemand anders toegang hebben tot je account.
-                                        Neem dan zo snel mogelijk maatregelen om je
-                                        account te beveiligen.
+                                        Als jij deze wijziging niet zelf hebt
+                                        uitgevoerd, kan iemand anders toegang
+                                        hebben tot je account.
+
+                                        Neem dan zo snel mogelijk maatregelen
+                                        om je account te beveiligen.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- SECURITY STEPS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SECURITY STEPS                                             --}}
+                        {{-- ========================================================= --}}
+
                         <h2
                             style="
                                 margin: 0 0 15px;
@@ -364,12 +442,17 @@
                         </h2>
 
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
                             border="0"
-                            style="margin-bottom: 28px;"
+                            style="
+                                width: 100%;
+                                margin-bottom: 28px;
+                            "
                         >
+
                             <tr>
                                 <td
                                     valign="top"
@@ -453,10 +536,16 @@
                                     dat iemand anders toegang tot je account heeft.
                                 </td>
                             </tr>
+
                         </table>
 
-                        <!-- PASSWORD REMINDER -->
+
+                        {{-- ========================================================= --}}
+                        {{-- PASSWORD REMINDER                                          --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -469,7 +558,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 20px;">
+                                <td
+                                    style="
+                                        padding: 18px 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -490,14 +583,20 @@
                                         "
                                     >
                                         Deel je wachtwoord nooit met anderen.
+
                                         SmartDesk zal je nooit per e-mail vragen
                                         om je wachtwoord door te geven.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- CLOSING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- CLOSING                                                    --}}
+                        {{-- ========================================================= --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -512,60 +611,4 @@
 
                         <p
                             style="
-                                margin: 0;
-                                font-size: 15px;
-                                line-height: 1.7;
-                                color: #555555;
-                            "
-                        >
-                            Met vriendelijke groet,<br>
-
-                            <strong style="color: #111111;">
-                                Het SmartDesk-team
-                            </strong>
-                        </p>
-                    </td>
-                </tr>
-
-                <!-- FOOTER -->
-                <tr>
-                    <td
-                        style="
-                            padding: 27px 35px;
-                            background-color: #f8f9fa;
-                            border-top: 1px solid #eeeeee;
-                            text-align: center;
-                        "
-                    >
-                        <div
-                            style="
-                                font-size: 12px;
-                                line-height: 1.6;
-                                color: #888888;
-                            "
-                        >
-                            Deze e-mail is automatisch verzonden omdat
-                            het wachtwoord van je SmartDesk-account is gewijzigd.
-                        </div>
-
-                        <div
-                            style="
-                                margin-top: 10px;
-                                font-size: 12px;
-                                color: #aaaaaa;
-                            "
-                        >
-                            © {{ date('Y') }} SmartDesk.
-                            Alle rechten voorbehouden.
-                        </div>
-                    </td>
-                </tr>
-
-            </table>
-        </td>
-    </tr>
-</table>
-
-</body>
-</html>
 

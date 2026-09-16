@@ -1,22 +1,32 @@
+```blade id="x6k2wr"
 <!DOCTYPE html>
 <html lang="nl">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Wachtwoord herstellen - SmartDesk</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Wachtwoord herstellen - SmartDesk
+    </title>
 </head>
 
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f3f5f7;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
-">
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f3f5f7;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222222;
+    "
+>
 
 <table
+    role="presentation"
     width="100%"
     cellpadding="0"
     cellspacing="0"
@@ -30,8 +40,8 @@
     <tr>
         <td align="center">
 
-            <!-- MAIN EMAIL CONTAINER -->
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -46,7 +56,10 @@
                 "
             >
 
-                <!-- HEADER -->
+                {{-- ========================================================= --}}
+                {{-- HEADER                                                     --}}
+                {{-- ========================================================= --}}
+
                 <tr>
                     <td
                         style="
@@ -55,6 +68,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 color: #ffffff;
@@ -76,14 +90,24 @@
                         >
                             Accountbeveiliging &amp; wachtwoordherstel
                         </div>
+
                     </td>
                 </tr>
 
-                <!-- CONTENT -->
-                <tr>
-                    <td style="padding: 42px 40px 35px;">
 
-                        <!-- ICON -->
+                {{-- ========================================================= --}}
+                {{-- CONTENT                                                    --}}
+                {{-- ========================================================= --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 42px 40px 35px;
+                        "
+                    >
+
+                        {{-- ICON --}}
+
                         <div
                             style="
                                 width: 64px;
@@ -99,7 +123,9 @@
                             🔐
                         </div>
 
-                        <!-- TITLE -->
+
+                        {{-- TITLE --}}
+
                         <h1
                             style="
                                 margin: 0 0 18px;
@@ -112,7 +138,9 @@
                             Wachtwoord herstellen
                         </h1>
 
-                        <!-- GREETING -->
+
+                        {{-- GREETING --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -124,10 +152,12 @@
                             Beste {{ $user->name }},
                         </p>
 
-                        <!-- INTRO -->
+
+                        {{-- INTRO --}}
+
                         <p
                             style="
-                                margin: 0 0 25px;
+                                margin: 0 0 18px;
                                 font-size: 16px;
                                 line-height: 1.7;
                                 color: #444444;
@@ -149,13 +179,21 @@
                             voor je account in te stellen.
                         </p>
 
-                        <!-- RESET BUTTON -->
+
+                        {{-- ========================================================= --}}
+                        {{-- RESET BUTTON                                               --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
                             border="0"
-                            style="margin: 0 0 30px;"
+                            style="
+                                width: 100%;
+                                margin: 0 0 30px;
+                            "
                         >
                             <tr>
                                 <td align="center">
@@ -180,8 +218,13 @@
                             </tr>
                         </table>
 
-                        <!-- EXPIRATION NOTICE -->
+
+                        {{-- ========================================================= --}}
+                        {{-- EXPIRATION NOTICE                                          --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -194,7 +237,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 20px;">
+                                <td
+                                    style="
+                                        padding: 18px 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -222,7 +269,11 @@
                             </tr>
                         </table>
 
-                        <!-- FALLBACK LINK -->
+
+                        {{-- ========================================================= --}}
+                        {{-- FALLBACK LINK                                              --}}
+                        {{-- ========================================================= --}}
+
                         <p
                             style="
                                 margin: 0 0 10px;
@@ -251,8 +302,13 @@
                             {{ url('/reset-password/' . $token) }}
                         </p>
 
-                        <!-- SECURITY WARNING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- SECURITY WARNING                                           --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -266,7 +322,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 20px;">
+                                <td
+                                    style="
+                                        padding: 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -287,16 +347,22 @@
                                         "
                                     >
                                         Als jij geen wachtwoordreset hebt aangevraagd,
-                                        hoef je niets te doen. Je huidige wachtwoord
-                                        blijft gewoon actief.
+                                        hoef je niets te doen.
+
+                                        Je huidige wachtwoord blijft gewoon actief.
                                     </div>
 
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- ACCOUNT DETAILS -->
+
+                        {{-- ========================================================= --}}
+                        {{-- ACCOUNT DETAILS                                            --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -309,7 +375,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 0;">
+                                <td
+                                    style="
+                                        padding: 18px 0;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -335,7 +405,11 @@
                             </tr>
 
                             <tr>
-                                <td style="padding: 0 0 18px;">
+                                <td
+                                    style="
+                                        padding: 0 0 18px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -360,10 +434,16 @@
 
                                 </td>
                             </tr>
+
                         </table>
 
-                        <!-- PASSWORD SAFETY -->
+
+                        {{-- ========================================================= --}}
+                        {{-- PASSWORD SAFETY                                            --}}
+                        {{-- ========================================================= --}}
+
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -376,7 +456,11 @@
                             "
                         >
                             <tr>
-                                <td style="padding: 18px 20px;">
+                                <td
+                                    style="
+                                        padding: 18px 20px;
+                                    "
+                                >
 
                                     <div
                                         style="
@@ -397,15 +481,21 @@
                                         "
                                     >
                                         Deel deze resetlink niet met anderen.
-                                        SmartDesk zal je nooit vragen om je wachtwoord
-                                        of resetlink per e-mail door te sturen.
+
+                                        SmartDesk zal je nooit vragen om je
+                                        wachtwoord of resetlink per e-mail door
+                                        te sturen.
                                     </div>
 
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- CLOSING -->
+
+                        {{-- ========================================================= --}}
+                        {{-- CLOSING                                                    --}}
+                        {{-- ========================================================= --}}
+
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -426,9 +516,14 @@
                                 color: #555555;
                             "
                         >
-                            Met vriendelijke groet,<br>
+                            Met vriendelijke groet,
+                            <br>
 
-                            <strong style="color: #111111;">
+                            <strong
+                                style="
+                                    color: #111111;
+                                "
+                            >
                                 Het SmartDesk-team
                             </strong>
                         </p>
@@ -436,7 +531,11 @@
                     </td>
                 </tr>
 
-                <!-- FOOTER -->
+
+                {{-- ========================================================= --}}
+                {{-- FOOTER                                                     --}}
+                {{-- ========================================================= --}}
+
                 <tr>
                     <td
                         style="
@@ -446,6 +545,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 font-size: 12px;
@@ -468,14 +568,16 @@
                             © {{ date('Y') }} SmartDesk.
                             Alle rechten voorbehouden.
                         </div>
+
                     </td>
                 </tr>
 
             </table>
+
         </td>
     </tr>
 </table>
 
 </body>
 </html>
-
+```

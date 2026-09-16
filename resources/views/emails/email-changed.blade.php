@@ -1,22 +1,30 @@
+```blade
 <!DOCTYPE html>
 <html lang="nl">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Je SmartDesk-e-mailadres is gewijzigd</title>
 </head>
 
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f3f5f7;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
-">
+<body
+    style="
+        margin: 0;
+        padding: 0;
+        background-color: #f3f5f7;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222222;
+    "
+>
 
 <table
+    role="presentation"
     width="100%"
     cellpadding="0"
     cellspacing="0"
@@ -30,8 +38,8 @@
     <tr>
         <td align="center">
 
-            <!-- MAIN EMAIL CONTAINER -->
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -46,7 +54,7 @@
                 "
             >
 
-                <!-- HEADER -->
+                {{-- HEADER --}}
                 <tr>
                     <td
                         style="
@@ -79,7 +87,7 @@
                     </td>
                 </tr>
 
-                <!-- CONTENT -->
+                {{-- CONTENT --}}
                 <tr>
                     <td style="padding: 42px 40px 35px;">
 
@@ -117,8 +125,9 @@
                             Hieronder zie je welke wijziging is uitgevoerd.
                         </p>
 
-                        <!-- CHANGE OVERVIEW -->
+                        {{-- CHANGE OVERVIEW --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -145,13 +154,13 @@
                                         Wijziging van je e-mailadres
                                     </div>
 
-                                    <!-- OLD EMAIL -->
                                     <table
+                                        role="presentation"
                                         width="100%"
                                         cellpadding="0"
                                         cellspacing="0"
                                         border="0"
-                                        style="margin-bottom: 14px;"
+                                        style="width: 100%;"
                                     >
                                         <tr>
                                             <td
@@ -180,24 +189,23 @@
                                                 {{ $oldEmail }}
                                             </td>
                                         </tr>
-                                    </table>
 
-                                    <!-- SEPARATOR -->
-                                    <div
-                                        style="
-                                            height: 1px;
-                                            background-color: #e1e4e7;
-                                            margin: 2px 0 14px;
-                                        "
-                                    ></div>
+                                        <tr>
+                                            <td
+                                                colspan="2"
+                                                style="
+                                                    padding: 5px 0;
+                                                "
+                                            >
+                                                <div
+                                                    style="
+                                                        height: 1px;
+                                                        background-color: #e1e4e7;
+                                                    "
+                                                ></div>
+                                            </td>
+                                        </tr>
 
-                                    <!-- NEW EMAIL -->
-                                    <table
-                                        width="100%"
-                                        cellpadding="0"
-                                        cellspacing="0"
-                                        border="0"
-                                    >
                                         <tr>
                                             <td
                                                 valign="top"
@@ -226,12 +234,14 @@
                                             </td>
                                         </tr>
                                     </table>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- VERIFICATION NOTICE -->
+                        {{-- VERIFICATION NOTICE --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -266,9 +276,11 @@
                                     >
                                         Omdat je e-mailadres is gewijzigd, moet je
                                         het nieuwe e-mailadres opnieuw verifiëren.
+
                                         SmartDesk heeft hiervoor een verificatiecode
                                         naar je nieuwe e-mailadres gestuurd.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
@@ -292,7 +304,8 @@
                             "
                         >
                             Je SmartDesk-account gebruikt vanaf nu het nieuwe
-                            e-mailadres voor accountcommunicatie en belangrijke meldingen.
+                            e-mailadres voor accountcommunicatie en belangrijke
+                            meldingen.
                         </p>
 
                         <p
@@ -308,8 +321,9 @@
                             je nieuwe e-mailadres verzonden.
                         </p>
 
-                        <!-- SECURITY WARNING -->
+                        {{-- SECURITY WARNING --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -345,15 +359,18 @@
                                     >
                                         Als jij je e-mailadres niet hebt gewijzigd,
                                         kan iemand anders toegang hebben tot je account.
+
                                         Wijzig in dat geval onmiddellijk je wachtwoord
                                         en neem contact op met SmartDesk.
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
 
-                        <!-- ACCOUNT DETAILS -->
+                        {{-- ACCOUNT DETAILS --}}
                         <table
+                            role="presentation"
                             width="100%"
                             cellpadding="0"
                             cellspacing="0"
@@ -370,9 +387,9 @@
 
                                     <div
                                         style="
+                                            margin-bottom: 5px;
                                             font-size: 13px;
                                             color: #888888;
-                                            margin-bottom: 5px;
                                         "
                                     >
                                         Accountnaam
@@ -387,6 +404,7 @@
                                     >
                                         {{ $user->name }}
                                     </div>
+
                                 </td>
                             </tr>
 
@@ -395,9 +413,9 @@
 
                                     <div
                                         style="
+                                            margin-bottom: 5px;
                                             font-size: 13px;
                                             color: #888888;
-                                            margin-bottom: 5px;
                                         "
                                     >
                                         Oud e-mailadres
@@ -413,6 +431,7 @@
                                     >
                                         {{ $oldEmail }}
                                     </div>
+
                                 </td>
                             </tr>
 
@@ -421,9 +440,9 @@
 
                                     <div
                                         style="
+                                            margin-bottom: 5px;
                                             font-size: 13px;
                                             color: #888888;
-                                            margin-bottom: 5px;
                                         "
                                     >
                                         Nieuw e-mailadres
@@ -439,6 +458,7 @@
                                     >
                                         {{ $newEmail }}
                                     </div>
+
                                 </td>
                             </tr>
                         </table>
@@ -452,8 +472,9 @@
                             "
                         >
                             Als je deze wijziging zelf hebt uitgevoerd,
-                            hoef je verder niets te doen. Je hoeft alleen nog
-                            je nieuwe e-mailadres te verifiëren.
+                            hoef je verder niets te doen.
+
+                            Je hoeft alleen nog je nieuwe e-mailadres te verifiëren.
                         </p>
 
                         <p
@@ -464,16 +485,18 @@
                                 color: #555555;
                             "
                         >
-                            Met vriendelijke groet,<br>
+                            Met vriendelijke groet,
+                            <br>
 
                             <strong style="color: #111111;">
                                 Het SmartDesk-team
                             </strong>
                         </p>
+
                     </td>
                 </tr>
 
-                <!-- FOOTER -->
+                {{-- FOOTER --}}
                 <tr>
                     <td
                         style="
@@ -483,6 +506,7 @@
                             text-align: center;
                         "
                     >
+
                         <div
                             style="
                                 font-size: 12px;
@@ -504,14 +528,16 @@
                             © {{ date('Y') }} SmartDesk.
                             Alle rechten voorbehouden.
                         </div>
+
                     </td>
                 </tr>
 
             </table>
+
         </td>
     </tr>
 </table>
 
 </body>
 </html>
-
+```
