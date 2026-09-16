@@ -1,4 +1,4 @@
-```blade id="x6k2wr"
+```blade
 <!DOCTYPE html>
 <html lang="nl">
 
@@ -56,10 +56,7 @@
                 "
             >
 
-                {{-- ========================================================= --}}
-                {{-- HEADER                                                     --}}
-                {{-- ========================================================= --}}
-
+                {{-- HEADER --}}
                 <tr>
                     <td
                         style="
@@ -68,7 +65,6 @@
                             text-align: center;
                         "
                     >
-
                         <div
                             style="
                                 color: #ffffff;
@@ -90,23 +86,17 @@
                         >
                             Accountbeveiliging &amp; wachtwoordherstel
                         </div>
-
                     </td>
                 </tr>
 
 
-                {{-- ========================================================= --}}
-                {{-- CONTENT                                                    --}}
-                {{-- ========================================================= --}}
-
+                {{-- CONTENT --}}
                 <tr>
                     <td
                         style="
                             padding: 42px 40px 35px;
                         "
                     >
-
-                        {{-- ICON --}}
 
                         <div
                             style="
@@ -124,8 +114,6 @@
                         </div>
 
 
-                        {{-- TITLE --}}
-
                         <h1
                             style="
                                 margin: 0 0 18px;
@@ -139,8 +127,6 @@
                         </h1>
 
 
-                        {{-- GREETING --}}
-
                         <p
                             style="
                                 margin: 0 0 18px;
@@ -152,8 +138,6 @@
                             Beste {{ $user->name }},
                         </p>
 
-
-                        {{-- INTRO --}}
 
                         <p
                             style="
@@ -180,10 +164,7 @@
                         </p>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- RESET BUTTON                                               --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- RESET BUTTON --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -219,10 +200,7 @@
                         </table>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- EXPIRATION NOTICE                                          --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- EXPIRATION NOTICE --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -242,7 +220,6 @@
                                         padding: 18px 20px;
                                     "
                                 >
-
                                     <div
                                         style="
                                             margin-bottom: 7px;
@@ -264,16 +241,12 @@
                                         Deze resetlink is 60 minuten geldig.
                                         Daarna moet je een nieuwe resetlink aanvragen.
                                     </div>
-
                                 </td>
                             </tr>
                         </table>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- FALLBACK LINK                                              --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- FALLBACK LINK --}}
                         <p
                             style="
                                 margin: 0 0 10px;
@@ -303,10 +276,7 @@
                         </p>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- SECURITY WARNING                                           --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- SECURITY WARNING --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -327,7 +297,6 @@
                                         padding: 20px;
                                     "
                                 >
-
                                     <div
                                         style="
                                             margin-bottom: 8px;
@@ -351,16 +320,12 @@
 
                                         Je huidige wachtwoord blijft gewoon actief.
                                     </div>
-
                                 </td>
                             </tr>
                         </table>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- ACCOUNT DETAILS                                            --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- ACCOUNT DETAILS --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -380,7 +345,6 @@
                                         padding: 18px 0;
                                     "
                                 >
-
                                     <div
                                         style="
                                             margin-bottom: 5px;
@@ -400,7 +364,6 @@
                                     >
                                         {{ $user->name }}
                                     </div>
-
                                 </td>
                             </tr>
 
@@ -410,7 +373,6 @@
                                         padding: 0 0 18px;
                                     "
                                 >
-
                                     <div
                                         style="
                                             margin-bottom: 5px;
@@ -431,17 +393,12 @@
                                     >
                                         {{ $user->email }}
                                     </div>
-
                                 </td>
                             </tr>
-
                         </table>
 
 
-                        {{-- ========================================================= --}}
-                        {{-- PASSWORD SAFETY                                            --}}
-                        {{-- ========================================================= --}}
-
+                        {{-- PASSWORD SAFETY --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -461,7 +418,6 @@
                                         padding: 18px 20px;
                                     "
                                 >
-
                                     <div
                                         style="
                                             margin-bottom: 7px;
@@ -486,15 +442,10 @@
                                         wachtwoord of resetlink per e-mail door
                                         te sturen.
                                     </div>
-
                                 </td>
                             </tr>
                         </table>
 
-
-                        {{-- ========================================================= --}}
-                        {{-- CLOSING                                                    --}}
-                        {{-- ========================================================= --}}
 
                         <p
                             style="
@@ -507,6 +458,7 @@
                             Heb je het wachtwoordherstel zelf aangevraagd?
                             Gebruik dan de bovenstaande knop om verder te gaan.
                         </p>
+
 
                         <p
                             style="
@@ -532,10 +484,7 @@
                 </tr>
 
 
-                {{-- ========================================================= --}}
-                {{-- FOOTER                                                     --}}
-                {{-- ========================================================= --}}
-
+                {{-- FOOTER --}}
                 <tr>
                     <td
                         style="
@@ -545,7 +494,6 @@
                             text-align: center;
                         "
                     >
-
                         <div
                             style="
                                 font-size: 12px;
@@ -568,7 +516,6 @@
                             © {{ date('Y') }} SmartDesk.
                             Alle rechten voorbehouden.
                         </div>
-
                     </td>
                 </tr>
 
