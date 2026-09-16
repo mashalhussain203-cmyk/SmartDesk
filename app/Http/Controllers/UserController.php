@@ -405,7 +405,7 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $this->brevoMail->send(
+            $this->sendEmailSafely(
                 $oldEmail,
                 $oldName,
                 'Je SmartDesk-e-mailadres is gewijzigd',
@@ -424,7 +424,7 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $this->brevoMail->send(
+            $this->sendEmailSafely(
                 $user->email,
                 $user->name,
                 'Je SmartDesk-accountgegevens zijn gewijzigd',
@@ -469,7 +469,7 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-accountgegevens zijn gewijzigd',
@@ -551,7 +551,7 @@ class UserController extends Controller
         $user->save();
 
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-wachtwoord is gewijzigd',
@@ -830,7 +830,7 @@ class UserController extends Controller
         ]);
 
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Bestelbevestiging ' . $orderNumber,
@@ -1041,7 +1041,7 @@ class UserController extends Controller
             ->delete();
 
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je e-mailadres is geverifieerd - SmartDesk',
@@ -1104,6 +1104,12 @@ class UserController extends Controller
         )->firstOrFail();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Nieuw reset-token maken
+        |--------------------------------------------------------------------------
+        */
+
         $token = Str::random(64);
 
 
@@ -1126,23 +1132,56 @@ class UserController extends Controller
         );
 
 
-        $this->brevoMail->send(
+        /*
+        |--------------------------------------------------------------------------
+        | Resetmail via Brevo versturen
+        |--------------------------------------------------------------------------
+        */
+
+        $mailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Wachtwoord herstellen - SmartDesk',
             'emails.password-reset',
             [
-                'user' => $user,
-                'token' => $token,
+                'user' =>
+                    $user,
+
+                'token' =>
+                    $token,
             ]
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mail mislukt
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $mailSent) {
+            return redirect()
+                ->route('password.request')
+                ->with(
+                    'error',
+                    'De resetlink kon niet per e-mail worden verzonden. Probeer het later opnieuw.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mail gelukt
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route('password.request')
             ->with(
                 'success',
-                'Een resetlink is per e-mail verzonden.'
+                'Een resetlink is per e-mail verzonden naar ' .
+                $user->email .
+                '.'
             );
     }
 
@@ -1300,7 +1339,7 @@ class UserController extends Controller
             ->delete();
 
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-wachtwoord is gewijzigd',
@@ -1505,7 +1544,7 @@ class UserController extends Controller
         |
         */
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-account is aangemaakt',
@@ -1955,7 +1994,7 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $this->brevoMail->send(
+        $primaryMailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
             'Je SmartDesk-account is gewijzigd',
@@ -1970,14 +2009,28 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $oldAddressMailSent = true;
+
         if ($emailChanged) {
-            $this->brevoMail->send(
+            $oldAddressMailSent = $this->sendEmailSafely(
                 $oldEmail,
                 $oldName,
                 'Beveiligingsmelding: je SmartDesk-account is gewijzigd',
                 'emails.admin-account-updated',
                 $mailData
             );
+        }
+
+
+        if (! $primaryMailSent || ! $oldAddressMailSent) {
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'error',
+                    'De gegevens van ' .
+                    $user->name .
+                    ' zijn wel opgeslagen, maar één of meer e-mails konden niet worden verzonden.'
+                );
         }
 
 
@@ -2053,7 +2106,7 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $this->brevoMail->send(
+        $deletionMailSent = $this->sendEmailSafely(
             $deletedUserEmail,
             $deletedUserName,
             'Je SmartDesk-account is verwijderd',
@@ -2108,6 +2161,18 @@ class UserController extends Controller
 
 
         $user->delete();
+
+
+        if (! $deletionMailSent) {
+            return redirect()
+                ->route('users.index')
+                ->with(
+                    'error',
+                    'Gebruiker ' .
+                    $deletedUserName .
+                    ' is verwijderd, maar de bevestigingsmail kon niet worden verzonden.'
+                );
+        }
 
 
         return redirect()
@@ -2210,6 +2275,42 @@ class UserController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | Brevo e-mail veilig versturen
+    |--------------------------------------------------------------------------
+    |
+    | Een fout bij Brevo mag nooit een reeds opgeslagen databasewijziging
+    | veranderen in een 500 Server Error. De exception wordt wel gelogd via
+    | Laravel zodat je hem in Railway Deploy Logs kunt terugvinden.
+    |
+    */
+
+    private function sendEmailSafely(
+        string $toEmail,
+        string $toName,
+        string $subject,
+        string $view,
+        array $data = []
+    ): bool {
+        try {
+            $this->brevoMail->send(
+                $toEmail,
+                $toName,
+                $subject,
+                $view,
+                $data
+            );
+
+            return true;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return false;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Verificatiemail versturen
     |--------------------------------------------------------------------------
     */
@@ -2239,7 +2340,7 @@ class UserController extends Controller
         }
 
 
-        $this->brevoMail->send(
+        $this->sendEmailSafely(
             $user->email,
             $user->name,
             $subject,
