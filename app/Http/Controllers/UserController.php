@@ -1,4 +1,4 @@
-<?php
+
 
 namespace App\Http\Controllers;
 
@@ -1256,39 +1256,44 @@ class UserController extends Controller
                     : null,
         ]);
 
-        $verificationSent = true;
+        $code = null;
 
         if (! $user->email_verified_at) {
-            $this->createVerificationCode(
-                $user
-            );
+            $this->createVerificationCode($user);
 
-            $verificationSent =
-                $this->sendVerificationEmail(
-                    $user,
-                    'Je SmartDesk-account is aangemaakt'
-                );
+            $code = DB::table('email_verification_codes')
+                ->where('user_id', $user->id)
+                ->whereNull('used_at')
+                ->latest('created_at')
+                ->value('code');
+
+            if ($code === null) {
+                return redirect()
+                    ->route('users.index')
+                    ->with('success', 'De gebruiker is aangemaakt, maar de verificatiecode kon niet worden opgehaald. Er is geen welkomstmail verzonden.');
+            }
         }
 
-        if (! $verificationSent) {
-            return redirect()
-                ->route('users.index')
-                ->with(
-                    'success',
-                    'Gebruiker ' .
-                    $user->name .
-                    ' is aangemaakt, maar de verificatiemail kon niet worden verzonden.'
-                );
+        $emailSent = $this->sendEmailSafely(
+            $user->email,
+            (string) $user->name,
+            'Welkom bij SmartDesk - Je account is aangemaakt',
+            'emails.account-created',
+            [
+                'user' => $user,
+                'code' => $code,
+            ]
+        );
+
+        $message = 'Gebruiker ' . $user->name . ' is succesvol aangemaakt.';
+
+        if (! $emailSent) {
+            $message .= ' De welkomstmail kon niet worden verzonden.';
         }
 
         return redirect()
             ->route('users.index')
-            ->with(
-                'success',
-                'Gebruiker ' .
-                $user->name .
-                ' is succesvol aangemaakt.'
-            );
+            ->with('success', $message);
     }
 
     public function edit(User $user): View
