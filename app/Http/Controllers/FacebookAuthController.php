@@ -55,7 +55,7 @@ class FacebookAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Facebook gegevens normaliseren
+            | Facebook gegevens ophalen
             |--------------------------------------------------------------------------
             */
 
@@ -91,7 +91,7 @@ class FacebookAuthController extends Controller
                     ->route('login')
                     ->with(
                         'error',
-                        'Facebook heeft geen geldig gebruikers-ID teruggegeven.'
+                        'Facebook kon je account niet correct identificeren. Probeer opnieuw in te loggen.'
                     );
             }
 
@@ -107,7 +107,7 @@ class FacebookAuthController extends Controller
                     ->route('login')
                     ->with(
                         'error',
-                        'Facebook heeft geen e-mailadres beschikbaar gesteld. Controleer of je toestemming hebt gegeven om je e-mailadres te delen.'
+                        'Facebook heeft geen e-mailadres beschikbaar gesteld. Geef Mashal Automotive toestemming om je e-mailadres te gebruiken en probeer opnieuw.'
                     );
             }
 
@@ -164,13 +164,8 @@ class FacebookAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Controle bestaande Facebook-koppeling
+            | Bestaande Facebook-koppeling controleren
             |--------------------------------------------------------------------------
-            |
-            | Wanneer het bestaande Mashal-account al aan een ander
-            | Facebook-account gekoppeld is, overschrijven we die
-            | koppeling niet automatisch.
-            |
             */
 
             if (
@@ -189,7 +184,7 @@ class FacebookAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Nieuwe gebruiker
+            | Nieuwe gebruiker aanmaken
             |--------------------------------------------------------------------------
             */
 
@@ -268,7 +263,7 @@ class FacebookAuthController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | E-mailverificatie
+                | E-mailverificatie synchroniseren
                 |--------------------------------------------------------------------------
                 */
 
@@ -295,9 +290,7 @@ class FacebookAuthController extends Controller
             | Welkomstmail via Brevo
             |--------------------------------------------------------------------------
             |
-            | Alleen nieuwe gebruikers ontvangen een welkomstmail.
-            |
-            | Een fout bij Brevo mag Facebook-login niet blokkeren.
+            | Een probleem met Brevo mag Facebook-login niet blokkeren.
             |
             */
 
@@ -371,13 +364,31 @@ class FacebookAuthController extends Controller
                 );
 
         } catch (Throwable $exception) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Technische fout loggen
+            |--------------------------------------------------------------------------
+            |
+            | De volledige fout wordt opgeslagen in de Laravel/Railway logs,
+            | maar wordt bewust niet rechtstreeks aan de gebruiker getoond.
+            |
+            */
+
             report($exception);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Veilige foutmelding
+            |--------------------------------------------------------------------------
+            */
 
             return redirect()
                 ->route('login')
                 ->with(
                     'error',
-                    'Inloggen met Facebook is niet gelukt. Probeer het opnieuw.'
+                    'Facebook-login kon niet worden voltooid. Controleer je Facebook-toestemming en probeer het opnieuw. Blijft het probleem bestaan, neem dan contact op met Mashal Automotive.'
                 );
         }
     }
