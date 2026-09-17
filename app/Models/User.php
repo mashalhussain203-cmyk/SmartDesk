@@ -40,6 +40,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
+        | Facebook OAuth
+        |--------------------------------------------------------------------------
+        */
+
+        'facebook_id',
+        'facebook_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
         | Account
         |--------------------------------------------------------------------------
         */
@@ -90,19 +99,27 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Controleer of er een Google-account gekoppeld is.
+     * Controleer of een Google-account gekoppeld is.
      */
     public function hasGoogleAccount(): bool
     {
-        return !empty($this->google_id);
+        return filled($this->google_id);
     }
 
     /**
-     * Controleer of er een GitHub-account gekoppeld is.
+     * Controleer of een GitHub-account gekoppeld is.
      */
     public function hasGitHubAccount(): bool
     {
-        return !empty($this->github_id);
+        return filled($this->github_id);
+    }
+
+    /**
+     * Controleer of een Facebook-account gekoppeld is.
+     */
+    public function hasFacebookAccount(): bool
+    {
+        return filled($this->facebook_id);
     }
 
     /**
@@ -112,7 +129,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasSocialAccount(): bool
     {
         return $this->hasGoogleAccount()
-            || $this->hasGitHubAccount();
+            || $this->hasGitHubAccount()
+            || $this->hasFacebookAccount();
     }
 
     /**
@@ -120,20 +138,69 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * Voorkeursvolgorde:
      *
-     * 1. Google avatar
-     * 2. GitHub avatar
-     * 3. Geen avatar
+     * 1. Google
+     * 2. GitHub
+     * 3. Facebook
+     * 4. Geen profielfoto
      */
     public function socialAvatar(): ?string
     {
-        if (!empty($this->google_avatar)) {
+        if (filled($this->google_avatar)) {
             return $this->google_avatar;
         }
 
-        if (!empty($this->github_avatar)) {
+        if (filled($this->github_avatar)) {
             return $this->github_avatar;
         }
 
+        if (filled($this->facebook_avatar)) {
+            return $this->facebook_avatar;
+        }
+
         return null;
+    }
+
+    /**
+     * Geef de naam van de eerste gekoppelde OAuth-provider terug.
+     */
+    public function socialProvider(): ?string
+    {
+        if ($this->hasGoogleAccount()) {
+            return 'google';
+        }
+
+        if ($this->hasGitHubAccount()) {
+            return 'github';
+        }
+
+        if ($this->hasFacebookAccount()) {
+            return 'facebook';
+        }
+
+        return null;
+    }
+
+    /**
+     * Geef alle gekoppelde OAuth-providers terug.
+     *
+     * @return array<int, string>
+     */
+    public function socialProviders(): array
+    {
+        $providers = [];
+
+        if ($this->hasGoogleAccount()) {
+            $providers[] = 'google';
+        }
+
+        if ($this->hasGitHubAccount()) {
+            $providers[] = 'github';
+        }
+
+        if ($this->hasFacebookAccount()) {
+            $providers[] = 'facebook';
+        }
+
+        return $providers;
     }
 }

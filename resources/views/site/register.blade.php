@@ -548,6 +548,8 @@
 
 
 
+
+
     /* ========================================================= */
 
     /* GOOGLE OAUTH                                              */
@@ -717,14 +719,254 @@
     }
 
     /* ========================================================= */
+
     /* GITHUB OAUTH                                              */
+
     /* ========================================================= */
 
     .github-auth-block {
+
         margin: -12px 0 24px;
+
     }
 
     .github-auth-button {
+
+        position: relative;
+
+        width: 100%;
+
+        min-height: 58px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        padding: 0 52px;
+
+        overflow: hidden;
+
+        border: 1px solid rgba(255,255,255,.12);
+
+        border-radius: 999px;
+
+        background:
+
+            linear-gradient(
+
+                180deg,
+
+                rgba(255,255,255,.07),
+
+                rgba(255,255,255,.025)
+
+            ),
+
+            #0d1117;
+
+        color: #f3f1ec;
+
+        text-decoration: none;
+
+        box-shadow:
+
+            inset 0 1px 0 rgba(255,255,255,.05),
+
+            0 12px 34px rgba(0,0,0,.20);
+
+        transition:
+
+            transform .22s ease,
+
+            border-color .22s ease,
+
+            background .22s ease,
+
+            box-shadow .22s ease;
+
+    }
+
+    .github-auth-button::before {
+
+        content: "";
+
+        position: absolute;
+
+        inset: 0;
+
+        background:
+
+            linear-gradient(
+
+                110deg,
+
+                transparent 20%,
+
+                rgba(255,255,255,.05) 48%,
+
+                transparent 76%
+
+            );
+
+        transform: translateX(-130%);
+
+        transition: transform .7s ease;
+
+        pointer-events: none;
+
+    }
+
+    .github-auth-button:hover {
+
+        transform: translateY(-2px);
+
+        border-color: rgba(215,164,95,.30);
+
+        background:
+
+            linear-gradient(
+
+                180deg,
+
+                rgba(215,164,95,.075),
+
+                rgba(255,255,255,.028)
+
+            ),
+
+            #0d1117;
+
+        box-shadow:
+
+            inset 0 1px 0 rgba(255,255,255,.07),
+
+            0 18px 42px rgba(0,0,0,.24);
+
+    }
+
+    .github-auth-button:hover::before {
+
+        transform: translateX(130%);
+
+    }
+
+    .github-auth-icon {
+
+        position: absolute;
+
+        left: 18px;
+
+        width: 22px;
+
+        height: 22px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 50%;
+
+        background: #f6f4ef;
+
+        color: #0d1117;
+
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+
+    }
+
+    .github-auth-icon svg {
+
+        width: 15px;
+
+        height: 15px;
+
+        display: block;
+
+        fill: currentColor;
+
+    }
+
+    .github-auth-copy {
+
+        position: relative;
+
+        z-index: 1;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 2px;
+
+        line-height: 1.2;
+
+        text-align: center;
+
+    }
+
+    .github-auth-copy strong {
+
+        color: #f4f2ed;
+
+        font-size: 12px;
+
+        font-weight: 900;
+
+    }
+
+    .github-auth-copy small {
+
+        color: #777d84;
+
+        font-size: 8px;
+
+        font-weight: 750;
+
+        letter-spacing: .03em;
+
+    }
+
+    .github-security-note {
+
+        margin-top: 10px;
+
+        text-align: center;
+
+        color: #5f656c;
+
+        font-size: 9px;
+
+        line-height: 1.6;
+
+    }
+
+    .github-security-note strong {
+
+        color: #8d9399;
+
+        font-weight: 800;
+
+    }
+
+
+
+
+
+    /* ========================================================= */
+    /* FACEBOOK OAUTH                                            */
+    /* ========================================================= */
+
+    .facebook-auth-block {
+        margin: -12px 0 24px;
+    }
+
+    .facebook-auth-button {
         position: relative;
         width: 100%;
         min-height: 58px;
@@ -736,61 +978,35 @@
         overflow: hidden;
         border: 1px solid rgba(255,255,255,.12);
         border-radius: 999px;
-        background:
-            linear-gradient(
-                180deg,
-                rgba(255,255,255,.07),
-                rgba(255,255,255,.025)
-            ),
-            #0d1117;
+        background: linear-gradient(180deg, rgba(24,119,242,.20), rgba(24,119,242,.10));
         color: #f3f1ec;
         text-decoration: none;
-        box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.05),
-            0 12px 34px rgba(0,0,0,.20);
-        transition:
-            transform .22s ease,
-            border-color .22s ease,
-            background .22s ease,
-            box-shadow .22s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 34px rgba(0,0,0,.20);
+        transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
     }
 
-    .github-auth-button::before {
+    .facebook-auth-button::before {
         content: "";
         position: absolute;
         inset: 0;
-        background:
-            linear-gradient(
-                110deg,
-                transparent 20%,
-                rgba(255,255,255,.05) 48%,
-                transparent 76%
-            );
+        background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.06) 48%, transparent 76%);
         transform: translateX(-130%);
         transition: transform .7s ease;
         pointer-events: none;
     }
 
-    .github-auth-button:hover {
+    .facebook-auth-button:hover {
         transform: translateY(-2px);
         border-color: rgba(215,164,95,.30);
-        background:
-            linear-gradient(
-                180deg,
-                rgba(215,164,95,.075),
-                rgba(255,255,255,.028)
-            ),
-            #0d1117;
-        box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.07),
-            0 18px 42px rgba(0,0,0,.24);
+        background: linear-gradient(180deg, rgba(24,119,242,.26), rgba(215,164,95,.06));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 42px rgba(0,0,0,.24);
     }
 
-    .github-auth-button:hover::before {
+    .facebook-auth-button:hover::before {
         transform: translateX(130%);
     }
 
-    .github-auth-icon {
+    .facebook-auth-icon {
         position: absolute;
         left: 18px;
         width: 22px;
@@ -798,19 +1014,19 @@
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: #f6f4ef;
-        color: #0d1117;
+        background: #1877f2;
+        color: #ffffff;
         box-shadow: 0 6px 18px rgba(0,0,0,.18);
     }
 
-    .github-auth-icon svg {
-        width: 15px;
-        height: 15px;
+    .facebook-auth-icon svg {
+        width: 14px;
+        height: 14px;
         display: block;
         fill: currentColor;
     }
 
-    .github-auth-copy {
+    .facebook-auth-copy {
         position: relative;
         z-index: 1;
         display: flex;
@@ -821,20 +1037,20 @@
         text-align: center;
     }
 
-    .github-auth-copy strong {
+    .facebook-auth-copy strong {
         color: #f4f2ed;
         font-size: 12px;
         font-weight: 900;
     }
 
-    .github-auth-copy small {
+    .facebook-auth-copy small {
         color: #777d84;
         font-size: 8px;
         font-weight: 750;
         letter-spacing: .03em;
     }
 
-    .github-security-note {
+    .facebook-security-note {
         margin-top: 10px;
         text-align: center;
         color: #5f656c;
@@ -842,12 +1058,10 @@
         line-height: 1.6;
     }
 
-    .github-security-note strong {
+    .facebook-security-note strong {
         color: #8d9399;
         font-weight: 800;
     }
-
-
 
     .oauth-divider {
 
@@ -1609,6 +1823,10 @@
 
 
 
+
+
+
+
 @section('content')
 
 <section class="register-page">
@@ -1657,6 +1875,10 @@
 
 
 
+
+
+
+
                 <div class="register-benefits">
 
                     <div class="register-benefit">
@@ -1679,6 +1901,10 @@
 
 
 
+
+
+
+
                     <div class="register-benefit">
 
                         <small>
@@ -1694,6 +1920,10 @@
                         </strong>
 
                     </div>
+
+
+
+
 
 
 
@@ -1720,6 +1950,10 @@
             </div>
 
         </div>
+
+
+
+
 
 
 
@@ -1765,6 +1999,10 @@
 
 
 
+
+
+
+
                 <span class="register-section-kicker">
 
                     Create your account
@@ -1779,11 +2017,17 @@
 
                 <p class="register-subtitle">
 
-                    Registreer veilig met Google, GitHub of vul je gegevens in.
+                    Registreer veilig met Google, GitHub, Facebook of vul je gegevens in.
+
                     Bij registratie met e-mail sturen we je een verificatiecode
+
                     om je e-mailadres te bevestigen.
 
                 </p>
+
+
+
+
 
 
 
@@ -1818,6 +2062,12 @@
                     </div>
 
                 @endif
+
+
+
+
+
+
 
 
 
@@ -1882,37 +2132,119 @@
                 </div>
 
                 {{-- GITHUB OAUTH --}}
+
                 <div class="github-auth-block">
+
                     <a
+
                         class="github-auth-button"
+
                         href="{{ route('github.redirect') }}"
+
                         aria-label="Doorgaan met GitHub"
+
                     >
+
                         <span class="github-auth-icon" aria-hidden="true">
+
                             <svg
+
                                 viewBox="0 0 24 24"
+
                                 xmlns="http://www.w3.org/2000/svg"
+
                                 role="img"
+
                             >
+
                                 <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+
                             </svg>
+
                         </span>
 
                         <span class="github-auth-copy">
+
                             <strong>
+
                                 Doorgaan met GitHub
+
                             </strong>
+
                             <small>
+
                                 Inloggen of direct een Mashal-account aanmaken
+
                             </small>
+
                         </span>
+
                     </a>
 
                     <div class="github-security-note">
+
                         Je wordt veilig doorgestuurd naar <strong>GitHub</strong>.
+
                         Mashal ontvangt nooit je GitHub-wachtwoord.
+
                     </div>
+
                 </div>
+
+
+
+                {{-- FACEBOOK OAUTH --}}
+
+                <div class="facebook-auth-block">
+
+                    <a
+
+                        class="facebook-auth-button"
+
+                        href="{{ route('facebook.redirect') }}"
+
+                        aria-label="Doorgaan met Facebook"
+
+                    >
+
+                        <span class="facebook-auth-icon" aria-hidden="true">
+
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img">
+
+                                <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+
+                            </svg>
+
+                        </span>
+
+                        <span class="facebook-auth-copy">
+
+                            <strong>
+
+                                Doorgaan met Facebook
+
+                            </strong>
+
+                            <small>
+
+                                Inloggen of direct een Mashal-account aanmaken
+
+                            </small>
+
+                        </span>
+
+                    </a>
+
+                    <div class="facebook-security-note">
+
+                        Je wordt veilig doorgestuurd naar <strong>Facebook</strong>.
+
+                        Mashal ontvangt nooit je Facebook-wachtwoord.
+
+                    </div>
+
+                </div>
+
 
 
                 <div class="oauth-divider">
@@ -1934,6 +2266,10 @@
                 >
 
                     @csrf
+
+
+
+
 
 
 
@@ -1964,6 +2300,10 @@
                                 @enderror
 
                             </div>
+
+
+
+
 
 
 
@@ -2007,6 +2347,10 @@
 
 
 
+
+
+
+
                         {{-- EMAIL --}}
 
                         <div class="register-field full">
@@ -2035,6 +2379,10 @@
 
 
 
+
+
+
+
                             <div class="register-input-wrap">
 
                                 <input
@@ -2049,7 +2397,7 @@
 
                                     value="{{ old('email') }}"
 
-                                    placeholder="naam\@example.com"
+                                    placeholder="naam@example.com"
 
                                     autocomplete="email"
 
@@ -2066,6 +2414,10 @@
                             </div>
 
                         </div>
+
+
+
+
 
 
 
@@ -2094,6 +2446,10 @@
                                 @enderror
 
                             </div>
+
+
+
+
 
 
 
@@ -2143,6 +2499,10 @@
 
 
 
+
+
+
+
                             <div
 
                                 class="password-strength"
@@ -2185,6 +2545,10 @@
 
 
 
+
+
+
+
                         {{-- PASSWORD CONFIRMATION --}}
 
                         <div class="register-field">
@@ -2208,6 +2572,10 @@
                                 @enderror
 
                             </div>
+
+
+
+
 
 
 
@@ -2261,6 +2629,10 @@
 
 
 
+
+
+
+
                     {{-- INFO --}}
 
                     <div class="registration-info">
@@ -2297,6 +2669,10 @@
 
 
 
+
+
+
+
                     {{-- SUBMIT --}}
 
                     <button
@@ -2317,11 +2693,19 @@
 
 
 
+
+
+
+
                 <div class="register-divider">
 
                     Al onderdeel van Mashal?
 
                 </div>
+
+
+
+
 
 
 
@@ -2351,6 +2735,10 @@
 
 
 
+
+
+
+
                     <a
 
                         class="login-card-link"
@@ -2364,6 +2752,10 @@
                     </a>
 
                 </div>
+
+
+
+
 
 
 
@@ -2396,6 +2788,10 @@
 </section>
 
 @endsection
+
+
+
+
 
 
 
@@ -2451,6 +2847,10 @@
 
 
 
+
+
+
+
         // Simple visual password strength meter.
 
         const passwordInput =
@@ -2464,6 +2864,10 @@
         const strengthText =
 
             document.getElementById('passwordStrengthText');
+
+
+
+
 
 
 

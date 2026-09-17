@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\UserController;
@@ -97,6 +98,35 @@ Route::get('/auth/github', [GitHubAuthController::class, 'redirect'])
 
 Route::get('/auth/github/callback', [GitHubAuthController::class, 'callback'])
     ->name('github.callback');
+
+
+/*
+|--------------------------------------------------------------------------
+| Facebook OAuth
+|--------------------------------------------------------------------------
+|
+| Deze routes verzorgen authenticatie via Facebook met Laravel Socialite.
+|
+| Dezelfde OAuth-flow wordt gebruikt voor:
+|
+| - bestaande gebruikers inloggen
+| - nieuwe gebruikers automatisch registreren
+| - bestaande Mashal-accounts koppelen aan Facebook
+| - Facebook-profielinformatie synchroniseren
+|
+| FacebookAuthController zoekt eerst naar facebook_id.
+|
+| Als er nog geen Facebook-koppeling bestaat, kan daarna een bestaand
+| Mashal-account worden gevonden op basis van het e-mailadres,
+| afhankelijk van de logica in de controller.
+|
+*/
+
+Route::get('/auth/facebook', [FacebookAuthController::class, 'redirect'])
+    ->name('facebook.redirect');
+
+Route::get('/auth/facebook/callback', [FacebookAuthController::class, 'callback'])
+    ->name('facebook.callback');
 
 
 /*

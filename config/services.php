@@ -11,7 +11,10 @@ return [
     | Mashal Automotive worden gebruikt.
     |
     | Gevoelige gegevens zoals API keys, OAuth-secrets en tokens
-    | worden uitsluitend via het .env-bestand ingeladen.
+    | worden uitsluitend via environment variables ingeladen.
+    |
+    | Plaats echte secrets nooit rechtstreeks in dit bestand
+    | en commit ze nooit naar GitHub.
     |
     */
 
@@ -23,7 +26,9 @@ return [
     */
 
     'postmark' => [
-        'key' => env('POSTMARK_API_KEY'),
+        'key' => env(
+            'POSTMARK_API_KEY'
+        ),
     ],
 
 
@@ -34,7 +39,9 @@ return [
     */
 
     'resend' => [
-        'key' => env('RESEND_API_KEY'),
+        'key' => env(
+            'RESEND_API_KEY'
+        ),
     ],
 
 
@@ -45,14 +52,20 @@ return [
     */
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
 
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'key' => env(
+            'AWS_ACCESS_KEY_ID'
+        ),
+
+        'secret' => env(
+            'AWS_SECRET_ACCESS_KEY'
+        ),
 
         'region' => env(
             'AWS_DEFAULT_REGION',
             'us-east-1'
         ),
+
     ],
 
 
@@ -63,7 +76,9 @@ return [
     */
 
     'slack' => [
+
         'notifications' => [
+
             'bot_user_oauth_token' => env(
                 'SLACK_BOT_USER_OAUTH_TOKEN'
             ),
@@ -71,7 +86,9 @@ return [
             'channel' => env(
                 'SLACK_BOT_USER_DEFAULT_CHANNEL'
             ),
+
         ],
+
     ],
 
 
@@ -97,13 +114,33 @@ return [
 
     'google' => [
 
+        /*
+        |--------------------------------------------------------------------------
+        | Google Client ID
+        |--------------------------------------------------------------------------
+        */
+
         'client_id' => env(
             'GOOGLE_CLIENT_ID'
         ),
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Google Client Secret
+        |--------------------------------------------------------------------------
+        */
+
         'client_secret' => env(
             'GOOGLE_CLIENT_SECRET'
         ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Google Redirect URI
+        |--------------------------------------------------------------------------
+        */
 
         'redirect' => env(
             'GOOGLE_REDIRECT_URI'
@@ -127,10 +164,11 @@ return [
     | - Nieuwe gebruikers automatisch registreren
     | - GitHub-profielinformatie ophalen via Laravel Socialite
     |
-    | GitHub wordt standaard ondersteund door Laravel Socialite.
-    |
     | De GITHUB_REDIRECT_URI moet exact overeenkomen met de
     | Authorization callback URL van de GitHub OAuth App.
+    |
+    | Eventuele GitHub OAuth-scopes worden in GitHubAuthController
+    | ingesteld en niet in dit configuratiebestand.
     |
     */
 
@@ -160,7 +198,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | GitHub OAuth Redirect URI
+        | GitHub Redirect URI
         |--------------------------------------------------------------------------
         */
 
@@ -173,16 +211,91 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Facebook OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Facebook OAuth wordt gebruikt voor authenticatie via Facebook.
+    |
+    | Onder andere voor:
+    |
+    | - Inloggen met Facebook
+    | - Registreren met Facebook
+    | - Bestaande Mashal-accounts koppelen aan Facebook
+    | - Nieuwe gebruikers automatisch registreren
+    | - Facebook-profielinformatie ophalen via Laravel Socialite
+    |
+    | De FACEBOOK_REDIRECT_URI moet exact overeenkomen met de
+    | Valid OAuth Redirect URI in Meta for Developers.
+    |
+    | Productie:
+    |
+    | https://mashalhussain.up.railway.app/auth/facebook/callback
+    |
+    | Eventuele Facebook OAuth-scopes worden in
+    | FacebookAuthController ingesteld.
+    |
+    */
+
+    'facebook' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Facebook App ID
+        |--------------------------------------------------------------------------
+        |
+        | Dit is de App ID van je Mashal Automotive-app in
+        | Meta for Developers.
+        |
+        */
+
+        'client_id' => env(
+            'FACEBOOK_CLIENT_ID'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Facebook App Secret
+        |--------------------------------------------------------------------------
+        |
+        | Het App Secret hoort uitsluitend in .env of Railway Variables.
+        |
+        */
+
+        'client_secret' => env(
+            'FACEBOOK_CLIENT_SECRET'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Facebook Redirect URI
+        |--------------------------------------------------------------------------
+        */
+
+        'redirect' => env(
+            'FACEBOOK_REDIRECT_URI'
+        ),
+
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Brevo
     |--------------------------------------------------------------------------
     |
     | Mashal Automotive gebruikt Brevo voor transactionele e-mail.
     |
-    | E-mails worden via de Brevo HTTPS API verstuurd in plaats van
-    | rechtstreeks via SMTP.
+    | Bijvoorbeeld voor:
     |
-    | Dit is geschikt voor hostingomgevingen waar SMTP-poorten beperkt
-    | of geblokkeerd kunnen zijn, zoals bepaalde cloudplatforms.
+    | - Welkomstmails
+    | - Accountmeldingen
+    | - Wachtwoordherstel
+    | - Bestelbevestigingen
+    | - Beveiligingsmeldingen
+    |
+    | E-mails worden via de Brevo HTTPS API verzonden.
     |
     */
 
@@ -190,13 +303,10 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | API Key
+        | Brevo API Key
         |--------------------------------------------------------------------------
         |
-        | De persoonlijke Brevo API-key.
-        |
-        | Deze waarde mag nooit rechtstreeks in deze configuratie worden
-        | geplaatst en hoort uitsluitend in het .env-bestand.
+        | Deze waarde mag uitsluitend via BREVO_API_KEY worden geladen.
         |
         */
 
@@ -210,8 +320,6 @@ return [
         | Sender E-mail Address
         |--------------------------------------------------------------------------
         |
-        | Het e-mailadres dat Brevo gebruikt als afzender.
-        |
         | Voorkeursvolgorde:
         |
         | 1. BREVO_FROM_EMAIL
@@ -221,7 +329,9 @@ return [
 
         'from_email' => env(
             'BREVO_FROM_EMAIL',
-            env('MAIL_FROM_ADDRESS')
+            env(
+                'MAIL_FROM_ADDRESS'
+            )
         ),
 
 
@@ -229,8 +339,6 @@ return [
         |--------------------------------------------------------------------------
         | Sender Name
         |--------------------------------------------------------------------------
-        |
-        | De zichtbare afzendernaam in e-mails.
         |
         | Voorkeursvolgorde:
         |
@@ -251,11 +359,8 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | API Base URL
+        | Brevo API Base URL
         |--------------------------------------------------------------------------
-        |
-        | Standaard wordt de officiële Brevo API v3 gebruikt.
-        |
         */
 
         'base_url' => env(
