@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\BrevoMailService;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\FacebookProvider;
@@ -129,30 +131,16 @@ class FacebookAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Nieuwe gebruiker status
+            | Gebruiker zoeken
             |--------------------------------------------------------------------------
             */
 
             $isNewUser = false;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Eerst zoeken op Facebook ID
-            |--------------------------------------------------------------------------
-            */
-
             $user = User::where(
                 'facebook_id',
                 $facebookId
             )->first();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Daarna zoeken op e-mailadres
-            |--------------------------------------------------------------------------
-            */
 
             if (! $user) {
                 $user = User::where(
@@ -191,19 +179,13 @@ class FacebookAuthController extends Controller
             if (! $user) {
                 $user = User::create([
                     'name' => $displayName,
-
                     'email' => $email,
-
                     'facebook_id' => $facebookId,
-
                     'facebook_avatar' => $avatar,
-
                     'password' => Hash::make(
                         Str::random(64)
                     ),
-
                     'email_verified_at' => now(),
-
                     'is_admin' => false,
                 ]);
 
@@ -218,24 +200,10 @@ class FacebookAuthController extends Controller
 
                 $changed = false;
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | Facebook ID koppelen
-                |--------------------------------------------------------------------------
-                */
-
                 if (blank($user->facebook_id)) {
                     $user->facebook_id = $facebookId;
                     $changed = true;
                 }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Facebook avatar synchroniseren
-                |--------------------------------------------------------------------------
-                */
 
                 if (
                     filled($avatar) &&
@@ -245,13 +213,6 @@ class FacebookAuthController extends Controller
                     $changed = true;
                 }
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | Naam aanvullen
-                |--------------------------------------------------------------------------
-                */
-
                 if (
                     blank($user->name) &&
                     $displayName !== ''
@@ -260,24 +221,10 @@ class FacebookAuthController extends Controller
                     $changed = true;
                 }
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | E-mailverificatie synchroniseren
-                |--------------------------------------------------------------------------
-                */
-
                 if (! $user->email_verified_at) {
                     $user->email_verified_at = now();
                     $changed = true;
                 }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Wijzigingen opslaan
-                |--------------------------------------------------------------------------
-                */
 
                 if ($changed) {
                     $user->save();
@@ -289,9 +236,6 @@ class FacebookAuthController extends Controller
             |--------------------------------------------------------------------------
             | Welkomstmail via Brevo
             |--------------------------------------------------------------------------
-            |
-            | Een probleem met Brevo mag Facebook-login niet blokkeren.
-            |
             */
 
             if ($isNewUser) {
@@ -322,13 +266,6 @@ class FacebookAuthController extends Controller
                 true
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Session vernieuwen
-            |--------------------------------------------------------------------------
-            */
-
             request()
                 ->session()
                 ->regenerate();
@@ -336,7 +273,7 @@ class FacebookAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Redirect nieuwe gebruiker
+            | Redirect
             |--------------------------------------------------------------------------
             */
 
@@ -349,13 +286,6 @@ class FacebookAuthController extends Controller
                     );
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Redirect bestaande gebruiker
-            |--------------------------------------------------------------------------
-            */
-
             return redirect()
                 ->route('account')
                 ->with(
@@ -363,32 +293,56 @@ class FacebookAuthController extends Controller
                     'Welkom terug. Je bent succesvol ingelogd met Facebook.'
                 );
 
-        } catch (Throwable $exception) {
+        } catch (ClientException $exception) {
 
             /*
             |--------------------------------------------------------------------------
-            | Technische fout loggen
-            |--------------------------------------------------------------------------
-            |
-            | De volledige fout wordt opgeslagen in de Laravel/Railway logs,
-            | maar wordt bewust niet rechtstreeks aan de gebruiker getoond.
-            |
-            */
-
-            report($exception);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Veilige foutmelding
+            | Facebook OAuth 400 fout loggen
             |--------------------------------------------------------------------------
             */
+
+            $responseBody = $exception->hasResponse()
+                ? (string) $exception->getResponse()->getBody()
+                : $exception->getMessage();
+
+            Log::error(
+                'Facebook OAuth token error',
+                [
+                    'message' => $exception->getMessage(),
+                    'response' => $responseBody,
+                ]
+            );
 
             return redirect()
                 ->route('login')
                 ->with(
                     'error',
-                    'Facebook-login kon niet worden voltooid. Controleer je Facebook-toestemming en probeer het opnieuw. Blijft het probleem bestaan, neem dan contact op met Mashal Automotive.'
+                    'Facebook-login kon niet worden voltooid. Controleer de Railway logs voor de exacte Facebook-fout.'
+                );
+
+        } catch (Throwable $exception) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Overige technische fout loggen
+            |--------------------------------------------------------------------------
+            */
+
+            Log::error(
+                'Facebook login error',
+                [
+                    'message' => $exception->getMessage(),
+                    'exception' => get_class($exception),
+                ]
+            );
+
+            report($exception);
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Facebook-login kon niet worden voltooid.'
                 );
         }
     }
