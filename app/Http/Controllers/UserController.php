@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -289,6 +290,18 @@ class UserController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Invoer valideren
+        |--------------------------------------------------------------------------
+        |
+        | profile_photo:
+        | - alleen echte afbeeldingen;
+        | - jpg/jpeg/png/webp;
+        | - maximaal 5 MB.
+        |
+        */
+
         $data = $request->validate([
             'name' => [
                 'required',
@@ -303,23 +316,111 @@ class UserController extends Controller
                 Rule::unique('users', 'email')
                     ->ignore($user->id),
             ],
+            'profile_photo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+            'remove_profile_photo' => [
+                'nullable',
+                'boolean',
+            ],
         ]);
 
-        $name = trim($data['name']);
 
-        $email = strtolower(
-            trim($data['email'])
+        /*
+        |--------------------------------------------------------------------------
+        | Nieuwe basisgegevens voorbereiden
+        |--------------------------------------------------------------------------
+        */
+
+        $name = trim(
+            (string) $data['name']
         );
 
-        $oldName = $user->name;
-        $oldEmail = $user->email;
+        $email = strtolower(
+            trim(
+                (string) $data['email']
+            )
+        );
 
-        $nameChanged = $oldName !== $name;
+        $oldName = (string) $user->name;
+        $oldEmail = (string) $user->email;
+
+        $oldProfilePhoto = trim(
+            (string) ($user->profile_photo ?? '')
+        );
+
+        $nameChanged =
+            $oldName !== $name;
 
         $emailChanged =
             strtolower($oldEmail) !== $email;
 
-        if (! $nameChanged && ! $emailChanged) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Profielfoto voorbereiden
+        |--------------------------------------------------------------------------
+        */
+
+        $newProfilePhoto = null;
+        $profilePhotoChanged = false;
+
+        if ($request->hasFile('profile_photo')) {
+            $uploadedPhoto = $request->file(
+                'profile_photo'
+            );
+
+            if (! $uploadedPhoto) {
+                return redirect()
+                    ->route('account')
+                    ->with(
+                        'error',
+                        'De profielfoto kon niet worden gelezen. Probeer opnieuw.'
+                    );
+            }
+
+            try {
+                $newProfilePhoto = $uploadedPhoto->store(
+                    'profile-photos',
+                    'public'
+                );
+            } catch (Throwable $exception) {
+                report($exception);
+
+                return redirect()
+                    ->route('account')
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'De profielfoto kon niet worden opgeslagen. Probeer het later opnieuw.'
+                    );
+            }
+
+            $profilePhotoChanged = true;
+        } elseif (
+            $request->boolean(
+                'remove_profile_photo'
+            ) &&
+            $oldProfilePhoto !== ''
+        ) {
+            $profilePhotoChanged = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Geen wijzigingen
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! $nameChanged &&
+            ! $emailChanged &&
+            ! $profilePhotoChanged
+        ) {
             return redirect()
                 ->route('account')
                 ->with(
@@ -328,6 +429,13 @@ class UserController extends Controller
                 );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker bijwerken
+        |--------------------------------------------------------------------------
+        */
+
         $user->name = $name;
 
         if ($emailChanged) {
@@ -335,7 +443,59 @@ class UserController extends Controller
             $user->email_verified_at = null;
         }
 
-        $user->save();
+        if ($profilePhotoChanged) {
+            $user->profile_photo =
+                $newProfilePhoto;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Opslaan
+        |--------------------------------------------------------------------------
+        |
+        | Als database-opslag mislukt nadat een nieuwe foto al is opgeslagen,
+        | verwijderen we die nieuwe foto weer om verweesde bestanden te voorkomen.
+        |
+        */
+
+        try {
+            $user->save();
+        } catch (Throwable $exception) {
+            if ($newProfilePhoto) {
+                try {
+                    Storage::disk('public')
+                        ->delete(
+                            $newProfilePhoto
+                        );
+                } catch (Throwable $storageException) {
+                    report(
+                        $storageException
+                    );
+                }
+            }
+
+            throw $exception;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Oude lokale profielfoto opruimen
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $profilePhotoChanged &&
+            $oldProfilePhoto !== '' &&
+            $oldProfilePhoto !==
+                (string) $newProfilePhoto
+        ) {
+            $this->deleteLocalProfilePhoto(
+                $oldProfilePhoto
+            );
+        }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -344,12 +504,16 @@ class UserController extends Controller
         */
 
         if ($emailChanged) {
-            $this->createVerificationCode($user);
-
-            $verificationSent = $this->sendVerificationEmail(
-                $user,
-                'Bevestig je nieuwe e-mailadres - SmartDesk'
+            $this->createVerificationCode(
+                $user
             );
+
+            $verificationSent =
+                $this->sendVerificationEmail(
+                    $user,
+                    'Bevestig je nieuwe e-mailadres - SmartDesk'
+                );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -369,13 +533,17 @@ class UserController extends Controller
                 ]
             );
 
+
             /*
             |--------------------------------------------------------------------------
-            | Eventueel ook accountwijziging naar nieuwe adres
+            | Accountwijziging naar nieuwe adres
             |--------------------------------------------------------------------------
             */
 
-            if ($nameChanged) {
+            if (
+                $nameChanged ||
+                $profilePhotoChanged
+            ) {
                 $this->sendEmailSafely(
                     $user->email,
                     $user->name,
@@ -392,7 +560,9 @@ class UserController extends Controller
 
             if (! $verificationSent) {
                 return redirect()
-                    ->route('verification.notice')
+                    ->route(
+                        'verification.notice'
+                    )
                     ->with(
                         'error',
                         'Je nieuwe e-mailadres is opgeslagen, maar de verificatiemail kon niet worden verzonden. Vraag een nieuwe verificatiecode aan.'
@@ -400,32 +570,39 @@ class UserController extends Controller
             }
 
             return redirect()
-                ->route('verification.notice')
+                ->route(
+                    'verification.notice'
+                )
                 ->with(
                     'success',
                     'Je nieuwe e-mailadres is opgeslagen. We hebben een verificatiecode naar je nieuwe e-mailadres gestuurd.'
                 );
         }
 
+
         /*
         |--------------------------------------------------------------------------
-        | Alleen naam gewijzigd
+        | Naam en/of profielfoto gewijzigd
         |--------------------------------------------------------------------------
         */
 
-        if ($nameChanged) {
-            $emailSent = $this->sendEmailSafely(
-                $user->email,
-                $user->name,
-                'Je SmartDesk-accountgegevens zijn gewijzigd',
-                'emails.account-updated',
-                [
-                    'user' => $user,
-                    'oldName' => $oldName,
-                    'oldEmail' => $oldEmail,
-                    'emailChanged' => false,
-                ]
-            );
+        if (
+            $nameChanged ||
+            $profilePhotoChanged
+        ) {
+            $emailSent =
+                $this->sendEmailSafely(
+                    $user->email,
+                    $user->name,
+                    'Je SmartDesk-accountgegevens zijn gewijzigd',
+                    'emails.account-updated',
+                    [
+                        'user' => $user,
+                        'oldName' => $oldName,
+                        'oldEmail' => $oldEmail,
+                        'emailChanged' => false,
+                    ]
+                );
 
             if (! $emailSent) {
                 return redirect()
@@ -437,13 +614,27 @@ class UserController extends Controller
             }
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Succes
+        |--------------------------------------------------------------------------
+        */
+
+        $message =
+            $profilePhotoChanged &&
+            ! $nameChanged
+                ? 'Je profielfoto is bijgewerkt.'
+                : 'Je accountgegevens zijn opgeslagen.';
+
         return redirect()
             ->route('account')
             ->with(
                 'success',
-                'Je accountgegevens zijn opgeslagen.'
+                $message
             );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -1516,6 +1707,10 @@ class UserController extends Controller
         $name = (string) $user->name;
         $email = (string) $user->email;
 
+        $profilePhoto = trim(
+            (string) ($user->profile_photo ?? '')
+        );
+
         DB::transaction(function () use ($user, $email) {
             DB::table('email_verification_codes')
                 ->where('user_id', $user->id)
@@ -1531,6 +1726,18 @@ class UserController extends Controller
                 );
             }
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Eventuele lokale profielfoto verwijderen
+        |--------------------------------------------------------------------------
+        */
+
+        if ($profilePhoto !== '') {
+            $this->deleteLocalProfilePhoto(
+                $profilePhoto
+            );
+        }
 
         // De verwijdering is opgeslagen voordat de mail wordt verstuurd.
         $emailSent = $this->sendEmailSafely(
@@ -1559,6 +1766,49 @@ class UserController extends Controller
     | Helpers
     |--------------------------------------------------------------------------
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lokale profielfoto veilig verwijderen
+    |--------------------------------------------------------------------------
+    |
+    | Externe Google/GitHub/Facebook avatar-URL's worden nooit verwijderd.
+    |
+    */
+
+    private function deleteLocalProfilePhoto(
+        ?string $profilePhoto
+    ): void {
+        $profilePhoto = trim(
+            (string) $profilePhoto
+        );
+
+        if ($profilePhoto === '') {
+            return;
+        }
+
+        if (
+            Str::startsWith(
+                $profilePhoto,
+                [
+                    'http://',
+                    'https://',
+                ]
+            )
+        ) {
+            return;
+        }
+
+        try {
+            Storage::disk('public')
+                ->delete(
+                    $profilePhoto
+                );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+    }
+
 
     private function ensureAdmin(): void
     {

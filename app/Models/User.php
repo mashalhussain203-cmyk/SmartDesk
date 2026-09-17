@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -22,15 +23,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
-        | Login provider
+        | Profielfoto
         |--------------------------------------------------------------------------
-        |
-        | Laatste gebruikte loginmethode.
+        */
+
+        'profile_photo',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laatste loginmethode
+        |--------------------------------------------------------------------------
         |
         | Mogelijke waarden:
         |
         | - password
         | - email_code
+        | - magic_link
         | - google
         | - github
         | - facebook
@@ -101,12 +109,18 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Account helpers
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Controleer of deze gebruiker administrator is.
      */
     public function isAdmin(): bool
     {
-        return $this->is_admin === true;
+        return (bool) $this->is_admin;
     }
 
     /**
@@ -117,12 +131,205 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->email_verified_at !== null;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Profielfoto helpers
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Controleer of de gebruiker zelf een profielfoto heeft geüpload.
+     */
+    public function hasProfilePhoto(): bool
+    {
+        return trim(
+            (string) $this->profile_photo
+        ) !== '';
+    }
+
+    /**
+     * Geef de URL van de zelf geüploade profielfoto terug.
+     */
+    public function profilePhotoUrl(): ?string
+    {
+        $photo = trim(
+            (string) $this->profile_photo
+        );
+
+        if ($photo === '') {
+            return null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Externe URL
+        |--------------------------------------------------------------------------
+        |
+        | Als profile_photo ooit een volledige externe URL bevat,
+        | geven we die direct terug.
+        |
+        */
+
+        if (
+            Str::startsWith(
+                $photo,
+                [
+                    'http://',
+                    'https://',
+                ]
+            )
+        ) {
+            return $photo;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Lokale publieke storage
+        |--------------------------------------------------------------------------
+        |
+        | Database:
+        |
+        | profile-photos/abc123.jpg
+        |
+        | Browser:
+        |
+        | /storage/profile-photos/abc123.jpg
+        |
+        */
+
+        $photo = ltrim(
+            $photo,
+            '/'
+        );
+
+        return asset(
+            'storage/' . $photo
+        );
+    }
+
+    /**
+     * Geef de beste beschikbare profielfoto terug.
+     *
+     * Voorkeursvolgorde:
+     *
+     * 1. Zelf geüploade profielfoto
+     * 2. Google-avatar
+     * 3. GitHub-avatar
+     * 4. Facebook-avatar
+     * 5. Geen afbeelding
+     */
+    public function avatarUrl(): ?string
+    {
+        $profilePhoto = $this->profilePhotoUrl();
+
+        if ($profilePhoto !== null) {
+            return $profilePhoto;
+        }
+
+        return $this->socialAvatar();
+    }
+
+    /**
+     * Alias voor gebruik in Blade.
+     */
+    public function displayAvatar(): ?string
+    {
+        return $this->avatarUrl();
+    }
+
+    /**
+     * Initialen gebruiken als er geen afbeelding beschikbaar is.
+     *
+     * Voorbeelden:
+     *
+     * Mashal Hussain -> MH
+     * Mashal -> M
+     */
+    public function initials(): string
+    {
+        $name = trim(
+            (string) $this->name
+        );
+
+        if ($name === '') {
+            return 'U';
+        }
+
+        $parts = preg_split(
+            '/\s+/',
+            $name
+        );
+
+        if (
+            ! is_array($parts) ||
+            count($parts) === 0
+        ) {
+            return strtoupper(
+                mb_substr(
+                    $name,
+                    0,
+                    1
+                )
+            );
+        }
+
+        $first = trim(
+            (string) ($parts[0] ?? '')
+        );
+
+        $last = '';
+
+        if (count($parts) > 1) {
+            $last = trim(
+                (string) $parts[
+                    count($parts) - 1
+                ]
+            );
+        }
+
+        $initials = '';
+
+        if ($first !== '') {
+            $initials .= mb_substr(
+                $first,
+                0,
+                1
+            );
+        }
+
+        if ($last !== '') {
+            $initials .= mb_substr(
+                $last,
+                0,
+                1
+            );
+        }
+
+        $initials = strtoupper(
+            $initials
+        );
+
+        if ($initials === '') {
+            return 'U';
+        }
+
+        return $initials;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | OAuth helpers
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Controleer of een Google-account gekoppeld is.
      */
     public function hasGoogleAccount(): bool
     {
-        return filled($this->google_id);
+        return trim(
+            (string) $this->google_id
+        ) !== '';
     }
 
     /**
@@ -130,7 +337,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasGitHubAccount(): bool
     {
-        return filled($this->github_id);
+        return trim(
+            (string) $this->github_id
+        ) !== '';
     }
 
     /**
@@ -138,12 +347,13 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasFacebookAccount(): bool
     {
-        return filled($this->facebook_id);
+        return trim(
+            (string) $this->facebook_id
+        ) !== '';
     }
 
     /**
-     * Controleer of minimaal één externe OAuth-provider
-     * aan dit Mashal-account gekoppeld is.
+     * Controleer of minimaal één OAuth-account gekoppeld is.
      */
     public function hasSocialAccount(): bool
     {
@@ -153,34 +363,45 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Geef de beste beschikbare profielfoto terug.
+     * Geef de beste beschikbare OAuth-avatar terug.
      *
      * Voorkeursvolgorde:
      *
      * 1. Google
      * 2. GitHub
      * 3. Facebook
-     * 4. Geen profielfoto
      */
     public function socialAvatar(): ?string
     {
-        if (filled($this->google_avatar)) {
-            return $this->google_avatar;
+        $googleAvatar = trim(
+            (string) $this->google_avatar
+        );
+
+        if ($googleAvatar !== '') {
+            return $googleAvatar;
         }
 
-        if (filled($this->github_avatar)) {
-            return $this->github_avatar;
+        $githubAvatar = trim(
+            (string) $this->github_avatar
+        );
+
+        if ($githubAvatar !== '') {
+            return $githubAvatar;
         }
 
-        if (filled($this->facebook_avatar)) {
-            return $this->facebook_avatar;
+        $facebookAvatar = trim(
+            (string) $this->facebook_avatar
+        );
+
+        if ($facebookAvatar !== '') {
+            return $facebookAvatar;
         }
 
         return null;
     }
 
     /**
-     * Geef de naam van de eerste gekoppelde OAuth-provider terug.
+     * Geef de eerste gekoppelde OAuth-provider terug.
      */
     public function socialProvider(): ?string
     {
@@ -223,6 +444,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $providers;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login provider helpers
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Laatste gebruikte loginmethode.
      */
@@ -234,16 +461,19 @@ class User extends Authenticatable implements MustVerifyEmail
             )
         );
 
+        $allowedProviders = [
+            'password',
+            'email_code',
+            'magic_link',
+            'google',
+            'github',
+            'facebook',
+        ];
+
         if (
             in_array(
                 $provider,
-                [
-                    'password',
-                    'email_code',
-                    'google',
-                    'github',
-                    'facebook',
-                ],
+                $allowedProviders,
                 true
             )
         ) {
@@ -252,13 +482,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
-        | Fallback voor bestaande accounts
+        | Fallback voor oudere gebruikers
         |--------------------------------------------------------------------------
-        |
-        | Oude gebruikers hebben mogelijk nog geen login_provider in de database.
-        | In dat geval proberen we op basis van gekoppelde OAuth-accounts een
-        | bruikbare provider te bepalen.
-        |
         */
 
         if ($this->hasGoogleAccount()) {
@@ -281,33 +506,45 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function loginProviderLabel(): string
     {
-        return match ($this->loginProvider()) {
+        $provider = $this->loginProvider();
+
+        return match ($provider) {
             'google' => 'Google',
             'github' => 'GitHub',
             'facebook' => 'Facebook',
             'email_code' => 'E-mailcode',
+            'magic_link' => 'Magic link',
             'password' => 'Wachtwoord',
             default => 'Onbekend',
         };
     }
 
     /**
-     * Korte code die in het admin dashboard gebruikt kan worden.
+     * Korte icon-code voor dashboard/Blade.
      */
     public function loginProviderIcon(): string
     {
-        return match ($this->loginProvider()) {
+        $provider = $this->loginProvider();
+
+        return match ($provider) {
             'google' => 'google',
             'github' => 'github',
             'facebook' => 'facebook',
             'email_code' => 'email',
+            'magic_link' => 'link',
             'password' => 'lock',
             default => 'user',
         };
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login provider controles
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Controleer of de laatste login via Google was.
+     * Laatste login via Google.
      */
     public function loggedInWithGoogle(): bool
     {
@@ -315,7 +552,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Controleer of de laatste login via GitHub was.
+     * Laatste login via GitHub.
      */
     public function loggedInWithGitHub(): bool
     {
@@ -323,7 +560,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Controleer of de laatste login via Facebook was.
+     * Laatste login via Facebook.
      */
     public function loggedInWithFacebook(): bool
     {
@@ -331,7 +568,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Controleer of de laatste login via e-mailcode was.
+     * Laatste login via e-mailcode.
      */
     public function loggedInWithEmailCode(): bool
     {
@@ -339,7 +576,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Controleer of de laatste login via wachtwoord was.
+     * Laatste login via magic link.
+     */
+    public function loggedInWithMagicLink(): bool
+    {
+        return $this->loginProvider() === 'magic_link';
+    }
+
+    /**
+     * Laatste login via wachtwoord.
      */
     public function loggedInWithPassword(): bool
     {

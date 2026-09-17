@@ -52,7 +52,7 @@
 
     .mashal-dashboard,
 
-    .mashal-dashboard * {
+    .mashal-dashboard \* {
 
         box-sizing: border-box;
 
@@ -414,7 +414,7 @@
 
         display: grid;
 
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
 
         gap: 14px;
 
@@ -884,7 +884,7 @@
 
         width: 100%;
 
-        min-width: 1040px;
+        min-width: 1180px;
 
         border-collapse: collapse;
 
@@ -982,6 +982,98 @@
 
     }
 
+    .md-avatar {
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,.025),
+            0 10px 26px rgba(0,0,0,.18);
+    }
+
+    .md-avatar img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: inherit;
+    }
+
+    .md-avatar.has-image {
+        background: #111419;
+        color: transparent;
+    }
+
+    .md-user-meta {
+        min-width: 0;
+    }
+
+    .md-photo-source {
+        margin-top: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #6f757d;
+        font-size: 7px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .md-photo-source::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--m-gold);
+        box-shadow: 0 0 10px rgba(215,164,95,.35);
+    }
+
+    .md-photo-source.custom {
+        color: #d4a861;
+    }
+
+    .md-photo-source.social {
+        color: #8fb6ec;
+    }
+
+    .md-hero-admin-profile {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .md-hero-admin-avatar {
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(215,164,95,.22);
+        border-radius: 16px;
+        background: linear-gradient(
+            145deg,
+            rgba(215,164,95,.16),
+            rgba(215,164,95,.045)
+        );
+        color: var(--m-gold-light);
+        font-size: 17px;
+        font-weight: 950;
+        box-shadow: 0 14px 34px rgba(0,0,0,.18);
+    }
+
+    .md-hero-admin-avatar img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+    }
+
+    .md-hero-admin-identity {
+        min-width: 0;
+    }
+
     .md-user strong {
 
         display: block;
@@ -1071,83 +1163,151 @@
     }
 
 
+
     /* ========================================================= */
+
     /* LOGIN PROVIDER                                            */
+
     /* ========================================================= */
 
     .md-provider {
+
         display: inline-flex;
+
         align-items: center;
+
         gap: 8px;
+
         min-height: 34px;
+
         padding: 6px 10px;
+
         border: 1px solid var(--m-line);
+
         border-radius: 999px;
+
         background: rgba(255,255,255,.025);
+
         color: #c9c7c1;
+
         font-size: 8px;
+
         font-weight: 900;
+
         white-space: nowrap;
+
     }
 
     .md-provider-icon {
+
         width: 20px;
+
         height: 20px;
+
         flex: 0 0 20px;
+
         display: grid;
+
         place-items: center;
+
         border-radius: 50%;
+
         overflow: hidden;
+
         font-size: 10px;
+
         font-weight: 900;
+
     }
 
     .md-provider-icon svg {
+
         width: 14px;
+
         height: 14px;
+
         display: block;
+
     }
 
     .md-provider.google .md-provider-icon {
+
         background: #ffffff;
+
     }
 
     .md-provider.github .md-provider-icon {
+
         background: #f4f4f4;
+
         color: #111111;
+
     }
 
     .md-provider.facebook .md-provider-icon {
+
         background: #1877f2;
+
         color: #ffffff;
+
     }
 
     .md-provider.email_code {
+
         border-color: rgba(215,164,95,.18);
+
         background: rgba(215,164,95,.055);
+
         color: var(--m-gold-light);
+
     }
 
     .md-provider.email_code .md-provider-icon {
+
         border: 1px solid rgba(215,164,95,.22);
+
         background: rgba(215,164,95,.09);
+
         color: var(--m-gold-light);
+
+    }
+
+    .md-provider.magic_link {
+        border-color: rgba(177,132,255,.18);
+        background: rgba(177,132,255,.06);
+        color: #c9adff;
+    }
+
+    .md-provider.magic_link .md-provider-icon {
+        border: 1px solid rgba(177,132,255,.20);
+        background: rgba(177,132,255,.09);
+        color: #c9adff;
     }
 
     .md-provider.password {
+
         border-color: rgba(143,182,236,.15);
+
         background: rgba(143,182,236,.055);
+
         color: var(--m-blue);
+
     }
 
     .md-provider.password .md-provider-icon {
+
         border: 1px solid rgba(143,182,236,.18);
+
         background: rgba(143,182,236,.08);
+
         color: var(--m-blue);
+
     }
 
     .md-current-provider {
+
         margin-top: 12px;
+
     }
 
     .md-row-actions {
@@ -1462,6 +1622,14 @@
 
 
 
+
+
+@php
+    $profilePhotoUsers = $users
+        ->filter(fn ($dashboardUser) => $dashboardUser->hasProfilePhoto())
+        ->count();
+@endphp
+
 <div class="mashal-dashboard">
 
     {{-- ========================================================= --}}
@@ -1542,65 +1710,117 @@
 
 
 
+
+
             <aside class="md-hero-admin">
 
-                <div class="md-hero-admin-label">
+                <div class="md-hero-admin-profile">
+                    <div class="md-hero-admin-avatar">
+                        @if (auth()->user()->avatarUrl())
+                            <img
+                                src="{{ auth()->user()->avatarUrl() }}"
+                                alt="Profielfoto van {{ auth()->user()->name }}"
+                            >
+                        @else
+                            {{ auth()->user()->initials() }}
+                        @endif
+                    </div>
 
-                    Huidige administrator
+                    <div class="md-hero-admin-identity">
+                        <div class="md-hero-admin-label">
+                            Huidige administrator
+                        </div>
 
-                </div>
+                        <div class="md-hero-admin-name">
+                            {{ auth()->user()->name }}
+                        </div>
 
-                <div class="md-hero-admin-name">
-
-                    {{ auth()->user()->name }}
-
-                </div>
-
-                <div class="md-hero-admin-email">
-
-                    {{ auth()->user()->email }}
-
+                        <div class="md-hero-admin-email">
+                            {{ auth()->user()->email }}
+                        </div>
+                    </div>
                 </div>
 
                 <span class="md-admin-badge">
+
                     Administrator actief
+
                 </span>
 
                 <div class="md-current-provider">
+
                     @php
+
                         $currentProvider = auth()->user()->loginProvider();
+
                     @endphp
 
                     <span class="md-provider {{ $currentProvider }}">
+
                         <span class="md-provider-icon" aria-hidden="true">
+
                             @switch($currentProvider)
+
                                 @case('google')
+
                                     <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+
                                         <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+
                                         <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+
                                         <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+
                                         <path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
+
                                     </svg>
+
                                     @break
+
                                 @case('github')
+
                                     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+
                                         <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+
                                     </svg>
+
                                     @break
+
                                 @case('facebook')
+
                                     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+
                                         <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+
                                     </svg>
+
                                     @break
+
                                 @case('email_code')
+
                                     ✉
+
                                     @break
+
+                                @case('magic_link')
+
+                                    ↗
+
+                                    @break
+
                                 @default
+
                                     🔒
+
                             @endswitch
+
                         </span>
+
                         {{ auth()->user()->loginProviderLabel() }}
+
                     </span>
+
                 </div>
 
             </aside>
@@ -1608,6 +1828,8 @@
         </div>
 
     </section>
+
+
 
 
 
@@ -1653,6 +1875,8 @@
 
 
 
+
+
         <article class="md-stat-card">
 
             <div class="md-stat-top">
@@ -1684,6 +1908,8 @@
             </div>
 
         </article>
+
+
 
 
 
@@ -1721,6 +1947,8 @@
 
 
 
+
+
         <article class="md-stat-card">
 
             <div class="md-stat-top">
@@ -1753,7 +1981,33 @@
 
         </article>
 
+        <article class="md-stat-card">
+
+            <div class="md-stat-top">
+
+                <span class="md-stat-label">
+                    Profielfoto's
+                </span>
+
+                <span class="md-stat-icon">
+                    P
+                </span>
+
+            </div>
+
+            <div class="md-stat-number">
+                {{ $profilePhotoUsers }}
+            </div>
+
+            <div class="md-stat-foot">
+                Accounts met een eigen geüploade profielfoto
+            </div>
+
+        </article>
+
     </section>
+
+
 
 
 
@@ -1790,6 +2044,8 @@
             </div>
 
         </div>
+
+
 
 
 
@@ -1833,6 +2089,8 @@
 
 
 
+
+
             <article class="md-action-card">
 
                 <span class="md-action-icon">
@@ -1871,6 +2129,8 @@
 
 
 
+
+
             <article class="md-action-card">
 
                 <span class="md-action-icon">
@@ -1906,6 +2166,8 @@
                 </a>
 
             </article>
+
+
 
 
 
@@ -1951,6 +2213,8 @@
 
 
 
+
+
     {{-- ========================================================= --}}
 
     {{-- USERS OVERVIEW                                              --}}
@@ -1987,6 +2251,8 @@
 
 
 
+
+
             <a
 
                 class="md-btn"
@@ -2003,6 +2269,8 @@
 
 
 
+
+
         @if ($users->isNotEmpty())
 
             <div class="md-table-tools">
@@ -2015,13 +2283,15 @@
 
                         type="search"
 
-                        placeholder="Zoek op naam, e-mailadres of ID..."
+                        placeholder="Zoek op naam, e-mailadres, ID of loginmethode..."
 
                         autocomplete="off"
 
                     >
 
                 </div>
+
+
 
 
 
@@ -2084,23 +2354,45 @@
                     </button>
 
                     <button class="md-filter" type="button" data-filter="google">
+
                         Google
+
                     </button>
 
                     <button class="md-filter" type="button" data-filter="github">
+
                         GitHub
+
                     </button>
 
                     <button class="md-filter" type="button" data-filter="facebook">
+
                         Facebook
+
                     </button>
 
                     <button class="md-filter" type="button" data-filter="email_code">
+
                         E-mailcode
+
+                    </button>
+
+                    <button class="md-filter" type="button" data-filter="magic_link">
+
+                        Magic link
+
                     </button>
 
                     <button class="md-filter" type="button" data-filter="password">
+
                         Wachtwoord
+
+                    </button>
+
+                    <button class="md-filter" type="button" data-filter="photo">
+
+                        Met profielfoto
+
                     </button>
 
                 </div>
@@ -2108,6 +2400,8 @@
             </div>
 
         @endif
+
+
 
 
 
@@ -2139,6 +2433,8 @@
 
 
 
+
+
                 <tbody id="dashboardUsersBody">
 
                     @forelse ($users as $user)
@@ -2156,7 +2452,9 @@
                             data-admin="{{ $user->is_admin ? '1' : '0' }}"
 
                             data-verified="{{ $user->email_verified_at ? '1' : '0' }}"
+
                             data-provider="{{ $user->loginProvider() }}"
+                            data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}"
 
                         >
 
@@ -2166,15 +2464,21 @@
 
                                 <div class="md-user">
 
-                                    <span class="md-avatar">
+                                    @if ($user->avatarUrl())
+                                        <span class="md-avatar has-image">
+                                            <img
+                                                src="{{ $user->avatarUrl() }}"
+                                                alt="Profielfoto van {{ $user->name }}"
+                                                loading="lazy"
+                                            >
+                                        </span>
+                                    @else
+                                        <span class="md-avatar">
+                                            {{ $user->initials() }}
+                                        </span>
+                                    @endif
 
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-
-                                    </span>
-
-
-
-                                    <div>
+                                    <div class="md-user-meta">
 
                                         <strong>
 
@@ -2187,6 +2491,22 @@
                                             ID #{{ $user->id }}
 
                                         </small>
+
+                                        @if ($user->hasProfilePhoto())
+                                            <span class="md-photo-source custom">
+                                                Eigen profielfoto
+                                            </span>
+                                        @elseif ($user->socialAvatar())
+                                            <span class="md-photo-source social">
+                                                Social avatar
+                                            </span>
+                                        @else
+                                            <span class="md-photo-source">
+                                                Initialen
+                                            </span>
+                                        @endif
+
+
 
 
 
@@ -2208,6 +2528,8 @@
 
 
 
+
+
                             {{-- EMAIL --}}
 
                             <td
@@ -2225,50 +2547,90 @@
                             </td>
 
                             {{-- LOGIN PROVIDER --}}
+
                             <td>
+
                                 @php
+
                                     $provider = $user->loginProvider();
+
                                 @endphp
 
                                 <span
+
                                     class="md-provider {{ $provider }}"
+
                                     title="Laatste login via {{ $user->loginProviderLabel() }}"
+
                                 >
+
                                     <span class="md-provider-icon" aria-hidden="true">
+
                                         @switch($provider)
+
                                             @case('google')
+
                                                 <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+
                                                     <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+
                                                     <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+
                                                     <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+
                                                     <path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
+
                                                 </svg>
+
                                                 @break
 
                                             @case('github')
+
                                                 <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+
                                                     <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+
                                                 </svg>
+
                                                 @break
 
                                             @case('facebook')
+
                                                 <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+
                                                     <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+
                                                 </svg>
+
                                                 @break
 
                                             @case('email_code')
+
                                                 ✉
+
+                                                @break
+
+                                            @case('magic_link')
+
+                                                ↗
+
                                                 @break
 
                                             @default
+
                                                 🔒
+
                                         @endswitch
+
                                     </span>
 
                                     {{ $user->loginProviderLabel() }}
+
                                 </span>
+
                             </td>
+
+
 
 
 
@@ -2298,6 +2660,8 @@
 
 
 
+
+
                             {{-- VERIFICATION --}}
 
                             <td>
@@ -2321,6 +2685,8 @@
                                 @endif
 
                             </td>
+
+
 
 
 
@@ -2370,6 +2736,8 @@
 
 
 
+
+
                             {{-- ACTIONS --}}
 
                             <td>
@@ -2387,6 +2755,8 @@
                                         Wijzigen
 
                                     </a>
+
+
 
 
 
@@ -2494,6 +2864,8 @@
 
 
 
+
+
         @if ($users->isNotEmpty())
 
             <div
@@ -2510,6 +2882,8 @@
 
 
 
+
+
             <div class="md-table-footer">
 
                 <span
@@ -2523,6 +2897,8 @@
                     {{ $users->count() }} gebruikers zichtbaar
 
                 </span>
+
+
 
 
 
@@ -2543,6 +2919,8 @@
         @endif
 
     </section>
+
+
 
 
 
@@ -2584,6 +2962,8 @@
 
 
 
+
+
         <div class="md-admin-grid">
 
             <article class="md-info-card">
@@ -2607,6 +2987,8 @@
                 </p>
 
             </article>
+
+
 
 
 
@@ -2634,6 +3016,8 @@
 
 
 
+
+
             <article class="md-info-card">
 
                 <small>
@@ -2657,15 +3041,25 @@
             </article>
 
             <article class="md-info-card">
+
                 <small>
+
                     Ingelogd via
+
                 </small>
+
                 <strong>
+
                     {{ auth()->user()->loginProviderLabel() }}
+
                 </strong>
+
                 <p>
+
                     Laatst gebruikte authenticatiemethode voor deze beheerder.
+
                 </p>
+
             </article>
 
         </div>
@@ -2673,6 +3067,8 @@
     </section>
 
 </div>
+
+
 
 
 
@@ -2715,7 +3111,9 @@
                 const isAdmin = row.dataset.admin === '1';
 
                 const isVerified = row.dataset.verified === '1';
+
                 const provider = row.dataset.provider || 'password';
+                const hasPhoto = row.dataset.photo === '1';
 
                 const matchesSearch =
 
@@ -2750,10 +3148,21 @@
                 }
 
                 if (
-                    ['google', 'github', 'facebook', 'email_code', 'password']
+
+                    ['google', 'github', 'facebook', 'email_code', 'magic_link', 'password']
+
                         .includes(activeFilter)
+
                 ) {
+
                     matchesFilter = provider === activeFilter;
+
+                }
+
+                if (activeFilter === 'photo') {
+
+                    matchesFilter = hasPhoto;
+
                 }
 
                 const shouldShow = matchesSearch && matchesFilter;
