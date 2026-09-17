@@ -550,6 +550,146 @@
 
     /* ========================================================= */
 
+    /* E-MAILCODE / LOGIN STYLE                                  */
+
+    /* ========================================================= */
+
+    .email-code-auth-block {
+        margin-bottom: 22px;
+        padding: 18px;
+        border: 1px solid rgba(215,164,95,.14);
+        border-radius: 18px;
+        background: linear-gradient(145deg, rgba(215,164,95,.055), rgba(255,255,255,.018));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 12px 30px rgba(0,0,0,.14);
+    }
+
+    .email-code-auth-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .email-code-auth-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(215,164,95,.20);
+        border-radius: 12px;
+        background: rgba(215,164,95,.08);
+        color: #efc985;
+        font-size: 16px;
+    }
+
+    .email-code-auth-copy strong {
+        display: block;
+        color: #f3f1ec;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .email-code-auth-copy small {
+        display: block;
+        margin-top: 3px;
+        color: #737980;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .email-code-auth-form {
+        margin: 0;
+    }
+
+    .email-code-auth-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .email-code-auth-input {
+        width: 100%;
+        min-height: 54px;
+        padding: 0 16px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 14px;
+        outline: none;
+        background: rgba(255,255,255,.035);
+        color: #fff;
+        font-size: 12px;
+        transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .email-code-auth-input::placeholder {
+        color: #596067;
+    }
+
+    .email-code-auth-input:focus {
+        border-color: rgba(215,164,95,.46);
+        background: rgba(215,164,95,.035);
+        box-shadow: 0 0 0 4px rgba(215,164,95,.06);
+    }
+
+    .email-code-auth-submit {
+        min-height: 54px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #f1cc8b, #ca914c);
+        color: #14100b;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: .03em;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 12px 28px rgba(215,164,95,.18);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .email-code-auth-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 36px rgba(215,164,95,.28);
+    }
+
+    .email-code-auth-note {
+        margin-top: 11px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #62686f;
+        font-size: 9px;
+        line-height: 1.55;
+    }
+
+    .email-code-auth-note::before {
+        content: "✓";
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(101,213,154,.16);
+        border-radius: 50%;
+        background: rgba(101,213,154,.05);
+        color: #8fdcaf;
+        font-size: 9px;
+        font-weight: 900;
+    }
+
+    @media (max-width: 520px) {
+        .email-code-auth-row {
+            grid-template-columns: 1fr;
+        }
+
+        .email-code-auth-submit {
+            width: 100%;
+        }
+    }
+
+
+    /* ========================================================= */
+
     /* GOOGLE OAUTH                                              */
 
     /* ========================================================= */
@@ -2101,6 +2241,17 @@
 
                 {{-- E-MAILCODE --}}
                 <div class="email-code-auth-block">
+                    <div class="email-code-auth-head">
+                        <span class="email-code-auth-icon" aria-hidden="true">
+                            ✉
+                        </span>
+
+                        <div class="email-code-auth-copy">
+                            <strong>Doorgaan met e-mailcode</strong>
+                            <small>Snel en veilig zonder wachtwoord</small>
+                        </div>
+                    </div>
+
                     <form
                         class="email-code-auth-form"
                         method="POST"
@@ -2123,18 +2274,14 @@
                                 class="email-code-auth-submit"
                                 type="submit"
                             >
-                                Stuur inlogcode
+                                Stuur code
                             </button>
                         </div>
 
                         <div class="email-code-auth-note">
-                            Geen wachtwoord nodig. Je ontvangt een 6-cijferige code per e-mail.
+                            Je ontvangt direct een 6-cijferige inlogcode per e-mail.
                         </div>
                     </form>
-                </div>
-
-                <div class="oauth-divider">
-                    Of gebruik een account
                 </div>
 
                 {{-- GOOGLE OAUTH --}}
