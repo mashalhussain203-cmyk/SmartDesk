@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +43,32 @@ Route::post('/login', [UserController::class, 'loginSubmit'])
 
 /*
 |--------------------------------------------------------------------------
+| Google OAuth
+|--------------------------------------------------------------------------
+|
+| Deze routes verzorgen inloggen en registreren via een echt
+| Google-account met Laravel Socialite.
+|
+| Dezelfde Google-flow wordt gebruikt voor:
+|
+| - bestaande gebruikers inloggen
+| - nieuwe gebruikers automatisch registreren
+|
+| Als het e-mailadres al bestaat, wordt die gebruiker ingelogd.
+| Als het e-mailadres nog niet bestaat, maakt GoogleAuthController
+| automatisch een nieuw Mashal-account aan.
+|
+*/
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
+    ->name('google.redirect');
+
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('google.callback');
+
+
+/*
+|--------------------------------------------------------------------------
 | Uitloggen
 |--------------------------------------------------------------------------
 */
@@ -54,6 +82,13 @@ Route::post('/logout', [UserController::class, 'logout'])
 |--------------------------------------------------------------------------
 | E-mailverificatie
 |--------------------------------------------------------------------------
+|
+| Deze routes blijven beschikbaar voor gebruikers die zich via het
+| normale Mashal-registratieformulier registreren.
+|
+| Google-gebruikers kunnen in GoogleAuthController direct als
+| geverifieerd worden gemarkeerd.
+|
 */
 
 Route::get('/verify', [UserController::class, 'verifyNotice'])
@@ -226,4 +261,3 @@ Route::middleware('auth')->group(function () {
             ->name('users.destroy');
     });
 });
-
