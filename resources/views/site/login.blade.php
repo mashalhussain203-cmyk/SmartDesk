@@ -1,331 +1,299 @@
 @extends('layouts.site-layout')
 
-@section('title', 'SmartDesk | Inloggen')
+@section('title', 'Mashal | Inloggen')
 
-@section('content')
-
+@push('styles')
 <style>
-    .auth-page {
+    .login-page {
         position: relative;
-        min-height: calc(100vh - 70px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 50px 20px;
-
-        background:
-            linear-gradient(
-                rgba(5, 16, 24, 0.38),
-                rgba(5, 16, 24, 0.65)
-            ),
-            url('/images/auth-bg.jpg') center / cover no-repeat fixed;
-
+        min-height: calc(100vh - 78px);
         overflow: hidden;
+        background: #08090b;
     }
 
-    .auth-page::before {
+    .login-stage {
+        min-height: calc(100vh - 78px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(430px, .95fr);
+    }
+
+    /* ========================================================= */
+    /* LEFT — CINEMATIC BRAND PANEL                              */
+    /* ========================================================= */
+
+    .login-visual {
+        position: relative;
+        min-height: 100%;
+        overflow: hidden;
+        isolation: isolate;
+        display: flex;
+        align-items: flex-end;
+        padding: clamp(34px, 5vw, 72px);
+        background: #0a0c0f;
+    }
+
+    .login-visual::before {
         content: "";
         position: absolute;
         inset: 0;
+        z-index: -3;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(5,6,8,.12),
+                rgba(5,6,8,.22) 42%,
+                rgba(5,6,8,.92) 100%
+            ),
+            linear-gradient(
+                90deg,
+                rgba(5,6,8,.35),
+                transparent 56%
+            ),
+            url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1800&q=88')
+            center / cover no-repeat;
+        transform: scale(1.03);
+        animation: loginVisualZoom 18s ease-in-out infinite alternate;
+    }
 
+    .login-visual::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
         background:
             radial-gradient(
-                circle at 20% 30%,
-                rgba(52, 211, 153, 0.13),
-                transparent 35%
+                circle at 78% 18%,
+                rgba(215,164,95,.18),
+                transparent 19rem
             ),
-            radial-gradient(
-                circle at 80% 70%,
-                rgba(14, 77, 58, 0.15),
-                transparent 40%
+            linear-gradient(
+                180deg,
+                transparent 70%,
+                #08090b 100%
             );
-
         pointer-events: none;
     }
 
-    .auth-card {
+    @keyframes loginVisualZoom {
+        from { transform: scale(1.03); }
+        to { transform: scale(1.09); }
+    }
+
+    .login-visual-content {
+        max-width: 690px;
+        animation: loginFadeUp .85s ease both;
+    }
+
+    .login-brand-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        color: #efc985;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .24em;
+        text-transform: uppercase;
+    }
+
+    .login-brand-kicker::before {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: #d7a45f;
+    }
+
+    .login-visual h2 {
+        max-width: 680px;
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(50px, 5.8vw, 86px);
+        line-height: .92;
+        letter-spacing: -.068em;
+        font-weight: 950;
+    }
+
+    .login-visual h2 span {
+        color: #f0c983;
+    }
+
+    .login-visual p {
+        max-width: 560px;
+        margin: 24px 0 0;
+        color: rgba(255,255,255,.68);
+        font-size: 14px;
+        line-height: 1.85;
+    }
+
+    .visual-trust-row {
+        margin-top: 32px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .visual-trust {
+        padding: 9px 12px;
+        border: 1px solid rgba(255,255,255,.13);
+        border-radius: 999px;
+        background: rgba(255,255,255,.05);
+        backdrop-filter: blur(12px);
+        color: rgba(255,255,255,.76);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    /* ========================================================= */
+    /* RIGHT — AUTH PANEL                                         */
+    /* ========================================================= */
+
+    .login-panel {
+        position: relative;
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 54px 42px;
+        background:
+            radial-gradient(
+                circle at 80% 15%,
+                rgba(215,164,95,.08),
+                transparent 18rem
+            ),
+            linear-gradient(
+                180deg,
+                #0b0d10,
+                #08090b
+            );
+    }
+
+    .login-panel::before {
+        content: "M";
+        position: absolute;
+        right: -24px;
+        top: 12%;
+        color: rgba(255,255,255,.016);
+        font-size: 300px;
+        font-weight: 950;
+        line-height: .8;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .auth-shell {
         position: relative;
         z-index: 2;
-
         width: 100%;
-        max-width: 460px;
-
-        padding: 42px 38px;
-
-        background: rgba(8, 24, 35, 0.48);
-
-        border: 1px solid rgba(255, 255, 255, 0.22);
-
-        border-radius: 18px;
-
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-
-        box-shadow:
-            0 30px 80px rgba(0, 0, 0, 0.38),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-        color: #ffffff;
-
-        animation: authCardIn .8s ease both;
+        max-width: 470px;
+        animation: loginFadeUp .8s .08s ease both;
     }
 
-    @keyframes authCardIn {
+    @keyframes loginFadeUp {
         from {
             opacity: 0;
-            transform: translateY(35px) scale(.97);
+            transform: translateY(28px);
         }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    .auth-title {
-        margin: 0 0 10px;
-
-        text-align: center;
-
-        font-size: 38px;
-        line-height: 1.1;
-
-        font-weight: 800;
-
-        letter-spacing: -1px;
-    }
-
-    .auth-subtitle {
-        margin: 0 0 32px;
-
-        text-align: center;
-
-        color: rgba(255,255,255,.72);
-
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .auth-field {
-        position: relative;
-
-        margin-bottom: 26px;
-    }
-
-    .auth-field label {
-        display: block;
-
-        margin-bottom: 7px;
-
-        color: rgba(255,255,255,.80);
-
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .auth-input-wrap {
-        position: relative;
-    }
-
-    .auth-field input[type="email"],
-    .auth-field input[type="password"],
-    .auth-field input[type="text"] {
-        width: 100%;
-
-        padding: 14px 44px 12px 0;
-
-        color: #ffffff;
-
-        background: transparent;
-
-        border: 0;
-        border-bottom: 2px solid rgba(255,255,255,.55);
-
-        border-radius: 0;
-
-        outline: none;
-
-        font-size: 16px;
-
-        transition:
-            border-color .25s ease,
-            transform .25s ease,
-            background .25s ease;
-    }
-
-    .auth-field input::placeholder {
-        color: rgba(255,255,255,.58);
-    }
-
-    .auth-field input:focus {
-        border-bottom-color: #ffffff;
-    }
-
-    .password-toggle {
-        position: absolute;
-
-        right: 0;
-        top: 50%;
-
-        transform: translateY(-50%);
-
-        border: 0;
-        background: transparent;
-
-        color: rgba(255,255,255,.75);
-
-        cursor: pointer;
-
-        padding: 6px;
-
-        font-size: 13px;
-    }
-
-    .auth-options {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        gap: 16px;
-
-        margin: 2px 0 28px;
-
-        font-size: 14px;
-    }
-
-    .remember-label {
-        display: flex;
-        align-items: center;
-
-        gap: 8px;
-
-        margin: 0;
-
-        cursor: pointer;
-
-        color: rgba(255,255,255,.90);
-    }
-
-    .remember-label input {
-        width: 16px;
-        height: 16px;
-
-        accent-color: #ffffff;
-    }
-
-    .auth-link {
-        color: rgba(255,255,255,.90);
-
-        text-decoration: none;
-
-        transition:
-            color .2s ease,
-            opacity .2s ease;
-    }
-
-    .auth-link:hover {
-        color: #ffffff;
-        text-decoration: underline;
-    }
-
-    .auth-submit {
-        width: 100%;
-
-        padding: 15px 20px;
-
-        border: 0;
-        border-radius: 8px;
-
-        background: #ffffff;
-
-        color: #101010;
-
-        font-weight: 800;
-        font-size: 16px;
-
-        cursor: pointer;
-
-        box-shadow: 0 12px 30px rgba(0,0,0,.20);
-
-        transition:
-            transform .2s ease,
-            box-shadow .2s ease,
-            background .2s ease;
-    }
-
-    .auth-submit:hover {
-        transform: translateY(-2px);
-
-        background: #f1f7f5;
-
-        box-shadow: 0 16px 36px rgba(0,0,0,.28);
-    }
-
-    .auth-submit:active {
-        transform: translateY(0);
-    }
-
-    .auth-footer {
-        margin-top: 30px;
-
-        text-align: center;
-
-        color: rgba(255,255,255,.78);
-
-        font-size: 14px;
-    }
-
-    .auth-footer a {
-        color: #ffffff;
-
-        font-weight: 700;
-
-        text-decoration: none;
-    }
-
-    .auth-footer a:hover {
-        text-decoration: underline;
-    }
-
-    .auth-message {
-        margin-bottom: 24px;
-
-        padding: 13px 15px;
-
-        border-radius: 10px;
-
-        font-size: 13px;
-        line-height: 1.6;
-
-        animation: authMessageIn .4s ease both;
-    }
-
-    @keyframes authMessageIn {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 36px;
+    }
+
+    .auth-brand-mark {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background:
+            linear-gradient(
+                145deg,
+                #f0ca86,
+                #b67e3d
+            );
+        color: #15110c;
+        font-size: 20px;
+        font-weight: 950;
+        box-shadow: 0 14px 34px rgba(215,164,95,.22);
+    }
+
+    .auth-brand-copy strong {
+        display: block;
+        color: #ffffff;
+        font-size: 19px;
+        line-height: 1;
+        letter-spacing: -.03em;
+    }
+
+    .auth-brand-copy span {
+        display: block;
+        margin-top: 5px;
+        color: #6f757c;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+    }
+
+    .auth-kicker {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #b9894d;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+    }
+
+    .auth-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(38px, 4vw, 52px);
+        line-height: 1;
+        letter-spacing: -.055em;
+        font-weight: 950;
+    }
+
+    .auth-subtitle {
+        margin: 14px 0 30px;
+        color: #7f858c;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    /* ========================================================= */
+    /* MESSAGES                                                   */
+    /* ========================================================= */
+
+    .auth-message {
+        margin-bottom: 20px;
+        padding: 13px 15px;
+        border-radius: 14px;
+        font-size: 12px;
+        line-height: 1.6;
+        backdrop-filter: blur(12px);
+        animation: loginFadeUp .35s ease both;
+    }
+
     .auth-message.success {
-        color: #dcfce7;
-
-        background: rgba(22, 101, 52, .32);
-
-        border: 1px solid rgba(134, 239, 172, .35);
+        border: 1px solid rgba(91,214,149,.22);
+        background: rgba(91,214,149,.08);
+        color: #a9efc8;
     }
 
     .auth-message.error {
-        color: #fee2e2;
-
-        background: rgba(127, 29, 29, .32);
-
-        border: 1px solid rgba(252, 165, 165, .35);
+        border: 1px solid rgba(241,123,123,.22);
+        background: rgba(241,123,123,.08);
+        color: #ffc1c1;
     }
 
     .auth-message ul {
@@ -333,206 +301,666 @@
         padding: 0;
     }
 
+    /* ========================================================= */
+    /* FIELDS                                                     */
+    /* ========================================================= */
+
+    .auth-field {
+        margin-bottom: 19px;
+    }
+
+    .auth-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 8px;
+    }
+
+    .auth-label label {
+        color: #b9b9b6;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+    }
+
     .field-error {
+        color: #f3a1a1;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .auth-input-wrap {
+        position: relative;
+    }
+
+    .auth-input {
+        width: 100%;
+        height: 56px;
+        padding: 0 48px 0 16px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 15px;
+        outline: none;
+        background: rgba(255,255,255,.035);
+        color: #ffffff;
+        font-size: 14px;
+        transition:
+            border-color .2s ease,
+            background .2s ease,
+            box-shadow .2s ease,
+            transform .2s ease;
+    }
+
+    .auth-input::placeholder {
+        color: #565c63;
+    }
+
+    .auth-input:focus {
+        border-color: rgba(215,164,95,.46);
+        background: rgba(215,164,95,.035);
+        box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+    }
+
+    .auth-input-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #747a81;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        min-width: 38px;
+        height: 36px;
+        padding: 0 8px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #8b9096;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+            color .2s ease,
+            background .2s ease;
+    }
+
+    .password-toggle:hover {
+        color: #efc985;
+        background: rgba(215,164,95,.06);
+    }
+
+    /* ========================================================= */
+    /* OPTIONS                                                    */
+    /* ========================================================= */
+
+    .auth-options {
+        margin: 5px 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .remember-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #8d9298;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    .remember-label input {
+        width: 15px;
+        height: 15px;
+        accent-color: #d7a45f;
+    }
+
+    .auth-link {
+        color: #caa46d;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 800;
+        transition: color .2s ease;
+    }
+
+    .auth-link:hover {
+        color: #f0c983;
+    }
+
+    /* ========================================================= */
+    /* SUBMIT                                                     */
+    /* ========================================================= */
+
+    .auth-submit {
+        position: relative;
+        width: 100%;
+        min-height: 56px;
+        overflow: hidden;
+        border: 0;
+        border-radius: 999px;
+        background:
+            linear-gradient(
+                135deg,
+                #f1cc8b,
+                #ca914c
+            );
+        color: #14100b;
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: .04em;
+        cursor: pointer;
+        box-shadow: 0 18px 44px rgba(215,164,95,.20);
+        transition:
+            transform .22s ease,
+            box-shadow .22s ease;
+    }
+
+    .auth-submit::after {
+        content: "→";
+        position: absolute;
+        right: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 17px;
+        transition: transform .22s ease;
+    }
+
+    .auth-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 25px 58px rgba(215,164,95,.30);
+    }
+
+    .auth-submit:hover::after {
+        transform: translate(4px, -50%);
+    }
+
+    /* ========================================================= */
+    /* FOOTER / REGISTER                                          */
+    /* ========================================================= */
+
+    .auth-divider {
+        margin: 28px 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: #4d5258;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,.07);
+    }
+
+    .register-card {
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 17px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .register-card-copy strong {
         display: block;
-
-        margin-top: 7px;
-
-        color: #fecaca;
-
+        color: #dcdad5;
         font-size: 12px;
     }
 
-    @media (max-width: 600px) {
-        .auth-page {
-            padding: 30px 15px;
+    .register-card-copy span {
+        display: block;
+        margin-top: 3px;
+        color: #686e75;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .register-card-link {
+        flex-shrink: 0;
+        min-height: 38px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(215,164,95,.18);
+        border-radius: 999px;
+        background: rgba(215,164,95,.055);
+        color: #dfb36d;
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 900;
+        transition:
+            background .2s ease,
+            border-color .2s ease,
+            transform .2s ease;
+    }
+
+    .register-card-link:hover {
+        transform: translateY(-1px);
+        border-color: rgba(215,164,95,.34);
+        background: rgba(215,164,95,.10);
+    }
+
+    .security-note {
+        margin-top: 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        color: #555b61;
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    .security-note-mark {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 50%;
+        color: #8b6a40;
+        font-size: 9px;
+    }
+
+    /* ========================================================= */
+    /* RESPONSIVE                                                 */
+    /* ========================================================= */
+
+    @media (max-width: 1000px) {
+        .login-stage {
+            grid-template-columns: 1fr;
         }
 
-        .auth-card {
-            padding: 34px 24px;
-
-            border-radius: 15px;
+        .login-visual {
+            min-height: 520px;
         }
 
-        .auth-title {
-            font-size: 32px;
+        .login-panel {
+            min-height: auto;
+            padding: 70px 32px;
+        }
+    }
+
+    @media (max-width: 620px) {
+        .login-page,
+        .login-stage {
+            min-height: auto;
+        }
+
+        .login-visual {
+            min-height: 430px;
+            padding: 38px 20px;
+        }
+
+        .login-visual h2 {
+            font-size: clamp(46px, 15vw, 64px);
+        }
+
+        .login-panel {
+            padding: 52px 18px 64px;
+        }
+
+        .auth-brand {
+            margin-bottom: 30px;
         }
 
         .auth-options {
             align-items: flex-start;
             flex-direction: column;
         }
+
+        .register-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .register-card-link {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
+@endpush
 
 
-<section class="auth-page">
+@section('content')
 
-    <div class="auth-card">
+<section class="login-page">
 
-        <h1 class="auth-title">
-            Inloggen
-        </h1>
+    <div class="login-stage">
 
-        <p class="auth-subtitle">
-            Welkom terug bij SmartDesk.
-            Log in om je account en bestellingen te beheren.
-        </p>
+        {{-- ========================================================= --}}
+        {{-- LEFT / BRAND EXPERIENCE                                    --}}
+        {{-- ========================================================= --}}
 
+        <div class="login-visual">
 
-        @if (session('success'))
+            <div class="login-visual-content">
 
-            <div class="auth-message success">
-                {{ session('success') }}
-            </div>
+                <span class="login-brand-kicker">
+                    Mashal Automotive
+                </span>
 
-        @endif
+                <h2>
+                    Welcome back
+                    to something
+                    <span>exceptional.</span>
+                </h2>
 
-
-        @if ($errors->any())
-
-            <div class="auth-message error">
-
-                <strong>
-                    Inloggen is niet gelukt.
-                </strong>
-
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>
-                            {{ $error }}
-                        </li>
-                    @endforeach
-                </ul>
-
-            </div>
-
-        @endif
+                <p>
+                    Log in op je persoonlijke Mashal-account
+                    en ga verder waar je gebleven bent:
+                    jouw selectie, bestellingen en accountbeheer
+                    op één plek.
+                </p>
 
 
-        <form
-            method="POST"
-            action="{{ route('login.submit') }}"
-        >
+                <div class="visual-trust-row">
 
-            @csrf
-
-
-            <div class="auth-field">
-
-                <label for="email">
-                    E-mailadres
-                </label>
-
-                <div class="auth-input-wrap">
-
-                    <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        placeholder="Vul je e-mailadres in"
-                        autocomplete="email"
-                        required
-                        autofocus
-                    >
-
-                </div>
-
-                @error('email')
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
-                @enderror
-
-            </div>
-
-
-            <div class="auth-field">
-
-                <label for="password">
-                    Wachtwoord
-                </label>
-
-                <div class="auth-input-wrap">
-
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        placeholder="Vul je wachtwoord in"
-                        autocomplete="current-password"
-                        required
-                    >
-
-                    <button
-                        class="password-toggle"
-                        type="button"
-                        data-toggle-password="password"
-                    >
-                        Tonen
-                    </button>
-
-                </div>
-
-                @error('password')
-                    <small class="field-error">
-                        {{ $message }}
-                    </small>
-                @enderror
-
-            </div>
-
-
-            <div class="auth-options">
-
-                <label
-                    class="remember-label"
-                    for="remember"
-                >
-
-                    <input
-                        id="remember"
-                        type="checkbox"
-                        name="remember"
-                        value="1"
-                        {{ old('remember') ? 'checked' : '' }}
-                    >
-
-                    <span>
-                        Onthoud mij
+                    <span class="visual-trust">
+                        Secure account
                     </span>
 
-                </label>
+                    <span class="visual-trust">
+                        Verified access
+                    </span>
 
+                    <span class="visual-trust">
+                        Premium experience
+                    </span>
 
-                <a
-                    class="auth-link"
-                    href="{{ route('password.request') }}"
-                >
-                    Wachtwoord vergeten?
-                </a>
+                </div>
 
             </div>
 
-
-            <button
-                class="auth-submit"
-                type="submit"
-            >
-                Inloggen
-            </button>
-
-        </form>
+        </div>
 
 
-        <div class="auth-footer">
+        {{-- ========================================================= --}}
+        {{-- RIGHT / LOGIN                                             --}}
+        {{-- ========================================================= --}}
 
-            Nog geen account?
+        <div class="login-panel">
 
-            <a href="{{ route('register') }}">
-                Registreren
-            </a>
+            <div class="auth-shell">
+
+                <div class="auth-brand">
+
+                    <div class="auth-brand-mark">
+                        M
+                    </div>
+
+                    <div class="auth-brand-copy">
+
+                        <strong>
+                            Mashal
+                        </strong>
+
+                        <span>
+                            Automotive
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <span class="auth-kicker">
+                    Member access
+                </span>
+
+                <h1 class="auth-title">
+                    Inloggen
+                </h1>
+
+                <p class="auth-subtitle">
+                    Gebruik je e-mailadres en wachtwoord
+                    om toegang te krijgen tot jouw Mashal-account.
+                </p>
+
+
+                {{-- SUCCESS --}}
+
+                @if (session('success'))
+
+                    <div class="auth-message success">
+                        {{ session('success') }}
+                    </div>
+
+                @endif
+
+
+                {{-- ERRORS --}}
+
+                @if ($errors->any())
+
+                    <div class="auth-message error">
+
+                        <strong>
+                            Inloggen is niet gelukt.
+                        </strong>
+
+                        <ul>
+
+                            @foreach ($errors->all() as $error)
+
+                                <li>
+                                    {{ $error }}
+                                </li>
+
+                            @endforeach
+
+                        </ul>
+
+                    </div>
+
+                @endif
+
+
+                {{-- FORM --}}
+
+                <form
+                    method="POST"
+                    action="{{ route('login.submit') }}"
+                >
+                    @csrf
+
+
+                    {{-- EMAIL --}}
+
+                    <div class="auth-field">
+
+                        <div class="auth-label">
+
+                            <label for="email">
+                                E-mailadres
+                            </label>
+
+                            @error('email')
+                                <span class="field-error">
+                                    {{ $message }}
+                                </span>
+                            @enderror
+
+                        </div>
+
+
+                        <div class="auth-input-wrap">
+
+                            <input
+                                class="auth-input"
+                                id="email"
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="naam@example.com"
+                                autocomplete="email"
+                                required
+                                autofocus
+                            >
+
+                            <span class="auth-input-icon">
+                                @
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- PASSWORD --}}
+
+                    <div class="auth-field">
+
+                        <div class="auth-label">
+
+                            <label for="password">
+                                Wachtwoord
+                            </label>
+
+                            @error('password')
+                                <span class="field-error">
+                                    {{ $message }}
+                                </span>
+                            @enderror
+
+                        </div>
+
+
+                        <div class="auth-input-wrap">
+
+                            <input
+                                class="auth-input"
+                                id="password"
+                                type="password"
+                                name="password"
+                                placeholder="Vul je wachtwoord in"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                data-toggle-password="password"
+                                aria-label="Wachtwoord tonen of verbergen"
+                            >
+                                Tonen
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- OPTIONS --}}
+
+                    <div class="auth-options">
+
+                        <label
+                            class="remember-label"
+                            for="remember"
+                        >
+
+                            <input
+                                id="remember"
+                                type="checkbox"
+                                name="remember"
+                                value="1"
+                                {{ old('remember') ? 'checked' : '' }}
+                            >
+
+                            <span>
+                                Onthoud mij
+                            </span>
+
+                        </label>
+
+
+                        <a
+                            class="auth-link"
+                            href="{{ route('password.request') }}"
+                        >
+                            Wachtwoord vergeten?
+                        </a>
+
+                    </div>
+
+
+                    {{-- SUBMIT --}}
+
+                    <button
+                        class="auth-submit"
+                        type="submit"
+                    >
+                        Inloggen
+                    </button>
+
+                </form>
+
+
+                <div class="auth-divider">
+                    Nieuw bij Mashal?
+                </div>
+
+
+                <div class="register-card">
+
+                    <div class="register-card-copy">
+
+                        <strong>
+                            Nog geen account?
+                        </strong>
+
+                        <span>
+                            Maak gratis een account aan
+                            en beheer daarna jouw selectie en bestellingen.
+                        </span>
+
+                    </div>
+
+
+                    <a
+                        class="register-card-link"
+                        href="{{ route('register') }}"
+                    >
+                        Registreren
+                    </a>
+
+                </div>
+
+
+                <div class="security-note">
+
+                    <span class="security-note-mark">
+                        ✓
+                    </span>
+
+                    <span>
+                        Mashal vraagt je nooit om je wachtwoord
+                        via e-mail, chat of telefoon te delen.
+                    </span>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -540,39 +968,42 @@
 
 </section>
 
+@endsection
 
+
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    document
-        .querySelectorAll('[data-toggle-password]')
-        .forEach(function (button) {
+        document
+            .querySelectorAll('[data-toggle-password]')
+            .forEach(function (button) {
 
-            button.addEventListener('click', function () {
+                button.addEventListener('click', function () {
 
-                const inputId =
-                    button.getAttribute('data-toggle-password');
+                    const inputId =
+                        button.getAttribute('data-toggle-password');
 
-                const input =
-                    document.getElementById(inputId);
+                    const input =
+                        document.getElementById(inputId);
 
-                if (!input) {
-                    return;
-                }
+                    if (!input) {
+                        return;
+                    }
 
-                const hidden =
-                    input.type === 'password';
+                    const isHidden =
+                        input.type === 'password';
 
-                input.type =
-                    hidden ? 'text' : 'password';
+                    input.type =
+                        isHidden ? 'text' : 'password';
 
-                button.textContent =
-                    hidden ? 'Verbergen' : 'Tonen';
+                    button.textContent =
+                        isHidden ? 'Verberg' : 'Tonen';
+
+                });
+
             });
 
-        });
-
-});
+    });
 </script>
-
-@endsection
+@endpush

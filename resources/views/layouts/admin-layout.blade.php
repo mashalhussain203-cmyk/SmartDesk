@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
@@ -20,49 +21,62 @@
         content="noindex, nofollow"
     >
 
+    <meta
+        name="color-scheme"
+        content="dark"
+    >
+
     <title>
-        @yield('title', 'SmartDesk Admin')
+        @yield('title', 'Mashal Admin')
     </title>
 
 
     <style>
 
         :root {
-            --bg: #eef4f4;
 
-            --panel: #ffffff;
-            --panel-soft: #f8fbfb;
+            --bg: #08090b;
+            --bg-soft: #0d1014;
 
-            --text: #14211f;
-            --muted: #60716e;
+            --panel: #111419;
+            --panel-soft: #15191f;
+            --panel-hover: #191e25;
 
-            --line: #dce9e6;
+            --text: #f6f4ef;
+            --text-soft: #d8d4cc;
 
-            --green: #1f8a70;
-            --green-dark: #11583f;
-            --green-soft: #dcf8ee;
+            --muted: #8b9199;
+            --muted-2: #646a72;
 
-            --mint: #87d9bd;
+            --line: rgba(255, 255, 255, 0.075);
+            --line-strong: rgba(215, 164, 95, 0.24);
 
-            --success: #187a42;
-            --success-soft: #e8f7ee;
+            --gold: #d7a45f;
+            --gold-light: #f1c983;
+            --gold-dark: #9c6d34;
 
-            --warning: #9a6500;
-            --warning-soft: #fff4df;
+            --success: #65d59a;
+            --success-soft: rgba(101, 213, 154, 0.08);
 
-            --danger: #c74646;
-            --danger-soft: #fdecec;
+            --warning: #e8bf73;
+            --warning-soft: rgba(232, 191, 115, 0.08);
 
-            --info: #174a82;
-            --info-soft: #dcecff;
+            --danger: #ef8f8f;
+            --danger-soft: rgba(239, 143, 143, 0.08);
 
-            --shadow: rgba(12, 73, 58, 0.14);
+            --info: #8fb6ec;
+            --info-soft: rgba(143, 182, 236, 0.08);
+
+            --shadow:
+                0 28px 80px rgba(0, 0, 0, 0.24);
 
             --font:
                 Inter,
                 "Segoe UI",
                 Arial,
+                Helvetica,
                 sans-serif;
+
         }
 
 
@@ -75,27 +89,36 @@
             -webkit-font-smoothing: antialiased;
         }
 
-
         html {
             scroll-behavior: smooth;
         }
 
-
         body {
+
             margin: 0;
             min-height: 100vh;
 
-            background: var(--bg);
+            background:
+                radial-gradient(
+                    circle at 82% 8%,
+                    rgba(215, 164, 95, 0.075),
+                    transparent 24rem
+                ),
+                linear-gradient(
+                    180deg,
+                    #090a0c 0%,
+                    #08090b 100%
+                );
+
             color: var(--text);
 
             font-family: var(--font);
-        }
 
+        }
 
         a {
             color: inherit;
         }
-
 
         button,
         input,
@@ -104,14 +127,22 @@
             font: inherit;
         }
 
+        ::selection {
+            background: rgba(215, 164, 95, 0.28);
+            color: #ffffff;
+        }
+
 
         /* ========================================================= */
         /* ADMIN SHELL                                                */
         /* ========================================================= */
 
         .admin-shell {
+
             min-height: 100vh;
+
             display: flex;
+
         }
 
 
@@ -120,18 +151,39 @@
         /* ========================================================= */
 
         .sidebar {
-            width: 285px;
-            min-height: 100vh;
 
-            background: var(--green-dark);
-            color: #ffffff;
+            position: sticky;
+            top: 0;
 
-            padding: 30px 24px;
+            width: 294px;
+            height: 100vh;
 
             flex-shrink: 0;
 
             display: flex;
             flex-direction: column;
+
+            overflow-y: auto;
+
+            padding: 28px 20px;
+
+            border-right: 1px solid var(--line);
+
+            background:
+                radial-gradient(
+                    circle at 30% 0%,
+                    rgba(215, 164, 95, 0.08),
+                    transparent 17rem
+                ),
+                linear-gradient(
+                    180deg,
+                    #0d1014,
+                    #0a0c0f
+                );
+
+            box-shadow:
+                18px 0 55px rgba(0, 0, 0, 0.12);
+
         }
 
 
@@ -140,56 +192,102 @@
         /* ========================================================= */
 
         .brand {
+
             display: flex;
             align-items: center;
 
             gap: 12px;
 
-            margin-bottom: 38px;
+            margin-bottom: 34px;
 
             color: #ffffff;
+
             text-decoration: none;
+
         }
 
 
         .brand-mark {
-            width: 44px;
-            height: 44px;
 
-            border-radius: 50%;
-
-            background: var(--mint);
-            color: var(--green-dark);
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 48px;
+            height: 48px;
 
             flex-shrink: 0;
 
-            font-size: 23px;
-            font-weight: 900;
+            display: grid;
+            place-items: center;
+
+            border: 1px solid rgba(215, 164, 95, 0.4);
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--gold-light),
+                    var(--gold)
+                );
+
+            color: #15110c;
+
+            font-size: 20px;
+            font-weight: 950;
+
+            box-shadow:
+                0 10px 30px rgba(215, 164, 95, 0.16);
+
         }
 
 
         .brand-text strong {
+
             display: block;
 
-            font-size: 22px;
-            font-weight: 900;
+            color: #ffffff;
+
+            font-size: 21px;
+            line-height: 1.05;
+            font-weight: 950;
 
             letter-spacing: -0.04em;
+
         }
 
 
         .brand-text span {
+
             display: block;
 
-            margin-top: 4px;
+            margin-top: 5px;
 
-            color: #b7d8d0;
+            color: #737a82;
 
-            font-size: 12px;
+            font-size: 9px;
+            line-height: 1.4;
+            font-weight: 800;
+
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+
+        }
+
+
+        /* ========================================================= */
+        /* SIDEBAR DIVIDER                                           */
+        /* ========================================================= */
+
+        .sidebar-separator {
+
+            height: 1px;
+
+            margin: 4px 0 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(215, 164, 95, 0.3),
+                    transparent
+                );
+
         }
 
 
@@ -198,69 +296,125 @@
         /* ========================================================= */
 
         .nav-title {
-            margin: 25px 0 12px;
 
-            color: #a8d6cd;
+            margin: 22px 10px 10px;
 
-            font-size: 10px;
-            font-weight: 800;
+            color: #5f646b;
+
+            font-size: 8px;
+            font-weight: 900;
 
             text-transform: uppercase;
+            letter-spacing: 0.18em;
 
-            letter-spacing: 0.15em;
+        }
+
+
+        .sidebar nav {
+            display: grid;
+            gap: 5px;
         }
 
 
         .nav-link {
+
+            position: relative;
+
             display: flex;
             align-items: center;
 
-            gap: 12px;
+            gap: 11px;
 
-            margin-bottom: 7px;
+            min-height: 46px;
 
-            padding: 13px 14px;
+            padding: 0 13px;
 
-            border-radius: 12px;
+            border: 1px solid transparent;
+            border-radius: 13px;
 
-            color: #effef8;
+            color: #a9adb3;
 
             text-decoration: none;
 
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 750;
 
             transition:
                 background 0.2s ease,
+                border-color 0.2s ease,
                 color 0.2s ease,
                 transform 0.2s ease;
+
         }
 
 
         .nav-link svg {
-            width: 20px;
-            height: 20px;
+
+            width: 18px;
+            height: 18px;
+
+            flex-shrink: 0;
 
             fill: none;
             stroke: currentColor;
-            stroke-width: 2;
 
+            stroke-width: 1.8;
             stroke-linecap: round;
             stroke-linejoin: round;
 
-            flex-shrink: 0;
-        }
-
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: var(--mint);
-            color: var(--green-dark);
         }
 
 
         .nav-link:hover {
+
             transform: translateX(2px);
+
+            border-color: rgba(215, 164, 95, 0.12);
+
+            background:
+                rgba(215, 164, 95, 0.045);
+
+            color: #eeeae3;
+
+        }
+
+
+        .nav-link.active {
+
+            border-color:
+                rgba(215, 164, 95, 0.2);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(215, 164, 95, 0.13),
+                    rgba(215, 164, 95, 0.045)
+                );
+
+            color: var(--gold-light);
+
+        }
+
+
+        .nav-link.active::before {
+
+            content: "";
+
+            position: absolute;
+
+            left: -1px;
+            top: 10px;
+            bottom: 10px;
+
+            width: 2px;
+
+            border-radius: 999px;
+
+            background: var(--gold);
+
+            box-shadow:
+                0 0 12px rgba(215, 164, 95, 0.5);
+
         }
 
 
@@ -269,72 +423,114 @@
         /* ========================================================= */
 
         .sidebar-footer {
+
             margin-top: auto;
-            padding-top: 35px;
+
+            padding-top: 30px;
+
         }
 
 
         .profile-card {
-            padding: 18px;
 
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 16px;
+
+            border:
+                1px solid var(--line);
+
             border-radius: 18px;
 
-            background: rgba(255, 255, 255, 0.08);
+            background:
+                rgba(255, 255, 255, 0.025);
+
         }
 
 
         .profile-label {
+
             margin-bottom: 7px;
 
-            color: #b7d8d0;
+            color: var(--gold-dark);
 
-            font-size: 10px;
-            font-weight: 800;
+            font-size: 8px;
+            font-weight: 900;
 
             text-transform: uppercase;
+            letter-spacing: 0.14em;
 
-            letter-spacing: 0.1em;
         }
 
 
         .profile-name {
-            font-size: 15px;
-            font-weight: 800;
+
+            color: #f2f0eb;
+
+            font-size: 13px;
+            font-weight: 900;
 
             word-break: break-word;
+
         }
 
 
         .profile-email {
+
             margin-top: 5px;
 
-            color: #d8eee9;
+            color: var(--muted);
 
-            font-size: 11px;
+            font-size: 9px;
+            line-height: 1.55;
 
             word-break: break-word;
+
         }
 
 
         .admin-badge {
+
             display: inline-flex;
+            align-items: center;
 
-            margin-top: 10px;
+            gap: 6px;
 
-            padding: 6px 10px;
+            margin-top: 11px;
+
+            padding: 7px 9px;
+
+            border:
+                1px solid rgba(101, 213, 154, 0.14);
 
             border-radius: 999px;
 
-            background: var(--mint);
-            color: var(--green-dark);
+            background:
+                rgba(101, 213, 154, 0.05);
 
-            font-size: 10px;
+            color: #9ce7bc;
+
+            font-size: 8px;
             font-weight: 900;
 
             text-transform: uppercase;
+            letter-spacing: 0.06em;
 
-            letter-spacing: 0.08em;
+        }
+
+
+        .admin-badge::before {
+
+            content: "";
+
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: currentColor;
+
+            box-shadow:
+                0 0 12px currentColor;
+
         }
 
 
@@ -343,35 +539,54 @@
         /* ========================================================= */
 
         .logout-form {
-            margin-top: 14px;
+
+            margin-top: 13px;
+
         }
 
 
         .logout-button {
+
             width: 100%;
+            min-height: 40px;
 
-            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 10px;
+            border:
+                1px solid rgba(239, 143, 143, 0.12);
 
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
+            border-radius: 11px;
+
+            background:
+                rgba(239, 143, 143, 0.04);
+
+            color: #c98e8e;
 
             cursor: pointer;
 
-            font-size: 12px;
-            font-weight: 800;
+            font-size: 9px;
+            font-weight: 850;
 
             transition:
                 background 0.2s ease,
-                border-color 0.2s ease;
+                border-color 0.2s ease,
+                color 0.2s ease;
+
         }
 
 
         .logout-button:hover {
-            background: rgba(255, 255, 255, 0.16);
-            border-color: rgba(255, 255, 255, 0.28);
+
+            border-color:
+                rgba(239, 143, 143, 0.2);
+
+            background:
+                rgba(239, 143, 143, 0.08);
+
+            color: #f0aaaa;
+
         }
 
 
@@ -380,11 +595,15 @@
         /* ========================================================= */
 
         .content {
-            flex: 1;
 
             min-width: 0;
+            flex: 1;
 
-            padding: 26px 42px 50px;
+            padding:
+                24px
+                clamp(22px, 3.2vw, 46px)
+                54px;
+
         }
 
 
@@ -393,48 +612,89 @@
         /* ========================================================= */
 
         .topbar {
+
+            position: relative;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            gap: 20px;
+            gap: 24px;
 
-            margin-bottom: 24px;
+            margin-bottom: 22px;
+            padding: 18px 0 20px;
+
+            border-bottom:
+                1px solid var(--line);
+
+        }
+
+
+        .topbar::after {
+
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            bottom: -1px;
+
+            width: 110px;
+            height: 1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--gold),
+                    transparent
+                );
+
         }
 
 
         .page-title {
+
             margin: 0;
 
             color: var(--text);
 
-            font-size: 30px;
-            font-weight: 900;
+            font-size:
+                clamp(28px, 3.4vw, 42px);
 
-            line-height: 1.2;
+            font-weight: 950;
 
-            letter-spacing: -0.04em;
+            line-height: 1.05;
+
+            letter-spacing: -0.055em;
+
         }
 
 
         .page-subtitle {
+
             display: block;
 
-            margin-top: 6px;
+            max-width: 640px;
+
+            margin-top: 7px;
 
             color: var(--muted);
 
-            font-size: 12px;
+            font-size: 10px;
+            line-height: 1.7;
+
         }
 
 
         .topbar-actions {
+
             display: flex;
             align-items: center;
 
-            gap: 12px;
+            gap: 9px;
 
             flex-wrap: wrap;
+
         }
 
 
@@ -443,6 +703,7 @@
         /* ========================================================= */
 
         .button {
+
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -451,58 +712,98 @@
 
             min-height: 42px;
 
-            padding: 11px 18px;
+            padding: 0 15px;
 
-            border: none;
-            border-radius: 12px;
+            border:
+                1px solid transparent;
 
-            background: var(--green);
-            color: #ffffff;
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--gold-light),
+                    var(--gold)
+                );
+
+            color: #17110b;
 
             text-decoration: none;
 
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 9px;
+            font-weight: 900;
 
             cursor: pointer;
 
             box-shadow:
-                0 8px 16px var(--shadow);
+                0 10px 24px rgba(215, 164, 95, 0.14);
 
             transition:
                 transform 0.2s ease,
                 box-shadow 0.2s ease,
-                background 0.2s ease;
+                background 0.2s ease,
+                border-color 0.2s ease;
+
         }
 
 
         .button:hover {
-            transform: translateY(-1px);
+
+            transform: translateY(-2px);
 
             box-shadow:
-                0 12px 22px var(--shadow);
+                0 16px 32px rgba(215, 164, 95, 0.2);
+
         }
 
 
         .button.secondary {
-            background: var(--panel-soft);
-            color: var(--green-dark);
 
-            border: 1px solid var(--line);
+            border-color: var(--line);
+
+            background:
+                rgba(255, 255, 255, 0.025);
+
+            color: #d8d4cc;
 
             box-shadow: none;
+
+        }
+
+
+        .button.secondary:hover {
+
+            border-color:
+                var(--line-strong);
+
+            background:
+                rgba(215, 164, 95, 0.055);
+
+            color: var(--gold-light);
+
         }
 
 
         .button.danger {
-            background: var(--danger);
+
+            border-color:
+                rgba(239, 143, 143, 0.15);
+
+            background:
+                rgba(239, 143, 143, 0.07);
+
+            color: #efaaaa;
 
             box-shadow: none;
+
         }
 
 
         .button.danger:hover {
-            background: #aa3838;
+
+            background:
+                rgba(239, 143, 143, 0.11);
+
         }
 
 
@@ -514,39 +815,58 @@
         .success,
         .error,
         .warning {
-            margin-bottom: 20px;
 
-            padding: 14px 16px;
+            position: relative;
 
-            border-radius: 12px;
+            margin-bottom: 18px;
 
-            font-size: 13px;
-            line-height: 1.6;
+            padding: 15px 17px;
+
+            border-radius: 14px;
+
+            font-size: 11px;
+            line-height: 1.7;
+
         }
 
 
         .alert,
         .success {
-            border: 1px solid #cbead7;
 
-            background: var(--success-soft);
-            color: var(--success);
+            border:
+                1px solid rgba(101, 213, 154, 0.18);
+
+            background:
+                var(--success-soft);
+
+            color: #a8e8c2;
+
         }
 
 
         .error {
-            border: 1px solid #efcaca;
 
-            background: var(--danger-soft);
-            color: var(--danger);
+            border:
+                1px solid rgba(239, 143, 143, 0.18);
+
+            background:
+                var(--danger-soft);
+
+            color: #efaaaa;
+
         }
 
 
         .warning {
-            border: 1px solid #f0dfb9;
 
-            background: var(--warning-soft);
-            color: var(--warning);
+            border:
+                1px solid rgba(232, 191, 115, 0.18);
+
+            background:
+                var(--warning-soft);
+
+            color: #e8c887;
+
         }
 
 
@@ -555,56 +875,121 @@
         /* ========================================================= */
 
         .stats-grid {
+
             display: grid;
 
             grid-template-columns:
                 repeat(4, minmax(160px, 1fr));
 
-            gap: 16px;
+            gap: 14px;
 
-            margin: 20px 0;
+            margin: 18px 0;
+
         }
 
 
         .stat-card {
-            padding: 22px;
 
-            border: 1px solid rgba(32, 127, 94, 0.08);
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 20px;
+
+            border:
+                1px solid var(--line);
+
             border-radius: 20px;
 
-            background: var(--panel);
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--panel),
+                    #0e1115
+                );
 
             box-shadow:
-                0 6px 16px rgba(10, 70, 55, 0.08);
+                0 16px 46px rgba(0, 0, 0, 0.12);
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease;
+
+        }
+
+
+        .stat-card:hover {
+
+            transform: translateY(-3px);
+
+            border-color:
+                var(--line-strong);
+
+        }
+
+
+        .stat-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            right: -35px;
+            bottom: -45px;
+
+            width: 130px;
+            height: 130px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(215, 164, 95, 0.08),
+                    transparent 70%
+                );
+
+            pointer-events: none;
+
         }
 
 
         .stat-label {
+
             color: var(--muted);
 
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 8px;
+            font-weight: 900;
 
             text-transform: uppercase;
+            letter-spacing: 0.14em;
 
-            letter-spacing: 0.12em;
         }
 
 
         .stat-num {
-            margin: 14px 0 8px;
 
-            color: var(--green-dark);
+            margin: 15px 0 8px;
 
-            font-size: 34px;
-            font-weight: 900;
+            color: #ffffff;
+
+            font-size: 36px;
+            line-height: 1;
+
+            font-weight: 950;
+
+            letter-spacing: -0.05em;
+
         }
 
 
         .stat-foot {
-            color: var(--muted);
 
-            font-size: 11px;
+            color: var(--muted-2);
+
+            font-size: 9px;
+            line-height: 1.55;
+
         }
 
 
@@ -613,49 +998,68 @@
         /* ========================================================= */
 
         .main-panel {
+
             margin-top: 18px;
 
             padding: 24px;
 
-            border: 1px solid var(--line);
-            border-radius: 26px;
+            border:
+                1px solid var(--line);
 
-            background: var(--panel);
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(17, 20, 25, 0.98),
+                    rgba(13, 16, 20, 0.98)
+                );
 
             box-shadow:
-                0 16px 40px rgba(10, 70, 55, 0.08);
+                0 20px 56px rgba(0, 0, 0, 0.14);
+
         }
 
 
         .section-heading {
+
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
 
-            gap: 16px;
+            gap: 18px;
 
-            margin-bottom: 22px;
+            margin-bottom: 20px;
+
         }
 
 
         .section-heading h2 {
+
             margin: 0;
 
             color: var(--text);
 
             font-size: 22px;
-            font-weight: 900;
+
+            font-weight: 950;
+
+            letter-spacing: -0.035em;
+
         }
 
 
         .section-heading span {
+
             display: block;
 
-            margin-top: 5px;
+            margin-top: 6px;
 
             color: var(--muted);
 
-            font-size: 12px;
+            font-size: 10px;
+            line-height: 1.6;
+
         }
 
 
@@ -664,49 +1068,69 @@
         /* ========================================================= */
 
         .table-wrap {
+
             width: 100%;
 
             overflow-x: auto;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 16px;
+
+            background:
+                rgba(0, 0, 0, 0.09);
+
         }
 
 
         table {
+
             width: 100%;
 
             border-collapse: collapse;
+
         }
 
 
         th {
-            padding: 14px 10px;
 
-            border-bottom: 1px solid var(--line);
+            padding: 13px 12px;
 
-            color: var(--muted);
+            border-bottom:
+                1px solid var(--line);
+
+            background:
+                rgba(255, 255, 255, 0.02);
+
+            color: #70767e;
 
             text-align: left;
 
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 8px;
+            font-weight: 900;
 
             text-transform: uppercase;
-
             letter-spacing: 0.12em;
 
             white-space: nowrap;
+
         }
 
 
         td {
-            padding: 16px 10px;
 
-            border-bottom: 1px solid var(--line);
+            padding: 14px 12px;
 
-            color: var(--text);
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.045);
 
-            font-size: 14px;
+            color: var(--text-soft);
+
+            font-size: 10px;
 
             vertical-align: middle;
+
         }
 
 
@@ -716,40 +1140,52 @@
 
 
         tbody tr:hover {
-            background: #fbfdfd;
+
+            background:
+                rgba(215, 164, 95, 0.025);
+
         }
 
 
         /* ========================================================= */
-        /* USER                                                      */
+        /* USER                                                       */
         /* ========================================================= */
 
         .user-name {
+
             display: flex;
             align-items: center;
 
             gap: 10px;
 
             font-weight: 700;
+
         }
 
 
         .avatar {
-            width: 36px;
-            height: 36px;
 
-            border-radius: 50%;
+            width: 38px;
+            height: 38px;
 
-            background: var(--green-soft);
-            color: var(--green-dark);
+            flex-shrink: 0;
 
             display: inline-flex;
             align-items: center;
             justify-content: center;
 
-            flex-shrink: 0;
+            border:
+                1px solid rgba(215, 164, 95, 0.16);
 
-            font-weight: 900;
+            border-radius: 12px;
+
+            background:
+                rgba(215, 164, 95, 0.07);
+
+            color: var(--gold-light);
+
+            font-weight: 950;
+
         }
 
 
@@ -758,44 +1194,70 @@
         /* ========================================================= */
 
         .badge {
+
             display: inline-flex;
             align-items: center;
 
-            padding: 7px 11px;
+            padding: 7px 10px;
+
+            border:
+                1px solid var(--line);
 
             border-radius: 999px;
 
-            background: var(--green-soft);
-            color: var(--green-dark);
+            background:
+                rgba(255, 255, 255, 0.025);
 
-            font-size: 11px;
-            font-weight: 800;
+            color: #b8bcc1;
+
+            font-size: 8px;
+            font-weight: 900;
+
+            white-space: nowrap;
+
         }
 
 
         .badge.admin {
-            background: var(--info-soft);
+
+            border-color:
+                rgba(143, 182, 236, 0.16);
+
+            background:
+                var(--info-soft);
+
             color: var(--info);
+
         }
 
 
         .badge.success {
-            background: var(--success-soft);
-            color: var(--success);
 
-            border: none;
+            border-color:
+                rgba(101, 213, 154, 0.16);
+
+            background:
+                var(--success-soft);
+
+            color: #9ce7bc;
 
             margin: 0;
+
         }
 
 
         .badge.warning {
-            background: var(--warning-soft);
-            color: var(--warning);
 
-            border: none;
+            border-color:
+                rgba(232, 191, 115, 0.16);
+
+            background:
+                var(--warning-soft);
+
+            color: #e8c887;
 
             margin: 0;
+
         }
 
 
@@ -804,84 +1266,278 @@
         /* ========================================================= */
 
         .form-wrap {
-            max-width: 720px;
 
-            padding: 30px;
+            max-width: 760px;
 
-            border: 1px solid var(--line);
+            padding: 26px;
+
+            border:
+                1px solid var(--line);
+
             border-radius: 22px;
 
-            background: var(--panel-soft);
+            background:
+                var(--panel);
+
         }
 
 
         .form-row {
+
             margin-bottom: 18px;
+
         }
 
 
         label {
+
             display: block;
 
             margin-bottom: 8px;
 
             color: var(--muted);
 
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 9px;
+            font-weight: 900;
 
             text-transform: uppercase;
-
             letter-spacing: 0.1em;
+
         }
 
 
         input,
         select,
         textarea {
+
             width: 100%;
 
             padding: 13px 14px;
 
-            border: 1px solid var(--line);
+            border:
+                1px solid var(--line);
+
             border-radius: 12px;
 
-            background: var(--panel);
+            background:
+                var(--panel-soft);
+
             color: var(--text);
 
-            font-size: 14px;
+            font-size: 12px;
 
             transition:
                 border-color 0.2s ease,
-                box-shadow 0.2s ease;
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #5f646b;
         }
 
 
         textarea {
+
             min-height: 120px;
 
             resize: vertical;
+
         }
 
 
         input:focus,
         select:focus,
         textarea:focus {
-            border-color: var(--green);
+
+            border-color:
+                rgba(215, 164, 95, 0.4);
 
             outline: none;
 
+            background:
+                #171b21;
+
             box-shadow:
-                0 0 0 3px rgba(31, 138, 112, 0.12);
+                0 0 0 3px
+                rgba(215, 164, 95, 0.07);
+
         }
 
 
         input:disabled,
         select:disabled,
         textarea:disabled {
-            opacity: 0.65;
+
+            opacity: 0.58;
 
             cursor: not-allowed;
+
+        }
+
+
+        /* ========================================================= */
+        /* ACCESS STATES                                              */
+        /* ========================================================= */
+
+        .access-page {
+
+            position: relative;
+
+            min-height: 100vh;
+
+            display: grid;
+            place-items: center;
+
+            overflow: hidden;
+
+            padding: 24px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(215, 164, 95, 0.1),
+                    transparent 26rem
+                );
+
+        }
+
+
+        .access-page::before {
+
+            content: "M";
+
+            position: absolute;
+
+            right: -55px;
+            bottom: -95px;
+
+            color:
+                rgba(255, 255, 255, 0.02);
+
+            font-size:
+                clamp(240px, 45vw, 620px);
+
+            line-height: 0.75;
+
+            font-weight: 950;
+
+            letter-spacing: -0.1em;
+
+            pointer-events: none;
+
+        }
+
+
+        .access-card {
+
+            position: relative;
+            z-index: 1;
+
+            width: 100%;
+            max-width: 520px;
+
+            padding: 34px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(17, 20, 25, 0.98),
+                    rgba(12, 15, 19, 0.98)
+                );
+
+            text-align: center;
+
+            box-shadow:
+                var(--shadow);
+
+        }
+
+
+        .access-icon {
+
+            width: 64px;
+            height: 64px;
+
+            margin: 0 auto 20px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 18px;
+
+            font-size: 24px;
+            font-weight: 950;
+
+        }
+
+
+        .access-icon.danger {
+
+            border:
+                1px solid rgba(239, 143, 143, 0.16);
+
+            background:
+                rgba(239, 143, 143, 0.07);
+
+            color: #efaaaa;
+
+        }
+
+
+        .access-icon.brand {
+
+            margin-bottom: 20px;
+
+            border:
+                1px solid rgba(215, 164, 95, 0.22);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--gold-light),
+                    var(--gold)
+                );
+
+            color: #15110c;
+
+        }
+
+
+        .access-card h1 {
+
+            margin: 0;
+
+            color: #ffffff;
+
+            font-size: 28px;
+
+            line-height: 1.1;
+
+            font-weight: 950;
+
+            letter-spacing: -0.045em;
+
+        }
+
+
+        .access-card p {
+
+            margin: 14px 0 24px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+            line-height: 1.75;
+
         }
 
 
@@ -892,8 +1548,10 @@
         @media (max-width: 1000px) {
 
             .stats-grid {
+
                 grid-template-columns:
                     repeat(2, minmax(160px, 1fr));
+
             }
 
         }
@@ -902,77 +1560,220 @@
         @media (max-width: 900px) {
 
             .admin-shell {
+
                 flex-direction: column;
+
             }
 
 
             .sidebar {
+
+                position: relative;
+
                 width: 100%;
+                height: auto;
                 min-height: auto;
+
+                overflow: visible;
+
+                padding:
+                    20px;
+
+                border-right: none;
+                border-bottom:
+                    1px solid var(--line);
+
+            }
+
+
+            .brand {
+                margin-bottom: 20px;
+            }
+
+
+            .sidebar-separator {
+                display: none;
+            }
+
+
+            .sidebar nav {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+            }
+
+
+            .nav-title {
+
+                margin:
+                    18px
+                    8px
+                    8px;
+
             }
 
 
             .sidebar-footer {
-                margin-top: 25px;
+
+                margin-top: 20px;
+
                 padding-top: 0;
+
+            }
+
+
+            .profile-card {
+
+                display: grid;
+
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    auto;
+
+                gap: 10px 18px;
+
+                align-items: center;
+
+            }
+
+
+            .logout-form {
+
+                grid-column: 2;
+                grid-row: 1 / span 4;
+
+                margin: 0;
+
+            }
+
+
+            .logout-button {
+
+                min-width: 120px;
+
             }
 
 
             .content {
-                padding: 24px;
+
+                padding:
+                    22px;
+
             }
 
 
             .topbar,
             .section-heading {
+
                 align-items: flex-start;
+
                 flex-direction: column;
+
             }
 
         }
 
 
-        @media (max-width: 600px) {
+        @media (max-width: 620px) {
 
             .content {
-                padding: 18px;
+
+                padding:
+                    16px;
+
             }
 
 
             .sidebar {
-                padding: 24px 18px;
+
+                padding:
+                    18px 14px;
+
+            }
+
+
+            .sidebar nav {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .profile-card {
+
+                display: block;
+
+            }
+
+
+            .logout-form {
+
+                margin-top: 12px;
+
+            }
+
+
+            .logout-button {
+
+                width: 100%;
+
             }
 
 
             .main-panel {
+
                 padding: 18px;
 
-                border-radius: 18px;
+                border-radius: 19px;
+
             }
 
 
             .form-wrap {
-                padding: 20px;
+
+                padding: 18px;
+
             }
 
 
             .stats-grid {
+
                 grid-template-columns: 1fr;
+
             }
 
 
             .topbar-actions {
+
                 width: 100%;
+
             }
 
 
             .topbar-actions .button {
+
                 width: 100%;
+
+            }
+
+
+            .access-card {
+
+                padding: 26px 20px;
+
             }
 
         }
 
     </style>
+
+
+    {{-- ========================================================= --}}
+    {{-- PAGE-SPECIFIC STYLES                                       --}}
+    {{-- ========================================================= --}}
+
+    @stack('styles')
 
 </head>
 
@@ -990,9 +1791,9 @@
             <div class="admin-shell">
 
 
-                {{-- ========================================================= --}}
-                {{-- SIDEBAR                                                    --}}
-                {{-- ========================================================= --}}
+                {{-- ===================================================== --}}
+                {{-- SIDEBAR                                                 --}}
+                {{-- ===================================================== --}}
 
                 <aside class="sidebar">
 
@@ -1005,17 +1806,18 @@
                     >
 
                         <div class="brand-mark">
-                            S
+                            M
                         </div>
+
 
                         <div class="brand-text">
 
                             <strong>
-                                SmartDesk
+                                Mashal
                             </strong>
 
                             <span>
-                                Admin beheeromgeving
+                                Automotive Admin
                             </span>
 
                         </div>
@@ -1023,9 +1825,12 @@
                     </a>
 
 
-                    {{-- ========================================================= --}}
-                    {{-- ADMIN NAVIGATION                                           --}}
-                    {{-- ========================================================= --}}
+                    <div class="sidebar-separator"></div>
+
+
+                    {{-- ================================================= --}}
+                    {{-- ADMIN NAVIGATION                                    --}}
+                    {{-- ================================================= --}}
 
                     <div class="nav-title">
                         Beheer
@@ -1042,11 +1847,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M3 12l9-9 9 9v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"
                                 />
-
                             </svg>
 
                             <span>
@@ -1064,11 +1867,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 20a7 7 0 0 1 14 0"
                                 />
-
                             </svg>
 
                             <span>
@@ -1086,11 +1887,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M12 5v14M5 12h14"
                                 />
-
                             </svg>
 
                             <span>
@@ -1102,12 +1901,12 @@
                     </nav>
 
 
-                    {{-- ========================================================= --}}
-                    {{-- WEBSITE                                                    --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- WEBSITE                                            --}}
+                    {{-- ================================================= --}}
 
                     <div class="nav-title">
-                        SmartDesk
+                        Mashal Automotive
                     </div>
 
 
@@ -1121,11 +1920,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M3 12l9-9 9 9M5 10v11h14V10"
                                 />
-
                             </svg>
 
                             <span>
@@ -1143,11 +1940,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M3 17h18M5 17l2-7h10l2 7M7 17v2M17 17v2"
                                 />
-
                             </svg>
 
                             <span>
@@ -1165,11 +1960,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M3 4h2l2 11h10l3-8H6M9 20h.01M17 20h.01"
                                 />
-
                             </svg>
 
                             <span>
@@ -1187,11 +1980,9 @@
                         >
 
                             <svg viewBox="0 0 24 24">
-
                                 <path
                                     d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
                                 />
-
                             </svg>
 
                             <span>
@@ -1203,9 +1994,9 @@
                     </nav>
 
 
-                    {{-- ========================================================= --}}
-                    {{-- PROFILE                                                    --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- PROFILE                                            --}}
+                    {{-- ================================================= --}}
 
                     <div class="sidebar-footer">
 
@@ -1241,6 +2032,7 @@
 
                                 @csrf
 
+
                                 <button
                                     class="logout-button"
                                     type="submit"
@@ -1257,9 +2049,9 @@
                 </aside>
 
 
-                {{-- ========================================================= --}}
-                {{-- MAIN CONTENT                                                --}}
-                {{-- ========================================================= --}}
+                {{-- ===================================================== --}}
+                {{-- MAIN CONTENT                                            --}}
+                {{-- ===================================================== --}}
 
                 <main class="content">
 
@@ -1271,11 +2063,13 @@
                         <div>
 
                             <h1 class="page-title">
-                                @yield('page-title', 'SmartDesk Admin')
+                                @yield('page-title', 'Mashal Admin')
                             </h1>
 
+
                             <span class="page-subtitle">
-                                Beheer gebruikers, rechten en SmartDesk-accountgegevens.
+                                Beheer gebruikers, rechten en accountgegevens
+                                binnen Mashal Automotive.
                             </span>
 
                         </div>
@@ -1303,9 +2097,9 @@
                     </section>
 
 
-                    {{-- ========================================================= --}}
-                    {{-- SUCCESS                                                    --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- SUCCESS                                            --}}
+                    {{-- ================================================= --}}
 
                     @if (session('success'))
 
@@ -1324,9 +2118,9 @@
                     @endif
 
 
-                    {{-- ========================================================= --}}
-                    {{-- ERROR                                                      --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- ERROR                                              --}}
+                    {{-- ================================================= --}}
 
                     @if (session('error'))
 
@@ -1345,9 +2139,9 @@
                     @endif
 
 
-                    {{-- ========================================================= --}}
-                    {{-- VALIDATION ERRORS                                          --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- VALIDATION ERRORS                                   --}}
+                    {{-- ================================================= --}}
 
                     @if ($errors->any())
 
@@ -1357,7 +2151,12 @@
                                 Controleer onderstaande gegevens:
                             </strong>
 
-                            <ul style="margin: 10px 0 0 20px;">
+                            <ul
+                                style="
+                                    margin: 10px 0 0 18px;
+                                    padding: 0;
+                                "
+                            >
 
                                 @foreach ($errors->all() as $error)
 
@@ -1374,9 +2173,9 @@
                     @endif
 
 
-                    {{-- ========================================================= --}}
-                    {{-- PAGE CONTENT                                               --}}
-                    {{-- ========================================================= --}}
+                    {{-- ================================================= --}}
+                    {{-- PAGE CONTENT                                        --}}
+                    {{-- ================================================= --}}
 
                     @yield('content')
 
@@ -1390,61 +2189,24 @@
             {{-- LOGGED IN BUT NOT ADMIN                                    --}}
             {{-- ========================================================= --}}
 
-            <main
-                style="
-                    min-height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 24px;
-                "
-            >
+            <main class="access-page">
 
-                <div
-                    style="
-                        width: 100%;
-                        max-width: 500px;
-                        padding: 35px;
-                        border: 1px solid #dce9e6;
-                        border-radius: 20px;
-                        background: #ffffff;
-                        text-align: center;
-                    "
-                >
+                <div class="access-card">
 
-                    <div
-                        style="
-                            width: 60px;
-                            height: 60px;
-                            margin: 0 auto 20px;
-                            border-radius: 50%;
-                            background: #fdecec;
-                            color: #c74646;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 26px;
-                            font-weight: 900;
-                        "
-                    >
+                    <div class="access-icon danger">
                         !
                     </div>
 
 
-                    <h1 style="margin: 0 0 12px;">
+                    <h1>
                         Geen administratorrechten
                     </h1>
 
 
-                    <p
-                        style="
-                            margin: 0 0 25px;
-                            color: #60716e;
-                            line-height: 1.6;
-                        "
-                    >
-                        Je bent wel ingelogd, maar je account heeft geen
-                        administratorrechten voor deze beheeromgeving.
+                    <p>
+                        Je bent ingelogd, maar je account heeft geen
+                        administratorrechten voor de Mashal-beheeromgeving.
+                        Ga terug naar je account om de gewone website te gebruiken.
                     </p>
 
 
@@ -1464,65 +2226,27 @@
 
     @else
 
-        {{-- ========================================================= --}}
-        {{-- NOT LOGGED IN                                              --}}
-        {{-- ========================================================= --}}
+        {{-- ============================================================= --}}
+        {{-- NOT LOGGED IN                                                  --}}
+        {{-- ============================================================= --}}
 
-        <main
-            style="
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 24px;
-            "
-        >
+        <main class="access-page">
 
-            <div
-                style="
-                    width: 100%;
-                    max-width: 500px;
-                    padding: 35px;
-                    border: 1px solid #dce9e6;
-                    border-radius: 20px;
-                    background: #ffffff;
-                    text-align: center;
-                "
-            >
+            <div class="access-card">
 
-                <div
-                    style="
-                        width: 60px;
-                        height: 60px;
-                        margin: 0 auto 20px;
-                        border-radius: 50%;
-                        background: #dcf8ee;
-                        color: #11583f;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 24px;
-                        font-weight: 900;
-                    "
-                >
-                    S
+                <div class="access-icon brand">
+                    M
                 </div>
 
 
-                <h1 style="margin: 0 0 12px;">
-                    SmartDesk Admin
+                <h1>
+                    Mashal Admin
                 </h1>
 
 
-                <p
-                    style="
-                        margin: 0 0 25px;
-                        color: #60716e;
-                        line-height: 1.6;
-                    "
-                >
+                <p>
                     Je moet ingelogd zijn met een administratoraccount
-                    om het SmartDesk-beheer te openen.
+                    om de Mashal Automotive-beheeromgeving te openen.
                 </p>
 
 
@@ -1539,7 +2263,13 @@
 
     @endauth
 
+
+    {{-- ========================================================= --}}
+    {{-- PAGE-SPECIFIC SCRIPTS                                      --}}
+    {{-- ========================================================= --}}
+
+    @stack('scripts')
+
 </body>
 
 </html>
-

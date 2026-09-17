@@ -1,4 +1,3 @@
-```blade
 <!DOCTYPE html>
 <html lang="nl">
 
@@ -10,16 +9,30 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Je SmartDesk-e-mailadres is gewijzigd</title>
+    <meta
+        name="color-scheme"
+        content="light"
+    >
+
+    <meta
+        name="supported-color-schemes"
+        content="light"
+    >
+
+    <title>
+        Beveiligingsmelding: je Mashal-e-mailadres is gewijzigd
+    </title>
 </head>
 
 <body
     style="
         margin: 0;
         padding: 0;
-        background-color: #f3f5f7;
+        background-color: #08090b;
         font-family: Arial, Helvetica, sans-serif;
-        color: #222222;
+        color: #1d1d1d;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
     "
 >
 
@@ -31,12 +44,23 @@
     border="0"
     style="
         width: 100%;
-        background-color: #f3f5f7;
-        padding: 45px 15px;
+        margin: 0;
+        padding: 0;
+        border-collapse: collapse;
+        background-color: #08090b;
     "
 >
     <tr>
-        <td align="center">
+        <td
+            align="center"
+            style="
+                padding: 44px 14px;
+            "
+        >
+
+            {{-- ========================================================= --}}
+            {{-- EMAIL CARD                                                --}}
+            {{-- ========================================================= --}}
 
             <table
                 role="presentation"
@@ -46,86 +70,28 @@
                 border="0"
                 style="
                     width: 100%;
-                    max-width: 640px;
-                    background-color: #ffffff;
-                    border-radius: 14px;
+                    max-width: 680px;
+                    border-collapse: separate;
+                    border-spacing: 0;
                     overflow: hidden;
-                    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+                    border-radius: 22px;
+                    background-color: #f7f4ee;
+                    box-shadow: 0 30px 90px rgba(0,0,0,.35);
                 "
             >
 
-                {{-- HEADER --}}
+                {{-- ===================================================== --}}
+                {{-- HEADER                                                 --}}
+                {{-- ===================================================== --}}
+
                 <tr>
                     <td
                         style="
-                            background-color: #111111;
-                            padding: 32px 35px;
-                            text-align: center;
+                            padding: 0;
+                            background-color: #0d0f12;
                         "
                     >
-                        <div
-                            style="
-                                color: #ffffff;
-                                font-size: 30px;
-                                font-weight: 700;
-                                letter-spacing: 1px;
-                            "
-                        >
-                            SmartDesk
-                        </div>
 
-                        <div
-                            style="
-                                margin-top: 8px;
-                                color: #aaaaaa;
-                                font-size: 13px;
-                                letter-spacing: 0.3px;
-                            "
-                        >
-                            Accountbeveiliging &amp; persoonlijke gegevens
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- CONTENT --}}
-                <tr>
-                    <td style="padding: 42px 40px 35px;">
-
-                        <h1
-                            style="
-                                margin: 0 0 18px;
-                                font-size: 27px;
-                                line-height: 1.3;
-                                color: #111111;
-                            "
-                        >
-                            Je e-mailadres is gewijzigd
-                        </h1>
-
-                        <p
-                            style="
-                                margin: 0 0 18px;
-                                font-size: 16px;
-                                line-height: 1.7;
-                                color: #444444;
-                            "
-                        >
-                            Hallo {{ $user->name }},
-                        </p>
-
-                        <p
-                            style="
-                                margin: 0 0 28px;
-                                font-size: 16px;
-                                line-height: 1.7;
-                                color: #444444;
-                            "
-                        >
-                            Het e-mailadres van je SmartDesk-account is zojuist gewijzigd.
-                            Hieronder zie je welke wijziging is uitgevoerd.
-                        </p>
-
-                        {{-- CHANGE OVERVIEW --}}
                         <table
                             role="presentation"
                             width="100%"
@@ -134,25 +100,15 @@
                             border="0"
                             style="
                                 width: 100%;
-                                margin: 0 0 28px;
-                                background-color: #f7f8fa;
-                                border: 1px solid #e3e6e8;
-                                border-radius: 10px;
+                                border-collapse: collapse;
                             "
                         >
                             <tr>
-                                <td style="padding: 24px;">
-
-                                    <div
-                                        style="
-                                            margin-bottom: 20px;
-                                            font-size: 15px;
-                                            font-weight: 700;
-                                            color: #111111;
-                                        "
-                                    >
-                                        Wijziging van je e-mailadres
-                                    </div>
+                                <td
+                                    style="
+                                        padding: 30px 34px 27px;
+                                    "
+                                >
 
                                     <table
                                         role="presentation"
@@ -160,168 +116,255 @@
                                         cellpadding="0"
                                         cellspacing="0"
                                         border="0"
-                                        style="width: 100%;"
+                                        style="
+                                            width: 100%;
+                                            border-collapse: collapse;
+                                        "
                                     >
                                         <tr>
-                                            <td
-                                                valign="top"
-                                                style="
-                                                    width: 42%;
-                                                    padding: 8px 0;
-                                                    font-size: 14px;
-                                                    color: #777777;
-                                                "
-                                            >
-                                                Oud e-mailadres
-                                            </td>
 
                                             <td
-                                                valign="top"
-                                                align="right"
+                                                width="54"
+                                                valign="middle"
                                                 style="
-                                                    padding: 8px 0;
-                                                    font-size: 14px;
-                                                    font-weight: 600;
-                                                    color: #333333;
-                                                    word-break: break-word;
-                                                "
-                                            >
-                                                {{ $oldEmail }}
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td
-                                                colspan="2"
-                                                style="
-                                                    padding: 5px 0;
+                                                    width: 54px;
                                                 "
                                             >
                                                 <div
                                                     style="
-                                                        height: 1px;
-                                                        background-color: #e1e4e7;
+                                                        width: 46px;
+                                                        height: 46px;
+                                                        line-height: 46px;
+                                                        border-radius: 14px;
+                                                        background-color: #d7a45f;
+                                                        color: #15110c;
+                                                        text-align: center;
+                                                        font-size: 20px;
+                                                        font-weight: 800;
                                                     "
-                                                ></div>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td
-                                                valign="top"
-                                                style="
-                                                    width: 42%;
-                                                    padding: 8px 0;
-                                                    font-size: 14px;
-                                                    color: #777777;
-                                                "
-                                            >
-                                                Nieuw e-mailadres
+                                                >
+                                                    M
+                                                </div>
                                             </td>
 
+                                            <td valign="middle">
+
+                                                <div
+                                                    style="
+                                                        color: #ffffff;
+                                                        font-size: 21px;
+                                                        line-height: 1.1;
+                                                        font-weight: 700;
+                                                        letter-spacing: -.4px;
+                                                    "
+                                                >
+                                                    Mashal
+                                                </div>
+
+                                                <div
+                                                    style="
+                                                        margin-top: 5px;
+                                                        color: #8a8f95;
+                                                        font-size: 10px;
+                                                        line-height: 1.4;
+                                                        font-weight: 700;
+                                                        letter-spacing: 1.8px;
+                                                        text-transform: uppercase;
+                                                    "
+                                                >
+                                                    Automotive
+                                                </div>
+
+                                            </td>
+
                                             <td
-                                                valign="top"
                                                 align="right"
+                                                valign="middle"
                                                 style="
-                                                    padding: 8px 0;
-                                                    font-size: 14px;
-                                                    font-weight: 700;
-                                                    color: #111111;
-                                                    word-break: break-word;
+                                                    text-align: right;
                                                 "
                                             >
-                                                {{ $newEmail }}
+                                                <span
+                                                    style="
+                                                        display: inline-block;
+                                                        padding: 8px 11px;
+                                                        border: 1px solid #5f4930;
+                                                        border-radius: 999px;
+                                                        background-color: #17130f;
+                                                        color: #e5bb79;
+                                                        font-size: 9px;
+                                                        line-height: 1;
+                                                        font-weight: 700;
+                                                        letter-spacing: 1px;
+                                                        text-transform: uppercase;
+                                                    "
+                                                >
+                                                    Security event
+                                                </span>
                                             </td>
+
                                         </tr>
                                     </table>
 
                                 </td>
                             </tr>
-                        </table>
 
-                        {{-- VERIFICATION NOTICE --}}
-                        <table
-                            role="presentation"
-                            width="100%"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            style="
-                                width: 100%;
-                                margin: 0 0 28px;
-                                background-color: #eef5ff;
-                                border-left: 4px solid #2563eb;
-                            "
-                        >
                             <tr>
-                                <td style="padding: 18px 20px;">
-
-                                    <div
-                                        style="
-                                            margin-bottom: 7px;
-                                            font-size: 15px;
-                                            font-weight: 700;
-                                            color: #174ea6;
-                                        "
-                                    >
-                                        Nieuwe verificatie vereist
-                                    </div>
-
-                                    <div
-                                        style="
-                                            font-size: 14px;
-                                            line-height: 1.7;
-                                            color: #3f5f8f;
-                                        "
-                                    >
-                                        Omdat je e-mailadres is gewijzigd, moet je
-                                        het nieuwe e-mailadres opnieuw verifiëren.
-
-                                        SmartDesk heeft hiervoor een verificatiecode
-                                        naar je nieuwe e-mailadres gestuurd.
-                                    </div>
-
+                                <td
+                                    style="
+                                        height: 3px;
+                                        background-color: #d7a45f;
+                                        font-size: 0;
+                                        line-height: 0;
+                                    "
+                                >
+                                    &nbsp;
                                 </td>
                             </tr>
+
                         </table>
 
-                        <h2
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- HERO / INTRO                                           --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 42px 38px 20px;
+                            background-color: #f7f4ee;
+                        "
+                    >
+
+                        <div
                             style="
-                                margin: 0 0 12px;
-                                font-size: 19px;
-                                color: #111111;
+                                width: 64px;
+                                height: 64px;
+                                margin: 0 auto 20px;
+                                line-height: 64px;
+                                border-radius: 50%;
+                                background-color: #fff2dc;
+                                color: #9b6c2f;
+                                text-align: center;
+                                font-size: 28px;
+                                font-weight: 800;
                             "
                         >
-                            Wat betekent dit?
-                        </h2>
+                            @
+                        </div>
+
+                        <div
+                            style="
+                                margin-bottom: 11px;
+                                color: #a17641;
+                                font-size: 10px;
+                                line-height: 1.4;
+                                font-weight: 700;
+                                letter-spacing: 2px;
+                                text-align: center;
+                                text-transform: uppercase;
+                            "
+                        >
+                            Belangrijke accountwijziging
+                        </div>
+
+                        <h1
+                            style="
+                                margin: 0;
+                                color: #171717;
+                                font-size: 32px;
+                                line-height: 1.2;
+                                font-weight: 800;
+                                letter-spacing: -1px;
+                                text-align: center;
+                            "
+                        >
+                            Je e-mailadres is gewijzigd
+                        </h1>
 
                         <p
                             style="
-                                margin: 0 0 15px;
+                                max-width: 540px;
+                                margin: 18px auto 0;
+                                color: #646464;
                                 font-size: 15px;
-                                line-height: 1.7;
-                                color: #555555;
+                                line-height: 1.75;
+                                text-align: center;
                             "
                         >
-                            Je SmartDesk-account gebruikt vanaf nu het nieuwe
-                            e-mailadres voor accountcommunicatie en belangrijke
-                            meldingen.
+                            Dit is een beveiligingsmelding over een wijziging
+                            in de contactgegevens van je Mashal-account.
+                        </p>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- GREETING                                               --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 8px 38px 0;
+                        "
+                    >
+
+                        <p
+                            style="
+                                margin: 0 0 14px;
+                                color: #2f2f2f;
+                                font-size: 15px;
+                                line-height: 1.75;
+                            "
+                        >
+                            Hallo <strong>{{ $user->name }}</strong>,
                         </p>
 
                         <p
                             style="
-                                margin: 0 0 28px;
-                                font-size: 15px;
-                                line-height: 1.7;
-                                color: #555555;
+                                margin: 0;
+                                color: #5d5d5d;
+                                font-size: 14px;
+                                line-height: 1.75;
                             "
                         >
-                            Belangrijke berichten, zoals bestelbevestigingen
-                            en beveiligingsmeldingen, worden voortaan naar
-                            je nieuwe e-mailadres verzonden.
+                            Het e-mailadres dat aan je Mashal-account is gekoppeld,
+                            is gewijzigd. Controleer onderstaande wijziging zorgvuldig.
                         </p>
 
-                        {{-- SECURITY WARNING --}}
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- CHANGE SUMMARY                                        --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <div
+                            style="
+                                margin-bottom: 13px;
+                                color: #1c1c1c;
+                                font-size: 17px;
+                                line-height: 1.4;
+                                font-weight: 800;
+                            "
+                        >
+                            Wijzigingsoverzicht
+                        </div>
+
                         <table
                             role="presentation"
                             width="100%"
@@ -330,92 +373,31 @@
                             border="0"
                             style="
                                 width: 100%;
-                                margin: 0 0 28px;
-                                background-color: #fff4f4;
-                                border: 1px solid #f1cccc;
-                                border-left: 4px solid #c62828;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                overflow: hidden;
+                                border: 1px solid #e2d9cc;
+                                border-radius: 16px;
+                                background-color: #ffffff;
                             "
                         >
                             <tr>
-                                <td style="padding: 20px;">
-
+                                <td
+                                    style="
+                                        padding: 18px;
+                                        border-bottom: 1px solid #ece7df;
+                                        background-color: #faf8f4;
+                                    "
+                                >
                                     <div
                                         style="
-                                            margin-bottom: 8px;
-                                            font-size: 15px;
+                                            margin-bottom: 5px;
+                                            color: #96918a;
+                                            font-size: 10px;
+                                            line-height: 1.4;
                                             font-weight: 700;
-                                            color: #a51d1d;
-                                        "
-                                    >
-                                        Heb jij dit niet gedaan?
-                                    </div>
-
-                                    <div
-                                        style="
-                                            font-size: 14px;
-                                            line-height: 1.7;
-                                            color: #713030;
-                                        "
-                                    >
-                                        Als jij je e-mailadres niet hebt gewijzigd,
-                                        kan iemand anders toegang hebben tot je account.
-
-                                        Wijzig in dat geval onmiddellijk je wachtwoord
-                                        en neem contact op met SmartDesk.
-                                    </div>
-
-                                </td>
-                            </tr>
-                        </table>
-
-                        {{-- ACCOUNT DETAILS --}}
-                        <table
-                            role="presentation"
-                            width="100%"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            style="
-                                width: 100%;
-                                margin-bottom: 28px;
-                                border-top: 1px solid #eeeeee;
-                                border-bottom: 1px solid #eeeeee;
-                            "
-                        >
-                            <tr>
-                                <td style="padding: 18px 0;">
-
-                                    <div
-                                        style="
-                                            margin-bottom: 5px;
-                                            font-size: 13px;
-                                            color: #888888;
-                                        "
-                                    >
-                                        Accountnaam
-                                    </div>
-
-                                    <div
-                                        style="
-                                            font-size: 15px;
-                                            font-weight: 600;
-                                            color: #222222;
-                                        "
-                                    >
-                                        {{ $user->name }}
-                                    </div>
-
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td style="padding: 0 0 18px;">
-
-                                    <div
-                                        style="
-                                            margin-bottom: 5px;
-                                            font-size: 13px;
-                                            color: #888888;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
                                         "
                                     >
                                         Oud e-mailadres
@@ -423,26 +405,34 @@
 
                                     <div
                                         style="
-                                            font-size: 15px;
-                                            font-weight: 600;
-                                            color: #222222;
+                                            color: #4f4f4f;
+                                            font-size: 13px;
+                                            line-height: 1.55;
+                                            font-weight: 700;
                                             word-break: break-word;
                                         "
                                     >
                                         {{ $oldEmail }}
                                     </div>
-
                                 </td>
                             </tr>
 
                             <tr>
-                                <td style="padding: 0 0 18px;">
-
+                                <td
+                                    style="
+                                        padding: 18px;
+                                        background-color: #fffaf2;
+                                    "
+                                >
                                     <div
                                         style="
                                             margin-bottom: 5px;
-                                            font-size: 13px;
-                                            color: #888888;
+                                            color: #9a7549;
+                                            font-size: 10px;
+                                            line-height: 1.4;
+                                            font-weight: 700;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
                                         "
                                     >
                                         Nieuw e-mailadres
@@ -450,82 +440,843 @@
 
                                     <div
                                         style="
+                                            color: #171717;
                                             font-size: 15px;
-                                            font-weight: 600;
-                                            color: #222222;
+                                            line-height: 1.55;
+                                            font-weight: 800;
                                             word-break: break-word;
                                         "
                                     >
                                         {{ $newEmail }}
                                     </div>
-
                                 </td>
                             </tr>
                         </table>
 
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- VERIFICATION NOTICE                                    --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                border: 1px solid #d6deea;
+                                border-radius: 14px;
+                                background-color: #f4f7fb;
+                            "
+                        >
+                            <tr>
+                                <td
+                                    width="46"
+                                    valign="top"
+                                    style="
+                                        width: 46px;
+                                        padding: 18px 0 18px 18px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #dce7f6;
+                                            color: #315d96;
+                                            text-align: center;
+                                            font-size: 11px;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        i
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 17px 18px 17px 8px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #315d96;
+                                            font-size: 12px;
+                                            line-height: 1.5;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        Je nieuwe e-mailadres moet opnieuw worden geverifieerd
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #60738f;
+                                            font-size: 12px;
+                                            line-height: 1.65;
+                                        "
+                                    >
+                                        Na een e-mailwijziging wordt de verificatiestatus opnieuw
+                                        gecontroleerd. Rond de verificatie af met de code die
+                                        naar je nieuwe e-mailadres is verzonden.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- WHAT HAPPENS NEXT                                      --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <div
+                            style="
+                                margin-bottom: 14px;
+                                color: #1c1c1c;
+                                font-size: 17px;
+                                line-height: 1.4;
+                                font-weight: 800;
+                            "
+                        >
+                            Wat gebeurt er nu?
+                        </div>
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: collapse;
+                            "
+                        >
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0 0 14px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        1
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 14px;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Je account gebruikt voortaan
+                                    <strong>{{ $newEmail }}</strong>
+                                    voor accountcommunicatie.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0 0 14px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        2
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 14px;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Toekomstige bestelbevestigingen en
+                                    beveiligingsmeldingen worden naar
+                                    het nieuwe adres verzonden.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        3
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 0;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Rond de wijziging af door het nieuwe
+                                    e-mailadres te verifiëren.
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- SECURITY WARNING                                      --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                border: 1px solid #ecd0d0;
+                                border-radius: 14px;
+                                background-color: #fff5f5;
+                            "
+                        >
+                            <tr>
+                                <td
+                                    width="46"
+                                    valign="top"
+                                    style="
+                                        width: 46px;
+                                        padding: 18px 0 18px 18px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #f2d6d6;
+                                            color: #a54040;
+                                            text-align: center;
+                                            font-size: 11px;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        !
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 17px 18px 17px 8px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #9c3f3f;
+                                            font-size: 12px;
+                                            line-height: 1.5;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        Heb jij deze wijziging niet uitgevoerd?
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #805656;
+                                            font-size: 12px;
+                                            line-height: 1.65;
+                                        "
+                                    >
+                                        Dan kan iemand anders toegang hebben gehad
+                                        tot je account. Wijzig direct je wachtwoord
+                                        en controleer je accountgegevens.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- SECURITY ACTIONS                                      --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <div
+                            style="
+                                margin-bottom: 14px;
+                                color: #1c1c1c;
+                                font-size: 17px;
+                                line-height: 1.4;
+                                font-weight: 800;
+                            "
+                        >
+                            Aanbevolen beveiligingsstappen
+                        </div>
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: collapse;
+                            "
+                        >
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0 0 14px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        1
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 14px;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Controleer of je nog toegang hebt tot je Mashal-account.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0 0 14px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        2
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 14px;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Gebruik een sterk en uniek wachtwoord
+                                    dat je nergens anders gebruikt.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    width="36"
+                                    valign="top"
+                                    style="
+                                        width: 36px;
+                                        padding: 0;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #171717;
+                                            color: #e5b86f;
+                                            text-align: center;
+                                            font-size: 10px;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        3
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 3px 0 0;
+                                        color: #5f5f5f;
+                                        font-size: 13px;
+                                        line-height: 1.65;
+                                    "
+                                >
+                                    Controleer of naam, e-mailadres en andere
+                                    accountgegevens nog correct zijn.
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- ACCOUNT DETAILS                                       --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <div
+                            style="
+                                margin-bottom: 12px;
+                                color: #1c1c1c;
+                                font-size: 17px;
+                                line-height: 1.4;
+                                font-weight: 800;
+                            "
+                        >
+                            Accountgegevens
+                        </div>
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                border: 1px solid #e5e1da;
+                                border-radius: 14px;
+                                background-color: #ffffff;
+                            "
+                        >
+
+                            <tr>
+                                <td
+                                    style="
+                                        padding: 16px 18px;
+                                        border-bottom: 1px solid #ece8e1;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #929292;
+                                            font-size: 10px;
+                                            line-height: 1.4;
+                                            font-weight: 700;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
+                                        "
+                                    >
+                                        Accountnaam
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #232323;
+                                            font-size: 13px;
+                                            line-height: 1.5;
+                                            font-weight: 700;
+                                        "
+                                    >
+                                        {{ $user->name }}
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    style="
+                                        padding: 16px 18px;
+                                        border-bottom: 1px solid #ece8e1;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #929292;
+                                            font-size: 10px;
+                                            line-height: 1.4;
+                                            font-weight: 700;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
+                                        "
+                                    >
+                                        Oud e-mailadres
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #4f4f4f;
+                                            font-size: 13px;
+                                            line-height: 1.5;
+                                            font-weight: 700;
+                                            word-break: break-word;
+                                        "
+                                    >
+                                        {{ $oldEmail }}
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    style="
+                                        padding: 16px 18px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #929292;
+                                            font-size: 10px;
+                                            line-height: 1.4;
+                                            font-weight: 700;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
+                                        "
+                                    >
+                                        Nieuw e-mailadres
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #171717;
+                                            font-size: 13px;
+                                            line-height: 1.5;
+                                            font-weight: 800;
+                                            word-break: break-word;
+                                        "
+                                    >
+                                        {{ $newEmail }}
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- SAFETY REMINDER                                       --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 28px 38px 8px;
+                        "
+                    >
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                width: 100%;
+                                border-collapse: separate;
+                                border-spacing: 0;
+                                border: 1px solid #dedede;
+                                border-radius: 14px;
+                                background-color: #f1f1f1;
+                            "
+                        >
+                            <tr>
+                                <td
+                                    width="46"
+                                    valign="top"
+                                    style="
+                                        width: 46px;
+                                        padding: 18px 0 18px 18px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 28px;
+                                            height: 28px;
+                                            line-height: 28px;
+                                            border-radius: 50%;
+                                            background-color: #242424;
+                                            color: #e1b36e;
+                                            text-align: center;
+                                            font-size: 11px;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        ✓
+                                    </div>
+                                </td>
+
+                                <td
+                                    valign="top"
+                                    style="
+                                        padding: 17px 18px 17px 8px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            margin-bottom: 4px;
+                                            color: #2d2d2d;
+                                            font-size: 12px;
+                                            line-height: 1.5;
+                                            font-weight: 800;
+                                        "
+                                    >
+                                        Houd je accountgegevens privé
+                                    </div>
+
+                                    <div
+                                        style="
+                                            color: #696969;
+                                            font-size: 12px;
+                                            line-height: 1.65;
+                                        "
+                                    >
+                                        Mashal vraagt je nooit via e-mail, chat of telefoon
+                                        om je wachtwoord of verificatiecode met iemand te delen.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+
+                {{-- ===================================================== --}}
+                {{-- CLOSING                                                --}}
+                {{-- ===================================================== --}}
+
+                <tr>
+                    <td
+                        style="
+                            padding: 30px 38px 38px;
+                        "
+                    >
+
                         <p
                             style="
                                 margin: 0 0 18px;
-                                font-size: 15px;
-                                line-height: 1.7;
-                                color: #555555;
+                                color: #5f5f5f;
+                                font-size: 13px;
+                                line-height: 1.75;
                             "
                         >
-                            Als je deze wijziging zelf hebt uitgevoerd,
-                            hoef je verder niets te doen.
-
-                            Je hoeft alleen nog je nieuwe e-mailadres te verifiëren.
+                            Heb je deze wijziging zelf uitgevoerd,
+                            dan hoef je alleen nog de verificatie
+                            van het nieuwe e-mailadres af te ronden.
                         </p>
 
                         <p
                             style="
                                 margin: 0;
-                                font-size: 15px;
-                                line-height: 1.7;
-                                color: #555555;
+                                color: #5f5f5f;
+                                font-size: 13px;
+                                line-height: 1.75;
                             "
                         >
                             Met vriendelijke groet,
                             <br>
 
-                            <strong style="color: #111111;">
-                                Het SmartDesk-team
+                            <strong
+                                style="
+                                    color: #1c1c1c;
+                                "
+                            >
+                                Het Mashal Automotive-team
                             </strong>
                         </p>
 
                     </td>
                 </tr>
 
-                {{-- FOOTER --}}
+
+                {{-- ===================================================== --}}
+                {{-- FOOTER                                                 --}}
+                {{-- ===================================================== --}}
+
                 <tr>
                     <td
+                        align="center"
                         style="
-                            padding: 27px 35px;
-                            background-color: #f8f9fa;
-                            border-top: 1px solid #eeeeee;
+                            padding: 24px 34px 28px;
+                            background-color: #111317;
+                            border-top: 1px solid #202329;
                             text-align: center;
                         "
                     >
 
                         <div
                             style="
-                                font-size: 12px;
+                                margin-bottom: 8px;
+                                color: #8a8f95;
+                                font-size: 10px;
                                 line-height: 1.6;
-                                color: #888888;
                             "
                         >
-                            Deze e-mail is automatisch verzonden omdat
-                            het e-mailadres van je SmartDesk-account is gewijzigd.
+                            Deze e-mail is automatisch verzonden
+                            nadat het e-mailadres van je Mashal-account is gewijzigd.
                         </div>
 
                         <div
                             style="
-                                margin-top: 10px;
-                                font-size: 12px;
-                                color: #aaaaaa;
+                                color: #5e6369;
+                                font-size: 10px;
+                                line-height: 1.6;
                             "
                         >
-                            © {{ date('Y') }} SmartDesk.
+                            © {{ date('Y') }} Mashal Automotive.
                             Alle rechten voorbehouden.
                         </div>
 
@@ -534,10 +1285,28 @@
 
             </table>
 
+
+            {{-- ========================================================= --}}
+            {{-- OUTSIDE FOOTER                                             --}}
+            {{-- ========================================================= --}}
+
+            <div
+                style="
+                    max-width: 640px;
+                    margin: 18px auto 0;
+                    color: #60656b;
+                    font-size: 10px;
+                    line-height: 1.6;
+                    text-align: center;
+                "
+            >
+                Automatische beveiligingsmelding van Mashal Automotive.
+                Controleer onverwachte accountwijzigingen altijd direct.
+            </div>
+
         </td>
     </tr>
 </table>
 
 </body>
 </html>
-```
