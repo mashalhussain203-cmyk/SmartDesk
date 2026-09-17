@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -46,17 +47,17 @@ Route::post('/login', [UserController::class, 'loginSubmit'])
 | Google OAuth
 |--------------------------------------------------------------------------
 |
-| Deze routes verzorgen inloggen en registreren via een echt
-| Google-account met Laravel Socialite.
+| Deze routes verzorgen authenticatie via Google met Laravel Socialite.
 |
-| Dezelfde Google-flow wordt gebruikt voor:
+| Dezelfde OAuth-flow wordt gebruikt voor:
 |
 | - bestaande gebruikers inloggen
 | - nieuwe gebruikers automatisch registreren
+| - bestaande Mashal-accounts koppelen aan Google
+| - Google-profielinformatie synchroniseren
 |
-| Als het e-mailadres al bestaat, wordt die gebruiker ingelogd.
-| Als het e-mailadres nog niet bestaat, maakt GoogleAuthController
-| automatisch een nieuw Mashal-account aan.
+| GoogleAuthController bepaalt uiteindelijk of er een bestaand account
+| gebruikt wordt of een nieuw Mashal-account wordt aangemaakt.
 |
 */
 
@@ -65,6 +66,37 @@ Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
 
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->name('google.callback');
+
+
+/*
+|--------------------------------------------------------------------------
+| GitHub OAuth
+|--------------------------------------------------------------------------
+|
+| Deze routes verzorgen authenticatie via GitHub met Laravel Socialite.
+|
+| Dezelfde OAuth-flow wordt gebruikt voor:
+|
+| - bestaande gebruikers inloggen
+| - nieuwe gebruikers automatisch registreren
+| - bestaande Mashal-accounts koppelen aan GitHub
+| - GitHub-profielinformatie synchroniseren
+|
+| GitHubAuthController zoekt eerst naar github_id.
+|
+| Als er nog geen GitHub-koppeling bestaat, wordt daarna gezocht
+| naar een gebruiker met hetzelfde e-mailadres.
+|
+| Zo wordt voorkomen dat onnodig een tweede Mashal-account
+| voor dezelfde gebruiker wordt aangemaakt.
+|
+*/
+
+Route::get('/auth/github', [GitHubAuthController::class, 'redirect'])
+    ->name('github.redirect');
+
+Route::get('/auth/github/callback', [GitHubAuthController::class, 'callback'])
+    ->name('github.callback');
 
 
 /*
@@ -86,7 +118,7 @@ Route::post('/logout', [UserController::class, 'logout'])
 | Deze routes blijven beschikbaar voor gebruikers die zich via het
 | normale Mashal-registratieformulier registreren.
 |
-| Google-gebruikers kunnen in GoogleAuthController direct als
+| OAuth-gebruikers kunnen door hun OAuth-controller direct als
 | geverifieerd worden gemarkeerd.
 |
 */
@@ -177,7 +209,8 @@ Route::middleware('auth')->group(function () {
     | Checkout
     |--------------------------------------------------------------------------
     |
-    | De controller controleert daarnaast of email_verified_at is ingevuld.
+    | De controller controleert daarnaast of email_verified_at
+    | correct is ingevuld voordat checkout wordt toegestaan.
     |
     */
 
@@ -193,10 +226,16 @@ Route::middleware('auth')->group(function () {
     | Admin
     |--------------------------------------------------------------------------
     |
-    | Deze routes vereisen een ingelogde gebruiker.
+    | Deze routes vereisen minimaal een ingelogde gebruiker.
     |
-    | De UserController voert daarnaast in elke adminfunctie ensureAdmin()
-    | uit. Daardoor moet de gebruiker is_admin = true hebben.
+    | De UserController voert daarnaast voor de adminfuncties
+    | ensureAdmin() uit.
+    |
+    | Daardoor moet de gebruiker ook:
+    |
+    | is_admin = true
+    |
+    | hebben voordat toegang wordt toegestaan.
     |
     */
 
