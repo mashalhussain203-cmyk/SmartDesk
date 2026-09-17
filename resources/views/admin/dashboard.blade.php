@@ -52,7 +52,7 @@
 
     .mashal-dashboard,
 
-    .mashal-dashboard \* {
+    .mashal-dashboard * {
 
         box-sizing: border-box;
 
@@ -983,96 +983,187 @@
     }
 
     .md-avatar {
+
         position: relative;
+
         overflow: hidden;
+
         box-shadow:
+
             inset 0 0 0 1px rgba(255,255,255,.025),
+
             0 10px 26px rgba(0,0,0,.18);
+
     }
 
     .md-avatar img {
+
         width: 100%;
+
         height: 100%;
+
         display: block;
+
         object-fit: cover;
+
         border-radius: inherit;
+
     }
 
     .md-avatar.has-image {
+
         background: #111419;
+
         color: transparent;
+
     }
 
     .md-user-meta {
+
         min-width: 0;
+
     }
 
     .md-photo-source {
+
         margin-top: 5px;
+
         display: inline-flex;
+
         align-items: center;
+
         gap: 5px;
+
         color: #6f757d;
+
         font-size: 7px;
+
         font-weight: 800;
+
         letter-spacing: .04em;
+
         text-transform: uppercase;
+
     }
 
     .md-photo-source::before {
+
         content: "";
+
         width: 5px;
+
         height: 5px;
+
         border-radius: 50%;
+
         background: var(--m-gold);
+
         box-shadow: 0 0 10px rgba(215,164,95,.35);
+
     }
 
     .md-photo-source.custom {
+
         color: #d4a861;
+
     }
 
     .md-photo-source.social {
+
         color: #8fb6ec;
+
     }
 
     .md-hero-admin-profile {
+
         margin-bottom: 16px;
+
         display: flex;
+
         align-items: center;
+
         gap: 13px;
+
     }
 
     .md-hero-admin-avatar {
+
         width: 54px;
+
         height: 54px;
+
         flex: 0 0 54px;
+
         display: grid;
+
         place-items: center;
+
         overflow: hidden;
+
         border: 1px solid rgba(215,164,95,.22);
+
         border-radius: 16px;
+
         background: linear-gradient(
+
             145deg,
+
             rgba(215,164,95,.16),
+
             rgba(215,164,95,.045)
+
         );
+
         color: var(--m-gold-light);
+
         font-size: 17px;
+
         font-weight: 950;
+
         box-shadow: 0 14px 34px rgba(0,0,0,.18);
+
     }
 
     .md-hero-admin-avatar img {
+
         width: 100%;
+
         height: 100%;
+
         display: block;
+
         object-fit: cover;
+
     }
 
     .md-hero-admin-identity {
+
         min-width: 0;
+
     }
+
+    .md-hero-admin-photo-source {
+        margin-top: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--m-muted-2);
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .md-hero-admin-photo-source::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--m-gold);
+        box-shadow: 0 0 12px rgba(215,164,95,.35);
+    }
+
+
 
     .md-user strong {
 
@@ -1161,6 +1252,8 @@
         color: #edc47d;
 
     }
+
+
 
 
 
@@ -1273,15 +1366,23 @@
     }
 
     .md-provider.magic_link {
+
         border-color: rgba(177,132,255,.18);
+
         background: rgba(177,132,255,.06);
+
         color: #c9adff;
+
     }
 
     .md-provider.magic_link .md-provider-icon {
+
         border: 1px solid rgba(177,132,255,.20);
+
         background: rgba(177,132,255,.09);
+
         color: #c9adff;
+
     }
 
     .md-provider.password {
@@ -1624,10 +1725,18 @@
 
 
 
+
+
+
+
 @php
+
     $profilePhotoUsers = $users
+
         ->filter(fn ($dashboardUser) => $dashboardUser->hasProfilePhoto())
+
         ->count();
+
 @endphp
 
 <div class="mashal-dashboard">
@@ -1712,33 +1821,70 @@
 
 
 
+
+
+
+
             <aside class="md-hero-admin">
 
                 <div class="md-hero-admin-profile">
+
                     <div class="md-hero-admin-avatar">
+
                         @if (auth()->user()->avatarUrl())
+
                             <img
+
                                 src="{{ auth()->user()->avatarUrl() }}"
+
                                 alt="Profielfoto van {{ auth()->user()->name }}"
+
                             >
+
                         @else
+
                             {{ auth()->user()->initials() }}
+
                         @endif
+
                     </div>
 
                     <div class="md-hero-admin-identity">
+
                         <div class="md-hero-admin-label">
+
                             Huidige administrator
+
                         </div>
 
                         <div class="md-hero-admin-name">
+
                             {{ auth()->user()->name }}
+
                         </div>
 
                         <div class="md-hero-admin-email">
+
                             {{ auth()->user()->email }}
+
                         </div>
+
+                        @if (auth()->user()->hasProfilePhoto())
+                            <span class="md-hero-admin-photo-source">
+                                Eigen profielfoto
+                            </span>
+                        @elseif (auth()->user()->socialAvatar())
+                            <span class="md-hero-admin-photo-source">
+                                Social avatar
+                            </span>
+                        @else
+                            <span class="md-hero-admin-photo-source">
+                                Initialen
+                            </span>
+                        @endif
+
                     </div>
+
                 </div>
 
                 <span class="md-admin-badge">
@@ -1833,6 +1979,10 @@
 
 
 
+
+
+
+
     {{-- ========================================================= --}}
 
     {{-- STATISTICS                                                 --}}
@@ -1877,6 +2027,10 @@
 
 
 
+
+
+
+
         <article class="md-stat-card">
 
             <div class="md-stat-top">
@@ -1913,6 +2067,10 @@
 
 
 
+
+
+
+
         <article class="md-stat-card">
 
             <div class="md-stat-top">
@@ -1944,6 +2102,10 @@
             </div>
 
         </article>
+
+
+
+
 
 
 
@@ -1986,26 +2148,38 @@
             <div class="md-stat-top">
 
                 <span class="md-stat-label">
+
                     Profielfoto's
+
                 </span>
 
                 <span class="md-stat-icon">
+
                     P
+
                 </span>
 
             </div>
 
             <div class="md-stat-number">
+
                 {{ $profilePhotoUsers }}
+
             </div>
 
             <div class="md-stat-foot">
+
                 Accounts met een eigen geüploade profielfoto
+
             </div>
 
         </article>
 
     </section>
+
+
+
+
 
 
 
@@ -2044,6 +2218,10 @@
             </div>
 
         </div>
+
+
+
+
 
 
 
@@ -2091,6 +2269,10 @@
 
 
 
+
+
+
+
             <article class="md-action-card">
 
                 <span class="md-action-icon">
@@ -2131,6 +2313,10 @@
 
 
 
+
+
+
+
             <article class="md-action-card">
 
                 <span class="md-action-icon">
@@ -2166,6 +2352,10 @@
                 </a>
 
             </article>
+
+
+
+
 
 
 
@@ -2215,6 +2405,10 @@
 
 
 
+
+
+
+
     {{-- ========================================================= --}}
 
     {{-- USERS OVERVIEW                                              --}}
@@ -2253,6 +2447,10 @@
 
 
 
+
+
+
+
             <a
 
                 class="md-btn"
@@ -2266,6 +2464,10 @@
             </a>
 
         </div>
+
+
+
+
 
 
 
@@ -2290,6 +2492,10 @@
                     >
 
                 </div>
+
+
+
+
 
 
 
@@ -2395,11 +2601,21 @@
 
                     </button>
 
+                    <button class="md-filter" type="button" data-filter="social_avatar">
+
+                        Social avatar
+
+                    </button>
+
                 </div>
 
             </div>
 
         @endif
+
+
+
+
 
 
 
@@ -2435,6 +2651,10 @@
 
 
 
+
+
+
+
                 <tbody id="dashboardUsersBody">
 
                     @forelse ($users as $user)
@@ -2454,7 +2674,9 @@
                             data-verified="{{ $user->email_verified_at ? '1' : '0' }}"
 
                             data-provider="{{ $user->loginProvider() }}"
-                            data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}"
+
+                            data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}
+                            data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}"
 
                         >
 
@@ -2465,17 +2687,29 @@
                                 <div class="md-user">
 
                                     @if ($user->avatarUrl())
+
                                         <span class="md-avatar has-image">
+
                                             <img
+
                                                 src="{{ $user->avatarUrl() }}"
+
                                                 alt="Profielfoto van {{ $user->name }}"
+
                                                 loading="lazy"
+
                                             >
+
                                         </span>
+
                                     @else
+
                                         <span class="md-avatar">
+
                                             {{ $user->initials() }}
+
                                         </span>
+
                                     @endif
 
                                     <div class="md-user-meta">
@@ -2493,18 +2727,34 @@
                                         </small>
 
                                         @if ($user->hasProfilePhoto())
+
                                             <span class="md-photo-source custom">
+
                                                 Eigen profielfoto
+
                                             </span>
+
                                         @elseif ($user->socialAvatar())
+
                                             <span class="md-photo-source social">
+
                                                 Social avatar
+
                                             </span>
+
                                         @else
+
                                             <span class="md-photo-source">
+
                                                 Initialen
+
                                             </span>
+
                                         @endif
+
+
+
+
 
 
 
@@ -2525,6 +2775,10 @@
                                 </div>
 
                             </td>
+
+
+
+
 
 
 
@@ -2634,6 +2888,10 @@
 
 
 
+
+
+
+
                             {{-- ROLE --}}
 
                             <td>
@@ -2662,6 +2920,10 @@
 
 
 
+
+
+
+
                             {{-- VERIFICATION --}}
 
                             <td>
@@ -2685,6 +2947,10 @@
                                 @endif
 
                             </td>
+
+
+
+
 
 
 
@@ -2738,6 +3004,10 @@
 
 
 
+
+
+
+
                             {{-- ACTIONS --}}
 
                             <td>
@@ -2755,6 +3025,10 @@
                                         Wijzigen
 
                                     </a>
+
+
+
+
 
 
 
@@ -2866,6 +3140,10 @@
 
 
 
+
+
+
+
         @if ($users->isNotEmpty())
 
             <div
@@ -2879,6 +3157,10 @@
                 Geen gebruikers gevonden voor deze zoekopdracht of filter.
 
             </div>
+
+
+
+
 
 
 
@@ -2902,6 +3184,10 @@
 
 
 
+
+
+
+
                 <a
 
                     class="md-btn secondary"
@@ -2919,6 +3205,10 @@
         @endif
 
     </section>
+
+
+
+
 
 
 
@@ -2964,6 +3254,10 @@
 
 
 
+
+
+
+
         <div class="md-admin-grid">
 
             <article class="md-info-card">
@@ -2992,6 +3286,10 @@
 
 
 
+
+
+
+
             <article class="md-info-card">
 
                 <small>
@@ -3013,6 +3311,10 @@
                 </p>
 
             </article>
+
+
+
+
 
 
 
@@ -3072,6 +3374,10 @@
 
 
 
+
+
+
+
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -3113,6 +3419,7 @@
                 const isVerified = row.dataset.verified === '1';
 
                 const provider = row.dataset.provider || 'password';
+
                 const hasPhoto = row.dataset.photo === '1';
 
                 const matchesSearch =
@@ -3162,6 +3469,13 @@
                 if (activeFilter === 'photo') {
 
                     matchesFilter = hasPhoto;
+
+                }
+
+                if (activeFilter === 'social_avatar') {
+
+                    matchesFilter =
+                        row.dataset.socialAvatar === '1';
 
                 }
 

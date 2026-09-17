@@ -678,6 +678,8 @@
 
 
 
+
+
     /* ========================================================= */
 
     /* LOGIN PROVIDER                                            */
@@ -1046,194 +1048,367 @@
 
     /* ========================================================= */
 
-    
+
+
     /* ========================================================= */
+
     /* EXTENDED PROFILE / PHOTO UI                               */
+
     /* ========================================================= */
 
     .users-hero-side {
+
         min-width: 260px;
+
         padding: 17px;
+
         border: 1px solid rgba(255,255,255,.08);
+
         border-radius: 18px;
+
         background: rgba(255,255,255,.025);
+
         box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+
     }
 
-    .users-hero-side-label {
-        color: #9a7347;
-        font-size: 8px;
-        font-weight: 900;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-    }
 
-    .users-hero-side strong {
-        display: block;
-        margin-top: 7px;
-        color: #f0eee9;
-        font-size: 14px;
-    }
-
-    .users-hero-side span {
-        display: block;
-        margin-top: 5px;
-        color: #6d737a;
-        font-size: 9px;
-        line-height: 1.55;
-    }
-
-    .users-hero-actions {
-        margin-top: 14px;
+    .users-hero-profile {
         display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .users-secondary-btn {
-        min-height: 38px;
-        padding: 0 13px;
-        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 999px;
-        background: rgba(255,255,255,.025);
-        color: #aaaead;
-        text-decoration: none;
-        font-size: 8px;
-        font-weight: 900;
-        transition: .2s ease;
+        gap: 12px;
     }
 
-    .users-secondary-btn:hover {
-        border-color: rgba(215,164,95,.22);
-        background: rgba(215,164,95,.06);
-        color: #efc985;
-    }
-
-    .users-stat-card {
-        position: relative;
+    .users-hero-profile-avatar {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        display: grid;
+        place-items: center;
         overflow: hidden;
-        transition:
-            transform .22s ease,
-            border-color .22s ease,
-            background .22s ease;
+        border: 1px solid rgba(215,164,95,.20);
+        border-radius: 14px;
+        background: linear-gradient(145deg, #f0ca86, #b67e3d);
+        color: #15110c;
+        font-size: 16px;
+        font-weight: 950;
     }
 
-    .users-stat-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(215,164,95,.20);
-        background: linear-gradient(
-            145deg,
-            rgba(215,164,95,.045),
-            rgba(255,255,255,.016)
-        );
-    }
-
-    .users-stat-card::after {
-        content: "";
-        position: absolute;
-        right: -26px;
-        bottom: -36px;
-        width: 92px;
-        height: 92px;
-        border-radius: 50%;
-        background: radial-gradient(
-            circle,
-            rgba(215,164,95,.08),
-            transparent 70%
-        );
-        pointer-events: none;
-    }
-
-    .user-avatar {
-        position: relative;
-        overflow: hidden;
-        box-shadow:
-            inset 0 0 0 1px rgba(255,255,255,.025),
-            0 10px 24px rgba(0,0,0,.16);
-    }
-
-    .user-avatar img {
+    .users-hero-profile-avatar img {
         width: 100%;
         height: 100%;
         display: block;
         object-fit: cover;
+    }
+
+    .users-hero-side-label {
+
+        color: #9a7347;
+
+        font-size: 8px;
+
+        font-weight: 900;
+
+        letter-spacing: .14em;
+
+        text-transform: uppercase;
+
+    }
+
+    .users-hero-side strong {
+
+        display: block;
+
+        margin-top: 7px;
+
+        color: #f0eee9;
+
+        font-size: 14px;
+
+    }
+
+    .users-hero-side span {
+
+        display: block;
+
+        margin-top: 5px;
+
+        color: #6d737a;
+
+        font-size: 9px;
+
+        line-height: 1.55;
+
+    }
+
+    .users-hero-actions {
+
+        margin-top: 14px;
+
+        display: flex;
+
+        gap: 8px;
+
+        flex-wrap: wrap;
+
+    }
+
+    .users-secondary-btn {
+
+        min-height: 38px;
+
+        padding: 0 13px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        border: 1px solid rgba(255,255,255,.08);
+
+        border-radius: 999px;
+
+        background: rgba(255,255,255,.025);
+
+        color: #aaaead;
+
+        text-decoration: none;
+
+        font-size: 8px;
+
+        font-weight: 900;
+
+        transition: .2s ease;
+
+    }
+
+    .users-secondary-btn:hover {
+
+        border-color: rgba(215,164,95,.22);
+
+        background: rgba(215,164,95,.06);
+
+        color: #efc985;
+
+    }
+
+    .users-stat-card {
+
+        position: relative;
+
+        overflow: hidden;
+
+        transition:
+
+            transform .22s ease,
+
+            border-color .22s ease,
+
+            background .22s ease;
+
+    }
+
+    .users-stat-card:hover {
+
+        transform: translateY(-3px);
+
+        border-color: rgba(215,164,95,.20);
+
+        background: linear-gradient(
+
+            145deg,
+
+            rgba(215,164,95,.045),
+
+            rgba(255,255,255,.016)
+
+        );
+
+    }
+
+    .users-stat-card::after {
+
+        content: "";
+
+        position: absolute;
+
+        right: -26px;
+
+        bottom: -36px;
+
+        width: 92px;
+
+        height: 92px;
+
+        border-radius: 50%;
+
+        background: radial-gradient(
+
+            circle,
+
+            rgba(215,164,95,.08),
+
+            transparent 70%
+
+        );
+
+        pointer-events: none;
+
+    }
+
+    .user-avatar {
+
+        position: relative;
+
+        overflow: hidden;
+
+        box-shadow:
+
+            inset 0 0 0 1px rgba(255,255,255,.025),
+
+            0 10px 24px rgba(0,0,0,.16);
+
+    }
+
+    .user-avatar img {
+
+        width: 100%;
+
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+
         border-radius: inherit;
+
     }
 
     .user-avatar.has-image {
+
         background: #111419;
+
         color: transparent;
+
     }
 
     .user-photo-source {
+
         margin-top: 5px;
+
         display: inline-flex;
+
         align-items: center;
+
         gap: 5px;
+
         color: #6a7077;
+
         font-size: 7px;
+
         font-weight: 850;
+
         letter-spacing: .04em;
+
         text-transform: uppercase;
+
     }
 
     .user-photo-source::before {
+
         content: "";
+
         width: 5px;
+
         height: 5px;
+
         border-radius: 50%;
+
         background: #d7a45f;
+
         box-shadow: 0 0 10px rgba(215,164,95,.35);
+
     }
 
     .user-photo-source.custom {
+
         color: #d7a45f;
+
     }
 
     .user-photo-source.social {
+
         color: #8fb6ec;
+
     }
 
     .user-provider.magic_link {
+
         border-color: rgba(177,132,255,.18);
+
         background: rgba(177,132,255,.06);
+
         color: #c9adff;
+
     }
 
     .user-provider.magic_link .user-provider-icon {
+
         border: 1px solid rgba(177,132,255,.20);
+
         background: rgba(177,132,255,.09);
+
         color: #c9adff;
+
     }
 
     .users-table-footer {
+
         padding: 14px 16px;
+
         display: flex;
+
         justify-content: space-between;
+
         align-items: center;
+
         gap: 12px;
+
         flex-wrap: wrap;
+
         border-top: 1px solid rgba(255,255,255,.055);
+
         background: rgba(255,255,255,.012);
+
     }
 
     .users-visible-count {
+
         color: #666c73;
+
         font-size: 9px;
+
     }
 
     .users-no-results {
+
         display: none;
+
         padding: 28px 18px;
+
         text-align: center;
+
         color: #737980;
+
         font-size: 10px;
+
         line-height: 1.7;
+
         border-top: 1px dashed rgba(215,164,95,.15);
+
         background: rgba(215,164,95,.02);
+
     }
 
 /* RESPONSIVE                                                 */
@@ -1249,9 +1424,7 @@
         }
 
         .users-stats {
-
-            grid-template-columns: 1fr 1fr;
-
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .users-toolbar {
@@ -1277,6 +1450,7 @@
         }
 
         .users-create-btn,
+
         .users-secondary-btn {
 
             width: 100%;
@@ -1284,8 +1458,11 @@
         }
 
         .users-hero-side {
+
             min-width: 0;
+
             width: 100%;
+
         }
 
         .users-filters {
@@ -1312,20 +1489,34 @@
 
 
 
+
+
+
+
 @section('content')
 
 @php
+
     $profilePhotoUsers = $users
+
         ->filter(fn ($managedUser) => $managedUser->hasProfilePhoto())
+
         ->count();
 
     $socialAvatarUsers = $users
+
         ->filter(
+
             fn ($managedUser) =>
+
                 ! $managedUser->hasProfilePhoto()
+
                 && filled($managedUser->socialAvatar())
+
         )
+
         ->count();
+
 @endphp
 
 <section class="users-page">
@@ -1368,36 +1559,72 @@
 
 
 
+
+
+
+
         <div class="users-hero-side">
-            <div class="users-hero-side-label">
-                Beheeromgeving
+            <div class="users-hero-profile">
+                <div class="users-hero-profile-avatar">
+                    @if (auth()->user()->avatarUrl())
+                        <img
+                            src="{{ auth()->user()->avatarUrl() }}"
+                            alt="Profielfoto van {{ auth()->user()->name }}"
+                        >
+                    @else
+                        {{ auth()->user()->initials() }}
+                    @endif
+                </div>
+
+                <div>
+                    <div class="users-hero-side-label">
+                        Beheeromgeving
+                    </div>
+
+                    <strong>{{ auth()->user()->name }}</strong>
+
+                    <span>
+                        Beheer profielen, profielfoto's, loginmethodes,
+                        verificatie en rollen vanuit één centrale omgeving.
+                    </span>
+                </div>
             </div>
-
-            <strong>{{ auth()->user()->name }}</strong>
-
-            <span>
-                Beheer profielen, profielfoto's, loginmethodes,
-                verificatie en rollen vanuit één centrale omgeving.
-            </span>
 
             <div class="users-hero-actions">
+
                 <a
+
                     class="users-create-btn"
+
                     href="{{ route('users.create') }}"
+
                 >
+
                     + Nieuwe gebruiker
+
                 </a>
 
                 <a
+
                     class="users-secondary-btn"
+
                     href="{{ route('admin.dashboard') }}"
+
                 >
+
                     Dashboard
+
                 </a>
+
             </div>
+
         </div>
 
     </div>
+
+
+
+
 
 
 
@@ -1437,6 +1664,10 @@
 
 
 
+
+
+
+
         <div class="users-stat-card">
 
             <div class="users-stat-label">
@@ -1458,6 +1689,10 @@
             </div>
 
         </div>
+
+
+
+
 
 
 
@@ -1489,6 +1724,10 @@
 
 
 
+
+
+
+
         <div class="users-stat-card">
 
             <div class="users-stat-label">
@@ -1512,20 +1751,32 @@
         </div>
 
             <div class="users-stat-card">
+
             <div class="users-stat-label">
+
                 Profielfoto's
+
             </div>
 
             <div class="users-stat-value">
+
                 {{ $profilePhotoUsers }}
+
             </div>
 
             <div class="users-stat-foot">
+
                 Accounts met een eigen geüploade profielfoto
+
             </div>
+
         </div>
 
 </div>
+
+
+
+
 
 
 
@@ -1562,6 +1813,10 @@
             </span>
 
         </div>
+
+
+
+
 
 
 
@@ -1650,24 +1905,36 @@
             </button>
 
             <button class="users-filter-btn" type="button" data-filter="magic_link">
+
                 Magic link
+
             </button>
 
             <button class="users-filter-btn" type="button" data-filter="password">
+
                 Wachtwoord
+
             </button>
 
             <button class="users-filter-btn" type="button" data-filter="photo">
+
                 Met profielfoto
+
             </button>
 
             <button class="users-filter-btn" type="button" data-filter="social_avatar">
+
                 Social avatar
+
             </button>
 
         </div>
 
     </div>
+
+
+
+
 
 
 
@@ -1711,6 +1978,10 @@
 
 
 
+
+
+
+
                 <tbody id="usersTableBody">
 
                     @forelse ($users as $user)
@@ -1730,8 +2001,10 @@
                             data-verified="{{ $user->email_verified_at ? '1' : '0' }}"
 
                             data-provider="{{ $user->loginProvider() }}"
+
                             data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}"
-                            data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}
+
+                            data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}"
 
                         >
 
@@ -1742,36 +2015,66 @@
                                 <div class="user-cell">
 
                                     @if ($user->avatarUrl())
+
                                         <span class="user-avatar has-image">
+
                                             <img
+
                                                 src="{{ $user->avatarUrl() }}"
+
                                                 alt="Profielfoto van {{ $user->name }}"
+
                                                 loading="lazy"
+
                                             >
+
                                         </span>
+
                                     @else
+
                                         <span class="user-avatar">
+
                                             {{ $user->initials() }}
+
                                         </span>
+
                                     @endif
 
                                     <div class="user-cell-copy">
+
                                         <strong>{{ $user->name }}</strong>
+
                                         <small>ID #{{ $user->id }}</small>
 
                                         @if ($user->hasProfilePhoto())
+
                                             <span class="user-photo-source custom">
+
                                                 Eigen profielfoto
+
                                             </span>
+
                                         @elseif ($user->socialAvatar())
+
                                             <span class="user-photo-source social">
+
                                                 Social avatar
+
                                             </span>
+
                                         @else
+
                                             <span class="user-photo-source">
+
                                                 Initialen
+
                                             </span>
+
                                         @endif
+
+
+
+
 
 
 
@@ -1792,6 +2095,10 @@
                                 </div>
 
                             </td>
+
+
+
+
 
 
 
@@ -1897,6 +2204,10 @@
 
 
 
+
+
+
+
                             {{-- ROLE --}}
 
                             <td>
@@ -1920,6 +2231,10 @@
                                 @endif
 
                             </td>
+
+
+
+
 
 
 
@@ -1959,6 +2274,10 @@
 
 
 
+
+
+
+
                             {{-- CREATED --}}
 
                             <td>
@@ -1993,6 +2312,10 @@
 
 
 
+
+
+
+
                             {{-- ACTIONS --}}
 
                             <td>
@@ -2010,6 +2333,10 @@
                                         Wijzigen
 
                                     </a>
+
+
+
+
 
 
 
@@ -2124,26 +2451,44 @@
         </div>
 
             <div class="users-table-footer">
+
             <span class="users-visible-count">
+
                 Zichtbaar:
+
                 <strong id="visibleUsersCount">{{ $users->count() }}</strong>
+
                 van {{ $users->count() }} gebruikers
+
             </span>
 
             <span class="users-visible-count">
+
                 {{ $profilePhotoUsers }} eigen profielfoto's ·
+
                 {{ $socialAvatarUsers }} social avatars
+
             </span>
+
         </div>
 
         <div
+
             class="users-no-results"
+
             id="usersNoResults"
+
         >
+
             Geen gebruikers gevonden met deze zoekopdracht of filter.
+
         </div>
 
 </div>
+
+
+
+
 
 
 
@@ -2197,6 +2542,10 @@
 
 
 
+
+
+
+
 @push('scripts')
 
 <script>
@@ -2226,10 +2575,16 @@
         let activeFilter = 'all';
 
         const visibleUsersCount =
+
             document.getElementById('visibleUsersCount');
 
         const usersNoResults =
+
             document.getElementById('usersNoResults');
+
+
+
+
 
 
 
@@ -2306,41 +2661,66 @@
                 }
 
                                 if (activeFilter === 'photo') {
+
                     matchesFilter =
+
                         row.dataset.photo === '1';
+
                 }
 
                 if (activeFilter === 'social_avatar') {
+
                     matchesFilter =
+
                         row.dataset.socialAvatar === '1';
+
                 }
 
 const shouldShow =
+
                     matchesSearch && matchesFilter;
 
                 row.style.display =
+
                     shouldShow
+
                         ? ''
+
                         : 'none';
 
                 if (shouldShow) {
+
                     visible += 1;
+
                 }
+
             });
 
             if (visibleUsersCount) {
+
                 visibleUsersCount.textContent =
+
                     String(visible);
+
             }
 
             if (usersNoResults) {
+
                 usersNoResults.style.display =
+
                     visible === 0
+
                         ? 'block'
+
                         : 'none';
+
             }
 
         }
+
+
+
+
 
 
 
@@ -2357,6 +2737,10 @@ const shouldShow =
             );
 
         }
+
+
+
+
 
 
 
