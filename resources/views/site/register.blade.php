@@ -6,2827 +6,2896 @@
 
 <style>
 
-    .register-page {
+    .register-page {
 
-        position: relative;
+        position: relative;
 
-        min-height: calc(100vh - 78px);
+        min-height: calc(100vh - 78px);
 
-        overflow: hidden;
+        overflow: hidden;
 
-        background: #08090b;
+        background: #08090b;
 
-    }
+    }
 
-    .register-stage {
+    .register-stage {
 
-        min-height: calc(100vh - 78px);
+        min-height: calc(100vh - 78px);
 
-        display: grid;
+        display: grid;
 
-        grid-template-columns: minmax(0, 1.02fr) minmax(470px, .98fr);
+        grid-template-columns: minmax(0, 1fr) minmax(420px, 560px);
 
-    }
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    /* LEFT / CINEMATIC BRAND PANEL                              */
+    /* LEFT / CINEMATIC BRAND PANEL                              */
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-visual {
+    .register-visual {
 
-        position: relative;
+        position: relative;
 
-        min-height: 100%;
+        min-height: 100%;
 
-        overflow: hidden;
+        overflow: hidden;
 
-        isolation: isolate;
+        isolation: isolate;
 
-        display: flex;
+        display: flex;
 
-        align-items: flex-end;
+        align-items: flex-end;
 
-        padding: clamp(36px, 5vw, 74px);
+        padding: clamp(36px, 5vw, 74px);
 
-        background: #0a0c0f;
+        background: #0a0c0f;
 
-    }
+    }
 
-    .register-visual::before {
+    .register-visual::before {
 
-        content: "";
+        content: "";
 
-        position: absolute;
+        position: absolute;
 
-        inset: 0;
+        inset: 0;
 
-        z-index: -3;
+        z-index: -3;
 
-        background:
+        background:
 
-            linear-gradient(
+            linear-gradient(
 
-                180deg,
+                180deg,
 
-                rgba(4,5,7,.10),
+                rgba(4,5,7,.10),
 
-                rgba(4,5,7,.22) 40%,
+                rgba(4,5,7,.22) 40%,
 
-                rgba(4,5,7,.94) 100%
+                rgba(4,5,7,.94) 100%
 
-            ),
+            ),
 
-            linear-gradient(
+            linear-gradient(
 
-                90deg,
+                90deg,
 
-                rgba(4,5,7,.38),
+                rgba(4,5,7,.38),
 
-                transparent 58%
+                transparent 58%
 
-            ),
+            ),
 
-            url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1900&q=90')
+            url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1900&q=90')
 
-            center / cover no-repeat;
+            center / cover no-repeat;
 
-        transform: scale(1.03);
+        transform: scale(1.03);
 
-        animation: registerVisualZoom 18s ease-in-out infinite alternate;
+        animation: registerVisualZoom 18s ease-in-out infinite alternate;
 
-    }
+    }
 
-    .register-visual::after {
+    .register-visual::after {
 
-        content: "";
+        content: "";
 
-        position: absolute;
+        position: absolute;
 
-        inset: 0;
+        inset: 0;
 
-        z-index: -2;
+        z-index: -2;
 
-        background:
+        background:
 
-            radial-gradient(
+            radial-gradient(
 
-                circle at 78% 20%,
+                circle at 78% 20%,
 
-                rgba(215,164,95,.18),
+                rgba(215,164,95,.18),
 
-                transparent 20rem
+                transparent 20rem
 
-            ),
+            ),
 
-            linear-gradient(
+            linear-gradient(
 
-                180deg,
+                180deg,
 
-                transparent 70%,
+                transparent 70%,
 
-                #08090b 100%
+                #08090b 100%
 
-            );
+            );
 
-        pointer-events: none;
+        pointer-events: none;
 
-    }
+    }
 
-    @keyframes registerVisualZoom {
+    @keyframes registerVisualZoom {
 
-        from { transform: scale(1.03); }
+        from { transform: scale(1.03); }
 
-        to { transform: scale(1.09); }
+        to { transform: scale(1.09); }
 
-    }
+    }
 
-    .register-visual-content {
+    .register-visual-content {
 
-        max-width: 720px;
+        max-width: 720px;
 
-        animation: registerFadeUp .85s ease both;
+        animation: registerFadeUp .85s ease both;
 
-    }
+    }
 
-    .register-kicker {
+    .register-kicker {
 
-        display: inline-flex;
+        display: inline-flex;
 
-        align-items: center;
+        align-items: center;
 
-        gap: 11px;
+        gap: 11px;
 
-        margin-bottom: 20px;
+        margin-bottom: 20px;
 
-        color: #efc985;
+        color: #efc985;
 
-        font-size: 9px;
+        font-size: 9px;
 
-        font-weight: 900;
+        font-weight: 900;
 
-        letter-spacing: .24em;
+        letter-spacing: .24em;
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
-    }
+    }
 
-    .register-kicker::before {
+    .register-kicker::before {
 
-        content: "";
+        content: "";
 
-        width: 36px;
+        width: 36px;
 
-        height: 1px;
+        height: 1px;
 
-        background: #d7a45f;
+        background: #d7a45f;
 
-    }
+    }
 
-    .register-visual h2 {
+    .register-visual h2 {
 
-        max-width: 720px;
+        max-width: 720px;
 
-        margin: 0;
+        margin: 0;
 
-        color: #ffffff;
+        color: #ffffff;
 
-        font-size: clamp(52px, 5.8vw, 88px);
+        font-size: clamp(52px, 5.8vw, 88px);
 
-        line-height: .92;
+        line-height: .92;
 
-        letter-spacing: -.07em;
+        letter-spacing: -.07em;
 
-        font-weight: 950;
+        font-weight: 950;
 
-    }
+    }
 
-    .register-visual h2 span {
+    .register-visual h2 span {
 
-        color: #f0c983;
+        color: #f0c983;
 
-    }
+    }
 
-    .register-visual p {
+    .register-visual p {
 
-        max-width: 590px;
+        max-width: 590px;
 
-        margin: 24px 0 0;
+        margin: 24px 0 0;
 
-        color: rgba(255,255,255,.69);
+        color: rgba(255,255,255,.69);
 
-        font-size: 14px;
+        font-size: 14px;
 
-        line-height: 1.9;
+        line-height: 1.9;
 
-    }
+    }
 
-    .register-benefits {
+    .register-benefits {
 
-        margin-top: 34px;
+        margin-top: 34px;
 
-        display: grid;
+        display: grid;
 
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, 1fr);
 
-        gap: 10px;
+        gap: 10px;
 
-        max-width: 690px;
+        max-width: 690px;
 
-    }
+    }
 
-    .register-benefit {
+    .register-benefit {
 
-        padding: 14px;
+        padding: 14px;
 
-        border: 1px solid rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.12);
 
-        border-radius: 16px;
+        border-radius: 16px;
 
-        background: rgba(255,255,255,.045);
+        background: rgba(255,255,255,.045);
 
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
 
-    }
+    }
 
-    .register-benefit small {
+    .register-benefit small {
 
-        display: block;
+        display: block;
 
-        margin-bottom: 5px;
+        margin-bottom: 5px;
 
-        color: #c59558;
+        color: #c59558;
 
-        font-size: 7px;
+        font-size: 7px;
 
-        font-weight: 900;
+        font-weight: 900;
 
-        letter-spacing: .13em;
+        letter-spacing: .13em;
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
-    }
+    }
 
-    .register-benefit strong {
+    .register-benefit strong {
 
-        display: block;
+        display: block;
 
-        color: rgba(255,255,255,.88);
+        color: rgba(255,255,255,.88);
 
-        font-size: 11px;
+        font-size: 11px;
 
-        line-height: 1.5;
+        line-height: 1.5;
 
-    }
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    /* RIGHT / REGISTER PANEL                                    */
+    /* RIGHT / REGISTER PANEL                                    */
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-panel {
+    .register-panel {
 
-        position: relative;
+        position: relative;
 
-        min-height: 100%;
+        min-height: 100%;
 
-        display: flex;
+        display: flex;
 
-        align-items: center;
+        align-items: center;
 
-        justify-content: center;
+        justify-content: center;
 
-        padding: 52px 42px;
+        padding: 52px 42px;
 
-        background:
+        background:
 
-            radial-gradient(
+            radial-gradient(
 
-                circle at 82% 14%,
+                circle at 82% 14%,
 
-                rgba(215,164,95,.08),
+                rgba(215,164,95,.08),
 
-                transparent 18rem
+                transparent 18rem
 
-            ),
+            ),
 
-            linear-gradient(
+            linear-gradient(
 
-                180deg,
+                180deg,
 
-                #0b0d10,
+                #0b0d10,
 
-                #08090b
+                #08090b
 
-            );
+            );
 
-    }
+    }
 
-    .register-panel::before {
+    .register-panel::before {
 
-        content: "M";
+        content: "M";
 
-        position: absolute;
+        position: absolute;
 
-        right: -25px;
+        right: -25px;
 
-        top: 11%;
+        top: 11%;
 
-        color: rgba(255,255,255,.016);
+        color: rgba(255,255,255,.016);
 
-        font-size: 310px;
+        font-size: 310px;
 
-        font-weight: 950;
+        font-weight: 950;
 
-        line-height: .8;
+        line-height: .8;
 
-        pointer-events: none;
+        pointer-events: none;
 
-        user-select: none;
+        user-select: none;
 
-    }
+    }
 
-    .register-shell {
+    .register-shell {
 
-        position: relative;
+        position: relative;
 
-        z-index: 2;
+        z-index: 2;
 
-        width: 100%;
+        width: 100%;
 
-        max-width: 520px;
+        max-width: 500px;
 
-        animation: registerFadeUp .8s .08s ease both;
+        animation: registerFadeUp .8s .08s ease both;
 
-    }
+    }
 
-    @keyframes registerFadeUp {
+    @keyframes registerFadeUp {
 
-        from {
+        from {
 
-            opacity: 0;
+            opacity: 0;
 
-            transform: translateY(28px);
+            transform: translateY(28px);
 
-        }
+        }
 
-        to {
+        to {
 
-            opacity: 1;
+            opacity: 1;
 
-            transform: translateY(0);
+            transform: translateY(0);
 
-        }
+        }
 
-    }
+    }
 
-    .register-brand {
+    .register-brand {
 
-        display: flex;
+        display: flex;
 
-        align-items: center;
+        align-items: center;
 
-        gap: 12px;
+        gap: 12px;
 
-        margin-bottom: 32px;
+        margin-bottom: 32px;
 
-    }
+    }
 
-    .register-brand-mark {
+    .register-brand-mark {
 
-        width: 46px;
+        width: 46px;
 
-        height: 46px;
+        height: 46px;
 
-        display: grid;
+        display: grid;
 
-        place-items: center;
+        place-items: center;
 
-        border-radius: 14px;
+        border-radius: 14px;
 
-        background:
+        background:
 
-            linear-gradient(
+            linear-gradient(
 
-                145deg,
+                145deg,
 
-                #f0ca86,
+                #f0ca86,
 
-                #b67e3d
+                #b67e3d
 
-            );
+            );
 
-        color: #15110c;
+        color: #15110c;
 
-        font-size: 20px;
+        font-size: 20px;
 
-        font-weight: 950;
+        font-weight: 950;
 
-        box-shadow: 0 14px 34px rgba(215,164,95,.22);
+        box-shadow: 0 14px 34px rgba(215,164,95,.22);
 
-    }
+    }
 
-    .register-brand-copy strong {
+    .register-brand-copy strong {
 
-        display: block;
+        display: block;
 
-        color: #ffffff;
+        color: #ffffff;
 
-        font-size: 19px;
+        font-size: 19px;
 
-        line-height: 1;
+        line-height: 1;
 
-        letter-spacing: -.03em;
+        letter-spacing: -.03em;
 
-    }
+    }
 
-    .register-brand-copy span {
+    .register-brand-copy span {
 
-        display: block;
+        display: block;
 
-        margin-top: 5px;
+        margin-top: 5px;
 
-        color: #6f757c;
+        color: #6f757c;
 
-        font-size: 8px;
+        font-size: 8px;
 
-        font-weight: 850;
+        font-weight: 850;
 
-        letter-spacing: .18em;
+        letter-spacing: .18em;
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
-    }
+    }
 
-    .register-section-kicker {
+    .register-section-kicker {
 
-        display: inline-block;
+        display: inline-block;
 
-        margin-bottom: 10px;
+        margin-bottom: 10px;
 
-        color: #b9894d;
+        color: #b9894d;
 
-        font-size: 9px;
+        font-size: 9px;
 
-        font-weight: 900;
+        font-weight: 900;
 
-        letter-spacing: .18em;
+        letter-spacing: .18em;
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
-    }
+    }
 
-    .register-title {
+    .register-title {
 
-        margin: 0;
+        margin: 0;
 
-        color: #ffffff;
+        color: #ffffff;
 
-        font-size: clamp(38px, 4vw, 52px);
+        font-size: clamp(34px, 3.2vw, 46px);
 
-        line-height: 1;
+        line-height: 1;
 
-        letter-spacing: -.055em;
+        letter-spacing: -.055em;
 
-        font-weight: 950;
+        font-weight: 950;
 
-    }
+    }
 
-    .register-subtitle {
+    .register-subtitle {
 
-        margin: 14px 0 28px;
+        margin: 14px 0 28px;
 
-        color: #7f858c;
+        color: #7f858c;
 
-        font-size: 13px;
+        font-size: 13px;
 
-        line-height: 1.8;
+        line-height: 1.8;
 
-    }
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    /* ERROR MESSAGE                                              */
+    /* ERROR MESSAGE                                              */
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-message {
+    .register-message {
 
-        margin-bottom: 20px;
+        margin-bottom: 20px;
 
-        padding: 13px 15px;
+        padding: 13px 15px;
 
-        border-radius: 14px;
+        border-radius: 14px;
 
-        font-size: 12px;
+        font-size: 12px;
 
-        line-height: 1.6;
+        line-height: 1.6;
 
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
 
-    }
+    }
 
-    .register-message.error {
+    .register-message.error {
 
-        border: 1px solid rgba(241,123,123,.22);
+        border: 1px solid rgba(241,123,123,.22);
 
-        background: rgba(241,123,123,.08);
+        background: rgba(241,123,123,.08);
 
-        color: #ffc1c1;
+        color: #ffc1c1;
 
-    }
+    }
 
-    .register-message ul {
+    .register-message ul {
 
-        margin: 8px 0 0 18px;
+        margin: 8px 0 0 18px;
 
-        padding: 0;
+        padding: 0;
 
-    }
+    }
 
 
-    /* ========================================================= */
 
-    /* GOOGLE OAUTH                                              */
+    /* ========================================================= */
 
-    /* ========================================================= */
+    /* GOOGLE OAUTH                                              */
 
-    .google-auth-block {
+    /* ========================================================= */
 
-        margin-bottom: 24px;
+    .google-auth-block {
 
-    }
+        margin-bottom: 24px;
 
-    .google-auth-button {
+    }
 
-        position: relative;
+    .google-auth-button {
 
-        width: 100%;
+        position: relative;
 
-        min-height: 58px;
+        width: 100%;
 
-        display: flex;
+        min-height: 58px;
 
-        align-items: center;
+        display: flex;
 
-        justify-content: center;
+        align-items: center;
 
-        gap: 12px;
+        justify-content: center;
 
-        padding: 0 52px;
+        gap: 12px;
 
-        border: 1px solid rgba(255,255,255,.12);
+        padding: 0 52px;
 
-        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.12);
 
-        background:
+        border-radius: 999px;
 
-            linear-gradient(
+        background:
 
-                180deg,
+            linear-gradient(
 
-                rgba(255,255,255,.07),
+                180deg,
 
-                rgba(255,255,255,.035)
+                rgba(255,255,255,.07),
 
-            );
+                rgba(255,255,255,.035)
 
-        color: #f3f1ec;
+            );
 
-        text-decoration: none;
+        color: #f3f1ec;
 
-        font-size: 12px;
+        text-decoration: none;
 
-        font-weight: 900;
+        font-size: 12px;
 
-        letter-spacing: .01em;
+        font-weight: 900;
 
-        box-shadow:
+        letter-spacing: .01em;
 
-            inset 0 1px 0 rgba(255,255,255,.05),
+        box-shadow:
 
-            0 12px 34px rgba(0,0,0,.18);
+            inset 0 1px 0 rgba(255,255,255,.05),
 
-        transition:
+            0 12px 34px rgba(0,0,0,.18);
 
-            transform .22s ease,
+        transition:
 
-            border-color .22s ease,
+            transform .22s ease,
 
-            background .22s ease,
+            border-color .22s ease,
 
-            box-shadow .22s ease;
+            background .22s ease,
 
-    }
+            box-shadow .22s ease;
 
-    .google-auth-button:hover {
+    }
 
-        transform: translateY(-2px);
+    .google-auth-button:hover {
 
-        border-color: rgba(215,164,95,.30);
+        transform: translateY(-2px);
 
-        background:
+        border-color: rgba(215,164,95,.30);
 
-            linear-gradient(
+        background:
 
-                180deg,
+            linear-gradient(
 
-                rgba(215,164,95,.09),
+                180deg,
 
-                rgba(255,255,255,.04)
+                rgba(215,164,95,.09),
 
-            );
+                rgba(255,255,255,.04)
 
-        box-shadow:
+            );
 
-            inset 0 1px 0 rgba(255,255,255,.07),
+        box-shadow:
 
-            0 18px 42px rgba(0,0,0,.24);
+            inset 0 1px 0 rgba(255,255,255,.07),
 
-    }
+            0 18px 42px rgba(0,0,0,.24);
 
-    .google-auth-icon {
+    }
 
-        position: absolute;
+    .google-auth-icon {
 
-        left: 18px;
+        position: absolute;
 
-        width: 22px;
+        left: 18px;
 
-        height: 22px;
+        width: 22px;
 
-        display: grid;
+        height: 22px;
 
-        place-items: center;
+        display: grid;
 
-        border-radius: 50%;
+        place-items: center;
 
-        background: #ffffff;
+        border-radius: 50%;
 
-        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+        background: #ffffff;
 
-    }
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
 
-    .google-auth-icon svg {
+    }
 
-        width: 15px;
+    .google-auth-icon svg {
 
-        height: 15px;
+        width: 15px;
 
-        display: block;
+        height: 15px;
 
-    }
+        display: block;
 
-    .google-auth-copy {
+    }
 
-        display: flex;
+    .google-auth-copy {
 
-        flex-direction: column;
+        display: flex;
 
-        align-items: center;
+        flex-direction: column;
 
-        gap: 2px;
+        align-items: center;
 
-        line-height: 1.2;
+        gap: 2px;
 
-    }
+        line-height: 1.2;
 
-    .google-auth-copy strong {
+    }
 
-        color: #f4f2ed;
+    .google-auth-copy strong {
 
-        font-size: 12px;
+        color: #f4f2ed;
 
-        font-weight: 900;
+        font-size: 12px;
 
-    }
+        font-weight: 900;
 
-    .google-auth-copy small {
+    }
 
-        color: #777d84;
+    .google-auth-copy small {
 
-        font-size: 8px;
+        color: #777d84;
 
-        font-weight: 750;
+        font-size: 8px;
 
-        letter-spacing: .03em;
+        font-weight: 750;
 
-    }
+        letter-spacing: .03em;
 
-    /* ========================================================= */
+    }
 
-    /* GITHUB OAUTH                                              */
+    /* ========================================================= */
 
-    /* ========================================================= */
+    /* GITHUB OAUTH                                              */
 
-    .github-auth-block {
+    /* ========================================================= */
 
-        margin: -12px 0 24px;
+    .github-auth-block {
 
-    }
+        margin: -12px 0 24px;
 
-    .github-auth-button {
+    }
 
-        position: relative;
+    .github-auth-button {
 
-        width: 100%;
+        position: relative;
 
-        min-height: 58px;
+        width: 100%;
 
-        display: flex;
+        min-height: 58px;
 
-        align-items: center;
+        display: flex;
 
-        justify-content: center;
+        align-items: center;
 
-        gap: 12px;
+        justify-content: center;
 
-        padding: 0 52px;
+        gap: 12px;
 
-        overflow: hidden;
+        padding: 0 52px;
 
-        border: 1px solid rgba(255,255,255,.12);
+        overflow: hidden;
 
-        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.12);
 
-        background:
+        border-radius: 999px;
 
-            linear-gradient(
+        background:
 
-                180deg,
+            linear-gradient(
 
-                rgba(255,255,255,.07),
+                180deg,
 
-                rgba(255,255,255,.025)
+                rgba(255,255,255,.07),
 
-            ),
+                rgba(255,255,255,.025)
 
-            #0d1117;
+            ),
 
-        color: #f3f1ec;
+            #0d1117;
 
-        text-decoration: none;
+        color: #f3f1ec;
 
-        box-shadow:
+        text-decoration: none;
 
-            inset 0 1px 0 rgba(255,255,255,.05),
+        box-shadow:
 
-            0 12px 34px rgba(0,0,0,.20);
+            inset 0 1px 0 rgba(255,255,255,.05),
 
-        transition:
+            0 12px 34px rgba(0,0,0,.20);
 
-            transform .22s ease,
+        transition:
 
-            border-color .22s ease,
+            transform .22s ease,
 
-            background .22s ease,
+            border-color .22s ease,
 
-            box-shadow .22s ease;
+            background .22s ease,
 
-    }
+            box-shadow .22s ease;
 
-    .github-auth-button::before {
+    }
 
-        content: "";
+    .github-auth-button::before {
 
-        position: absolute;
+        content: "";
 
-        inset: 0;
+        position: absolute;
 
-        background:
+        inset: 0;
 
-            linear-gradient(
+        background:
 
-                110deg,
+            linear-gradient(
 
-                transparent 20%,
+                110deg,
 
-                rgba(255,255,255,.05) 48%,
+                transparent 20%,
 
-                transparent 76%
+                rgba(255,255,255,.05) 48%,
 
-            );
+                transparent 76%
 
-        transform: translateX(-130%);
+            );
 
-        transition: transform .7s ease;
+        transform: translateX(-130%);
 
-        pointer-events: none;
+        transition: transform .7s ease;
 
-    }
+        pointer-events: none;
 
-    .github-auth-button:hover {
+    }
 
-        transform: translateY(-2px);
+    .github-auth-button:hover {
 
-        border-color: rgba(215,164,95,.30);
+        transform: translateY(-2px);
 
-        background:
+        border-color: rgba(215,164,95,.30);
 
-            linear-gradient(
+        background:
 
-                180deg,
+            linear-gradient(
 
-                rgba(215,164,95,.075),
+                180deg,
 
-                rgba(255,255,255,.028)
+                rgba(215,164,95,.075),
 
-            ),
+                rgba(255,255,255,.028)
 
-            #0d1117;
+            ),
 
-        box-shadow:
+            #0d1117;
 
-            inset 0 1px 0 rgba(255,255,255,.07),
+        box-shadow:
 
-            0 18px 42px rgba(0,0,0,.24);
+            inset 0 1px 0 rgba(255,255,255,.07),
 
-    }
+            0 18px 42px rgba(0,0,0,.24);
 
-    .github-auth-button:hover::before {
+    }
 
-        transform: translateX(130%);
+    .github-auth-button:hover::before {
 
-    }
+        transform: translateX(130%);
 
-    .github-auth-icon {
+    }
 
-        position: absolute;
+    .github-auth-icon {
 
-        left: 18px;
+        position: absolute;
 
-        width: 22px;
+        left: 18px;
 
-        height: 22px;
+        width: 22px;
 
-        display: grid;
+        height: 22px;
 
-        place-items: center;
+        display: grid;
 
-        border-radius: 50%;
+        place-items: center;
 
-        background: #f6f4ef;
+        border-radius: 50%;
 
-        color: #0d1117;
+        background: #f6f4ef;
 
-        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+        color: #0d1117;
 
-    }
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
 
-    .github-auth-icon svg {
+    }
 
-        width: 15px;
+    .github-auth-icon svg {
 
-        height: 15px;
+        width: 15px;
 
-        display: block;
+        height: 15px;
 
-        fill: currentColor;
+        display: block;
 
-    }
+        fill: currentColor;
 
-    .github-auth-copy {
+    }
 
-        position: relative;
+    .github-auth-copy {
 
-        z-index: 1;
+        position: relative;
 
-        display: flex;
+        z-index: 1;
 
-        flex-direction: column;
+        display: flex;
 
-        align-items: center;
+        flex-direction: column;
 
-        gap: 2px;
+        align-items: center;
 
-        line-height: 1.2;
+        gap: 2px;
 
-        text-align: center;
+        line-height: 1.2;
 
-    }
+        text-align: center;
 
-    .github-auth-copy strong {
+    }
 
-        color: #f4f2ed;
+    .github-auth-copy strong {
 
-        font-size: 12px;
+        color: #f4f2ed;
 
-        font-weight: 900;
+        font-size: 12px;
 
-    }
+        font-weight: 900;
 
-    .github-auth-copy small {
+    }
 
-        color: #777d84;
+    .github-auth-copy small {
 
-        font-size: 8px;
+        color: #777d84;
 
-        font-weight: 750;
+        font-size: 8px;
 
-        letter-spacing: .03em;
+        font-weight: 750;
 
-    }
+        letter-spacing: .03em;
 
-    .github-security-note {
+    }
 
-        margin-top: 10px;
+    .github-security-note {
 
-        text-align: center;
+        margin-top: 10px;
 
-        color: #5f656c;
+        text-align: center;
 
-        font-size: 9px;
+        color: #5f656c;
 
-        line-height: 1.6;
+        font-size: 9px;
 
-    }
+        line-height: 1.6;
 
-    .github-security-note strong {
+    }
 
-        color: #8d9399;
+    .github-security-note strong {
 
-        font-weight: 800;
+        color: #8d9399;
 
-    }
+        font-weight: 800;
 
+    }
 
-    /* ========================================================= */
 
-    /* FACEBOOK OAUTH                                            */
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .facebook-auth-block {
+    /* FACEBOOK OAUTH                                            */
 
-        margin: -12px 0 24px;
+    /* ========================================================= */
 
-    }
+    .facebook-auth-block {
 
-    .facebook-auth-button {
+        margin: -12px 0 24px;
 
-        position: relative;
+    }
 
-        width: 100%;
+    .facebook-auth-button {
 
-        min-height: 58px;
+        position: relative;
 
-        display: flex;
+        width: 100%;
 
-        align-items: center;
+        min-height: 58px;
 
-        justify-content: center;
+        display: flex;
 
-        gap: 12px;
+        align-items: center;
 
-        padding: 0 52px;
+        justify-content: center;
 
-        overflow: hidden;
+        gap: 12px;
 
-        border: 1px solid rgba(255,255,255,.12);
+        padding: 0 52px;
 
-        border-radius: 999px;
+        overflow: hidden;
 
-        background: linear-gradient(180deg, rgba(24,119,242,.20), rgba(24,119,242,.10));
+        border: 1px solid rgba(255,255,255,.12);
 
-        color: #f3f1ec;
+        border-radius: 999px;
 
-        text-decoration: none;
+        background: linear-gradient(180deg, rgba(24,119,242,.20), rgba(24,119,242,.10));
 
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 34px rgba(0,0,0,.20);
+        color: #f3f1ec;
 
-        transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+        text-decoration: none;
 
-    }
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 34px rgba(0,0,0,.20);
 
-    .facebook-auth-button::before {
+        transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
 
-        content: "";
+    }
 
-        position: absolute;
+    .facebook-auth-button::before {
 
-        inset: 0;
+        content: "";
 
-        background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.06) 48%, transparent 76%);
+        position: absolute;
 
-        transform: translateX(-130%);
+        inset: 0;
 
-        transition: transform .7s ease;
+        background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.06) 48%, transparent 76%);
 
-        pointer-events: none;
+        transform: translateX(-130%);
 
-    }
+        transition: transform .7s ease;
 
-    .facebook-auth-button:hover {
+        pointer-events: none;
 
-        transform: translateY(-2px);
+    }
 
-        border-color: rgba(215,164,95,.30);
+    .facebook-auth-button:hover {
 
-        background: linear-gradient(180deg, rgba(24,119,242,.26), rgba(215,164,95,.06));
+        transform: translateY(-2px);
 
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 42px rgba(0,0,0,.24);
+        border-color: rgba(215,164,95,.30);
 
-    }
+        background: linear-gradient(180deg, rgba(24,119,242,.26), rgba(215,164,95,.06));
 
-    .facebook-auth-button:hover::before {
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 42px rgba(0,0,0,.24);
 
-        transform: translateX(130%);
+    }
 
-    }
+    .facebook-auth-button:hover::before {
 
-    .facebook-auth-icon {
+        transform: translateX(130%);
 
-        position: absolute;
+    }
 
-        left: 18px;
+    .facebook-auth-icon {
 
-        width: 22px;
+        position: absolute;
 
-        height: 22px;
+        left: 18px;
 
-        display: grid;
+        width: 22px;
 
-        place-items: center;
+        height: 22px;
 
-        border-radius: 50%;
+        display: grid;
 
-        background: #1877f2;
+        place-items: center;
 
-        color: #ffffff;
+        border-radius: 50%;
 
-        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+        background: #1877f2;
 
-    }
+        color: #ffffff;
 
-    .facebook-auth-icon svg {
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
 
-        width: 14px;
+    }
 
-        height: 14px;
+    .facebook-auth-icon svg {
 
-        display: block;
+        width: 14px;
 
-        fill: currentColor;
+        height: 14px;
 
-    }
+        display: block;
 
-    .facebook-auth-copy {
+        fill: currentColor;
 
-        position: relative;
+    }
 
-        z-index: 1;
+    .facebook-auth-copy {
 
-        display: flex;
+        position: relative;
 
-        flex-direction: column;
+        z-index: 1;
 
-        align-items: center;
+        display: flex;
 
-        gap: 2px;
+        flex-direction: column;
 
-        line-height: 1.2;
+        align-items: center;
 
-        text-align: center;
+        gap: 2px;
 
-    }
+        line-height: 1.2;
 
-    .facebook-auth-copy strong {
+        text-align: center;
 
-        color: #f4f2ed;
+    }
 
-        font-size: 12px;
+    .facebook-auth-copy strong {
 
-        font-weight: 900;
+        color: #f4f2ed;
 
-    }
+        font-size: 12px;
 
-    .facebook-auth-copy small {
+        font-weight: 900;
 
-        color: #777d84;
+    }
 
-        font-size: 8px;
+    .facebook-auth-copy small {
 
-        font-weight: 750;
+        color: #777d84;
 
-        letter-spacing: .03em;
+        font-size: 8px;
 
-    }
+        font-weight: 750;
 
-    .facebook-security-note {
+        letter-spacing: .03em;
 
-        margin-top: 10px;
+    }
 
-        text-align: center;
+    .facebook-security-note {
 
-        color: #5f656c;
+        margin-top: 10px;
 
-        font-size: 9px;
+        text-align: center;
 
-        line-height: 1.6;
+        color: #5f656c;
 
-    }
+        font-size: 9px;
 
-    .facebook-security-note strong {
+        line-height: 1.6;
 
-        color: #8d9399;
+    }
 
-        font-weight: 800;
+    .facebook-security-note strong {
 
-    }
+        color: #8d9399;
 
-    .oauth-divider {
+        font-weight: 800;
 
-        margin: 20px 0 22px;
+    }
 
-        display: flex;
+    .oauth-divider {
 
-        align-items: center;
+        margin: 20px 0 22px;
 
-        gap: 14px;
+        display: flex;
 
-        color: #4f555b;
+        align-items: center;
 
-        font-size: 8px;
+        gap: 14px;
 
-        font-weight: 900;
+        color: #4f555b;
 
-        letter-spacing: .14em;
+        font-size: 8px;
 
-        text-transform: uppercase;
+        font-weight: 900;
 
-    }
+        letter-spacing: .14em;
 
-    .oauth-divider::before,
+        text-transform: uppercase;
 
-    .oauth-divider::after {
+    }
 
-        content: "";
+    .oauth-divider::before,
 
-        flex: 1;
+    .oauth-divider::after {
 
-        height: 1px;
+        content: "";
 
-        background: rgba(255,255,255,.07);
+        flex: 1;
 
-    }
+        height: 1px;
 
-    .google-security-note {
+        background: rgba(255,255,255,.07);
 
-        margin-top: 10px;
+    }
 
-        text-align: center;
+    .google-security-note {
 
-        color: #5f656c;
+        margin-top: 10px;
 
-        font-size: 9px;
+        text-align: center;
 
-        line-height: 1.6;
+        color: #5f656c;
 
-    }
+        font-size: 9px;
 
-    .google-security-note strong {
+        line-height: 1.6;
 
-        color: #8d9399;
+    }
 
-        font-weight: 800;
+    .google-security-note strong {
 
-    }
+        color: #8d9399;
 
-    /* ========================================================= */
+        font-weight: 800;
 
-    /* FORM                                                       */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-form-grid {
+    /* FORM                                                       */
 
-        display: grid;
+    /* ========================================================= */
 
-        grid-template-columns: 1fr 1fr;
+    .register-form-grid {
 
-        gap: 14px;
+        display: grid;
 
-    }
+        grid-template-columns: 1fr 1fr;
 
-    .register-field {
+        gap: 14px;
 
-        margin-bottom: 17px;
+    }
 
-    }
+    .register-field {
 
-    .register-field.full {
+        margin-bottom: 17px;
 
-        grid-column: 1 / -1;
+    }
 
-    }
+    .register-field.full {
 
-    .register-label {
+        grid-column: 1 / -1;
 
-        display: flex;
+    }
 
-        align-items: center;
+    .register-label {
 
-        justify-content: space-between;
+        display: flex;
 
-        gap: 12px;
+        align-items: center;
 
-        margin-bottom: 8px;
+        justify-content: space-between;
 
-    }
+        gap: 12px;
 
-    .register-label label {
+        margin-bottom: 8px;
 
-        color: #b9b9b6;
+    }
 
-        font-size: 9px;
+    .register-label label {
 
-        font-weight: 900;
+        color: #b9b9b6;
 
-        letter-spacing: .14em;
+        font-size: 9px;
 
-        text-transform: uppercase;
+        font-weight: 900;
 
-    }
+        letter-spacing: .14em;
 
-    .field-error {
+        text-transform: uppercase;
 
-        color: #f3a1a1;
+    }
 
-        font-size: 10px;
+    .field-error {
 
-        font-weight: 700;
+        color: #f3a1a1;
 
-    }
+        font-size: 10px;
 
-    .register-input-wrap {
+        font-weight: 700;
 
-        position: relative;
+    }
 
-    }
+    .register-input-wrap {
 
-    .register-input {
+        position: relative;
 
-        width: 100%;
+    }
 
-        height: 56px;
+    .register-input {
 
-        padding: 0 48px 0 16px;
+        width: 100%;
 
-        border: 1px solid rgba(255,255,255,.10);
+        height: 56px;
 
-        border-radius: 15px;
+        padding: 0 48px 0 16px;
 
-        outline: none;
+        border: 1px solid rgba(255,255,255,.10);
 
-        background: rgba(255,255,255,.035);
+        border-radius: 15px;
 
-        color: #ffffff;
+        outline: none;
 
-        font-size: 14px;
+        background: rgba(255,255,255,.035);
 
-        transition:
+        color: #ffffff;
 
-            border-color .2s ease,
+        font-size: 14px;
 
-            background .2s ease,
+        transition:
 
-            box-shadow .2s ease;
+            border-color .2s ease,
 
-    }
+            background .2s ease,
 
-    .register-input::placeholder {
+            box-shadow .2s ease;
 
-        color: #565c63;
+    }
 
-    }
+    .register-input::placeholder {
 
-    .register-input:focus {
+        color: #565c63;
 
-        border-color: rgba(215,164,95,.46);
+    }
 
-        background: rgba(215,164,95,.035);
+    .register-input:focus {
 
-        box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+        border-color: rgba(215,164,95,.46);
 
-    }
+        background: rgba(215,164,95,.035);
 
-    .register-input-icon {
+        box-shadow: 0 0 0 4px rgba(215,164,95,.065);
 
-        position: absolute;
+    }
 
-        right: 16px;
+    .register-input-icon {
 
-        top: 50%;
+        position: absolute;
 
-        transform: translateY(-50%);
+        right: 16px;
 
-        color: #747a81;
+        top: 50%;
 
-        font-size: 13px;
+        transform: translateY(-50%);
 
-        pointer-events: none;
+        color: #747a81;
 
-    }
+        font-size: 13px;
 
-    .password-toggle {
+        pointer-events: none;
 
-        position: absolute;
+    }
 
-        right: 9px;
+    .password-toggle {
 
-        top: 50%;
+        position: absolute;
 
-        transform: translateY(-50%);
+        right: 9px;
 
-        min-width: 42px;
+        top: 50%;
 
-        height: 36px;
+        transform: translateY(-50%);
 
-        padding: 0 8px;
+        min-width: 42px;
 
-        border: 0;
+        height: 36px;
 
-        border-radius: 10px;
+        padding: 0 8px;
 
-        background: transparent;
+        border: 0;
 
-        color: #8b9096;
+        border-radius: 10px;
 
-        font-size: 10px;
+        background: transparent;
 
-        font-weight: 800;
+        color: #8b9096;
 
-        cursor: pointer;
+        font-size: 10px;
 
-        transition:
+        font-weight: 800;
 
-            color .2s ease,
+        cursor: pointer;
 
-            background .2s ease;
+        transition:
 
-    }
+            color .2s ease,
 
-    .password-toggle:hover {
+            background .2s ease;
 
-        color: #efc985;
+    }
 
-        background: rgba(215,164,95,.06);
+    .password-toggle:hover {
 
-    }
+        color: #efc985;
 
-    /* ========================================================= */
+        background: rgba(215,164,95,.06);
 
-    /* PASSWORD STRENGTH                                          */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .password-strength {
+    /* PASSWORD STRENGTH                                          */
 
-        margin-top: 10px;
+    /* ========================================================= */
 
-    }
+    .password-strength {
 
-    .password-strength-bars {
+        margin-top: 10px;
 
-        display: grid;
+    }
 
-        grid-template-columns: repeat(4, 1fr);
+    .password-strength-bars {
 
-        gap: 5px;
+        display: grid;
 
-    }
+        grid-template-columns: repeat(4, 1fr);
 
-    .password-strength-bar {
+        gap: 5px;
 
-        height: 4px;
+    }
 
-        border-radius: 999px;
+    .password-strength-bar {
 
-        background: rgba(255,255,255,.07);
+        height: 4px;
 
-        transition: background .2s ease;
+        border-radius: 999px;
 
-    }
+        background: rgba(255,255,255,.07);
 
-    .password-strength[data-level="1"] .password-strength-bar:nth-child(1) {
+        transition: background .2s ease;
 
-        background: #d65f5f;
+    }
 
-    }
+    .password-strength[data-level="1"] .password-strength-bar:nth-child(1) {
 
-    .password-strength[data-level="2"] .password-strength-bar:nth-child(-n+2) {
+        background: #d65f5f;
 
-        background: #d59a50;
+    }
 
-    }
+    .password-strength[data-level="2"] .password-strength-bar:nth-child(-n+2) {
 
-    .password-strength[data-level="3"] .password-strength-bar:nth-child(-n+3) {
+        background: #d59a50;
 
-        background: #d8bd63;
+    }
 
-    }
+    .password-strength[data-level="3"] .password-strength-bar:nth-child(-n+3) {
 
-    .password-strength[data-level="4"] .password-strength-bar:nth-child(-n+4) {
+        background: #d8bd63;
 
-        background: #63c98f;
+    }
 
-    }
+    .password-strength[data-level="4"] .password-strength-bar:nth-child(-n+4) {
 
-    .password-strength-text {
+        background: #63c98f;
 
-        margin-top: 7px;
+    }
 
-        color: #62686f;
+    .password-strength-text {
 
-        font-size: 9px;
+        margin-top: 7px;
 
-        line-height: 1.5;
+        color: #62686f;
 
-    }
+        font-size: 9px;
 
-    /* ========================================================= */
+        line-height: 1.5;
 
-    /* ACCOUNT INFO                                               */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .registration-info {
+    /* ACCOUNT INFO                                               */
 
-        margin: 5px 0 22px;
+    /* ========================================================= */
 
-        padding: 16px;
+    .registration-info {
 
-        display: flex;
+        margin: 5px 0 22px;
 
-        align-items: flex-start;
+        padding: 16px;
 
-        gap: 12px;
+        display: flex;
 
-        border: 1px solid rgba(215,164,95,.13);
+        align-items: flex-start;
 
-        border-radius: 15px;
+        gap: 12px;
 
-        background:
+        border: 1px solid rgba(215,164,95,.13);
 
-            linear-gradient(
+        border-radius: 15px;
 
-                145deg,
+        background:
 
-                rgba(215,164,95,.065),
+            linear-gradient(
 
-                rgba(215,164,95,.02)
+                145deg,
 
-            );
+                rgba(215,164,95,.065),
 
-    }
+                rgba(215,164,95,.02)
 
-    .registration-info-mark {
+            );
 
-        flex-shrink: 0;
+    }
 
-        width: 28px;
+    .registration-info-mark {
 
-        height: 28px;
+        flex-shrink: 0;
 
-        display: grid;
+        width: 28px;
 
-        place-items: center;
+        height: 28px;
 
-        border: 1px solid rgba(215,164,95,.18);
+        display: grid;
 
-        border-radius: 50%;
+        place-items: center;
 
-        color: #dfb36d;
+        border: 1px solid rgba(215,164,95,.18);
 
-        font-size: 10px;
+        border-radius: 50%;
 
-        font-weight: 900;
+        color: #dfb36d;
 
-    }
+        font-size: 10px;
 
-    .registration-info strong {
+        font-weight: 900;
 
-        display: block;
+    }
 
-        margin-bottom: 4px;
+    .registration-info strong {
 
-        color: #d9d7d2;
+        display: block;
 
-        font-size: 11px;
+        margin-bottom: 4px;
 
-    }
+        color: #d9d7d2;
 
-    .registration-info p {
+        font-size: 11px;
 
-        margin: 0;
+    }
 
-        color: #747a81;
+    .registration-info p {
 
-        font-size: 10px;
+        margin: 0;
 
-        line-height: 1.7;
+        color: #747a81;
 
-    }
+        font-size: 10px;
 
-    /* ========================================================= */
+        line-height: 1.7;
 
-    /* SUBMIT                                                     */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-submit {
+    /* SUBMIT                                                     */
 
-        position: relative;
+    /* ========================================================= */
 
-        width: 100%;
+    .register-submit {
 
-        min-height: 58px;
+        position: relative;
 
-        overflow: hidden;
+        width: 100%;
 
-        border: 0;
+        min-height: 58px;
 
-        border-radius: 999px;
+        overflow: hidden;
 
-        background:
+        border: 0;
 
-            linear-gradient(
+        border-radius: 999px;
 
-                135deg,
+        background:
 
-                #f1cc8b,
+            linear-gradient(
 
-                #ca914c
+                135deg,
 
-            );
+                #f1cc8b,
 
-        color: #14100b;
+                #ca914c
 
-        font-size: 12px;
+            );
 
-        font-weight: 950;
+        color: #14100b;
 
-        letter-spacing: .04em;
+        font-size: 12px;
 
-        cursor: pointer;
+        font-weight: 950;
 
-        box-shadow: 0 18px 44px rgba(215,164,95,.20);
+        letter-spacing: .04em;
 
-        transition:
+        cursor: pointer;
 
-            transform .22s ease,
+        box-shadow: 0 18px 44px rgba(215,164,95,.20);
 
-            box-shadow .22s ease;
+        transition:
 
-    }
+            transform .22s ease,
 
-    .register-submit::after {
+            box-shadow .22s ease;
 
-        content: "→";
+    }
 
-        position: absolute;
+    .register-submit::after {
 
-        right: 22px;
+        content: "→";
 
-        top: 50%;
+        position: absolute;
 
-        transform: translateY(-50%);
+        right: 22px;
 
-        font-size: 17px;
+        top: 50%;
 
-        transition: transform .22s ease;
+        transform: translateY(-50%);
 
-    }
+        font-size: 17px;
 
-    .register-submit:hover {
+        transition: transform .22s ease;
 
-        transform: translateY(-2px);
+    }
 
-        box-shadow: 0 25px 58px rgba(215,164,95,.30);
+    .register-submit:hover {
 
-    }
+        transform: translateY(-2px);
 
-    .register-submit:hover::after {
+        box-shadow: 0 25px 58px rgba(215,164,95,.30);
 
-        transform: translate(4px, -50%);
+    }
 
-    }
+    .register-submit:hover::after {
 
-    /* ========================================================= */
+        transform: translate(4px, -50%);
 
-    /* LOGIN CARD                                                 */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-divider {
+    /* LOGIN CARD                                                 */
 
-        margin: 28px 0 22px;
+    /* ========================================================= */
 
-        display: flex;
+    .register-divider {
 
-        align-items: center;
+        margin: 28px 0 22px;
 
-        gap: 14px;
+        display: flex;
 
-        color: #4d5258;
+        align-items: center;
 
-        font-size: 8px;
+        gap: 14px;
 
-        font-weight: 900;
+        color: #4d5258;
 
-        letter-spacing: .14em;
+        font-size: 8px;
 
-        text-transform: uppercase;
+        font-weight: 900;
 
-    }
+        letter-spacing: .14em;
 
-    .register-divider::before,
+        text-transform: uppercase;
 
-    .register-divider::after {
+    }
 
-        content: "";
+    .register-divider::before,
 
-        flex: 1;
+    .register-divider::after {
 
-        height: 1px;
+        content: "";
 
-        background: rgba(255,255,255,.07);
+        flex: 1;
 
-    }
+        height: 1px;
 
-    .login-card {
+        background: rgba(255,255,255,.07);
 
-        padding: 18px;
+    }
 
-        display: flex;
+    .login-card {
 
-        align-items: center;
+        padding: 18px;
 
-        justify-content: space-between;
+        display: flex;
 
-        gap: 18px;
+        align-items: center;
 
-        border: 1px solid rgba(255,255,255,.08);
+        justify-content: space-between;
 
-        border-radius: 17px;
+        gap: 18px;
 
-        background: rgba(255,255,255,.025);
+        border: 1px solid rgba(255,255,255,.08);
 
-    }
+        border-radius: 17px;
 
-    .login-card-copy strong {
+        background: rgba(255,255,255,.025);
 
-        display: block;
+    }
 
-        color: #dcdad5;
+    .login-card-copy strong {
 
-        font-size: 12px;
+        display: block;
 
-    }
+        color: #dcdad5;
 
-    .login-card-copy span {
+        font-size: 12px;
 
-        display: block;
+    }
 
-        margin-top: 3px;
+    .login-card-copy span {
 
-        color: #686e75;
+        display: block;
 
-        font-size: 10px;
+        margin-top: 3px;
 
-        line-height: 1.5;
+        color: #686e75;
 
-    }
+        font-size: 10px;
 
-    .login-card-link {
+        line-height: 1.5;
 
-        flex-shrink: 0;
+    }
 
-        min-height: 38px;
+    .login-card-link {
 
-        padding: 0 14px;
+        flex-shrink: 0;
 
-        display: inline-flex;
+        min-height: 38px;
 
-        align-items: center;
+        padding: 0 14px;
 
-        border: 1px solid rgba(215,164,95,.18);
+        display: inline-flex;
 
-        border-radius: 999px;
+        align-items: center;
 
-        background: rgba(215,164,95,.055);
+        border: 1px solid rgba(215,164,95,.18);
 
-        color: #dfb36d;
+        border-radius: 999px;
 
-        text-decoration: none;
+        background: rgba(215,164,95,.055);
 
-        font-size: 9px;
+        color: #dfb36d;
 
-        font-weight: 900;
+        text-decoration: none;
 
-        transition:
+        font-size: 9px;
 
-            background .2s ease,
+        font-weight: 900;
 
-            border-color .2s ease,
+        transition:
 
-            transform .2s ease;
+            background .2s ease,
 
-    }
+            border-color .2s ease,
 
-    .login-card-link:hover {
+            transform .2s ease;
 
-        transform: translateY(-1px);
+    }
 
-        border-color: rgba(215,164,95,.34);
+    .login-card-link:hover {
 
-        background: rgba(215,164,95,.10);
+        transform: translateY(-1px);
 
-    }
+        border-color: rgba(215,164,95,.34);
 
-    /* ========================================================= */
+        background: rgba(215,164,95,.10);
 
-    /* PRIVACY / SECURITY                                         */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    .register-security {
+    /* PRIVACY / SECURITY                                         */
 
-        margin-top: 18px;
+    /* ========================================================= */
 
-        display: flex;
+    .register-security {
 
-        align-items: flex-start;
+        margin-top: 18px;
 
-        gap: 10px;
+        display: flex;
 
-        color: #555b61;
+        align-items: flex-start;
 
-        font-size: 9px;
+        gap: 10px;
 
-        line-height: 1.6;
+        color: #555b61;
 
-    }
+        font-size: 9px;
 
-    .register-security-mark {
+        line-height: 1.6;
 
-        flex-shrink: 0;
+    }
 
-        width: 20px;
+    .register-security-mark {
 
-        height: 20px;
+        flex-shrink: 0;
 
-        display: grid;
+        width: 20px;
 
-        place-items: center;
+        height: 20px;
 
-        border: 1px solid rgba(255,255,255,.07);
+        display: grid;
 
-        border-radius: 50%;
+        place-items: center;
 
-        color: #8b6a40;
+        border: 1px solid rgba(255,255,255,.07);
 
-        font-size: 9px;
+        border-radius: 50%;
 
-    }
+        color: #8b6a40;
 
-    /* ========================================================= */
+        font-size: 9px;
 
-    /* RESPONSIVE                                                 */
+    }
 
-    /* ========================================================= */
+    /* ========================================================= */
 
-    @media (max-width: 1080px) {
+    /* RESPONSIVE                                                 */
 
-        .register-stage {
+    /* ========================================================= */
 
-            grid-template-columns: 1fr;
+    @media (max-width: 1080px) {
 
-        }
+        .register-stage {
 
-        .register-visual {
+            grid-template-columns: 1fr;
 
-            min-height: 560px;
+        }
 
-        }
+        .register-visual {
 
-        .register-panel {
+            min-height: 560px;
 
-            min-height: auto;
+        }
 
-            padding: 72px 32px;
+        .register-panel {
 
-        }
+            min-height: auto;
 
-    }
+            padding: 72px 32px;
 
-    @media (max-width: 680px) {
+        }
 
-        .register-page,
+    }
 
-        .register-stage {
+    @media (max-width: 680px) {
 
-            min-height: auto;
+        .register-page,
 
-        }
+        .register-stage {
 
-        .register-visual {
+            min-height: auto;
 
-            min-height: 470px;
+        }
 
-            padding: 40px 20px;
+        .register-visual {
 
-        }
+            min-height: 470px;
 
-        .register-visual h2 {
+            padding: 40px 20px;
 
-            font-size: clamp(48px, 14.5vw, 66px);
+        }
 
-        }
+        .register-visual h2 {
 
-        .register-benefits {
+            font-size: clamp(48px, 14.5vw, 66px);
 
-            grid-template-columns: 1fr;
+        }
 
-        }
+        .register-benefits {
 
-        .register-panel {
+            grid-template-columns: 1fr;
 
-            padding: 54px 18px 66px;
+        }
 
-        }
+        .register-panel {
 
-        .register-form-grid {
+            padding: 54px 18px 66px;
 
-            grid-template-columns: 1fr;
+        }
 
-        }
+        .register-form-grid {
 
-        .register-field.full {
+            grid-template-columns: 1fr;
 
-            grid-column: auto;
+        }
 
-        }
+        .register-field.full {
 
-        .login-card {
+            grid-column: auto;
 
-            align-items: flex-start;
+        }
 
-            flex-direction: column;
+        .login-card {
 
-        }
+            align-items: flex-start;
 
-        .login-card-link {
+            flex-direction: column;
 
-            width: 100%;
+        }
 
-            justify-content: center;
+        .login-card-link {
 
-        }
+            width: 100%;
 
-    }
+            justify-content: center;
+
+        }
+
+    }
 
 </style>
 
 @endpush
 
 
+
 @section('content')
 
 <section class="register-page">
 
-    <div class="register-stage">
+    <div class="register-stage">
 
-        {{-- ========================================================= --}}
+        {{-- ========================================================= --}}
 
-        {{-- LEFT / EXPERIENCE                                         --}}
+        {{-- LEFT / EXPERIENCE                                         --}}
 
-        {{-- ========================================================= --}}
+        {{-- ========================================================= --}}
 
-        <div class="register-visual">
+        <div class="register-visual">
 
-            <div class="register-visual-content">
+            <div class="register-visual-content">
 
-                <span class="register-kicker">
+                <span class="register-kicker">
 
-                    Join Mashal Automotive
+                    Join Mashal Automotive
 
-                </span>
+                </span>
 
-                <h2>
+                <h2>
 
-                    Jouw volgende rit
+                    Jouw volgende rit
 
-                    begint met
+                    begint met
 
-                    <span>één account.</span>
+                    <span>één account.</span>
 
-                </h2>
+                </h2>
 
-                <p>
+                <p>
 
-                    Maak je persoonlijke Mashal-account aan
+                    Maak je persoonlijke Mashal-account aan
 
-                    en krijg toegang tot je voertuigselectie,
+                    en krijg toegang tot je voertuigselectie,
 
-                    beveiligde checkout, orderhistorie
+                    beveiligde checkout, orderhistorie
 
-                    en accountbeheer in één premium omgeving.
+                    en accountbeheer in één premium omgeving.
 
-                </p>
+                </p>
 
 
-                <div class="register-benefits">
 
-                    <div class="register-benefit">
+                <div class="register-benefits">
 
-                        <small>
+                    <div class="register-benefit">
 
-                            Personal
+                        <small>
 
-                        </small>
+                            Personal
 
-                        <strong>
+                        </small>
 
-                            Eén account voor jouw volledige Mashal-ervaring
+                        <strong>
 
-                        </strong>
+                            Eén account voor jouw volledige Mashal-ervaring
 
-                    </div>
+                        </strong>
 
+                    </div>
 
-                    <div class="register-benefit">
 
-                        <small>
 
-                            Verified
+                    <div class="register-benefit">
 
-                        </small>
+                        <small>
 
-                        <strong>
+                            Verified
 
-                            Beveiligde toegang via e-mailverificatie
+                        </small>
 
-                        </strong>
+                        <strong>
 
-                    </div>
+                            Beveiligde toegang via e-mailverificatie
 
+                        </strong>
 
-                    <div class="register-benefit">
+                    </div>
 
-                        <small>
 
-                            Orders
 
-                        </small>
+                    <div class="register-benefit">
 
-                        <strong>
+                        <small>
 
-                            Bestellingen en status altijd inzichtelijk
+                            Orders
 
-                        </strong>
+                        </small>
 
-                    </div>
+                        <strong>
 
-                </div>
+                            Bestellingen en status altijd inzichtelijk
 
-            </div>
+                        </strong>
 
-        </div>
+                    </div>
 
+                </div>
 
-        {{-- ========================================================= --}}
+            </div>
 
-        {{-- RIGHT / REGISTER FORM                                     --}}
+        </div>
 
-        {{-- ========================================================= --}}
 
-        <div class="register-panel">
 
-            <div class="register-shell">
+        {{-- ========================================================= --}}
 
-                <div class="register-brand">
+        {{-- RIGHT / REGISTER FORM                                     --}}
 
-                    <div class="register-brand-mark">
+        {{-- ========================================================= --}}
 
-                        M
+        <div class="register-panel">
 
-                    </div>
+            <div class="register-shell">
 
-                    <div class="register-brand-copy">
+                <div class="register-brand">
 
-                        <strong>
+                    <div class="register-brand-mark">
 
-                            Mashal
+                        M
 
-                        </strong>
+                    </div>
 
-                        <span>
+                    <div class="register-brand-copy">
 
-                            Automotive
+                        <strong>
 
-                        </span>
+                            Mashal
 
-                    </div>
+                        </strong>
 
-                </div>
+                        <span>
 
+                            Automotive
 
-                <span class="register-section-kicker">
+                        </span>
 
-                    Create your account
+                    </div>
 
-                </span>
+                </div>
 
-                <h1 class="register-title">
 
-                    Registreren
 
-                </h1>
+                <span class="register-section-kicker">
 
-                <p class="register-subtitle">
+                    Create your account
 
-                    Registreer veilig met Google, GitHub, Facebook, e-mailcode of vul je gegevens in.
+                </span>
 
-                    Bij registratie met e-mail sturen we je een verificatiecode
+                <h1 class="register-title">
 
-                    om je e-mailadres te bevestigen.
+                    Registreren
 
-                </p>
+                </h1>
 
+                <p class="register-subtitle">
 
-                {{-- ERRORS --}}
+                    Registreer veilig met Google, GitHub, Facebook, e-mailcode of vul je gegevens in.
 
-                @if ($errors->any())
+                    Bij registratie met e-mail sturen we je een verificatiecode
 
-                    <div class="register-message error">
+                    om je e-mailadres te bevestigen.
 
-                        <strong>
+                </p>
 
-                            Registreren is niet gelukt.
 
-                        </strong>
 
-                        <ul>
+                {{-- ERRORS --}}
 
-                            @foreach ($errors->all() as $error)
+                @if ($errors->any())
 
-                                <li>
+                    <div class="register-message error">
 
-                                    {{ $error }}
+                        <strong>
 
-                                </li>
+                            Registreren is niet gelukt.
 
-                            @endforeach
+                        </strong>
 
-                        </ul>
+                        <ul>
 
-                    </div>
+                            @foreach ($errors->all() as $error)
 
-                @endif
+                                <li>
 
+                                    {{ $error }}
 
-                {{-- GOOGLE OAUTH --}}
+                                </li>
 
-                <div class="google-auth-block">
+                            @endforeach
 
-                    <a
+                        </ul>
 
-                        class="google-auth-button"
+                    </div>
 
-                        href="{{ route('google.redirect') }}"
+                @endif
 
-                    >
 
-                        <span class="google-auth-icon" aria-hidden="true">
 
-                            <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
 
-                                <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+                {{-- E-MAILCODE --}}
+                <div class="email-code-auth-block">
+                    <form
+                        class="email-code-auth-form"
+                        method="POST"
+                        action="{{ route('email-login.send') }}"
+                    >
+                        @csrf
 
-                                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+                        <div class="email-code-auth-row">
+                            <input
+                                class="email-code-auth-input"
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="jouw@email.nl"
+                                autocomplete="email"
+                                required
+                            >
 
-                                <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+                            <button
+                                class="email-code-auth-submit"
+                                type="submit"
+                            >
+                                Stuur inlogcode
+                            </button>
+                        </div>
 
-                                <path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
+                        <div class="email-code-auth-note">
+                            Geen wachtwoord nodig. Je ontvangt een 6-cijferige code per e-mail.
+                        </div>
+                    </form>
+                </div>
 
-                            </svg>
+                <div class="oauth-divider">
+                    Of gebruik een account
+                </div>
 
-                        </span>
+                {{-- GOOGLE OAUTH --}}
 
-                        <span class="google-auth-copy">
+                <div class="google-auth-block">
 
-                            <strong>
+                    <a
 
-                                Doorgaan met Google
+                        class="google-auth-button"
 
-                            </strong>
+                        href="{{ route('google.redirect') }}"
 
-                            <small>
+                    >
 
-                                Inloggen of direct een Mashal-account aanmaken
+                        <span class="google-auth-icon" aria-hidden="true">
 
-                            </small>
+                            <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
 
-                        </span>
+                                <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
 
-                    </a>
+                                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
 
-                    <div class="google-security-note">
+                                <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
 
-                        Je wordt veilig doorgestuurd naar <strong>Google</strong>.
+                                <path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
 
-                        Mashal ontvangt nooit je Google-wachtwoord.
+                            </svg>
 
-                    </div>
+                        </span>
 
-                </div>
+                        <span class="google-auth-copy">
 
-                {{-- GITHUB OAUTH --}}
+                            <strong>
 
-                <div class="github-auth-block">
+                                Doorgaan met Google
 
-                    <a
+                            </strong>
 
-                        class="github-auth-button"
+                            <small>
 
-                        href="{{ route('github.redirect') }}"
+                                Inloggen of direct een Mashal-account aanmaken
 
-                        aria-label="Doorgaan met GitHub"
+                            </small>
 
-                    >
+                        </span>
 
-                        <span class="github-auth-icon" aria-hidden="true">
+                    </a>
 
-                            <svg
+                    <div class="google-security-note">
 
-                                viewBox="0 0 24 24"
+                        Je wordt veilig doorgestuurd naar <strong>Google</strong>.
 
-                                xmlns="http://www.w3.org/2000/svg"
+                        Mashal ontvangt nooit je Google-wachtwoord.
 
-                                role="img"
+                    </div>
 
-                            >
+                </div>
 
-                                <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+                {{-- GITHUB OAUTH --}}
 
-                            </svg>
+                <div class="github-auth-block">
 
-                        </span>
+                    <a
 
-                        <span class="github-auth-copy">
+                        class="github-auth-button"
 
-                            <strong>
+                        href="{{ route('github.redirect') }}"
 
-                                Doorgaan met GitHub
+                        aria-label="Doorgaan met GitHub"
 
-                            </strong>
+                    >
 
-                            <small>
+                        <span class="github-auth-icon" aria-hidden="true">
 
-                                Inloggen of direct een Mashal-account aanmaken
+                            <svg
 
-                            </small>
+                                viewBox="0 0 24 24"
 
-                        </span>
+                                xmlns="http://www.w3.org/2000/svg"
 
-                    </a>
+                                role="img"
 
-                    <div class="github-security-note">
+                            >
 
-                        Je wordt veilig doorgestuurd naar <strong>GitHub</strong>.
+                                <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
 
-                        Mashal ontvangt nooit je GitHub-wachtwoord.
+                            </svg>
 
-                    </div>
+                        </span>
 
-                </div>
+                        <span class="github-auth-copy">
 
+                            <strong>
 
-                {{-- FACEBOOK OAUTH --}}
+                                Doorgaan met GitHub
 
-                <div class="facebook-auth-block">
+                            </strong>
 
-                    <a
+                            <small>
 
-                        class="facebook-auth-button"
+                                Inloggen of direct een Mashal-account aanmaken
 
-                        href="{{ route('facebook.redirect') }}"
+                            </small>
 
-                        aria-label="Doorgaan met Facebook"
+                        </span>
 
-                    >
+                    </a>
 
-                        <span class="facebook-auth-icon" aria-hidden="true">
+                    <div class="github-security-note">
 
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img">
+                        Je wordt veilig doorgestuurd naar <strong>GitHub</strong>.
 
-                                <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+                        Mashal ontvangt nooit je GitHub-wachtwoord.
 
-                            </svg>
+                    </div>
 
-                        </span>
+                </div>
 
-                        <span class="facebook-auth-copy">
 
-                            <strong>
 
-                                Doorgaan met Facebook
+                {{-- FACEBOOK OAUTH --}}
 
-                            </strong>
+                <div class="facebook-auth-block">
 
-                            <small>
+                    <a
 
-                                Inloggen of direct een Mashal-account aanmaken
+                        class="facebook-auth-button"
 
-                            </small>
+                        href="{{ route('facebook.redirect') }}"
 
-                        </span>
+                        aria-label="Doorgaan met Facebook"
 
-                    </a>
+                    >
 
-                    <div class="facebook-security-note">
+                        <span class="facebook-auth-icon" aria-hidden="true">
 
-                        Je wordt veilig doorgestuurd naar <strong>Facebook</strong>.
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img">
 
-                        Mashal ontvangt nooit je Facebook-wachtwoord.
+                                <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
 
-                    </div>
+                            </svg>
 
-                </div>
+                        </span>
 
+                        <span class="facebook-auth-copy">
 
-                <div class="oauth-divider">
+                            <strong>
 
-                    Of registreer met e-mail
+                                Doorgaan met Facebook
 
-                </div>
+                            </strong>
 
-                {{-- FORM --}}
+                            <small>
 
-                <form
+                                Inloggen of direct een Mashal-account aanmaken
 
-                    method="POST"
+                            </small>
 
-                    action="{{ route('register.submit') }}"
+                        </span>
 
-                    id="registerForm"
+                    </a>
 
-                >
+                    <div class="facebook-security-note">
 
-                    @csrf
+                        Je wordt veilig doorgestuurd naar <strong>Facebook</strong>.
 
+                        Mashal ontvangt nooit je Facebook-wachtwoord.
 
-                    <div class="register-form-grid">
+                    </div>
 
-                        {{-- NAME --}}
+                </div>
 
-                        <div class="register-field full">
 
-                            <div class="register-label">
 
-                                <label for="name">
+                <div class="oauth-divider">
 
-                                    Naam
+                    Of maak een account met wachtwoord
 
-                                </label>
+                </div>
 
-                                @error('name')
+                {{-- FORM --}}
 
-                                    <span class="field-error">
+                <form
 
-                                        {{ $message }}
+                    method="POST"
 
-                                    </span>
+                    action="{{ route('register.submit') }}"
 
-                                @enderror
+                    id="registerForm"
 
-                            </div>
+                >
 
+                    @csrf
 
-                            <div class="register-input-wrap">
 
-                                <input
 
-                                    class="register-input"
+                    <div class="register-form-grid">
 
-                                    id="name"
+                        {{-- NAME --}}
 
-                                    type="text"
+                        <div class="register-field full">
 
-                                    name="name"
+                            <div class="register-label">
 
-                                    value="{{ old('name') }}"
+                                <label for="name">
 
-                                    placeholder="Jouw volledige naam"
+                                    Naam
 
-                                    autocomplete="name"
+                                </label>
 
-                                    required
+                                @error('name')
 
-                                    autofocus
+                                    <span class="field-error">
 
-                                >
+                                        {{ $message }}
 
-                                <span class="register-input-icon">
+                                    </span>
 
-                                    ◇
+                                @enderror
 
-                                </span>
+                            </div>
 
-                            </div>
 
-                        </div>
 
+                            <div class="register-input-wrap">
 
-                        {{-- EMAIL --}}
+                                <input
 
-                        <div class="register-field full">
+                                    class="register-input"
 
-                            <div class="register-label">
+                                    id="name"
 
-                                <label for="email">
+                                    type="text"
 
-                                    E-mailadres
+                                    name="name"
 
-                                </label>
+                                    value="{{ old('name') }}"
 
-                                @error('email')
+                                    placeholder="Jouw volledige naam"
 
-                                    <span class="field-error">
+                                    autocomplete="name"
 
-                                        {{ $message }}
+                                    required
 
-                                    </span>
+                                    autofocus
 
-                                @enderror
+                                >
 
-                            </div>
+                                <span class="register-input-icon">
 
+                                    ◇
 
-                            <div class="register-input-wrap">
+                                </span>
 
-                                <input
+                            </div>
 
-                                    class="register-input"
+                        </div>
 
-                                    id="email"
 
-                                    type="email"
 
-                                    name="email"
+                        {{-- EMAIL --}}
 
-                                    value="{{ old('email') }}"
+                        <div class="register-field full">
 
-                                    placeholder="naam@example.com"
+                            <div class="register-label">
 
-                                    autocomplete="email"
+                                <label for="email">
 
-                                    required
+                                    E-mailadres
 
-                                >
+                                </label>
 
-                                <span class="register-input-icon">
+                                @error('email')
 
-                                    @
+                                    <span class="field-error">
 
-                                </span>
+                                        {{ $message }}
 
-                            </div>
+                                    </span>
 
-                        </div>
+                                @enderror
 
+                            </div>
 
-                        {{-- PASSWORD --}}
 
-                        <div class="register-field">
 
-                            <div class="register-label">
+                            <div class="register-input-wrap">
 
-                                <label for="password">
+                                <input
 
-                                    Wachtwoord
+                                    class="register-input"
 
-                                </label>
+                                    id="email"
 
-                                @error('password')
+                                    type="email"
 
-                                    <span class="field-error">
+                                    name="email"
 
-                                        {{ $message }}
+                                    value="{{ old('email') }}"
 
-                                    </span>
+                                    placeholder="naam@example.com"
 
-                                @enderror
+                                    autocomplete="email"
 
-                            </div>
+                                    required
 
+                                >
 
-                            <div class="register-input-wrap">
+                                <span class="register-input-icon">
 
-                                <input
+                                    @
 
-                                    class="register-input"
+                                </span>
 
-                                    id="password"
+                            </div>
 
-                                    type="password"
+                        </div>
 
-                                    name="password"
 
-                                    placeholder="Minimaal 8 tekens"
 
-                                    autocomplete="new-password"
+                        {{-- PASSWORD --}}
 
-                                    minlength="8"
+                        <div class="register-field">
 
-                                    required
+                            <div class="register-label">
 
-                                >
+                                <label for="password">
 
-                                <button
+                                    Wachtwoord
 
-                                    class="password-toggle"
+                                </label>
 
-                                    type="button"
+                                @error('password')
 
-                                    data-toggle-password="password"
+                                    <span class="field-error">
 
-                                    aria-label="Wachtwoord tonen of verbergen"
+                                        {{ $message }}
 
-                                >
+                                    </span>
 
-                                    Tonen
+                                @enderror
 
-                                </button>
+                            </div>
 
-                            </div>
 
 
-                            <div
+                            <div class="register-input-wrap">
 
-                                class="password-strength"
+                                <input
 
-                                id="passwordStrength"
+                                    class="register-input"
 
-                                data-level="0"
+                                    id="password"
 
-                            >
+                                    type="password"
 
-                                <div class="password-strength-bars">
+                                    name="password"
 
-                                    <span class="password-strength-bar"></span>
+                                    placeholder="Minimaal 8 tekens"
 
-                                    <span class="password-strength-bar"></span>
+                                    autocomplete="new-password"
 
-                                    <span class="password-strength-bar"></span>
+                                    minlength="8"
 
-                                    <span class="password-strength-bar"></span>
+                                    required
 
-                                </div>
+                                >
 
-                                <div
+                                <button
 
-                                    class="password-strength-text"
+                                    class="password-toggle"
 
-                                    id="passwordStrengthText"
+                                    type="button"
 
-                                >
+                                    data-toggle-password="password"
 
-                                    Gebruik minimaal 8 tekens.
+                                    aria-label="Wachtwoord tonen of verbergen"
 
-                                </div>
+                                >
 
-                            </div>
+                                    Tonen
 
-                        </div>
+                                </button>
 
+                            </div>
 
-                        {{-- PASSWORD CONFIRMATION --}}
 
-                        <div class="register-field">
 
-                            <div class="register-label">
+                            <div
 
-                                <label for="password_confirmation">
+                                class="password-strength"
 
-                                    Wachtwoord bevestigen
+                                id="passwordStrength"
 
-                                </label>
+                                data-level="0"
 
-                                @error('password_confirmation')
+                            >
 
-                                    <span class="field-error">
+                                <div class="password-strength-bars">
 
-                                        {{ $message }}
+                                    <span class="password-strength-bar"></span>
 
-                                    </span>
+                                    <span class="password-strength-bar"></span>
 
-                                @enderror
+                                    <span class="password-strength-bar"></span>
 
-                            </div>
+                                    <span class="password-strength-bar"></span>
 
+                                </div>
 
-                            <div class="register-input-wrap">
+                                <div
 
-                                <input
+                                    class="password-strength-text"
 
-                                    class="register-input"
+                                    id="passwordStrengthText"
 
-                                    id="password_confirmation"
+                                >
 
-                                    type="password"
+                                    Gebruik minimaal 8 tekens.
 
-                                    name="password_confirmation"
+                                </div>
 
-                                    placeholder="Herhaal je wachtwoord"
+                            </div>
 
-                                    autocomplete="new-password"
+                        </div>
 
-                                    minlength="8"
 
-                                    required
 
-                                >
+                        {{-- PASSWORD CONFIRMATION --}}
 
-                                <button
+                        <div class="register-field">
 
-                                    class="password-toggle"
+                            <div class="register-label">
 
-                                    type="button"
+                                <label for="password_confirmation">
 
-                                    data-toggle-password="password_confirmation"
+                                    Wachtwoord bevestigen
 
-                                    aria-label="Wachtwoordbevestiging tonen of verbergen"
+                                </label>
 
-                                >
+                                @error('password_confirmation')
 
-                                    Tonen
+                                    <span class="field-error">
 
-                                </button>
+                                        {{ $message }}
 
-                            </div>
+                                    </span>
 
-                        </div>
+                                @enderror
 
-                    </div>
+                            </div>
 
 
-                    {{-- INFO --}}
 
-                    <div class="registration-info">
+                            <div class="register-input-wrap">
 
-                        <span class="registration-info-mark">
+                                <input
 
-                            i
+                                    class="register-input"
 
-                        </span>
+                                    id="password_confirmation"
 
-                        <div>
+                                    type="password"
 
-                            <strong>
+                                    name="password_confirmation"
 
-                                Registratie met e-mail
+                                    placeholder="Herhaal je wachtwoord"
 
-                            </strong>
+                                    autocomplete="new-password"
 
-                            <p>
+                                    minlength="8"
 
-                                Je ontvangt een verificatiecode per e-mail.
+                                    required
 
-                                Na verificatie kun je alle functies gebruiken,
+                                >
 
-                                waaronder het plaatsen van bestellingen.
+                                <button
 
-                            </p>
+                                    class="password-toggle"
 
-                        </div>
+                                    type="button"
 
-                    </div>
+                                    data-toggle-password="password_confirmation"
 
+                                    aria-label="Wachtwoordbevestiging tonen of verbergen"
 
-                    {{-- SUBMIT --}}
+                                >
 
-                    <button
+                                    Tonen
 
-                        class="register-submit"
+                                </button>
 
-                        type="submit"
+                            </div>
 
-                    >
+                        </div>
 
-                        Account aanmaken
+                    </div>
 
-                    </button>
 
-                </form>
 
+                    {{-- INFO --}}
 
-                <div class="register-divider">
+                    <div class="registration-info">
 
-                    Al onderdeel van Mashal?
+                        <span class="registration-info-mark">
 
-                </div>
+                            i
 
+                        </span>
 
-                <div class="login-card">
+                        <div>
 
-                    <div class="login-card-copy">
+                            <strong>
 
-                        <strong>
+                                Registratie met e-mail
 
-                            Heb je al een account?
+                            </strong>
 
-                        </strong>
+                            <p>
 
-                        <span>
+                                Je ontvangt een verificatiecode per e-mail.
 
-                            Log in en ga direct verder
+                                Na verificatie kun je alle functies gebruiken,
 
-                            met jouw selectie en bestellingen.
+                                waaronder het plaatsen van bestellingen.
 
-                        </span>
+                            </p>
 
-                    </div>
+                        </div>
 
+                    </div>
 
-                    <a
 
-                        class="login-card-link"
 
-                        href="{{ route('login') }}"
+                    {{-- SUBMIT --}}
 
-                    >
+                    <button
 
-                        Inloggen
+                        class="register-submit"
 
-                    </a>
+                        type="submit"
 
-                </div>
+                    >
 
+                        Account aanmaken
 
-                <div class="register-security">
+                    </button>
 
-                    <span class="register-security-mark">
+                </form>
 
-                        ✓
 
-                    </span>
 
-                    <span>
+                <div class="register-divider">
 
-                        Gebruik een uniek wachtwoord
+                    Al onderdeel van Mashal?
 
-                        en deel je verificatiecode nooit met anderen.
+                </div>
 
-                    </span>
 
-                </div>
 
-            </div>
+                <div class="login-card">
 
-        </div>
+                    <div class="login-card-copy">
 
-    </div>
+                        <strong>
+
+                            Heb je al een account?
+
+                        </strong>
+
+                        <span>
+
+                            Log in en ga direct verder
+
+                            met jouw selectie en bestellingen.
+
+                        </span>
+
+                    </div>
+
+
+
+                    <a
+
+                        class="login-card-link"
+
+                        href="{{ route('login') }}"
+
+                    >
+
+                        Inloggen
+
+                    </a>
+
+                </div>
+
+
+
+                <div class="register-security">
+
+                    <span class="register-security-mark">
+
+                        ✓
+
+                    </span>
+
+                    <span>
+
+                        Gebruik een uniek wachtwoord
+
+                        en deel je verificatiecode nooit met anderen.
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
 
 @endsection
 
 
+
 @push('scripts')
 
 <script>
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-        // Password show/hide.
+        // Password show/hide.
 
-        document
+        document
 
-            .querySelectorAll('[data-toggle-password]')
+            .querySelectorAll('[data-toggle-password]')
 
-            .forEach(function (button) {
+            .forEach(function (button) {
 
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function () {
 
-                    const inputId =
+                    const inputId =
 
-                        button.getAttribute('data-toggle-password');
+                        button.getAttribute('data-toggle-password');
 
-                    const input =
+                    const input =
 
-                        document.getElementById(inputId);
+                        document.getElementById(inputId);
 
-                    if (!input) {
+                    if (!input) {
 
-                        return;
+                        return;
 
-                    }
+                    }
 
-                    const isHidden =
+                    const isHidden =
 
-                        input.type === 'password';
+                        input.type === 'password';
 
-                    input.type =
+                    input.type =
 
-                        isHidden ? 'text' : 'password';
+                        isHidden ? 'text' : 'password';
 
-                    button.textContent =
+                    button.textContent =
 
-                        isHidden ? 'Verberg' : 'Tonen';
+                        isHidden ? 'Verberg' : 'Tonen';
 
-                });
+                });
 
-            });
+            });
 
 
-        // Simple visual password strength meter.
 
-        const passwordInput =
+        // Simple visual password strength meter.
 
-            document.getElementById('password');
+        const passwordInput =
 
-        const strengthBox =
+            document.getElementById('password');
 
-            document.getElementById('passwordStrength');
+        const strengthBox =
 
-        const strengthText =
+            document.getElementById('passwordStrength');
 
-            document.getElementById('passwordStrengthText');
+        const strengthText =
 
+            document.getElementById('passwordStrengthText');
 
-        if (
 
-            passwordInput &&
 
-            strengthBox &&
+        if (
 
-            strengthText
+            passwordInput &&
 
-        ) {
+            strengthBox &&
 
-            passwordInput.addEventListener('input', function () {
+            strengthText
 
-                const value =
+        ) {
 
-                    passwordInput.value;
+            passwordInput.addEventListener('input', function () {
 
-                let score = 0;
+                const value =
 
-                if (value.length >= 8) {
+                    passwordInput.value;
 
-                    score++;
+                let score = 0;
 
-                }
+                if (value.length >= 8) {
 
-                if (/[A-Z]/.test(value) && /[a-z]/.test(value)) {
+                    score++;
 
-                    score++;
+                }
 
-                }
+                if (/[A-Z]/.test(value) && /[a-z]/.test(value)) {
 
-                if (/\d/.test(value)) {
+                    score++;
 
-                    score++;
+                }
 
-                }
+                if (/\d/.test(value)) {
 
-                if (/[^A-Za-z0-9]/.test(value) && value.length >= 10) {
+                    score++;
 
-                    score++;
+                }
 
-                }
+                if (/[^A-Za-z0-9]/.test(value) && value.length >= 10) {
 
-                strengthBox.dataset.level =
+                    score++;
 
-                    String(score);
+                }
 
-                const labels = {
+                strengthBox.dataset.level =
 
-                    0: 'Gebruik minimaal 8 tekens.',
+                    String(score);
 
-                    1: 'Basiswachtwoord.',
+                const labels = {
 
-                    2: 'Redelijk wachtwoord.',
+                    0: 'Gebruik minimaal 8 tekens.',
 
-                    3: 'Sterk wachtwoord.',
+                    1: 'Basiswachtwoord.',
 
-                    4: 'Zeer sterk wachtwoord.'
+                    2: 'Redelijk wachtwoord.',
 
-                };
+                    3: 'Sterk wachtwoord.',
 
-                strengthText.textContent =
+                    4: 'Zeer sterk wachtwoord.'
 
-                    labels[score] || labels[0];
+                };
 
-            });
+                strengthText.textContent =
 
-        }
+                    labels[score] || labels[0];
 
-    });
+            });
+
+        }
+
+    });
 
 </script>
 
