@@ -540,6 +540,126 @@
 
 
 
+
+
+
+
+    /* ========================================================= */
+    /* E-MAILCODE LOGIN                                         */
+    /* ========================================================= */
+
+    .email-code-auth {
+        margin: 0 0 24px;
+        padding: 18px;
+        border: 1px solid rgba(215,164,95,.16);
+        border-radius: 18px;
+        background:
+            linear-gradient(180deg, rgba(215,164,95,.065), rgba(255,255,255,.022));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    .email-code-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .email-code-icon {
+        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #f0ca86, #b67e3d);
+        color: #15110c;
+        font-size: 17px;
+        font-weight: 950;
+        box-shadow: 0 12px 28px rgba(215,164,95,.18);
+    }
+
+    .email-code-copy strong {
+        display: block;
+        color: #f4f1eb;
+        font-size: 12px;
+        font-weight: 950;
+    }
+
+    .email-code-copy span {
+        display: block;
+        margin-top: 4px;
+        color: #747a81;
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    .email-code-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .email-code-input {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+        padding: 0 14px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 13px;
+        outline: none;
+        background: rgba(255,255,255,.035);
+        color: #ffffff;
+        font-size: 13px;
+        transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .email-code-input::placeholder {
+        color: #565c63;
+    }
+
+    .email-code-input:focus {
+        border-color: rgba(215,164,95,.46);
+        background: rgba(215,164,95,.035);
+        box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+    }
+
+    .email-code-submit {
+        min-height: 48px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #f1cc8b, #ca914c);
+        color: #14100b;
+        font-size: 10px;
+        font-weight: 950;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .email-code-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(215,164,95,.22);
+    }
+
+    .email-code-note {
+        margin: 10px 2px 0;
+        color: #555b61;
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 520px) {
+        .email-code-form {
+            grid-template-columns: 1fr;
+        }
+
+        .email-code-submit {
+            width: 100%;
+        }
+    }
+
     /* ========================================================= */
 
     /* GOOGLE OAUTH                                              */
@@ -1014,138 +1134,250 @@
 
 
 
+
+
     /* ========================================================= */
+
     /* FACEBOOK OAUTH                                           */
+
     /* ========================================================= */
 
     .facebook-auth {
+
         margin: -12px 0 24px;
+
     }
 
     .facebook-auth-button {
+
         position: relative;
+
         width: 100%;
+
         min-height: 58px;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         gap: 13px;
+
         padding: 0 58px;
+
         overflow: hidden;
+
         border: 1px solid rgba(24,119,242,.34);
+
         border-radius: 999px;
+
         background:
+
             linear-gradient(
+
                 180deg,
+
                 rgba(24,119,242,.16),
+
                 rgba(24,119,242,.07)
+
             ),
+
             #0b1018;
+
         color: #f4f1eb;
+
         text-decoration: none;
+
         box-shadow:
+
             inset 0 1px 0 rgba(255,255,255,.055),
+
             0 14px 36px rgba(0,0,0,.22);
+
         transition:
+
             transform .22s ease,
+
             border-color .22s ease,
+
             background .22s ease,
+
             box-shadow .22s ease;
+
     }
 
     .facebook-auth-button::before {
+
         content: "";
+
         position: absolute;
+
         inset: 0;
+
         background:
+
             linear-gradient(
+
                 110deg,
+
                 transparent 20%,
+
                 rgba(255,255,255,.05) 48%,
+
                 transparent 76%
+
             );
+
         transform: translateX(-130%);
+
         transition: transform .7s ease;
+
         pointer-events: none;
+
     }
 
     .facebook-auth-button:hover {
+
         transform: translateY(-2px);
+
         border-color: rgba(24,119,242,.58);
+
         background:
+
             linear-gradient(
+
                 180deg,
+
                 rgba(24,119,242,.22),
+
                 rgba(24,119,242,.09)
+
             ),
+
             #0b1018;
+
         box-shadow:
+
             inset 0 1px 0 rgba(255,255,255,.07),
+
             0 22px 50px rgba(0,0,0,.26);
+
     }
 
     .facebook-auth-button:hover::before {
+
         transform: translateX(130%);
+
     }
 
     .facebook-auth-icon {
+
         position: absolute;
+
         left: 17px;
+
         width: 25px;
+
         height: 25px;
+
         display: grid;
+
         place-items: center;
+
         border-radius: 50%;
+
         background: #1877f2;
+
         color: #ffffff;
+
         box-shadow: 0 8px 22px rgba(0,0,0,.22);
+
     }
 
     .facebook-auth-icon svg {
+
         width: 15px;
+
         height: 15px;
+
         display: block;
+
         fill: currentColor;
+
     }
 
     .facebook-auth-copy {
+
         position: relative;
+
         z-index: 1;
+
         display: flex;
+
         flex-direction: column;
+
         align-items: center;
+
         gap: 2px;
+
         text-align: center;
+
     }
 
     .facebook-auth-copy strong {
+
         color: #f4f1eb;
+
         font-size: 12px;
+
         line-height: 1.2;
+
         font-weight: 950;
+
         letter-spacing: .01em;
+
     }
 
     .facebook-auth-copy small {
+
         color: #747a81;
+
         font-size: 8px;
+
         line-height: 1.4;
+
         font-weight: 750;
+
         letter-spacing: .035em;
+
     }
 
     .facebook-auth-note {
+
         margin-top: 10px;
+
         text-align: center;
+
         color: #555b61;
+
         font-size: 9px;
+
         line-height: 1.65;
+
     }
 
     .facebook-auth-note strong {
+
         color: #8e949b;
+
         font-weight: 850;
+
     }
+
+
+
 
 
 
@@ -1792,6 +2024,14 @@
 
 
 
+
+
+
+
+
+
+
+
 @section('content')
 
 <section class="login-page">
@@ -1844,6 +2084,14 @@
 
 
 
+
+
+
+
+
+
+
+
                 <div class="visual-trust-row">
 
                     <span class="visual-trust">
@@ -1869,6 +2117,14 @@
             </div>
 
         </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -1922,6 +2178,14 @@
 
 
 
+
+
+
+
+
+
+
+
                 <span class="auth-kicker">
 
                     Member access
@@ -1935,12 +2199,17 @@
                 </h1>
 
                 <p class="auth-subtitle">
-
-                    Log veilig in met Google, GitHub of gebruik je
-
-                    e-mailadres en wachtwoord voor jouw Mashal-account.
-
+                    Log veilig in met Google, GitHub, Facebook, een eenmalige e-mailcode
+                    of gebruik je e-mailadres en wachtwoord voor jouw Mashal-account.
                 </p>
+
+
+
+
+
+
+
+
 
 
 
@@ -1966,6 +2235,10 @@
 
 
 
+
+
+
+
                 {{-- SESSION ERROR --}}
 
                 @if (session('error'))
@@ -1977,6 +2250,10 @@
                     </div>
 
                 @endif
+
+
+
+
 
 
 
@@ -2023,6 +2300,66 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+                {{-- E-MAILCODE LOGIN --}}
+                <div class="email-code-auth">
+                    <div class="email-code-head">
+                        <div class="email-code-icon" aria-hidden="true">
+                            @
+                        </div>
+
+                        <div class="email-code-copy">
+                            <strong>Inloggen met e-mailcode</strong>
+                            <span>Ontvang een eenmalige 6-cijferige code. De code is 5 minuten geldig.</span>
+                        </div>
+                    </div>
+
+                    <form
+                        class="email-code-form"
+                        method="POST"
+                        action="{{ route('email-login.send') }}"
+                    >
+                        @csrf
+
+                        <input
+                            class="email-code-input"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="naam@example.com"
+                            autocomplete="email"
+                            aria-label="E-mailadres voor e-mailcode"
+                            required
+                        >
+
+                        <button
+                            class="email-code-submit"
+                            type="submit"
+                        >
+                            Stuur code
+                        </button>
+                    </form>
+
+                    <div class="email-code-note">
+                        Je wachtwoord is niet nodig. Na het aanvragen vul je de ontvangen code in om veilig in te loggen.
+                    </div>
+                </div>
+
+                <div class="oauth-divider">
+                    Of ga verder met
+                </div>
 
                 {{-- GOOGLE OAUTH --}}
 
@@ -2186,42 +2523,78 @@
 
 
 
+
+
                 {{-- FACEBOOK OAUTH --}}
+
                 <div class="facebook-auth">
+
                     <a
+
                         class="facebook-auth-button"
+
                         href="{{ route('facebook.redirect') }}"
+
                         aria-label="Doorgaan met Facebook"
+
                     >
+
                         <span
+
                             class="facebook-auth-icon"
+
                             aria-hidden="true"
+
                         >
+
                             <svg
+
                                 viewBox="0 0 24 24"
+
                                 xmlns="http://www.w3.org/2000/svg"
+
                                 role="img"
+
                             >
+
                                 <path d="M13.5 8H16V5h-2.5C10.7 5 9 6.7 9 9.5V12H6v3h3v7h3.5v-7H16l.5-3h-4V9.8c0-1.2.4-1.8 1-1.8Z"/>
+
                             </svg>
+
                         </span>
 
                         <span class="facebook-auth-copy">
+
                             <strong>
+
                                 Doorgaan met Facebook
+
                             </strong>
 
                             <small>
+
                                 Veilig inloggen met je Facebook-account
+
                             </small>
+
                         </span>
+
                     </a>
 
                     <div class="facebook-auth-note">
+
                         Je wordt doorgestuurd naar <strong>Facebook</strong>.
+
                         Mashal ontvangt nooit je Facebook-wachtwoord.
+
                     </div>
+
                 </div>
+
+
+
+
+
 
 
 
@@ -2230,9 +2603,13 @@
 
                 <div class="oauth-divider">
 
-                    Of log in met e-mail
+                    Of gebruik je wachtwoord
 
                 </div>
+
+
+
+
 
 
 
@@ -2249,6 +2626,14 @@
                 >
 
                     @csrf
+
+
+
+
+
+
+
+
 
 
 
@@ -2281,6 +2666,14 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2332,6 +2725,14 @@
 
 
 
+
+
+
+
+
+
+
+
                     {{-- PASSWORD --}}
 
                     <div class="auth-field">
@@ -2355,6 +2756,14 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2412,6 +2821,14 @@
 
 
 
+
+
+
+
+
+
+
+
                     {{-- OPTIONS --}}
 
                     <div class="auth-options">
@@ -2454,6 +2871,14 @@
 
 
 
+
+
+
+
+
+
+
+
                         <a
 
                             class="auth-link"
@@ -2467,6 +2892,14 @@
                         </a>
 
                     </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2500,11 +2933,27 @@
 
 
 
+
+
+
+
+
+
+
+
                 <div class="auth-divider">
 
                     Nieuw bij Mashal?
 
                 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2542,6 +2991,14 @@
 
 
 
+
+
+
+
+
+
+
+
                     <a
 
                         class="register-card-link"
@@ -2555,6 +3012,14 @@
                     </a>
 
                 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2591,6 +3056,14 @@
 </section>
 
 @endsection
+
+
+
+
+
+
+
+
 
 
 

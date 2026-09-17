@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmailLoginController;
 use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
@@ -32,7 +33,7 @@ Route::post('/register', [UserController::class, 'registerSubmit'])
 
 /*
 |--------------------------------------------------------------------------
-| Inloggen
+| Normaal inloggen
 |--------------------------------------------------------------------------
 */
 
@@ -45,27 +46,63 @@ Route::post('/login', [UserController::class, 'loginSubmit'])
 
 /*
 |--------------------------------------------------------------------------
-| Google OAuth
+| Inloggen met e-mailcode
 |--------------------------------------------------------------------------
 |
-| Deze routes verzorgen authenticatie via Google met Laravel Socialite.
+| Flow:
 |
-| Dezelfde OAuth-flow wordt gebruikt voor:
-|
-| - bestaande gebruikers inloggen
-| - nieuwe gebruikers automatisch registreren
-| - bestaande Mashal-accounts koppelen aan Google
-| - Google-profielinformatie synchroniseren
-|
-| GoogleAuthController bepaalt uiteindelijk of er een bestaand account
-| gebruikt wordt of een nieuw Mashal-account wordt aangemaakt.
+| 1. Gebruiker vult e-mailadres in.
+| 2. Mashal verstuurt via Brevo een 6-cijferige code.
+| 3. Gebruiker voert de code in.
+| 4. Bij een geldige code wordt de gebruiker ingelogd.
 |
 */
 
-Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
+Route::prefix('auth/email')->group(function () {
+
+    Route::post(
+        '/send-code',
+        [EmailLoginController::class, 'sendCode']
+    )
+        ->middleware('throttle:10,1')
+        ->name('email-login.send');
+
+
+    Route::get(
+        '/verify',
+        [EmailLoginController::class, 'showVerifyForm']
+    )
+        ->name('email-login.form');
+
+
+    Route::post(
+        '/verify',
+        [EmailLoginController::class, 'verifyCode']
+    )
+        ->middleware('throttle:20,1')
+        ->name('email-login.verify');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Google OAuth
+|--------------------------------------------------------------------------
+|
+| Inloggen en registreren via Google met Laravel Socialite.
+|
+*/
+
+Route::get(
+    '/auth/google',
+    [GoogleAuthController::class, 'redirect']
+)
     ->name('google.redirect');
 
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+Route::get(
+    '/auth/google/callback',
+    [GoogleAuthController::class, 'callback']
+)
     ->name('google.callback');
 
 
@@ -74,29 +111,20 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 | GitHub OAuth
 |--------------------------------------------------------------------------
 |
-| Deze routes verzorgen authenticatie via GitHub met Laravel Socialite.
-|
-| Dezelfde OAuth-flow wordt gebruikt voor:
-|
-| - bestaande gebruikers inloggen
-| - nieuwe gebruikers automatisch registreren
-| - bestaande Mashal-accounts koppelen aan GitHub
-| - GitHub-profielinformatie synchroniseren
-|
-| GitHubAuthController zoekt eerst naar github_id.
-|
-| Als er nog geen GitHub-koppeling bestaat, wordt daarna gezocht
-| naar een gebruiker met hetzelfde e-mailadres.
-|
-| Zo wordt voorkomen dat onnodig een tweede Mashal-account
-| voor dezelfde gebruiker wordt aangemaakt.
+| Inloggen en registreren via GitHub met Laravel Socialite.
 |
 */
 
-Route::get('/auth/github', [GitHubAuthController::class, 'redirect'])
+Route::get(
+    '/auth/github',
+    [GitHubAuthController::class, 'redirect']
+)
     ->name('github.redirect');
 
-Route::get('/auth/github/callback', [GitHubAuthController::class, 'callback'])
+Route::get(
+    '/auth/github/callback',
+    [GitHubAuthController::class, 'callback']
+)
     ->name('github.callback');
 
 
@@ -105,27 +133,20 @@ Route::get('/auth/github/callback', [GitHubAuthController::class, 'callback'])
 | Facebook OAuth
 |--------------------------------------------------------------------------
 |
-| Deze routes verzorgen authenticatie via Facebook met Laravel Socialite.
-|
-| Dezelfde OAuth-flow wordt gebruikt voor:
-|
-| - bestaande gebruikers inloggen
-| - nieuwe gebruikers automatisch registreren
-| - bestaande Mashal-accounts koppelen aan Facebook
-| - Facebook-profielinformatie synchroniseren
-|
-| FacebookAuthController zoekt eerst naar facebook_id.
-|
-| Als er nog geen Facebook-koppeling bestaat, kan daarna een bestaand
-| Mashal-account worden gevonden op basis van het e-mailadres,
-| afhankelijk van de logica in de controller.
+| Inloggen en registreren via Facebook met Laravel Socialite.
 |
 */
 
-Route::get('/auth/facebook', [FacebookAuthController::class, 'redirect'])
+Route::get(
+    '/auth/facebook',
+    [FacebookAuthController::class, 'redirect']
+)
     ->name('facebook.redirect');
 
-Route::get('/auth/facebook/callback', [FacebookAuthController::class, 'callback'])
+Route::get(
+    '/auth/facebook/callback',
+    [FacebookAuthController::class, 'callback']
+)
     ->name('facebook.callback');
 
 
@@ -135,7 +156,10 @@ Route::get('/auth/facebook/callback', [FacebookAuthController::class, 'callback'
 |--------------------------------------------------------------------------
 */
 
-Route::post('/logout', [UserController::class, 'logout'])
+Route::post(
+    '/logout',
+    [UserController::class, 'logout']
+)
     ->middleware('auth')
     ->name('logout');
 
@@ -145,21 +169,31 @@ Route::post('/logout', [UserController::class, 'logout'])
 | E-mailverificatie
 |--------------------------------------------------------------------------
 |
-| Deze routes blijven beschikbaar voor gebruikers die zich via het
-| normale Mashal-registratieformulier registreren.
-|
-| OAuth-gebruikers kunnen door hun OAuth-controller direct als
-| geverifieerd worden gemarkeerd.
+| Deze routes worden gebruikt voor normale registraties met
+| e-mailadres en wachtwoord.
 |
 */
 
-Route::get('/verify', [UserController::class, 'verifyNotice'])
+Route::get(
+    '/verify',
+    [UserController::class, 'verifyNotice']
+)
     ->name('verification.notice');
 
-Route::post('/verify/send', [UserController::class, 'sendVerificationCode'])
+
+Route::post(
+    '/verify/send',
+    [UserController::class, 'sendVerificationCode']
+)
+    ->middleware('throttle:6,1')
     ->name('verification.send');
 
-Route::post('/verify', [UserController::class, 'verifyCode'])
+
+Route::post(
+    '/verify',
+    [UserController::class, 'verifyCode']
+)
+    ->middleware('throttle:10,1')
     ->name('verification.verify');
 
 
@@ -169,16 +203,32 @@ Route::post('/verify', [UserController::class, 'verifyCode'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/forgot-password', [UserController::class, 'forgotPassword'])
+Route::get(
+    '/forgot-password',
+    [UserController::class, 'forgotPassword']
+)
     ->name('password.request');
 
-Route::post('/forgot-password', [UserController::class, 'sendResetLink'])
+
+Route::post(
+    '/forgot-password',
+    [UserController::class, 'sendResetLink']
+)
+    ->middleware('throttle:5,1')
     ->name('password.email');
 
-Route::get('/reset-password/{token}', [UserController::class, 'showResetForm'])
+
+Route::get(
+    '/reset-password/{token}',
+    [UserController::class, 'showResetForm']
+)
     ->name('password.reset');
 
-Route::post('/reset-password/{token}', [UserController::class, 'resetPassword'])
+
+Route::post(
+    '/reset-password/{token}',
+    [UserController::class, 'resetPassword']
+)
     ->name('password.update');
 
 
@@ -188,10 +238,17 @@ Route::post('/reset-password/{token}', [UserController::class, 'resetPassword'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/catalog', [UserController::class, 'catalog'])
+Route::get(
+    '/catalog',
+    [UserController::class, 'catalog']
+)
     ->name('catalog');
 
-Route::get('/car/{id}', [UserController::class, 'car'])
+
+Route::get(
+    '/car/{id}',
+    [UserController::class, 'car']
+)
     ->whereNumber('id')
     ->name('car');
 
@@ -202,17 +259,24 @@ Route::get('/car/{id}', [UserController::class, 'car'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/cart', [UserController::class, 'cart'])
+Route::get(
+    '/cart',
+    [UserController::class, 'cart']
+)
     ->name('cart');
 
-Route::post('/cart/add/{id}', [UserController::class, 'addToCart'])
+
+Route::post(
+    '/cart/add/{id}',
+    [UserController::class, 'addToCart']
+)
     ->whereNumber('id')
     ->name('cart.add');
 
 
 /*
 |--------------------------------------------------------------------------
-| Ingelogde gebruikers
+| Routes voor ingelogde gebruikers
 |--------------------------------------------------------------------------
 */
 
@@ -224,13 +288,24 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/account', [UserController::class, 'account'])
+    Route::get(
+        '/account',
+        [UserController::class, 'account']
+    )
         ->name('account');
 
-    Route::put('/account', [UserController::class, 'updateAccount'])
+
+    Route::put(
+        '/account',
+        [UserController::class, 'updateAccount']
+    )
         ->name('account.update');
 
-    Route::put('/account/password', [UserController::class, 'updatePassword'])
+
+    Route::put(
+        '/account/password',
+        [UserController::class, 'updatePassword']
+    )
         ->name('account.password.update');
 
 
@@ -238,16 +313,19 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     | Checkout
     |--------------------------------------------------------------------------
-    |
-    | De controller controleert daarnaast of email_verified_at
-    | correct is ingevuld voordat checkout wordt toegestaan.
-    |
     */
 
-    Route::get('/checkout', [UserController::class, 'checkout'])
+    Route::get(
+        '/checkout',
+        [UserController::class, 'checkout']
+    )
         ->name('checkout');
 
-    Route::post('/checkout', [UserController::class, 'checkoutSubmit'])
+
+    Route::post(
+        '/checkout',
+        [UserController::class, 'checkoutSubmit']
+    )
         ->name('checkout.submit');
 
 
@@ -257,15 +335,8 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     |
     | Deze routes vereisen minimaal een ingelogde gebruiker.
-    |
-    | De UserController voert daarnaast voor de adminfuncties
-    | ensureAdmin() uit.
-    |
-    | Daardoor moet de gebruiker ook:
-    |
-    | is_admin = true
-    |
-    | hebben voordat toegang wordt toegestaan.
+    | De UserController moet daarnaast nog steeds controleren
+    | of is_admin daadwerkelijk true is.
     |
     */
 
@@ -273,21 +344,27 @@ Route::middleware('auth')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Dashboard
+        | Admin dashboard
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/', [UserController::class, 'admin'])
+        Route::get(
+            '/',
+            [UserController::class, 'admin']
+        )
             ->name('admin.dashboard');
 
 
         /*
         |--------------------------------------------------------------------------
-        | Gebruikersbeheer
+        | Gebruikersoverzicht
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/users', [UserController::class, 'index'])
+        Route::get(
+            '/users',
+            [UserController::class, 'index']
+        )
             ->name('users.index');
 
 
@@ -297,10 +374,17 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/users/create', [UserController::class, 'create'])
+        Route::get(
+            '/users/create',
+            [UserController::class, 'create']
+        )
             ->name('users.create');
 
-        Route::post('/users', [UserController::class, 'store'])
+
+        Route::post(
+            '/users',
+            [UserController::class, 'store']
+        )
             ->name('users.store');
 
 
@@ -310,11 +394,18 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+        Route::get(
+            '/users/{user}/edit',
+            [UserController::class, 'edit']
+        )
             ->whereNumber('user')
             ->name('users.edit');
 
-        Route::put('/users/{user}', [UserController::class, 'update'])
+
+        Route::put(
+            '/users/{user}',
+            [UserController::class, 'update']
+        )
             ->whereNumber('user')
             ->name('users.update');
 
@@ -325,7 +416,10 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        Route::delete(
+            '/users/{user}',
+            [UserController::class, 'destroy']
+        )
             ->whereNumber('user')
             ->name('users.destroy');
     });
