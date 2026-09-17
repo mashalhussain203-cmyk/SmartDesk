@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
@@ -15,15 +16,16 @@ use Throwable;
 class TikTokAuthController extends Controller
 {
     /**
-     * Redirect naar TikTok Login Kit.
+     * Stuur de gebruiker door naar TikTok Login Kit.
      */
     public function redirect(): RedirectResponse
     {
-        return Socialite::driver('tiktok')->redirect();
+        return Socialite::driver('tiktok')
+            ->redirect();
     }
 
     /**
-     * TikTok OAuth callback verwerken.
+     * Verwerk de callback van TikTok.
      */
     public function callback(Request $request): RedirectResponse
     {
@@ -56,7 +58,7 @@ class TikTokAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Bestaande TikTok-gebruiker
+            | Bestaand TikTok-account
             |--------------------------------------------------------------------------
             */
 
@@ -67,13 +69,10 @@ class TikTokAuthController extends Controller
             if ($user !== null) {
                 $user->forceFill([
                     'login_provider' => 'tiktok',
-
                     'tiktok_avatar' => $avatar !== ''
                         ? $avatar
                         : $user->tiktok_avatar,
-                ]);
-
-                $user->save();
+                ])->save();
 
                 Auth::login(
                     $user,
@@ -82,9 +81,7 @@ class TikTokAuthController extends Controller
 
                 $request->session()->regenerate();
 
-                return $this->redirectAfterLogin(
-                    $user
-                );
+                return $this->redirectAfterLogin($user);
             }
 
             /*
@@ -92,8 +89,9 @@ class TikTokAuthController extends Controller
             | Nieuwe TikTok-gebruiker
             |--------------------------------------------------------------------------
             |
-            | TikTok user.info.basic geeft normaal geen e-mailadres terug.
-            | Daarom bewaren we de TikTok-data tijdelijk in de sessie.
+            | TikTok user.info.basic levert standaard geen e-mailadres mee.
+            | Daarom slaan we de TikTok-profielgegevens tijdelijk op in
+            | de sessie en vragen we daarna om een e-mailadres.
             |
             */
 
@@ -101,12 +99,10 @@ class TikTokAuthController extends Controller
                 'tiktok_registration',
                 [
                     'tiktok_id' => $tiktokId,
-
                     'name' => $this->resolveDisplayName(
                         $name,
                         $nickname
                     ),
-
                     'avatar' => $avatar !== ''
                         ? $avatar
                         : null,
@@ -115,7 +111,6 @@ class TikTokAuthController extends Controller
 
             return redirect()
                 ->route('tiktok.complete');
-
         } catch (Throwable $exception) {
             report($exception);
 
@@ -128,8 +123,7 @@ class TikTokAuthController extends Controller
     }
 
     /**
-     * Formulier tonen waarmee een nieuwe TikTok-gebruiker
-     * zijn registratie kan afronden.
+     * Toon het formulier voor het afronden van TikTok-registratie.
      */
     public function showCompleteRegistration(): View|RedirectResponse
     {
@@ -137,27 +131,16 @@ class TikTokAuthController extends Controller
             'tiktok_registration'
         );
 
-        if (! is_array($registration)) {
+        if (
+            ! is_array($registration)
+            || trim(
+                (string) ($registration['tiktok_id'] ?? '')
+            ) === ''
+        ) {
             return redirect()
                 ->route('login')
                 ->withErrors([
                     'tiktok' => 'De TikTok-aanmeldsessie is verlopen. Log opnieuw in met TikTok.',
-                ]);
-        }
-
-        $tiktokId = trim(
-            (string) ($registration['tiktok_id'] ?? '')
-        );
-
-        if ($tiktokId === '') {
-            Session::forget(
-                'tiktok_registration'
-            );
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is ongeldig. Log opnieuw in met TikTok.',
                 ]);
         }
 
@@ -171,7 +154,7 @@ class TikTokAuthController extends Controller
     }
 
     /**
-     * Registratie van een nieuwe TikTok-gebruiker afronden.
+     * Rond de registratie van een nieuwe TikTok-gebruiker af.
      */
     public function completeRegistration(
         Request $request
@@ -180,7 +163,12 @@ class TikTokAuthController extends Controller
             'tiktok_registration'
         );
 
-        if (! is_array($registration)) {
+        if (
+            ! is_array($registration)
+            || trim(
+                (string) ($registration['tiktok_id'] ?? '')
+            ) === ''
+        ) {
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -188,29 +176,8 @@ class TikTokAuthController extends Controller
                 ]);
         }
 
-        $tiktokId = trim(
-            (string) ($registration['tiktok_id'] ?? '')
-        );
-
-        if ($tiktokId === '') {
-            Session::forget(
-                'tiktok_registration'
-            );
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is ongeldig. Log opnieuw in met TikTok.',
-                ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validatie
-        |--------------------------------------------------------------------------
-        */
-
-        $validated = $request->validate(
+        $validator = Validator::make(
+            $request->all(),
             [
                 'email' => [
                     'required',
@@ -226,23 +193,25 @@ class TikTokAuthController extends Controller
             ]
         );
 
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $email = Str::lower(
             trim(
-                (string) $validated['email']
+                (string) $request->input('email')
             )
         );
 
         /*
         |--------------------------------------------------------------------------
-        | Bestaand e-mailadres beschermen
+        | Bescherming tegen onveilige account-koppeling
         |--------------------------------------------------------------------------
-        |
-        | We koppelen TikTok niet automatisch aan een bestaand account
-        | alleen omdat iemand dat e-mailadres invult.
-        |
         */
 
-        $existingEmailUser = User::query()
+        $existingUser = User::query()
             ->whereRaw(
                 'LOWER(email) = ?',
                 [
@@ -251,7 +220,7 @@ class TikTokAuthController extends Controller
             )
             ->first();
 
-        if ($existingEmailUser !== null) {
+        if ($existingUser !== null) {
             return back()
                 ->withErrors([
                     'email' => 'Er bestaat al een account met dit e-mailadres. Log eerst in op dat bestaande account.',
@@ -259,9 +228,13 @@ class TikTokAuthController extends Controller
                 ->withInput();
         }
 
+        $tiktokId = trim(
+            (string) ($registration['tiktok_id'] ?? '')
+        );
+
         /*
         |--------------------------------------------------------------------------
-        | TikTok-ID opnieuw controleren
+        | Dubbele TikTok-ID voorkomen
         |--------------------------------------------------------------------------
         */
 
@@ -276,9 +249,7 @@ class TikTokAuthController extends Controller
 
             $existingTikTokUser->forceFill([
                 'login_provider' => 'tiktok',
-            ]);
-
-            $existingTikTokUser->save();
+            ])->save();
 
             Auth::login(
                 $existingTikTokUser,
@@ -292,12 +263,6 @@ class TikTokAuthController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Naam
-        |--------------------------------------------------------------------------
-        */
-
         $name = trim(
             (string) ($registration['name'] ?? '')
         );
@@ -306,59 +271,26 @@ class TikTokAuthController extends Controller
             $name = 'TikTok gebruiker';
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Avatar
-        |--------------------------------------------------------------------------
-        */
-
         $avatar = trim(
             (string) ($registration['avatar'] ?? '')
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Account aanmaken
-        |--------------------------------------------------------------------------
-        */
-
         $user = User::create([
             'name' => $name,
-
             'email' => $email,
-
-            'password' => Str::random(
-                64
-            ),
-
+            'password' => Str::random(64),
             'tiktok_id' => $tiktokId,
-
             'tiktok_avatar' => $avatar !== ''
                 ? $avatar
                 : null,
-
             'login_provider' => 'tiktok',
-
             'is_admin' => false,
-
             'email_verified_at' => null,
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijke TikTok-sessie verwijderen
-        |--------------------------------------------------------------------------
-        */
 
         Session::forget(
             'tiktok_registration'
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe gebruiker inloggen
-        |--------------------------------------------------------------------------
-        */
 
         Auth::login(
             $user,
@@ -373,7 +305,7 @@ class TikTokAuthController extends Controller
     }
 
     /**
-     * Beste beschikbare TikTok-naam bepalen.
+     * Bepaal de beste TikTok-weergavenaam.
      */
     private function resolveDisplayName(
         string $name,
@@ -399,7 +331,7 @@ class TikTokAuthController extends Controller
     }
 
     /**
-     * Redirect na succesvolle TikTok-login.
+     * Redirect na succesvol inloggen.
      */
     private function redirectAfterLogin(
         User $user

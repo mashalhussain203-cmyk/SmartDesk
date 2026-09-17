@@ -552,6 +552,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* ========================================================= */
 
     /* E-MAILCODE LOGIN                                         */
@@ -755,161 +771,287 @@
     }
 
     /* ========================================================= */
+
 /* MAGIC LINK LOGIN                                           */
+
 /* ========================================================= */
 
 .magic-link-auth {
+
     margin: -12px 0 24px;
+
     padding: 18px;
+
     border: 1px solid rgba(215,164,95,.14);
+
     border-radius: 18px;
+
     background: linear-gradient(
+
         180deg,
+
         rgba(215,164,95,.045),
+
         rgba(255,255,255,.018)
+
     );
+
     box-shadow:
+
         inset 0 1px 0 rgba(255,255,255,.035),
+
         0 14px 34px rgba(0,0,0,.10);
+
 }
 
 .magic-link-head {
+
     display: flex;
+
     align-items: flex-start;
+
     gap: 12px;
+
     margin-bottom: 14px;
+
 }
 
 .magic-link-icon {
+
     flex-shrink: 0;
+
     width: 38px;
+
     height: 38px;
+
     display: grid;
+
     place-items: center;
+
     border: 1px solid rgba(215,164,95,.18);
+
     border-radius: 12px;
+
     background: rgba(215,164,95,.075);
+
     color: #efc985;
+
     font-size: 17px;
+
     font-weight: 950;
+
     box-shadow: 0 12px 28px rgba(0,0,0,.14);
+
 }
 
 .magic-link-copy strong {
+
     display: block;
+
     color: #f4f1eb;
+
     font-size: 12px;
+
     font-weight: 950;
+
 }
 
 .magic-link-copy span {
+
     display: block;
+
     margin-top: 4px;
+
     color: #747a81;
+
     font-size: 9px;
+
     line-height: 1.6;
+
 }
 
 .magic-link-form {
+
     display: grid;
+
     grid-template-columns: minmax(0, 1fr) auto;
+
     gap: 10px;
+
 }
 
 .magic-link-input {
+
     width: 100%;
+
     min-width: 0;
+
     height: 48px;
+
     padding: 0 14px;
+
     border: 1px solid rgba(255,255,255,.10);
+
     border-radius: 13px;
+
     outline: none;
+
     background: rgba(255,255,255,.035);
+
     color: #ffffff;
+
     font-size: 13px;
+
     transition:
+
         border-color .2s ease,
+
         background .2s ease,
+
         box-shadow .2s ease;
+
 }
 
 .magic-link-input::placeholder {
+
     color: #565c63;
+
 }
 
 .magic-link-input:focus {
+
     border-color: rgba(215,164,95,.46);
+
     background: rgba(215,164,95,.035);
+
     box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+
 }
 
 .magic-link-submit {
+
     min-height: 48px;
+
     padding: 0 18px;
+
     border: 1px solid rgba(215,164,95,.20);
+
     border-radius: 13px;
+
     background: linear-gradient(
+
         135deg,
+
         rgba(241,204,139,.16),
+
         rgba(202,145,76,.11)
+
     );
+
     color: #efc985;
+
     font-size: 10px;
+
     font-weight: 950;
+
     cursor: pointer;
+
     white-space: nowrap;
+
     transition:
+
         transform .2s ease,
+
         border-color .2s ease,
+
         background .2s ease,
+
         box-shadow .2s ease;
+
 }
 
 .magic-link-submit:hover {
+
     transform: translateY(-1px);
+
     border-color: rgba(215,164,95,.38);
+
     background: linear-gradient(
+
         135deg,
+
         rgba(241,204,139,.22),
+
         rgba(202,145,76,.15)
+
     );
+
     box-shadow: 0 14px 30px rgba(215,164,95,.10);
+
 }
 
 .magic-link-note {
+
     margin: 10px 2px 0;
+
     display: flex;
+
     align-items: flex-start;
+
     gap: 7px;
+
     color: #555b61;
+
     font-size: 9px;
+
     line-height: 1.6;
+
 }
 
 .magic-link-note::before {
+
     content: "✓";
+
     flex-shrink: 0;
+
     width: 17px;
+
     height: 17px;
+
     display: grid;
+
     place-items: center;
+
     border: 1px solid rgba(101,213,154,.15);
+
     border-radius: 50%;
+
     background: rgba(101,213,154,.045);
+
     color: #8fdcaf;
+
     font-size: 8px;
+
     font-weight: 950;
+
 }
 
 @media (max-width: 520px) {
+
     .magic-link-form {
+
         grid-template-columns: 1fr;
+
     }
 
     .magic-link-submit {
+
         width: 100%;
+
     }
+
 }
+
 
 
 /* ========================================================= */
@@ -1392,6 +1534,14 @@
 
 
 
+
+
+
+
+
+
+
+
     /* ========================================================= */
 
     /* FACEBOOK OAUTH                                           */
@@ -1631,6 +1781,146 @@
         font-weight: 850;
 
     }
+
+    /* ========================================================= */
+    /* TIKTOK OAUTH                                              */
+    /* ========================================================= */
+
+    .tiktok-auth {
+        margin: -12px 0 24px;
+    }
+
+    .tiktok-auth-button {
+        position: relative;
+        width: 100%;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        padding: 0 58px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 999px;
+        background:
+            radial-gradient(circle at 15% 50%, rgba(37,244,238,.10), transparent 28%),
+            radial-gradient(circle at 85% 50%, rgba(254,44,85,.10), transparent 28%),
+            linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.025)),
+            #090a0c;
+        color: #f4f1eb;
+        text-decoration: none;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.055),
+            0 14px 36px rgba(0,0,0,.22);
+        transition:
+            transform .22s ease,
+            border-color .22s ease,
+            background .22s ease,
+            box-shadow .22s ease;
+    }
+
+    .tiktok-auth-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(
+                110deg,
+                transparent 20%,
+                rgba(255,255,255,.055) 48%,
+                transparent 76%
+            );
+        transform: translateX(-130%);
+        transition: transform .7s ease;
+        pointer-events: none;
+    }
+
+    .tiktok-auth-button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255,255,255,.28);
+        background:
+            radial-gradient(circle at 15% 50%, rgba(37,244,238,.15), transparent 30%),
+            radial-gradient(circle at 85% 50%, rgba(254,44,85,.15), transparent 30%),
+            linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.032)),
+            #090a0c;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.07),
+            0 22px 50px rgba(0,0,0,.28);
+    }
+
+    .tiktok-auth-button:hover::before {
+        transform: translateX(130%);
+    }
+
+    .tiktok-auth-icon {
+        position: absolute;
+        left: 17px;
+        width: 25px;
+        height: 25px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #050607;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 950;
+        box-shadow:
+            -2px 0 0 rgba(37,244,238,.85),
+            2px 0 0 rgba(254,44,85,.80),
+            0 8px 22px rgba(0,0,0,.24);
+    }
+
+    .tiktok-auth-copy {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        text-align: center;
+    }
+
+    .tiktok-auth-copy strong {
+        color: #f4f1eb;
+        font-size: 12px;
+        line-height: 1.2;
+        font-weight: 950;
+        letter-spacing: .01em;
+    }
+
+    .tiktok-auth-copy small {
+        color: #747a81;
+        font-size: 8px;
+        line-height: 1.4;
+        font-weight: 750;
+        letter-spacing: .035em;
+    }
+
+    .tiktok-auth-note {
+        margin-top: 10px;
+        text-align: center;
+        color: #555b61;
+        font-size: 9px;
+        line-height: 1.65;
+    }
+
+    .tiktok-auth-note strong {
+        color: #8e949b;
+        font-weight: 850;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2310,6 +2600,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @section('content')
 
 <section class="login-page">
@@ -2386,6 +2708,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="visual-trust-row">
 
                     <span class="visual-trust">
@@ -2411,6 +2765,38 @@
             </div>
 
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2512,6 +2898,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <span class="auth-kicker">
 
                     Member access
@@ -2531,6 +2949,38 @@
                     of gebruik je e-mailadres en wachtwoord voor jouw Mashal-account.
 
                 </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2592,6 +3042,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {{-- SESSION ERROR --}}
 
                 @if (session('error'))
@@ -2603,6 +3069,22 @@
                     </div>
 
                 @endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2649,6 +3131,54 @@
                     </div>
 
                 @endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2775,50 +3305,85 @@
                 </div>
 
                 {{-- MAGIC LINK LOGIN --}}
+
                 <div class="magic-link-auth">
+
                     <div class="magic-link-head">
+
                         <div class="magic-link-icon" aria-hidden="true">
+
                             ↗
+
                         </div>
 
                         <div class="magic-link-copy">
+
                             <strong>Inloggen met veilige loginlink</strong>
+
                             <span>
+
                                 Ontvang een persoonlijke link waarmee je direct kunt inloggen.
+
                                 Geen wachtwoord of code nodig.
+
                             </span>
+
                         </div>
+
                     </div>
 
                     <form
+
                         class="magic-link-form"
+
                         method="POST"
+
                         action="{{ route('email-login.link.send') }}"
+
                     >
+
                         @csrf
 
                         <input
+
                             class="magic-link-input"
+
                             type="email"
+
                             name="email"
+
                             value="{{ old('email') }}"
+
                             placeholder="naam@example.com"
+
                             autocomplete="email"
+
                             aria-label="E-mailadres voor veilige loginlink"
+
                             required
+
                         >
 
                         <button
+
                             class="magic-link-submit"
+
                             type="submit"
+
                         >
+
                             Stuur loginlink
+
                         </button>
+
                     </form>
 
                     <div class="magic-link-note">
+
                         De link is 10 minuten geldig, werkt één keer en wordt veilig per e-mail verstuurd.
+
                     </div>
+
                 </div>
 
                 <div class="oauth-divider">
@@ -2995,6 +3560,14 @@
 
 
 
+
+
+
+
+
+
+
+
                 {{-- FACEBOOK OAUTH --}}
 
                 <div class="facebook-auth">
@@ -3081,11 +3654,80 @@
 
 
 
-                <div class="oauth-divider">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                {{-- TIKTOK OAUTH --}}
+
+                <div class="tiktok-auth">
+                    <a
+                        class="tiktok-auth-button"
+                        href="{{ route('tiktok.redirect') }}"
+                        aria-label="Doorgaan met TikTok"
+                    >
+                        <span
+                            class="tiktok-auth-icon"
+                            aria-hidden="true"
+                        >
+                            ♪
+                        </span>
+
+                        <span class="tiktok-auth-copy">
+                            <strong>
+                                Doorgaan met TikTok
+                            </strong>
+
+                            <small>
+                                Veilig inloggen met je TikTok-account
+                            </small>
+                        </span>
+                    </a>
+
+                    <div class="tiktok-auth-note">
+                        Je wordt doorgestuurd naar <strong>TikTok</strong>.
+                        Mashal ontvangt nooit je TikTok-wachtwoord.
+                    </div>
+                </div>
+
+
+<div class="oauth-divider">
 
                     Of gebruik je wachtwoord
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3147,6 +3789,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- EMAIL --}}
 
                     <div class="auth-field">
@@ -3170,6 +3844,38 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3269,6 +3975,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- PASSWORD --}}
 
                     <div class="auth-field">
@@ -3292,6 +4030,38 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3397,6 +4167,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- OPTIONS --}}
 
                     <div class="auth-options">
@@ -3463,6 +4265,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <a
 
                             class="auth-link"
@@ -3476,6 +4310,38 @@
                         </a>
 
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3557,11 +4423,75 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="auth-divider">
 
                     Nieuw bij Mashal?
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3647,6 +4577,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     <a
 
                         class="register-card-link"
@@ -3660,6 +4622,38 @@
                     </a>
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3720,6 +4714,38 @@
 </section>
 
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

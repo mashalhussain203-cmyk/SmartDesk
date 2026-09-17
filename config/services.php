@@ -282,6 +282,106 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | TikTok OAuth
+    |--------------------------------------------------------------------------
+    |
+    | TikTok OAuth wordt gebruikt voor authenticatie via TikTok Login Kit.
+    |
+    | Onder andere voor:
+    |
+    | - Inloggen met TikTok
+    | - Registreren met TikTok
+    | - Nieuwe gebruikers automatisch registreren
+    | - TikTok-profielinformatie ophalen
+    | - TikTok Open ID opslaan
+    | - TikTok display name ophalen
+    | - TikTok profielfoto ophalen
+    |
+    | Voor TikTok wordt minimaal de scope user.info.basic gebruikt.
+    |
+    | Deze scope kan onder andere toegang geven tot:
+    |
+    | - Open ID
+    | - Display name
+    | - Avatar
+    |
+    | TikTok levert via de standaard Login Kit basic profile-flow
+    | niet altijd een e-mailadres mee. Daarom moet de applicatie
+    | daar in de callback-flow rekening mee houden.
+    |
+    | De TIKTOK_REDIRECT_URI moet exact overeenkomen met de
+    | Redirect URI die in TikTok for Developers onder Login Kit
+    | is geregistreerd.
+    |
+    | Productie:
+    |
+    | https://mashalhussain.up.railway.app/auth/tiktok/callback
+    |
+    | De daadwerkelijke OAuth-scopes en callbacklogica worden
+    | in de TikTok-authenticatiecontroller ingesteld.
+    |
+    */
+
+    'tiktok' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok Client Key
+        |--------------------------------------------------------------------------
+        |
+        | TikTok noemt dit in het Developer Portal de "Client key".
+        |
+        | In Mashal Automotive gebruiken we hiervoor de environment variable:
+        |
+        | TIKTOK_CLIENT_ID
+        |
+        */
+
+        'client_id' => env(
+            'TIKTOK_CLIENT_ID'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok Client Secret
+        |--------------------------------------------------------------------------
+        |
+        | Het Client Secret hoort uitsluitend in .env of Railway Variables.
+        |
+        | Plaats het nooit rechtstreeks in dit bestand en commit het nooit
+        | naar GitHub.
+        |
+        */
+
+        'client_secret' => env(
+            'TIKTOK_CLIENT_SECRET'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok Redirect URI
+        |--------------------------------------------------------------------------
+        |
+        | Deze URI moet exact overeenkomen met de Redirect URI die je bij
+        | TikTok Login Kit hebt ingesteld.
+        |
+        | Productie:
+        |
+        | https://mashalhussain.up.railway.app/auth/tiktok/callback
+        |
+        */
+
+        'redirect' => env(
+            'TIKTOK_REDIRECT_URI'
+        ),
+
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Brevo
     |--------------------------------------------------------------------------
     |

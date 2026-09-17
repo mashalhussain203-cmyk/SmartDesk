@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -42,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         | - google
         | - github
         | - facebook
+        | - tiktok
         |
         */
 
@@ -73,6 +75,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
         'facebook_id',
         'facebook_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok OAuth
+        |--------------------------------------------------------------------------
+        */
+
+        'tiktok_id',
+        'tiktok_avatar',
 
         /*
         |--------------------------------------------------------------------------
@@ -142,9 +153,51 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasProfilePhoto(): bool
     {
-        return trim(
+        $photo = trim(
             (string) $this->profile_photo
-        ) !== '';
+        );
+
+        if ($photo === '') {
+            return false;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Externe profielfoto
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            Str::startsWith(
+                $photo,
+                [
+                    'http://',
+                    'https://',
+                ]
+            )
+        ) {
+            return true;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Lokale profielfoto
+        |--------------------------------------------------------------------------
+        |
+        | Alleen true teruggeven als het bestand daadwerkelijk nog bestaat.
+        | Hierdoor wordt een oud databasepad nooit meer als geldige foto
+        | weergegeven wanneer Railway het bestand niet meer heeft.
+        |
+        */
+
+        $photo = ltrim(
+            $photo,
+            '/'
+        );
+
+        return Storage::disk('public')->exists(
+            $photo
+        );
     }
 
     /**
@@ -202,6 +255,26 @@ class User extends Authenticatable implements MustVerifyEmail
             '/'
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Bestand moet echt bestaan
+        |--------------------------------------------------------------------------
+        |
+        | Op Railway kan een lokaal bestand verdwijnen wanneer geen persistent
+        | Volume is gekoppeld. In dat geval geven we null terug zodat de site
+        | automatisch terugvalt op een social avatar of initialen in plaats
+        | van een kapotte afbeelding te tonen.
+        |
+        */
+
+        if (
+            ! Storage::disk('public')->exists(
+                $photo
+            )
+        ) {
+            return null;
+        }
+
         return asset(
             'storage/' . $photo
         );
@@ -216,7 +289,8 @@ class User extends Authenticatable implements MustVerifyEmail
      * 2. Google-avatar
      * 3. GitHub-avatar
      * 4. Facebook-avatar
-     * 5. Geen afbeelding
+     * 5. TikTok-avatar
+     * 6. Geen afbeelding
      */
     public function avatarUrl(): ?string
     {
@@ -353,13 +427,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Controleer of een TikTok-account gekoppeld is.
+     */
+    public function hasTikTokAccount(): bool
+    {
+        return trim(
+            (string) $this->tiktok_id
+        ) !== '';
+    }
+
+    /**
      * Controleer of minimaal één OAuth-account gekoppeld is.
      */
     public function hasSocialAccount(): bool
     {
         return $this->hasGoogleAccount()
             || $this->hasGitHubAccount()
-            || $this->hasFacebookAccount();
+            || $this->hasFacebookAccount()
+            || $this->hasTikTokAccount();
     }
 
     /**
@@ -370,6 +455,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * 1. Google
      * 2. GitHub
      * 3. Facebook
+     * 4. TikTok
      */
     public function socialAvatar(): ?string
     {
@@ -397,6 +483,14 @@ class User extends Authenticatable implements MustVerifyEmail
             return $facebookAvatar;
         }
 
+        $tiktokAvatar = trim(
+            (string) $this->tiktok_avatar
+        );
+
+        if ($tiktokAvatar !== '') {
+            return $tiktokAvatar;
+        }
+
         return null;
     }
 
@@ -415,6 +509,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if ($this->hasFacebookAccount()) {
             return 'facebook';
+        }
+
+        if ($this->hasTikTokAccount()) {
+            return 'tiktok';
         }
 
         return null;
@@ -439,6 +537,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if ($this->hasFacebookAccount()) {
             $providers[] = 'facebook';
+        }
+
+        if ($this->hasTikTokAccount()) {
+            $providers[] = 'tiktok';
         }
 
         return $providers;
@@ -468,6 +570,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google',
             'github',
             'facebook',
+            'tiktok',
         ];
 
         if (
@@ -498,6 +601,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return 'facebook';
         }
 
+        if ($this->hasTikTokAccount()) {
+            return 'tiktok';
+        }
+
         return 'password';
     }
 
@@ -512,6 +619,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google' => 'Google',
             'github' => 'GitHub',
             'facebook' => 'Facebook',
+            'tiktok' => 'TikTok',
             'email_code' => 'E-mailcode',
             'magic_link' => 'Magic link',
             'password' => 'Wachtwoord',
@@ -530,6 +638,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google' => 'google',
             'github' => 'github',
             'facebook' => 'facebook',
+            'tiktok' => 'tiktok',
             'email_code' => 'email',
             'magic_link' => 'link',
             'password' => 'lock',
@@ -565,6 +674,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function loggedInWithFacebook(): bool
     {
         return $this->loginProvider() === 'facebook';
+    }
+
+    /**
+     * Laatste login via TikTok.
+     */
+    public function loggedInWithTikTok(): bool
+    {
+        return $this->loginProvider() === 'tiktok';
     }
 
     /**
