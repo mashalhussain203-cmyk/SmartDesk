@@ -547,15 +547,184 @@
     }
 
 
+
     /* ========================================================= */
+
     /* GOOGLE OAUTH                                              */
+
     /* ========================================================= */
 
     .google-auth-block {
+
         margin-bottom: 24px;
+
     }
 
     .google-auth-button {
+
+        position: relative;
+
+        width: 100%;
+
+        min-height: 58px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        padding: 0 52px;
+
+        border: 1px solid rgba(255,255,255,.12);
+
+        border-radius: 999px;
+
+        background:
+
+            linear-gradient(
+
+                180deg,
+
+                rgba(255,255,255,.07),
+
+                rgba(255,255,255,.035)
+
+            );
+
+        color: #f3f1ec;
+
+        text-decoration: none;
+
+        font-size: 12px;
+
+        font-weight: 900;
+
+        letter-spacing: .01em;
+
+        box-shadow:
+
+            inset 0 1px 0 rgba(255,255,255,.05),
+
+            0 12px 34px rgba(0,0,0,.18);
+
+        transition:
+
+            transform .22s ease,
+
+            border-color .22s ease,
+
+            background .22s ease,
+
+            box-shadow .22s ease;
+
+    }
+
+    .google-auth-button:hover {
+
+        transform: translateY(-2px);
+
+        border-color: rgba(215,164,95,.30);
+
+        background:
+
+            linear-gradient(
+
+                180deg,
+
+                rgba(215,164,95,.09),
+
+                rgba(255,255,255,.04)
+
+            );
+
+        box-shadow:
+
+            inset 0 1px 0 rgba(255,255,255,.07),
+
+            0 18px 42px rgba(0,0,0,.24);
+
+    }
+
+    .google-auth-icon {
+
+        position: absolute;
+
+        left: 18px;
+
+        width: 22px;
+
+        height: 22px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 50%;
+
+        background: #ffffff;
+
+        box-shadow: 0 6px 18px rgba(0,0,0,.18);
+
+    }
+
+    .google-auth-icon svg {
+
+        width: 15px;
+
+        height: 15px;
+
+        display: block;
+
+    }
+
+    .google-auth-copy {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 2px;
+
+        line-height: 1.2;
+
+    }
+
+    .google-auth-copy strong {
+
+        color: #f4f2ed;
+
+        font-size: 12px;
+
+        font-weight: 900;
+
+    }
+
+    .google-auth-copy small {
+
+        color: #777d84;
+
+        font-size: 8px;
+
+        font-weight: 750;
+
+        letter-spacing: .03em;
+
+    }
+
+    /* ========================================================= */
+    /* GITHUB OAUTH                                              */
+    /* ========================================================= */
+
+    .github-auth-block {
+        margin: -12px 0 24px;
+    }
+
+    .github-auth-button {
         position: relative;
         width: 100%;
         min-height: 58px;
@@ -564,22 +733,21 @@
         justify-content: center;
         gap: 12px;
         padding: 0 52px;
+        overflow: hidden;
         border: 1px solid rgba(255,255,255,.12);
         border-radius: 999px;
         background:
             linear-gradient(
                 180deg,
                 rgba(255,255,255,.07),
-                rgba(255,255,255,.035)
-            );
+                rgba(255,255,255,.025)
+            ),
+            #0d1117;
         color: #f3f1ec;
         text-decoration: none;
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: .01em;
         box-shadow:
             inset 0 1px 0 rgba(255,255,255,.05),
-            0 12px 34px rgba(0,0,0,.18);
+            0 12px 34px rgba(0,0,0,.20);
         transition:
             transform .22s ease,
             border-color .22s ease,
@@ -587,21 +755,42 @@
             box-shadow .22s ease;
     }
 
-    .google-auth-button:hover {
+    .github-auth-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(
+                110deg,
+                transparent 20%,
+                rgba(255,255,255,.05) 48%,
+                transparent 76%
+            );
+        transform: translateX(-130%);
+        transition: transform .7s ease;
+        pointer-events: none;
+    }
+
+    .github-auth-button:hover {
         transform: translateY(-2px);
         border-color: rgba(215,164,95,.30);
         background:
             linear-gradient(
                 180deg,
-                rgba(215,164,95,.09),
-                rgba(255,255,255,.04)
-            );
+                rgba(215,164,95,.075),
+                rgba(255,255,255,.028)
+            ),
+            #0d1117;
         box-shadow:
             inset 0 1px 0 rgba(255,255,255,.07),
             0 18px 42px rgba(0,0,0,.24);
     }
 
-    .google-auth-icon {
+    .github-auth-button:hover::before {
+        transform: translateX(130%);
+    }
+
+    .github-auth-icon {
         position: absolute;
         left: 18px;
         width: 22px;
@@ -609,58 +798,43 @@
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: #ffffff;
+        background: #f6f4ef;
+        color: #0d1117;
         box-shadow: 0 6px 18px rgba(0,0,0,.18);
     }
 
-    .google-auth-icon svg {
+    .github-auth-icon svg {
         width: 15px;
         height: 15px;
         display: block;
+        fill: currentColor;
     }
 
-    .google-auth-copy {
+    .github-auth-copy {
+        position: relative;
+        z-index: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 2px;
         line-height: 1.2;
+        text-align: center;
     }
 
-    .google-auth-copy strong {
+    .github-auth-copy strong {
         color: #f4f2ed;
         font-size: 12px;
         font-weight: 900;
     }
 
-    .google-auth-copy small {
+    .github-auth-copy small {
         color: #777d84;
         font-size: 8px;
         font-weight: 750;
         letter-spacing: .03em;
     }
 
-    .oauth-divider {
-        margin: 20px 0 22px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        color: #4f555b;
-        font-size: 8px;
-        font-weight: 900;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-    }
-
-    .oauth-divider::before,
-    .oauth-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: rgba(255,255,255,.07);
-    }
-
-    .google-security-note {
+    .github-security-note {
         margin-top: 10px;
         text-align: center;
         color: #5f656c;
@@ -668,9 +842,69 @@
         line-height: 1.6;
     }
 
-    .google-security-note strong {
+    .github-security-note strong {
         color: #8d9399;
         font-weight: 800;
+    }
+
+
+
+    .oauth-divider {
+
+        margin: 20px 0 22px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 14px;
+
+        color: #4f555b;
+
+        font-size: 8px;
+
+        font-weight: 900;
+
+        letter-spacing: .14em;
+
+        text-transform: uppercase;
+
+    }
+
+    .oauth-divider::before,
+
+    .oauth-divider::after {
+
+        content: "";
+
+        flex: 1;
+
+        height: 1px;
+
+        background: rgba(255,255,255,.07);
+
+    }
+
+    .google-security-note {
+
+        margin-top: 10px;
+
+        text-align: center;
+
+        color: #5f656c;
+
+        font-size: 9px;
+
+        line-height: 1.6;
+
+    }
+
+    .google-security-note strong {
+
+        color: #8d9399;
+
+        font-weight: 800;
+
     }
 
     /* ========================================================= */
@@ -769,7 +1003,7 @@
 
             border-color .2s ease,
 
-            *background* .2s ease,
+            background .2s ease,
 
             box-shadow .2s ease;
 
@@ -843,7 +1077,7 @@
 
             color .2s ease,
 
-            *background* .2s ease;
+            background .2s ease;
 
     }
 
@@ -885,7 +1119,7 @@
 
         background: rgba(255,255,255,.07);
 
-        transition: *background* .2s ease;
+        transition: background .2s ease;
 
     }
 
@@ -1207,7 +1441,7 @@
 
         transition:
 
-            *background* .2s ease,
+            background .2s ease,
 
             border-color .2s ease,
 
@@ -1373,6 +1607,8 @@
 
 
 
+
+
 @section('content')
 
 <section class="register-page">
@@ -1419,6 +1655,8 @@
 
 
 
+
+
                 <div class="register-benefits">
 
                     <div class="register-benefit">
@@ -1439,6 +1677,8 @@
 
 
 
+
+
                     <div class="register-benefit">
 
                         <small>
@@ -1454,6 +1694,8 @@
                         </strong>
 
                     </div>
+
+
 
 
 
@@ -1478,6 +1720,8 @@
             </div>
 
         </div>
+
+
 
 
 
@@ -1519,6 +1763,8 @@
 
 
 
+
+
                 <span class="register-section-kicker">
 
                     Create your account
@@ -1533,13 +1779,13 @@
 
                 <p class="register-subtitle">
 
-                    Vul je gegevens in.
-
-                    Na registratie sturen we je een verificatiecode
-
+                    Registreer veilig met Google, GitHub of vul je gegevens in.
+                    Bij registratie met e-mail sturen we je een verificatiecode
                     om je e-mailadres te bevestigen.
 
                 </p>
+
+
 
 
 
@@ -1576,42 +1822,103 @@
 
 
 
+
+
+
                 {{-- GOOGLE OAUTH --}}
+
                 <div class="google-auth-block">
 
                     <a
+
                         class="google-auth-button"
+
                         href="{{ route('google.redirect') }}"
+
                     >
+
                         <span class="google-auth-icon" aria-hidden="true">
+
                             <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+
                                 <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+
                                 <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+
                                 <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+
                                 <path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
+
                             </svg>
+
                         </span>
 
                         <span class="google-auth-copy">
+
                             <strong>
+
                                 Doorgaan met Google
+
                             </strong>
 
+                            <small>
+
+                                Inloggen of direct een Mashal-account aanmaken
+
+                            </small>
+
+                        </span>
+
+                    </a>
+
+                    <div class="google-security-note">
+
+                        Je wordt veilig doorgestuurd naar <strong>Google</strong>.
+
+                        Mashal ontvangt nooit je Google-wachtwoord.
+
+                    </div>
+
+                </div>
+
+                {{-- GITHUB OAUTH --}}
+                <div class="github-auth-block">
+                    <a
+                        class="github-auth-button"
+                        href="{{ route('github.redirect') }}"
+                        aria-label="Doorgaan met GitHub"
+                    >
+                        <span class="github-auth-icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                                role="img"
+                            >
+                                <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+                            </svg>
+                        </span>
+
+                        <span class="github-auth-copy">
+                            <strong>
+                                Doorgaan met GitHub
+                            </strong>
                             <small>
                                 Inloggen of direct een Mashal-account aanmaken
                             </small>
                         </span>
                     </a>
 
-                    <div class="google-security-note">
-                        Je wordt veilig doorgestuurd naar <strong>Google</strong>.
-                        Mashal ontvangt nooit je Google-wachtwoord.
+                    <div class="github-security-note">
+                        Je wordt veilig doorgestuurd naar <strong>GitHub</strong>.
+                        Mashal ontvangt nooit je GitHub-wachtwoord.
                     </div>
-
                 </div>
 
+
                 <div class="oauth-divider">
+
                     Of registreer met e-mail
+
                 </div>
 
                 {{-- FORM --}}
@@ -1627,6 +1934,8 @@
                 >
 
                     @csrf
+
+
 
 
 
@@ -1655,6 +1964,8 @@
                                 @enderror
 
                             </div>
+
+
 
 
 
@@ -1694,6 +2005,8 @@
 
 
 
+
+
                         {{-- EMAIL --}}
 
                         <div class="register-field full">
@@ -1717,6 +2030,8 @@
                                 @enderror
 
                             </div>
+
+
 
 
 
@@ -1754,6 +2069,8 @@
 
 
 
+
+
                         {{-- PASSWORD --}}
 
                         <div class="register-field">
@@ -1777,6 +2094,8 @@
                                 @enderror
 
                             </div>
+
+
 
 
 
@@ -1822,6 +2141,8 @@
 
 
 
+
+
                             <div
 
                                 class="password-strength"
@@ -1862,6 +2183,8 @@
 
 
 
+
+
                         {{-- PASSWORD CONFIRMATION --}}
 
                         <div class="register-field">
@@ -1885,6 +2208,8 @@
                                 @enderror
 
                             </div>
+
+
 
 
 
@@ -1934,6 +2259,8 @@
 
 
 
+
+
                     {{-- INFO --}}
 
                     <div class="registration-info">
@@ -1968,6 +2295,8 @@
 
 
 
+
+
                     {{-- SUBMIT --}}
 
                     <button
@@ -1986,11 +2315,15 @@
 
 
 
+
+
                 <div class="register-divider">
 
                     Al onderdeel van Mashal?
 
                 </div>
+
+
 
 
 
@@ -2016,6 +2349,8 @@
 
 
 
+
+
                     <a
 
                         class="login-card-link"
@@ -2029,6 +2364,8 @@
                     </a>
 
                 </div>
+
+
 
 
 
@@ -2059,6 +2396,8 @@
 </section>
 
 @endsection
+
+
 
 
 
@@ -2110,6 +2449,8 @@
 
 
 
+
+
         // Simple visual password strength meter.
 
         const passwordInput =
@@ -2123,6 +2464,8 @@
         const strengthText =
 
             document.getElementById('passwordStrengthText');
+
+
 
 
 

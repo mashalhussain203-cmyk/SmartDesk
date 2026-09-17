@@ -19,8 +19,31 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Google OAuth
+        |--------------------------------------------------------------------------
+        */
+
         'google_id',
         'google_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
+        | GitHub OAuth
+        |--------------------------------------------------------------------------
+        */
+
+        'github_id',
+        'github_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Account
+        |--------------------------------------------------------------------------
+        */
+
         'password',
         'is_admin',
         'email_verified_at',
@@ -72,5 +95,45 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasGoogleAccount(): bool
     {
         return !empty($this->google_id);
+    }
+
+    /**
+     * Controleer of er een GitHub-account gekoppeld is.
+     */
+    public function hasGitHubAccount(): bool
+    {
+        return !empty($this->github_id);
+    }
+
+    /**
+     * Controleer of minimaal één externe OAuth-provider
+     * aan dit Mashal-account gekoppeld is.
+     */
+    public function hasSocialAccount(): bool
+    {
+        return $this->hasGoogleAccount()
+            || $this->hasGitHubAccount();
+    }
+
+    /**
+     * Geef de beste beschikbare profielfoto terug.
+     *
+     * Voorkeursvolgorde:
+     *
+     * 1. Google avatar
+     * 2. GitHub avatar
+     * 3. Geen avatar
+     */
+    public function socialAvatar(): ?string
+    {
+        if (!empty($this->google_avatar)) {
+            return $this->google_avatar;
+        }
+
+        if (!empty($this->github_avatar)) {
+            return $this->github_avatar;
+        }
+
+        return null;
     }
 }

@@ -90,10 +90,6 @@ return [
     | - Nieuwe gebruikers automatisch registreren
     | - Google-profielinformatie ophalen via Laravel Socialite
     |
-    | De waarden hieronder worden gebruikt door:
-    |
-    | Laravel\Socialite\Facades\Socialite
-    |
     | De GOOGLE_REDIRECT_URI moet exact overeenkomen met de
     | Authorized redirect URI in Google Cloud Console.
     |
@@ -101,36 +97,75 @@ return [
 
     'google' => [
 
-        /*
-        |--------------------------------------------------------------------------
-        | Client ID
-        |--------------------------------------------------------------------------
-        */
-
         'client_id' => env(
             'GOOGLE_CLIENT_ID'
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Client Secret
-        |--------------------------------------------------------------------------
-        */
 
         'client_secret' => env(
             'GOOGLE_CLIENT_SECRET'
         ),
 
+        'redirect' => env(
+            'GOOGLE_REDIRECT_URI'
+        ),
+
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GitHub OAuth
+    |--------------------------------------------------------------------------
+    |
+    | GitHub OAuth wordt gebruikt voor authenticatie via GitHub.
+    |
+    | Onder andere voor:
+    |
+    | - Inloggen met GitHub
+    | - Registreren met GitHub
+    | - Bestaande Mashal-accounts koppelen aan GitHub
+    | - Nieuwe gebruikers automatisch registreren
+    | - GitHub-profielinformatie ophalen via Laravel Socialite
+    |
+    | GitHub wordt standaard ondersteund door Laravel Socialite.
+    |
+    | De GITHUB_REDIRECT_URI moet exact overeenkomen met de
+    | Authorization callback URL van de GitHub OAuth App.
+    |
+    */
+
+    'github' => [
 
         /*
         |--------------------------------------------------------------------------
-        | OAuth Callback / Redirect URI
+        | GitHub Client ID
+        |--------------------------------------------------------------------------
+        */
+
+        'client_id' => env(
+            'GITHUB_CLIENT_ID'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GitHub Client Secret
+        |--------------------------------------------------------------------------
+        */
+
+        'client_secret' => env(
+            'GITHUB_CLIENT_SECRET'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GitHub OAuth Redirect URI
         |--------------------------------------------------------------------------
         */
 
         'redirect' => env(
-            'GOOGLE_REDIRECT_URI'
+            'GITHUB_REDIRECT_URI'
         ),
 
     ],
