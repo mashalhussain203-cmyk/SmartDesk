@@ -20,169 +20,221 @@ Route::get('/', [UserController::class, 'home'])
 
 /*
 |--------------------------------------------------------------------------
-| Registreren
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/register', [UserController::class, 'register'])
-    ->name('register');
-
-Route::post('/register', [UserController::class, 'registerSubmit'])
-    ->name('register.submit');
-
-
-/*
-|--------------------------------------------------------------------------
-| Normaal inloggen
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/login', [UserController::class, 'login'])
-    ->name('login');
-
-Route::post('/login', [UserController::class, 'loginSubmit'])
-    ->name('login.submit');
-
-
-/*
-|--------------------------------------------------------------------------
-| Inloggen met e-mailcode of magic link
+| Gast-routes
 |--------------------------------------------------------------------------
 |
-| Flow:
+| Deze routes zijn alleen bedoeld voor bezoekers die nog niet zijn
+| ingelogd. Daardoor kan een ingelogde gebruiker niet opnieuw de
+| login-, registratie-, passwordless- of OAuth-flow openen.
 |
-| De gebruiker kan kiezen uit:
-|
-| - een 6-cijferige e-mailcode;
-| - een eenmalige magic login link via Brevo.
-|
-| Beide methodes loggen de gebruiker veilig in zonder dat daarvoor
-| een wachtwoord nodig is.
+| Als een ingelogde gebruiker bijvoorbeeld /login opent, grijpt de
+| Laravel "guest" middleware in en wordt die gebruiker doorgestuurd.
 |
 */
 
-Route::prefix('auth/email')->group(function () {
+Route::middleware('guest')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 6-cijferige e-mailcode
+    | Registreren
     |--------------------------------------------------------------------------
     */
 
-    Route::post(
-        '/send-code',
-        [EmailLoginController::class, 'sendCode']
-    )
-        ->middleware('throttle:10,1')
-        ->name('email-login.send');
+    Route::get('/register', [UserController::class, 'register'])
+        ->name('register');
 
-
-    Route::get(
-        '/verify',
-        [EmailLoginController::class, 'showVerifyForm']
-    )
-        ->name('email-login.form');
-
-
-    Route::post(
-        '/verify',
-        [EmailLoginController::class, 'verifyCode']
-    )
-        ->middleware('throttle:20,1')
-        ->name('email-login.verify');
+    Route::post('/register', [UserController::class, 'registerSubmit'])
+        ->name('register.submit');
 
 
     /*
     |--------------------------------------------------------------------------
-    | Magic login link
+    | Normaal inloggen
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/login', [UserController::class, 'login'])
+        ->name('login');
+
+    Route::post('/login', [UserController::class, 'loginSubmit'])
+        ->name('login.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inloggen met e-mailcode of magic link
     |--------------------------------------------------------------------------
     |
-    | De gebruiker ontvangt per e-mail een eenmalige loginlink.
-    | Na openen van de geldige link wordt het account direct ingelogd.
+    | Flow:
+    |
+    | De gebruiker kan kiezen uit:
+    |
+    | - een 6-cijferige e-mailcode;
+    | - een eenmalige magic login link via Brevo.
+    |
+    | Beide methodes loggen de gebruiker veilig in zonder dat daarvoor
+    | een wachtwoord nodig is.
     |
     */
 
-    Route::post(
-        '/send-link',
-        [EmailLoginController::class, 'sendMagicLink']
+    Route::prefix('auth/email')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | 6-cijferige e-mailcode
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/send-code',
+            [EmailLoginController::class, 'sendCode']
+        )
+            ->middleware('throttle:10,1')
+            ->name('email-login.send');
+
+
+        Route::get(
+            '/verify',
+            [EmailLoginController::class, 'showVerifyForm']
+        )
+            ->name('email-login.form');
+
+
+        Route::post(
+            '/verify',
+            [EmailLoginController::class, 'verifyCode']
+        )
+            ->middleware('throttle:20,1')
+            ->name('email-login.verify');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic login link
+        |--------------------------------------------------------------------------
+        |
+        | De gebruiker ontvangt per e-mail een eenmalige loginlink.
+        | Na openen van de geldige link wordt het account direct ingelogd.
+        |
+        */
+
+        Route::post(
+            '/send-link',
+            [EmailLoginController::class, 'sendMagicLink']
+        )
+            ->middleware('throttle:10,1')
+            ->name('email-login.link.send');
+
+
+        Route::get(
+            '/link/verify',
+            [EmailLoginController::class, 'verifyMagicLink']
+        )
+            ->middleware('throttle:30,1')
+            ->name('email-login.link.verify');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Google OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via Google met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/google',
+        [GoogleAuthController::class, 'redirect']
     )
-        ->middleware('throttle:10,1')
-        ->name('email-login.link.send');
+        ->name('google.redirect');
+
+    Route::get(
+        '/auth/google/callback',
+        [GoogleAuthController::class, 'callback']
+    )
+        ->name('google.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GitHub OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via GitHub met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/github',
+        [GitHubAuthController::class, 'redirect']
+    )
+        ->name('github.redirect');
+
+    Route::get(
+        '/auth/github/callback',
+        [GitHubAuthController::class, 'callback']
+    )
+        ->name('github.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Facebook OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via Facebook met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/facebook',
+        [FacebookAuthController::class, 'redirect']
+    )
+        ->name('facebook.redirect');
+
+    Route::get(
+        '/auth/facebook/callback',
+        [FacebookAuthController::class, 'callback']
+    )
+        ->name('facebook.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord vergeten / herstellen
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/forgot-password',
+        [UserController::class, 'forgotPassword']
+    )
+        ->name('password.request');
+
+
+    Route::post(
+        '/forgot-password',
+        [UserController::class, 'sendResetLink']
+    )
+        ->middleware('throttle:5,1')
+        ->name('password.email');
 
 
     Route::get(
-        '/link/verify',
-        [EmailLoginController::class, 'verifyMagicLink']
+        '/reset-password/{token}',
+        [UserController::class, 'showResetForm']
     )
-        ->middleware('throttle:30,1')
-        ->name('email-login.link.verify');
+        ->name('password.reset');
+
+
+    Route::post(
+        '/reset-password/{token}',
+        [UserController::class, 'resetPassword']
+    )
+        ->name('password.update');
 });
-
-
-/*
-|--------------------------------------------------------------------------
-| Google OAuth
-|--------------------------------------------------------------------------
-|
-| Inloggen en registreren via Google met Laravel Socialite.
-|
-*/
-
-Route::get(
-    '/auth/google',
-    [GoogleAuthController::class, 'redirect']
-)
-    ->name('google.redirect');
-
-Route::get(
-    '/auth/google/callback',
-    [GoogleAuthController::class, 'callback']
-)
-    ->name('google.callback');
-
-
-/*
-|--------------------------------------------------------------------------
-| GitHub OAuth
-|--------------------------------------------------------------------------
-|
-| Inloggen en registreren via GitHub met Laravel Socialite.
-|
-*/
-
-Route::get(
-    '/auth/github',
-    [GitHubAuthController::class, 'redirect']
-)
-    ->name('github.redirect');
-
-Route::get(
-    '/auth/github/callback',
-    [GitHubAuthController::class, 'callback']
-)
-    ->name('github.callback');
-
-
-/*
-|--------------------------------------------------------------------------
-| Facebook OAuth
-|--------------------------------------------------------------------------
-|
-| Inloggen en registreren via Facebook met Laravel Socialite.
-|
-*/
-
-Route::get(
-    '/auth/facebook',
-    [FacebookAuthController::class, 'redirect']
-)
-    ->name('facebook.redirect');
-
-Route::get(
-    '/auth/facebook/callback',
-    [FacebookAuthController::class, 'callback']
-)
-    ->name('facebook.callback');
 
 
 /*
@@ -230,41 +282,6 @@ Route::post(
 )
     ->middleware('throttle:10,1')
     ->name('verification.verify');
-
-
-/*
-|--------------------------------------------------------------------------
-| Wachtwoord vergeten / herstellen
-|--------------------------------------------------------------------------
-*/
-
-Route::get(
-    '/forgot-password',
-    [UserController::class, 'forgotPassword']
-)
-    ->name('password.request');
-
-
-Route::post(
-    '/forgot-password',
-    [UserController::class, 'sendResetLink']
-)
-    ->middleware('throttle:5,1')
-    ->name('password.email');
-
-
-Route::get(
-    '/reset-password/{token}',
-    [UserController::class, 'showResetForm']
-)
-    ->name('password.reset');
-
-
-Route::post(
-    '/reset-password/{token}',
-    [UserController::class, 'resetPassword']
-)
-    ->name('password.update');
 
 
 /*
