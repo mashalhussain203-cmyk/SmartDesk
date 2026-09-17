@@ -1,423 +1,518 @@
 <?php
 
-namespace App\Http\Controllers;
+use App\Http\Controllers\EmailLoginController;
+use App\Http\Controllers\FacebookAuthController;
+use App\Http\Controllers\GitHubAuthController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\TikTokAuthController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
-use App\Models\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
-use Laravel\Socialite\Facades\Socialite;
-use Throwable;
 
-class TikTokAuthController extends Controller
-{
-    /**
-     * Redirect naar TikTok Login Kit.
-     */
-    public function redirect(): RedirectResponse
-    {
-        return Socialite::driver('tiktok')->redirect();
-    }
+/*
+|--------------------------------------------------------------------------
+| Home
+|--------------------------------------------------------------------------
+*/
 
-    /**
-     * TikTok OAuth callback verwerken.
-     */
-    public function callback(Request $request): RedirectResponse
-    {
-        try {
-            $tiktokUser = Socialite::driver('tiktok')->user();
+Route::get('/', [UserController::class, 'home'])
+    ->name('home');
 
-            $tiktokId = trim(
-                (string) $tiktokUser->getId()
-            );
 
-            $name = trim(
-                (string) $tiktokUser->getName()
-            );
+/*
+|--------------------------------------------------------------------------
+| Gast-routes
+|--------------------------------------------------------------------------
+|
+| Deze routes zijn alleen bedoeld voor bezoekers die nog niet zijn
+| ingelogd. Daardoor kan een ingelogde gebruiker niet opnieuw de
+| login-, registratie-, passwordless- of OAuth-flow openen.
+|
+| Als een ingelogde gebruiker bijvoorbeeld /login opent, grijpt de
+| Laravel "guest" middleware in en wordt die gebruiker doorgestuurd.
+|
+*/
 
-            $nickname = trim(
-                (string) $tiktokUser->getNickname()
-            );
+Route::middleware('guest')->group(function () {
 
-            $avatar = trim(
-                (string) $tiktokUser->getAvatar()
-            );
+    /*
+    |--------------------------------------------------------------------------
+    | Registreren
+    |--------------------------------------------------------------------------
+    */
 
-            if ($tiktokId === '') {
-                return redirect()
-                    ->route('login')
-                    ->withErrors([
-                        'tiktok' => 'TikTok heeft geen geldig gebruikers-ID teruggegeven.',
-                    ]);
-            }
+    Route::get('/register', [UserController::class, 'register'])
+        ->name('register');
 
-            /*
-            |--------------------------------------------------------------------------
-            | Bestaande TikTok-gebruiker
-            |--------------------------------------------------------------------------
-            */
+    Route::post('/register', [UserController::class, 'registerSubmit'])
+        ->name('register.submit');
 
-            $user = User::query()
-                ->where('tiktok_id', $tiktokId)
-                ->first();
 
-            if ($user !== null) {
-                $user->forceFill([
-                    'login_provider' => 'tiktok',
+    /*
+    |--------------------------------------------------------------------------
+    | Normaal inloggen
+    |--------------------------------------------------------------------------
+    */
 
-                    'tiktok_avatar' => $avatar !== ''
-                        ? $avatar
-                        : $user->tiktok_avatar,
-                ]);
+    Route::get('/login', [UserController::class, 'login'])
+        ->name('login');
 
-                $user->save();
+    Route::post('/login', [UserController::class, 'loginSubmit'])
+        ->name('login.submit');
 
-                Auth::login(
-                    $user,
-                    true
-                );
 
-                $request->session()->regenerate();
+    /*
+    |--------------------------------------------------------------------------
+    | Inloggen met e-mailcode of magic link
+    |--------------------------------------------------------------------------
+    |
+    | Flow:
+    |
+    | De gebruiker kan kiezen uit:
+    |
+    | - een 6-cijferige e-mailcode;
+    | - een eenmalige magic login link via Brevo.
+    |
+    | Beide methodes loggen de gebruiker veilig in zonder dat daarvoor
+    | een wachtwoord nodig is.
+    |
+    */
 
-                return $this->redirectAfterLogin(
-                    $user
-                );
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Nieuwe TikTok-gebruiker
-            |--------------------------------------------------------------------------
-            |
-            | TikTok user.info.basic geeft normaal geen e-mailadres terug.
-            | Daarom bewaren we de TikTok-data tijdelijk in de sessie.
-            |
-            */
-
-            Session::put(
-                'tiktok_registration',
-                [
-                    'tiktok_id' => $tiktokId,
-
-                    'name' => $this->resolveDisplayName(
-                        $name,
-                        $nickname
-                    ),
-
-                    'avatar' => $avatar !== ''
-                        ? $avatar
-                        : null,
-                ]
-            );
-
-            return redirect()
-                ->route('tiktok.complete');
-
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'Inloggen met TikTok is mislukt. Probeer het opnieuw.',
-                ]);
-        }
-    }
-
-    /**
-     * Formulier tonen waarmee een nieuwe TikTok-gebruiker
-     * zijn registratie kan afronden.
-     */
-    public function showCompleteRegistration(): View|RedirectResponse
-    {
-        $registration = Session::get(
-            'tiktok_registration'
-        );
-
-        if (! is_array($registration)) {
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is verlopen. Log opnieuw in met TikTok.',
-                ]);
-        }
-
-        $tiktokId = trim(
-            (string) ($registration['tiktok_id'] ?? '')
-        );
-
-        if ($tiktokId === '') {
-            Session::forget(
-                'tiktok_registration'
-            );
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is ongeldig. Log opnieuw in met TikTok.',
-                ]);
-        }
-
-        return view(
-            'auth.tiktok-complete',
-            [
-                'tiktokName' => $registration['name'] ?? 'TikTok gebruiker',
-                'tiktokAvatar' => $registration['avatar'] ?? null,
-            ]
-        );
-    }
-
-    /**
-     * Registratie van een nieuwe TikTok-gebruiker afronden.
-     */
-    public function completeRegistration(
-        Request $request
-    ): RedirectResponse {
-        $registration = Session::get(
-            'tiktok_registration'
-        );
-
-        if (! is_array($registration)) {
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is verlopen. Log opnieuw in met TikTok.',
-                ]);
-        }
-
-        $tiktokId = trim(
-            (string) ($registration['tiktok_id'] ?? '')
-        );
-
-        if ($tiktokId === '') {
-            Session::forget(
-                'tiktok_registration'
-            );
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'tiktok' => 'De TikTok-aanmeldsessie is ongeldig. Log opnieuw in met TikTok.',
-                ]);
-        }
+    Route::prefix('auth/email')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Validatie
+        | 6-cijferige e-mailcode
         |--------------------------------------------------------------------------
         */
 
-        $validated = $request->validate(
-            [
-                'email' => [
-                    'required',
-                    'string',
-                    'email',
-                    'max:255',
-                ],
-            ],
-            [
-                'email.required' => 'Vul je e-mailadres in.',
-                'email.email' => 'Vul een geldig e-mailadres in.',
-                'email.max' => 'Het e-mailadres mag maximaal 255 tekens bevatten.',
-            ]
-        );
+        Route::post(
+            '/send-code',
+            [EmailLoginController::class, 'sendCode']
+        )
+            ->middleware('throttle:10,1')
+            ->name('email-login.send');
 
-        $email = Str::lower(
-            trim(
-                (string) $validated['email']
-            )
-        );
+
+        Route::get(
+            '/verify',
+            [EmailLoginController::class, 'showVerifyForm']
+        )
+            ->name('email-login.form');
+
+
+        Route::post(
+            '/verify',
+            [EmailLoginController::class, 'verifyCode']
+        )
+            ->middleware('throttle:20,1')
+            ->name('email-login.verify');
+
 
         /*
         |--------------------------------------------------------------------------
-        | Bestaand e-mailadres beschermen
+        | Magic login link
         |--------------------------------------------------------------------------
         |
-        | We koppelen TikTok niet automatisch aan een bestaand account
-        | alleen omdat iemand dat e-mailadres invult.
+        | De gebruiker ontvangt per e-mail een eenmalige loginlink.
+        | Na openen van de geldige link wordt het account direct ingelogd.
         |
         */
 
-        $existingEmailUser = User::query()
-            ->whereRaw(
-                'LOWER(email) = ?',
-                [
-                    $email,
-                ]
-            )
-            ->first();
+        Route::post(
+            '/send-link',
+            [EmailLoginController::class, 'sendMagicLink']
+        )
+            ->middleware('throttle:10,1')
+            ->name('email-login.link.send');
 
-        if ($existingEmailUser !== null) {
-            return back()
-                ->withErrors([
-                    'email' => 'Er bestaat al een account met dit e-mailadres. Log eerst in op dat bestaande account.',
-                ])
-                ->withInput();
-        }
+
+        Route::get(
+            '/link/verify',
+            [EmailLoginController::class, 'verifyMagicLink']
+        )
+            ->middleware('throttle:30,1')
+            ->name('email-login.link.verify');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Google OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via Google met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/google',
+        [GoogleAuthController::class, 'redirect']
+    )
+        ->name('google.redirect');
+
+    Route::get(
+        '/auth/google/callback',
+        [GoogleAuthController::class, 'callback']
+    )
+        ->name('google.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GitHub OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via GitHub met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/github',
+        [GitHubAuthController::class, 'redirect']
+    )
+        ->name('github.redirect');
+
+    Route::get(
+        '/auth/github/callback',
+        [GitHubAuthController::class, 'callback']
+    )
+        ->name('github.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Facebook OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via Facebook met Laravel Socialite.
+    |
+    */
+
+    Route::get(
+        '/auth/facebook',
+        [FacebookAuthController::class, 'redirect']
+    )
+        ->name('facebook.redirect');
+
+    Route::get(
+        '/auth/facebook/callback',
+        [FacebookAuthController::class, 'callback']
+    )
+        ->name('facebook.callback');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TikTok OAuth
+    |--------------------------------------------------------------------------
+    |
+    | Inloggen en registreren via TikTok Login Kit.
+    |
+    | Bestaande TikTok-gebruikers worden direct ingelogd.
+    | Nieuwe TikTok-gebruikers ronden hun Mashal-account eerst af via
+    | het aanvullende registratieformulier.
+    |
+    */
+
+    Route::get(
+        '/auth/tiktok',
+        [TikTokAuthController::class, 'redirect']
+    )
+        ->name('tiktok.redirect');
+
+    Route::get(
+        '/auth/tiktok/callback',
+        [TikTokAuthController::class, 'callback']
+    )
+        ->name('tiktok.callback');
+
+    Route::get(
+        '/auth/tiktok/complete',
+        [TikTokAuthController::class, 'showCompleteRegistration']
+    )
+        ->name('tiktok.complete');
+
+    Route::post(
+        '/auth/tiktok/complete',
+        [TikTokAuthController::class, 'completeRegistration']
+    )
+        ->middleware('throttle:10,1')
+        ->name('tiktok.complete.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord vergeten / herstellen
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/forgot-password',
+        [UserController::class, 'forgotPassword']
+    )
+        ->name('password.request');
+
+
+    Route::post(
+        '/forgot-password',
+        [UserController::class, 'sendResetLink']
+    )
+        ->middleware('throttle:5,1')
+        ->name('password.email');
+
+
+    Route::get(
+        '/reset-password/{token}',
+        [UserController::class, 'showResetForm']
+    )
+        ->name('password.reset');
+
+
+    Route::post(
+        '/reset-password/{token}',
+        [UserController::class, 'resetPassword']
+    )
+        ->name('password.update');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Uitloggen
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/logout',
+    [UserController::class, 'logout']
+)
+    ->middleware('auth')
+    ->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| E-mailverificatie
+|--------------------------------------------------------------------------
+|
+| Deze routes worden gebruikt voor normale registraties met
+| e-mailadres en wachtwoord.
+|
+*/
+
+Route::get(
+    '/verify',
+    [UserController::class, 'verifyNotice']
+)
+    ->name('verification.notice');
+
+
+Route::post(
+    '/verify/send',
+    [UserController::class, 'sendVerificationCode']
+)
+    ->middleware('throttle:6,1')
+    ->name('verification.send');
+
+
+Route::post(
+    '/verify',
+    [UserController::class, 'verifyCode']
+)
+    ->middleware('throttle:10,1')
+    ->name('verification.verify');
+
+
+/*
+|--------------------------------------------------------------------------
+| Catalogus
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/catalog',
+    [UserController::class, 'catalog']
+)
+    ->name('catalog');
+
+
+Route::get(
+    '/car/{id}',
+    [UserController::class, 'car']
+)
+    ->whereNumber('id')
+    ->name('car');
+
+
+/*
+|--------------------------------------------------------------------------
+| Winkelwagen
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/cart',
+    [UserController::class, 'cart']
+)
+    ->name('cart');
+
+
+Route::post(
+    '/cart/add/{id}',
+    [UserController::class, 'addToCart']
+)
+    ->whereNumber('id')
+    ->name('cart.add');
+
+
+/*
+|--------------------------------------------------------------------------
+| Routes voor ingelogde gebruikers
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mijn account
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/account',
+        [UserController::class, 'account']
+    )
+        ->name('account');
+
+
+    Route::put(
+        '/account',
+        [UserController::class, 'updateAccount']
+    )
+        ->name('account.update');
+
+
+    Route::put(
+        '/account/password',
+        [UserController::class, 'updatePassword']
+    )
+        ->name('account.password.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Checkout
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/checkout',
+        [UserController::class, 'checkout']
+    )
+        ->name('checkout');
+
+
+    Route::post(
+        '/checkout',
+        [UserController::class, 'checkoutSubmit']
+    )
+        ->name('checkout.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin
+    |--------------------------------------------------------------------------
+    |
+    | Deze routes vereisen minimaal een ingelogde gebruiker.
+    | De UserController moet daarnaast nog steeds controleren
+    | of is_admin daadwerkelijk true is.
+    |
+    */
+
+    Route::prefix('admin')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | TikTok-ID opnieuw controleren
+        | Admin dashboard
         |--------------------------------------------------------------------------
         */
 
-        $existingTikTokUser = User::query()
-            ->where('tiktok_id', $tiktokId)
-            ->first();
+        Route::get(
+            '/',
+            [UserController::class, 'admin']
+        )
+            ->name('admin.dashboard');
 
-        if ($existingTikTokUser !== null) {
-            Session::forget(
-                'tiktok_registration'
-            );
-
-            $existingTikTokUser->forceFill([
-                'login_provider' => 'tiktok',
-            ]);
-
-            $existingTikTokUser->save();
-
-            Auth::login(
-                $existingTikTokUser,
-                true
-            );
-
-            $request->session()->regenerate();
-
-            return $this->redirectAfterLogin(
-                $existingTikTokUser
-            );
-        }
 
         /*
         |--------------------------------------------------------------------------
-        | Naam
+        | Gebruikersoverzicht
         |--------------------------------------------------------------------------
         */
 
-        $name = trim(
-            (string) ($registration['name'] ?? '')
-        );
+        Route::get(
+            '/users',
+            [UserController::class, 'index']
+        )
+            ->name('users.index');
 
-        if ($name === '') {
-            $name = 'TikTok gebruiker';
-        }
 
         /*
         |--------------------------------------------------------------------------
-        | Avatar
+        | Gebruiker toevoegen
         |--------------------------------------------------------------------------
         */
 
-        $avatar = trim(
-            (string) ($registration['avatar'] ?? '')
-        );
+        Route::get(
+            '/users/create',
+            [UserController::class, 'create']
+        )
+            ->name('users.create');
+
+
+        Route::post(
+            '/users',
+            [UserController::class, 'store']
+        )
+            ->name('users.store');
+
 
         /*
         |--------------------------------------------------------------------------
-        | Account aanmaken
+        | Gebruiker wijzigen
         |--------------------------------------------------------------------------
         */
 
-        $user = User::create([
-            'name' => $name,
+        Route::get(
+            '/users/{user}/edit',
+            [UserController::class, 'edit']
+        )
+            ->whereNumber('user')
+            ->name('users.edit');
 
-            'email' => $email,
 
-            'password' => Str::random(
-                64
-            ),
+        Route::put(
+            '/users/{user}',
+            [UserController::class, 'update']
+        )
+            ->whereNumber('user')
+            ->name('users.update');
 
-            'tiktok_id' => $tiktokId,
-
-            'tiktok_avatar' => $avatar !== ''
-                ? $avatar
-                : null,
-
-            'login_provider' => 'tiktok',
-
-            'is_admin' => false,
-
-            'email_verified_at' => null,
-        ]);
 
         /*
         |--------------------------------------------------------------------------
-        | Tijdelijke TikTok-sessie verwijderen
+        | Gebruiker verwijderen
         |--------------------------------------------------------------------------
         */
 
-        Session::forget(
-            'tiktok_registration'
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe gebruiker inloggen
-        |--------------------------------------------------------------------------
-        */
-
-        Auth::login(
-            $user,
-            true
-        );
-
-        $request->session()->regenerate();
-
-        return $this->redirectAfterLogin(
-            $user
-        );
-    }
-
-    /**
-     * Beste beschikbare TikTok-naam bepalen.
-     */
-    private function resolveDisplayName(
-        string $name,
-        string $nickname
-    ): string {
-        $name = trim(
-            $name
-        );
-
-        if ($name !== '') {
-            return $name;
-        }
-
-        $nickname = trim(
-            $nickname
-        );
-
-        if ($nickname !== '') {
-            return $nickname;
-        }
-
-        return 'TikTok gebruiker';
-    }
-
-    /**
-     * Redirect na succesvolle TikTok-login.
-     */
-    private function redirectAfterLogin(
-        User $user
-    ): RedirectResponse {
-        if ($user->isAdmin()) {
-            return redirect()
-                ->route('admin.dashboard')
-                ->with(
-                    'success',
-                    'Je bent succesvol ingelogd met TikTok.'
-                );
-        }
-
-        return redirect()
-            ->route('account')
-            ->with(
-                'success',
-                'Je bent succesvol ingelogd met TikTok.'
-            );
-    }
-}
+        Route::delete(
+            '/users/{user}',
+            [UserController::class, 'destroy']
+        )
+            ->whereNumber('user')
+            ->name('users.destroy');
+    });
+});
