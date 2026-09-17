@@ -128,6 +128,7 @@ class UserController extends Controller
             'name' => trim($data['name']),
             'email' => strtolower(trim($data['email'])),
             'password' => Hash::make($data['password']),
+            'login_provider' => 'password',
             'is_admin' => false,
             'email_verified_at' => null,
         ]);
@@ -198,6 +199,21 @@ class UserController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laatste loginmethode opslaan
+        |--------------------------------------------------------------------------
+        |
+        | Deze login kwam via het normale e-mailadres + wachtwoordformulier.
+        | Het admin dashboard kan hierdoor tonen hoe de gebruiker het laatst
+        | is ingelogd.
+        |
+        */
+
+        $user->forceFill([
+            'login_provider' => 'password',
+        ])->save();
 
         if ($user->is_admin) {
             return redirect()
@@ -1244,6 +1260,7 @@ class UserController extends Controller
             'password' => Hash::make(
                 $data['password']
             ),
+            'login_provider' => 'password',
             'is_admin' =>
                 $request->boolean(
                     'is_admin'

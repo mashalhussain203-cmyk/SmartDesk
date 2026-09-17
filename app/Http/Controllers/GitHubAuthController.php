@@ -237,6 +237,15 @@ class GitHubAuthController extends Controller
 
                     /*
                     |--------------------------------------------------------------
+                    | Laatste loginmethode
+                    |--------------------------------------------------------------
+                    */
+
+                    'login_provider' => 'github',
+
+
+                    /*
+                    |--------------------------------------------------------------
                     | Intern wachtwoord
                     |--------------------------------------------------------------
                     |
@@ -330,6 +339,19 @@ class GitHubAuthController extends Controller
 
                 if (!$user->email_verified_at) {
                     $user->email_verified_at = now();
+
+                    $changed = true;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Laatste loginmethode
+                |--------------------------------------------------------------------------
+                */
+
+                if ($user->login_provider !== 'github') {
+                    $user->login_provider = 'github';
 
                     $changed = true;
                 }

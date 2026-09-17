@@ -189,6 +189,15 @@ class GoogleAuthController extends Controller
 
                     /*
                     |--------------------------------------------------------------
+                    | Laatste loginmethode
+                    |--------------------------------------------------------------
+                    */
+
+                    'login_provider' => 'google',
+
+
+                    /*
+                    |--------------------------------------------------------------
                     | Intern wachtwoord
                     |--------------------------------------------------------------
                     |
@@ -284,6 +293,21 @@ class GoogleAuthController extends Controller
                 if (!$user->email_verified_at) {
 
                     $user->email_verified_at = now();
+
+                    $changed = true;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------
+                | Laatste loginmethode
+                |--------------------------------------------------------------
+                */
+
+                if ($user->login_provider !== 'google') {
+
+                    $user->login_provider = 'google';
 
                     $changed = true;
 

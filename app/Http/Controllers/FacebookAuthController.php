@@ -182,6 +182,7 @@ class FacebookAuthController extends Controller
                     'email' => $email,
                     'facebook_id' => $facebookId,
                     'facebook_avatar' => $avatar,
+                    'login_provider' => 'facebook',
                     'password' => Hash::make(
                         Str::random(64)
                     ),
@@ -223,6 +224,11 @@ class FacebookAuthController extends Controller
 
                 if (! $user->email_verified_at) {
                     $user->email_verified_at = now();
+                    $changed = true;
+                }
+
+                if ($user->login_provider !== 'facebook') {
+                    $user->login_provider = 'facebook';
                     $changed = true;
                 }
 

@@ -439,13 +439,11 @@ class EmailLoginController extends Controller
                 $loginCode->code_hash
             )
         ) {
-            $loginCode->increment(
-                'attempts'
-            );
+            $loginCode->registerFailedAttempt();
 
             $remainingAttempts =
                 self::MAX_CODE_ATTEMPTS -
-                ($loginCode->attempts + 1);
+                $loginCode->attempts;
 
             if ($remainingAttempts <= 0) {
                 return back()
@@ -482,9 +480,7 @@ class EmailLoginController extends Controller
         |
         */
 
-        $loginCode->forceFill([
-            'used_at' => now(),
-        ])->save();
+        $loginCode->markAsUsed();
 
 
         /*
@@ -517,15 +513,25 @@ class EmailLoginController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Bestaande gebruiker als geverifieerd markeren
+            | Bestaande gebruiker bijwerken
             |--------------------------------------------------------------------------
+            |
+            | Een succesvolle e-mailcode bevestigt het e-mailadres en registreert
+            | meteen dat de laatste login via e-mailcode plaatsvond.
+            |
             */
 
+            $changes = [
+                'login_provider' => 'email_code',
+            ];
+
             if (! $user->email_verified_at) {
-                $user->forceFill([
-                    'email_verified_at' => now(),
-                ])->save();
+                $changes['email_verified_at'] = now();
             }
+
+            $user->forceFill(
+                $changes
+            )->save();
         }
 
 
@@ -690,6 +696,8 @@ class EmailLoginController extends Controller
             ),
 
             'email_verified_at' => now(),
+
+            'login_provider' => 'email_code',
 
             'is_admin' => false,
         ]);

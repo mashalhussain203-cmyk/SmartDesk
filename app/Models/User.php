@@ -22,6 +22,25 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
+        | Login provider
+        |--------------------------------------------------------------------------
+        |
+        | Laatste gebruikte loginmethode.
+        |
+        | Mogelijke waarden:
+        |
+        | - password
+        | - email_code
+        | - google
+        | - github
+        | - facebook
+        |
+        */
+
+        'login_provider',
+
+        /*
+        |--------------------------------------------------------------------------
         | Google OAuth
         |--------------------------------------------------------------------------
         */
@@ -202,5 +221,128 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $providers;
+    }
+
+    /**
+     * Laatste gebruikte loginmethode.
+     */
+    public function loginProvider(): string
+    {
+        $provider = strtolower(
+            trim(
+                (string) $this->login_provider
+            )
+        );
+
+        if (
+            in_array(
+                $provider,
+                [
+                    'password',
+                    'email_code',
+                    'google',
+                    'github',
+                    'facebook',
+                ],
+                true
+            )
+        ) {
+            return $provider;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fallback voor bestaande accounts
+        |--------------------------------------------------------------------------
+        |
+        | Oude gebruikers hebben mogelijk nog geen login_provider in de database.
+        | In dat geval proberen we op basis van gekoppelde OAuth-accounts een
+        | bruikbare provider te bepalen.
+        |
+        */
+
+        if ($this->hasGoogleAccount()) {
+            return 'google';
+        }
+
+        if ($this->hasGitHubAccount()) {
+            return 'github';
+        }
+
+        if ($this->hasFacebookAccount()) {
+            return 'facebook';
+        }
+
+        return 'password';
+    }
+
+    /**
+     * Menselijke naam van de laatste loginmethode.
+     */
+    public function loginProviderLabel(): string
+    {
+        return match ($this->loginProvider()) {
+            'google' => 'Google',
+            'github' => 'GitHub',
+            'facebook' => 'Facebook',
+            'email_code' => 'E-mailcode',
+            'password' => 'Wachtwoord',
+            default => 'Onbekend',
+        };
+    }
+
+    /**
+     * Korte code die in het admin dashboard gebruikt kan worden.
+     */
+    public function loginProviderIcon(): string
+    {
+        return match ($this->loginProvider()) {
+            'google' => 'google',
+            'github' => 'github',
+            'facebook' => 'facebook',
+            'email_code' => 'email',
+            'password' => 'lock',
+            default => 'user',
+        };
+    }
+
+    /**
+     * Controleer of de laatste login via Google was.
+     */
+    public function loggedInWithGoogle(): bool
+    {
+        return $this->loginProvider() === 'google';
+    }
+
+    /**
+     * Controleer of de laatste login via GitHub was.
+     */
+    public function loggedInWithGitHub(): bool
+    {
+        return $this->loginProvider() === 'github';
+    }
+
+    /**
+     * Controleer of de laatste login via Facebook was.
+     */
+    public function loggedInWithFacebook(): bool
+    {
+        return $this->loginProvider() === 'facebook';
+    }
+
+    /**
+     * Controleer of de laatste login via e-mailcode was.
+     */
+    public function loggedInWithEmailCode(): bool
+    {
+        return $this->loginProvider() === 'email_code';
+    }
+
+    /**
+     * Controleer of de laatste login via wachtwoord was.
+     */
+    public function loggedInWithPassword(): bool
+    {
+        return $this->loginProvider() === 'password';
     }
 }
