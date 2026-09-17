@@ -544,123 +544,375 @@
 
 
 
+
+
+
+
+
+
+
+
     /* ========================================================= */
+
     /* E-MAILCODE LOGIN                                         */
+
     /* ========================================================= */
 
     .email-code-auth {
+
         margin: 0 0 24px;
+
         padding: 18px;
+
         border: 1px solid rgba(215,164,95,.16);
+
         border-radius: 18px;
+
         background:
+
             linear-gradient(180deg, rgba(215,164,95,.065), rgba(255,255,255,.022));
+
         box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+
     }
 
     .email-code-head {
+
         display: flex;
+
         align-items: flex-start;
+
         gap: 12px;
+
         margin-bottom: 14px;
+
     }
 
     .email-code-icon {
+
         flex-shrink: 0;
+
         width: 38px;
+
         height: 38px;
+
         display: grid;
+
         place-items: center;
+
         border-radius: 12px;
+
         background: linear-gradient(145deg, #f0ca86, #b67e3d);
+
         color: #15110c;
+
         font-size: 17px;
+
         font-weight: 950;
+
         box-shadow: 0 12px 28px rgba(215,164,95,.18);
+
     }
 
     .email-code-copy strong {
+
         display: block;
+
         color: #f4f1eb;
+
         font-size: 12px;
+
         font-weight: 950;
+
     }
 
     .email-code-copy span {
+
         display: block;
+
         margin-top: 4px;
+
         color: #747a81;
+
         font-size: 9px;
+
         line-height: 1.6;
+
     }
 
     .email-code-form {
+
         display: grid;
+
         grid-template-columns: minmax(0, 1fr) auto;
+
         gap: 10px;
+
     }
 
     .email-code-input {
+
         width: 100%;
+
         min-width: 0;
+
         height: 48px;
+
         padding: 0 14px;
+
         border: 1px solid rgba(255,255,255,.10);
+
         border-radius: 13px;
+
         outline: none;
+
         background: rgba(255,255,255,.035);
+
         color: #ffffff;
+
         font-size: 13px;
+
         transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+
     }
 
     .email-code-input::placeholder {
+
         color: #565c63;
+
     }
 
     .email-code-input:focus {
+
         border-color: rgba(215,164,95,.46);
+
         background: rgba(215,164,95,.035);
+
         box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+
     }
 
     .email-code-submit {
+
         min-height: 48px;
+
         padding: 0 18px;
+
         border: 0;
+
         border-radius: 13px;
+
         background: linear-gradient(135deg, #f1cc8b, #ca914c);
+
         color: #14100b;
+
         font-size: 10px;
+
         font-weight: 950;
+
         cursor: pointer;
+
         white-space: nowrap;
+
         transition: transform .2s ease, box-shadow .2s ease;
+
     }
 
     .email-code-submit:hover {
+
         transform: translateY(-1px);
+
         box-shadow: 0 14px 30px rgba(215,164,95,.22);
+
     }
 
     .email-code-note {
+
         margin: 10px 2px 0;
+
         color: #555b61;
+
         font-size: 9px;
+
         line-height: 1.6;
+
     }
 
     @media (max-width: 520px) {
+
         .email-code-form {
+
             grid-template-columns: 1fr;
+
         }
 
         .email-code-submit {
+
             width: 100%;
+
         }
+
     }
 
     /* ========================================================= */
+/* MAGIC LINK LOGIN                                           */
+/* ========================================================= */
+
+.magic-link-auth {
+    margin: -12px 0 24px;
+    padding: 18px;
+    border: 1px solid rgba(215,164,95,.14);
+    border-radius: 18px;
+    background: linear-gradient(
+        180deg,
+        rgba(215,164,95,.045),
+        rgba(255,255,255,.018)
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 14px 34px rgba(0,0,0,.10);
+}
+
+.magic-link-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.magic-link-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(215,164,95,.18);
+    border-radius: 12px;
+    background: rgba(215,164,95,.075);
+    color: #efc985;
+    font-size: 17px;
+    font-weight: 950;
+    box-shadow: 0 12px 28px rgba(0,0,0,.14);
+}
+
+.magic-link-copy strong {
+    display: block;
+    color: #f4f1eb;
+    font-size: 12px;
+    font-weight: 950;
+}
+
+.magic-link-copy span {
+    display: block;
+    margin-top: 4px;
+    color: #747a81;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.magic-link-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+}
+
+.magic-link-input {
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 13px;
+    outline: none;
+    background: rgba(255,255,255,.035);
+    color: #ffffff;
+    font-size: 13px;
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.magic-link-input::placeholder {
+    color: #565c63;
+}
+
+.magic-link-input:focus {
+    border-color: rgba(215,164,95,.46);
+    background: rgba(215,164,95,.035);
+    box-shadow: 0 0 0 4px rgba(215,164,95,.065);
+}
+
+.magic-link-submit {
+    min-height: 48px;
+    padding: 0 18px;
+    border: 1px solid rgba(215,164,95,.20);
+    border-radius: 13px;
+    background: linear-gradient(
+        135deg,
+        rgba(241,204,139,.16),
+        rgba(202,145,76,.11)
+    );
+    color: #efc985;
+    font-size: 10px;
+    font-weight: 950;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.magic-link-submit:hover {
+    transform: translateY(-1px);
+    border-color: rgba(215,164,95,.38);
+    background: linear-gradient(
+        135deg,
+        rgba(241,204,139,.22),
+        rgba(202,145,76,.15)
+    );
+    box-shadow: 0 14px 30px rgba(215,164,95,.10);
+}
+
+.magic-link-note {
+    margin: 10px 2px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    color: #555b61;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.magic-link-note::before {
+    content: "✓";
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(101,213,154,.15);
+    border-radius: 50%;
+    background: rgba(101,213,154,.045);
+    color: #8fdcaf;
+    font-size: 8px;
+    font-weight: 950;
+}
+
+@media (max-width: 520px) {
+    .magic-link-form {
+        grid-template-columns: 1fr;
+    }
+
+    .magic-link-submit {
+        width: 100%;
+    }
+}
+
+
+/* ========================================================= */
 
     /* GOOGLE OAUTH                                              */
 
@@ -1136,6 +1388,10 @@
 
 
 
+
+
+
+
     /* ========================================================= */
 
     /* FACEBOOK OAUTH                                           */
@@ -1375,6 +1631,12 @@
         font-weight: 850;
 
     }
+
+
+
+
+
+
 
 
 
@@ -2032,6 +2294,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @section('content')
 
 <section class="login-page">
@@ -2092,6 +2370,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="visual-trust-row">
 
                     <span class="visual-trust">
@@ -2117,6 +2411,22 @@
             </div>
 
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2186,6 +2496,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <span class="auth-kicker">
 
                     Member access
@@ -2199,9 +2525,28 @@
                 </h1>
 
                 <p class="auth-subtitle">
-                    Log veilig in met Google, GitHub, Facebook, een eenmalige e-mailcode
+
+                    Log veilig in met Google, GitHub, Facebook, een eenmalige e-mailcode, een veilige magic link
+
                     of gebruik je e-mailadres en wachtwoord voor jouw Mashal-account.
+
                 </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2239,6 +2584,14 @@
 
 
 
+
+
+
+
+
+
+
+
                 {{-- SESSION ERROR --}}
 
                 @if (session('error'))
@@ -2250,6 +2603,14 @@
                     </div>
 
                 @endif
+
+
+
+
+
+
+
+
 
 
 
@@ -2313,52 +2674,157 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {{-- E-MAILCODE LOGIN --}}
+
                 <div class="email-code-auth">
+
                     <div class="email-code-head">
+
                         <div class="email-code-icon" aria-hidden="true">
+
                             @
+
                         </div>
 
                         <div class="email-code-copy">
+
                             <strong>Inloggen met e-mailcode</strong>
+
                             <span>Ontvang een eenmalige 6-cijferige code. De code is 5 minuten geldig.</span>
+
+                        </div>
+
+                    </div>
+
+                    <form
+
+                        class="email-code-form"
+
+                        method="POST"
+
+                        action="{{ route('email-login.send') }}"
+
+                    >
+
+                        @csrf
+
+                        <input
+
+                            class="email-code-input"
+
+                            type="email"
+
+                            name="email"
+
+                            value="{{ old('email') }}"
+
+                            placeholder="naam@example.com"
+
+                            autocomplete="email"
+
+                            aria-label="E-mailadres voor e-mailcode"
+
+                            required
+
+                        >
+
+                        <button
+
+                            class="email-code-submit"
+
+                            type="submit"
+
+                        >
+
+                            Stuur code
+
+                        </button>
+
+                    </form>
+
+                    <div class="email-code-note">
+
+                        Je wachtwoord is niet nodig. Na het aanvragen vul je de ontvangen code in om veilig in te loggen.
+
+                    </div>
+
+                </div>
+
+                {{-- MAGIC LINK LOGIN --}}
+                <div class="magic-link-auth">
+                    <div class="magic-link-head">
+                        <div class="magic-link-icon" aria-hidden="true">
+                            ↗
+                        </div>
+
+                        <div class="magic-link-copy">
+                            <strong>Inloggen met veilige loginlink</strong>
+                            <span>
+                                Ontvang een persoonlijke link waarmee je direct kunt inloggen.
+                                Geen wachtwoord of code nodig.
+                            </span>
                         </div>
                     </div>
 
                     <form
-                        class="email-code-form"
+                        class="magic-link-form"
                         method="POST"
-                        action="{{ route('email-login.send') }}"
+                        action="{{ route('email-login.link.send') }}"
                     >
                         @csrf
 
                         <input
-                            class="email-code-input"
+                            class="magic-link-input"
                             type="email"
                             name="email"
                             value="{{ old('email') }}"
                             placeholder="naam@example.com"
                             autocomplete="email"
-                            aria-label="E-mailadres voor e-mailcode"
+                            aria-label="E-mailadres voor veilige loginlink"
                             required
                         >
 
                         <button
-                            class="email-code-submit"
+                            class="magic-link-submit"
                             type="submit"
                         >
-                            Stuur code
+                            Stuur loginlink
                         </button>
                     </form>
 
-                    <div class="email-code-note">
-                        Je wachtwoord is niet nodig. Na het aanvragen vul je de ontvangen code in om veilig in te loggen.
+                    <div class="magic-link-note">
+                        De link is 10 minuten geldig, werkt één keer en wordt veilig per e-mail verstuurd.
                     </div>
                 </div>
 
                 <div class="oauth-divider">
+
                     Of ga verder met
+
                 </div>
 
                 {{-- GOOGLE OAUTH --}}
@@ -2525,6 +2991,10 @@
 
 
 
+
+
+
+
                 {{-- FACEBOOK OAUTH --}}
 
                 <div class="facebook-auth">
@@ -2601,11 +3071,29 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
                 <div class="oauth-divider">
 
                     Of gebruik je wachtwoord
 
                 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -2626,6 +3114,22 @@
                 >
 
                     @csrf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2666,6 +3170,22 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2733,6 +3253,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- PASSWORD --}}
 
                     <div class="auth-field">
@@ -2756,6 +3292,22 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2829,6 +3381,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- OPTIONS --}}
 
                     <div class="auth-options">
@@ -2879,6 +3447,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <a
 
                             class="auth-link"
@@ -2892,6 +3476,22 @@
                         </a>
 
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2941,11 +3541,43 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="auth-divider">
 
                     Nieuw bij Mashal?
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2999,6 +3631,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     <a
 
                         class="register-card-link"
@@ -3012,6 +3660,22 @@
                     </a>
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3056,6 +3720,22 @@
 </section>
 
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -46,19 +46,28 @@ Route::post('/login', [UserController::class, 'loginSubmit'])
 
 /*
 |--------------------------------------------------------------------------
-| Inloggen met e-mailcode
+| Inloggen met e-mailcode of magic link
 |--------------------------------------------------------------------------
 |
 | Flow:
 |
-| 1. Gebruiker vult e-mailadres in.
-| 2. Mashal verstuurt via Brevo een 6-cijferige code.
-| 3. Gebruiker voert de code in.
-| 4. Bij een geldige code wordt de gebruiker ingelogd.
+| De gebruiker kan kiezen uit:
+|
+| - een 6-cijferige e-mailcode;
+| - een eenmalige magic login link via Brevo.
+|
+| Beide methodes loggen de gebruiker veilig in zonder dat daarvoor
+| een wachtwoord nodig is.
 |
 */
 
 Route::prefix('auth/email')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6-cijferige e-mailcode
+    |--------------------------------------------------------------------------
+    */
 
     Route::post(
         '/send-code',
@@ -81,6 +90,32 @@ Route::prefix('auth/email')->group(function () {
     )
         ->middleware('throttle:20,1')
         ->name('email-login.verify');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic login link
+    |--------------------------------------------------------------------------
+    |
+    | De gebruiker ontvangt per e-mail een eenmalige loginlink.
+    | Na openen van de geldige link wordt het account direct ingelogd.
+    |
+    */
+
+    Route::post(
+        '/send-link',
+        [EmailLoginController::class, 'sendMagicLink']
+    )
+        ->middleware('throttle:10,1')
+        ->name('email-login.link.send');
+
+
+    Route::get(
+        '/link/verify',
+        [EmailLoginController::class, 'verifyMagicLink']
+    )
+        ->middleware('throttle:30,1')
+        ->name('email-login.link.verify');
 });
 
 

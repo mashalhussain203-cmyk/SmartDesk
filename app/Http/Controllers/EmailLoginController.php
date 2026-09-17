@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmailLoginCode;
+use App\Models\EmailLoginLink;
 use App\Models\User;
 use App\Services\BrevoMailService;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,12 @@ class EmailLoginController extends Controller
     private const MAX_SEND_ATTEMPTS = 5;
 
     private const MAX_VERIFY_ATTEMPTS = 10;
+
+    private const MAGIC_LINK_EXPIRES_MINUTES = 10;
+
+    private const MAX_MAGIC_LINK_SEND_ATTEMPTS = 5;
+
+    private const MAX_MAGIC_LINK_VERIFY_ATTEMPTS = 20;
 
 
     /*
@@ -507,7 +514,8 @@ class EmailLoginController extends Controller
 
         if (! $user) {
             $user = $this->createUser(
-                $email
+                $email,
+                'email_code'
             );
         } else {
 
@@ -620,11 +628,463 @@ class EmailLoginController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | Magic login link versturen
+    |--------------------------------------------------------------------------
+    */
+
+    public function sendMagicLink(Request $request): RedirectResponse
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Invoer valideren
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+            ],
+        ]);
+
+        $email = strtolower(
+            trim(
+                (string) $validated['email']
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rate limiting
+        |--------------------------------------------------------------------------
+        */
+
+        $rateLimitKey = $this->magicLinkSendRateLimitKey(
+            $request,
+            $email
+        );
+
+        if (
+            RateLimiter::tooManyAttempts(
+                $rateLimitKey,
+                self::MAX_MAGIC_LINK_SEND_ATTEMPTS
+            )
+        ) {
+            $seconds = RateLimiter::availableIn(
+                $rateLimitKey
+            );
+
+            return back()
+                ->withInput([
+                    'email' => $email,
+                ])
+                ->with(
+                    'error',
+                    'Je hebt te vaak een loginlink aangevraagd. Probeer het over ' .
+                    max(1, $seconds) .
+                    ' seconden opnieuw.'
+                );
+        }
+
+        RateLimiter::hit(
+            $rateLimitKey,
+            60
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Oude ongebruikte links verwijderen
+        |--------------------------------------------------------------------------
+        */
+
+        EmailLoginLink::deleteUnusedForEmail(
+            $email
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Veilige token genereren
+        |--------------------------------------------------------------------------
+        |
+        | Alleen de SHA-256 hash wordt in de database opgeslagen.
+        | De echte token bestaat uitsluitend in de e-mail-URL.
+        |
+        */
+
+        $token = bin2hex(
+            random_bytes(32)
+        );
+
+        $tokenHash = hash(
+            'sha256',
+            $token
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic link opslaan
+        |--------------------------------------------------------------------------
+        */
+
+        $loginLink = EmailLoginLink::create([
+            'email' => $email,
+            'token_hash' => $tokenHash,
+            'expires_at' => now()->addMinutes(
+                self::MAGIC_LINK_EXPIRES_MINUTES
+            ),
+            'used_at' => null,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Veilige URL maken
+        |--------------------------------------------------------------------------
+        */
+
+        $magicLinkUrl = route(
+            'email-login.link.verify',
+            [
+                'token' => $token,
+            ]
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic link versturen via Brevo
+        |--------------------------------------------------------------------------
+        */
+
+        try {
+            $this->brevoMail->send(
+                $email,
+                '',
+                'Je veilige loginlink voor Mashal Automotive',
+                'emails.magic-login-link',
+                [
+                    'email' => $email,
+                    'magicLinkUrl' => $magicLinkUrl,
+                    'expiresInMinutes' =>
+                        self::MAGIC_LINK_EXPIRES_MINUTES,
+                ]
+            );
+        } catch (Throwable $exception) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Link verwijderen wanneer e-mail verzenden mislukt
+            |--------------------------------------------------------------------------
+            */
+
+            try {
+                $loginLink->delete();
+            } catch (Throwable $deleteException) {
+                report($deleteException);
+            }
+
+            report($exception);
+
+            return back()
+                ->withInput([
+                    'email' => $email,
+                ])
+                ->with(
+                    'error',
+                    'De loginlink kon niet worden verzonden. Probeer het later opnieuw.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Succesmelding
+        |--------------------------------------------------------------------------
+        */
+
+        return back()
+            ->withInput([
+                'email' => $email,
+            ])
+            ->with(
+                'success',
+                'We hebben een veilige loginlink naar je e-mailadres gestuurd. De link is ' .
+                self::MAGIC_LINK_EXPIRES_MINUTES .
+                ' minuten geldig en kan één keer worden gebruikt.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic login link controleren
+    |--------------------------------------------------------------------------
+    */
+
+    public function verifyMagicLink(Request $request): RedirectResponse
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Token valideren
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'token' => [
+                'required',
+                'string',
+                'size:64',
+            ],
+        ]);
+
+        $token = trim(
+            (string) $validated['token']
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Algemene verificatie-rate-limit
+        |--------------------------------------------------------------------------
+        */
+
+        $rateLimitKey = $this->magicLinkVerifyRateLimitKey(
+            $request
+        );
+
+        if (
+            RateLimiter::tooManyAttempts(
+                $rateLimitKey,
+                self::MAX_MAGIC_LINK_VERIFY_ATTEMPTS
+            )
+        ) {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Te veel loginlink-pogingen. Probeer het later opnieuw.'
+                );
+        }
+
+        RateLimiter::hit(
+            $rateLimitKey,
+            300
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Token hashen en link zoeken
+        |--------------------------------------------------------------------------
+        */
+
+        $tokenHash = hash(
+            'sha256',
+            $token
+        );
+
+        $loginLink = EmailLoginLink::query()
+            ->where(
+                'token_hash',
+                $tokenHash
+            )
+            ->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Link bestaat niet
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $loginLink) {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Deze loginlink is ongeldig. Vraag een nieuwe loginlink aan.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Link al gebruikt
+        |--------------------------------------------------------------------------
+        */
+
+        if ($loginLink->isUsed()) {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Deze loginlink is al gebruikt. Vraag een nieuwe loginlink aan.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Link verlopen
+        |--------------------------------------------------------------------------
+        */
+
+        if ($loginLink->isExpired()) {
+            $loginLink->delete();
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Deze loginlink is verlopen. Vraag een nieuwe loginlink aan.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailadres uit link
+        |--------------------------------------------------------------------------
+        */
+
+        $email = strtolower(
+            trim(
+                (string) $loginLink->email
+            )
+        );
+
+        if ($email === '') {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Deze loginlink bevat geen geldig e-mailadres.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker zoeken of aanmaken
+        |--------------------------------------------------------------------------
+        */
+
+        $user = User::where(
+            'email',
+            $email
+        )->first();
+
+        if (! $user) {
+            $user = $this->createUser(
+                $email,
+                'magic_link'
+            );
+        } else {
+            $changes = [
+                'login_provider' => 'magic_link',
+            ];
+
+            if (! $user->email_verified_at) {
+                $changes['email_verified_at'] = now();
+            }
+
+            $user->forceFill(
+                $changes
+            )->save();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Link als gebruikt markeren
+        |--------------------------------------------------------------------------
+        */
+
+        $loginLink->markAsUsed();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gebruiker inloggen
+        |--------------------------------------------------------------------------
+        */
+
+        Auth::login(
+            $user,
+            true
+        );
+
+        $request
+            ->session()
+            ->regenerate();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Oude tijdelijke authenticatiegegevens opruimen
+        |--------------------------------------------------------------------------
+        */
+
+        $request
+            ->session()
+            ->forget(
+                'email_login_email'
+            );
+
+        RateLimiter::clear(
+            $rateLimitKey
+        );
+
+        RateLimiter::clear(
+            $this->magicLinkSendRateLimitKey(
+                $request,
+                $email
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Andere ongebruikte magic links verwijderen
+        |--------------------------------------------------------------------------
+        */
+
+        EmailLoginLink::deleteUnusedForEmail(
+            $email
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Naar accountpagina
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('account')
+            ->with(
+                'success',
+                'Je bent succesvol ingelogd via je veilige loginlink.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Nieuwe gebruiker maken
     |--------------------------------------------------------------------------
     */
 
-    private function createUser(string $email): User
+    private function createUser(
+        string $email,
+        string $loginProvider = 'email_code'
+    ): User
     {
         /*
         |--------------------------------------------------------------------------
@@ -697,7 +1157,7 @@ class EmailLoginController extends Controller
 
             'email_verified_at' => now(),
 
-            'login_provider' => 'email_code',
+            'login_provider' => $loginProvider,
 
             'is_admin' => false,
         ]);
@@ -738,6 +1198,41 @@ class EmailLoginController extends Controller
                 $request->ip() .
                 '|' .
                 $email
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate-limit key voor magic link versturen
+    |--------------------------------------------------------------------------
+    */
+
+    private function magicLinkSendRateLimitKey(
+        Request $request,
+        string $email
+    ): string {
+        return 'email-magic-link-send:' .
+            sha1(
+                $request->ip() .
+                '|' .
+                $email
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate-limit key voor magic link controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function magicLinkVerifyRateLimitKey(
+        Request $request
+    ): string {
+        return 'email-magic-link-verify:' .
+            sha1(
+                (string) $request->ip()
             );
     }
 }
