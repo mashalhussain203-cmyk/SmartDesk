@@ -381,6 +381,13 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    Route::get(
+        '/favorites',
+        [FavoriteController::class, 'index']
+    )
+        ->name('favorites.index');
+
+
     Route::post(
         '/favorites/{id}',
         [FavoriteController::class, 'store']

@@ -6,8 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Voer de migration uit.
+     */
     public function up(): void
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Favorites-tabel bestaat nog niet
+        |--------------------------------------------------------------------------
+        */
+
         if (! Schema::hasTable('favorites')) {
             Schema::create('favorites', function (Blueprint $table) {
                 $table->id();
@@ -26,6 +35,13 @@ return new class extends Migration
             return;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | user_id toevoegen indien deze ontbreekt
+        |--------------------------------------------------------------------------
+        */
+
         if (! Schema::hasColumn('favorites', 'user_id')) {
             Schema::table('favorites', function (Blueprint $table) {
                 $table->unsignedBigInteger('user_id')
@@ -33,6 +49,13 @@ return new class extends Migration
                     ->index();
             });
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | car_id toevoegen indien deze ontbreekt
+        |--------------------------------------------------------------------------
+        */
 
         if (! Schema::hasColumn('favorites', 'car_id')) {
             Schema::table('favorites', function (Blueprint $table) {
@@ -43,12 +66,16 @@ return new class extends Migration
         }
     }
 
+
+    /**
+     * Draai de migration terug.
+     *
+     * Bewust leeg:
+     * deze migration repareert een bestaande productie-database.
+     * We willen bij rollback geen bestaande favorietenkolommen verwijderen.
+     */
     public function down(): void
     {
-        //
-        // Bewust leeg gelaten.
-        // Deze migration repareert een bestaand schema en moet
-        // geen bestaande productie-kolommen verwijderen.
         //
     }
 };

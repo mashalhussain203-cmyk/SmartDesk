@@ -16,18 +16,16 @@ class Favorite extends Model
         'car_id',
     ];
 
-
     /**
-     * Cast databasewaarden naar integers.
+     * Databasewaarden als integers behandelen.
      */
     protected $casts = [
         'user_id' => 'integer',
         'car_id' => 'integer',
     ];
 
-
     /**
-     * De gebruiker van deze favoriet.
+     * De gebruiker bij deze favoriet.
      */
     public function user(): BelongsTo
     {

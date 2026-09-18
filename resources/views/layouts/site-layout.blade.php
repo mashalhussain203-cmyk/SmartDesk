@@ -2611,6 +2611,22 @@
 
                     </a>
 
+                    @auth
+
+                        <a
+
+                            class="{{ request()->routeIs('favorites.*') ? 'active' : '' }}"
+
+                            href="{{ route('favorites.index') }}"
+
+                        >
+
+                            Favorieten
+
+                        </a>
+
+                    @endauth
+
                     <a
 
                         class="{{ request()->routeIs('cart') || request()->routeIs('checkout') ? 'active' : '' }}"
@@ -3001,6 +3017,16 @@
                         Collectie
 
                     </a>
+
+                    @auth
+
+                        <a href="{{ route('favorites.index') }}">
+
+                            Favorieten
+
+                        </a>
+
+                    @endauth
 
                     <a href="{{ route('cart') }}">
 
