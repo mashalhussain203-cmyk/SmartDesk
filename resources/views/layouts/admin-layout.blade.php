@@ -46,25 +46,16 @@
     {{-- Mashal Automotive favicon --}}
     <link
         rel="icon"
-        type="image/png"
-        href="{{ asset('favicon.png') }}?v=2"
+        type="image/x-icon"
+        href="{{ asset('favicon.ico') }}?v=3"
     >
     <link
         rel="shortcut icon"
         type="image/x-icon"
-        href="{{ asset('favicon.ico') }}?v=2"
-    >
-    <link
-        rel="apple-touch-icon"
-        href="{{ asset('favicon.png') }}?v=2"
+        href="{{ asset('favicon.ico') }}?v=3"
     >
 
-
-
-
-
-
-    <style>
+<style>
 
         :root {
 
@@ -129,6 +120,10 @@
                 sans-serif;
 
         }
+
+
+
+
 
 
 
@@ -218,6 +213,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* ADMIN SHELL                                                */
@@ -231,6 +230,10 @@
             display: flex;
 
         }
+
+
+
+
 
 
 
@@ -296,6 +299,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* BRAND                                                      */
@@ -317,50 +324,33 @@
             text-decoration: none;
 
         }
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            padding: 0;
+            border: 1px solid rgba(215, 164, 95, 0.34);
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow:
+                0 10px 30px rgba(215, 164, 95, 0.16);
+        }
+
+        .brand-mark img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            border-radius: inherit;
+        }
 
 
 
 
-
-        .brand-mark {
-
-            width: 48px;
-
-            height: 48px;
-
-            flex-shrink: 0;
-
-            display: grid;
-
-            place-items: center;
-
-            border: 1px solid rgba(215, 164, 95, 0.4);
-
-            border-radius: 15px;
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    var(--gold-light),
-
-                    var(--gold)
-
-                );
-
-            color: #15110c;
-
-            font-size: 20px;
-
-            font-weight: 950;
-
-            box-shadow:
-
-                0 10px 30px rgba(215, 164, 95, 0.16);
-
-        }
 
 
 
@@ -386,6 +376,10 @@
 
 
 
+
+
+
+
         .brand-text span {
 
             display: block;
@@ -405,6 +399,10 @@
             text-transform: uppercase;
 
         }
+
+
+
+
 
 
 
@@ -440,6 +438,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* NAVIGATION                                                 */
@@ -466,6 +468,10 @@
 
 
 
+
+
+
+
         .sidebar nav {
 
             display: grid;
@@ -473,6 +479,10 @@
             gap: 5px;
 
         }
+
+
+
+
 
 
 
@@ -520,6 +530,10 @@
 
 
 
+
+
+
+
         .nav-link svg {
 
             width: 18px;
@@ -544,6 +558,10 @@
 
 
 
+
+
+
+
         .nav-link:hover {
 
             transform: translateX(2px);
@@ -557,6 +575,10 @@
             color: #eeeae3;
 
         }
+
+
+
+
 
 
 
@@ -583,6 +605,10 @@
             color: var(--gold-light);
 
         }
+
+
+
+
 
 
 
@@ -616,6 +642,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* SIDEBAR PROFILE                                           */
@@ -629,6 +659,10 @@
             padding-top: 30px;
 
         }
+
+
+
+
 
 
 
@@ -649,6 +683,10 @@
                 rgba(255, 255, 255, 0.025);
 
         }
+
+
+
+
 
 
 
@@ -784,6 +822,10 @@
 
 
 
+
+
+
+
         .profile-name {
 
             color: #f2f0eb;
@@ -795,6 +837,10 @@
             word-break: break-word;
 
         }
+
+
+
+
 
 
 
@@ -813,6 +859,10 @@
             word-break: break-word;
 
         }
+
+
+
+
 
 
 
@@ -856,6 +906,10 @@
 
 
 
+
+
+
+
         .admin-badge::before {
 
             content: "";
@@ -878,6 +932,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* LOGOUT                                                     */
@@ -889,6 +947,10 @@
             margin-top: 13px;
 
         }
+
+
+
+
 
 
 
@@ -938,6 +1000,10 @@
 
 
 
+
+
+
+
         .logout-button:hover {
 
             border-color:
@@ -951,6 +1017,10 @@
             color: #f0aaaa;
 
         }
+
+
+
+
 
 
 
@@ -977,6 +1047,10 @@
                 54px;
 
         }
+
+
+
+
 
 
 
@@ -1014,6 +1088,10 @@
 
 
 
+
+
+
+
         .topbar::after {
 
             content: "";
@@ -1046,6 +1124,10 @@
 
 
 
+
+
+
+
         .page-title {
 
             margin: 0;
@@ -1068,6 +1150,10 @@
 
 
 
+
+
+
+
         .page-subtitle {
 
             display: block;
@@ -1083,6 +1169,10 @@
             line-height: 1.7;
 
         }
+
+
+
+
 
 
 
@@ -1238,6 +1328,10 @@
 
 
 
+
+
+
+
         /* ========================================================= */
 
         /* BUTTONS                                                    */
@@ -1306,6 +1400,10 @@
 
 
 
+
+
+
+
         .button:hover {
 
             transform: translateY(-2px);
@@ -1315,6 +1413,10 @@
                 0 16px 32px rgba(215, 164, 95, 0.2);
 
         }
+
+
+
+
 
 
 
@@ -1338,6 +1440,10 @@
 
 
 
+
+
+
+
         .button.secondary:hover {
 
             border-color:
@@ -1351,6 +1457,10 @@
             color: var(--gold-light);
 
         }
+
+
+
+
 
 
 
@@ -1376,6 +1486,10 @@
 
 
 
+
+
+
+
         .button.danger:hover {
 
             background:
@@ -1383,6 +1497,10 @@
                 rgba(239, 143, 143, 0.11);
 
         }
+
+
+
+
 
 
 
@@ -1420,6 +1538,10 @@
 
 
 
+
+
+
+
         .alert,
 
         .success {
@@ -1435,6 +1557,10 @@
             color: #a8e8c2;
 
         }
+
+
+
+
 
 
 
@@ -1458,6 +1584,10 @@
 
 
 
+
+
+
+
         .warning {
 
             border:
@@ -1471,6 +1601,10 @@
             color: #e8c887;
 
         }
+
+
+
+
 
 
 
@@ -1495,6 +1629,10 @@
             margin: 18px 0;
 
         }
+
+
+
+
 
 
 
@@ -1542,6 +1680,10 @@
 
 
 
+
+
+
+
         .stat-card:hover {
 
             transform: translateY(-3px);
@@ -1551,6 +1693,10 @@
                 var(--line-strong);
 
         }
+
+
+
+
 
 
 
@@ -1592,6 +1738,10 @@
 
 
 
+
+
+
+
         .stat-label {
 
             color: var(--muted);
@@ -1605,6 +1755,10 @@
             letter-spacing: 0.14em;
 
         }
+
+
+
+
 
 
 
@@ -1630,6 +1784,10 @@
 
 
 
+
+
+
+
         .stat-foot {
 
             color: var(--muted-2);
@@ -1639,6 +1797,10 @@
             line-height: 1.55;
 
         }
+
+
+
+
 
 
 
@@ -1684,6 +1846,10 @@
 
 
 
+
+
+
+
         .section-heading {
 
             display: flex;
@@ -1697,6 +1863,10 @@
             margin-bottom: 20px;
 
         }
+
+
+
+
 
 
 
@@ -1720,6 +1890,10 @@
 
 
 
+
+
+
+
         .section-heading span {
 
             display: block;
@@ -1733,6 +1907,10 @@
             line-height: 1.6;
 
         }
+
+
+
+
 
 
 
@@ -1766,6 +1944,10 @@
 
 
 
+
+
+
+
         table {
 
             width: 100%;
@@ -1773,6 +1955,10 @@
             border-collapse: collapse;
 
         }
+
+
+
+
 
 
 
@@ -1810,6 +1996,10 @@
 
 
 
+
+
+
+
         td {
 
             padding: 14px 12px;
@@ -1830,11 +2020,19 @@
 
 
 
+
+
+
+
         tbody tr:last-child td {
 
             border-bottom: none;
 
         }
+
+
+
+
 
 
 
@@ -1847,6 +2045,10 @@
                 rgba(215, 164, 95, 0.025);
 
         }
+
+
+
+
 
 
 
@@ -1869,6 +2071,10 @@
             font-weight: 700;
 
         }
+
+
+
+
 
 
 
@@ -1903,6 +2109,10 @@
             font-weight: 950;
 
         }
+
+
+
+
 
 
 
@@ -1946,6 +2156,10 @@
 
 
 
+
+
+
+
         .badge.admin {
 
             border-color:
@@ -1959,6 +2173,10 @@
             color: var(--info);
 
         }
+
+
+
+
 
 
 
@@ -1984,6 +2202,10 @@
 
 
 
+
+
+
+
         .badge.warning {
 
             border-color:
@@ -1999,6 +2221,10 @@
             margin: 0;
 
         }
+
+
+
+
 
 
 
@@ -2032,11 +2258,19 @@
 
 
 
+
+
+
+
         .form-row {
 
             margin-bottom: 18px;
 
         }
+
+
+
+
 
 
 
@@ -2059,6 +2293,10 @@
             letter-spacing: 0.1em;
 
         }
+
+
+
+
 
 
 
@@ -2102,6 +2340,10 @@
 
 
 
+
+
+
+
         input::placeholder,
 
         textarea::placeholder {
@@ -2114,6 +2356,10 @@
 
 
 
+
+
+
+
         textarea {
 
             min-height: 120px;
@@ -2121,6 +2367,10 @@
             resize: vertical;
 
         }
+
+
+
+
 
 
 
@@ -2154,6 +2404,10 @@
 
 
 
+
+
+
+
         input:disabled,
 
         select:disabled,
@@ -2165,6 +2419,10 @@
             cursor: not-allowed;
 
         }
+
+
+
+
 
 
 
@@ -2208,6 +2466,10 @@
 
 
 
+
+
+
+
         .access-page::before {
 
             content: "M";
@@ -2235,6 +2497,10 @@
             pointer-events: none;
 
         }
+
+
+
+
 
 
 
@@ -2282,6 +2548,10 @@
 
 
 
+
+
+
+
         .access-icon {
 
             width: 64px;
@@ -2306,6 +2576,10 @@
 
 
 
+
+
+
+
         .access-icon.danger {
 
             border:
@@ -2319,6 +2593,10 @@
             color: #efaaaa;
 
         }
+
+
+
+
 
 
 
@@ -2352,6 +2630,10 @@
 
 
 
+
+
+
+
         .access-card h1 {
 
             margin: 0;
@@ -2372,6 +2654,10 @@
 
 
 
+
+
+
+
         .access-card p {
 
             margin: 14px 0 24px;
@@ -2383,6 +2669,10 @@
             line-height: 1.75;
 
         }
+
+
+
+
 
 
 
@@ -2410,6 +2700,10 @@
 
 
 
+
+
+
+
         @media (max-width: 900px) {
 
             .admin-shell {
@@ -2417,6 +2711,10 @@
                 flex-direction: column;
 
             }
+
+
+
+
 
 
 
@@ -2450,11 +2748,19 @@
 
 
 
+
+
+
+
             .brand {
 
                 margin-bottom: 20px;
 
             }
+
+
+
+
 
 
 
@@ -2470,6 +2776,10 @@
 
 
 
+
+
+
+
             .sidebar nav {
 
                 grid-template-columns:
@@ -2477,6 +2787,10 @@
                     repeat(2, minmax(0, 1fr));
 
             }
+
+
+
+
 
 
 
@@ -2498,6 +2812,10 @@
 
 
 
+
+
+
+
             .sidebar-footer {
 
                 margin-top: 20px;
@@ -2505,6 +2823,10 @@
                 padding-top: 0;
 
             }
+
+
+
+
 
 
 
@@ -2530,6 +2852,10 @@
 
 
 
+
+
+
+
             .logout-form {
 
                 grid-column: 2;
@@ -2539,6 +2865,10 @@
                 margin: 0;
 
             }
+
+
+
+
 
 
 
@@ -2554,6 +2884,10 @@
 
 
 
+
+
+
+
             .content {
 
                 padding:
@@ -2561,6 +2895,10 @@
                     22px;
 
             }
+
+
+
+
 
 
 
@@ -2582,6 +2920,10 @@
 
 
 
+
+
+
+
         @media (max-width: 620px) {
 
             .content {
@@ -2591,6 +2933,10 @@
                     16px;
 
             }
+
+
+
+
 
 
 
@@ -2608,11 +2954,19 @@
 
 
 
+
+
+
+
             .sidebar nav {
 
                 grid-template-columns: 1fr;
 
             }
+
+
+
+
 
 
 
@@ -2628,6 +2982,10 @@
 
 
 
+
+
+
+
             .logout-form {
 
                 margin-top: 12px;
@@ -2638,11 +2996,19 @@
 
 
 
+
+
+
+
             .logout-button {
 
                 width: 100%;
 
             }
+
+
+
+
 
 
 
@@ -2660,11 +3026,19 @@
 
 
 
+
+
+
+
             .form-wrap {
 
                 padding: 18px;
 
             }
+
+
+
+
 
 
 
@@ -2680,11 +3054,19 @@
 
 
 
+
+
+
+
             .topbar-actions {
 
                 width: 100%;
 
             }
+
+
+
+
 
 
 
@@ -2708,6 +3090,10 @@
 
 
 
+
+
+
+
             .access-card {
 
                 padding: 26px 20px;
@@ -2722,6 +3108,10 @@
 
 
 
+
+
+
+
     {{-- ========================================================= --}}
 
     {{-- PAGE-SPECIFIC STYLES                                       --}}
@@ -2731,6 +3121,10 @@
     @stack('styles')
 
 </head>
+
+
+
+
 
 
 
@@ -2754,6 +3148,10 @@
 
 
 
+
+
+
+
                 {{-- ===================================================== --}}
 
                 {{-- SIDEBAR                                                 --}}
@@ -2761,6 +3159,10 @@
                 {{-- ===================================================== --}}
 
                 <aside class="sidebar">
+
+
+
+
 
 
 
@@ -2777,10 +3179,17 @@
                     >
 
                         <div class="brand-mark">
+                            <img
+                                src="{{ asset('favicon.ico') }}?v=3"
+                                alt="Mashal Automotive"
+                                width="48"
+                                height="48"
+                            >
+                        </div>
 
-                            M
 
-                        </div>
+
+
 
 
 
@@ -2808,7 +3217,15 @@
 
 
 
+
+
+
+
                     <div class="sidebar-separator"></div>
+
+
+
+
 
 
 
@@ -2825,6 +3242,10 @@
                         Beheer
 
                     </div>
+
+
+
+
 
 
 
@@ -2864,6 +3285,10 @@
 
 
 
+
+
+
+
                         {{-- USERS --}}
 
                         <a
@@ -2891,6 +3316,10 @@
                             </span>
 
                         </a>
+
+
+
+
 
 
 
@@ -2930,6 +3359,10 @@
 
 
 
+
+
+
+
                     {{-- ================================================= --}}
 
                     {{-- WEBSITE                                            --}}
@@ -2941,6 +3374,10 @@
                         Mashal Automotive
 
                     </div>
+
+
+
+
 
 
 
@@ -2980,6 +3417,10 @@
 
 
 
+
+
+
+
                         {{-- CATALOG --}}
 
                         <a
@@ -3007,6 +3448,10 @@
                             </span>
 
                         </a>
+
+
+
+
 
 
 
@@ -3044,6 +3489,10 @@
 
 
 
+
+
+
+
                         {{-- ACCOUNT --}}
 
                         <a
@@ -3073,6 +3522,10 @@
                         </a>
 
                     </nav>
+
+
+
+
 
 
 
@@ -3170,6 +3623,8 @@
 
 
 
+
+
                             {{-- LOGOUT --}}
 
                             <form
@@ -3183,6 +3638,10 @@
                             >
 
                                 @csrf
+
+
+
+
 
 
 
@@ -3212,6 +3671,10 @@
 
 
 
+
+
+
+
                 {{-- ===================================================== --}}
 
                 {{-- MAIN CONTENT                                            --}}
@@ -3219,6 +3682,10 @@
                 {{-- ===================================================== --}}
 
                 <main class="content">
+
+
+
+
 
 
 
@@ -3240,6 +3707,10 @@
 
 
 
+
+
+
+
                             <span class="page-subtitle">
 
                                 Beheer gebruikers, rechten en accountgegevens
@@ -3249,6 +3720,10 @@
                             </span>
 
                         </div>
+
+
+
+
 
 
 
@@ -3308,6 +3783,8 @@
 
 
 
+
+
                             <a
 
                                 class="button secondary"
@@ -3319,6 +3796,10 @@
                                 Gebruikers beheren
 
                             </a>
+
+
+
+
 
 
 
@@ -3339,6 +3820,10 @@
                         </div>
 
                     </section>
+
+
+
+
 
 
 
@@ -3372,6 +3857,10 @@
 
 
 
+
+
+
+
                     {{-- ================================================= --}}
 
                     {{-- ERROR                                              --}}
@@ -3395,6 +3884,10 @@
                         </div>
 
                     @endif
+
+
+
+
 
 
 
@@ -3448,6 +3941,10 @@
 
 
 
+
+
+
+
                     {{-- ================================================= --}}
 
                     {{-- PAGE CONTENT                                        --}}
@@ -3482,11 +3979,19 @@
 
 
 
+
+
+
+
                     <h1>
 
                         Geen administratorrechten
 
                     </h1>
+
+
+
+
 
 
 
@@ -3501,6 +4006,10 @@
                         Ga terug naar je account om de gewone website te gebruiken.
 
                     </p>
+
+
+
+
 
 
 
@@ -3528,6 +4037,10 @@
 
 
 
+
+
+
+
     @else
 
         {{-- ============================================================= --}}
@@ -3550,11 +4063,19 @@
 
 
 
+
+
+
+
                 <h1>
 
                     Mashal Admin
 
                 </h1>
+
+
+
+
 
 
 
@@ -3567,6 +4088,10 @@
                     om de Mashal Automotive-beheeromgeving te openen.
 
                 </p>
+
+
+
+
 
 
 
@@ -3589,6 +4114,10 @@
         </main>
 
     @endauth
+
+
+
+
 
 
 
