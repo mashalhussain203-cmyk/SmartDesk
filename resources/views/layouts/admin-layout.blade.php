@@ -4,3136 +4,3603 @@
 
 <head>
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-    <meta
+    <meta
 
-        name="viewport"
+        name="viewport"
 
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0"
 
+    >
+
+    <meta
+
+        name="csrf-token"
+
+        content="{{ csrf_token() }}"
+
+    >
+
+    <meta
+
+        name="robots"
+
+        content="noindex, nofollow"
+
+    >
+
+    <meta
+
+        name="color-scheme"
+
+        content="dark"
+
+    >
+
+    <title>
+
+        @yield('title', 'Mashal Admin')
+
+    </title>
+    {{-- Mashal Automotive favicon --}}
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ asset('favicon.png') }}?v=2"
+    >
+    <link
+        rel="shortcut icon"
+        type="image/x-icon"
+        href="{{ asset('favicon.ico') }}?v=2"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="{{ asset('favicon.png') }}?v=2"
     >
 
-    <meta
 
-        name="csrf-token"
 
-        content="{{ csrf_token() }}"
 
-    >
 
-    <meta
 
-        name="robots"
+    <style>
 
-        content="noindex, nofollow"
+        :root {
 
-    >
+            --bg: #08090b;
 
-    <meta
+            --bg-soft: #0d1014;
 
-        name="color-scheme"
+            --panel: #111419;
 
-        content="dark"
+            --panel-soft: #15191f;
 
-    >
+            --panel-hover: #191e25;
 
-    <title>
+            --text: #f6f4ef;
 
-        @yield('title', 'Mashal Admin')
+            --text-soft: #d8d4cc;
 
-    </title>
+            --muted: #8b9199;
 
+            --muted-2: #646a72;
 
+            --line: rgba(255, 255, 255, 0.075);
 
-    <style>
+            --line-strong: rgba(215, 164, 95, 0.24);
 
-        :root {
+            --gold: #d7a45f;
 
-            --bg: #08090b;
+            --gold-light: #f1c983;
 
-            --bg-soft: #0d1014;
+            --gold-dark: #9c6d34;
 
-            --panel: #111419;
+            --success: #65d59a;
 
-            --panel-soft: #15191f;
+            --success-soft: rgba(101, 213, 154, 0.08);
 
-            --panel-hover: #191e25;
+            --warning: #e8bf73;
 
-            --text: #f6f4ef;
+            --warning-soft: rgba(232, 191, 115, 0.08);
 
-            --text-soft: #d8d4cc;
+            --danger: #ef8f8f;
 
-            --muted: #8b9199;
+            --danger-soft: rgba(239, 143, 143, 0.08);
 
-            --muted-2: #646a72;
+            --info: #8fb6ec;
 
-            --line: rgba(255, 255, 255, 0.075);
+            --info-soft: rgba(143, 182, 236, 0.08);
 
-            --line-strong: rgba(215, 164, 95, 0.24);
+            --shadow:
 
-            --gold: #d7a45f;
+                0 28px 80px rgba(0, 0, 0, 0.24);
 
-            --gold-light: #f1c983;
+            --font:
 
-            --gold-dark: #9c6d34;
+                Inter,
 
-            --success: #65d59a;
+                "Segoe UI",
 
-            --success-soft: rgba(101, 213, 154, 0.08);
+                Arial,
 
-            --warning: #e8bf73;
+                Helvetica,
 
-            --warning-soft: rgba(232, 191, 115, 0.08);
+                sans-serif;
 
-            --danger: #ef8f8f;
+        }
 
-            --danger-soft: rgba(239, 143, 143, 0.08);
 
-            --info: #8fb6ec;
 
-            --info-soft: rgba(143, 182, 236, 0.08);
 
-            --shadow:
 
-                0 28px 80px rgba(0, 0, 0, 0.24);
+        /* ========================================================= */
 
-            --font:
+        /* GLOBAL                                                     */
 
-                Inter,
+        /* ========================================================= */
 
-                "Segoe UI",
+        * {
 
-                Arial,
+            box-sizing: border-box;
 
-                Helvetica,
+            -webkit-font-smoothing: antialiased;
 
-                sans-serif;
+        }
 
-        }
+        html {
 
+            scroll-behavior: smooth;
 
+        }
 
-        /* ========================================================= */
+        body {
 
-        /* GLOBAL                                                     */
+            margin: 0;
 
-        /* ========================================================= */
+            min-height: 100vh;
 
-        * {
+            background:
 
-            box-sizing: border-box;
+                radial-gradient(
 
-            -webkit-font-smoothing: antialiased;
+                    circle at 82% 8%,
 
-        }
+                    rgba(215, 164, 95, 0.075),
 
-        html {
+                    transparent 24rem
 
-            scroll-behavior: smooth;
+                ),
 
-        }
+                linear-gradient(
 
-        body {
+                    180deg,
 
-            margin: 0;
+                    #090a0c 0%,
 
-            min-height: 100vh;
+                    #08090b 100%
 
-            background:
+                );
 
-                radial-gradient(
+            color: var(--text);
 
-                    circle at 82% 8%,
+            font-family: var(--font);
 
-                    rgba(215, 164, 95, 0.075),
+        }
 
-                    transparent 24rem
+        a {
 
-                ),
+            color: inherit;
 
-                linear-gradient(
+        }
 
-                    180deg,
+        button,
 
-                    #090a0c 0%,
+        input,
 
-                    #08090b 100%
+        select,
 
-                );
+        textarea {
 
-            color: var(--text);
+            font: inherit;
 
-            font-family: var(--font);
+        }
 
-        }
+        ::selection {
 
-        a {
+            background: rgba(215, 164, 95, 0.28);
 
-            color: inherit;
+            color: #ffffff;
 
-        }
+        }
 
-        button,
 
-        input,
 
-        select,
 
-        textarea {
 
-            font: inherit;
+        /* ========================================================= */
 
-        }
+        /* ADMIN SHELL                                                */
 
-        ::selection {
+        /* ========================================================= */
 
-            background: rgba(215, 164, 95, 0.28);
+        .admin-shell {
 
-            color: #ffffff;
+            min-height: 100vh;
 
-        }
+            display: flex;
 
+        }
 
 
-        /* ========================================================= */
 
-        /* ADMIN SHELL                                                */
 
-        /* ========================================================= */
 
-        .admin-shell {
+        /* ========================================================= */
 
-            min-height: 100vh;
+        /* SIDEBAR                                                    */
 
-            display: flex;
+        /* ========================================================= */
 
-        }
+        .sidebar {
 
+            position: sticky;
 
+            top: 0;
 
-        /* ========================================================= */
+            width: 294px;
 
-        /* SIDEBAR                                                    */
+            height: 100vh;
 
-        /* ========================================================= */
+            flex-shrink: 0;
 
-        .sidebar {
+            display: flex;
 
-            position: sticky;
+            flex-direction: column;
 
-            top: 0;
+            overflow-y: auto;
 
-            width: 294px;
+            padding: 28px 20px;
 
-            height: 100vh;
+            border-right: 1px solid var(--line);
 
-            flex-shrink: 0;
+            background:
 
-            display: flex;
+                radial-gradient(
 
-            flex-direction: column;
+                    circle at 30% 0%,
 
-            overflow-y: auto;
+                    rgba(215, 164, 95, 0.08),
 
-            padding: 28px 20px;
+                    transparent 17rem
 
-            border-right: 1px solid var(--line);
+                ),
 
-            background:
+                linear-gradient(
 
-                radial-gradient(
+                    180deg,
 
-                    circle at 30% 0%,
+                    #0d1014,
 
-                    rgba(215, 164, 95, 0.08),
+                    #0a0c0f
 
-                    transparent 17rem
+                );
 
-                ),
+            box-shadow:
 
-                linear-gradient(
+                18px 0 55px rgba(0, 0, 0, 0.12);
 
-                    180deg,
+        }
 
-                    #0d1014,
 
-                    #0a0c0f
 
-                );
 
-            box-shadow:
 
-                18px 0 55px rgba(0, 0, 0, 0.12);
+        /* ========================================================= */
 
-        }
+        /* BRAND                                                      */
 
+        /* ========================================================= */
 
+        .brand {
 
-        /* ========================================================= */
+            display: flex;
 
-        /* BRAND                                                      */
+            align-items: center;
 
-        /* ========================================================= */
+            gap: 12px;
 
-        .brand {
+            margin-bottom: 34px;
 
-            display: flex;
+            color: #ffffff;
 
-            align-items: center;
+            text-decoration: none;
 
-            gap: 12px;
+        }
 
-            margin-bottom: 34px;
 
-            color: #ffffff;
 
-            text-decoration: none;
 
-        }
 
+        .brand-mark {
 
+            width: 48px;
 
-        .brand-mark {
+            height: 48px;
 
-            width: 48px;
+            flex-shrink: 0;
 
-            height: 48px;
+            display: grid;
 
-            flex-shrink: 0;
+            place-items: center;
 
-            display: grid;
+            border: 1px solid rgba(215, 164, 95, 0.4);
 
-            place-items: center;
+            border-radius: 15px;
 
-            border: 1px solid rgba(215, 164, 95, 0.4);
+            background:
 
-            border-radius: 15px;
+                linear-gradient(
 
-            background:
+                    145deg,
 
-                linear-gradient(
+                    var(--gold-light),
 
-                    145deg,
+                    var(--gold)
 
-                    var(--gold-light),
+                );
 
-                    var(--gold)
+            color: #15110c;
 
-                );
+            font-size: 20px;
 
-            color: #15110c;
+            font-weight: 950;
 
-            font-size: 20px;
+            box-shadow:
 
-            font-weight: 950;
+                0 10px 30px rgba(215, 164, 95, 0.16);
 
-            box-shadow:
+        }
 
-                0 10px 30px rgba(215, 164, 95, 0.16);
 
-        }
 
 
 
-        .brand-text strong {
+        .brand-text strong {
 
-            display: block;
+            display: block;
 
-            color: #ffffff;
+            color: #ffffff;
 
-            font-size: 21px;
+            font-size: 21px;
 
-            line-height: 1.05;
+            line-height: 1.05;
 
-            font-weight: 950;
+            font-weight: 950;
 
-            letter-spacing: -0.04em;
+            letter-spacing: -0.04em;
 
-        }
+        }
 
 
 
-        .brand-text span {
 
-            display: block;
 
-            margin-top: 5px;
+        .brand-text span {
 
-            color: #737a82;
+            display: block;
 
-            font-size: 9px;
+            margin-top: 5px;
 
-            line-height: 1.4;
+            color: #737a82;
 
-            font-weight: 800;
+            font-size: 9px;
 
-            letter-spacing: 0.14em;
+            line-height: 1.4;
 
-            text-transform: uppercase;
+            font-weight: 800;
 
-        }
+            letter-spacing: 0.14em;
 
+            text-transform: uppercase;
 
+        }
 
-        /* ========================================================= */
 
-        /* SIDEBAR DIVIDER                                           */
 
-        /* ========================================================= */
 
-        .sidebar-separator {
 
-            height: 1px;
+        /* ========================================================= */
 
-            margin: 4px 0 20px;
+        /* SIDEBAR DIVIDER                                           */
 
-            background:
+        /* ========================================================= */
 
-                linear-gradient(
+        .sidebar-separator {
 
-                    90deg,
+            height: 1px;
 
-                    rgba(215, 164, 95, 0.3),
+            margin: 4px 0 20px;
 
-                    transparent
+            background:
 
-                );
+                linear-gradient(
 
-        }
+                    90deg,
 
+                    rgba(215, 164, 95, 0.3),
 
+                    transparent
 
-        /* ========================================================= */
+                );
 
-        /* NAVIGATION                                                 */
+        }
 
-        /* ========================================================= */
 
-        .nav-title {
 
-            margin: 22px 10px 10px;
 
-            color: #5f646b;
 
-            font-size: 8px;
+        /* ========================================================= */
 
-            font-weight: 900;
+        /* NAVIGATION                                                 */
 
-            text-transform: uppercase;
+        /* ========================================================= */
 
-            letter-spacing: 0.18em;
+        .nav-title {
 
-        }
+            margin: 22px 10px 10px;
 
+            color: #5f646b;
 
+            font-size: 8px;
 
-        .sidebar nav {
+            font-weight: 900;
 
-            display: grid;
+            text-transform: uppercase;
 
-            gap: 5px;
+            letter-spacing: 0.18em;
 
-        }
+        }
 
 
 
-        .nav-link {
 
-            position: relative;
 
-            display: flex;
+        .sidebar nav {
 
-            align-items: center;
+            display: grid;
 
-            gap: 11px;
+            gap: 5px;
 
-            min-height: 46px;
+        }
 
-            padding: 0 13px;
 
-            border: 1px solid transparent;
 
-            border-radius: 13px;
 
-            color: #a9adb3;
 
-            text-decoration: none;
+        .nav-link {
 
-            font-size: 11px;
+            position: relative;
 
-            font-weight: 750;
+            display: flex;
 
-            transition:
+            align-items: center;
 
-                background 0.2s ease,
+            gap: 11px;
 
-                border-color 0.2s ease,
+            min-height: 46px;
 
-                color 0.2s ease,
+            padding: 0 13px;
 
-                transform 0.2s ease;
+            border: 1px solid transparent;
 
-        }
+            border-radius: 13px;
 
+            color: #a9adb3;
 
+            text-decoration: none;
 
-        .nav-link svg {
+            font-size: 11px;
 
-            width: 18px;
+            font-weight: 750;
 
-            height: 18px;
+            transition:
 
-            flex-shrink: 0;
+                background 0.2s ease,
 
-            fill: none;
+                border-color 0.2s ease,
 
-            stroke: currentColor;
+                color 0.2s ease,
 
-            stroke-width: 1.8;
+                transform 0.2s ease;
 
-            stroke-linecap: round;
+        }
 
-            stroke-linejoin: round;
 
-        }
 
 
 
-        .nav-link:hover {
+        .nav-link svg {
 
-            transform: translateX(2px);
+            width: 18px;
 
-            border-color: rgba(215, 164, 95, 0.12);
+            height: 18px;
 
-            background:
+            flex-shrink: 0;
 
-                rgba(215, 164, 95, 0.045);
+            fill: none;
 
-            color: #eeeae3;
+            stroke: currentColor;
 
-        }
+            stroke-width: 1.8;
 
+            stroke-linecap: round;
 
+            stroke-linejoin: round;
 
-        .nav-link.active {
+        }
 
-            border-color:
 
-                rgba(215, 164, 95, 0.2);
 
-            background:
 
-                linear-gradient(
 
-                    90deg,
+        .nav-link:hover {
 
-                    rgba(215, 164, 95, 0.13),
+            transform: translateX(2px);
 
-                    rgba(215, 164, 95, 0.045)
+            border-color: rgba(215, 164, 95, 0.12);
 
-                );
+            background:
 
-            color: var(--gold-light);
+                rgba(215, 164, 95, 0.045);
 
-        }
+            color: #eeeae3;
 
+        }
 
 
-        .nav-link.active::before {
 
-            content: "";
 
-            position: absolute;
 
-            left: -1px;
+        .nav-link.active {
 
-            top: 10px;
+            border-color:
 
-            bottom: 10px;
+                rgba(215, 164, 95, 0.2);
 
-            width: 2px;
+            background:
 
-            border-radius: 999px;
+                linear-gradient(
 
-            background: var(--gold);
+                    90deg,
 
-            box-shadow:
+                    rgba(215, 164, 95, 0.13),
 
-                0 0 12px rgba(215, 164, 95, 0.5);
+                    rgba(215, 164, 95, 0.045)
 
-        }
+                );
 
+            color: var(--gold-light);
 
+        }
 
-        /* ========================================================= */
 
-        /* SIDEBAR PROFILE                                           */
 
-        /* ========================================================= */
 
-        .sidebar-footer {
 
-            margin-top: auto;
+        .nav-link.active::before {
 
-            padding-top: 30px;
+            content: "";
 
-        }
+            position: absolute;
 
+            left: -1px;
 
+            top: 10px;
 
-        .profile-card {
+            bottom: 10px;
 
-            padding: 16px;
+            width: 2px;
 
-            border:
+            border-radius: 999px;
 
-                1px solid var(--line);
+            background: var(--gold);
 
-            border-radius: 18px;
+            box-shadow:
 
-            background:
+                0 0 12px rgba(215, 164, 95, 0.5);
 
-                rgba(255, 255, 255, 0.025);
+        }
 
-        }
 
 
 
-        .profile-head {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            min-width: 0;
-        }
 
-        .profile-avatar {
-            width: 46px;
-            height: 46px;
-            flex: 0 0 46px;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            border: 1px solid rgba(215, 164, 95, 0.22);
-            border-radius: 14px;
-            background:
-                linear-gradient(
-                    145deg,
-                    var(--gold-light),
-                    var(--gold)
-                );
-            color: #15110c;
-            font-size: 15px;
-            font-weight: 950;
-            box-shadow:
-                0 10px 28px rgba(215, 164, 95, 0.14);
-        }
+        /* ========================================================= */
 
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-        }
+        /* SIDEBAR PROFILE                                           */
 
-        .profile-copy {
-            min-width: 0;
-        }
+        /* ========================================================= */
 
-        .profile-photo-source {
-            margin-top: 7px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--muted-2);
-            font-size: 7px;
-            font-weight: 850;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
+        .sidebar-footer {
 
-        .profile-photo-source::before {
-            content: "";
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--gold);
-            box-shadow: 0 0 10px rgba(215,164,95,.35);
-        }
+            margin-top: auto;
 
-        .profile-label {
+            padding-top: 30px;
 
-            margin-bottom: 7px;
+        }
 
-            color: var(--gold-dark);
 
-            font-size: 8px;
 
-            font-weight: 900;
 
-            text-transform: uppercase;
 
-            letter-spacing: 0.14em;
+        .profile-card {
 
-        }
+            padding: 16px;
 
+            border:
 
+                1px solid var(--line);
 
-        .profile-name {
+            border-radius: 18px;
 
-            color: #f2f0eb;
+            background:
 
-            font-size: 13px;
+                rgba(255, 255, 255, 0.025);
 
-            font-weight: 900;
+        }
 
-            word-break: break-word;
 
-        }
 
 
 
-        .profile-email {
+        .profile-head {
 
-            margin-top: 5px;
+            display: flex;
 
-            color: var(--muted);
+            align-items: center;
 
-            font-size: 9px;
+            gap: 11px;
 
-            line-height: 1.55;
+            min-width: 0;
 
-            word-break: break-word;
+        }
 
-        }
+        .profile-avatar {
 
+            width: 46px;
 
+            height: 46px;
 
-        .admin-badge {
+            flex: 0 0 46px;
 
-            display: inline-flex;
+            display: grid;
 
-            align-items: center;
+            place-items: center;
 
-            gap: 6px;
+            overflow: hidden;
 
-            margin-top: 11px;
+            border: 1px solid rgba(215, 164, 95, 0.22);
 
-            padding: 7px 9px;
+            border-radius: 14px;
 
-            border:
+            background:
 
-                1px solid rgba(101, 213, 154, 0.14);
+                linear-gradient(
 
-            border-radius: 999px;
+                    145deg,
 
-            background:
+                    var(--gold-light),
 
-                rgba(101, 213, 154, 0.05);
+                    var(--gold)
 
-            color: #9ce7bc;
+                );
 
-            font-size: 8px;
+            color: #15110c;
 
-            font-weight: 900;
+            font-size: 15px;
 
-            text-transform: uppercase;
+            font-weight: 950;
 
-            letter-spacing: 0.06em;
+            box-shadow:
 
-        }
+                0 10px 28px rgba(215, 164, 95, 0.14);
 
+        }
 
+        .profile-avatar img {
 
-        .admin-badge::before {
+            width: 100%;
 
-            content: "";
+            height: 100%;
 
-            width: 6px;
+            display: block;
 
-            height: 6px;
+            object-fit: cover;
 
-            border-radius: 50%;
+        }
 
-            background: currentColor;
+        .profile-copy {
 
-            box-shadow:
+            min-width: 0;
 
-                0 0 12px currentColor;
+        }
 
-        }
+        .profile-photo-source {
 
+            margin-top: 7px;
 
+            display: inline-flex;
 
-        /* ========================================================= */
+            align-items: center;
 
-        /* LOGOUT                                                     */
+            gap: 6px;
 
-        /* ========================================================= */
+            color: var(--muted-2);
 
-        .logout-form {
+            font-size: 7px;
 
-            margin-top: 13px;
+            font-weight: 850;
 
-        }
+            letter-spacing: .06em;
 
+            text-transform: uppercase;
 
+        }
 
-        .logout-button {
+        .profile-photo-source::before {
 
-            width: 100%;
+            content: "";
 
-            min-height: 40px;
+            width: 5px;
 
-            display: flex;
+            height: 5px;
 
-            align-items: center;
+            border-radius: 50%;
 
-            justify-content: center;
+            background: var(--gold);
 
-            border:
+            box-shadow: 0 0 10px rgba(215,164,95,.35);
 
-                1px solid rgba(239, 143, 143, 0.12);
+        }
 
-            border-radius: 11px;
+        .profile-label {
 
-            background:
+            margin-bottom: 7px;
 
-                rgba(239, 143, 143, 0.04);
+            color: var(--gold-dark);
 
-            color: #c98e8e;
+            font-size: 8px;
 
-            cursor: pointer;
+            font-weight: 900;
 
-            font-size: 9px;
+            text-transform: uppercase;
 
-            font-weight: 850;
+            letter-spacing: 0.14em;
 
-            transition:
+        }
 
-                background 0.2s ease,
 
-                border-color 0.2s ease,
 
-                color 0.2s ease;
 
-        }
 
+        .profile-name {
 
+            color: #f2f0eb;
 
-        .logout-button:hover {
+            font-size: 13px;
 
-            border-color:
+            font-weight: 900;
 
-                rgba(239, 143, 143, 0.2);
+            word-break: break-word;
 
-            background:
+        }
 
-                rgba(239, 143, 143, 0.08);
 
-            color: #f0aaaa;
 
-        }
 
 
+        .profile-email {
 
-        /* ========================================================= */
+            margin-top: 5px;
 
-        /* CONTENT                                                    */
+            color: var(--muted);
 
-        /* ========================================================= */
+            font-size: 9px;
 
-        .content {
+            line-height: 1.55;
 
-            min-width: 0;
+            word-break: break-word;
 
-            flex: 1;
+        }
 
-            padding:
 
-                24px
 
-                clamp(22px, 3.2vw, 46px)
 
-                54px;
 
-        }
+        .admin-badge {
 
+            display: inline-flex;
 
+            align-items: center;
 
-        /* ========================================================= */
+            gap: 6px;
 
-        /* TOPBAR                                                     */
+            margin-top: 11px;
 
-        /* ========================================================= */
+            padding: 7px 9px;
 
-        .topbar {
+            border:
 
-            position: relative;
+                1px solid rgba(101, 213, 154, 0.14);
 
-            display: flex;
+            border-radius: 999px;
 
-            align-items: center;
+            background:
 
-            justify-content: space-between;
+                rgba(101, 213, 154, 0.05);
 
-            gap: 24px;
+            color: #9ce7bc;
 
-            margin-bottom: 22px;
+            font-size: 8px;
 
-            padding: 18px 0 20px;
+            font-weight: 900;
 
-            border-bottom:
+            text-transform: uppercase;
 
-                1px solid var(--line);
+            letter-spacing: 0.06em;
 
-        }
+        }
 
 
 
-        .topbar::after {
 
-            content: "";
 
-            position: absolute;
+        .admin-badge::before {
 
-            left: 0;
+            content: "";
 
-            bottom: -1px;
+            width: 6px;
 
-            width: 110px;
+            height: 6px;
 
-            height: 1px;
+            border-radius: 50%;
 
-            background:
+            background: currentColor;
 
-                linear-gradient(
+            box-shadow:
 
-                    90deg,
+                0 0 12px currentColor;
 
-                    var(--gold),
+        }
 
-                    transparent
 
-                );
 
-        }
 
 
+        /* ========================================================= */
 
-        .page-title {
+        /* LOGOUT                                                     */
 
-            margin: 0;
+        /* ========================================================= */
 
-            color: var(--text);
+        .logout-form {
 
-            font-size:
+            margin-top: 13px;
 
-                clamp(28px, 3.4vw, 42px);
+        }
 
-            font-weight: 950;
 
-            line-height: 1.05;
 
-            letter-spacing: -0.055em;
 
-        }
 
+        .logout-button {
 
+            width: 100%;
 
-        .page-subtitle {
+            min-height: 40px;
 
-            display: block;
+            display: flex;
 
-            max-width: 640px;
+            align-items: center;
 
-            margin-top: 7px;
+            justify-content: center;
 
-            color: var(--muted);
+            border:
 
-            font-size: 10px;
+                1px solid rgba(239, 143, 143, 0.12);
 
-            line-height: 1.7;
+            border-radius: 11px;
 
-        }
+            background:
 
+                rgba(239, 143, 143, 0.04);
 
+            color: #c98e8e;
 
-        .topbar-profile {
-            min-height: 42px;
-            padding: 5px 10px 5px 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            background: rgba(255,255,255,.025);
-            color: var(--text-soft);
-            text-decoration: none;
-            transition:
-                transform .2s ease,
-                border-color .2s ease,
-                background .2s ease;
-        }
+            cursor: pointer;
 
-        .topbar-profile:hover {
-            transform: translateY(-1px);
-            border-color: var(--line-strong);
-            background: rgba(215,164,95,.055);
-        }
+            font-size: 9px;
 
-        .topbar-profile-avatar {
-            width: 32px;
-            height: 32px;
-            flex: 0 0 32px;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            border-radius: 50%;
-            background:
-                linear-gradient(
-                    145deg,
-                    var(--gold-light),
-                    var(--gold)
-                );
-            color: #15110c;
-            font-size: 10px;
-            font-weight: 950;
-        }
+            font-weight: 850;
 
-        .topbar-profile-avatar img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-        }
+            transition:
 
-        .topbar-profile-copy {
-            min-width: 0;
-        }
+                background 0.2s ease,
 
-        .topbar-profile-copy strong {
-            display: block;
-            max-width: 150px;
-            overflow: hidden;
-            color: #f2f0eb;
-            font-size: 9px;
-            font-weight: 900;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+                border-color 0.2s ease,
 
-        .topbar-profile-copy span {
-            display: block;
-            margin-top: 2px;
-            color: var(--muted-2);
-            font-size: 7px;
-            font-weight: 800;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-        }
+                color 0.2s ease;
 
-        .topbar-actions {
+        }
 
-            display: flex;
 
-            align-items: center;
 
-            gap: 9px;
 
-            flex-wrap: wrap;
 
-        }
+        .logout-button:hover {
 
+            border-color:
 
+                rgba(239, 143, 143, 0.2);
 
-        /* ========================================================= */
+            background:
 
-        /* BUTTONS                                                    */
+                rgba(239, 143, 143, 0.08);
 
-        /* ========================================================= */
+            color: #f0aaaa;
 
-        .button {
+        }
 
-            display: inline-flex;
 
-            align-items: center;
 
-            justify-content: center;
 
-            gap: 8px;
 
-            min-height: 42px;
+        /* ========================================================= */
 
-            padding: 0 15px;
+        /* CONTENT                                                    */
 
-            border:
+        /* ========================================================= */
 
-                1px solid transparent;
+        .content {
 
-            border-radius: 999px;
+            min-width: 0;
 
-            background:
+            flex: 1;
 
-                linear-gradient(
+            padding:
 
-                    135deg,
+                24px
 
-                    var(--gold-light),
+                clamp(22px, 3.2vw, 46px)
 
-                    var(--gold)
+                54px;
 
-                );
+        }
 
-            color: #17110b;
 
-            text-decoration: none;
 
-            font-size: 9px;
 
-            font-weight: 900;
 
-            cursor: pointer;
+        /* ========================================================= */
 
-            box-shadow:
+        /* TOPBAR                                                     */
 
-                0 10px 24px rgba(215, 164, 95, 0.14);
+        /* ========================================================= */
 
-            transition:
+        .topbar {
 
-                transform 0.2s ease,
+            position: relative;
 
-                box-shadow 0.2s ease,
+            display: flex;
 
-                background 0.2s ease,
+            align-items: center;
 
-                border-color 0.2s ease;
+            justify-content: space-between;
 
-        }
+            gap: 24px;
 
+            margin-bottom: 22px;
 
+            padding: 18px 0 20px;
 
-        .button:hover {
+            border-bottom:
 
-            transform: translateY(-2px);
+                1px solid var(--line);
 
-            box-shadow:
+        }
 
-                0 16px 32px rgba(215, 164, 95, 0.2);
 
-        }
 
 
 
-        .button.secondary {
+        .topbar::after {
 
-            border-color: var(--line);
+            content: "";
 
-            background:
+            position: absolute;
 
-                rgba(255, 255, 255, 0.025);
+            left: 0;
 
-            color: #d8d4cc;
+            bottom: -1px;
 
-            box-shadow: none;
+            width: 110px;
 
-        }
+            height: 1px;
 
+            background:
 
+                linear-gradient(
 
-        .button.secondary:hover {
+                    90deg,
 
-            border-color:
+                    var(--gold),
 
-                var(--line-strong);
+                    transparent
 
-            background:
+                );
 
-                rgba(215, 164, 95, 0.055);
+        }
 
-            color: var(--gold-light);
 
-        }
 
 
 
-        .button.danger {
+        .page-title {
 
-            border-color:
+            margin: 0;
 
-                rgba(239, 143, 143, 0.15);
+            color: var(--text);
 
-            background:
+            font-size:
 
-                rgba(239, 143, 143, 0.07);
+                clamp(28px, 3.4vw, 42px);
 
-            color: #efaaaa;
+            font-weight: 950;
 
-            box-shadow: none;
+            line-height: 1.05;
 
-        }
+            letter-spacing: -0.055em;
 
+        }
 
 
-        .button.danger:hover {
 
-            background:
 
-                rgba(239, 143, 143, 0.11);
 
-        }
+        .page-subtitle {
 
+            display: block;
 
+            max-width: 640px;
 
-        /* ========================================================= */
+            margin-top: 7px;
 
-        /* MESSAGES                                                   */
+            color: var(--muted);
 
-        /* ========================================================= */
+            font-size: 10px;
 
-        .alert,
+            line-height: 1.7;
 
-        .success,
+        }
 
-        .error,
 
-        .warning {
 
-            position: relative;
 
-            margin-bottom: 18px;
 
-            padding: 15px 17px;
+        .topbar-profile {
 
-            border-radius: 14px;
+            min-height: 42px;
 
-            font-size: 11px;
+            padding: 5px 10px 5px 5px;
 
-            line-height: 1.7;
+            display: inline-flex;
 
-        }
+            align-items: center;
 
+            gap: 9px;
 
+            border: 1px solid var(--line);
 
-        .alert,
+            border-radius: 999px;
 
-        .success {
+            background: rgba(255,255,255,.025);
 
-            border:
+            color: var(--text-soft);
 
-                1px solid rgba(101, 213, 154, 0.18);
+            text-decoration: none;
 
-            background:
+            transition:
 
-                var(--success-soft);
+                transform .2s ease,
 
-            color: #a8e8c2;
+                border-color .2s ease,
 
-        }
+                background .2s ease;
 
+        }
 
+        .topbar-profile:hover {
 
-        .error {
+            transform: translateY(-1px);
 
-            border:
+            border-color: var(--line-strong);
 
-                1px solid rgba(239, 143, 143, 0.18);
+            background: rgba(215,164,95,.055);
 
-            background:
+        }
 
-                var(--danger-soft);
+        .topbar-profile-avatar {
 
-            color: #efaaaa;
+            width: 32px;
 
-        }
+            height: 32px;
 
+            flex: 0 0 32px;
 
+            display: grid;
 
-        .warning {
+            place-items: center;
 
-            border:
+            overflow: hidden;
 
-                1px solid rgba(232, 191, 115, 0.18);
+            border-radius: 50%;
 
-            background:
+            background:
 
-                var(--warning-soft);
+                linear-gradient(
 
-            color: #e8c887;
+                    145deg,
 
-        }
+                    var(--gold-light),
 
+                    var(--gold)
 
+                );
 
-        /* ========================================================= */
+            color: #15110c;
 
-        /* STATS                                                      */
+            font-size: 10px;
 
-        /* ========================================================= */
+            font-weight: 950;
 
-        .stats-grid {
+        }
 
-            display: grid;
+        .topbar-profile-avatar img {
 
-            grid-template-columns:
+            width: 100%;
 
-                repeat(4, minmax(160px, 1fr));
+            height: 100%;
 
-            gap: 14px;
+            display: block;
 
-            margin: 18px 0;
+            object-fit: cover;
 
-        }
+        }
 
+        .topbar-profile-copy {
 
+            min-width: 0;
 
-        .stat-card {
+        }
 
-            position: relative;
+        .topbar-profile-copy strong {
 
-            overflow: hidden;
+            display: block;
 
-            padding: 20px;
+            max-width: 150px;
 
-            border:
+            overflow: hidden;
 
-                1px solid var(--line);
+            color: #f2f0eb;
 
-            border-radius: 20px;
+            font-size: 9px;
 
-            background:
+            font-weight: 900;
 
-                linear-gradient(
+            text-overflow: ellipsis;
 
-                    145deg,
+            white-space: nowrap;
 
-                    var(--panel),
+        }
 
-                    #0e1115
+        .topbar-profile-copy span {
 
-                );
+            display: block;
 
-            box-shadow:
+            margin-top: 2px;
 
-                0 16px 46px rgba(0, 0, 0, 0.12);
+            color: var(--muted-2);
 
-            transition:
+            font-size: 7px;
 
-                transform 0.2s ease,
+            font-weight: 800;
 
-                border-color 0.2s ease;
+            letter-spacing: .04em;
 
-        }
+            text-transform: uppercase;
 
+        }
 
+        .topbar-actions {
 
-        .stat-card:hover {
+            display: flex;
 
-            transform: translateY(-3px);
+            align-items: center;
 
-            border-color:
+            gap: 9px;
 
-                var(--line-strong);
+            flex-wrap: wrap;
 
-        }
+        }
 
 
 
-        .stat-card::after {
 
-            content: "";
 
-            position: absolute;
+        /* ========================================================= */
 
-            right: -35px;
+        /* BUTTONS                                                    */
 
-            bottom: -45px;
+        /* ========================================================= */
 
-            width: 130px;
+        .button {
 
-            height: 130px;
+            display: inline-flex;
 
-            border-radius: 50%;
+            align-items: center;
 
-            background:
+            justify-content: center;
 
-                radial-gradient(
+            gap: 8px;
 
-                    circle,
+            min-height: 42px;
 
-                    rgba(215, 164, 95, 0.08),
+            padding: 0 15px;
 
-                    transparent 70%
+            border:
 
-                );
+                1px solid transparent;
 
-            pointer-events: none;
+            border-radius: 999px;
 
-        }
+            background:
 
+                linear-gradient(
 
+                    135deg,
 
-        .stat-label {
+                    var(--gold-light),
 
-            color: var(--muted);
+                    var(--gold)
 
-            font-size: 8px;
+                );
 
-            font-weight: 900;
+            color: #17110b;
 
-            text-transform: uppercase;
+            text-decoration: none;
 
-            letter-spacing: 0.14em;
+            font-size: 9px;
 
-        }
+            font-weight: 900;
 
+            cursor: pointer;
 
+            box-shadow:
 
-        .stat-num {
+                0 10px 24px rgba(215, 164, 95, 0.14);
 
-            margin: 15px 0 8px;
+            transition:
 
-            color: #ffffff;
+                transform 0.2s ease,
 
-            font-size: 36px;
+                box-shadow 0.2s ease,
 
-            line-height: 1;
+                background 0.2s ease,
 
-            font-weight: 950;
+                border-color 0.2s ease;
 
-            letter-spacing: -0.05em;
+        }
 
-        }
 
 
 
-        .stat-foot {
 
-            color: var(--muted-2);
+        .button:hover {
 
-            font-size: 9px;
+            transform: translateY(-2px);
 
-            line-height: 1.55;
+            box-shadow:
 
-        }
+                0 16px 32px rgba(215, 164, 95, 0.2);
 
+        }
 
 
-        /* ========================================================= */
 
-        /* PANELS                                                     */
 
-        /* ========================================================= */
 
-        .main-panel {
+        .button.secondary {
 
-            margin-top: 18px;
+            border-color: var(--line);
 
-            padding: 24px;
+            background:
 
-            border:
+                rgba(255, 255, 255, 0.025);
 
-                1px solid var(--line);
+            color: #d8d4cc;
 
-            border-radius: 24px;
+            box-shadow: none;
 
-            background:
+        }
 
-                linear-gradient(
 
-                    145deg,
 
-                    rgba(17, 20, 25, 0.98),
 
-                    rgba(13, 16, 20, 0.98)
 
-                );
+        .button.secondary:hover {
 
-            box-shadow:
+            border-color:
 
-                0 20px 56px rgba(0, 0, 0, 0.14);
+                var(--line-strong);
 
-        }
+            background:
 
+                rgba(215, 164, 95, 0.055);
 
+            color: var(--gold-light);
 
-        .section-heading {
+        }
 
-            display: flex;
 
-            align-items: flex-end;
 
-            justify-content: space-between;
 
-            gap: 18px;
 
-            margin-bottom: 20px;
+        .button.danger {
 
-        }
+            border-color:
 
+                rgba(239, 143, 143, 0.15);
 
+            background:
 
-        .section-heading h2 {
+                rgba(239, 143, 143, 0.07);
 
-            margin: 0;
+            color: #efaaaa;
 
-            color: var(--text);
+            box-shadow: none;
 
-            font-size: 22px;
+        }
 
-            font-weight: 950;
 
-            letter-spacing: -0.035em;
 
-        }
 
 
+        .button.danger:hover {
 
-        .section-heading span {
+            background:
 
-            display: block;
+                rgba(239, 143, 143, 0.11);
 
-            margin-top: 6px;
+        }
 
-            color: var(--muted);
 
-            font-size: 10px;
 
-            line-height: 1.6;
 
-        }
 
+        /* ========================================================= */
 
+        /* MESSAGES                                                   */
 
-        /* ========================================================= */
+        /* ========================================================= */
 
-        /* TABLES                                                     */
+        .alert,
 
-        /* ========================================================= */
+        .success,
 
-        .table-wrap {
+        .error,
 
-            width: 100%;
+        .warning {
 
-            overflow-x: auto;
+            position: relative;
 
-            border:
+            margin-bottom: 18px;
 
-                1px solid var(--line);
+            padding: 15px 17px;
 
-            border-radius: 16px;
+            border-radius: 14px;
 
-            background:
+            font-size: 11px;
 
-                rgba(0, 0, 0, 0.09);
+            line-height: 1.7;
 
-        }
+        }
 
 
 
-        table {
 
-            width: 100%;
 
-            border-collapse: collapse;
+        .alert,
 
-        }
+        .success {
 
+            border:
 
+                1px solid rgba(101, 213, 154, 0.18);
 
-        th {
+            background:
 
-            padding: 13px 12px;
+                var(--success-soft);
 
-            border-bottom:
+            color: #a8e8c2;
 
-                1px solid var(--line);
+        }
 
-            background:
 
-                rgba(255, 255, 255, 0.02);
 
-            color: #70767e;
 
-            text-align: left;
 
-            font-size: 8px;
+        .error {
 
-            font-weight: 900;
+            border:
 
-            text-transform: uppercase;
+                1px solid rgba(239, 143, 143, 0.18);
 
-            letter-spacing: 0.12em;
+            background:
 
-            white-space: nowrap;
+                var(--danger-soft);
 
-        }
+            color: #efaaaa;
 
+        }
 
 
-        td {
 
-            padding: 14px 12px;
 
-            border-bottom:
 
-                1px solid rgba(255, 255, 255, 0.045);
+        .warning {
 
-            color: var(--text-soft);
+            border:
 
-            font-size: 10px;
+                1px solid rgba(232, 191, 115, 0.18);
 
-            vertical-align: middle;
+            background:
 
-        }
+                var(--warning-soft);
 
+            color: #e8c887;
 
+        }
 
-        tbody tr:last-child td {
 
-            border-bottom: none;
 
-        }
 
 
+        /* ========================================================= */
 
-        tbody tr:hover {
+        /* STATS                                                      */
 
-            background:
+        /* ========================================================= */
 
-                rgba(215, 164, 95, 0.025);
+        .stats-grid {
 
-        }
+            display: grid;
 
+            grid-template-columns:
 
+                repeat(4, minmax(160px, 1fr));
 
-        /* ========================================================= */
+            gap: 14px;
 
-        /* USER                                                       */
+            margin: 18px 0;
 
-        /* ========================================================= */
+        }
 
-        .user-name {
 
-            display: flex;
 
-            align-items: center;
 
-            gap: 10px;
 
-            font-weight: 700;
+        .stat-card {
 
-        }
+            position: relative;
 
+            overflow: hidden;
 
+            padding: 20px;
 
-        .avatar {
+            border:
 
-            width: 38px;
+                1px solid var(--line);
 
-            height: 38px;
+            border-radius: 20px;
 
-            flex-shrink: 0;
+            background:
 
-            display: inline-flex;
+                linear-gradient(
 
-            align-items: center;
+                    145deg,
 
-            justify-content: center;
+                    var(--panel),
 
-            border:
+                    #0e1115
 
-                1px solid rgba(215, 164, 95, 0.16);
+                );
 
-            border-radius: 12px;
+            box-shadow:
 
-            background:
+                0 16px 46px rgba(0, 0, 0, 0.12);
 
-                rgba(215, 164, 95, 0.07);
+            transition:
 
-            color: var(--gold-light);
+                transform 0.2s ease,
 
-            font-weight: 950;
+                border-color 0.2s ease;
 
-        }
+        }
 
 
 
-        /* ========================================================= */
 
-        /* BADGES                                                     */
 
-        /* ========================================================= */
+        .stat-card:hover {
 
-        .badge {
+            transform: translateY(-3px);
 
-            display: inline-flex;
+            border-color:
 
-            align-items: center;
+                var(--line-strong);
 
-            padding: 7px 10px;
+        }
 
-            border:
 
-                1px solid var(--line);
 
-            border-radius: 999px;
 
-            background:
 
-                rgba(255, 255, 255, 0.025);
+        .stat-card::after {
 
-            color: #b8bcc1;
+            content: "";
 
-            font-size: 8px;
+            position: absolute;
 
-            font-weight: 900;
+            right: -35px;
 
-            white-space: nowrap;
+            bottom: -45px;
 
-        }
+            width: 130px;
 
+            height: 130px;
 
+            border-radius: 50%;
 
-        .badge.admin {
+            background:
 
-            border-color:
+                radial-gradient(
 
-                rgba(143, 182, 236, 0.16);
+                    circle,
 
-            background:
+                    rgba(215, 164, 95, 0.08),
 
-                var(--info-soft);
+                    transparent 70%
 
-            color: var(--info);
+                );
 
-        }
+            pointer-events: none;
 
+        }
 
 
-        .badge.success {
 
-            border-color:
 
-                rgba(101, 213, 154, 0.16);
 
-            background:
+        .stat-label {
 
-                var(--success-soft);
+            color: var(--muted);
 
-            color: #9ce7bc;
+            font-size: 8px;
 
-            margin: 0;
+            font-weight: 900;
 
-        }
+            text-transform: uppercase;
 
+            letter-spacing: 0.14em;
 
+        }
 
-        .badge.warning {
 
-            border-color:
 
-                rgba(232, 191, 115, 0.16);
 
-            background:
 
-                var(--warning-soft);
+        .stat-num {
 
-            color: #e8c887;
+            margin: 15px 0 8px;
 
-            margin: 0;
+            color: #ffffff;
 
-        }
+            font-size: 36px;
 
+            line-height: 1;
 
+            font-weight: 950;
 
-        /* ========================================================= */
+            letter-spacing: -0.05em;
 
-        /* FORMS                                                      */
+        }
 
-        /* ========================================================= */
 
-        .form-wrap {
 
-            max-width: 760px;
 
-            padding: 26px;
 
-            border:
+        .stat-foot {
 
-                1px solid var(--line);
+            color: var(--muted-2);
 
-            border-radius: 22px;
+            font-size: 9px;
 
-            background:
+            line-height: 1.55;
 
-                var(--panel);
+        }
 
-        }
 
 
 
-        .form-row {
 
-            margin-bottom: 18px;
+        /* ========================================================= */
 
-        }
+        /* PANELS                                                     */
 
+        /* ========================================================= */
 
+        .main-panel {
 
-        label {
+            margin-top: 18px;
 
-            display: block;
+            padding: 24px;
 
-            margin-bottom: 8px;
+            border:
 
-            color: var(--muted);
+                1px solid var(--line);
 
-            font-size: 9px;
+            border-radius: 24px;
 
-            font-weight: 900;
+            background:
 
-            text-transform: uppercase;
+                linear-gradient(
 
-            letter-spacing: 0.1em;
+                    145deg,
 
-        }
+                    rgba(17, 20, 25, 0.98),
 
+                    rgba(13, 16, 20, 0.98)
 
+                );
 
-        input,
+            box-shadow:
 
-        select,
+                0 20px 56px rgba(0, 0, 0, 0.14);
 
-        textarea {
+        }
 
-            width: 100%;
 
-            padding: 13px 14px;
 
-            border:
 
-                1px solid var(--line);
 
-            border-radius: 12px;
+        .section-heading {
 
-            background:
+            display: flex;
 
-                var(--panel-soft);
+            align-items: flex-end;
 
-            color: var(--text);
+            justify-content: space-between;
 
-            font-size: 12px;
+            gap: 18px;
 
-            transition:
+            margin-bottom: 20px;
 
-                border-color 0.2s ease,
+        }
 
-                box-shadow 0.2s ease,
 
-                background 0.2s ease;
 
-        }
 
 
+        .section-heading h2 {
 
-        input::placeholder,
+            margin: 0;
 
-        textarea::placeholder {
+            color: var(--text);
 
-            color: #5f646b;
+            font-size: 22px;
 
-        }
+            font-weight: 950;
 
+            letter-spacing: -0.035em;
 
+        }
 
-        textarea {
 
-            min-height: 120px;
 
-            resize: vertical;
 
-        }
 
+        .section-heading span {
 
+            display: block;
 
-        input:focus,
+            margin-top: 6px;
 
-        select:focus,
+            color: var(--muted);
 
-        textarea:focus {
+            font-size: 10px;
 
-            border-color:
+            line-height: 1.6;
 
-                rgba(215, 164, 95, 0.4);
+        }
 
-            outline: none;
 
-            background:
 
-                #171b21;
 
-            box-shadow:
 
-                0 0 0 3px
+        /* ========================================================= */
 
-                rgba(215, 164, 95, 0.07);
+        /* TABLES                                                     */
 
-        }
+        /* ========================================================= */
 
+        .table-wrap {
 
+            width: 100%;
 
-        input:disabled,
+            overflow-x: auto;
 
-        select:disabled,
+            border:
 
-        textarea:disabled {
+                1px solid var(--line);
 
-            opacity: 0.58;
+            border-radius: 16px;
 
-            cursor: not-allowed;
+            background:
 
-        }
+                rgba(0, 0, 0, 0.09);
 
+        }
 
 
-        /* ========================================================= */
 
-        /* ACCESS STATES                                              */
 
-        /* ========================================================= */
 
-        .access-page {
+        table {
 
-            position: relative;
+            width: 100%;
 
-            min-height: 100vh;
+            border-collapse: collapse;
 
-            display: grid;
+        }
 
-            place-items: center;
 
-            overflow: hidden;
 
-            padding: 24px;
 
-            background:
 
-                radial-gradient(
+        th {
 
-                    circle at 50% 0%,
+            padding: 13px 12px;
 
-                    rgba(215, 164, 95, 0.1),
+            border-bottom:
 
-                    transparent 26rem
+                1px solid var(--line);
 
-                );
+            background:
 
-        }
+                rgba(255, 255, 255, 0.02);
 
+            color: #70767e;
 
+            text-align: left;
 
-        .access-page::before {
+            font-size: 8px;
 
-            content: "M";
+            font-weight: 900;
 
-            position: absolute;
+            text-transform: uppercase;
 
-            right: -55px;
+            letter-spacing: 0.12em;
 
-            bottom: -95px;
+            white-space: nowrap;
 
-            color:
+        }
 
-                rgba(255, 255, 255, 0.02);
 
-            font-size:
 
-                clamp(240px, 45vw, 620px);
 
-            line-height: 0.75;
 
-            font-weight: 950;
+        td {
 
-            letter-spacing: -0.1em;
+            padding: 14px 12px;
 
-            pointer-events: none;
+            border-bottom:
 
-        }
+                1px solid rgba(255, 255, 255, 0.045);
 
+            color: var(--text-soft);
 
+            font-size: 10px;
 
-        .access-card {
+            vertical-align: middle;
 
-            position: relative;
+        }
 
-            z-index: 1;
 
-            width: 100%;
 
-            max-width: 520px;
 
-            padding: 34px;
 
-            border:
+        tbody tr:last-child td {
 
-                1px solid var(--line);
+            border-bottom: none;
 
-            border-radius: 24px;
+        }
 
-            background:
 
-                linear-gradient(
 
-                    145deg,
 
-                    rgba(17, 20, 25, 0.98),
 
-                    rgba(12, 15, 19, 0.98)
+        tbody tr:hover {
 
-                );
+            background:
 
-            text-align: center;
+                rgba(215, 164, 95, 0.025);
 
-            box-shadow:
+        }
 
-                var(--shadow);
 
-        }
 
 
 
-        .access-icon {
+        /* ========================================================= */
 
-            width: 64px;
+        /* USER                                                       */
 
-            height: 64px;
+        /* ========================================================= */
 
-            margin: 0 auto 20px;
+        .user-name {
 
-            display: grid;
+            display: flex;
 
-            place-items: center;
+            align-items: center;
 
-            border-radius: 18px;
+            gap: 10px;
 
-            font-size: 24px;
+            font-weight: 700;
 
-            font-weight: 950;
+        }
 
-        }
 
 
 
-        .access-icon.danger {
 
-            border:
+        .avatar {
 
-                1px solid rgba(239, 143, 143, 0.16);
+            width: 38px;
 
-            background:
+            height: 38px;
 
-                rgba(239, 143, 143, 0.07);
+            flex-shrink: 0;
 
-            color: #efaaaa;
+            display: inline-flex;
 
-        }
+            align-items: center;
 
+            justify-content: center;
 
+            border:
 
-        .access-icon.brand {
+                1px solid rgba(215, 164, 95, 0.16);
 
-            margin-bottom: 20px;
+            border-radius: 12px;
 
-            border:
+            background:
 
-                1px solid rgba(215, 164, 95, 0.22);
+                rgba(215, 164, 95, 0.07);
 
-            background:
+            color: var(--gold-light);
 
-                linear-gradient(
+            font-weight: 950;
 
-                    145deg,
+        }
 
-                    var(--gold-light),
 
-                    var(--gold)
 
-                );
 
-            color: #15110c;
 
-        }
+        /* ========================================================= */
 
+        /* BADGES                                                     */
 
+        /* ========================================================= */
 
-        .access-card h1 {
+        .badge {
 
-            margin: 0;
+            display: inline-flex;
 
-            color: #ffffff;
+            align-items: center;
 
-            font-size: 28px;
+            padding: 7px 10px;
 
-            line-height: 1.1;
+            border:
 
-            font-weight: 950;
+                1px solid var(--line);
 
-            letter-spacing: -0.045em;
+            border-radius: 999px;
 
-        }
+            background:
 
+                rgba(255, 255, 255, 0.025);
 
+            color: #b8bcc1;
 
-        .access-card p {
+            font-size: 8px;
 
-            margin: 14px 0 24px;
+            font-weight: 900;
 
-            color: var(--muted);
+            white-space: nowrap;
 
-            font-size: 11px;
+        }
 
-            line-height: 1.75;
 
-        }
 
 
 
-        /* ========================================================= */
+        .badge.admin {
 
-        /* RESPONSIVE                                                 */
+            border-color:
 
-        /* ========================================================= */
+                rgba(143, 182, 236, 0.16);
 
-        @media (max-width: 1000px) {
+            background:
 
-            .stats-grid {
+                var(--info-soft);
 
-                grid-template-columns:
+            color: var(--info);
 
-                    repeat(2, minmax(160px, 1fr));
+        }
 
-            }
 
-        }
 
 
 
-        @media (max-width: 900px) {
+        .badge.success {
 
-            .admin-shell {
+            border-color:
 
-                flex-direction: column;
+                rgba(101, 213, 154, 0.16);
 
-            }
+            background:
 
+                var(--success-soft);
 
+            color: #9ce7bc;
 
-            .sidebar {
+            margin: 0;
 
-                position: relative;
+        }
 
-                width: 100%;
 
-                height: auto;
 
-                min-height: auto;
 
-                overflow: visible;
 
-                padding:
+        .badge.warning {
 
-                    20px;
+            border-color:
 
-                border-right: none;
+                rgba(232, 191, 115, 0.16);
 
-                border-bottom:
+            background:
 
-                    1px solid var(--line);
+                var(--warning-soft);
 
-            }
+            color: #e8c887;
 
+            margin: 0;
 
+        }
 
-            .brand {
 
-                margin-bottom: 20px;
 
-            }
 
 
+        /* ========================================================= */
 
-            .sidebar-separator {
+        /* FORMS                                                      */
 
-                display: none;
+        /* ========================================================= */
 
-            }
+        .form-wrap {
 
+            max-width: 760px;
 
+            padding: 26px;
 
-            .sidebar nav {
+            border:
 
-                grid-template-columns:
+                1px solid var(--line);
 
-                    repeat(2, minmax(0, 1fr));
+            border-radius: 22px;
 
-            }
+            background:
 
+                var(--panel);
 
+        }
 
-            .nav-title {
 
-                margin:
 
-                    18px
 
-                    8px
 
-                    8px;
+        .form-row {
 
-            }
+            margin-bottom: 18px;
 
+        }
 
 
-            .sidebar-footer {
 
-                margin-top: 20px;
 
-                padding-top: 0;
 
-            }
+        label {
 
+            display: block;
 
+            margin-bottom: 8px;
 
-            .profile-card {
+            color: var(--muted);
 
-                display: grid;
+            font-size: 9px;
 
-                grid-template-columns:
+            font-weight: 900;
 
-                    minmax(0, 1fr)
+            text-transform: uppercase;
 
-                    auto;
+            letter-spacing: 0.1em;
 
-                gap: 10px 18px;
+        }
 
-                align-items: center;
 
-            }
 
 
 
-            .logout-form {
+        input,
 
-                grid-column: 2;
+        select,
 
-                grid-row: 1 / span 4;
+        textarea {
 
-                margin: 0;
+            width: 100%;
 
-            }
+            padding: 13px 14px;
 
+            border:
 
+                1px solid var(--line);
 
-            .logout-button {
+            border-radius: 12px;
 
-                min-width: 120px;
+            background:
 
-            }
+                var(--panel-soft);
 
+            color: var(--text);
 
+            font-size: 12px;
 
-            .content {
+            transition:
 
-                padding:
+                border-color 0.2s ease,
 
-                    22px;
+                box-shadow 0.2s ease,
 
-            }
+                background 0.2s ease;
 
+        }
 
 
-            .topbar,
 
-            .section-heading {
 
-                align-items: flex-start;
 
-                flex-direction: column;
+        input::placeholder,
 
-            }
+        textarea::placeholder {
 
-        }
+            color: #5f646b;
 
+        }
 
 
-        @media (max-width: 620px) {
 
-            .content {
 
-                padding:
 
-                    16px;
+        textarea {
 
-            }
+            min-height: 120px;
 
+            resize: vertical;
 
+        }
 
-            .sidebar {
 
-                padding:
 
-                    18px 14px;
 
-            }
 
+        input:focus,
 
+        select:focus,
 
-            .sidebar nav {
+        textarea:focus {
 
-                grid-template-columns: 1fr;
+            border-color:
 
-            }
+                rgba(215, 164, 95, 0.4);
 
+            outline: none;
 
+            background:
 
-            .profile-card {
+                #171b21;
 
-                display: block;
+            box-shadow:
 
-            }
+                0 0 0 3px
 
+                rgba(215, 164, 95, 0.07);
 
+        }
 
-            .logout-form {
 
-                margin-top: 12px;
 
-            }
 
 
+        input:disabled,
 
-            .logout-button {
+        select:disabled,
 
-                width: 100%;
+        textarea:disabled {
 
-            }
+            opacity: 0.58;
 
+            cursor: not-allowed;
 
+        }
 
-            .main-panel {
 
-                padding: 18px;
 
-                border-radius: 19px;
 
-            }
 
+        /* ========================================================= */
 
+        /* ACCESS STATES                                              */
 
-            .form-wrap {
+        /* ========================================================= */
 
-                padding: 18px;
+        .access-page {
 
-            }
+            position: relative;
 
+            min-height: 100vh;
 
+            display: grid;
 
-            .stats-grid {
+            place-items: center;
 
-                grid-template-columns: 1fr;
+            overflow: hidden;
 
-            }
+            padding: 24px;
 
+            background:
 
+                radial-gradient(
 
-            .topbar-actions {
+                    circle at 50% 0%,
 
-                width: 100%;
+                    rgba(215, 164, 95, 0.1),
 
-            }
+                    transparent 26rem
 
+                );
 
+        }
 
-            .topbar-actions .button,
-            .topbar-profile {
 
-                width: 100%;
 
-            }
 
-            .topbar-profile {
-                justify-content: flex-start;
-            }
 
+        .access-page::before {
 
+            content: "M";
 
-            .access-card {
+            position: absolute;
 
-                padding: 26px 20px;
+            right: -55px;
 
-            }
+            bottom: -95px;
 
-        }
+            color:
 
-    </style>
+                rgba(255, 255, 255, 0.02);
 
+            font-size:
 
+                clamp(240px, 45vw, 620px);
 
-    {{-- ========================================================= --}}
+            line-height: 0.75;
 
-    {{-- PAGE-SPECIFIC STYLES                                       --}}
+            font-weight: 950;
 
-    {{-- ========================================================= --}}
+            letter-spacing: -0.1em;
 
-    @stack('styles')
+            pointer-events: none;
+
+        }
+
+
+
+
+
+        .access-card {
+
+            position: relative;
+
+            z-index: 1;
+
+            width: 100%;
+
+            max-width: 520px;
+
+            padding: 34px;
+
+            border:
+
+                1px solid var(--line);
+
+            border-radius: 24px;
+
+            background:
+
+                linear-gradient(
+
+                    145deg,
+
+                    rgba(17, 20, 25, 0.98),
+
+                    rgba(12, 15, 19, 0.98)
+
+                );
+
+            text-align: center;
+
+            box-shadow:
+
+                var(--shadow);
+
+        }
+
+
+
+
+
+        .access-icon {
+
+            width: 64px;
+
+            height: 64px;
+
+            margin: 0 auto 20px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 18px;
+
+            font-size: 24px;
+
+            font-weight: 950;
+
+        }
+
+
+
+
+
+        .access-icon.danger {
+
+            border:
+
+                1px solid rgba(239, 143, 143, 0.16);
+
+            background:
+
+                rgba(239, 143, 143, 0.07);
+
+            color: #efaaaa;
+
+        }
+
+
+
+
+
+        .access-icon.brand {
+
+            margin-bottom: 20px;
+
+            border:
+
+                1px solid rgba(215, 164, 95, 0.22);
+
+            background:
+
+                linear-gradient(
+
+                    145deg,
+
+                    var(--gold-light),
+
+                    var(--gold)
+
+                );
+
+            color: #15110c;
+
+        }
+
+
+
+
+
+        .access-card h1 {
+
+            margin: 0;
+
+            color: #ffffff;
+
+            font-size: 28px;
+
+            line-height: 1.1;
+
+            font-weight: 950;
+
+            letter-spacing: -0.045em;
+
+        }
+
+
+
+
+
+        .access-card p {
+
+            margin: 14px 0 24px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.75;
+
+        }
+
+
+
+
+
+        /* ========================================================= */
+
+        /* RESPONSIVE                                                 */
+
+        /* ========================================================= */
+
+        @media (max-width: 1000px) {
+
+            .stats-grid {
+
+                grid-template-columns:
+
+                    repeat(2, minmax(160px, 1fr));
+
+            }
+
+        }
+
+
+
+
+
+        @media (max-width: 900px) {
+
+            .admin-shell {
+
+                flex-direction: column;
+
+            }
+
+
+
+
+
+            .sidebar {
+
+                position: relative;
+
+                width: 100%;
+
+                height: auto;
+
+                min-height: auto;
+
+                overflow: visible;
+
+                padding:
+
+                    20px;
+
+                border-right: none;
+
+                border-bottom:
+
+                    1px solid var(--line);
+
+            }
+
+
+
+
+
+            .brand {
+
+                margin-bottom: 20px;
+
+            }
+
+
+
+
+
+            .sidebar-separator {
+
+                display: none;
+
+            }
+
+
+
+
+
+            .sidebar nav {
+
+                grid-template-columns:
+
+                    repeat(2, minmax(0, 1fr));
+
+            }
+
+
+
+
+
+            .nav-title {
+
+                margin:
+
+                    18px
+
+                    8px
+
+                    8px;
+
+            }
+
+
+
+
+
+            .sidebar-footer {
+
+                margin-top: 20px;
+
+                padding-top: 0;
+
+            }
+
+
+
+
+
+            .profile-card {
+
+                display: grid;
+
+                grid-template-columns:
+
+                    minmax(0, 1fr)
+
+                    auto;
+
+                gap: 10px 18px;
+
+                align-items: center;
+
+            }
+
+
+
+
+
+            .logout-form {
+
+                grid-column: 2;
+
+                grid-row: 1 / span 4;
+
+                margin: 0;
+
+            }
+
+
+
+
+
+            .logout-button {
+
+                min-width: 120px;
+
+            }
+
+
+
+
+
+            .content {
+
+                padding:
+
+                    22px;
+
+            }
+
+
+
+
+
+            .topbar,
+
+            .section-heading {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+        }
+
+
+
+
+
+        @media (max-width: 620px) {
+
+            .content {
+
+                padding:
+
+                    16px;
+
+            }
+
+
+
+
+
+            .sidebar {
+
+                padding:
+
+                    18px 14px;
+
+            }
+
+
+
+
+
+            .sidebar nav {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+
+
+
+            .profile-card {
+
+                display: block;
+
+            }
+
+
+
+
+
+            .logout-form {
+
+                margin-top: 12px;
+
+            }
+
+
+
+
+
+            .logout-button {
+
+                width: 100%;
+
+            }
+
+
+
+
+
+            .main-panel {
+
+                padding: 18px;
+
+                border-radius: 19px;
+
+            }
+
+
+
+
+
+            .form-wrap {
+
+                padding: 18px;
+
+            }
+
+
+
+
+
+            .stats-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+
+
+
+            .topbar-actions {
+
+                width: 100%;
+
+            }
+
+
+
+
+
+            .topbar-actions .button,
+
+            .topbar-profile {
+
+                width: 100%;
+
+            }
+
+            .topbar-profile {
+
+                justify-content: flex-start;
+
+            }
+
+
+
+
+
+            .access-card {
+
+                padding: 26px 20px;
+
+            }
+
+        }
+
+    </style>
+
+
+
+
+
+    {{-- ========================================================= --}}
+
+    {{-- PAGE-SPECIFIC STYLES                                       --}}
+
+    {{-- ========================================================= --}}
+
+    @stack('styles')
 
 </head>
 
 
 
+
+
 <body>
 
-    {{-- ========================================================= --}}
+    {{-- ========================================================= --}}
 
-    {{-- AUTHENTICATED ADMIN                                        --}}
+    {{-- AUTHENTICATED ADMIN                                        --}}
 
-    {{-- ========================================================= --}}
+    {{-- ========================================================= --}}
 
-    @auth
+    @auth
 
-        @if (auth()->user()->is_admin)
+        @if (auth()->user()->is_admin)
 
-            <div class="admin-shell">
+            <div class="admin-shell">
 
 
 
-                {{-- ===================================================== --}}
 
-                {{-- SIDEBAR                                                 --}}
 
-                {{-- ===================================================== --}}
+                {{-- ===================================================== --}}
 
-                <aside class="sidebar">
+                {{-- SIDEBAR                                                 --}}
 
+                {{-- ===================================================== --}}
 
+                <aside class="sidebar">
 
-                    {{-- BRAND --}}
 
-                    <a
 
-                        class="brand"
 
-                        href="{{ route('admin.dashboard') }}"
 
-                    >
+                    {{-- BRAND --}}
 
-                        <div class="brand-mark">
+                    <a
 
-                            M
+                        class="brand"
 
-                        </div>
+                        href="{{ route('admin.dashboard') }}"
 
+                    >
 
+                        <div class="brand-mark">
 
-                        <div class="brand-text">
+                            M
 
-                            <strong>
+                        </div>
 
-                                Mashal
 
-                            </strong>
 
-                            <span>
 
-                                Automotive Admin
 
-                            </span>
+                        <div class="brand-text">
 
-                        </div>
+                            <strong>
 
-                    </a>
+                                Mashal
 
+                            </strong>
 
+                            <span>
 
-                    <div class="sidebar-separator"></div>
+                                Automotive Admin
 
+                            </span>
 
+                        </div>
 
-                    {{-- ================================================= --}}
+                    </a>
 
-                    {{-- ADMIN NAVIGATION                                    --}}
 
-                    {{-- ================================================= --}}
 
-                    <div class="nav-title">
 
-                        Beheer
 
-                    </div>
+                    <div class="sidebar-separator"></div>
 
 
 
-                    <nav>
 
-                        {{-- DASHBOARD --}}
 
-                        <a
+                    {{-- ================================================= --}}
 
-                            class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                    {{-- ADMIN NAVIGATION                                    --}}
 
-                            href="{{ route('admin.dashboard') }}"
+                    {{-- ================================================= --}}
 
-                        >
+                    <div class="nav-title">
 
-                            <svg viewBox="0 0 24 24">
+                        Beheer
 
-                                <path
+                    </div>
 
-                                    d="M3 12l9-9 9 9v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"
 
-                                />
 
-                            </svg>
 
-                            <span>
 
-                                Dashboard
+                    <nav>
 
-                            </span>
+                        {{-- DASHBOARD --}}
 
-                        </a>
+                        <a
 
+                            class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
 
+                            href="{{ route('admin.dashboard') }}"
 
-                        {{-- USERS --}}
+                        >
 
-                        <a
+                            <svg viewBox="0 0 24 24">
 
-                            class="nav-link {{ request()->routeIs('users.index') || request()->routeIs('users.edit') ? 'active' : '' }}"
+                                <path
 
-                            href="{{ route('users.index') }}"
+                                    d="M3 12l9-9 9 9v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"
 
-                        >
+                                />
 
-                            <svg viewBox="0 0 24 24">
+                            </svg>
 
-                                <path
+                            <span>
 
-                                    d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 20a7 7 0 0 1 14 0"
+                                Dashboard
 
-                                />
+                            </span>
 
-                            </svg>
+                        </a>
 
-                            <span>
 
-                                Gebruikers beheren
 
-                            </span>
 
-                        </a>
 
+                        {{-- USERS --}}
 
+                        <a
 
-                        {{-- CREATE USER --}}
+                            class="nav-link {{ request()->routeIs('users.index') || request()->routeIs('users.edit') ? 'active' : '' }}"
 
-                        <a
+                            href="{{ route('users.index') }}"
 
-                            class="nav-link {{ request()->routeIs('users.create') ? 'active' : '' }}"
+                        >
 
-                            href="{{ route('users.create') }}"
+                            <svg viewBox="0 0 24 24">
 
-                        >
+                                <path
 
-                            <svg viewBox="0 0 24 24">
+                                    d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 20a7 7 0 0 1 14 0"
 
-                                <path
+                                />
 
-                                    d="M12 5v14M5 12h14"
+                            </svg>
 
-                                />
+                            <span>
 
-                            </svg>
+                                Gebruikers beheren
 
-                            <span>
+                            </span>
 
-                                Gebruiker toevoegen
+                        </a>
 
-                            </span>
 
-                        </a>
 
-                    </nav>
 
 
+                        {{-- CREATE USER --}}
 
-                    {{-- ================================================= --}}
+                        <a
 
-                    {{-- WEBSITE                                            --}}
+                            class="nav-link {{ request()->routeIs('users.create') ? 'active' : '' }}"
 
-                    {{-- ================================================= --}}
+                            href="{{ route('users.create') }}"
 
-                    <div class="nav-title">
+                        >
 
-                        Mashal Automotive
+                            <svg viewBox="0 0 24 24">
 
-                    </div>
+                                <path
 
+                                    d="M12 5v14M5 12h14"
 
+                                />
 
-                    <nav>
+                            </svg>
 
-                        {{-- WEBSITE --}}
+                            <span>
 
-                        <a
+                                Gebruiker toevoegen
 
-                            class="nav-link"
+                            </span>
 
-                            href="{{ route('home') }}"
+                        </a>
 
-                        >
+                    </nav>
 
-                            <svg viewBox="0 0 24 24">
 
-                                <path
 
-                                    d="M3 12l9-9 9 9M5 10v11h14V10"
 
-                                />
 
-                            </svg>
+                    {{-- ================================================= --}}
 
-                            <span>
+                    {{-- WEBSITE                                            --}}
 
-                                Website bekijken
+                    {{-- ================================================= --}}
 
-                            </span>
+                    <div class="nav-title">
 
-                        </a>
+                        Mashal Automotive
 
+                    </div>
 
 
-                        {{-- CATALOG --}}
 
-                        <a
 
-                            class="nav-link"
 
-                            href="{{ route('catalog') }}"
+                    <nav>
 
-                        >
+                        {{-- WEBSITE --}}
 
-                            <svg viewBox="0 0 24 24">
+                        <a
 
-                                <path
+                            class="nav-link"
 
-                                    d="M3 17h18M5 17l2-7h10l2 7M7 17v2M17 17v2"
+                            href="{{ route('home') }}"
 
-                                />
+                        >
 
-                            </svg>
+                            <svg viewBox="0 0 24 24">
 
-                            <span>
+                                <path
 
-                                Catalogus
+                                    d="M3 12l9-9 9 9M5 10v11h14V10"
 
-                            </span>
+                                />
 
-                        </a>
+                            </svg>
 
+                            <span>
 
+                                Website bekijken
 
-                        {{-- CART --}}
+                            </span>
 
-                        <a
+                        </a>
 
-                            class="nav-link"
 
-                            href="{{ route('cart') }}"
 
-                        >
 
-                            <svg viewBox="0 0 24 24">
 
-                                <path
+                        {{-- CATALOG --}}
 
-                                    d="M3 4h2l2 11h10l3-8H6M9 20h.01M17 20h.01"
+                        <a
 
-                                />
+                            class="nav-link"
 
-                            </svg>
+                            href="{{ route('catalog') }}"
 
-                            <span>
+                        >
 
-                                Winkelwagen
+                            <svg viewBox="0 0 24 24">
 
-                            </span>
+                                <path
 
-                        </a>
+                                    d="M3 17h18M5 17l2-7h10l2 7M7 17v2M17 17v2"
 
+                                />
 
+                            </svg>
 
-                        {{-- ACCOUNT --}}
+                            <span>
 
-                        <a
+                                Catalogus
 
-                            class="nav-link"
+                            </span>
 
-                            href="{{ route('account') }}"
+                        </a>
 
-                        >
 
-                            <svg viewBox="0 0 24 24">
 
-                                <path
 
-                                    d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
 
-                                />
+                        {{-- CART --}}
 
-                            </svg>
+                        <a
 
-                            <span>
+                            class="nav-link"
 
-                                Mijn account
+                            href="{{ route('cart') }}"
 
-                            </span>
+                        >
 
-                        </a>
+                            <svg viewBox="0 0 24 24">
 
-                    </nav>
+                                <path
 
+                                    d="M3 4h2l2 11h10l3-8H6M9 20h.01M17 20h.01"
 
+                                />
 
-                    {{-- ================================================= --}}
+                            </svg>
 
-                    {{-- PROFILE                                            --}}
+                            <span>
 
-                    {{-- ================================================= --}}
+                                Winkelwagen
 
-                    <div class="sidebar-footer">
+                            </span>
 
-                        <div class="profile-card">
+                        </a>
 
-                            <div class="profile-head">
-                                <div class="profile-avatar">
-                                    @if (auth()->user()->avatarUrl())
-                                        <img
-                                            src="{{ auth()->user()->avatarUrl() }}"
-                                            alt="Profielfoto van {{ auth()->user()->name }}"
-                                            loading="eager"
-                                        >
-                                    @else
-                                        {{ auth()->user()->initials() }}
-                                    @endif
-                                </div>
 
-                                <div class="profile-copy">
-                                    <div class="profile-label">
-                                        Ingelogd als
-                                    </div>
 
-                                    <div class="profile-name">
-                                        {{ auth()->user()->name }}
-                                    </div>
 
-                                    <div class="profile-email">
-                                        {{ auth()->user()->email }}
-                                    </div>
-                                </div>
-                            </div>
 
-                            @if (auth()->user()->hasProfilePhoto())
-                                <span class="profile-photo-source">
-                                    Eigen profielfoto
-                                </span>
-                            @elseif (auth()->user()->socialAvatar())
-                                <span class="profile-photo-source">
-                                    Social avatar
-                                </span>
-                            @else
-                                <span class="profile-photo-source">
-                                    Initialen
-                                </span>
-                            @endif
+                        {{-- ACCOUNT --}}
 
-                            <span class="admin-badge">
-                                Administrator
-                            </span>
+                        <a
 
+                            class="nav-link"
 
-                            {{-- LOGOUT --}}
+                            href="{{ route('account') }}"
 
-                            <form
+                        >
 
-                                class="logout-form"
+                            <svg viewBox="0 0 24 24">
 
-                                method="POST"
+                                <path
 
-                                action="{{ route('logout') }}"
+                                    d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
 
-                            >
+                                />
 
-                                @csrf
+                            </svg>
 
+                            <span>
 
+                                Mijn account
 
-                                <button
+                            </span>
 
-                                    class="logout-button"
+                        </a>
 
-                                    type="submit"
+                    </nav>
 
-                                >
 
-                                    Uitloggen
 
-                                </button>
 
-                            </form>
 
-                        </div>
+                    {{-- ================================================= --}}
 
-                    </div>
+                    {{-- PROFILE                                            --}}
 
-                </aside>
+                    {{-- ================================================= --}}
 
+                    <div class="sidebar-footer">
 
+                        <div class="profile-card">
 
-                {{-- ===================================================== --}}
+                            <div class="profile-head">
 
-                {{-- MAIN CONTENT                                            --}}
+                                <div class="profile-avatar">
 
-                {{-- ===================================================== --}}
+                                    @if (auth()->user()->avatarUrl())
 
-                <main class="content">
+                                        <img
 
+                                            src="{{ auth()->user()->avatarUrl() }}"
 
+                                            alt="Profielfoto van {{ auth()->user()->name }}"
 
-                    {{-- TOPBAR --}}
+                                            loading="eager"
 
-                    <section class="topbar">
+                                        >
 
-                        <div>
+                                    @else
 
-                            <h1 class="page-title">
+                                        {{ auth()->user()->initials() }}
 
-                                @yield('page-title', 'Mashal Admin')
+                                    @endif
 
-                            </h1>
+                                </div>
 
+                                <div class="profile-copy">
 
+                                    <div class="profile-label">
 
-                            <span class="page-subtitle">
+                                        Ingelogd als
 
-                                Beheer gebruikers, rechten en accountgegevens
+                                    </div>
 
-                                binnen Mashal Automotive.
+                                    <div class="profile-name">
 
-                            </span>
+                                        {{ auth()->user()->name }}
 
-                        </div>
+                                    </div>
 
+                                    <div class="profile-email">
 
+                                        {{ auth()->user()->email }}
 
-                        <div class="topbar-actions">
+                                    </div>
 
-                            <a
-                                class="topbar-profile"
-                                href="{{ route('account') }}"
-                                title="Open mijn account"
-                            >
-                                <span class="topbar-profile-avatar">
-                                    @if (auth()->user()->avatarUrl())
-                                        <img
-                                            src="{{ auth()->user()->avatarUrl() }}"
-                                            alt="Profielfoto van {{ auth()->user()->name }}"
-                                            loading="eager"
-                                        >
-                                    @else
-                                        {{ auth()->user()->initials() }}
-                                    @endif
-                                </span>
+                                </div>
 
-                                <span class="topbar-profile-copy">
-                                    <strong>
-                                        {{ auth()->user()->name }}
-                                    </strong>
-                                    <span>
-                                        Mijn account
-                                    </span>
-                                </span>
-                            </a>
+                            </div>
 
+                            @if (auth()->user()->hasProfilePhoto())
 
-                            <a
+                                <span class="profile-photo-source">
 
-                                class="button secondary"
+                                    Eigen profielfoto
 
-                                href="{{ route('users.index') }}"
+                                </span>
 
-                            >
+                            @elseif (auth()->user()->socialAvatar())
 
-                                Gebruikers beheren
+                                <span class="profile-photo-source">
 
-                            </a>
+                                    Social avatar
 
+                                </span>
 
+                            @else
 
-                            <a
+                                <span class="profile-photo-source">
 
-                                class="button"
+                                    Initialen
 
-                                href="{{ route('users.create') }}"
+                                </span>
 
-                            >
+                            @endif
 
-                                + Nieuwe gebruiker
+                            <span class="admin-badge">
 
-                            </a>
+                                Administrator
 
-                        </div>
+                            </span>
 
-                    </section>
 
 
+                            {{-- LOGOUT --}}
 
-                    {{-- ================================================= --}}
+                            <form
 
-                    {{-- SUCCESS                                            --}}
+                                class="logout-form"
 
-                    {{-- ================================================= --}}
+                                method="POST"
 
-                    @if (session('success'))
+                                action="{{ route('logout') }}"
 
-                        <div class="success">
+                            >
 
-                            <strong>
+                                @csrf
 
-                                Gelukt!
 
-                            </strong>
 
-                            <br>
 
-                            {{ session('success') }}
 
-                        </div>
+                                <button
 
-                    @endif
+                                    class="logout-button"
 
+                                    type="submit"
 
+                                >
 
-                    {{-- ================================================= --}}
+                                    Uitloggen
 
-                    {{-- ERROR                                              --}}
+                                </button>
 
-                    {{-- ================================================= --}}
+                            </form>
 
-                    @if (session('error'))
+                        </div>
 
-                        <div class="error">
+                    </div>
 
-                            <strong>
+                </aside>
 
-                                Er ging iets mis.
 
-                            </strong>
 
-                            <br>
 
-                            {{ session('error') }}
 
-                        </div>
+                {{-- ===================================================== --}}
 
-                    @endif
+                {{-- MAIN CONTENT                                            --}}
 
+                {{-- ===================================================== --}}
 
+                <main class="content">
 
-                    {{-- ================================================= --}}
 
-                    {{-- VALIDATION ERRORS                                   --}}
 
-                    {{-- ================================================= --}}
 
-                    @if ($errors->any())
 
-                        <div class="error">
+                    {{-- TOPBAR --}}
 
-                            <strong>
+                    <section class="topbar">
 
-                                Controleer onderstaande gegevens:
+                        <div>
 
-                            </strong>
+                            <h1 class="page-title">
 
-                            <ul
+                                @yield('page-title', 'Mashal Admin')
 
-                                style="
+                            </h1>
 
-                                    margin: 10px 0 0 18px;
 
-                                    padding: 0;
 
-                                "
 
-                            >
 
-                                @foreach ($errors->all() as $error)
+                            <span class="page-subtitle">
 
-                                    <li>
+                                Beheer gebruikers, rechten en accountgegevens
 
-                                        {{ $error }}
+                                binnen Mashal Automotive.
 
-                                    </li>
+                            </span>
 
-                                @endforeach
+                        </div>
 
-                            </ul>
 
-                        </div>
 
-                    @endif
 
 
+                        <div class="topbar-actions">
 
-                    {{-- ================================================= --}}
+                            <a
 
-                    {{-- PAGE CONTENT                                        --}}
+                                class="topbar-profile"
 
-                    {{-- ================================================= --}}
+                                href="{{ route('account') }}"
 
-                    @yield('content')
+                                title="Open mijn account"
 
-                </main>
+                            >
 
-            </div>
+                                <span class="topbar-profile-avatar">
 
-        @else
+                                    @if (auth()->user()->avatarUrl())
 
-            {{-- ========================================================= --}}
+                                        <img
 
-            {{-- LOGGED IN BUT NOT ADMIN                                    --}}
+                                            src="{{ auth()->user()->avatarUrl() }}"
 
-            {{-- ========================================================= --}}
+                                            alt="Profielfoto van {{ auth()->user()->name }}"
 
-            <main class="access-page">
+                                            loading="eager"
 
-                <div class="access-card">
+                                        >
 
-                    <div class="access-icon danger">
+                                    @else
 
-                        !
+                                        {{ auth()->user()->initials() }}
 
-                    </div>
+                                    @endif
 
+                                </span>
 
+                                <span class="topbar-profile-copy">
 
-                    <h1>
+                                    <strong>
 
-                        Geen administratorrechten
+                                        {{ auth()->user()->name }}
 
-                    </h1>
+                                    </strong>
 
+                                    <span>
 
+                                        Mijn account
 
-                    <p>
+                                    </span>
 
-                        Je bent ingelogd, maar je account heeft geen
+                                </span>
 
-                        administratorrechten voor de Mashal-beheeromgeving.
+                            </a>
 
-                        Ga terug naar je account om de gewone website te gebruiken.
 
-                    </p>
 
+                            <a
 
+                                class="button secondary"
 
-                    <a
+                                href="{{ route('users.index') }}"
 
-                        class="button"
+                            >
 
-                        href="{{ route('account') }}"
+                                Gebruikers beheren
 
-                    >
+                            </a>
 
-                        Naar mijn account
 
-                    </a>
 
-                </div>
 
-            </main>
 
-        @endif
+                            <a
 
+                                class="button"
 
+                                href="{{ route('users.create') }}"
 
-    @else
+                            >
 
-        {{-- ============================================================= --}}
+                                + Nieuwe gebruiker
 
-        {{-- NOT LOGGED IN                                                  --}}
+                            </a>
 
-        {{-- ============================================================= --}}
+                        </div>
 
-        <main class="access-page">
+                    </section>
 
-            <div class="access-card">
 
-                <div class="access-icon brand">
 
-                    M
 
-                </div>
 
+                    {{-- ================================================= --}}
 
+                    {{-- SUCCESS                                            --}}
 
-                <h1>
+                    {{-- ================================================= --}}
 
-                    Mashal Admin
+                    @if (session('success'))
 
-                </h1>
+                        <div class="success">
 
+                            <strong>
 
+                                Gelukt!
 
-                <p>
+                            </strong>
 
-                    Je moet ingelogd zijn met een administratoraccount
+                            <br>
 
-                    om de Mashal Automotive-beheeromgeving te openen.
+                            {{ session('success') }}
 
-                </p>
+                        </div>
 
+                    @endif
 
 
-                <a
 
-                    class="button"
 
-                    href="{{ route('login') }}"
 
-                >
+                    {{-- ================================================= --}}
 
-                    Inloggen
+                    {{-- ERROR                                              --}}
 
-                </a>
+                    {{-- ================================================= --}}
 
-            </div>
+                    @if (session('error'))
 
-        </main>
+                        <div class="error">
 
-    @endauth
+                            <strong>
 
+                                Er ging iets mis.
 
+                            </strong>
 
-    {{-- ========================================================= --}}
+                            <br>
 
-    {{-- PAGE-SPECIFIC SCRIPTS                                      --}}
+                            {{ session('error') }}
 
-    {{-- ========================================================= --}}
+                        </div>
 
-    @stack('scripts')
+                    @endif
+
+
+
+
+
+                    {{-- ================================================= --}}
+
+                    {{-- VALIDATION ERRORS                                   --}}
+
+                    {{-- ================================================= --}}
+
+                    @if ($errors->any())
+
+                        <div class="error">
+
+                            <strong>
+
+                                Controleer onderstaande gegevens:
+
+                            </strong>
+
+                            <ul
+
+                                style="
+
+                                    margin: 10px 0 0 18px;
+
+                                    padding: 0;
+
+                                "
+
+                            >
+
+                                @foreach ($errors->all() as $error)
+
+                                    <li>
+
+                                        {{ $error }}
+
+                                    </li>
+
+                                @endforeach
+
+                            </ul>
+
+                        </div>
+
+                    @endif
+
+
+
+
+
+                    {{-- ================================================= --}}
+
+                    {{-- PAGE CONTENT                                        --}}
+
+                    {{-- ================================================= --}}
+
+                    @yield('content')
+
+                </main>
+
+            </div>
+
+        @else
+
+            {{-- ========================================================= --}}
+
+            {{-- LOGGED IN BUT NOT ADMIN                                    --}}
+
+            {{-- ========================================================= --}}
+
+            <main class="access-page">
+
+                <div class="access-card">
+
+                    <div class="access-icon danger">
+
+                        !
+
+                    </div>
+
+
+
+
+
+                    <h1>
+
+                        Geen administratorrechten
+
+                    </h1>
+
+
+
+
+
+                    <p>
+
+                        Je bent ingelogd, maar je account heeft geen
+
+                        administratorrechten voor de Mashal-beheeromgeving.
+
+                        Ga terug naar je account om de gewone website te gebruiken.
+
+                    </p>
+
+
+
+
+
+                    <a
+
+                        class="button"
+
+                        href="{{ route('account') }}"
+
+                    >
+
+                        Naar mijn account
+
+                    </a>
+
+                </div>
+
+            </main>
+
+        @endif
+
+
+
+
+
+    @else
+
+        {{-- ============================================================= --}}
+
+        {{-- NOT LOGGED IN                                                  --}}
+
+        {{-- ============================================================= --}}
+
+        <main class="access-page">
+
+            <div class="access-card">
+
+                <div class="access-icon brand">
+
+                    M
+
+                </div>
+
+
+
+
+
+                <h1>
+
+                    Mashal Admin
+
+                </h1>
+
+
+
+
+
+                <p>
+
+                    Je moet ingelogd zijn met een administratoraccount
+
+                    om de Mashal Automotive-beheeromgeving te openen.
+
+                </p>
+
+
+
+
+
+                <a
+
+                    class="button"
+
+                    href="{{ route('login') }}"
+
+                >
+
+                    Inloggen
+
+                </a>
+
+            </div>
+
+        </main>
+
+    @endauth
+
+
+
+
+
+    {{-- ========================================================= --}}
+
+    {{-- PAGE-SPECIFIC SCRIPTS                                      --}}
+
+    {{-- ========================================================= --}}
+
+    @stack('scripts')
 
 </body>
 
