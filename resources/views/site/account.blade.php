@@ -1795,7 +1795,7 @@
 
                 <p class="account-intro">
 
-                    Beheer je profiel, favorieten, beveiliging, e-mailverificatie
+                    Beheer je profiel, beveiliging, e-mailverificatie
 
                     en bestellingen vanuit één persoonlijke Mashal-omgeving.
 
@@ -2006,7 +2006,7 @@
 
                             class="quick-link"
 
-                            href="#security"
+                            href="{{ route('security.index') }}"
 
                         >
 

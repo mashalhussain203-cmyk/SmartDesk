@@ -3018,16 +3018,6 @@
 
                     </a>
 
-                    @auth
-
-                        <a href="{{ route('favorites.index') }}">
-
-                            Favorieten
-
-                        </a>
-
-                    @endauth
-
                     <a href="{{ route('cart') }}">
 
                         Winkelwagen
@@ -3043,6 +3033,18 @@
                         <a href="{{ route('account') }}">
 
                             Mijn account
+
+                        </a>
+
+                        <a href="{{ route('favorites.index') }}">
+
+                            Favorieten
+
+                        </a>
+
+                        <a href="{{ route('security.index') }}">
+
+                            Beveiliging
 
                         </a>
 

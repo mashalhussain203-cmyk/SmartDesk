@@ -5,6 +5,7 @@ use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -402,6 +403,26 @@ Route::middleware('auth')->group(function () {
     )
         ->whereNumber('id')
         ->name('favorites.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Loginbeveiliging
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/account/security',
+        [SecurityController::class, 'index']
+    )
+        ->name('security.index');
+
+
+    Route::delete(
+        '/account/security/history',
+        [SecurityController::class, 'destroyHistory']
+    )
+        ->name('security.history.destroy');
 
 
     /*
