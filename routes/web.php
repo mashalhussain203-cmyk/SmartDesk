@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmailLoginController;
 use App\Http\Controllers\FacebookAuthController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\TikTokAuthController;
@@ -373,6 +374,28 @@ Route::post(
 */
 
 Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Favorieten
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/favorites/{id}',
+        [FavoriteController::class, 'store']
+    )
+        ->whereNumber('id')
+        ->name('favorites.store');
+
+
+    Route::delete(
+        '/favorites/{id}',
+        [FavoriteController::class, 'destroy']
+    )
+        ->whereNumber('id')
+        ->name('favorites.destroy');
+
 
     /*
     |--------------------------------------------------------------------------
