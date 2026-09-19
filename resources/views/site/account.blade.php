@@ -1,3401 +1,2317 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal | Mijn account')
+@section('title', 'Mijn account | Mashal Studio')
+
+@section(
+    'meta_description',
+    'Beheer je Mashal Studio-profiel, beveiliging, afbeeldingen en persoonlijke accountinstellingen.'
+)
 
 @push('styles')
-
 <style>
-
     .account-page {
-
         position: relative;
-
+        min-height: 100vh;
+        padding: 64px 0 110px;
         overflow: hidden;
-
-        padding: 76px 0 112px;
-
-        background:
-
-            radial-gradient(
-
-                circle at 10% 8%,
-
-                rgba(215, 164, 95, .075),
-
-                transparent 24rem
-
-            ),
-
-            radial-gradient(
-
-                circle at 88% 18%,
-
-                rgba(255, 255, 255, .025),
-
-                transparent 28rem
-
-            ),
-
-            #08090b;
-
+        color: #f7f7f4;
     }
 
     .account-page::before {
-
-        content: "MASHAL";
-
+        content: "ACCOUNT";
         position: absolute;
-
-        right: -50px;
-
-        top: 42px;
-
-        color: rgba(255, 255, 255, .013);
-
-        font-size: clamp(125px, 18vw, 290px);
-
-        font-weight: 950;
-
-        line-height: .8;
-
-        letter-spacing: -.08em;
-
+        top: 18px;
+        right: -60px;
         pointer-events: none;
-
         user-select: none;
-
+        color: rgba(255,255,255,.012);
+        font-size: clamp(130px, 17vw, 280px);
+        font-weight: 950;
+        line-height: .8;
+        letter-spacing: -.085em;
     }
 
     .account-shell {
-
         position: relative;
-
         z-index: 2;
-
-        width: min(100% - 48px, 1240px);
-
+        width: min(calc(100% - 40px), 1320px);
         margin-inline: auto;
-
     }
 
-    /* ========================================================= */
-
-    /* HERO                                                       */
-
-    /* ========================================================= */
-
     .account-hero {
-
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 18px;
+        padding: 38px;
         display: grid;
-
         grid-template-columns: minmax(0, 1fr) auto;
-
+        gap: 36px;
         align-items: end;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 92% 12%, rgba(227,179,107,.13), transparent 21rem),
+            radial-gradient(circle at 72% 100%, rgba(98,94,255,.055), transparent 24rem),
+            linear-gradient(145deg, rgba(255,255,255,.043), rgba(255,255,255,.007)),
+            #0c0f14;
+        box-shadow: 0 34px 100px rgba(0,0,0,.28);
+    }
 
-        gap: 40px;
-
-        margin-bottom: 32px;
-
+    .account-hero::after {
+        content: "";
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        right: -125px;
+        bottom: -160px;
+        border: 1px solid rgba(227,179,107,.065);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 55px rgba(227,179,107,.012),
+            0 0 0 110px rgba(227,179,107,.007);
+        pointer-events: none;
     }
 
     .account-kicker {
-
         display: inline-flex;
-
         align-items: center;
-
         gap: 10px;
-
-        margin-bottom: 14px;
-
-        color: #d7a45f;
-
+        color: #d9aa65;
         font-size: 9px;
-
-        font-weight: 900;
-
-        letter-spacing: .22em;
-
+        font-weight: 950;
+        letter-spacing: .18em;
         text-transform: uppercase;
-
     }
 
     .account-kicker::before {
-
         content: "";
-
         width: 30px;
-
         height: 1px;
-
-        background: #d7a45f;
-
+        background: linear-gradient(90deg, #e0b16b, transparent);
     }
 
     .account-title {
-
-        margin: 0;
-
-        color: #ffffff;
-
-        font-size: clamp(48px, 6vw, 82px);
-
+        max-width: 860px;
+        margin: 14px 0 0;
+        color: #f8f8f5;
+        font-size: clamp(48px, 6.2vw, 82px);
         line-height: .94;
-
-        letter-spacing: -.065em;
-
+        letter-spacing: -.068em;
         font-weight: 950;
-
+        text-wrap: balance;
     }
 
     .account-title span {
-
-        color: #efc985;
-
+        color: #f0ca8b;
     }
 
     .account-intro {
-
-        max-width: 700px;
-
+        max-width: 720px;
         margin: 18px 0 0;
-
-        color: #858b92;
-
-        font-size: 14px;
-
+        color: #858c96;
+        font-size: 12px;
         line-height: 1.85;
-
     }
 
-    .account-status-card {
-
-        min-width: 230px;
-
-        padding: 18px 20px;
-
-        border: 1px solid rgba(255, 255, 255, .09);
-
-        border-radius: 18px;
-
-        background:
-
-            linear-gradient(
-
-                145deg,
-
-                rgba(255, 255, 255, .055),
-
-                rgba(255, 255, 255, .018)
-
-            );
-
-        box-shadow: 0 16px 40px rgba(0, 0, 0, .17);
-
-        backdrop-filter: blur(16px);
-
+    .account-hero-actions {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 9px;
+        flex-wrap: wrap;
     }
 
-    .account-status-card small {
-
-        display: block;
-
-        margin-bottom: 5px;
-
-        color: #747a81;
-
+    .account-action {
+        min-height: 44px;
+        padding: 0 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 12px;
+        color: #b9bec5;
+        background: rgba(255,255,255,.018);
+        text-decoration: none;
         font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .14em;
-
-        text-transform: uppercase;
-
+        font-weight: 950;
+        cursor: pointer;
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            color .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
     }
 
-    .account-status-card strong {
-
-        display: block;
-
-        color: #ffffff;
-
-        font-size: 16px;
-
-        line-height: 1.3;
-
+    .account-action:hover {
+        transform: translateY(-2px);
+        border-color: rgba(227,179,107,.16);
+        color: #e4e6e9;
+        background: rgba(227,179,107,.035);
     }
 
-    .account-status-card span {
-
-        display: block;
-
-        margin-top: 5px;
-
-        color: #71777e;
-
-        font-size: 10px;
-
-        line-height: 1.5;
-
+    .account-action.primary {
+        border-color: rgba(227,179,107,.18);
+        color: #171009;
+        background: linear-gradient(135deg, #f2d393, #d49c52);
+        box-shadow: 0 16px 38px rgba(227,179,107,.15);
     }
 
-    /* ========================================================= */
-
-    /* MESSAGES                                                   */
-
-    /* ========================================================= */
+    .account-action.primary:hover {
+        color: #171009;
+        box-shadow: 0 22px 48px rgba(227,179,107,.22);
+    }
 
     .account-message {
-
-        margin-bottom: 22px;
-
+        margin-bottom: 16px;
         padding: 14px 16px;
-
-        border-radius: 14px;
-
-        font-size: 12px;
-
-        line-height: 1.6;
-
-        backdrop-filter: blur(12px);
-
+        border-radius: 13px;
+        font-size: 9px;
+        line-height: 1.65;
     }
 
     .account-message.success {
-
-        border: 1px solid rgba(91, 214, 149, .22);
-
-        background: rgba(91, 214, 149, .08);
-
-        color: #a9efc8;
-
+        border: 1px solid rgba(103,217,144,.13);
+        color: #9dd8b0;
+        background: rgba(103,217,144,.04);
     }
 
     .account-message.error {
-
-        border: 1px solid rgba(241, 123, 123, .22);
-
-        background: rgba(241, 123, 123, .08);
-
-        color: #ffc1c1;
-
+        border: 1px solid rgba(240,131,131,.13);
+        color: #dca0a0;
+        background: rgba(240,131,131,.04);
     }
 
     .account-message ul {
-
-        margin: 8px 0 0 18px;
-
+        margin: 7px 0 0 16px;
         padding: 0;
-
     }
 
-    /* ========================================================= */
+    .account-stats {
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
 
-    /* DASHBOARD LAYOUT                                           */
+    .stat-card {
+        position: relative;
+        min-height: 128px;
+        padding: 19px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 19px;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.028), rgba(255,255,255,.006)),
+            #0c0f14;
+        transition:
+            transform .22s ease,
+            border-color .22s ease;
+    }
 
-    /* ========================================================= */
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(227,179,107,.15);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        right: -45px;
+        bottom: -58px;
+        border: 1px solid rgba(227,179,107,.055);
+        border-radius: 50%;
+    }
+
+    .stat-card small {
+        display: block;
+        color: #59616b;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        margin-top: 14px;
+        color: #ebedef;
+        font-size: 29px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -.05em;
+    }
+
+    .stat-value.compact {
+        font-size: 21px;
+    }
+
+    .stat-foot {
+        margin-top: 8px;
+        color: #565d67;
+        font-size: 8px;
+        line-height: 1.5;
+    }
 
     .account-layout {
-
         display: grid;
-
         grid-template-columns: 300px minmax(0, 1fr);
-
-        gap: 24px;
-
+        gap: 20px;
         align-items: start;
-
     }
 
     .account-sidebar {
-
         position: sticky;
-
-        top: 106px;
-
+        top: 96px;
         display: grid;
-
-        gap: 16px;
-
+        gap: 14px;
     }
 
     .profile-card,
-
-    .quick-card,
-
+    .account-nav-card,
     .account-panel {
-
-        border: 1px solid rgba(255, 255, 255, .08);
-
-        border-radius: 24px;
-
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 22px;
         background:
-
-            linear-gradient(
-
-                145deg,
-
-                rgba(255, 255, 255, .043),
-
-                rgba(255, 255, 255, .015)
-
-            );
-
-        box-shadow: 0 18px 50px rgba(0, 0, 0, .20);
-
+            linear-gradient(145deg, rgba(255,255,255,.03), rgba(255,255,255,.006)),
+            #0c0f14;
+        box-shadow: 0 18px 50px rgba(0,0,0,.15);
     }
 
     .profile-card {
-
-        padding: 24px;
-
+        padding: 23px;
     }
 
     .profile-avatar {
-
-        width: 68px;
-
-        height: 68px;
-
-        margin-bottom: 18px;
-
+        width: 76px;
+        height: 76px;
         display: grid;
-
         place-items: center;
-
-        border-radius: 20px;
-
-        background:
-
-            linear-gradient(
-
-                145deg,
-
-                #f1cc8b,
-
-                #b9803e
-
-            );
-
-        color: #15110c;
-
-        font-size: 25px;
-
-        font-weight: 950;
-
-        box-shadow: 0 16px 38px rgba(215, 164, 95, .22);
-
-    }
-
-    .profile-avatar {
-        position: relative;
         overflow: hidden;
+        border: 1px solid rgba(227,179,107,.16);
+        border-radius: 22px;
+        color: #e5bc7c;
+        background:
+            linear-gradient(145deg, rgba(227,179,107,.15), rgba(227,179,107,.035));
+        box-shadow: 0 16px 38px rgba(0,0,0,.20);
+        font-size: 23px;
+        font-weight: 950;
     }
 
     .profile-avatar img {
         width: 100%;
         height: 100%;
-        display: block;
-        object-fit: cover;
-        border-radius: inherit;
-    }
-
-    .profile-avatar.has-image {
-        background: #111419;
-        color: transparent;
-    }
-
-    .profile-photo-editor {
-        grid-column: 1 / -1;
-        margin-bottom: 4px;
-        padding: 18px;
-        display: grid;
-        grid-template-columns: 92px minmax(0, 1fr);
-        gap: 18px;
-        align-items: center;
-        border: 1px solid rgba(215, 164, 95, .13);
-        border-radius: 18px;
-        background:
-            linear-gradient(
-                145deg,
-                rgba(215, 164, 95, .045),
-                rgba(255, 255, 255, .018)
-            );
-    }
-
-    .profile-photo-preview {
-        width: 92px;
-        height: 92px;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        border: 1px solid rgba(215, 164, 95, .18);
-        border-radius: 24px;
-        background:
-            linear-gradient(
-                145deg,
-                #f1cc8b,
-                #b9803e
-            );
-        color: #15110c;
-        font-size: 28px;
-        font-weight: 950;
-        box-shadow: 0 16px 38px rgba(215, 164, 95, .18);
-    }
-
-    .profile-photo-preview img {
-        width: 100%;
-        height: 100%;
-        display: block;
         object-fit: cover;
     }
 
-    .profile-photo-content {
-        min-width: 0;
+    .profile-name {
+        margin: 18px 0 0;
+        color: #eef0f2;
+        font-size: 21px;
+        line-height: 1.1;
+        letter-spacing: -.04em;
+        word-break: break-word;
     }
 
-    .profile-photo-title {
-        margin: 0;
-        color: #f1eee8;
-        font-size: 13px;
-        font-weight: 900;
+    .profile-email {
+        margin-top: 6px;
+        color: #69717b;
+        font-size: 9px;
+        line-height: 1.55;
+        word-break: break-word;
     }
 
-    .profile-photo-text {
-        margin: 5px 0 14px;
-        color: #737980;
-        font-size: 10px;
-        line-height: 1.65;
-    }
-
-    .profile-photo-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .profile-photo-input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-        clip-path: inset(50%);
-    }
-
-    .profile-photo-button {
-        min-height: 40px;
-        padding: 0 14px;
+    .profile-status {
+        margin-top: 15px;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 7px;
-        border: 1px solid rgba(215, 164, 95, .20);
-        border-radius: 999px;
-        background: rgba(215, 164, 95, .065);
-        color: #e2b66f;
+        color: #85cf9d;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .profile-status.pending {
+        color: #d3ad69;
+    }
+
+    .profile-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 0 4px rgba(255,255,255,.025);
+    }
+
+    .profile-meta {
+        margin-top: 17px;
+        padding-top: 16px;
+        display: grid;
+        gap: 9px;
+        border-top: 1px solid rgba(255,255,255,.055);
+    }
+
+    .profile-meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: #676e78;
+        font-size: 8px;
+    }
+
+    .profile-meta-row strong {
+        color: #a7adb5;
+        font-size: 8px;
+    }
+
+    .account-nav-card {
+        padding: 12px;
+    }
+
+    .account-nav-title {
+        margin: 4px 7px 10px;
+        color: #4f5660;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    .account-nav {
+        display: grid;
+        gap: 4px;
+    }
+
+    .account-nav-link {
+        min-height: 44px;
+        padding: 0 11px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 13px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        color: #7d848e;
+        text-decoration: none;
         font-size: 9px;
-        font-weight: 900;
-        letter-spacing: .03em;
-        cursor: pointer;
+        font-weight: 850;
         transition:
             transform .2s ease,
+            color .2s ease,
             border-color .2s ease,
             background .2s ease;
     }
 
-    .profile-photo-button:hover {
-        transform: translateY(-1px);
-        border-color: rgba(215, 164, 95, .36);
-        background: rgba(215, 164, 95, .11);
+    .account-nav-link:hover {
+        transform: translateX(2px);
+        border-color: rgba(227,179,107,.09);
+        color: #d6b075;
+        background: rgba(227,179,107,.03);
     }
 
-    .profile-photo-remove {
+    .account-content {
+        min-width: 0;
+        display: grid;
+        gap: 18px;
+    }
+
+    .account-panel {
+        scroll-margin-top: 98px;
+        padding: 28px;
+    }
+
+    .panel-head {
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .panel-index {
+        display: block;
+        margin-bottom: 6px;
+        color: #946e3e;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #e9ebed;
+        font-size: 25px;
+        line-height: 1.1;
+        letter-spacing: -.04em;
+    }
+
+    .panel-copy {
+        max-width: 680px;
+        margin: 8px 0 0;
+        color: #6f7680;
+        font-size: 10px;
+        line-height: 1.75;
+    }
+
+    .panel-badge {
+        flex: 0 0 auto;
+        min-height: 29px;
+        padding: 0 9px;
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        color: #8a8f95;
+        border: 1px solid rgba(227,179,107,.11);
+        border-radius: 999px;
+        color: #af854c;
+        background: rgba(227,179,107,.035);
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .photo-editor {
+        margin-bottom: 18px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr);
+        gap: 18px;
+        align-items: center;
+        border: 1px solid rgba(227,179,107,.10);
+        border-radius: 17px;
+        background:
+            linear-gradient(145deg, rgba(227,179,107,.035), rgba(255,255,255,.009));
+    }
+
+    .photo-preview {
+        width: 100px;
+        height: 100px;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(227,179,107,.16);
+        border-radius: 25px;
+        color: #e7bd7b;
+        background:
+            linear-gradient(145deg, rgba(227,179,107,.14), rgba(227,179,107,.035));
+        box-shadow: 0 16px 36px rgba(0,0,0,.20);
+        font-size: 25px;
+        font-weight: 950;
+    }
+
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .photo-copy h3 {
+        margin: 0;
+        color: #dfe2e5;
+        font-size: 13px;
+    }
+
+    .photo-copy p {
+        max-width: 610px;
+        margin: 6px 0 13px;
+        color: #686f79;
         font-size: 9px;
+        line-height: 1.65;
+    }
+
+    .photo-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .photo-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .photo-button {
+        min-height: 39px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid rgba(227,179,107,.14);
+        border-radius: 10px;
+        color: #d8ad6c;
+        background: rgba(227,179,107,.04);
+        font-size: 8px;
+        font-weight: 900;
         cursor: pointer;
     }
 
-    .profile-photo-remove input {
+    .photo-remove {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #737a84;
+        font-size: 8px;
+        cursor: pointer;
+    }
+
+    .photo-remove input {
         width: 14px;
         height: 14px;
         accent-color: #d7a45f;
     }
 
-    .profile-photo-filename {
+    .photo-filename {
         margin-top: 9px;
-        color: #656b72;
-        font-size: 9px;
+        color: #555d67;
+        font-size: 8px;
         line-height: 1.5;
         word-break: break-word;
     }
 
-    .profile-photo-error {
-        margin-top: 8px;
-        color: #f3a1a1;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .profile-card h2 {
-
-        margin: 0;
-
-        color: #ffffff;
-
-        font-size: 22px;
-
-        letter-spacing: -.035em;
-
-        word-break: break-word;
-
-    }
-
-    .profile-email {
-
-        margin-top: 5px;
-
-        color: #71777e;
-
-        font-size: 11px;
-
-        word-break: break-word;
-
-    }
-
-    .profile-status {
-
-        margin-top: 18px;
-
-        padding-top: 16px;
-
-        border-top: 1px solid rgba(255,255,255,.07);
-
-    }
-
-    .status-pill {
-
-        display: inline-flex;
-
-        align-items: center;
-
-        gap: 7px;
-
-        padding: 8px 10px;
-
-        border-radius: 999px;
-
-        font-size: 9px;
-
-        font-weight: 900;
-
-        letter-spacing: .05em;
-
-        text-transform: uppercase;
-
-    }
-
-    .status-pill.verified {
-
-        border: 1px solid rgba(91, 214, 149, .18);
-
-        background: rgba(91, 214, 149, .06);
-
-        color: #9ce7bc;
-
-    }
-
-    .status-pill.pending {
-
-        border: 1px solid rgba(242, 198, 109, .18);
-
-        background: rgba(242, 198, 109, .06);
-
-        color: #e9c674;
-
-    }
-
-    .quick-card {
-
-        padding: 16px;
-
-    }
-
-    .quick-card-title {
-
-        margin-bottom: 10px;
-
-        color: #666c73;
-
-        font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .15em;
-
-        text-transform: uppercase;
-
-    }
-
-    .quick-links {
-
+    .form-grid {
         display: grid;
-
-        gap: 5px;
-
-    }
-
-    .quick-link {
-
-        padding: 10px 12px;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: space-between;
-
-        gap: 12px;
-
-        border-radius: 12px;
-
-        color: #a6a7a4;
-
-        text-decoration: none;
-
-        font-size: 11px;
-
-        font-weight: 800;
-
-        transition:
-
-            color .2s ease,
-
-            background .2s ease,
-
-            transform .2s ease;
-
-    }
-
-    .quick-link:hover {
-
-        color: #efc985;
-
-        background: rgba(215, 164, 95, .055);
-
-        transform: translateX(2px);
-
-    }
-
-    /* ========================================================= */
-
-    /* MAIN CONTENT                                               */
-
-    /* ========================================================= */
-
-    .account-content {
-
-        display: grid;
-
-        gap: 20px;
-
-    }
-
-    .account-panel {
-
-        padding: 28px;
-
-    }
-
-    .panel-head {
-
-        display: flex;
-
-        align-items: flex-start;
-
-        justify-content: space-between;
-
-        gap: 20px;
-
-        margin-bottom: 24px;
-
-    }
-
-    .panel-kicker {
-
-        display: block;
-
-        margin-bottom: 6px;
-
-        color: #9e7442;
-
-        font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .16em;
-
-        text-transform: uppercase;
-
-    }
-
-    .panel-title {
-
-        margin: 0;
-
-        color: #ffffff;
-
-        font-size: 25px;
-
-        letter-spacing: -.04em;
-
-    }
-
-    .panel-copy {
-
-        max-width: 650px;
-
-        margin: 8px 0 0;
-
-        color: #747a81;
-
-        font-size: 12px;
-
-        line-height: 1.8;
-
-    }
-
-    .panel-badge {
-
-        flex-shrink: 0;
-
-        padding: 8px 10px;
-
-        border: 1px solid rgba(215, 164, 95, .16);
-
-        border-radius: 999px;
-
-        background: rgba(215, 164, 95, .055);
-
-        color: #d7aa69;
-
-        font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .09em;
-
-        text-transform: uppercase;
-
-    }
-
-    /* ========================================================= */
-
-    /* FORMS                                                      */
-
-    /* ========================================================= */
-
-    .account-form-grid {
-
-        display: grid;
-
         grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        gap: 16px;
-
+        gap: 15px;
     }
 
-    .account-field {
-
-        margin-bottom: 18px;
-
+    .field {
+        min-width: 0;
     }
 
-    .account-field.full {
-
+    .field.full {
         grid-column: 1 / -1;
-
     }
 
-    .account-label {
-
+    .field-label {
+        margin-bottom: 7px;
         display: flex;
-
         align-items: center;
-
         justify-content: space-between;
-
-        gap: 14px;
-
-        margin-bottom: 8px;
-
+        gap: 10px;
     }
 
-    .account-label label {
-
-        color: #b9b9b6;
-
-        font-size: 9px;
-
+    .field-label label {
+        margin: 0;
+        color: #9da3ab;
+        font-size: 8px;
         font-weight: 900;
-
-        letter-spacing: .14em;
-
-        text-transform: uppercase;
-
+        letter-spacing: .05em;
     }
 
     .field-error {
-
-        color: #f3a1a1;
-
-        font-size: 10px;
-
-        font-weight: 700;
-
+        color: #e99595;
+        font-size: 8px;
+        font-weight: 800;
     }
 
     .input-wrap {
-
         position: relative;
-
     }
 
     .account-input {
-
         width: 100%;
-
-        height: 54px;
-
-        padding: 0 46px 0 15px;
-
-        border: 1px solid rgba(255, 255, 255, .10);
-
-        border-radius: 14px;
-
+        min-height: 51px;
+        padding: 0 14px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 12px;
         outline: none;
-
-        background: rgba(255, 255, 255, .035);
-
-        color: #ffffff;
-
-        font-size: 13px;
-
+        color: #e5e7e9;
+        background: rgba(255,255,255,.018);
+        font-size: 10px;
         transition:
-
             border-color .2s ease,
-
             background .2s ease,
-
             box-shadow .2s ease;
-
     }
 
-    .account-input::placeholder {
-
-        color: #565c63;
-
+    .account-input.with-toggle {
+        padding-right: 80px;
     }
 
     .account-input:focus {
-
-        border-color: rgba(215, 164, 95, .46);
-
-        background: rgba(215, 164, 95, .035);
-
-        box-shadow: 0 0 0 4px rgba(215, 164, 95, .065);
-
-    }
-
-    .field-icon {
-
-        position: absolute;
-
-        right: 15px;
-
-        top: 50%;
-
-        transform: translateY(-50%);
-
-        color: #6c7279;
-
-        font-size: 12px;
-
-        pointer-events: none;
-
+        border-color: rgba(227,179,107,.29);
+        background: rgba(227,179,107,.022);
+        box-shadow: 0 0 0 4px rgba(227,179,107,.04);
     }
 
     .password-toggle {
-
         position: absolute;
-
         right: 8px;
-
         top: 50%;
-
+        min-height: 34px;
+        padding: 0 10px;
         transform: translateY(-50%);
-
-        min-width: 42px;
-
-        height: 34px;
-
-        padding: 0 8px;
-
-        border: 0;
-
-        border-radius: 10px;
-
-        background: transparent;
-
-        color: #7c8288;
-
-        font-size: 9px;
-
-        font-weight: 850;
-
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 9px;
+        color: #6c737d;
+        background: #101319;
+        font-size: 7px;
+        font-weight: 900;
         cursor: pointer;
-
-        transition: color .2s ease, background .2s ease;
-
-    }
-
-    .password-toggle:hover {
-
-        color: #efc985;
-
-        background: rgba(215, 164, 95, .06);
-
     }
 
     .form-note {
-
-        margin-top: 4px;
-
-        padding: 14px 15px;
-
+        padding: 13px 14px;
         display: flex;
-
         align-items: flex-start;
-
         gap: 10px;
-
-        border: 1px solid rgba(215, 164, 95, .13);
-
-        border-radius: 14px;
-
-        background: rgba(215, 164, 95, .045);
-
-        color: #77716a;
-
-        font-size: 10px;
-
-        line-height: 1.7;
-
+        border: 1px solid rgba(227,179,107,.09);
+        border-radius: 12px;
+        color: #746957;
+        background: rgba(227,179,107,.022);
+        font-size: 8px;
+        line-height: 1.65;
     }
 
     .form-note-mark {
-
-        flex-shrink: 0;
-
-        width: 24px;
-
-        height: 24px;
-
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
         display: grid;
-
         place-items: center;
-
-        border: 1px solid rgba(215, 164, 95, .16);
-
+        border: 1px solid rgba(227,179,107,.12);
         border-radius: 50%;
-
-        color: #d3a463;
-
-        font-size: 9px;
-
-        font-weight: 900;
-
+        color: #b88a4c;
+        font-size: 7px;
+        font-weight: 950;
     }
 
     .account-submit {
-
-        min-height: 50px;
-
-        padding: 0 20px;
-
+        min-height: 46px;
+        margin-top: 19px;
+        padding: 0 17px;
         display: inline-flex;
-
         align-items: center;
-
         justify-content: center;
-
-        gap: 9px;
-
+        gap: 8px;
         border: 0;
-
-        border-radius: 999px;
-
-        background:
-
-            linear-gradient(
-
-                135deg,
-
-                #f1cc8b,
-
-                #ca914c
-
-            );
-
-        color: #14100b;
-
-        font-size: 10px;
-
+        border-radius: 11px;
+        color: #171009;
+        background: linear-gradient(135deg, #f0d08f, #d29a50);
+        box-shadow: 0 14px 32px rgba(227,179,107,.13);
+        font-size: 8px;
         font-weight: 950;
-
-        letter-spacing: .03em;
-
         cursor: pointer;
-
-        box-shadow: 0 14px 34px rgba(215, 164, 95, .18);
-
         transition:
-
             transform .2s ease,
-
             box-shadow .2s ease;
-
     }
 
     .account-submit:hover {
-
         transform: translateY(-2px);
-
-        box-shadow: 0 22px 48px rgba(215, 164, 95, .28);
-
+        box-shadow: 0 20px 42px rgba(227,179,107,.20);
     }
 
-    /* ========================================================= */
-
-    /* VERIFICATION                                               */
-
-    /* ========================================================= */
-
-    .verification-box {
-
-        padding: 19px;
-
+    .verification {
+        padding: 18px;
         display: flex;
-
-        align-items: flex-start;
-
+        align-items: center;
         justify-content: space-between;
-
-        gap: 22px;
-
-        border-radius: 17px;
-
+        gap: 18px;
+        border-radius: 16px;
     }
 
-    .verification-box.verified {
-
-        border: 1px solid rgba(91, 214, 149, .16);
-
-        background: rgba(91, 214, 149, .05);
-
+    .verification.verified {
+        border: 1px solid rgba(103,217,144,.12);
+        background: rgba(103,217,144,.035);
     }
 
-    .verification-box.pending {
-
-        border: 1px solid rgba(242, 198, 109, .16);
-
-        background: rgba(242, 198, 109, .05);
-
+    .verification.pending {
+        border: 1px solid rgba(237,194,112,.12);
+        background: rgba(237,194,112,.035);
     }
 
-    .verification-copy {
-
+    .verification-main {
+        min-width: 0;
         display: flex;
-
         align-items: flex-start;
-
         gap: 12px;
-
     }
 
     .verification-icon {
-
-        flex-shrink: 0;
-
         width: 38px;
-
         height: 38px;
-
+        flex: 0 0 38px;
         display: grid;
-
         place-items: center;
-
-        border: 1px solid rgba(255,255,255,.10);
-
-        border-radius: 50%;
-
-        color: #d7aa69;
-
-        font-size: 13px;
-
-        font-weight: 900;
-
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 12px;
+        color: #d2aa6b;
+        background: rgba(255,255,255,.015);
+        font-size: 11px;
+        font-weight: 950;
     }
 
-    .verification-box.verified .verification-icon {
-
-        color: #9ce7bc;
-
+    .verification.verified .verification-icon {
+        color: #86d29e;
     }
 
     .verification-copy strong {
-
         display: block;
-
-        margin-bottom: 4px;
-
-        color: #dcdad5;
-
-        font-size: 12px;
-
+        color: #cfd3d8;
+        font-size: 10px;
     }
 
     .verification-copy p {
-
-        margin: 0;
-
-        color: #71777e;
-
-        font-size: 10px;
-
-        line-height: 1.7;
-
+        max-width: 660px;
+        margin: 5px 0 0;
+        color: #686f79;
+        font-size: 8px;
+        line-height: 1.65;
     }
 
-    .verification-link {
-
-        flex-shrink: 0;
-
-        min-height: 40px;
-
-        padding: 0 14px;
-
-        display: inline-flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        border: 1px solid rgba(215, 164, 95, .18);
-
-        border-radius: 999px;
-
-        background: rgba(215, 164, 95, .055);
-
-        color: #dfb36d;
-
-        text-decoration: none;
-
-        font-size: 9px;
-
-        font-weight: 900;
-
-        transition:
-
-            transform .2s ease,
-
-            border-color .2s ease,
-
-            background .2s ease;
-
-    }
-
-    .verification-link:hover {
-
-        transform: translateY(-1px);
-
-        border-color: rgba(215, 164, 95, .34);
-
-        background: rgba(215, 164, 95, .10);
-
-    }
-
-    /* ========================================================= */
-
-    /* ACCOUNT INFO                                               */
-
-    /* ========================================================= */
-
-    .info-grid {
-
+    .overview-grid {
         display: grid;
-
         grid-template-columns: repeat(4, minmax(0, 1fr));
-
-        gap: 12px;
-
+        gap: 10px;
     }
 
-    .info-card {
-
-        padding: 16px;
-
-        border: 1px solid rgba(255,255,255,.07);
-
-        border-radius: 15px;
-
-        background: rgba(255,255,255,.022);
-
+    .overview-card {
+        min-width: 0;
+        padding: 15px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 14px;
+        background: rgba(255,255,255,.012);
     }
 
-    .info-card small {
-
+    .overview-card small {
         display: block;
-
-        margin-bottom: 6px;
-
-        color: #656b72;
-
+        color: #565d67;
         font-size: 7px;
-
         font-weight: 900;
-
-        letter-spacing: .13em;
-
+        letter-spacing: .09em;
         text-transform: uppercase;
-
     }
 
-    .info-card strong {
-
+    .overview-card strong {
         display: block;
-
-        color: #d9d7d2;
-
-        font-size: 12px;
-
-        line-height: 1.5;
-
-        word-break: break-word;
-
-    }
-
-    /* ========================================================= */
-
-    /* ORDERS                                                     */
-
-    /* ========================================================= */
-
-    .orders-list {
-
-        display: grid;
-
-        gap: 12px;
-
-    }
-
-    .order-card {
-
-        padding: 18px;
-
-        display: grid;
-
-        grid-template-columns: minmax(0, 1fr) auto;
-
-        gap: 20px;
-
-        align-items: center;
-
-        border: 1px solid rgba(255,255,255,.07);
-
-        border-radius: 18px;
-
-        background: rgba(255,255,255,.022);
-
-        transition:
-
-            transform .22s ease,
-
-            border-color .22s ease,
-
-            background .22s ease;
-
-    }
-
-    .order-card:hover {
-
-        transform: translateY(-3px);
-
-        border-color: rgba(215, 164, 95, .18);
-
-        background: rgba(215, 164, 95, .022);
-
-    }
-
-    .order-number {
-
-        color: #ffffff;
-
-        font-size: 16px;
-
-        font-weight: 850;
-
-        letter-spacing: -.02em;
-
-    }
-
-    .order-meta {
-
-        margin-top: 7px;
-
-        display: flex;
-
-        align-items: center;
-
-        gap: 14px;
-
-        flex-wrap: wrap;
-
-        color: #71777e;
-
-        font-size: 10px;
-
-    }
-
-    .order-meta strong {
-
-        color: #c8c6c1;
-
-    }
-
-    .order-status {
-
-        padding: 8px 11px;
-
-        border-radius: 999px;
-
-        font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .08em;
-
-        text-transform: uppercase;
-
-        white-space: nowrap;
-
-    }
-
-    .order-status.status-placed {
-
-        border: 1px solid rgba(215,164,95,.18);
-
-        background: rgba(215,164,95,.055);
-
-        color: #dcb06c;
-
-    }
-
-    .order-status.status-paid,
-
-    .order-status.status-completed {
-
-        border: 1px solid rgba(91,214,149,.18);
-
-        background: rgba(91,214,149,.055);
-
-        color: #9ce7bc;
-
-    }
-
-    .order-status.status-processing {
-
-        border: 1px solid rgba(113,166,255,.18);
-
-        background: rgba(113,166,255,.055);
-
-        color: #9fc2ff;
-
-    }
-
-    .order-status.status-shipped {
-
-        border: 1px solid rgba(177,132,255,.18);
-
-        background: rgba(177,132,255,.055);
-
-        color: #c2a2ff;
-
-    }
-
-    .order-status.status-cancelled {
-
-        border: 1px solid rgba(241,123,123,.18);
-
-        background: rgba(241,123,123,.055);
-
-        color: #f5a1a1;
-
-    }
-
-    .order-status.status-default {
-
-        border: 1px solid rgba(255,255,255,.10);
-
-        background: rgba(255,255,255,.035);
-
-        color: #a6abb1;
-
-    }
-
-    .orders-empty {
-
-        padding: 34px 22px;
-
-        text-align: center;
-
-        border: 1px dashed rgba(255,255,255,.10);
-
-        border-radius: 18px;
-
-        background: rgba(255,255,255,.015);
-
-    }
-
-    .orders-empty-mark {
-
-        width: 50px;
-
-        height: 50px;
-
-        margin: 0 auto 14px;
-
-        display: grid;
-
-        place-items: center;
-
-        border: 1px solid rgba(215,164,95,.16);
-
-        border-radius: 50%;
-
-        background: rgba(215,164,95,.055);
-
-        color: #dfb36d;
-
-        font-weight: 900;
-
-    }
-
-    .orders-empty strong {
-
-        display: block;
-
-        color: #dedcd7;
-
-        font-size: 14px;
-
-    }
-
-    .orders-empty p {
-
-        max-width: 500px;
-
-        margin: 7px auto 18px;
-
-        color: #737980;
-
-        font-size: 10px;
-
-        line-height: 1.7;
-
-    }
-
-    /* ========================================================= */
-
-    /* SECURITY STRIP                                             */
-
-    /* ========================================================= */
-
-    .account-security-strip {
-
-        margin-top: 26px;
-
-        display: grid;
-
-        grid-template-columns: repeat(3, 1fr);
-
-        border: 1px solid rgba(255,255,255,.07);
-
-        border-radius: 20px;
-
+        margin-top: 6px;
         overflow: hidden;
-
-        background: rgba(255,255,255,.02);
-
-    }
-
-    .security-item {
-
-        padding: 20px;
-
-        border-right: 1px solid rgba(255,255,255,.06);
-
-    }
-
-    .security-item:last-child {
-
-        border-right: 0;
-
-    }
-
-    .security-item small {
-
-        display: block;
-
-        margin-bottom: 5px;
-
-        color: #9d7547;
-
-        font-size: 8px;
-
-        font-weight: 900;
-
-        letter-spacing: .14em;
-
-        text-transform: uppercase;
-
-    }
-
-    .security-item strong {
-
-        display: block;
-
-        color: #d4d3cf;
-
-        font-size: 11px;
-
-        line-height: 1.5;
-
-    }
-
-    .security-item span {
-
-        display: block;
-
-        margin-top: 4px;
-
-        color: #646a71;
-
+        color: #cdd1d6;
         font-size: 9px;
-
-        line-height: 1.6;
-
+        line-height: 1.55;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    /* ========================================================= */
+    .library-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 11px;
+    }
 
-    /* RESPONSIVE                                                 */
+    .project-card {
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 16px;
+        background: rgba(255,255,255,.012);
+        transition:
+            transform .22s ease,
+            border-color .22s ease;
+    }
 
-    /* ========================================================= */
+    .project-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(227,179,107,.14);
+    }
 
-    @media (max-width: 1060px) {
+    .project-preview {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 70% 28%, rgba(227,179,107,.16), transparent 8rem),
+            #11151b;
+    }
 
+    .project-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .3s ease;
+    }
+
+    .project-card:hover .project-preview img {
+        transform: scale(1.025);
+    }
+
+    .project-size {
+        position: absolute;
+        left: 11px;
+        bottom: 11px;
+        min-height: 25px;
+        padding: 0 8px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 8px;
+        color: #a0a7af;
+        background: rgba(7,9,12,.76);
+        backdrop-filter: blur(10px);
+        font-size: 7px;
+        font-weight: 900;
+    }
+
+    .project-format {
+        position: absolute;
+        right: 11px;
+        top: 11px;
+        min-height: 25px;
+        padding: 0 8px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 8px;
+        color: #d8b170;
+        background: rgba(7,9,12,.76);
+        backdrop-filter: blur(10px);
+        font-size: 7px;
+        font-weight: 950;
+    }
+
+    .project-body {
+        padding: 14px;
+    }
+
+    .project-name {
+        overflow: hidden;
+        color: #d3d7dc;
+        font-size: 10px;
+        font-weight: 850;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .project-meta {
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        color: #555d67;
+        font-size: 7px;
+        font-weight: 800;
+    }
+
+    .project-actions {
+        margin-top: 11px;
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .project-link {
+        min-height: 35px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid rgba(227,179,107,.10);
+        border-radius: 9px;
+        color: #c89b59;
+        background: rgba(227,179,107,.025);
+        text-decoration: none;
+        font-size: 7px;
+        font-weight: 950;
+    }
+
+    .empty-library {
+        padding: 38px 20px;
+        text-align: center;
+        border: 1px dashed rgba(255,255,255,.08);
+        border-radius: 16px;
+        background: rgba(255,255,255,.01);
+    }
+
+    .empty-library-mark {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(227,179,107,.12);
+        border-radius: 15px;
+        color: #d8ac6a;
+        background: rgba(227,179,107,.035);
+        font-size: 15px;
+        font-weight: 950;
+    }
+
+    .empty-library strong {
+        display: block;
+        color: #d5d9dd;
+        font-size: 12px;
+    }
+
+    .empty-library p {
+        max-width: 530px;
+        margin: 7px auto 16px;
+        color: #656d77;
+        font-size: 8px;
+        line-height: 1.7;
+    }
+
+    .security-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .security-card {
+        padding: 17px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 14px;
+        background: rgba(255,255,255,.012);
+    }
+
+    .security-card small {
+        display: block;
+        color: #86663d;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .security-card strong {
+        display: block;
+        margin-top: 7px;
+        color: #c9cdd2;
+        font-size: 9px;
+    }
+
+    .security-card p {
+        margin: 5px 0 0;
+        color: #59616b;
+        font-size: 8px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 1080px) {
         .account-hero,
-
         .account-layout {
-
             grid-template-columns: 1fr;
-
-        }
-
-        .account-status-card {
-
-            width: fit-content;
-
         }
 
         .account-sidebar {
-
             position: static;
-
             grid-template-columns: 1fr 1fr;
-
         }
 
+        .account-stats {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 
-    @media (max-width: 820px) {
-
-        .account-form-grid,
-
-        .info-grid {
-
+    @media (max-width: 850px) {
+        .library-grid {
             grid-template-columns: 1fr 1fr;
-
         }
 
-        .account-security-strip {
+        .overview-grid {
+            grid-template-columns: 1fr 1fr;
+        }
 
+        .security-grid {
             grid-template-columns: 1fr;
-
         }
-
-        .security-item {
-
-            border-right: 0;
-
-            border-bottom: 1px solid rgba(255,255,255,.06);
-
-        }
-
-        .security-item:last-child {
-
-            border-bottom: 0;
-
-        }
-
     }
 
     @media (max-width: 640px) {
-
         .account-page {
-
-            padding: 56px 0 80px;
-
+            padding: 44px 0 80px;
         }
 
         .account-shell {
-
-            width: min(100% - 32px, 1240px);
-
+            width: min(calc(100% - 22px), 1320px);
         }
 
-        .account-sidebar {
+        .account-hero {
+            padding: 24px 20px;
+            border-radius: 23px;
+        }
 
+        .account-title {
+            font-size: clamp(44px, 14vw, 62px);
+        }
+
+        .account-hero-actions {
+            width: 100%;
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .account-action {
+            width: 100%;
+        }
+
+        .account-stats,
+        .account-sidebar,
+        .form-grid,
+        .overview-grid,
+        .library-grid {
             grid-template-columns: 1fr;
+        }
 
+        .field.full {
+            grid-column: auto;
         }
 
         .account-panel {
-
-            padding: 22px;
-
-            border-radius: 22px;
-
+            padding: 20px;
+            border-radius: 19px;
         }
 
         .panel-head {
-
+            align-items: flex-start;
             flex-direction: column;
-
         }
 
-        .account-form-grid,
-
-        .info-grid {
-
-            grid-template-columns: 1fr;
-
-        }
-
-        .account-field.full {
-
-            grid-column: auto;
-
-        }
-
-        .verification-box,
-
-        .order-card {
-
-            grid-template-columns: 1fr;
-
-        }
-
-        .verification-box {
-
-            align-items: stretch;
-
-            flex-direction: column;
-
-        }
-
-        .verification-link {
-
-            width: 100%;
-
-        }
-
-        .profile-photo-editor {
+        .photo-editor {
             grid-template-columns: 1fr;
         }
 
-        .profile-photo-preview {
-            width: 82px;
-            height: 82px;
+        .photo-preview {
+            width: 86px;
+            height: 86px;
         }
 
-        .profile-photo-actions {
+        .photo-actions {
             align-items: stretch;
             flex-direction: column;
         }
 
-        .profile-photo-button {
+        .photo-button {
             width: 100%;
         }
 
+        .verification {
+            align-items: flex-start;
+            flex-direction: column;
+        }
     }
-
 </style>
-
 @endpush
 
-
-
 @section('content')
+@php
+    $user = $user ?? auth()->user();
+
+    abort_unless($user, 401);
+
+    $hasImagesIndex =
+        \Illuminate\Support\Facades\Route::has('images.index');
+
+    $hasImagesEditor =
+        \Illuminate\Support\Facades\Route::has('images.editor');
+
+    $hasImagesFile =
+        \Illuminate\Support\Facades\Route::has('images.file');
+
+    $hasImagesDownload =
+        \Illuminate\Support\Facades\Route::has('images.download');
+
+    $hasSecurity =
+        \Illuminate\Support\Facades\Route::has('security.index');
+
+    $hasVerification =
+        \Illuminate\Support\Facades\Route::has('verification.notice');
+
+    $accountInitials = 'M';
+
+    if (
+        method_exists($user, 'initials') &&
+        $user->initials()
+    ) {
+        $accountInitials =
+            (string) $user->initials();
+    } else {
+        $parts = preg_split(
+            '/\s+/',
+            trim((string) $user->name)
+        ) ?: [];
+
+        $accountInitials = '';
+
+        foreach (array_slice($parts, 0, 2) as $part) {
+            $accountInitials .= mb_strtoupper(
+                mb_substr($part, 0, 1)
+            );
+        }
+
+        if ($accountInitials === '') {
+            $accountInitials = 'M';
+        }
+    }
+
+    $accountAvatarUrl = null;
+
+    if (
+        method_exists($user, 'avatarUrl')
+    ) {
+        $accountAvatarUrl =
+            $user->avatarUrl();
+    }
+
+    $hasOwnProfilePhoto =
+        method_exists($user, 'hasProfilePhoto')
+            ? (bool) $user->hasProfilePhoto()
+            : false;
+
+    $imageCount = 0;
+    $versionCount = 0;
+    $latestImages = collect();
+
+    try {
+        if (class_exists(\App\Models\Image::class)) {
+            $imageCount =
+                \App\Models\Image::query()
+                    ->where('user_id', $user->id)
+                    ->count();
+
+            $latestImages =
+                \App\Models\Image::query()
+                    ->where('user_id', $user->id)
+                    ->withCount('versions')
+                    ->latest('id')
+                    ->take(6)
+                    ->get();
+        }
+
+        if (class_exists(\App\Models\ImageVersion::class)) {
+            $versionCount =
+                \App\Models\ImageVersion::query()
+                    ->where('user_id', $user->id)
+                    ->count();
+        }
+    } catch (\Throwable $exception) {
+        $imageCount = 0;
+        $versionCount = 0;
+        $latestImages = collect();
+    }
+
+    $memberSince =
+        optional($user->created_at)->format('d-m-Y')
+        ?? 'Onbekend';
+
+    $verifiedAt =
+        optional($user->email_verified_at)->format('d-m-Y H:i');
+
+    $accountProvider =
+        $user->login_provider
+        ?? 'password';
+
+    $accountProviderLabel =
+        match (strtolower((string) $accountProvider)) {
+            'google' => 'Google',
+            'github' => 'GitHub',
+            'facebook' => 'Facebook',
+            'tiktok' => 'TikTok',
+            default => 'E-mail / wachtwoord',
+        };
+@endphp
 
 <section class="account-page">
-
     <div class="account-shell">
 
-        {{-- ========================================================= --}}
-
-        {{-- HERO                                                       --}}
-
-        {{-- ========================================================= --}}
-
-        <header class="account-hero">
-
+        <header class="account-hero studio-reveal">
             <div>
-
                 <span class="account-kicker">
-
-                    Mashal Member Area
-
+                    Mashal Studio account
                 </span>
 
                 <h1 class="account-title">
-
                     Welkom terug,
-
                     <span>{{ $user->name }}.</span>
-
                 </h1>
 
                 <p class="account-intro">
-
-                    Beheer je profiel, beveiliging, e-mailverificatie
-
-                    en bestellingen vanuit één persoonlijke Mashal-omgeving.
-
+                    Beheer je profiel, beveiliging en persoonlijke
+                    afbeeldingsprojecten vanuit één centrale workspace.
+                    Je originelen en opgeslagen bewerkingsversies blijven
+                    gekoppeld aan jouw account.
                 </p>
-
             </div>
 
+            <div class="account-hero-actions">
+                <a
+                    class="account-action primary"
+                    href="{{ route('home') }}#upload"
+                >
+                    + Nieuwe afbeelding
+                </a>
 
+                @if ($hasImagesIndex)
+                    <a
+                        class="account-action"
+                        href="{{ route('images.index') }}"
+                    >
+                        Mijn afbeeldingen
+                    </a>
+                @endif
 
-            <div class="account-status-card">
-
-                <small>
-
-                    Accountstatus
-
-                </small>
-
-                <strong>
-
-                    Actief
-
-                </strong>
-
-                <span>
-
-                    Lid sinds
-
-                    {{ optional($user->created_at)->format('d-m-Y') }}
-
-                </span>
-
+                @if ($hasSecurity)
+                    <a
+                        class="account-action"
+                        href="{{ route('security.index') }}"
+                    >
+                        Beveiliging
+                    </a>
+                @endif
             </div>
-
         </header>
 
-
-
-        {{-- ========================================================= --}}
-
-        {{-- MESSAGES                                                   --}}
-
-        {{-- ========================================================= --}}
-
         @if (session('success'))
-
             <div class="account-message success">
-
-                <strong>
-
-                    Gelukt.
-
-                </strong>
-
                 {{ session('success') }}
-
             </div>
-
         @endif
-
-
 
         @if (session('error'))
-
             <div class="account-message error">
-                <strong>
-                    Er ging iets mis.
-                </strong>
                 {{ session('error') }}
             </div>
-
         @endif
 
+        <div class="account-stats studio-reveal">
+            <article class="stat-card">
+                <small>Afbeeldingen</small>
+                <div class="stat-value">{{ number_format($imageCount) }}</div>
+                <div class="stat-foot">Originelen gekoppeld aan jouw account</div>
+            </article>
 
-        @if ($errors->any())
+            <article class="stat-card">
+                <small>Opgeslagen versies</small>
+                <div class="stat-value">{{ number_format($versionCount) }}</div>
+                <div class="stat-foot">Bewerkte uitvoeringen van je projecten</div>
+            </article>
 
-            <div class="account-message error">
+            <article class="stat-card">
+                <small>E-mailstatus</small>
+                <div class="stat-value compact">
+                    {{ $user->email_verified_at ? 'Verified' : 'Pending' }}
+                </div>
+                <div class="stat-foot">
+                    {{ $user->email_verified_at
+                        ? 'Je accountadres is bevestigd'
+                        : 'Verificatie is nog vereist' }}
+                </div>
+            </article>
 
-                <strong>
-
-                    Er ging iets mis.
-
-                </strong>
-
-                <ul>
-
-                    @foreach ($errors->all() as $error)
-
-                        <li>
-
-                            {{ $error }}
-
-                        </li>
-
-                    @endforeach
-
-                </ul>
-
-            </div>
-
-        @endif
-
-
-
-        {{-- ========================================================= --}}
-
-        {{-- DASHBOARD                                                  --}}
-
-        {{-- ========================================================= --}}
+            <article class="stat-card">
+                <small>Account</small>
+                <div class="stat-value">#{{ $user->id }}</div>
+                <div class="stat-foot">Lid sinds {{ $memberSince }}</div>
+            </article>
+        </div>
 
         <div class="account-layout">
-
-            {{-- ===================================================== --}}
-
-            {{-- SIDEBAR                                               --}}
-
-            {{-- ===================================================== --}}
-
             <aside class="account-sidebar">
-
-                <div class="profile-card">
-
-                    @if ($user->avatarUrl())
-                        <div class="profile-avatar has-image">
+                <section class="profile-card studio-reveal">
+                    <div class="profile-avatar">
+                        @if ($accountAvatarUrl)
                             <img
-                                src="{{ $user->avatarUrl() }}"
+                                src="{{ $accountAvatarUrl }}"
                                 alt="Profielfoto van {{ $user->name }}"
                             >
-                        </div>
-                    @else
-                        <div class="profile-avatar">
-                            {{ $user->initials() }}
-                        </div>
-                    @endif
+                        @else
+                            {{ $accountInitials }}
+                        @endif
+                    </div>
 
-                    <h2>
-
+                    <h2 class="profile-name">
                         {{ $user->name }}
-
                     </h2>
 
                     <div class="profile-email">
-
                         {{ $user->email }}
-
                     </div>
 
-
-
-                    <div class="profile-status">
-
-                        @if ($user->email_verified_at)
-
-                            <span class="status-pill verified">
-
-                                ✓ E-mail geverifieerd
-
-                            </span>
-
-                        @else
-
-                            <span class="status-pill pending">
-
-                                ! Verificatie vereist
-
-                            </span>
-
-                        @endif
-
+                    <div class="profile-status {{ $user->email_verified_at ? '' : 'pending' }}">
+                        {{ $user->email_verified_at
+                            ? 'Account verified'
+                            : 'Verification pending' }}
                     </div>
 
-                </div>
+                    <div class="profile-meta">
+                        <div class="profile-meta-row">
+                            <span>Projecten</span>
+                            <strong>{{ $imageCount }}</strong>
+                        </div>
 
+                        <div class="profile-meta-row">
+                            <span>Versies</span>
+                            <strong>{{ $versionCount }}</strong>
+                        </div>
 
+                        <div class="profile-meta-row">
+                            <span>Login</span>
+                            <strong>{{ $accountProviderLabel }}</strong>
+                        </div>
 
-                <div class="quick-card">
+                        <div class="profile-meta-row">
+                            <span>Account ID</span>
+                            <strong>#{{ $user->id }}</strong>
+                        </div>
+                    </div>
+                </section>
 
-                    <div class="quick-card-title">
-
-                        Snel navigeren
-
+                <section class="account-nav-card studio-reveal">
+                    <div class="account-nav-title">
+                        Account navigatie
                     </div>
 
-                    <div class="quick-links">
-
-                        <a
-
-                            class="quick-link"
-
-                            href="#profile"
-
-                        >
-
-                            <span>
-
-                                Persoonlijke gegevens
-
-                            </span>
-
-                            <span>
-
-                                →
-
-                            </span>
-
+                    <nav class="account-nav">
+                        <a class="account-nav-link" href="#profile">
+                            <span>Profielgegevens</span>
+                            <span>→</span>
                         </a>
 
-                        <a
-
-                            class="quick-link"
-
-                            href="{{ route('security.index') }}"
-
-                        >
-
-                            <span>
-
-                                Beveiliging
-
-                            </span>
-
-                            <span>
-
-                                →
-
-                            </span>
-
+                        <a class="account-nav-link" href="#verification">
+                            <span>E-mailverificatie</span>
+                            <span>→</span>
                         </a>
 
-                        <a
-
-                            class="quick-link"
-
-                            href="{{ route('favorites.index') }}"
-
-                        >
-
-                            <span>
-
-                                Mijn favorieten
-
-                            </span>
-
-                            <span>
-
-                                →
-
-                            </span>
-
+                        <a class="account-nav-link" href="#password">
+                            <span>Wachtwoord</span>
+                            <span>→</span>
                         </a>
 
-                        <a
-
-                            class="quick-link"
-
-                            href="#orders"
-
-                        >
-
-                            <span>
-
-                                Bestellingen
-
-                            </span>
-
-                            <span>
-
-                                →
-
-                            </span>
-
+                        <a class="account-nav-link" href="#overview">
+                            <span>Accountinformatie</span>
+                            <span>→</span>
                         </a>
 
-                        <a
-
-                            class="quick-link"
-
-                            href="{{ route('catalog') }}"
-
-                        >
-
-                            <span>
-
-                                Collectie bekijken
-
-                            </span>
-
-                            <span>
-
-                                →
-
-                            </span>
-
+                        <a class="account-nav-link" href="#library">
+                            <span>Recente afbeeldingen</span>
+                            <span>{{ $imageCount }}</span>
                         </a>
 
-                    </div>
-
-                </div>
-
+                        <a class="account-nav-link" href="#security">
+                            <span>Beveiliging</span>
+                            <span>→</span>
+                        </a>
+                    </nav>
+                </section>
             </aside>
-
-
-
-            {{-- ===================================================== --}}
-
-            {{-- CONTENT                                               --}}
-
-            {{-- ===================================================== --}}
 
             <div class="account-content">
 
-                {{-- ================================================= --}}
-
-                {{-- PERSONAL INFORMATION                              --}}
-
-                {{-- ================================================= --}}
-
                 <section
-
-                    class="account-panel"
-
+                    class="account-panel studio-reveal"
                     id="profile"
-
                 >
-
                     <div class="panel-head">
-
                         <div>
-
-                            <span class="panel-kicker">
-
+                            <span class="panel-index">
                                 01 / Profile
-
                             </span>
 
                             <h2 class="panel-title">
-
-                                Persoonlijke gegevens
-
+                                Profielgegevens
                             </h2>
 
                             <p class="panel-copy">
-
-                                Beheer je profielfoto, naam en e-mailadres.
-
-                                Wijzigingen aan je e-mailadres vereisen
-
-                                opnieuw verificatie.
-
+                                Beheer je naam, e-mailadres en profielfoto.
+                                Deze gegevens worden gebruikt binnen je
+                                persoonlijke Mashal Studio-workspace.
                             </p>
-
                         </div>
 
                         <span class="panel-badge">
-
                             Personal
-
                         </span>
-
                     </div>
-
-
 
                     <form
                         method="POST"
                         action="{{ route('account.update') }}"
                         enctype="multipart/form-data"
                     >
-
                         @csrf
-
                         @method('PUT')
 
+                        <div class="photo-editor">
+                            <div
+                                class="photo-preview"
+                                id="profilePhotoPreview"
+                            >
+                                @if ($accountAvatarUrl)
+                                    <img
+                                        src="{{ $accountAvatarUrl }}"
+                                        alt="Huidige profielfoto"
+                                    >
+                                @else
+                                    <span>
+                                        {{ $accountInitials }}
+                                    </span>
+                                @endif
+                            </div>
 
+                            <div class="photo-copy">
+                                <h3>
+                                    Profielfoto
+                                </h3>
 
-                        <div class="account-form-grid">
+                                <p>
+                                    Upload een JPG, PNG of WEBP-afbeelding van
+                                    maximaal 5 MB. De nieuwe afbeelding wordt
+                                    vooraf lokaal in je browser weergegeven.
+                                </p>
 
-                            {{-- PROFILE PHOTO --}}
-                            <div class="profile-photo-editor">
-                                <div
-                                    class="profile-photo-preview"
-                                    id="profilePhotoPreview"
-                                >
-                                    @if ($user->avatarUrl())
-                                        <img
-                                            id="profilePhotoPreviewImage"
-                                            src="{{ $user->avatarUrl() }}"
-                                            alt="Huidige profielfoto"
-                                        >
-                                    @else
-                                        <span id="profilePhotoPreviewFallback">
-                                            {{ $user->initials() }}
-                                        </span>
+                                <div class="photo-actions">
+                                    <label
+                                        class="photo-button"
+                                        for="profile_photo"
+                                    >
+                                        + Kies profielfoto
+                                    </label>
+
+                                    <input
+                                        class="photo-input"
+                                        id="profile_photo"
+                                        type="file"
+                                        name="profile_photo"
+                                        accept="image/jpeg,image/png,image/webp"
+                                    >
+
+                                    @if ($hasOwnProfilePhoto)
+                                        <label class="photo-remove">
+                                            <input
+                                                id="remove_profile_photo"
+                                                type="checkbox"
+                                                name="remove_profile_photo"
+                                                value="1"
+                                                @checked(old('remove_profile_photo'))
+                                            >
+
+                                            <span>
+                                                Eigen profielfoto verwijderen
+                                            </span>
+                                        </label>
                                     @endif
                                 </div>
 
-                                <div class="profile-photo-content">
-                                    <h3 class="profile-photo-title">
-                                        Profielfoto
-                                    </h3>
-
-                                    <p class="profile-photo-text">
-                                        Upload een JPG, PNG of WEBP-afbeelding van maximaal 5 MB.
-                                        Jouw eigen profielfoto krijgt voorrang op een Google-,
-                                        GitHub- of Facebook-avatar.
-                                    </p>
-
-                                    <div class="profile-photo-actions">
-                                        <label
-                                            class="profile-photo-button"
-                                            for="profile_photo"
-                                        >
-                                            <span aria-hidden="true">＋</span>
-                                            Kies profielfoto
-                                        </label>
-
-                                        <input
-                                            class="profile-photo-input"
-                                            id="profile_photo"
-                                            type="file"
-                                            name="profile_photo"
-                                            accept="image/jpeg,image/png,image/webp"
-                                        >
-
-                                        @if ($user->hasProfilePhoto())
-                                            <label class="profile-photo-remove">
-                                                <input
-                                                    id="remove_profile_photo"
-                                                    type="checkbox"
-                                                    name="remove_profile_photo"
-                                                    value="1"
-                                                    {{ old('remove_profile_photo') ? 'checked' : '' }}
-                                                >
-                                                <span>
-                                                    Eigen profielfoto verwijderen
-                                                </span>
-                                            </label>
-                                        @endif
-                                    </div>
-
-                                    <div
-                                        class="profile-photo-filename"
-                                        id="profilePhotoFilename"
-                                    >
-                                        Geen nieuw bestand geselecteerd.
-                                    </div>
-
-                                    @error('profile_photo')
-                                        <div class="profile-photo-error">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
+                                <div
+                                    class="photo-filename"
+                                    id="profilePhotoFilename"
+                                >
+                                    Geen nieuw bestand geselecteerd.
                                 </div>
+
+                                @error('profile_photo')
+                                    <div class="field-error">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
+                        </div>
 
-                            {{-- NAME --}}
-
-                            <div class="account-field">
-
-                                <div class="account-label">
-
+                        <div class="form-grid">
+                            <div class="field">
+                                <div class="field-label">
                                     <label for="name">
-
                                         Naam
-
                                     </label>
 
                                     @error('name')
-
                                         <span class="field-error">
-
                                             {{ $message }}
-
                                         </span>
-
                                     @enderror
-
                                 </div>
 
-
-
-                                <div class="input-wrap">
-
-                                    <input
-
-                                        class="account-input"
-
-                                        id="name"
-
-                                        type="text"
-
-                                        name="name"
-
-                                        value="{{ old('name', $user->name) }}"
-
-                                        autocomplete="name"
-
-                                        required
-
-                                    >
-
-                                    <span class="field-icon">
-
-                                        ◇
-
-                                    </span>
-
-                                </div>
-
+                                <input
+                                    class="account-input"
+                                    id="name"
+                                    type="text"
+                                    name="name"
+                                    value="{{ old('name', $user->name) }}"
+                                    autocomplete="name"
+                                    required
+                                >
                             </div>
 
-
-
-                            {{-- EMAIL --}}
-
-                            <div class="account-field">
-
-                                <div class="account-label">
-
+                            <div class="field">
+                                <div class="field-label">
                                     <label for="email">
-
                                         E-mailadres
-
                                     </label>
 
                                     @error('email')
-
                                         <span class="field-error">
-
                                             {{ $message }}
-
                                         </span>
-
                                     @enderror
-
                                 </div>
 
-
-
-                                <div class="input-wrap">
-
-                                    <input
-
-                                        class="account-input"
-
-                                        id="email"
-
-                                        type="email"
-
-                                        name="email"
-
-                                        value="{{ old('email', $user->email) }}"
-
-                                        autocomplete="email"
-
-                                        required
-
-                                    >
-
-                                    <span class="field-icon">
-
-                                        @
-
-                                    </span>
-
-                                </div>
-
+                                <input
+                                    class="account-input"
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email', $user->email) }}"
+                                    autocomplete="email"
+                                    required
+                                >
                             </div>
 
-
-
-                            <div class="account-field full">
-
+                            <div class="field full">
                                 <div class="form-note">
-
-                                    <span class="form-note-mark">
-
-                                        i
-
-                                    </span>
+                                    <span class="form-note-mark">i</span>
 
                                     <span>
-
-                                        Wanneer je je e-mailadres wijzigt,
-
-                                        wordt het nieuwe adres opnieuw geverifieerd.
-
-                                        Mashal stuurt daarvoor een nieuwe verificatiecode.
-
+                                        Als je je e-mailadres wijzigt, kan het nieuwe
+                                        adres opnieuw geverifieerd moeten worden.
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
 
                         <button
-
                             class="account-submit"
-
                             type="submit"
-
                         >
-
-                            Gegevens opslaan
-
+                            Profiel opslaan
                             <span aria-hidden="true">→</span>
-
                         </button>
-
                     </form>
-
                 </section>
-
-
-
-                {{-- ================================================= --}}
-
-                {{-- VERIFICATION                                      --}}
-
-                {{-- ================================================= --}}
-
-                <section class="account-panel">
-
-                    <div class="panel-head">
-
-                        <div>
-
-                            <span class="panel-kicker">
-
-                                02 / Verification
-
-                            </span>
-
-                            <h2 class="panel-title">
-
-                                E-mailverificatie
-
-                            </h2>
-
-                            <p class="panel-copy">
-
-                                Een geverifieerd e-mailadres is nodig
-
-                                om bestellingen veilig te kunnen plaatsen.
-
-                            </p>
-
-                        </div>
-
-                        <span class="panel-badge">
-
-                            Security
-
-                        </span>
-
-                    </div>
-
-
-
-                    @if ($user->email_verified_at)
-
-                        <div class="verification-box verified">
-
-                            <div class="verification-copy">
-
-                                <span class="verification-icon">
-
-                                    ✓
-
-                                </span>
-
-                                <div>
-
-                                    <strong>
-
-                                        E-mailadres bevestigd
-
-                                    </strong>
-
-                                    <p>
-
-                                        Je e-mailadres is geverifieerd op
-
-                                        {{ optional($user->email_verified_at)->format('d-m-Y H:i') }}.
-
-                                        Je account is klaar voor checkout.
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    @else
-
-                        <div class="verification-box pending">
-
-                            <div class="verification-copy">
-
-                                <span class="verification-icon">
-
-                                    !
-
-                                </span>
-
-                                <div>
-
-                                    <strong>
-
-                                        Verificatie nog vereist
-
-                                    </strong>
-
-                                    <p>
-
-                                        Verifieer je e-mailadres om alle
-
-                                        Mashal-functies te gebruiken,
-
-                                        waaronder het plaatsen van bestellingen.
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-
-                            <a
-
-                                class="verification-link"
-
-                                href="{{ route('verification.notice') }}"
-
-                            >
-
-                                Nu verifiëren
-
-                            </a>
-
-                        </div>
-
-                    @endif
-
-                </section>
-
-
-
-                {{-- ================================================= --}}
-
-                {{-- PASSWORD                                          --}}
-
-                {{-- ================================================= --}}
 
                 <section
-
-                    class="account-panel"
-
-                    id="security"
-
+                    class="account-panel studio-reveal"
+                    id="verification"
                 >
-
                     <div class="panel-head">
-
                         <div>
-
-                            <span class="panel-kicker">
-
-                                03 / Security
-
+                            <span class="panel-index">
+                                02 / Verification
                             </span>
 
                             <h2 class="panel-title">
-
-                                Wachtwoord wijzigen
-
+                                E-mailverificatie
                             </h2>
 
                             <p class="panel-copy">
-
-                                Gebruik een sterk en uniek wachtwoord
-
-                                dat je niet op andere websites gebruikt.
-
+                                Een bevestigd e-mailadres helpt je accounttoegang
+                                betrouwbaar en controleerbaar te houden.
                             </p>
-
                         </div>
 
                         <span class="panel-badge">
-
-                            Protected
-
+                            Security
                         </span>
-
                     </div>
 
+                    @if ($user->email_verified_at)
+                        <div class="verification verified">
+                            <div class="verification-main">
+                                <span class="verification-icon">✓</span>
 
+                                <div class="verification-copy">
+                                    <strong>
+                                        E-mailadres bevestigd
+                                    </strong>
+
+                                    <p>
+                                        Je e-mailadres is
+                                        @if ($verifiedAt)
+                                            geverifieerd op {{ $verifiedAt }}.
+                                        @else
+                                            geverifieerd.
+                                        @endif
+                                        Je account is klaar voor je persoonlijke workspace.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="verification pending">
+                            <div class="verification-main">
+                                <span class="verification-icon">!</span>
+
+                                <div class="verification-copy">
+                                    <strong>
+                                        Verificatie nog vereist
+                                    </strong>
+
+                                    <p>
+                                        Bevestig je e-mailadres om je accountstatus
+                                        volledig te activeren.
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if ($hasVerification)
+                                <a
+                                    class="account-action"
+                                    href="{{ route('verification.notice') }}"
+                                >
+                                    Nu verifiëren
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </section>
+
+                <section
+                    class="account-panel studio-reveal"
+                    id="password"
+                >
+                    <div class="panel-head">
+                        <div>
+                            <span class="panel-index">
+                                03 / Password
+                            </span>
+
+                            <h2 class="panel-title">
+                                Wachtwoord wijzigen
+                            </h2>
+
+                            <p class="panel-copy">
+                                Gebruik een sterk en uniek wachtwoord voor je
+                                Mashal Studio-account.
+                            </p>
+                        </div>
+
+                        <span class="panel-badge">
+                            Protected
+                        </span>
+                    </div>
 
                     <form
-
                         method="POST"
-
                         action="{{ route('account.password.update') }}"
-
                     >
-
                         @csrf
-
                         @method('PUT')
 
-
-
-                        <div class="account-form-grid">
-
-                            {{-- CURRENT PASSWORD --}}
-
-                            <div class="account-field full">
-
-                                <div class="account-label">
-
+                        <div class="form-grid">
+                            <div class="field full">
+                                <div class="field-label">
                                     <label for="current_password">
-
                                         Huidig wachtwoord
-
                                     </label>
 
                                     @error('current_password')
-
                                         <span class="field-error">
-
                                             {{ $message }}
-
                                         </span>
-
                                     @enderror
-
                                 </div>
 
-
-
                                 <div class="input-wrap">
-
                                     <input
-
-                                        class="account-input"
-
+                                        class="account-input with-toggle"
                                         id="current_password"
-
                                         type="password"
-
                                         name="current_password"
-
                                         autocomplete="current-password"
-
                                         required
-
                                     >
 
                                     <button
-
                                         class="password-toggle"
-
                                         type="button"
-
                                         data-toggle-password="current_password"
-
                                     >
-
                                         Tonen
-
                                     </button>
-
                                 </div>
-
                             </div>
 
-
-
-                            {{-- NEW PASSWORD --}}
-
-                            <div class="account-field">
-
-                                <div class="account-label">
-
+                            <div class="field">
+                                <div class="field-label">
                                     <label for="password">
-
                                         Nieuw wachtwoord
-
                                     </label>
 
                                     @error('password')
-
                                         <span class="field-error">
-
                                             {{ $message }}
-
                                         </span>
-
                                     @enderror
-
                                 </div>
 
-
-
                                 <div class="input-wrap">
-
                                     <input
-
-                                        class="account-input"
-
+                                        class="account-input with-toggle"
                                         id="password"
-
                                         type="password"
-
                                         name="password"
-
                                         minlength="8"
-
                                         autocomplete="new-password"
-
                                         required
-
                                     >
 
                                     <button
-
                                         class="password-toggle"
-
                                         type="button"
-
                                         data-toggle-password="password"
-
                                     >
-
                                         Tonen
-
                                     </button>
-
                                 </div>
-
                             </div>
 
-
-
-                            {{-- CONFIRM PASSWORD --}}
-
-                            <div class="account-field">
-
-                                <div class="account-label">
-
+                            <div class="field">
+                                <div class="field-label">
                                     <label for="password_confirmation">
-
                                         Wachtwoord bevestigen
-
                                     </label>
-
-                                    @error('password_confirmation')
-
-                                        <span class="field-error">
-
-                                            {{ $message }}
-
-                                        </span>
-
-                                    @enderror
-
                                 </div>
-
-
 
                                 <div class="input-wrap">
-
                                     <input
-
-                                        class="account-input"
-
+                                        class="account-input with-toggle"
                                         id="password_confirmation"
-
                                         type="password"
-
                                         name="password_confirmation"
-
                                         minlength="8"
-
                                         autocomplete="new-password"
-
                                         required
-
                                     >
 
                                     <button
-
                                         class="password-toggle"
-
                                         type="button"
-
                                         data-toggle-password="password_confirmation"
-
                                     >
-
                                         Tonen
-
                                     </button>
-
                                 </div>
-
                             </div>
 
-
-
-                            <div class="account-field full">
-
+                            <div class="field full">
                                 <div class="form-note">
-
-                                    <span class="form-note-mark">
-
-                                        ✓
-
-                                    </span>
+                                    <span class="form-note-mark">✓</span>
 
                                     <span>
-
-                                        Gebruik minimaal 8 tekens.
-
-                                        Een langer wachtwoord met verschillende
-
-                                        tekentypen is doorgaans sterker.
-
+                                        Gebruik minimaal 8 tekens en kies bij voorkeur
+                                        een lang wachtwoord dat je nergens anders gebruikt.
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
 
                         <button
-
                             class="account-submit"
-
                             type="submit"
-
                         >
-
-                            Wachtwoord wijzigen
-
+                            Wachtwoord bijwerken
                             <span aria-hidden="true">→</span>
-
                         </button>
-
                     </form>
-
                 </section>
-
-
-
-                {{-- ================================================= --}}
-
-                {{-- ACCOUNT INFORMATION                                --}}
-
-                {{-- ================================================= --}}
-
-                <section class="account-panel">
-
-                    <div class="panel-head">
-
-                        <div>
-
-                            <span class="panel-kicker">
-
-                                04 / Overview
-
-                            </span>
-
-                            <h2 class="panel-title">
-
-                                Accountinformatie
-
-                            </h2>
-
-                            <p class="panel-copy">
-
-                                Een compact overzicht van je huidige
-
-                                Mashal-account en verificatiestatus.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="info-grid">
-
-                        <div class="info-card">
-
-                            <small>
-
-                                Naam
-
-                            </small>
-
-                            <strong>
-
-                                {{ $user->name }}
-
-                            </strong>
-
-                        </div>
-
-
-
-                        <div class="info-card">
-
-                            <small>
-
-                                E-mailadres
-
-                            </small>
-
-                            <strong>
-
-                                {{ $user->email }}
-
-                            </strong>
-
-                        </div>
-
-
-
-                        <div class="info-card">
-
-                            <small>
-
-                                E-mailstatus
-
-                            </small>
-
-                            <strong>
-
-                                {{ $user->email_verified_at ? 'Geverifieerd' : 'Nog niet geverifieerd' }}
-
-                            </strong>
-
-                        </div>
-
-
-
-                        <div class="info-card">
-
-                            <small>
-
-                                Account aangemaakt
-
-                            </small>
-
-                            <strong>
-
-                                {{ optional($user->created_at)->format('d-m-Y H:i') }}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-
-                {{-- ================================================= --}}
-
-                {{-- ORDERS                                            --}}
-
-                {{-- ================================================= --}}
 
                 <section
-
-                    class="account-panel"
-
-                    id="orders"
-
+                    class="account-panel studio-reveal"
+                    id="overview"
                 >
-
                     <div class="panel-head">
-
                         <div>
-
-                            <span class="panel-kicker">
-
-                                05 / Orders
-
+                            <span class="panel-index">
+                                04 / Overview
                             </span>
 
                             <h2 class="panel-title">
-
-                                Mijn bestellingen
-
+                                Accountinformatie
                             </h2>
 
                             <p class="panel-copy">
-
-                                Bekijk je recente Mashal-bestellingen,
-
-                                totaalbedragen en actuele status.
-
+                                Een compact overzicht van je huidige account,
+                                loginmethode en registratiestatus.
                             </p>
+                        </div>
+                    </div>
 
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <small>Naam</small>
+                            <strong title="{{ $user->name }}">
+                                {{ $user->name }}
+                            </strong>
+                        </div>
+
+                        <div class="overview-card">
+                            <small>E-mailadres</small>
+                            <strong title="{{ $user->email }}">
+                                {{ $user->email }}
+                            </strong>
+                        </div>
+
+                        <div class="overview-card">
+                            <small>Loginmethode</small>
+                            <strong>{{ $accountProviderLabel }}</strong>
+                        </div>
+
+                        <div class="overview-card">
+                            <small>Aangemaakt</small>
+                            <strong>
+                                {{ optional($user->created_at)->format('d-m-Y H:i') ?? 'Onbekend' }}
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    class="account-panel studio-reveal"
+                    id="library"
+                >
+                    <div class="panel-head">
+                        <div>
+                            <span class="panel-index">
+                                05 / Image library
+                            </span>
+
+                            <h2 class="panel-title">
+                                Recente afbeeldingen
+                            </h2>
+
+                            <p class="panel-copy">
+                                Je zes meest recente afbeeldingsprojecten,
+                                inclusief echte private previews en opgeslagen versies.
+                            </p>
                         </div>
 
                         <span class="panel-badge">
-
-                            {{ count($orders) }}
-
-                            {{ count($orders) === 1 ? 'order' : 'orders' }}
-
+                            {{ $imageCount }}
+                            {{ $imageCount === 1 ? 'project' : 'projects' }}
                         </span>
-
                     </div>
 
+                    @if ($latestImages->count())
+                        <div class="library-grid">
+                            @foreach ($latestImages as $image)
+                                @php
+                                    $imageName =
+                                        $image->display_name
+                                        ?? $image->original_name
+                                        ?? ('Afbeelding #' . $image->id);
 
+                                    $imageFormat =
+                                        $image->format_label
+                                        ?? strtoupper(
+                                            str_replace(
+                                                'image/',
+                                                '',
+                                                (string) $image->mime_type
+                                            )
+                                        );
 
-                    @forelse ($orders as $order)
+                                    $imageSize =
+                                        $image->formatted_file_size
+                                        ?? number_format(
+                                            ((int) ($image->file_size ?? 0)) / 1024,
+                                            1
+                                        ) . ' KB';
+                                @endphp
 
-                        @php
+                                <article class="project-card">
+                                    <div class="project-preview">
+                                        @if ($hasImagesFile)
+                                            <img
+                                                src="{{ route('images.file', $image) }}"
+                                                alt="{{ $imageName }}"
+                                                loading="lazy"
+                                                decoding="async"
+                                            >
+                                        @endif
 
-                            $statusLabels = [
+                                        <span class="project-format">
+                                            {{ $imageFormat }}
+                                        </span>
 
-                                'placed' => 'Geplaatst',
+                                        <span class="project-size">
+                                            {{ $image->width ?? '?' }}
+                                            ×
+                                            {{ $image->height ?? '?' }}
+                                        </span>
+                                    </div>
 
-                                'paid' => 'Betaald',
+                                    <div class="project-body">
+                                        <div
+                                            class="project-name"
+                                            title="{{ $imageName }}"
+                                        >
+                                            {{ $imageName }}
+                                        </div>
 
-                                'processing' => 'In behandeling',
+                                        <div class="project-meta">
+                                            <span>{{ $imageSize }}</span>
+                                            <span>{{ $image->versions_count ?? 0 }} versies</span>
+                                            <span>{{ $image->created_at?->format('d-m-Y') }}</span>
+                                        </div>
 
-                                'shipped' => 'Verzonden',
+                                        <div class="project-actions">
+                                            @if ($hasImagesEditor)
+                                                <a
+                                                    class="project-link"
+                                                    href="{{ route('images.editor', $image) }}"
+                                                >
+                                                    Open editor
+                                                </a>
+                                            @endif
 
-                                'completed' => 'Voltooid',
-
-                                'cancelled' => 'Geannuleerd',
-
-                            ];
-
-                            $statusLabel =
-
-                                $statusLabels[$order->status]
-
-                                ?? ucfirst($order->status);
-
-                            $statusClass =
-
-                                in_array(
-
-                                    $order->status,
-
-                                    [
-
-                                        'placed',
-
-                                        'paid',
-
-                                        'processing',
-
-                                        'shipped',
-
-                                        'completed',
-
-                                        'cancelled'
-
-                                    ],
-
-                                    true
-
-                                )
-
-                                    ? 'status-' . $order->status
-
-                                    : 'status-default';
-
-                        @endphp
-
-
-
-                        <div class="order-card">
-
-                            <div>
-
-                                <div class="order-number">
-
-                                    Bestelling {{ $order->order_number }}
-
-                                </div>
-
-                                <div class="order-meta">
-
-                                    <span>
-
-                                        Totaal:
-
-                                        <strong>
-
-                                            €{{ number_format($order->total, 0, ',', '.') }}
-
-                                        </strong>
-
-                                    </span>
-
-                                    <span>
-
-                                        Geplaatst:
-
-                                        <strong>
-
-                                            {{ \Carbon\Carbon::parse($order->created_at)->format('d-m-Y H:i') }}
-
-                                        </strong>
-
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-
-                            <span class="order-status {{ $statusClass }}">
-
-                                {{ $statusLabel }}
-
-                            </span>
-
+                                            @if ($hasImagesDownload)
+                                                <a
+                                                    class="project-link"
+                                                    href="{{ route('images.download', $image) }}"
+                                                >
+                                                    Download
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
                         </div>
 
-                    @empty
-
-                        <div class="orders-empty">
-
-                            <div class="orders-empty-mark">
-
+                        @if ($hasImagesIndex)
+                            <div style="margin-top: 16px;">
+                                <a
+                                    class="account-action"
+                                    href="{{ route('images.index') }}"
+                                >
+                                    Bekijk volledige bibliotheek
+                                    <span aria-hidden="true">→</span>
+                                </a>
+                            </div>
+                        @endif
+                    @else
+                        <div class="empty-library">
+                            <div class="empty-library-mark">
                                 M
-
                             </div>
 
                             <strong>
-
-                                Nog geen bestellingen
-
+                                Nog geen afbeeldingsprojecten
                             </strong>
 
                             <p>
-
-                                Je hebt nog geen bestelling geplaatst.
-
-                                Ontdek de Mashal-collectie wanneer je klaar bent
-
-                                om je eerste voertuig te selecteren.
-
+                                Upload je eerste afbeelding vanaf de Studio-homepage.
+                                Na het uploaden verschijnt het project automatisch
+                                in jouw persoonlijke bibliotheek.
                             </p>
 
                             <a
-
-                                class="primary-btn"
-
-                                href="{{ route('catalog') }}"
-
+                                class="account-action primary"
+                                href="{{ route('home') }}#upload"
                             >
-
-                                Ontdek de collectie
-
+                                Eerste afbeelding uploaden
                             </a>
+                        </div>
+                    @endif
+                </section>
 
+                <section
+                    class="account-panel studio-reveal"
+                    id="security"
+                >
+                    <div class="panel-head">
+                        <div>
+                            <span class="panel-index">
+                                06 / Security
+                            </span>
+
+                            <h2 class="panel-title">
+                                Accountbeveiliging
+                            </h2>
+
+                            <p class="panel-copy">
+                                Je account vormt de toegangspoort tot je persoonlijke
+                                originelen en opgeslagen bewerkingsversies.
+                            </p>
                         </div>
 
-                    @endforelse
+                        @if ($hasSecurity)
+                            <a
+                                class="account-action"
+                                href="{{ route('security.index') }}"
+                            >
+                                Open security
+                            </a>
+                        @endif
+                    </div>
 
+                    <div class="security-grid">
+                        <article class="security-card">
+                            <small>Verification</small>
+                            <strong>
+                                {{ $user->email_verified_at
+                                    ? 'E-mail bevestigd'
+                                    : 'Verificatie vereist' }}
+                            </strong>
+                            <p>
+                                Je e-mailstatus wordt gebruikt als extra controle
+                                voor de betrouwbaarheid van je account.
+                            </p>
+                        </article>
+
+                        <article class="security-card">
+                            <small>Password</small>
+                            <strong>Persoonlijk wachtwoord</strong>
+                            <p>
+                                Je kunt je wachtwoord hierboven wijzigen zonder
+                                afbeeldingsprojecten of versies kwijt te raken.
+                            </p>
+                        </article>
+
+                        <article class="security-card">
+                            <small>Image ownership</small>
+                            <strong>Projecten gekoppeld aan jouw account</strong>
+                            <p>
+                                Afbeeldingen en bewerkingsversies blijven gekoppeld
+                                aan de ingelogde gebruiker.
+                            </p>
+                        </article>
+                    </div>
                 </section>
 
             </div>
-
         </div>
-
-
-
-        {{-- ========================================================= --}}
-
-        {{-- SECURITY STRIP                                             --}}
-
-        {{-- ========================================================= --}}
-
-        <div class="account-security-strip">
-
-            <div class="security-item">
-
-                <small>
-
-                    Verification
-
-                </small>
-
-                <strong>
-
-                    Beveiligde e-mailverificatie
-
-                </strong>
-
-                <span>
-
-                    Nieuwe of gewijzigde e-mailadressen
-
-                    worden opnieuw gecontroleerd.
-
-                </span>
-
-            </div>
-
-
-
-            <div class="security-item">
-
-                <small>
-
-                    Password
-
-                </small>
-
-                <strong>
-
-                    Persoonlijk wachtwoordbeheer
-
-                </strong>
-
-                <span>
-
-                    Je kunt je wachtwoord zelf
-
-                    vanuit je account wijzigen.
-
-                </span>
-
-            </div>
-
-
-
-            <div class="security-item">
-
-                <small>
-
-                    Orders
-
-                </small>
-
-                <strong>
-
-                    Bestellingen gekoppeld aan jou
-
-                </strong>
-
-                <span>
-
-                    Je geplaatste orders blijven zichtbaar
-
-                    vanuit je persoonlijke Mashal-account.
-
-                </span>
-
-            </div>
-
-        </div>
-
     </div>
-
 </section>
-
 @endsection
 
-
-
 @push('scripts')
-
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const photoInput =
+        document.getElementById('profile_photo');
 
-    document.addEventListener('DOMContentLoaded', function () {
+    const photoPreview =
+        document.getElementById('profilePhotoPreview');
 
-        const photoInput =
-            document.getElementById('profile_photo');
+    const photoFilename =
+        document.getElementById('profilePhotoFilename');
 
-        const photoPreview =
-            document.getElementById('profilePhotoPreview');
+    const removePhoto =
+        document.getElementById('remove_profile_photo');
 
-        const photoFilename =
-            document.getElementById('profilePhotoFilename');
+    let profilePreviewUrl = null;
 
-        const removePhoto =
-            document.getElementById('remove_profile_photo');
+    function revokePreviewUrl() {
+        if (!profilePreviewUrl) {
+            return;
+        }
 
-        if (photoInput && photoPreview) {
-            photoInput.addEventListener('change', function () {
-                const file =
-                    photoInput.files &&
-                    photoInput.files.length > 0
-                        ? photoInput.files[0]
-                        : null;
+        URL.revokeObjectURL(profilePreviewUrl);
+        profilePreviewUrl = null;
+    }
 
-                if (!file) {
-                    if (photoFilename) {
-                        photoFilename.textContent =
-                            'Geen nieuw bestand geselecteerd.';
-                    }
+    function humanFileSize(bytes) {
+        if (
+            !Number.isFinite(bytes) ||
+            bytes <= 0
+        ) {
+            return '0 KB';
+        }
 
-                    return;
+        const mb =
+            bytes /
+            (1024 * 1024);
+
+        if (mb >= 1) {
+            return (
+                mb.toFixed(
+                    mb >= 10 ? 1 : 2
+                ) +
+                ' MB'
+            );
+        }
+
+        return (
+            Math.max(
+                1,
+                Math.round(bytes / 1024)
+            ) +
+            ' KB'
+        );
+    }
+
+    photoInput?.addEventListener(
+        'change',
+        function () {
+            const file =
+                photoInput.files?.[0];
+
+            if (!file) {
+                if (photoFilename) {
+                    photoFilename.textContent =
+                        'Geen nieuw bestand geselecteerd.';
                 }
+
+                return;
+            }
+
+            const allowedTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                photoInput.value = '';
 
                 if (photoFilename) {
                     photoFilename.textContent =
-                        'Geselecteerd: ' + file.name;
+                        'Gebruik een JPG, PNG of WEBP-afbeelding.';
                 }
 
-                const reader =
-                    new FileReader();
+                return;
+            }
 
-                reader.addEventListener('load', function (event) {
-                    photoPreview.innerHTML = '';
+            const maxSize =
+                5 *
+                1024 *
+                1024;
 
-                    const image =
-                        document.createElement('img');
+            if (file.size > maxSize) {
+                photoInput.value = '';
 
-                    image.src =
-                        event.target.result;
-
-                    image.alt =
-                        'Voorbeeld van nieuwe profielfoto';
-
-                    image.id =
-                        'profilePhotoPreviewImage';
-
-                    photoPreview.appendChild(
-                        image
-                    );
-                });
-
-                reader.readAsDataURL(
-                    file
-                );
-
-                if (removePhoto) {
-                    removePhoto.checked = false;
+                if (photoFilename) {
+                    photoFilename.textContent =
+                        'De profielfoto mag maximaal 5 MB zijn.';
                 }
-            });
+
+                return;
+            }
+
+            revokePreviewUrl();
+
+            profilePreviewUrl =
+                URL.createObjectURL(file);
+
+            if (photoPreview) {
+                photoPreview.innerHTML = '';
+
+                const image =
+                    document.createElement('img');
+
+                image.src =
+                    profilePreviewUrl;
+
+                image.alt =
+                    'Voorbeeld van nieuwe profielfoto';
+
+                photoPreview.appendChild(image);
+            }
+
+            if (photoFilename) {
+                photoFilename.textContent =
+                    file.name +
+                    ' · ' +
+                    humanFileSize(file.size);
+            }
+
+            if (removePhoto) {
+                removePhoto.checked = false;
+            }
         }
+    );
 
+    removePhoto?.addEventListener(
+        'change',
+        function () {
+            if (
+                removePhoto.checked &&
+                photoInput
+            ) {
+                photoInput.value = '';
 
-        document
+                if (photoFilename) {
+                    photoFilename.textContent =
+                        'Eigen profielfoto wordt verwijderd na opslaan.';
+                }
+            }
+        }
+    );
 
-            .querySelectorAll('[data-toggle-password]')
-
-            .forEach(function (button) {
-
-                button.addEventListener('click', function () {
-
+    document
+        .querySelectorAll('[data-toggle-password]')
+        .forEach(function (button) {
+            button.addEventListener(
+                'click',
+                function () {
                     const inputId =
-
-                        button.getAttribute('data-toggle-password');
+                        button.getAttribute(
+                            'data-toggle-password'
+                        );
 
                     const input =
-
                         document.getElementById(inputId);
 
                     if (!input) {
-
                         return;
-
                     }
 
                     const isHidden =
-
                         input.type === 'password';
 
                     input.type =
-
-                        isHidden ? 'text' : 'password';
+                        isHidden
+                            ? 'text'
+                            : 'password';
 
                     button.textContent =
+                        isHidden
+                            ? 'Verbergen'
+                            : 'Tonen';
+                }
+            );
+        });
 
-                        isHidden ? 'Verberg' : 'Tonen';
+    document
+        .querySelectorAll('.account-nav-link[href^="#"]')
+        .forEach(function (anchor) {
+            anchor.addEventListener(
+                'click',
+                function (event) {
+                    const href =
+                        anchor.getAttribute('href');
 
-                });
+                    if (
+                        !href ||
+                        href === '#'
+                    ) {
+                        return;
+                    }
 
-            });
+                    const target =
+                        document.querySelector(href);
 
-    });
+                    if (!target) {
+                        return;
+                    }
 
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            );
+        });
+
+    window.addEventListener(
+        'beforeunload',
+        revokePreviewUrl
+    );
+});
 </script>
-
 @endpush

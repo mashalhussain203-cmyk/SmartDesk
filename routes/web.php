@@ -5,6 +5,8 @@ use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\ImageEditorController;
+use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\UserController;
@@ -25,37 +27,52 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
+| Afbeelding uploaden vóór login
+|--------------------------------------------------------------------------
+|
+| Bezoekers mogen eerst een afbeelding uploaden zonder dat zij al zijn
+| ingelogd.
+|
+| ImageUploadController:
+|
+| 1. valideert de afbeelding;
+| 2. bewaart deze tijdelijk op de private local disk;
+| 3. slaat de gegevens op in de sessie;
+| 4. stuurt gasten naar de loginpagina;
+| 5. stuurt ingelogde gebruikers rechtstreeks naar de claim-route.
+|
+| De throttle voorkomt dat één client onbeperkt uploads kan uitvoeren.
+|
+*/
+
+Route::post(
+    '/images/upload',
+    [ImageUploadController::class, 'storeTemporary']
+)
+    ->middleware('throttle:20,1')
+    ->name('images.upload');
+
+
+/*
+|--------------------------------------------------------------------------
 | Login Security Browser Context
 |--------------------------------------------------------------------------
 |
-| Deze route moet bewust BUITEN de "guest" en "auth" middleware-groepen
-| staan.
+| Deze route staat bewust buiten de guest- en auth-middlewaregroepen.
 |
-| De browser gebruikt deze endpoint vóór de daadwerkelijke login om
-| beveiligingscontext tijdelijk in de Laravel-sessie te bewaren.
+| De browser kan hiermee vóór een daadwerkelijke login tijdelijke
+| beveiligingsinformatie in de Laravel-sessie opslaan.
 |
 | Mogelijke informatie:
 |
-| - browser timezone
-| - GPS latitude
-| - GPS longitude
-| - GPS accuracy
-| - location permission
+| - browser timezone;
+| - GPS latitude;
+| - GPS longitude;
+| - GPS accuracy;
+| - location permission.
 |
-| GPS wordt alleen opgeslagen wanneer de gebruiker in de browser
-| expliciet toestemming heeft gegeven.
-|
-| Deze gegevens kunnen daarna worden gebruikt bij:
-|
-| - wachtwoord-login
-| - e-mailcode
-| - magic link
-| - Google OAuth
-| - GitHub OAuth
-| - Facebook OAuth
-| - TikTok OAuth
-|
-| Omdat dit een web-route is, blijft Laravel CSRF-bescherming actief.
+| Locatiegegevens mogen uiteraard alleen vanuit de browser worden
+| doorgestuurd wanneer de gebruiker daarvoor toestemming heeft gegeven.
 |
 */
 
@@ -72,11 +89,7 @@ Route::post(
 | Gast-routes
 |--------------------------------------------------------------------------
 |
-| Deze routes zijn alleen bedoeld voor bezoekers die nog niet zijn
-| ingelogd.
-|
-| Daardoor kan een ingelogde gebruiker niet opnieuw de login-,
-| registratie-, passwordless- of OAuth-flow openen.
+| Alleen toegankelijk wanneer de gebruiker niet is ingelogd.
 |
 */
 
@@ -97,7 +110,9 @@ Route::middleware('guest')->group(function () {
     Route::post(
         '/register',
         [UserController::class, 'registerSubmit']
-    )->name('register.submit');
+    )
+        ->middleware('throttle:10,1')
+        ->name('register.submit');
 
 
     /*
@@ -115,18 +130,20 @@ Route::middleware('guest')->group(function () {
     Route::post(
         '/login',
         [UserController::class, 'loginSubmit']
-    )->name('login.submit');
+    )
+        ->middleware('throttle:20,1')
+        ->name('login.submit');
 
 
     /*
     |--------------------------------------------------------------------------
-    | Inloggen met e-mailcode of magic link
+    | Passwordless login
     |--------------------------------------------------------------------------
     |
-    | De gebruiker kan kiezen uit:
+    | Ondersteund:
     |
-    | - een 6-cijferige e-mailcode;
-    | - een eenmalige magic login link via Brevo.
+    | - 6-cijferige e-mailcode;
+    | - magic login link.
     |
     */
 
@@ -134,7 +151,7 @@ Route::middleware('guest')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | 6-cijferige e-mailcode
+        | E-mailcode aanvragen
         |--------------------------------------------------------------------------
         */
 
@@ -146,12 +163,24 @@ Route::middleware('guest')->group(function () {
             ->name('email-login.send');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailcodeformulier
+        |--------------------------------------------------------------------------
+        */
+
         Route::get(
             '/verify',
             [EmailLoginController::class, 'showVerifyForm']
         )
             ->name('email-login.form');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | E-mailcode controleren
+        |--------------------------------------------------------------------------
+        */
 
         Route::post(
             '/verify',
@@ -163,11 +192,8 @@ Route::middleware('guest')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Magic login link
+        | Magic login link verzenden
         |--------------------------------------------------------------------------
-        |
-        | De gebruiker ontvangt per e-mail een eenmalige loginlink.
-        |
         */
 
         Route::post(
@@ -177,6 +203,12 @@ Route::middleware('guest')->group(function () {
             ->middleware('throttle:10,1')
             ->name('email-login.link.send');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic login link controleren
+        |--------------------------------------------------------------------------
+        */
 
         Route::get(
             '/link/verify',
@@ -188,13 +220,11 @@ Route::middleware('guest')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Magic link bevestigingspagina
+        | Magic-link bevestigingspagina
         |--------------------------------------------------------------------------
         |
-        | De token is op dit punt al gecontroleerd door verifyMagicLink().
-        | Deze pagina draait op het apparaat waarop de link werkelijk is
-        | geopend en kan daardoor de browser-timezone en, na toestemming,
-        | de precieze browserlocatie vastleggen.
+        | Op deze pagina kan browser-securitycontext worden verzameld voordat
+        | de daadwerkelijke login wordt voltooid.
         |
         */
 
@@ -207,12 +237,8 @@ Route::middleware('guest')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Magic link definitief afronden
+        | Magic-link login afronden
         |--------------------------------------------------------------------------
-        |
-        | De bevestigingspagina stuurt deze POST pas nadat de browser-security
-        | context via /login-security/context is opgeslagen.
-        |
         */
 
         Route::post(
@@ -288,12 +314,6 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     | TikTok OAuth
     |--------------------------------------------------------------------------
-    |
-    | Bestaande TikTok-gebruikers worden direct ingelogd.
-    |
-    | Nieuwe TikTok-gebruikers ronden hun Mashal-account eerst af
-    | via het aanvullende registratieformulier.
-    |
     */
 
     Route::get(
@@ -309,6 +329,12 @@ Route::middleware('guest')->group(function () {
     )
         ->name('tiktok.callback');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Aanvullende TikTok-registratie
+    |--------------------------------------------------------------------------
+    */
 
     Route::get(
         '/auth/tiktok/complete',
@@ -327,7 +353,7 @@ Route::middleware('guest')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Wachtwoord vergeten / herstellen
+    | Wachtwoord vergeten
     |--------------------------------------------------------------------------
     */
 
@@ -346,6 +372,12 @@ Route::middleware('guest')->group(function () {
         ->name('password.email');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord herstellen
+    |--------------------------------------------------------------------------
+    */
+
     Route::get(
         '/reset-password/{token}',
         [UserController::class, 'showResetForm']
@@ -357,6 +389,7 @@ Route::middleware('guest')->group(function () {
         '/reset-password/{token}',
         [UserController::class, 'resetPassword']
     )
+        ->middleware('throttle:10,1')
         ->name('password.update');
 });
 
@@ -380,7 +413,7 @@ Route::post(
 | E-mailverificatie
 |--------------------------------------------------------------------------
 |
-| Deze routes worden gebruikt voor normale registraties met
+| Wordt onder andere gebruikt voor normale registraties met een
 | e-mailadres en wachtwoord.
 |
 */
@@ -460,6 +493,206 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Afbeeldingen
+    |--------------------------------------------------------------------------
+    |
+    | Volledige private image-workspace.
+    |
+    | Originelen en gegenereerde versies staan niet rechtstreeks publiek
+    | toegankelijk. Bestanden worden via ImageEditorController aangeboden,
+    | zodat bij ieder request eigenaarschap kan worden gecontroleerd.
+    |
+    */
+
+    Route::prefix('images')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tijdelijke upload claimen
+        |--------------------------------------------------------------------------
+        |
+        | Na login wordt de afbeelding uit de sessie aan de huidige gebruiker
+        | gekoppeld.
+        |
+        */
+
+        Route::get(
+            '/claim',
+            [ImageUploadController::class, 'claim']
+        )
+            ->name('images.claim');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Persoonlijke bibliotheek
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/',
+            [ImageEditorController::class, 'index']
+        )
+            ->name('images.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Editor openen
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/{image}/edit',
+            [ImageEditorController::class, 'edit']
+        )
+            ->whereNumber('image')
+            ->name('images.editor');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Originele private afbeelding bekijken
+        |--------------------------------------------------------------------------
+        |
+        | Wordt bijvoorbeeld gebruikt door:
+        |
+        | - de library-thumbnail;
+        | - de editor-preview;
+        | - andere authenticated previews.
+        |
+        */
+
+        Route::get(
+            '/{image}/file',
+            [ImageEditorController::class, 'file']
+        )
+            ->whereNumber('image')
+            ->name('images.file');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Origineel downloaden
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/{image}/download',
+            [ImageEditorController::class, 'downloadOriginal']
+        )
+            ->whereNumber('image')
+            ->name('images.download');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Afbeelding verwerken
+        |--------------------------------------------------------------------------
+        |
+        | De centrale processing-endpoint ondersteunt onder andere:
+        |
+        | - resize;
+        | - crop;
+        | - rotate;
+        | - flip;
+        | - compress;
+        | - convert.
+        |
+        | Iedere geslaagde bewerking wordt als nieuwe ImageVersion opgeslagen.
+        |
+        */
+
+        Route::post(
+            '/{image}/process',
+            [ImageEditorController::class, 'process']
+        )
+            ->whereNumber('image')
+            ->middleware('throttle:60,1')
+            ->name('images.process');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Volledig image-project verwijderen
+        |--------------------------------------------------------------------------
+        |
+        | Verwijdert:
+        |
+        | - database-record;
+        | - origineel bestand;
+        | - alle opgeslagen versies.
+        |
+        */
+
+        Route::delete(
+            '/{image}',
+            [ImageEditorController::class, 'destroy']
+        )
+            ->whereNumber('image')
+            ->name('images.destroy');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Versies
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('{image}/versions')
+            ->whereNumber('image')
+            ->group(function () {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Versiebestand bekijken
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/{version}/file',
+                    [ImageEditorController::class, 'versionFile']
+                )
+                    ->whereNumber('version')
+                    ->name('images.versions.file');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Versie downloaden
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/{version}/download',
+                    [ImageEditorController::class, 'downloadVersion']
+                )
+                    ->whereNumber('version')
+                    ->name('images.versions.download');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Individuele versie verwijderen
+                |--------------------------------------------------------------------------
+                |
+                | Alleen de gekozen bewerkte versie wordt verwijderd.
+                | Het originele project blijft bestaan.
+                |
+                */
+
+                Route::delete(
+                    '/{version}',
+                    [ImageEditorController::class, 'destroyVersion']
+                )
+                    ->whereNumber('version')
+                    ->name('images.versions.destroy');
+            });
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Favorieten
     |--------------------------------------------------------------------------
     */
@@ -527,10 +760,17 @@ Route::middleware('auth')->group(function () {
         ->name('account.update');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Wachtwoord wijzigen
+    |--------------------------------------------------------------------------
+    */
+
     Route::put(
         '/account/password',
         [UserController::class, 'updatePassword']
     )
+        ->middleware('throttle:10,1')
         ->name('account.password.update');
 
 
@@ -551,6 +791,7 @@ Route::middleware('auth')->group(function () {
         '/checkout',
         [UserController::class, 'checkoutSubmit']
     )
+        ->middleware('throttle:20,1')
         ->name('checkout.submit');
 
 
@@ -559,10 +800,15 @@ Route::middleware('auth')->group(function () {
     | Admin
     |--------------------------------------------------------------------------
     |
-    | Deze routes vereisen minimaal een ingelogde gebruiker.
+    | Deze routes vereisen minimaal authenticatie.
     |
-    | UserController moet daarnaast zelf blijven controleren
-    | of is_admin daadwerkelijk true is.
+    | BELANGRIJK:
+    |
+    | UserController moet daarnaast blijven controleren of de gebruiker
+    | daadwerkelijk administratorrechten heeft.
+    |
+    | Nog beter is om hiervoor uiteindelijk een aparte admin-middleware
+    | te gebruiken.
     |
     */
 

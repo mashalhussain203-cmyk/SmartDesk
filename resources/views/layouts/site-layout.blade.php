@@ -1,3333 +1,2827 @@
 <!DOCTYPE html>
-
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
-
         name="viewport"
-
         content="width=device-width, initial-scale=1"
-
     >
 
     <meta
-
         name="csrf-token"
-
         content="{{ csrf_token() }}"
-
     >
 
     <meta
-
         name="theme-color"
+        content="#07080b"
+    >
 
-        content="#08090b"
+    <meta
+        name="color-scheme"
+        content="dark"
+    >
 
+    <meta
+        name="description"
+        content="@yield('meta_description', 'Mashal Studio — upload, edit and manage images in your private workspace.')"
     >
 
     <title>
-
-        @yield('title', 'Mashal')
-
+        @yield('title', 'Mashal Studio')
     </title>
 
+    @php
+        $layoutUser = auth()->user();
+
+        $hasHome = \Illuminate\Support\Facades\Route::has('home');
+        $hasLogin = \Illuminate\Support\Facades\Route::has('login');
+        $hasRegister = \Illuminate\Support\Facades\Route::has('register');
+        $hasLogout = \Illuminate\Support\Facades\Route::has('logout');
+        $hasImagesIndex = \Illuminate\Support\Facades\Route::has('images.index');
+        $hasAccount = \Illuminate\Support\Facades\Route::has('account');
+        $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
+        $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
+
+        $layoutInitials = 'M';
+        $layoutAvatarUrl = null;
+        $layoutImageCount = null;
+        $layoutIsAdmin = (bool) ($layoutUser->is_admin ?? false);
+
+        if ($layoutUser) {
+            if (
+                method_exists($layoutUser, 'initials') &&
+                $layoutUser->initials()
+            ) {
+                $layoutInitials = (string) $layoutUser->initials();
+            } else {
+                $nameParts = preg_split(
+                    '/\s+/',
+                    trim((string) $layoutUser->name)
+                ) ?: [];
+
+                $layoutInitials = '';
+
+                foreach (array_slice($nameParts, 0, 2) as $namePart) {
+                    $layoutInitials .= mb_strtoupper(
+                        mb_substr($namePart, 0, 1)
+                    );
+                }
+
+                if ($layoutInitials === '') {
+                    $layoutInitials = 'M';
+                }
+            }
+
+            if (
+                method_exists($layoutUser, 'avatarUrl')
+            ) {
+                $layoutAvatarUrl = $layoutUser->avatarUrl();
+            }
+
+            if (
+                class_exists(\App\Models\Image::class)
+            ) {
+                try {
+                    $layoutImageCount = \App\Models\Image::query()
+                        ->where('user_id', $layoutUser->id)
+                        ->count();
+                } catch (\Throwable $exception) {
+                    $layoutImageCount = null;
+                }
+            }
+        }
+    @endphp
+
     <style>
-
         :root {
+            --studio-bg: #07080b;
+            --studio-bg-deep: #050608;
+            --studio-surface: #0d1015;
+            --studio-surface-2: #12161d;
+            --studio-surface-3: #171c24;
 
-            --bg: #08090b;
+            --studio-text: #f7f7f4;
+            --studio-text-soft: #d8dce1;
+            --studio-muted: #8a929d;
+            --studio-muted-2: #646c76;
+            --studio-muted-3: #474e57;
 
-            --bg-soft: #0d0f12;
+            --studio-line: rgba(255, 255, 255, .072);
+            --studio-line-strong: rgba(255, 255, 255, .12);
 
-            --panel: #111419;
+            --studio-gold: #e3b36b;
+            --studio-gold-light: #f3d69a;
+            --studio-gold-deep: #b77d38;
+            --studio-gold-soft: rgba(227, 179, 107, .075);
 
-            --panel-2: #15191f;
+            --studio-success: #67d990;
+            --studio-warning: #f0c46d;
+            --studio-danger: #f47d7d;
 
-            --panel-3: #1b2027;
+            --studio-header-height: 76px;
+            --studio-shell: 1380px;
 
-            --text: #f6f4ef;
+            --studio-radius-sm: 12px;
+            --studio-radius: 18px;
+            --studio-radius-lg: 26px;
 
-            --text-soft: #ddd8cf;
+            --studio-shadow:
+                0 34px 100px rgba(0, 0, 0, .40);
 
-            --muted: #969ba3;
+            --studio-shadow-soft:
+                0 18px 48px rgba(0, 0, 0, .24);
 
-            --line: rgba(255, 255, 255, 0.10);
-
-            --line-strong: rgba(255, 255, 255, 0.17);
-
-            --gold: #d7a45f;
-
-            --gold-light: #f1c983;
-
-            --gold-dark: #9c6d34;
-
-            --gold-soft: rgba(215, 164, 95, 0.12);
-
-            --success: #5bd695;
-
-            --success-soft: rgba(91, 214, 149, 0.11);
-
-            --warning: #f2c66d;
-
-            --warning-soft: rgba(242, 198, 109, 0.11);
-
-            --danger: #f17b7b;
-
-            --danger-soft: rgba(241, 123, 123, 0.11);
-
-            --shadow:
-
-                0 30px 90px rgba(0, 0, 0, 0.42);
-
-            --shadow-soft:
-
-                0 18px 45px rgba(0, 0, 0, 0.22);
-
-            --radius-sm: 14px;
-
-            --radius: 20px;
-
-            --radius-lg: 30px;
-
-            --font:
-
+            --studio-font:
                 Inter,
-
                 ui-sans-serif,
-
+                system-ui,
                 -apple-system,
-
                 BlinkMacSystemFont,
-
                 "Segoe UI",
-
                 Arial,
-
                 sans-serif;
-
         }
 
-
-
-
-
-        /* ========================================================= */
-
-        /* RESET / GLOBAL                                            */
-
-        /* ========================================================= */
-
-        * {
-
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
-
         }
 
         html {
-
+            min-width: 320px;
+            min-height: 100%;
             scroll-behavior: smooth;
-
+            background: var(--studio-bg);
         }
 
         body {
-
-            margin: 0;
-
+            min-width: 320px;
             min-height: 100vh;
-
+            margin: 0;
             display: flex;
-
             flex-direction: column;
-
-            font-family: var(--font);
-
-            color: var(--text);
-
+            overflow-x: hidden;
+            color: var(--studio-text);
             background:
-
                 radial-gradient(
-
-                    circle at 20% 10%,
-
-                    rgba(215, 164, 95, 0.08),
-
-                    transparent 24rem
-
+                    circle at 12% 7%,
+                    rgba(227, 179, 107, .07),
+                    transparent 30rem
                 ),
-
                 radial-gradient(
-
-                    circle at 85% 20%,
-
-                    rgba(84, 98, 117, 0.08),
-
-                    transparent 24rem
-
+                    circle at 88% 12%,
+                    rgba(93, 116, 255, .05),
+                    transparent 32rem
                 ),
-
-                var(--bg);
-
+                linear-gradient(
+                    180deg,
+                    #07080b,
+                    #080a0e 48%,
+                    #07080b
+                );
+            font-family: var(--studio-font);
             line-height: 1.6;
-
             -webkit-font-smoothing: antialiased;
-
             text-rendering: optimizeLegibility;
-
         }
 
-        body::selection {
-
-            background: var(--gold);
-
-            color: #111111;
-
-        }
-
-        main {
-
-            flex: 1;
-
-            width: 100%;
-
+        body.studio-menu-open {
+            overflow: hidden;
         }
 
         a {
-
             color: inherit;
-
         }
 
         button,
-
         input,
-
         select,
-
         textarea {
-
             font: inherit;
-
         }
 
         button {
-
             color: inherit;
+        }
 
+        img,
+        picture,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
         }
 
         img {
-
-            max-width: 100%;
-
             display: block;
-
         }
 
-
-
-
-
-        /* ========================================================= */
-
-        /* CONTAINER                                                 */
-
-        /* ========================================================= */
-
-        .site-wrap {
-
-            width: min(100% - 48px, 1240px);
-
-            margin-inline: auto;
-
+        [hidden] {
+            display: none !important;
         }
 
-
-
-
-
-        /* ========================================================= */
-
-        /* HEADER                                                    */
-
-        /* ========================================================= */
-
-        .site-header {
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 1000;
-
-            border-bottom:
-
-                1px solid rgba(255, 255, 255, 0.07);
-
-            background:
-
-                rgba(8, 9, 11, 0.78);
-
-            backdrop-filter: blur(22px);
-
-            -webkit-backdrop-filter: blur(22px);
-
-            transition:
-
-                background .25s ease,
-
-                box-shadow .25s ease,
-
-                border-color .25s ease;
-
+        ::selection {
+            color: #171009;
+            background: var(--studio-gold-light);
         }
 
-        .site-header.is-scrolled {
-
-            background:
-
-                rgba(8, 9, 11, 0.94);
-
-            border-color:
-
-                rgba(215, 164, 95, 0.16);
-
-            box-shadow:
-
-                0 16px 45px rgba(0, 0, 0, 0.28);
-
+        :focus-visible {
+            outline: 2px solid rgba(243, 214, 154, .82);
+            outline-offset: 3px;
         }
 
-        .nav {
-
-            min-height: 78px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 28px;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* LOGO                                                      */
-
-        /* ========================================================= */
-
-        .logo {
-
+        .studio-skip-link {
+            position: fixed;
+            z-index: 99999;
+            left: 16px;
+            top: 12px;
+            min-height: 40px;
+            padding: 0 15px;
             display: inline-flex;
-
             align-items: center;
-
-            gap: 12px;
-
-            flex-shrink: 0;
-
-            color: var(--text);
-
+            justify-content: center;
+            transform: translateY(-160%);
+            border-radius: 10px;
+            color: #171009;
+            background: var(--studio-gold-light);
             text-decoration: none;
-
-            font-size: 22px;
-
-            font-weight: 900;
-
-            letter-spacing: -0.04em;
-
+            font-size: 9px;
+            font-weight: 950;
+            transition: transform .2s ease;
         }
-        .logo-mark {
+
+        .studio-skip-link:focus {
+            transform: translateY(0);
+        }
+
+        .studio-atmosphere {
+            position: fixed;
+            z-index: -10;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .studio-atmosphere::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .12;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                );
+            background-size: 72px 72px;
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    #000,
+                    transparent 84%
+                );
+        }
+
+        .studio-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: .14;
+            animation:
+                studioOrbFloat
+                18s
+                ease-in-out
+                infinite
+                alternate;
+        }
+
+        .studio-orb.one {
+            width: 430px;
+            height: 430px;
+            left: -170px;
+            top: 20vh;
+            background: rgba(227,179,107,.18);
+        }
+
+        .studio-orb.two {
+            width: 520px;
+            height: 520px;
+            right: -230px;
+            top: 8vh;
+            background: rgba(108,92,255,.12);
+            animation-delay: -7s;
+        }
+
+        .studio-orb.three {
+            width: 420px;
+            height: 420px;
+            right: 25%;
+            bottom: -220px;
+            background: rgba(87,181,255,.09);
+            animation-delay: -12s;
+        }
+
+        @keyframes studioOrbFloat {
+            from {
+                transform:
+                    translate3d(0,0,0)
+                    scale(1);
+            }
+
+            to {
+                transform:
+                    translate3d(45px,32px,0)
+                    scale(1.10);
+            }
+        }
+
+        .studio-progress {
+            position: fixed;
+            z-index: 1500;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 2px;
+            pointer-events: none;
+        }
+
+        .studio-progress-bar {
+            width: 0;
+            height: 100%;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--studio-gold-deep),
+                    var(--studio-gold-light),
+                    #fff0c5
+                );
+            box-shadow:
+                0 0 20px rgba(227,179,107,.34);
+        }
+
+        .studio-shell {
+            width:
+                min(
+                    calc(100% - 40px),
+                    var(--studio-shell)
+                );
+            margin-inline: auto;
+        }
+
+        .studio-header {
+            position: sticky;
+            z-index: 1000;
+            top: 0;
+            border-bottom:
+                1px solid rgba(255,255,255,.052);
+            background:
+                rgba(7,8,11,.72);
+            backdrop-filter:
+                blur(24px)
+                saturate(135%);
+            -webkit-backdrop-filter:
+                blur(24px)
+                saturate(135%);
+            transition:
+                background .22s ease,
+                border-color .22s ease,
+                box-shadow .22s ease;
+        }
+
+        .studio-header.is-scrolled {
+            border-color:
+                rgba(227,179,107,.10);
+            background:
+                rgba(7,8,11,.93);
+            box-shadow:
+                0 18px 50px rgba(0,0,0,.25);
+        }
+
+        .studio-nav {
+            min-height: var(--studio-header-height);
+            display: grid;
+            grid-template-columns:
+                auto
+                minmax(0,1fr)
+                auto;
+            align-items: center;
+            gap: 26px;
+        }
+
+        .studio-brand {
+            min-width: max-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: var(--studio-text);
+            text-decoration: none;
+        }
+
+        .studio-brand-mark {
             position: relative;
             width: 42px;
             height: 42px;
             flex: 0 0 42px;
-            display: inline-grid;
+            display: grid;
             place-items: center;
             overflow: hidden;
-            border: 1px solid rgba(215, 164, 95, 0.30);
-            border-radius: 14px;
-            background: #ffffff;
-            box-shadow:
-                0 10px 30px rgba(215, 164, 95, 0.20);
-        }
-
-        .logo-mark img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-            object-position: center;
-            border-radius: inherit;
-        }
-
-        .logo-mark::after {
-            content: none;
-            display: none;
-        }
-
-        .logo-word {
-
-            display: inline-flex;
-
-            flex-direction: column;
-
-            line-height: 1;
-
-        }
-
-        .logo-word strong {
-
-            font-size: 22px;
-
-        }
-
-        .logo-word small {
-
-            margin-top: 6px;
-
-            color: var(--muted);
-
-            font-size: 8px;
-
-            font-weight: 800;
-
-            letter-spacing: .22em;
-
-            text-transform: uppercase;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* NAVIGATION                                                */
-
-        /* ========================================================= */
-
-        .nav-links {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-        }
-
-        .nav-links > a:not(.nav-button):not(.nav-account) {
-
-            position: relative;
-
-            padding: 11px 13px;
-
-            border-radius: 12px;
-
-            color: #c9c7c2;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            font-weight: 750;
-
-            transition:
-
-                color .2s ease,
-
-                background .2s ease;
-
-        }
-
-        .nav-links > a:not(.nav-button):not(.nav-account):hover,
-
-        .nav-links > a.active:not(.nav-button):not(.nav-account) {
-
-            color: #ffffff;
-
-            background: rgba(255, 255, 255, 0.055);
-
-        }
-
-        .nav-links > a.active:not(.nav-button):not(.nav-account)::after {
-
-            content: "";
-
-            position: absolute;
-
-            left: 14px;
-
-            right: 14px;
-
-            bottom: 4px;
-
-            height: 2px;
-
-            border-radius: 999px;
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    transparent,
-
-                    var(--gold),
-
-                    transparent
-
-                );
-
-        }
-
-        .cart-count {
-
-            min-width: 20px;
-
-            height: 20px;
-
-            margin-left: 5px;
-
-            padding: 0 6px;
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius: 999px;
-
-            background: var(--gold);
-
-            color: #111111;
-
-            font-size: 10px;
-
-            font-weight: 900;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* NAV USER                                                  */
-
-        /* ========================================================= */
-
-        .nav-user {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            margin-left: 4px;
-
-        }
-
-        .nav-account {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            padding: 6px 8px 6px 6px;
-
             border:
-
-                1px solid rgba(255, 255, 255, 0.08);
-
-            border-radius: 999px;
-
+                1px solid rgba(227,179,107,.18);
+            border-radius: 14px;
+            color: var(--studio-gold-light);
             background:
-
-                rgba(255, 255, 255, 0.035);
-
-            color: #ffffff;
-
-            text-decoration: none;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-            transition:
-
-                border-color .2s ease,
-
-                background .2s ease;
-
-        }
-
-        .nav-account:hover {
-
-            border-color:
-
-                rgba(215, 164, 95, 0.28);
-
-            background:
-
-                rgba(215, 164, 95, 0.06);
-
-        }
-
-        .nav-avatar {
-
-            overflow: hidden;
-
-            flex: 0 0 30px;
-
-        }
-
-        .nav-avatar img {
-
-            width: 100%;
-
-            height: 100%;
-
-            display: block;
-
-            object-fit: cover;
-
-            border-radius: 50%;
-
-        }
-
-        .nav-account-copy {
-
-            min-width: 0;
-
-        }
-
-        .nav-account-copy strong {
-
-            display: block;
-
-            max-width: 130px;
-
-            overflow: hidden;
-
-            color: #ffffff;
-
-            font-size: 11px;
-
-            font-weight: 900;
-
-            text-overflow: ellipsis;
-
-            white-space: nowrap;
-
-        }
-
-        .nav-account-copy small {
-
-            display: block;
-
-            margin-top: 1px;
-
-            color: #7f858c;
-
-            font-size: 7px;
-
-            font-weight: 800;
-
-            letter-spacing: .04em;
-
-            text-transform: uppercase;
-
-        }
-
-        .nav-avatar {
-
-            width: 30px;
-
-            height: 30px;
-
-            display: inline-grid;
-
-            place-items: center;
-
-            border-radius: 50%;
-
-            background:
-
                 linear-gradient(
-
                     145deg,
-
-                    var(--gold-light),
-
-                    var(--gold-dark)
-
+                    rgba(227,179,107,.13),
+                    rgba(227,179,107,.025)
                 );
-
-            color: #15120d;
-
-            font-size: 11px;
-
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.05),
+                0 14px 34px rgba(0,0,0,.18);
+            font-size: 14px;
             font-weight: 950;
-
+            letter-spacing: -.06em;
         }
 
-
-
-
-
-        /* ========================================================= */
-
-        /* BUTTONS                                                   */
-
-        /* ========================================================= */
-
-        .nav-button,
-
-        .primary-btn,
-
-        .secondary-btn {
-
-            position: relative;
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 9px;
-
-            border: 0;
-
-            text-decoration: none;
-
-            cursor: pointer;
-
-            font-weight: 850;
-
-            transition:
-
-                transform .2s ease,
-
-                box-shadow .2s ease,
-
-                background .2s ease,
-
-                border-color .2s ease,
-
-                color .2s ease;
-
-        }
-
-        .nav-button {
-
-            min-height: 40px;
-
-            padding: 0 16px;
-
-            border-radius: 999px;
-
-            background:
-
-                linear-gradient(
-
-                    135deg,
-
-                    var(--gold-light),
-
-                    var(--gold)
-
-                );
-
-            color: #14100b;
-
-            font-size: 12px;
-
-            box-shadow:
-
-                0 8px 24px rgba(215, 164, 95, 0.18);
-
-        }
-
-        .nav-button:hover {
-
-            transform: translateY(-1px);
-
-            box-shadow:
-
-                0 12px 30px rgba(215, 164, 95, 0.25);
-
-        }
-
-        .nav-button.admin {
-
-            background:
-
-                rgba(255, 255, 255, 0.08);
-
-            border:
-
-                1px solid rgba(255, 255, 255, 0.11);
-
-            color: #ffffff;
-
-            box-shadow: none;
-
-        }
-
-        .nav-button.logout {
-
-            border:
-
-                1px solid rgba(255, 255, 255, 0.10);
-
-            background:
-
-                rgba(255, 255, 255, 0.04);
-
-            color: #d7d5d0;
-
-            box-shadow: none;
-
-        }
-
-        .nav-button.logout:hover,
-
-        .nav-button.admin:hover {
-
-            background:
-
-                rgba(255, 255, 255, 0.09);
-
-            border-color:
-
-                rgba(215, 164, 95, 0.24);
-
-            color: #ffffff;
-
-        }
-
-        .primary-btn {
-
-            min-height: 50px;
-
-            padding: 0 24px;
-
-            border-radius: 999px;
-
-            background:
-
-                linear-gradient(
-
-                    135deg,
-
-                    var(--gold-light),
-
-                    var(--gold)
-
-                );
-
-            color: #15110c;
-
-            box-shadow:
-
-                0 14px 38px rgba(215, 164, 95, 0.20);
-
-            font-size: 13px;
-
-        }
-
-        .primary-btn:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow:
-
-                0 20px 48px rgba(215, 164, 95, 0.28);
-
-        }
-
-        .secondary-btn {
-
-            min-height: 50px;
-
-            padding: 0 24px;
-
-            border:
-
-                1px solid var(--line-strong);
-
-            border-radius: 999px;
-
-            background:
-
-                rgba(255, 255, 255, 0.035);
-
-            color: var(--text);
-
-            font-size: 13px;
-
-        }
-
-        .secondary-btn:hover {
-
-            transform: translateY(-2px);
-
-            border-color:
-
-                rgba(215, 164, 95, 0.35);
-
-            background:
-
-                rgba(215, 164, 95, 0.06);
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* MOBILE NAV                                                */
-
-        /* ========================================================= */
-
-        .nav-toggle {
-
-            width: 44px;
-
-            height: 44px;
-
-            display: none;
-
-            place-items: center;
-
-            border:
-
-                1px solid var(--line);
-
-            border-radius: 13px;
-
-            background:
-
-                rgba(255, 255, 255, 0.04);
-
-            cursor: pointer;
-
-        }
-
-        .nav-toggle-lines,
-
-        .nav-toggle-lines::before,
-
-        .nav-toggle-lines::after {
-
-            width: 18px;
-
-            height: 2px;
-
-            display: block;
-
-            border-radius: 999px;
-
-            background: #ffffff;
-
-            transition:
-
-                transform .2s ease,
-
-                opacity .2s ease;
-
-        }
-
-        .nav-toggle-lines {
-
-            position: relative;
-
-        }
-
-        .nav-toggle-lines::before,
-
-        .nav-toggle-lines::after {
-
+        .studio-brand-mark::after {
             content: "";
-
             position: absolute;
-
-            left: 0;
-
-        }
-
-        .nav-toggle-lines::before {
-
-            top: -6px;
-
-        }
-
-        .nav-toggle-lines::after {
-
-            top: 6px;
-
-        }
-
-        .nav-toggle.is-open .nav-toggle-lines {
-
-            background: transparent;
-
-        }
-
-        .nav-toggle.is-open .nav-toggle-lines::before {
-
-            top: 0;
-
-            transform: rotate(45deg);
-
-        }
-
-        .nav-toggle.is-open .nav-toggle-lines::after {
-
-            top: 0;
-
-            transform: rotate(-45deg);
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* HERO                                                      */
-
-        /* ========================================================= */
-
-        .hero {
-
-            position: relative;
-
-            min-height: 620px;
-
-            display: flex;
-
-            align-items: center;
-
-            overflow: hidden;
-
-            isolation: isolate;
-
-            border-bottom:
-
-                1px solid rgba(255, 255, 255, 0.06);
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    rgba(7, 8, 10, 0.98) 0%,
-
-                    rgba(7, 8, 10, 0.89) 45%,
-
-                    rgba(7, 8, 10, 0.64) 72%,
-
-                    rgba(7, 8, 10, 0.84) 100%
-
-                ),
-
-                linear-gradient(
-
-                    135deg,
-
-                    #0b0e12,
-
-                    #111821
-
-                );
-
-        }
-
-        .hero::before {
-
-            content: "";
-
-            position: absolute;
-
-            inset: 0;
-
-            z-index: -2;
-
-            background:
-
-                radial-gradient(
-
-                    circle at 78% 34%,
-
-                    rgba(215, 164, 95, 0.14),
-
-                    transparent 22rem
-
-                ),
-
-                linear-gradient(
-
-                    115deg,
-
-                    transparent 0 54%,
-
-                    rgba(255, 255, 255, 0.025) 54% 55%,
-
-                    transparent 55% 100%
-
-                );
-
-        }
-
-        .hero::after {
-
-            content: "";
-
-            position: absolute;
-
-            right: -160px;
-
-            top: 50%;
-
-            width: 650px;
-
-            height: 650px;
-
-            z-index: -1;
-
-            transform: translateY(-50%);
-
-            border:
-
-                1px solid rgba(215, 164, 95, 0.12);
-
+            width: 26px;
+            height: 26px;
+            right: -14px;
+            top: -14px;
             border-radius: 50%;
-
-            box-shadow:
-
-                0 0 0 100px rgba(255, 255, 255, 0.01),
-
-                0 0 0 200px rgba(255, 255, 255, 0.008);
-
+            background: rgba(255,255,255,.12);
+            filter: blur(6px);
         }
 
-        .hero-inner {
+        .studio-brand-copy {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
 
-            width: min(100% - 48px, 1240px);
+        .studio-brand-copy strong {
+            color: #f7f7f4;
+            font-size: 14px;
+            font-weight: 950;
+            letter-spacing: -.03em;
+        }
 
-            margin-inline: auto;
+        .studio-brand-copy small {
+            margin-top: 6px;
+            color: #666d77;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
 
-            padding:
-
-                clamp(80px, 9vw, 130px)
-
-                0;
-
-            display: grid;
-
-            grid-template-columns:
-
-                minmax(0, 1.15fr)
-
-                minmax(300px, .75fr);
-
+        .studio-nav-center {
+            min-width: 0;
+            display: flex;
             align-items: center;
-
-            gap:
-
-                clamp(36px, 6vw, 86px);
-
+            justify-content: center;
+            gap: 4px;
         }
 
-        .hero-copy {
-
-            max-width: 760px;
-
-            animation:
-
-                mashalFadeUp .75s ease both;
-
-        }
-
-        .hero-kicker {
-
+        .studio-nav-link {
+            position: relative;
+            min-height: 42px;
+            padding: 0 13px;
             display: inline-flex;
-
             align-items: center;
-
-            gap: 10px;
-
-            margin-bottom: 24px;
-
-            color: var(--gold-light);
-
-            font-size: 10px;
-
-            font-weight: 900;
-
-            letter-spacing: .22em;
-
-            text-transform: uppercase;
-
-        }
-
-        .hero-kicker::before {
-
-            content: "";
-
-            width: 34px;
-
-            height: 1px;
-
-            background: var(--gold);
-
-        }
-
-        h1 {
-
-            margin: 0 0 24px;
-
-            font-size:
-
-                clamp(52px, 6vw, 88px);
-
-            line-height: .98;
-
-            letter-spacing: -0.06em;
-
-            font-weight: 900;
-
-        }
-
-        .hero-copy h1 span,
-
-        .gold-text {
-
-            color: var(--gold-light);
-
-        }
-
-        .hero-copy p {
-
-            max-width: 650px;
-
-            margin: 0 0 34px;
-
-            color: #b8bbc0;
-
-            font-size:
-
-                clamp(16px, 1.6vw, 19px);
-
-            line-height: 1.8;
-
-        }
-
-        .hero-actions {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 12px;
-
-            flex-wrap: wrap;
-
-        }
-
-        .hero-card {
-
-            position: relative;
-
-            padding: 18px;
-
-            border:
-
-                1px solid var(--line-strong);
-
-            border-radius: 28px;
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    rgba(255, 255, 255, 0.08),
-
-                    rgba(255, 255, 255, 0.025)
-
-                );
-
-            backdrop-filter: blur(18px);
-
-            -webkit-backdrop-filter: blur(18px);
-
-            box-shadow: var(--shadow);
-
-            animation:
-
-                mashalFadeUp .75s .14s ease both;
-
-        }
-
-        .hero-card::before {
-
-            content: "";
-
-            position: absolute;
-
-            inset: 0;
-
-            border-radius: inherit;
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    rgba(215, 164, 95, 0.08),
-
-                    transparent 45%
-
-                );
-
-            pointer-events: none;
-
-        }
-
-        .mini-panel {
-
-            position: relative;
-
-            margin-bottom: 10px;
-
-            padding: 20px;
-
-            border:
-
-                1px solid rgba(255, 255, 255, 0.07);
-
-            border-radius: 18px;
-
-            background:
-
-                rgba(5, 6, 8, 0.58);
-
-        }
-
-        .mini-panel:last-child {
-
-            margin-bottom: 0;
-
-        }
-
-        .mini-panel .small-text {
-
-            display: block;
-
-            margin-bottom: 7px;
-
-            color: var(--gold);
-
-            font-size: 9px;
-
-            font-weight: 900;
-
-            letter-spacing: .16em;
-
-            text-transform: uppercase;
-
-        }
-
-        .mini-panel strong {
-
-            display: block;
-
-            margin-bottom: 4px;
-
-            color: #ffffff;
-
-            font-size: 24px;
-
-            line-height: 1.2;
-
-        }
-
-        .mini-panel span:not(.small-text) {
-
-            color: var(--muted);
-
-            font-size: 12px;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* SECTIONS                                                  */
-
-        /* ========================================================= */
-
-        .section {
-
-            position: relative;
-
-            padding:
-
-                clamp(72px, 8vw, 110px)
-
-                0;
-
-        }
-
-        .section:nth-of-type(even) {
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    rgba(255, 255, 255, 0.012),
-
-                    rgba(255, 255, 255, 0.024)
-
-                );
-
-        }
-
-        .section-title {
-
-            width: min(100% - 48px, 760px);
-
-            margin:
-
-                0 auto
-
-                42px;
-
-            text-align: center;
-
-        }
-
-        .section-title::before {
-
-            content: "MASHAL";
-
-            display: block;
-
-            margin-bottom: 10px;
-
-            color: var(--gold);
-
-            font-size: 9px;
-
-            font-weight: 900;
-
-            letter-spacing: .26em;
-
-        }
-
-        .section-title h2 {
-
-            margin: 0 0 14px;
-
-            font-size:
-
-                clamp(34px, 4vw, 54px);
-
-            line-height: 1.05;
-
-            letter-spacing: -0.045em;
-
-        }
-
-        .section-title p {
-
-            margin: 0;
-
-            color: var(--muted);
-
-            font-size: 15px;
-
-            line-height: 1.8;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* CARDS                                                     */
-
-        /* ========================================================= */
-
-        .feature-grid {
-
-            display: grid;
-
-            grid-template-columns:
-
-                repeat(3, minmax(0, 1fr));
-
-            gap: 18px;
-
-        }
-
-        .feature-card {
-
-            position: relative;
-
-            padding: 26px;
-
-            overflow: hidden;
-
-            border:
-
-                1px solid var(--line);
-
-            border-radius: 24px;
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    rgba(255, 255, 255, 0.045),
-
-                    rgba(255, 255, 255, 0.018)
-
-                );
-
-            box-shadow:
-
-                0 12px 35px rgba(0, 0, 0, 0.18);
-
-            transition:
-
-                transform .25s ease,
-
-                border-color .25s ease,
-
-                box-shadow .25s ease;
-
-        }
-
-        .feature-card::before {
-
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-
-            top: 0;
-
-            width: 100%;
-
-            height: 2px;
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    transparent,
-
-                    rgba(215, 164, 95, 0.75),
-
-                    transparent
-
-                );
-
-            opacity: 0;
-
-            transition: opacity .25s ease;
-
-        }
-
-        .feature-card:hover {
-
-            transform: translateY(-6px);
-
-            border-color:
-
-                rgba(215, 164, 95, 0.25);
-
-            box-shadow:
-
-                0 24px 60px rgba(0, 0, 0, 0.30);
-
-        }
-
-        .feature-card:hover::before {
-
-            opacity: 1;
-
-        }
-
-        .feature-card .icon {
-
-            width: 48px;
-
-            height: 48px;
-
-            margin-bottom: 20px;
-
-            display: grid;
-
-            place-items: center;
-
-            border:
-
-                1px solid rgba(215, 164, 95, 0.20);
-
-            border-radius: 14px;
-
-            background:
-
-                var(--gold-soft);
-
-            color: var(--gold-light);
-
-            font-size: 18px;
-
-            font-weight: 900;
-
-        }
-
-        .feature-card h3 {
-
-            margin: 0 0 12px;
-
-            color: var(--text);
-
-            font-size: 21px;
-
-            letter-spacing: -0.025em;
-
-        }
-
-        .feature-card p {
-
-            margin: 0;
-
-            color: var(--muted);
-
-            font-size: 14px;
-
-            line-height: 1.75;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* CTA                                                       */
-
-        /* ========================================================= */
-
-        .cta-band {
-
-            position: relative;
-
-            overflow: hidden;
-
-            padding: 78px 0;
-
-            border-top:
-
-                1px solid var(--line);
-
-            border-bottom:
-
-                1px solid var(--line);
-
-            background:
-
-                radial-gradient(
-
-                    circle at 50% 0%,
-
-                    rgba(215, 164, 95, 0.13),
-
-                    transparent 28rem
-
-                ),
-
-                #0b0d10;
-
-        }
-
-        .cta-content {
-
-            width: min(100% - 48px, 820px);
-
-            margin-inline: auto;
-
-            text-align: center;
-
-        }
-
-        .cta-content h2 {
-
-            margin: 0 0 14px;
-
-            font-size:
-
-                clamp(32px, 4vw, 52px);
-
-            line-height: 1.08;
-
-            letter-spacing: -0.045em;
-
-        }
-
-        .cta-content p {
-
-            margin:
-
-                0 auto
-
-                26px;
-
-            color: var(--muted);
-
-            line-height: 1.8;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* FORM PAGES                                                */
-
-        /* ========================================================= */
-
-        .form-page {
-
-            min-height: 70vh;
-
-            padding:
-
-                clamp(52px, 7vw, 90px)
-
-                0;
-
-            background:
-
-                radial-gradient(
-
-                    circle at 15% 12%,
-
-                    rgba(215, 164, 95, 0.07),
-
-                    transparent 22rem
-
-                );
-
-        }
-
-        .form-wrapper {
-
-            max-width: 820px;
-
-            margin-inline: auto;
-
-            padding:
-
-                clamp(26px, 5vw, 44px);
-
-            border:
-
-                1px solid var(--line);
-
-            border-radius: 28px;
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    rgba(255, 255, 255, 0.045),
-
-                    rgba(255, 255, 255, 0.018)
-
-                );
-
-            box-shadow: var(--shadow-soft);
-
-            backdrop-filter: blur(18px);
-
-            -webkit-backdrop-filter: blur(18px);
-
-        }
-
-        .form-title {
-
-            margin: 0 0 12px;
-
-            color: var(--text);
-
-            font-size:
-
-                clamp(34px, 4vw, 50px);
-
-            line-height: 1.05;
-
-            letter-spacing: -0.045em;
-
-        }
-
-        .form-sub {
-
-            margin-bottom: 28px;
-
-            color: var(--muted);
-
-            font-size: 14px;
-
-            line-height: 1.75;
-
-        }
-
-        .reg-form label {
-
-            display: block;
-
-            margin-bottom: 8px;
-
-            color: #c6c6c4;
-
-            font-size: 10px;
-
-            font-weight: 900;
-
-            letter-spacing: .14em;
-
-            text-transform: uppercase;
-
-        }
-
-        .reg-form input,
-
-        .reg-form select,
-
-        .reg-form textarea {
-
-            width: 100%;
-
-            margin-bottom: 17px;
-
-            padding: 14px 15px;
-
-            border:
-
-                1px solid var(--line);
-
-            border-radius: 13px;
-
-            outline: none;
-
-            background:
-
-                rgba(255, 255, 255, 0.035);
-
-            color: var(--text);
-
-            font-size: 14px;
-
-            transition:
-
-                border-color .2s ease,
-
-                background .2s ease,
-
-                box-shadow .2s ease;
-
-        }
-
-        .reg-form input::placeholder,
-
-        .reg-form textarea::placeholder {
-
-            color: #6f7379;
-
-        }
-
-        .reg-form select option {
-
-            background: #101217;
-
-            color: #ffffff;
-
-        }
-
-        .reg-form input:focus,
-
-        .reg-form select:focus,
-
-        .reg-form textarea:focus {
-
-            border-color:
-
-                rgba(215, 164, 95, 0.50);
-
-            background:
-
-                rgba(215, 164, 95, 0.035);
-
-            box-shadow:
-
-                0 0 0 4px rgba(215, 164, 95, 0.07);
-
-        }
-
-        .form-row {
-
-            display: grid;
-
-            grid-template-columns:
-
-                repeat(2, minmax(0, 1fr));
-
-            gap: 16px;
-
-        }
-
-        .small-text {
-
-            color: var(--muted);
-
-            font-size: 11px;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* MESSAGES                                                  */
-
-        /* ========================================================= */
-
-        .error,
-
-        .success,
-
-        .warning {
-
-            margin-bottom: 18px;
-
-            padding: 14px 16px;
-
-            border-radius: 14px;
-
-            font-size: 13px;
-
-            backdrop-filter: blur(12px);
-
-        }
-
-        .error {
-
-            border:
-
-                1px solid rgba(241, 123, 123, 0.24);
-
-            background: var(--danger-soft);
-
-            color: #ffc1c1;
-
-        }
-
-        .success {
-
-            border:
-
-                1px solid rgba(91, 214, 149, 0.24);
-
-            background: var(--success-soft);
-
-            color: #aaf1ca;
-
-        }
-
-        .warning {
-
-            border:
-
-                1px solid rgba(242, 198, 109, 0.24);
-
-            background: var(--warning-soft);
-
-            color: #f7d998;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* GENERIC PANELS                                            */
-
-        /* ========================================================= */
-
-        .panel {
-
-            padding: 24px;
-
-            border:
-
-                1px solid var(--line);
-
-            border-radius: 22px;
-
-            background:
-
-                rgba(255, 255, 255, 0.028);
-
-            box-shadow:
-
-                0 10px 30px rgba(0, 0, 0, 0.15);
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* FOOTER                                                    */
-
-        /* ========================================================= */
-
-        .site-footer {
-
-            margin-top: auto;
-
-            padding: 50px 0 34px;
-
-            border-top:
-
-                1px solid var(--line);
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #0b0d10,
-
-                    #07080a
-
-                );
-
-        }
-
-        .footer-content {
-
-            display: flex;
-
-            align-items: flex-end;
-
-            justify-content: space-between;
-
-            gap: 32px;
-
-        }
-
-        .footer-text {
-
-            max-width: 420px;
-
-            margin-top: 13px;
-
-            color: #797e85;
-
-            font-size: 12px;
-
-            line-height: 1.7;
-
-        }
-
-        .footer-links {
-
-            display: flex;
-
-            align-items: center;
-
+            justify-content: center;
             gap: 8px;
-
-            flex-wrap: wrap;
-
-        }
-
-        .footer-links a {
-
-            padding: 8px 10px;
-
-            border-radius: 10px;
-
-            color: #9fa3a9;
-
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: #858c96;
+            background: transparent;
             text-decoration: none;
-
-            font-size: 11px;
-
-            font-weight: 750;
-
-            transition:
-
-                color .2s ease,
-
-                background .2s ease;
-
-        }
-
-        .footer-links a:hover {
-
-            color: var(--gold-light);
-
-            background:
-
-                rgba(255, 255, 255, 0.035);
-
-        }
-
-        .footer-bottom {
-
-            margin-top: 34px;
-
-            padding-top: 20px;
-
-            border-top:
-
-                1px solid rgba(255, 255, 255, 0.055);
-
-            display: flex;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            color: #5f646a;
-
             font-size: 10px;
-
-            font-weight: 700;
-
-            letter-spacing: .08em;
-
-            text-transform: uppercase;
-
-        }
-
-
-
-
-
-        /* ========================================================= */
-
-        /* ANIMATIONS                                                */
-
-        /* ========================================================= */
-
-        @keyframes mashalFadeUp {
-
-            from {
-
-                opacity: 0;
-
-                transform: translateY(24px);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform: translateY(0);
-
-            }
-
-        }
-
-        .reveal {
-
-            opacity: 0;
-
-            transform: translateY(22px);
-
+            font-weight: 850;
             transition:
-
-                opacity .65s ease,
-
-                transform .65s ease;
-
+                color .2s ease,
+                background .2s ease,
+                border-color .2s ease,
+                transform .2s ease;
         }
 
-        .reveal.is-visible {
+        .studio-nav-link:hover {
+            color: #e4e6e8;
+            background: rgba(255,255,255,.025);
+        }
 
+        .studio-nav-link.active {
+            border-color:
+                rgba(227,179,107,.11);
+            color: #e3bd81;
+            background:
+                rgba(227,179,107,.045);
+        }
+
+        .studio-nav-link.active::after {
+            content: "";
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 4px;
+            height: 1px;
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    var(--studio-gold),
+                    transparent
+                );
+        }
+
+        .studio-nav-count {
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border:
+                1px solid rgba(227,179,107,.14);
+            border-radius: 999px;
+            color: #d6aa69;
+            background:
+                rgba(227,179,107,.055);
+            font-size: 7px;
+            font-weight: 950;
+        }
+
+        .studio-nav-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .studio-action-link,
+        .studio-action-button {
+            min-height: 41px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border:
+                1px solid rgba(255,255,255,.075);
+            border-radius: 11px;
+            color: #b8bdc5;
+            background:
+                rgba(255,255,255,.018);
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 900;
+            cursor: pointer;
+            transition:
+                transform .2s ease,
+                color .2s ease,
+                border-color .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .studio-action-link:hover,
+        .studio-action-button:hover {
+            transform: translateY(-1px);
+            border-color:
+                rgba(227,179,107,.16);
+            color: #eceef0;
+            background:
+                rgba(227,179,107,.035);
+        }
+
+        .studio-action-link.primary,
+        .studio-action-button.primary {
+            border-color:
+                rgba(227,179,107,.18);
+            color: #171009;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--studio-gold-light),
+                    #d39a4f
+                );
+            box-shadow:
+                0 14px 35px rgba(227,179,107,.13);
+        }
+
+        .studio-account-wrap {
+            position: relative;
+        }
+
+        .studio-account-trigger {
+            min-height: 43px;
+            max-width: 230px;
+            padding: 5px 9px 5px 5px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border:
+                1px solid rgba(255,255,255,.075);
+            border-radius: 999px;
+            color: #d3d6db;
+            background:
+                rgba(255,255,255,.018);
+            cursor: pointer;
+            transition:
+                border-color .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .studio-account-trigger:hover,
+        .studio-account-trigger[aria-expanded="true"] {
+            border-color:
+                rgba(227,179,107,.18);
+            background:
+                rgba(227,179,107,.035);
+            box-shadow:
+                0 12px 34px rgba(0,0,0,.18);
+        }
+
+        .studio-account-avatar {
+            width: 31px;
+            height: 31px;
+            flex: 0 0 31px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border:
+                1px solid rgba(227,179,107,.15);
+            border-radius: 50%;
+            color: #e4ba79;
+            background:
+                rgba(227,179,107,.07);
+            font-size: 9px;
+            font-weight: 950;
+        }
+
+        .studio-account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .studio-account-trigger-copy {
+            min-width: 0;
+            flex: 1;
+            text-align: left;
+        }
+
+        .studio-account-trigger-copy strong,
+        .studio-account-trigger-copy small {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .studio-account-trigger-copy strong {
+            color: #dfe2e5;
+            font-size: 9px;
+            font-weight: 900;
+        }
+
+        .studio-account-trigger-copy small {
+            margin-top: 2px;
+            color: #5f6670;
+            font-size: 7px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        .studio-account-chevron {
+            color: #686f79;
+            font-size: 9px;
+            transition: transform .2s ease;
+        }
+
+        .studio-account-trigger[aria-expanded="true"]
+        .studio-account-chevron {
+            transform: rotate(180deg);
+        }
+
+        .studio-account-menu {
+            position: absolute;
+            z-index: 1050;
+            right: 0;
+            top: calc(100% + 12px);
+            width:
+                min(
+                    330px,
+                    calc(100vw - 32px)
+                );
+            overflow: hidden;
+            border:
+                1px solid rgba(255,255,255,.085);
+            border-radius: 19px;
+            background:
+                rgba(11,13,18,.97);
+            box-shadow:
+                0 34px 100px rgba(0,0,0,.43);
+            backdrop-filter: blur(24px);
+            opacity: 0;
+            visibility: hidden;
+            transform:
+                translateY(-8px)
+                scale(.98);
+            transform-origin: top right;
+            pointer-events: none;
+            transition:
+                opacity .18s ease,
+                visibility .18s ease,
+                transform .18s ease;
+        }
+
+        .studio-account-menu.is-open {
             opacity: 1;
-
-            transform: translateY(0);
-
+            visibility: visible;
+            transform:
+                translateY(0)
+                scale(1);
+            pointer-events: auto;
         }
 
+        .studio-account-menu-head {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom:
+                1px solid rgba(255,255,255,.055);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(227,179,107,.045),
+                    transparent
+                );
+        }
 
+        .studio-account-menu-avatar {
+            width: 45px;
+            height: 45px;
+            flex: 0 0 45px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border:
+                1px solid rgba(227,179,107,.15);
+            border-radius: 14px;
+            color: #e6bc7b;
+            background:
+                rgba(227,179,107,.06);
+            font-size: 13px;
+            font-weight: 950;
+        }
 
+        .studio-account-menu-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
+        .studio-account-menu-user {
+            min-width: 0;
+        }
 
-        /* ========================================================= */
+        .studio-account-menu-user strong,
+        .studio-account-menu-user span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
-        /* RESPONSIVE                                                */
+        .studio-account-menu-user strong {
+            color: #edeef0;
+            font-size: 11px;
+        }
 
-        /* ========================================================= */
+        .studio-account-menu-user span {
+            margin-top: 3px;
+            color: #68707a;
+            font-size: 8px;
+        }
 
-        @media (max-width: 1060px) {
+        .studio-account-menu-body {
+            padding: 9px;
+        }
 
-            .nav-toggle {
+        .studio-account-menu-link,
+        .studio-account-menu-logout {
+            width: 100%;
+            min-height: 44px;
+            padding: 0 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: #959ca5;
+            background: transparent;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 850;
+            cursor: pointer;
+            transition:
+                color .2s ease,
+                border-color .2s ease,
+                background .2s ease;
+        }
 
-                display: grid;
+        .studio-account-menu-link:hover {
+            border-color:
+                rgba(227,179,107,.09);
+            color: #d6d9dd;
+            background:
+                rgba(227,179,107,.035);
+        }
 
+        .studio-account-menu-logout {
+            color: #c98282;
+        }
+
+        .studio-account-menu-logout:hover {
+            border-color:
+                rgba(244,125,125,.10);
+            background:
+                rgba(244,125,125,.035);
+        }
+
+        .studio-account-menu-divider {
+            height: 1px;
+            margin: 8px 3px;
+            background:
+                rgba(255,255,255,.055);
+        }
+
+        .studio-menu-toggle {
+            width: 43px;
+            height: 43px;
+            display: none;
+            place-items: center;
+            border:
+                1px solid rgba(255,255,255,.075);
+            border-radius: 12px;
+            color: #fff;
+            background:
+                rgba(255,255,255,.018);
+            cursor: pointer;
+        }
+
+        .studio-menu-lines,
+        .studio-menu-lines::before,
+        .studio-menu-lines::after {
+            width: 18px;
+            height: 1.5px;
+            display: block;
+            border-radius: 999px;
+            background: currentColor;
+            transition:
+                transform .2s ease,
+                opacity .2s ease,
+                top .2s ease;
+        }
+
+        .studio-menu-lines {
+            position: relative;
+        }
+
+        .studio-menu-lines::before,
+        .studio-menu-lines::after {
+            content: "";
+            position: absolute;
+            left: 0;
+        }
+
+        .studio-menu-lines::before {
+            top: -6px;
+        }
+
+        .studio-menu-lines::after {
+            top: 6px;
+        }
+
+        .studio-menu-toggle[aria-expanded="true"]
+        .studio-menu-lines {
+            background: transparent;
+        }
+
+        .studio-menu-toggle[aria-expanded="true"]
+        .studio-menu-lines::before {
+            top: 0;
+            transform: rotate(45deg);
+        }
+
+        .studio-menu-toggle[aria-expanded="true"]
+        .studio-menu-lines::after {
+            top: 0;
+            transform: rotate(-45deg);
+        }
+
+        .studio-mobile-overlay {
+            position: fixed;
+            z-index: 1090;
+            inset: 0;
+            display: none;
+            background:
+                rgba(0,0,0,.60);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+        .studio-mobile-overlay.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .studio-mobile-drawer {
+            position: fixed;
+            z-index: 1100;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width:
+                min(
+                    390px,
+                    92vw
+                );
+            padding: 18px;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            border-left:
+                1px solid rgba(255,255,255,.08);
+            background:
+                rgba(8,10,14,.98);
+            box-shadow:
+                -30px 0 90px rgba(0,0,0,.42);
+            backdrop-filter: blur(24px);
+            transform: translateX(105%);
+            transition:
+                transform .25s cubic-bezier(.2,.7,.2,1);
+        }
+
+        .studio-mobile-drawer.is-open {
+            transform: translateX(0);
+        }
+
+        .studio-mobile-head {
+            min-height: 50px;
+            padding-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom:
+                1px solid rgba(255,255,255,.06);
+        }
+
+        .studio-mobile-head strong {
+            color: #e8eaec;
+            font-size: 11px;
+        }
+
+        .studio-mobile-close {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border:
+                1px solid rgba(255,255,255,.07);
+            border-radius: 11px;
+            color: #a0a6ae;
+            background:
+                rgba(255,255,255,.02);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .studio-mobile-user {
+            margin-top: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border:
+                1px solid rgba(227,179,107,.09);
+            border-radius: 15px;
+            background:
+                rgba(227,179,107,.025);
+        }
+
+        .studio-mobile-user-copy {
+            min-width: 0;
+        }
+
+        .studio-mobile-user-copy strong,
+        .studio-mobile-user-copy span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .studio-mobile-user-copy strong {
+            color: #dfe2e5;
+            font-size: 10px;
+        }
+
+        .studio-mobile-user-copy span {
+            margin-top: 3px;
+            color: #666d77;
+            font-size: 8px;
+        }
+
+        .studio-mobile-nav {
+            margin-top: 18px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .studio-mobile-nav-label {
+            margin: 14px 7px 6px;
+            color: #4f5660;
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .studio-mobile-link {
+            min-height: 48px;
+            padding: 0 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: #8f969f;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 850;
+        }
+
+        .studio-mobile-link:hover,
+        .studio-mobile-link.active {
+            border-color:
+                rgba(227,179,107,.10);
+            color: #dfb979;
+            background:
+                rgba(227,179,107,.035);
+        }
+
+        .studio-mobile-actions {
+            margin-top: auto;
+            padding-top: 24px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .studio-mobile-actions .studio-action-link,
+        .studio-mobile-actions .studio-action-button {
+            width: 100%;
+            min-height: 48px;
+        }
+
+        .studio-flash-stack {
+            position: relative;
+            z-index: 50;
+            width:
+                min(
+                    calc(100% - 32px),
+                    1180px
+                );
+            margin: 17px auto -2px;
+            display: grid;
+            gap: 9px;
+        }
+
+        .studio-flash {
+            position: relative;
+            padding: 14px 42px 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            overflow: hidden;
+            border:
+                1px solid rgba(255,255,255,.075);
+            border-radius: 14px;
+            color: #a7adb5;
+            background:
+                rgba(13,16,21,.90);
+            box-shadow:
+                0 15px 40px rgba(0,0,0,.20);
+            backdrop-filter: blur(16px);
+            font-size: 10px;
+            line-height: 1.65;
+        }
+
+        .studio-flash::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            margin-top: 5px;
+            border-radius: 50%;
+            background: #848b95;
+            box-shadow:
+                0 0 0 5px rgba(132,139,149,.06);
+        }
+
+        .studio-flash.success {
+            border-color:
+                rgba(103,217,144,.14);
+            color: #acdfbb;
+            background:
+                rgba(103,217,144,.045);
+        }
+
+        .studio-flash.success::before {
+            background: var(--studio-success);
+        }
+
+        .studio-flash.warning {
+            border-color:
+                rgba(240,196,109,.15);
+            color: #d7bd8b;
+            background:
+                rgba(240,196,109,.045);
+        }
+
+        .studio-flash.warning::before {
+            background: var(--studio-warning);
+        }
+
+        .studio-flash.error {
+            border-color:
+                rgba(244,125,125,.15);
+            color: #e1a4a4;
+            background:
+                rgba(244,125,125,.045);
+        }
+
+        .studio-flash.error::before {
+            background: var(--studio-danger);
+        }
+
+        .studio-flash-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .studio-flash-content strong {
+            display: block;
+            margin-bottom: 2px;
+            color: inherit;
+            font-size: 10px;
+        }
+
+        .studio-flash-list {
+            margin: 6px 0 0 16px;
+            padding: 0;
+            display: grid;
+            gap: 3px;
+        }
+
+        .studio-flash-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border:
+                1px solid rgba(255,255,255,.06);
+            border-radius: 8px;
+            color: #646b75;
+            background:
+                rgba(255,255,255,.015);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .studio-main {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            width: 100%;
+            min-height:
+                calc(
+                    100vh -
+                    var(--studio-header-height)
+                );
+        }
+
+        .studio-quick-upload {
+            position: fixed;
+            z-index: 800;
+            right: 20px;
+            bottom: 20px;
+            min-height: 50px;
+            padding: 0 18px 0 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border:
+                1px solid rgba(227,179,107,.20);
+            border-radius: 999px;
+            color: #181109;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--studio-gold-light),
+                    #d19a51
+                );
+            box-shadow:
+                0 20px 55px rgba(0,0,0,.35),
+                0 10px 30px rgba(227,179,107,.14);
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 950;
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .studio-quick-upload:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 26px 66px rgba(0,0,0,.38),
+                0 14px 38px rgba(227,179,107,.19);
+        }
+
+        .studio-quick-upload-icon {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border:
+                1px solid rgba(24,17,9,.11);
+            border-radius: 50%;
+            background:
+                rgba(255,255,255,.19);
+            font-size: 13px;
+        }
+
+        .studio-page-head {
+            padding: 72px 0 38px;
+        }
+
+        .studio-page-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--studio-gold);
+            font-size: 9px;
+            font-weight: 950;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        .studio-page-kicker::before {
+            content: "";
+            width: 30px;
+            height: 1px;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--studio-gold),
+                    transparent
+                );
+        }
+
+        .studio-page-title {
+            max-width: 840px;
+            margin: 14px 0 0;
+            color: #f7f7f4;
+            font-size:
+                clamp(
+                    44px,
+                    5vw,
+                    74px
+                );
+            font-weight: 950;
+            line-height: .98;
+            letter-spacing: -.06em;
+        }
+
+        .studio-page-description {
+            max-width: 680px;
+            margin: 18px 0 0;
+            color: #858c96;
+            font-size: 13px;
+            line-height: 1.85;
+        }
+
+        .studio-panel {
+            border:
+                1px solid var(--studio-line);
+            border-radius:
+                var(--studio-radius-lg);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.035),
+                    rgba(255,255,255,.008)
+                ),
+                var(--studio-surface);
+            box-shadow:
+                var(--studio-shadow-soft);
+        }
+
+        .studio-footer {
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            border-top:
+                1px solid rgba(255,255,255,.055);
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(10,12,16,.96),
+                    #060709
+                );
+        }
+
+        .studio-footer-main {
+            padding: 60px 0 40px;
+            display: grid;
+            grid-template-columns:
+                minmax(0,1.25fr)
+                repeat(3,minmax(130px,.7fr));
+            gap: 46px;
+        }
+
+        .studio-footer-about {
+            max-width: 480px;
+        }
+
+        .studio-footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: #f0f1f2;
+            text-decoration: none;
+        }
+
+        .studio-footer-logo .studio-brand-mark {
+            width: 39px;
+            height: 39px;
+            flex-basis: 39px;
+        }
+
+        .studio-footer-about p {
+            margin: 18px 0 0;
+            color: #676e78;
+            font-size: 10px;
+            line-height: 1.8;
+        }
+
+        .studio-footer-trust {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #69717a;
+            font-size: 8px;
+            font-weight: 850;
+        }
+
+        .studio-footer-trust::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--studio-success);
+            box-shadow:
+                0 0 0 5px rgba(103,217,144,.05);
+        }
+
+        .studio-footer-column h3 {
+            margin: 0 0 15px;
+            color: #c7cbd1;
+            font-size: 9px;
+            font-weight: 950;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .studio-footer-links {
+            display: grid;
+            gap: 9px;
+        }
+
+        .studio-footer-links a {
+            width: fit-content;
+            color: #6f7680;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 800;
+            transition:
+                color .2s ease,
+                transform .2s ease;
+        }
+
+        .studio-footer-links a:hover {
+            color: #cfa566;
+            transform: translateX(2px);
+        }
+
+        .studio-footer-bottom {
+            min-height: 68px;
+            padding: 17px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-top:
+                1px solid rgba(255,255,255,.045);
+            color: #4f5660;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .05em;
+        }
+
+        .studio-footer-bottom-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .is-loading {
+            opacity: .62 !important;
+            pointer-events: none !important;
+            cursor: wait !important;
+        }
+
+        .studio-reveal {
+            opacity: 0;
+            transform: translateY(16px);
+            transition:
+                opacity .55s ease,
+                transform .55s ease;
+        }
+
+        .studio-reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1120px) {
+            .studio-nav-center,
+            .studio-nav-actions > .desktop-only,
+            .studio-account-wrap {
+                display: none;
             }
 
-            .nav {
-
-                position: relative;
-
+            .studio-nav {
+                grid-template-columns:
+                    auto
+                    minmax(0,1fr)
+                    auto;
             }
 
-            .nav-links {
-
-                position: absolute;
-
-                left: 0;
-
-                right: 0;
-
-                top: calc(100% + 1px);
-
-                max-height: 0;
-
-                overflow: hidden;
-
+            .studio-menu-toggle,
+            .studio-mobile-drawer,
+            .studio-mobile-overlay {
                 display: flex;
-
-                flex-direction: column;
-
-                align-items: stretch;
-
-                gap: 6px;
-
-                padding: 0 18px;
-
-                border-bottom:
-
-                    1px solid transparent;
-
-                background:
-
-                    rgba(8, 9, 11, 0.98);
-
-                backdrop-filter: blur(20px);
-
-                opacity: 0;
-
-                pointer-events: none;
-
-                transition:
-
-                    max-height .28s ease,
-
-                    padding .28s ease,
-
-                    opacity .2s ease,
-
-                    border-color .2s ease;
-
             }
 
-            .nav-links.is-open {
-
-                max-height: 720px;
-
-                padding: 16px 18px 22px;
-
-                border-color:
-
-                    var(--line);
-
-                opacity: 1;
-
-                pointer-events: auto;
-
+            .studio-menu-toggle {
+                display: grid;
             }
 
-            .nav-links > a:not(.nav-button):not(.nav-account) {
-
-                width: 100%;
-
+            .studio-mobile-overlay {
+                display: block;
             }
-
-            .nav-user {
-
-                margin-left: 0;
-
-                flex-direction: column;
-
-                align-items: stretch;
-
-            }
-
-            .nav-account,
-
-            .nav-button {
-
-                width: 100%;
-
-                justify-content: center;
-
-            }
-
-            .hero-inner {
-
-                grid-template-columns: 1fr;
-
-            }
-
-            .hero-card {
-
-                max-width: 560px;
-
-            }
-
         }
 
         @media (max-width: 900px) {
-
-            .feature-grid,
-
-            .form-row {
-
-                grid-template-columns: 1fr;
-
+            .studio-footer-main {
+                grid-template-columns:
+                    1.2fr 1fr;
             }
-
-            .footer-content {
-
-                align-items: flex-start;
-
-                flex-direction: column;
-
-            }
-
         }
 
-        @media (max-width: 650px) {
-
-            .site-wrap,
-
-            .hero-inner,
-
-            .section-title,
-
-            .cta-content {
-
-                width: min(100% - 32px, 1240px);
-
+        @media (max-width: 640px) {
+            :root {
+                --studio-header-height: 70px;
             }
 
-            .nav {
-
-                min-height: 68px;
-
+            .studio-shell {
+                width:
+                    min(
+                        calc(100% - 24px),
+                        var(--studio-shell)
+                    );
             }
 
-            .logo-word small {
-
+            .studio-brand-copy small {
                 display: none;
-
             }
 
-            .hero {
-
-                min-height: 560px;
-
+            .studio-action-link.primary.desktop-only {
+                display: none;
             }
 
-            .hero-inner {
-
-                padding:
-
-                    70px 0
-
-                    60px;
-
+            .studio-footer-main {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding-top: 44px;
             }
 
-            h1 {
-
-                font-size:
-
-                    clamp(44px, 14vw, 62px);
-
-            }
-
-            .hero-actions {
-
-                align-items: stretch;
-
+            .studio-footer-bottom {
+                align-items: flex-start;
                 flex-direction: column;
-
             }
 
-            .primary-btn,
-
-            .secondary-btn {
-
-                width: 100%;
-
+            .studio-quick-upload {
+                right: 12px;
+                bottom: 12px;
             }
 
-            .feature-card {
-
-                padding: 22px;
-
+            .studio-quick-upload > span:last-child {
+                display: none;
             }
 
-            .form-wrapper {
-
-                border-radius: 22px;
-
+            .studio-quick-upload {
+                width: 48px;
+                height: 48px;
+                padding: 0;
+                justify-content: center;
             }
 
-            .footer-bottom {
-
-                flex-direction: column;
-
+            .studio-quick-upload-icon {
+                width: 30px;
+                height: 30px;
             }
-
         }
 
         @media (prefers-reduced-motion: reduce) {
-
-            *,
-
-            *::before,
-
-            *::after {
-
-                scroll-behavior: auto !important;
-
-                animation-duration: .01ms !important;
-
-                animation-iteration-count: 1 !important;
-
-                transition-duration: .01ms !important;
-
+            html {
+                scroll-behavior: auto;
             }
 
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+
+            .studio-reveal {
+                opacity: 1;
+                transform: none;
+            }
         }
 
+        @media print {
+            .studio-header,
+            .studio-footer,
+            .studio-progress,
+            .studio-mobile-drawer,
+            .studio-mobile-overlay,
+            .studio-quick-upload,
+            .studio-flash-stack {
+                display: none !important;
+            }
+
+            body {
+                color: #000;
+                background: #fff;
+            }
+        }
     </style>
 
     @stack('styles')
-
 </head>
 
-
-
-
-
 <body>
+    <a
+        class="studio-skip-link"
+        href="#studioMain"
+    >
+        Ga naar inhoud
+    </a>
 
-    {{-- ========================================================= --}}
+    <div
+        class="studio-atmosphere"
+        aria-hidden="true"
+    >
+        <span class="studio-orb one"></span>
+        <span class="studio-orb two"></span>
+        <span class="studio-orb three"></span>
+    </div>
 
-    {{-- HEADER                                                     --}}
-
-    {{-- ========================================================= --}}
+    <div
+        class="studio-progress"
+        aria-hidden="true"
+    >
+        <div
+            class="studio-progress-bar"
+            id="studioProgressBar"
+        ></div>
+    </div>
 
     <header
-
-        class="site-header"
-
-        id="siteHeader"
-
+        class="studio-header"
+        id="studioHeader"
     >
-
-        <div class="site-wrap">
-
-            <div class="nav">
-
-                {{-- BRAND --}}
-
+        <div class="studio-shell">
+            <div class="studio-nav">
                 <a
-
-                    class="logo"
-
-                    href="{{ route('home') }}"
-
-                    aria-label="Mashal home"
-
+                    class="studio-brand"
+                    href="{{ $hasHome ? route('home') : '#' }}"
+                    aria-label="Mashal Studio home"
                 >
-
-                    <span class="logo-mark">
-                        <img
-                            src="{{ asset('favicon.ico') }}?v=3"
-                            alt="Mashal Automotive"
-                            width="42"
-                            height="42"
-                        >
+                    <span class="studio-brand-mark">
+                        M
                     </span>
 
-                    <span class="logo-word">
-
+                    <span class="studio-brand-copy">
                         <strong>
-
-                            Mashal
-
+                            Mashal Studio
                         </strong>
 
                         <small>
-
-                            Automotive
-
+                            Image workspace
                         </small>
-
                     </span>
-
                 </a>
 
-
-
-
-
-                {{-- MOBILE BUTTON --}}
-
-                <button
-
-                    class="nav-toggle"
-
-                    id="navToggle"
-
-                    type="button"
-
-                    aria-label="Menu openen"
-
-                    aria-expanded="false"
-
-                    aria-controls="mainNavigation"
-
-                >
-
-                    <span class="nav-toggle-lines"></span>
-
-                </button>
-
-
-
-
-
-                {{-- NAVIGATION --}}
-
                 <nav
-
-                    class="nav-links"
-
-                    id="mainNavigation"
-
+                    class="studio-nav-center"
+                    aria-label="Hoofdnavigatie"
                 >
-
-                    <a
-
-                        class="{{ request()->routeIs('home') ? 'active' : '' }}"
-
-                        href="{{ route('home') }}"
-
-                    >
-
-                        Home
-
-                    </a>
-
-                    <a
-
-                        class="{{ request()->routeIs('catalog') || request()->routeIs('car') ? 'active' : '' }}"
-
-                        href="{{ route('catalog') }}"
-
-                    >
-
-                        Collectie
-
-                    </a>
+                    @if ($hasHome)
+                        <a
+                            class="studio-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                            href="{{ route('home') }}"
+                        >
+                            Studio
+                        </a>
+                    @endif
 
                     @auth
+                        @if ($hasImagesIndex)
+                            <a
+                                class="studio-nav-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
+                                href="{{ route('images.index') }}"
+                            >
+                                Mijn afbeeldingen
 
-                        <a
-
-                            class="{{ request()->routeIs('favorites.*') ? 'active' : '' }}"
-
-                            href="{{ route('favorites.index') }}"
-
-                        >
-
-                            Favorieten
-
-                        </a>
-
-                    @endauth
-
-                    <a
-
-                        class="{{ request()->routeIs('cart') || request()->routeIs('checkout') ? 'active' : '' }}"
-
-                        href="{{ route('cart') }}"
-
-                    >
-
-                        Winkelwagen
-
-                        @php
-
-                            $cartCount = collect(session('cart', []))->sum('qty');
-
-                        @endphp
-
-                        @if ($cartCount > 0)
-
-                            <span class="cart-count">
-
-                                {{ $cartCount }}
-
-                            </span>
-
+                                @if ($layoutImageCount !== null)
+                                    <span class="studio-nav-count">
+                                        {{ $layoutImageCount > 999 ? '999+' : $layoutImageCount }}
+                                    </span>
+                                @endif
+                            </a>
                         @endif
 
-                    </a>
-
-
-
-
-
-                    @auth
-
-                        <div class="nav-user">
-
+                        @if ($hasAccount)
                             <a
-
-                                class="nav-account"
-
+                                class="studio-nav-link {{ request()->routeIs('account') ? 'active' : '' }}"
                                 href="{{ route('account') }}"
-
-                                title="Open mijn account"
-
                             >
+                                Account
+                            </a>
+                        @endif
+                    @endauth
+                </nav>
 
-                                <span class="nav-avatar">
+                <div class="studio-nav-actions">
+                    @guest
+                        @if ($hasLogin)
+                            <a
+                                class="studio-action-link desktop-only"
+                                href="{{ route('login') }}"
+                            >
+                                Inloggen
+                            </a>
+                        @endif
 
-                                    @if (auth()->user()->avatarUrl())
+                        @if ($hasRegister)
+                            <a
+                                class="studio-action-link primary desktop-only"
+                                href="{{ route('register') }}"
+                            >
+                                Account maken
+                            </a>
+                        @endif
+                    @else
+                        <a
+                            class="studio-action-link primary desktop-only"
+                            href="{{ route('home') }}#upload"
+                        >
+                            + Nieuwe afbeelding
+                        </a>
 
+                        <div class="studio-account-wrap">
+                            <button
+                                class="studio-account-trigger"
+                                id="studioAccountTrigger"
+                                type="button"
+                                aria-expanded="false"
+                                aria-controls="studioAccountMenu"
+                            >
+                                <span class="studio-account-avatar">
+                                    @if ($layoutAvatarUrl)
                                         <img
-
-                                            src="{{ auth()->user()->avatarUrl() }}"
-
-                                            alt="Profielfoto van {{ auth()->user()->name }}"
-
-                                            loading="eager"
-
+                                            src="{{ $layoutAvatarUrl }}"
+                                            alt=""
                                         >
-
                                     @else
-
-                                        {{ auth()->user()->initials() }}
-
+                                        {{ $layoutInitials }}
                                     @endif
-
                                 </span>
 
-                                <span class="nav-account-copy">
-
+                                <span class="studio-account-trigger-copy">
                                     <strong>
-
-                                        {{ auth()->user()->name }}
-
+                                        {{ $layoutUser->name }}
                                     </strong>
 
                                     <small>
-
-                                        @if (auth()->user()->hasProfilePhoto())
-
-                                            Eigen profielfoto
-
-                                        @elseif (auth()->user()->socialAvatar())
-
-                                            Social avatar
-
-                                        @else
-
-                                            Mijn account
-
-                                        @endif
-
+                                        Mijn workspace
                                     </small>
-
                                 </span>
 
-                            </a>
-
-
-
-
-
-                            @if (auth()->user()->is_admin)
-
-                                <a
-
-                                    class="nav-button admin"
-
-                                    href="{{ route('admin.dashboard') }}"
-
+                                <span
+                                    class="studio-account-chevron"
+                                    aria-hidden="true"
                                 >
+                                    ▾
+                                </span>
+                            </button>
 
-                                    Dashboard
-
-                                </a>
-
-                            @endif
-
-
-
-
-
-                            <form
-
-                                method="POST"
-
-                                action="{{ route('logout') }}"
-
-                                style="margin: 0;"
-
+                            <div
+                                class="studio-account-menu"
+                                id="studioAccountMenu"
+                                aria-hidden="true"
                             >
+                                <div class="studio-account-menu-head">
+                                    <span class="studio-account-menu-avatar">
+                                        @if ($layoutAvatarUrl)
+                                            <img
+                                                src="{{ $layoutAvatarUrl }}"
+                                                alt=""
+                                            >
+                                        @else
+                                            {{ $layoutInitials }}
+                                        @endif
+                                    </span>
 
-                                @csrf
+                                    <span class="studio-account-menu-user">
+                                        <strong>
+                                            {{ $layoutUser->name }}
+                                        </strong>
 
-                                <button
+                                        <span>
+                                            {{ $layoutUser->email }}
+                                        </span>
+                                    </span>
+                                </div>
 
-                                    class="nav-button logout"
+                                <div class="studio-account-menu-body">
+                                    @if ($hasImagesIndex)
+                                        <a
+                                            class="studio-account-menu-link"
+                                            href="{{ route('images.index') }}"
+                                        >
+                                            <span>
+                                                Mijn afbeeldingen
+                                            </span>
 
-                                    type="submit"
+                                            <span>
+                                                {{ $layoutImageCount ?? '—' }}
+                                            </span>
+                                        </a>
+                                    @endif
 
-                                >
+                                    @if ($hasAccount)
+                                        <a
+                                            class="studio-account-menu-link"
+                                            href="{{ route('account') }}"
+                                        >
+                                            <span>
+                                                Accountinstellingen
+                                            </span>
 
-                                    Uitloggen
+                                            <span>
+                                                →
+                                            </span>
+                                        </a>
+                                    @endif
 
-                                </button>
+                                    @if ($hasSecurity)
+                                        <a
+                                            class="studio-account-menu-link"
+                                            href="{{ route('security.index') }}"
+                                        >
+                                            <span>
+                                                Beveiliging
+                                            </span>
 
-                            </form>
+                                            <span>
+                                                →
+                                            </span>
+                                        </a>
+                                    @endif
 
+                                    @if (
+                                        $layoutIsAdmin &&
+                                        $hasAdmin
+                                    )
+                                        <div class="studio-account-menu-divider"></div>
+
+                                        <a
+                                            class="studio-account-menu-link"
+                                            href="{{ route('admin.dashboard') }}"
+                                        >
+                                            <span>
+                                                Admin dashboard
+                                            </span>
+
+                                            <span>
+                                                →
+                                            </span>
+                                        </a>
+                                    @endif
+
+                                    @if ($hasLogout)
+                                        <div class="studio-account-menu-divider"></div>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('logout') }}"
+                                        >
+                                            @csrf
+
+                                            <button
+                                                class="studio-account-menu-logout"
+                                                type="submit"
+                                            >
+                                                <span>
+                                                    Uitloggen
+                                                </span>
+
+                                                <span>
+                                                    →
+                                                </span>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
+                    @endguest
 
-                    @else
-
-                        <a
-
-                            class="{{ request()->routeIs('login') ? 'active' : '' }}"
-
-                            href="{{ route('login') }}"
-
-                        >
-
-                            Inloggen
-
-                        </a>
-
-                        <a
-
-                            class="nav-button"
-
-                            href="{{ route('register') }}"
-
-                        >
-
-                            Registreren
-
-                        </a>
-
-                    @endauth
-
-                </nav>
-
+                    <button
+                        class="studio-menu-toggle"
+                        id="studioMenuToggle"
+                        type="button"
+                        aria-label="Menu openen"
+                        aria-expanded="false"
+                        aria-controls="studioMobileDrawer"
+                    >
+                        <span class="studio-menu-lines"></span>
+                    </button>
+                </div>
             </div>
-
         </div>
-
     </header>
 
+    <div
+        class="studio-mobile-overlay"
+        id="studioMobileOverlay"
+        aria-hidden="true"
+    ></div>
 
+    <aside
+        class="studio-mobile-drawer"
+        id="studioMobileDrawer"
+        aria-hidden="true"
+        aria-label="Mobiele navigatie"
+    >
+        <div class="studio-mobile-head">
+            <strong>
+                Mashal Studio
+            </strong>
 
-
-
-    {{-- ========================================================= --}}
-
-    {{-- FLASH MESSAGES                                             --}}
-
-    {{-- ========================================================= --}}
-
-    @if (
-
-        session('success') ||
-
-        session('error') ||
-
-        $errors->any()
-
-    )
-
-        <div
-
-            class="site-wrap"
-
-            style="
-
-                padding-top: 22px;
-
-                position: relative;
-
-                z-index: 20;
-
-            "
-
-        >
-
-            @if (session('success'))
-
-                <div class="success">
-
-                    {{ session('success') }}
-
-                </div>
-
-            @endif
-
-
-
-
-
-            @if (session('error'))
-
-                <div class="error">
-
-                    {{ session('error') }}
-
-                </div>
-
-            @endif
-
-
-
-
-
-            @if ($errors->any())
-
-                <div class="error">
-
-                    <strong>
-
-                        Controleer onderstaande gegevens:
-
-                    </strong>
-
-                    <ul
-
-                        style="
-
-                            margin: 8px 0 0 18px;
-
-                            padding: 0;
-
-                        "
-
-                    >
-
-                        @foreach ($errors->all() as $error)
-
-                            <li>
-
-                                {{ $error }}
-
-                            </li>
-
-                        @endforeach
-
-                    </ul>
-
-                </div>
-
-            @endif
-
+            <button
+                class="studio-mobile-close"
+                id="studioMobileClose"
+                type="button"
+                aria-label="Menu sluiten"
+            >
+                ×
+            </button>
         </div>
 
-    @endif
-
-
-
-
-
-    {{-- ========================================================= --}}
-
-    {{-- PAGE CONTENT                                               --}}
-
-    {{-- ========================================================= --}}
-
-    <main>
-
-        @yield('content')
-
-    </main>
-
-
-
-
-
-    {{-- ========================================================= --}}
-
-    {{-- FOOTER                                                     --}}
-
-    {{-- ========================================================= --}}
-
-    <footer class="site-footer">
-
-        <div class="site-wrap">
-
-            <div class="footer-content">
-
-                <div>
-
-                    <a
-
-                        class="logo"
-
-                        href="{{ route('home') }}"
-
-                    >
-
-                        <span class="logo-mark">
+        @auth
+            <div class="studio-mobile-user">
+                <span class="studio-account-menu-avatar">
+                    @if ($layoutAvatarUrl)
                         <img
-                            src="{{ asset('favicon.ico') }}?v=3"
-                            alt="Mashal Automotive"
-                            width="42"
-                            height="42"
+                            src="{{ $layoutAvatarUrl }}"
+                            alt=""
                         >
+                    @else
+                        {{ $layoutInitials }}
+                    @endif
+                </span>
+
+                <span class="studio-mobile-user-copy">
+                    <strong>
+                        {{ $layoutUser->name }}
+                    </strong>
+
+                    <span>
+                        {{ $layoutUser->email }}
+                    </span>
+                </span>
+            </div>
+        @endauth
+
+        <nav class="studio-mobile-nav">
+            <div class="studio-mobile-nav-label">
+                Studio
+            </div>
+
+            @if ($hasHome)
+                <a
+                    class="studio-mobile-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                    href="{{ route('home') }}"
+                >
+                    <span>
+                        Home / Studio
                     </span>
 
-                        <span class="logo-word">
+                    <span>
+                        ◇
+                    </span>
+                </a>
 
+                <a
+                    class="studio-mobile-link"
+                    href="{{ route('home') }}#upload"
+                >
+                    <span>
+                        Nieuwe afbeelding
+                    </span>
+
+                    <span>
+                        ↑
+                    </span>
+                </a>
+            @endif
+
+            @auth
+                @if ($hasImagesIndex)
+                    <a
+                        class="studio-mobile-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
+                        href="{{ route('images.index') }}"
+                    >
+                        <span>
+                            Mijn afbeeldingen
+                        </span>
+
+                        <span>
+                            {{ $layoutImageCount ?? '▦' }}
+                        </span>
+                    </a>
+                @endif
+
+                <div class="studio-mobile-nav-label">
+                    Account
+                </div>
+
+                @if ($hasAccount)
+                    <a
+                        class="studio-mobile-link {{ request()->routeIs('account') ? 'active' : '' }}"
+                        href="{{ route('account') }}"
+                    >
+                        <span>
+                            Accountinstellingen
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+                    </a>
+                @endif
+
+                @if ($hasSecurity)
+                    <a
+                        class="studio-mobile-link {{ request()->routeIs('security.*') ? 'active' : '' }}"
+                        href="{{ route('security.index') }}"
+                    >
+                        <span>
+                            Beveiliging
+                        </span>
+
+                        <span>
+                            ◈
+                        </span>
+                    </a>
+                @endif
+
+                @if (
+                    $layoutIsAdmin &&
+                    $hasAdmin
+                )
+                    <a
+                        class="studio-mobile-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
+                        href="{{ route('admin.dashboard') }}"
+                    >
+                        <span>
+                            Admin dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+                    </a>
+                @endif
+            @endauth
+        </nav>
+
+        <div class="studio-mobile-actions">
+            @guest
+                @if ($hasLogin)
+                    <a
+                        class="studio-action-link"
+                        href="{{ route('login') }}"
+                    >
+                        Inloggen
+                    </a>
+                @endif
+
+                @if ($hasRegister)
+                    <a
+                        class="studio-action-link primary"
+                        href="{{ route('register') }}"
+                    >
+                        Gratis account maken
+                    </a>
+                @endif
+            @else
+                @if ($hasLogout)
+                    <form
+                        method="POST"
+                        action="{{ route('logout') }}"
+                    >
+                        @csrf
+
+                        <button
+                            class="studio-action-button"
+                            type="submit"
+                        >
+                            Uitloggen
+                        </button>
+                    </form>
+                @endif
+            @endguest
+        </div>
+    </aside>
+
+    @if (
+        session('status') ||
+        session('success') ||
+        session('error') ||
+        session('warning') ||
+        $errors->any()
+    )
+        <div
+            class="studio-flash-stack"
+            id="studioFlashStack"
+        >
+            @if (session('status'))
+                <div
+                    class="studio-flash success"
+                    data-studio-flash
+                >
+                    <div class="studio-flash-content">
+                        {{ session('status') }}
+                    </div>
+
+                    <button
+                        class="studio-flash-close"
+                        type="button"
+                        aria-label="Melding sluiten"
+                        data-flash-close
+                    >
+                        ×
+                    </button>
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div
+                    class="studio-flash success"
+                    data-studio-flash
+                >
+                    <div class="studio-flash-content">
+                        {{ session('success') }}
+                    </div>
+
+                    <button
+                        class="studio-flash-close"
+                        type="button"
+                        aria-label="Melding sluiten"
+                        data-flash-close
+                    >
+                        ×
+                    </button>
+                </div>
+            @endif
+
+            @if (session('warning'))
+                <div
+                    class="studio-flash warning"
+                    data-studio-flash
+                >
+                    <div class="studio-flash-content">
+                        {{ session('warning') }}
+                    </div>
+
+                    <button
+                        class="studio-flash-close"
+                        type="button"
+                        aria-label="Melding sluiten"
+                        data-flash-close
+                    >
+                        ×
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div
+                    class="studio-flash error"
+                    data-studio-flash
+                >
+                    <div class="studio-flash-content">
+                        {{ session('error') }}
+                    </div>
+
+                    <button
+                        class="studio-flash-close"
+                        type="button"
+                        aria-label="Melding sluiten"
+                        data-flash-close
+                    >
+                        ×
+                    </button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div
+                    class="studio-flash error"
+                    data-studio-flash
+                >
+                    <div class="studio-flash-content">
+                        <strong>
+                            Controleer onderstaande gegevens:
+                        </strong>
+
+                        <ul class="studio-flash-list">
+                            @foreach ($errors->all() as $error)
+                                <li>
+                                    {{ $error }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <button
+                        class="studio-flash-close"
+                        type="button"
+                        aria-label="Melding sluiten"
+                        data-flash-close
+                    >
+                        ×
+                    </button>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    <main
+        class="studio-main"
+        id="studioMain"
+    >
+        @yield('content')
+    </main>
+
+    @if (
+        $hasHome &&
+        ! request()->routeIs('home')
+    )
+        <a
+            class="studio-quick-upload"
+            href="{{ route('home') }}#upload"
+            aria-label="Nieuwe afbeelding uploaden"
+        >
+            <span
+                class="studio-quick-upload-icon"
+                aria-hidden="true"
+            >
+                ↑
+            </span>
+
+            <span>
+                Nieuwe afbeelding
+            </span>
+        </a>
+    @endif
+
+    <footer class="studio-footer">
+        <div class="studio-shell">
+            <div class="studio-footer-main">
+                <div class="studio-footer-about">
+                    <a
+                        class="studio-footer-logo"
+                        href="{{ $hasHome ? route('home') : '#' }}"
+                    >
+                        <span class="studio-brand-mark">
+                            M
+                        </span>
+
+                        <span class="studio-brand-copy">
                             <strong>
-
-                                Mashal
-
+                                Mashal Studio
                             </strong>
 
                             <small>
-
-                                Automotive
-
+                                Image workspace
                             </small>
-
                         </span>
-
                     </a>
 
-                    <div class="footer-text">
+                    <p>
+                        Upload afbeeldingen, beheer originelen en sla nieuwe
+                        bewerkingen op als aparte versies binnen je eigen
+                        persoonlijke workspace.
+                    </p>
 
-                        Premium automotive experience.
-
-                        Ontdek geselecteerde auto's, beheer je account
-
-                        en rond je aankoop veilig af vanuit één omgeving.
-
+                    <div class="studio-footer-trust">
+                        Private image workspace
                     </div>
-
                 </div>
 
+                <div class="studio-footer-column">
+                    <h3>
+                        Studio
+                    </h3>
 
-
-
-
-                <div class="footer-links">
-
-                    <a href="{{ route('home') }}">
-
-                        Home
-
-                    </a>
-
-                    <a href="{{ route('catalog') }}">
-
-                        Collectie
-
-                    </a>
-
-                    <a href="{{ route('cart') }}">
-
-                        Winkelwagen
-
-                    </a>
-
-
-
-
-
-                    @auth
-
-                        <a href="{{ route('account') }}">
-
-                            Mijn account
-
-                        </a>
-
-                        <a href="{{ route('favorites.index') }}">
-
-                            Favorieten
-
-                        </a>
-
-                        <a href="{{ route('security.index') }}">
-
-                            Beveiliging
-
-                        </a>
-
-                        @if (auth()->user()->is_admin)
-
-                            <a href="{{ route('admin.dashboard') }}">
-
-                                Dashboard
-
+                    <div class="studio-footer-links">
+                        @if ($hasHome)
+                            <a href="{{ route('home') }}">
+                                Home
                             </a>
 
+                            <a href="{{ route('home') }}#upload">
+                                Upload afbeelding
+                            </a>
                         @endif
 
-                    @else
-
-                        <a href="{{ route('login') }}">
-
-                            Inloggen
-
-                        </a>
-
-                        <a href="{{ route('register') }}">
-
-                            Registreren
-
-                        </a>
-
-                    @endauth
-
+                        @auth
+                            @if ($hasImagesIndex)
+                                <a href="{{ route('images.index') }}">
+                                    Mijn afbeeldingen
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
                 </div>
 
+                <div class="studio-footer-column">
+                    <h3>
+                        Account
+                    </h3>
+
+                    <div class="studio-footer-links">
+                        @guest
+                            @if ($hasLogin)
+                                <a href="{{ route('login') }}">
+                                    Inloggen
+                                </a>
+                            @endif
+
+                            @if ($hasRegister)
+                                <a href="{{ route('register') }}">
+                                    Registreren
+                                </a>
+                            @endif
+                        @else
+                            @if ($hasAccount)
+                                <a href="{{ route('account') }}">
+                                    Accountinstellingen
+                                </a>
+                            @endif
+
+                            @if ($hasSecurity)
+                                <a href="{{ route('security.index') }}">
+                                    Beveiliging
+                                </a>
+                            @endif
+                        @endguest
+                    </div>
+                </div>
+
+                <div class="studio-footer-column">
+                    <h3>
+                        Workspace
+                    </h3>
+
+                    <div class="studio-footer-links">
+                        @if ($hasHome)
+                            <a href="{{ route('home') }}#upload">
+                                Nieuw project
+                            </a>
+                        @endif
+
+                        @auth
+                            @if ($hasImagesIndex)
+                                <a href="{{ route('images.index') }}">
+                                    Projectbibliotheek
+                                </a>
+                            @endif
+
+                            @if (
+                                $layoutIsAdmin &&
+                                $hasAdmin
+                            )
+                                <a href="{{ route('admin.dashboard') }}">
+                                    Admin
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+                </div>
             </div>
 
-
-
-
-
-            <div class="footer-bottom">
-
+            <div class="studio-footer-bottom">
                 <span>
-
-                    © {{ date('Y') }} Mashal Automotive
-
+                    © {{ date('Y') }} Mashal Studio
                 </span>
 
-                <span>
+                <div class="studio-footer-bottom-links">
+                    <span>
+                        JPG · PNG · WEBP
+                    </span>
 
-                    Crafted for premium mobility
-
-                </span>
-
+                    <span>
+                        Private storage
+                    </span>
+                </div>
             </div>
-
         </div>
-
     </footer>
 
-
-
-
-
     <script>
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            const header =
-
-                document.getElementById('siteHeader');
-
-            const navToggle =
-
-                document.getElementById('navToggle');
-
-            const navigation =
-
-                document.getElementById('mainNavigation');
-
-
-
-
-
-            // Header shadow after scrolling.
-
-            const updateHeader = function () {
-
-                if (!header) {
-
-                    return;
-
-                }
-
-                header.classList.toggle(
-
-                    'is-scrolled',
-
-                    window.scrollY > 12
-
-                );
-
-            };
-
-            updateHeader();
-
-            window.addEventListener(
-
-                'scroll',
-
-                updateHeader,
-
-                { passive: true }
-
-            );
-
-
-
-
-
-            // Mobile navigation.
-
-            if (navToggle && navigation) {
-
-                navToggle.addEventListener(
-
-                    'click',
-
-                    function () {
-
-                        const open =
-
-                            navigation.classList.toggle('is-open');
-
-                        navToggle.classList.toggle(
-
-                            'is-open',
-
-                            open
-
-                        );
-
-                        navToggle.setAttribute(
-
-                            'aria-expanded',
-
-                            open ? 'true' : 'false'
-
-                        );
-
-                    }
-
-                );
-
-
-
-
-
-                navigation
-
-                    .querySelectorAll('a')
-
-                    .forEach(function (link) {
-
-                        link.addEventListener(
-
-                            'click',
-
-                            function () {
-
-                                navigation.classList.remove('is-open');
-
-                                navToggle.classList.remove('is-open');
-
-                                navToggle.setAttribute(
-
-                                    'aria-expanded',
-
-                                    'false'
-
-                                );
-
-                            }
-
-                        );
-
-                    });
-
-            }
-
-
-
-
-
-            // Subtle reveal animation.
-
-            const revealTargets =
-
-                document.querySelectorAll(
-
-                    '.feature-card, .form-wrapper, .panel, .section-title'
-
-                );
-
-            revealTargets.forEach(function (element) {
-
-                element.classList.add('reveal');
-
-            });
-
-
-
-
-
-            if ('IntersectionObserver' in window) {
-
-                const observer =
-
-                    new IntersectionObserver(
-
-                        function (entries) {
-
-                            entries.forEach(
-
-                                function (entry) {
-
-                                    if (entry.isIntersecting) {
-
-                                        entry.target
-
-                                            .classList
-
-                                            .add('is-visible');
-
-                                        observer.unobserve(
-
-                                            entry.target
-
-                                        );
-
-                                    }
-
-                                }
-
-                            );
-
-                        },
-
-                        {
-
-                            threshold: 0.10
-
-                        }
-
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+                const body =
+                    document.body;
+
+                const header =
+                    document.getElementById(
+                        'studioHeader'
                     );
 
-                revealTargets.forEach(
+                const progressBar =
+                    document.getElementById(
+                        'studioProgressBar'
+                    );
 
-                    function (element) {
+                const menuToggle =
+                    document.getElementById(
+                        'studioMenuToggle'
+                    );
 
-                        observer.observe(element);
+                const mobileDrawer =
+                    document.getElementById(
+                        'studioMobileDrawer'
+                    );
 
+                const mobileOverlay =
+                    document.getElementById(
+                        'studioMobileOverlay'
+                    );
+
+                const mobileClose =
+                    document.getElementById(
+                        'studioMobileClose'
+                    );
+
+                const accountTrigger =
+                    document.getElementById(
+                        'studioAccountTrigger'
+                    );
+
+                const accountMenu =
+                    document.getElementById(
+                        'studioAccountMenu'
+                    );
+
+                let mobileMenuOpen =
+                    false;
+
+                let accountMenuOpen =
+                    false;
+
+                function updateHeader() {
+                    if (!header) {
+                        return;
                     }
 
-                );
+                    header.classList.toggle(
+                        'is-scrolled',
+                        window.scrollY > 12
+                    );
+                }
 
-            } else {
-
-                revealTargets.forEach(
-
-                    function (element) {
-
-                        element.classList.add('is-visible');
-
+                function updateProgress() {
+                    if (!progressBar) {
+                        return;
                     }
 
+                    const root =
+                        document.documentElement;
+
+                    const scrollTop =
+                        window.scrollY ||
+                        root.scrollTop;
+
+                    const scrollable =
+                        root.scrollHeight -
+                        window.innerHeight;
+
+                    const percentage =
+                        scrollable > 0
+                            ? Math.min(
+                                100,
+                                Math.max(
+                                    0,
+                                    scrollTop /
+                                    scrollable *
+                                    100
+                                )
+                            )
+                            : 0;
+
+                    progressBar.style.width =
+                        percentage + '%';
+                }
+
+                function setMobileMenu(open) {
+                    mobileMenuOpen =
+                        Boolean(open);
+
+                    menuToggle?.setAttribute(
+                        'aria-expanded',
+                        mobileMenuOpen
+                            ? 'true'
+                            : 'false'
+                    );
+
+                    menuToggle?.setAttribute(
+                        'aria-label',
+                        mobileMenuOpen
+                            ? 'Menu sluiten'
+                            : 'Menu openen'
+                    );
+
+                    mobileDrawer?.classList.toggle(
+                        'is-open',
+                        mobileMenuOpen
+                    );
+
+                    mobileDrawer?.setAttribute(
+                        'aria-hidden',
+                        mobileMenuOpen
+                            ? 'false'
+                            : 'true'
+                    );
+
+                    mobileOverlay?.classList.toggle(
+                        'is-open',
+                        mobileMenuOpen
+                    );
+
+                    mobileOverlay?.setAttribute(
+                        'aria-hidden',
+                        mobileMenuOpen
+                            ? 'false'
+                            : 'true'
+                    );
+
+                    body.classList.toggle(
+                        'studio-menu-open',
+                        mobileMenuOpen
+                    );
+                }
+
+                function setAccountMenu(open) {
+                    accountMenuOpen =
+                        Boolean(open);
+
+                    accountTrigger?.setAttribute(
+                        'aria-expanded',
+                        accountMenuOpen
+                            ? 'true'
+                            : 'false'
+                    );
+
+                    accountMenu?.classList.toggle(
+                        'is-open',
+                        accountMenuOpen
+                    );
+
+                    accountMenu?.setAttribute(
+                        'aria-hidden',
+                        accountMenuOpen
+                            ? 'false'
+                            : 'true'
+                    );
+                }
+
+                menuToggle?.addEventListener(
+                    'click',
+                    function () {
+                        setAccountMenu(false);
+
+                        setMobileMenu(
+                            !mobileMenuOpen
+                        );
+                    }
                 );
 
+                mobileClose?.addEventListener(
+                    'click',
+                    function () {
+                        setMobileMenu(false);
+                    }
+                );
+
+                mobileOverlay?.addEventListener(
+                    'click',
+                    function () {
+                        setMobileMenu(false);
+                    }
+                );
+
+                if (
+                    accountTrigger &&
+                    accountMenu
+                ) {
+                    accountTrigger.addEventListener(
+                        'click',
+                        function (event) {
+                            event.stopPropagation();
+
+                            setMobileMenu(false);
+
+                            setAccountMenu(
+                                !accountMenuOpen
+                            );
+                        }
+                    );
+
+                    accountMenu.addEventListener(
+                        'click',
+                        function (event) {
+                            event.stopPropagation();
+                        }
+                    );
+
+                    document.addEventListener(
+                        'click',
+                        function () {
+                            setAccountMenu(false);
+                        }
+                    );
+                }
+
+                document.addEventListener(
+                    'keydown',
+                    function (event) {
+                        if (
+                            event.key === 'Escape'
+                        ) {
+                            setMobileMenu(false);
+                            setAccountMenu(false);
+                        }
+                    }
+                );
+
+                mobileDrawer
+                    ?.querySelectorAll('a')
+                    .forEach(
+                        function (link) {
+                            link.addEventListener(
+                                'click',
+                                function () {
+                                    setMobileMenu(false);
+                                }
+                            );
+                        }
+                    );
+
+                document
+                    .querySelectorAll(
+                        '[data-flash-close]'
+                    )
+                    .forEach(
+                        function (button) {
+                            button.addEventListener(
+                                'click',
+                                function () {
+                                    const flash =
+                                        button.closest(
+                                            '[data-studio-flash]'
+                                        );
+
+                                    if (!flash) {
+                                        return;
+                                    }
+
+                                    flash.remove();
+                                }
+                            );
+                        }
+                    );
+
+                const revealElements =
+                    Array.from(
+                        document.querySelectorAll(
+                            '.studio-reveal'
+                        )
+                    );
+
+                if (
+                    'IntersectionObserver' in window &&
+                    revealElements.length
+                ) {
+                    const observer =
+                        new IntersectionObserver(
+                            function (entries) {
+                                entries.forEach(
+                                    function (entry) {
+                                        if (
+                                            !entry.isIntersecting
+                                        ) {
+                                            return;
+                                        }
+
+                                        entry.target.classList.add(
+                                            'is-visible'
+                                        );
+
+                                        observer.unobserve(
+                                            entry.target
+                                        );
+                                    }
+                                );
+                            },
+                            {
+                                threshold: .12,
+                                rootMargin:
+                                    '0px 0px -30px 0px'
+                            }
+                        );
+
+                    revealElements.forEach(
+                        function (element) {
+                            observer.observe(
+                                element
+                            );
+                        }
+                    );
+                } else {
+                    revealElements.forEach(
+                        function (element) {
+                            element.classList.add(
+                                'is-visible'
+                            );
+                        }
+                    );
+                }
+
+                document
+                    .querySelectorAll(
+                        'form'
+                    )
+                    .forEach(
+                        function (form) {
+                            form.addEventListener(
+                                'submit',
+                                function () {
+                                    const submit =
+                                        form.querySelector(
+                                            '[type="submit"]'
+                                        );
+
+                                    if (!submit) {
+                                        return;
+                                    }
+
+                                    if (
+                                        submit.dataset.noLoading ===
+                                        'true'
+                                    ) {
+                                        return;
+                                    }
+
+                                    submit.classList.add(
+                                        'is-loading'
+                                    );
+
+                                    submit.setAttribute(
+                                        'aria-busy',
+                                        'true'
+                                    );
+                                }
+                            );
+                        }
+                    );
+
+                window.addEventListener(
+                    'pageshow',
+                    function () {
+                        document
+                            .querySelectorAll(
+                                '.is-loading'
+                            )
+                            .forEach(
+                                function (element) {
+                                    element.classList.remove(
+                                        'is-loading'
+                                    );
+
+                                    element.removeAttribute(
+                                        'aria-busy'
+                                    );
+                                }
+                            );
+                    }
+                );
+
+                updateHeader();
+                updateProgress();
+
+                window.addEventListener(
+                    'scroll',
+                    function () {
+                        updateHeader();
+                        updateProgress();
+                    },
+                    {
+                        passive: true
+                    }
+                );
+
+                window.addEventListener(
+                    'resize',
+                    function () {
+                        if (
+                            window.innerWidth >
+                            1120
+                        ) {
+                            setMobileMenu(false);
+                        }
+                    }
+                );
             }
-
-        });
-
+        );
     </script>
 
     @stack('scripts')
-
 </body>
-
 </html>
