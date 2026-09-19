@@ -1,3 +1,179 @@
+@php
+    use Carbon\CarbonInterface;
+
+    $resolvedProviderLabel = $providerLabel
+        ?? (
+            method_exists($activity, 'providerLabel')
+                ? $activity->providerLabel()
+                : ucfirst((string) ($activity->login_provider ?? 'Onbekend'))
+        );
+
+    $resolvedLocationLabel = $locationLabel
+        ?? (
+            method_exists($activity, 'locationLabel')
+                ? $activity->locationLabel()
+                : collect([
+                    $activity->city ?? null,
+                    $activity->region ?? null,
+                    $activity->country ?? null,
+                ])->filter()->implode(', ')
+        );
+
+    $effectiveTimezone = method_exists($activity, 'effectiveTimezone')
+        ? $activity->effectiveTimezone()
+        : (
+            $activity->browser_timezone
+            ?? $activity->timezone
+            ?? config('app.timezone', 'Europe/Amsterdam')
+        );
+
+    $resolvedDisplayTime = $displayTime
+        ?? (
+            method_exists($activity, 'localLoginTimeLabel')
+                ? $activity->localLoginTimeLabel()
+                : (
+                    $activity->logged_in_at
+                        ? $activity->logged_in_at
+                            ->copy()
+                            ->timezone($effectiveTimezone)
+                            ->format('d-m-Y H:i')
+                        : 'Onbekend'
+                )
+        );
+
+    $utcTime = $activity->logged_in_at
+        ? $activity->logged_in_at
+            ->copy()
+            ->timezone('UTC')
+            ->format('d-m-Y H:i')
+        : 'Onbekend';
+
+    $deviceLabel = method_exists($activity, 'deviceLabel')
+        ? $activity->deviceLabel()
+        : ((string) ($activity->device ?? 'Onbekend apparaat'));
+
+    $deviceTypeLabel = method_exists($activity, 'deviceTypeLabel')
+        ? $activity->deviceTypeLabel()
+        : match ((string) ($activity->device_type ?? 'unknown')) {
+            'desktop' => 'Computer',
+            'mobile' => 'Telefoon',
+            'tablet' => 'Tablet',
+            'bot' => 'Automatisch systeem',
+            default => 'Onbekend',
+        };
+
+    $browserLabel = method_exists($activity, 'browserLabel')
+        ? $activity->browserLabel()
+        : ((string) ($activity->browser ?? 'Onbekende browser'));
+
+    $operatingSystemLabel = method_exists($activity, 'operatingSystemLabel')
+        ? $activity->operatingSystemLabel()
+        : ((string) ($activity->operating_system ?? 'Onbekend besturingssysteem'));
+
+    $newDeviceLabel = method_exists($activity, 'newDeviceLabel')
+        ? $activity->newDeviceLabel()
+        : (
+            (bool) ($activity->is_new_device ?? false)
+                ? 'Nieuw apparaat'
+                : 'Bekend apparaat'
+        );
+
+    $timezoneLabel = method_exists($activity, 'timezoneLabel')
+        ? $activity->timezoneLabel()
+        : $effectiveTimezone;
+
+    $locationSourceLabel = method_exists($activity, 'locationSourceLabel')
+        ? $activity->locationSourceLabel()
+        : match ((string) ($activity->location_source ?? 'unavailable')) {
+            'ipapi.co' => 'IP-geolocatie',
+            'ip' => 'IP-geolocatie',
+            'disabled' => 'Uitgeschakeld',
+            'privacy_disabled' => 'Niet opgeslagen wegens privacy-instelling',
+            default => 'Niet beschikbaar',
+        };
+
+    $hasPreciseLocation = method_exists($activity, 'hasPreciseLocation')
+        ? $activity->hasPreciseLocation()
+        : (
+            $activity->latitude !== null
+            && $activity->longitude !== null
+        );
+
+    $coordinatesLabel = method_exists($activity, 'coordinatesLabel')
+        ? $activity->coordinatesLabel()
+        : (
+            $hasPreciseLocation
+                ? number_format((float) $activity->latitude, 6, '.', '')
+                    . ', '
+                    . number_format((float) $activity->longitude, 6, '.', '')
+                : 'Niet beschikbaar'
+        );
+
+    $accuracyLabel = method_exists($activity, 'accuracyLabel')
+        ? $activity->accuracyLabel()
+        : (
+            $activity->location_accuracy !== null
+                ? '± ' . number_format((float) $activity->location_accuracy, 0, ',', '.') . ' meter'
+                : 'Niet beschikbaar'
+        );
+
+    $locationPermission = match ((string) ($activity->location_permission ?? 'unknown')) {
+        'granted' => 'Toegestaan',
+        'denied' => 'Geweigerd',
+        'prompt' => 'Nog niet gekozen',
+        'unsupported' => 'Niet ondersteund',
+        'unavailable' => 'Niet beschikbaar',
+        default => 'Onbekend',
+    };
+
+    $preciseCapturedAt = $activity->precise_location_captured_at
+        ? $activity->precise_location_captured_at
+            ->copy()
+            ->timezone($effectiveTimezone)
+            ->format('d-m-Y H:i')
+        : 'Niet beschikbaar';
+
+    $countryLabel = trim(
+        collect([
+            $activity->country ?? null,
+            filled($activity->country_code ?? null)
+                ? '(' . strtoupper((string) $activity->country_code) . ')'
+                : null,
+        ])->filter()->implode(' ')
+    );
+
+    $rememberLabel = (bool) ($activity->remember ?? false)
+        ? 'Ja'
+        : 'Nee';
+
+    $securityUrl = $securityUrl
+        ?? route('security.index');
+
+    $userAgent = filled($activity->user_agent ?? null)
+        ? (string) $activity->user_agent
+        : 'Niet opgeslagen';
+
+    $emailName = filled($user->name ?? null)
+        ? (string) $user->name
+        : 'gebruiker';
+
+    $safeLocationLabel = filled($resolvedLocationLabel)
+        ? $resolvedLocationLabel
+        : 'Niet beschikbaar';
+
+    $ipAddress = filled($activity->ip_address ?? null)
+        ? (string) $activity->ip_address
+        : 'Niet opgeslagen';
+
+    $browserTimezone = filled($activity->browser_timezone ?? null)
+        ? (string) $activity->browser_timezone
+        : 'Niet beschikbaar';
+
+    $ipTimezone = filled($activity->timezone ?? null)
+        ? (string) $activity->timezone
+        : 'Niet beschikbaar';
+@endphp
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -8,122 +184,238 @@
     >
     <meta
         name="color-scheme"
-        content="dark"
+        content="light"
     >
     <meta
         name="supported-color-schemes"
-        content="dark"
+        content="light"
     >
+
     <title>
-        Nieuwe login - Mashal Automotive
+        Nieuwe login gedetecteerd
     </title>
+
+    <style>
+        /*
+        |--------------------------------------------------------------------------
+        | Basis
+        |--------------------------------------------------------------------------
+        */
+
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            background: #f2f3f5 !important;
+            color: #1d2025 !important;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif !important;
+            -webkit-text-size-adjust: 100% !important;
+            -ms-text-size-adjust: 100% !important;
+        }
+
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+        }
+
+        td {
+            mso-line-height-rule: exactly;
+        }
+
+        img {
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            display: block;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Layout
+        |--------------------------------------------------------------------------
+        */
+
+        .email-shell {
+            width: 100% !important;
+            background: #f2f3f5 !important;
+        }
+
+        .email-card {
+            width: 100%;
+            max-width: 720px;
+            background: #ffffff !important;
+            border: 1px solid #e2e3e6;
+        }
+
+        .content-padding {
+            padding-left: 34px !important;
+            padding-right: 34px !important;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Datatabellen
+        |--------------------------------------------------------------------------
+        */
+
+        .data-table {
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+
+        .data-row {
+            width: 100% !important;
+        }
+
+        .data-label,
+        .data-value {
+            border-bottom: 1px solid #dadcdf;
+            vertical-align: top !important;
+            line-height: 1.5 !important;
+        }
+
+        .data-label {
+            width: 38%;
+            padding: 13px 14px 13px 0 !important;
+            color: #73777f !important;
+            font-size: 15px !important;
+            font-weight: 400 !important;
+        }
+
+        .data-value {
+            width: 62%;
+            padding: 13px 0 13px 14px !important;
+            color: #1d2025 !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            text-align: right !important;
+            word-break: break-word !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        .technical-value {
+            font-family:
+                "Courier New",
+                Courier,
+                monospace !important;
+            font-size: 12px !important;
+            line-height: 1.6 !important;
+            font-weight: 400 !important;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mobiel
+        |--------------------------------------------------------------------------
+        |
+        | Gmail/iPhone en andere smalle clients krijgen labels en waarden
+        | onder elkaar. Hierdoor kan tekst niet meer horizontaal in elkaar
+        | schuiven zoals bij de oude tweekoloms tabel.
+        |
+        */
+
+        @media only screen and (max-width: 620px) {
+            .email-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-left: 0 !important;
+                border-right: 0 !important;
+            }
+
+            .content-padding {
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .mobile-title {
+                font-size: 28px !important;
+                line-height: 1.15 !important;
+            }
+
+            .mobile-intro {
+                font-size: 17px !important;
+                line-height: 1.65 !important;
+            }
+
+            .data-table,
+            .data-table tbody,
+            .data-row,
+            .data-label,
+            .data-value {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .data-row {
+                border-bottom: 1px solid #dadcdf !important;
+                padding: 12px 0 !important;
+            }
+
+            .data-label {
+                border-bottom: 0 !important;
+                padding: 0 0 5px 0 !important;
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+            }
+
+            .data-value {
+                border-bottom: 0 !important;
+                padding: 0 !important;
+                font-size: 16px !important;
+                line-height: 1.5 !important;
+                text-align: left !important;
+                font-weight: 700 !important;
+            }
+
+            .technical-value {
+                font-size: 11px !important;
+                line-height: 1.55 !important;
+                word-break: break-all !important;
+            }
+
+            .cta {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                text-align: center !important;
+            }
+
+            .section-title {
+                font-size: 14px !important;
+                line-height: 1.4 !important;
+            }
+
+            .footer-copy {
+                font-size: 12px !important;
+                line-height: 1.65 !important;
+            }
+        }
+    </style>
 </head>
 
 <body
     style="
         margin: 0;
         padding: 0;
-        background: #08090b;
-        color: #f3f1ed;
+        width: 100%;
+        min-width: 100%;
+        background: #f2f3f5;
+        color: #1d2025;
         font-family: Arial, Helvetica, sans-serif;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
     "
 >
-    @php
-        $deviceLabel = method_exists($activity, 'deviceLabel')
-            ? $activity->deviceLabel()
-            : ($activity->device ?: 'Onbekend apparaat');
-
-        $deviceTypeLabel = method_exists($activity, 'deviceTypeLabel')
-            ? $activity->deviceTypeLabel()
-            : ($activity->device_type ?: 'Onbekend type');
-
-        $browserLabel = method_exists($activity, 'browserLabel')
-            ? $activity->browserLabel()
-            : ($activity->browser ?: 'Onbekende browser');
-
-        $operatingSystemLabel = method_exists($activity, 'operatingSystemLabel')
-            ? $activity->operatingSystemLabel()
-            : ($activity->operating_system ?: 'Onbekend besturingssysteem');
-
-        $resolvedLocationLabel = $locationLabel
-            ?? (
-                method_exists($activity, 'locationLabel')
-                    ? $activity->locationLabel()
-                    : 'Onbekende locatie'
-            );
-
-        $resolvedProviderLabel = $providerLabel
-            ?? (
-                method_exists($activity, 'providerLabel')
-                    ? $activity->providerLabel()
-                    : ($activity->login_provider ?: 'Onbekend')
-            );
-
-        $resolvedTimezone = method_exists($activity, 'timezoneLabel')
-            ? $activity->timezoneLabel()
-            : (
-                $activity->browser_timezone
-                    ?: (
-                        $activity->timezone
-                            ?: config('app.timezone', 'Europe/Amsterdam')
-                    )
-            );
-
-        $resolvedDisplayTime = $displayTime
-            ?? (
-                method_exists($activity, 'localLoginTimeLabel')
-                    ? $activity->localLoginTimeLabel()
-                    : optional($activity->logged_in_at)->timezone($resolvedTimezone)->format('d-m-Y H:i')
-            );
-
-        $hasPreciseLocation = method_exists($activity, 'hasPreciseLocation')
-            ? $activity->hasPreciseLocation()
-            : (
-                $activity->latitude !== null &&
-                $activity->longitude !== null
-            );
-
-        $coordinatesLabel = method_exists($activity, 'coordinatesLabel')
-            ? $activity->coordinatesLabel()
-            : (
-                $hasPreciseLocation
-                    ? $activity->latitude . ', ' . $activity->longitude
-                    : null
-            );
-
-        $accuracyLabel = method_exists($activity, 'accuracyLabel')
-            ? $activity->accuracyLabel()
-            : (
-                $activity->location_accuracy !== null
-                    ? '± ' . round((float) $activity->location_accuracy) . ' meter'
-                    : null
-            );
-
-        $locationSourceLabel = method_exists($activity, 'locationSourceLabel')
-            ? $activity->locationSourceLabel()
-            : ($activity->location_source ?: 'Onbekend');
-
-        $permissionLabel = match (strtolower((string) $activity->location_permission)) {
-            'granted' => 'Toegestaan',
-            'denied' => 'Geweigerd',
-            'prompt' => 'Nog niet gekozen',
-            'unsupported' => 'Niet ondersteund',
-            'unavailable' => 'Niet beschikbaar',
-            default => 'Onbekend',
-        };
-
-        $newDeviceLabel = method_exists($activity, 'newDeviceLabel')
-            ? $activity->newDeviceLabel()
-            : ($activity->is_new_device ? 'Nieuw apparaat' : 'Bekend apparaat');
-
-        $utcTime = $activity->logged_in_at
-            ? $activity->logged_in_at->copy()->timezone('UTC')->format('d-m-Y H:i')
-            : null;
-    @endphp
-
-    {{-- Preheader --}}
+    <!-- Preheader -->
     <div
         style="
             display: none;
@@ -134,139 +426,153 @@
             mso-hide: all;
         "
     >
-        Er is een nieuwe login op je Mashal Automotive-account geregistreerd.
+        Nieuwe succesvolle login op je Mashal Automotive-account via
+        {{ $resolvedProviderLabel }}.
     </div>
 
     <table
         role="presentation"
         width="100%"
-        cellspacing="0"
+        class="email-shell"
         cellpadding="0"
+        cellspacing="0"
         border="0"
         style="
             width: 100%;
-            margin: 0;
-            padding: 0;
-            background: #08090b;
-            border-collapse: collapse;
+            background: #f2f3f5;
         "
     >
         <tr>
             <td
                 align="center"
                 style="
-                    padding: 34px 16px;
+                    padding: 28px 12px;
                 "
             >
                 <table
                     role="presentation"
-                    width="100%"
-                    cellspacing="0"
+                    width="720"
+                    class="email-card"
                     cellpadding="0"
+                    cellspacing="0"
                     border="0"
                     style="
                         width: 100%;
-                        max-width: 680px;
-                        border-collapse: separate;
-                        border-spacing: 0;
-                        border: 1px solid #25272b;
-                        border-radius: 24px;
-                        background: #101215;
+                        max-width: 720px;
+                        background: #ffffff;
+                        border: 1px solid #e2e3e6;
                     "
                 >
-                    {{-- Header --}}
+                    <!-- Luxe zwarte bovenbalk -->
                     <tr>
                         <td
                             style="
-                                padding: 34px 34px 22px;
-                                border-bottom: 1px solid #25272b;
-                                border-radius: 24px 24px 0 0;
-                                background: #111316;
+                                height: 12px;
+                                background: #090909;
+                                font-size: 0;
+                                line-height: 0;
+                            "
+                        >
+                            &nbsp;
+                        </td>
+                    </tr>
+
+                    <!-- Merk -->
+                    <tr>
+                        <td
+                            class="content-padding"
+                            style="
+                                padding-top: 22px;
+                                padding-bottom: 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <div
                                 style="
-                                    margin-bottom: 12px;
-                                    color: #d7a45f;
-                                    font-size: 11px;
+                                    color: #c99b55;
+                                    font-size: 17px;
+                                    line-height: 1.4;
                                     font-weight: 700;
-                                    letter-spacing: 2px;
+                                    letter-spacing: 4px;
                                     text-transform: uppercase;
                                 "
                             >
                                 Mashal Automotive Security
                             </div>
+                        </td>
+                    </tr>
 
+                    <!-- Titel -->
+                    <tr>
+                        <td
+                            class="content-padding"
+                            style="
+                                padding-top: 20px;
+                                padding-bottom: 8px;
+                                padding-left: 34px;
+                                padding-right: 34px;
+                            "
+                        >
                             <h1
+                                class="mobile-title"
                                 style="
                                     margin: 0;
-                                    color: #ffffff;
-                                    font-size: 30px;
-                                    line-height: 1.15;
+                                    color: #15171a;
+                                    font-size: 34px;
+                                    line-height: 1.2;
+                                    font-weight: 800;
                                 "
                             >
                                 Nieuwe login gedetecteerd
                             </h1>
+                        </td>
+                    </tr>
 
+                    <!-- Intro -->
+                    <tr>
+                        <td
+                            class="content-padding"
+                            style="
+                                padding-top: 12px;
+                                padding-bottom: 26px;
+                                padding-left: 34px;
+                                padding-right: 34px;
+                            "
+                        >
                             <p
+                                class="mobile-intro"
                                 style="
-                                    margin: 14px 0 0;
-                                    color: #9ca0a6;
-                                    font-size: 14px;
+                                    margin: 0;
+                                    color: #73777f;
+                                    font-size: 18px;
                                     line-height: 1.7;
                                 "
                             >
-                                Hallo {{ $user->name }},
-                                er is een succesvolle login op je
-                                Mashal Automotive-account geregistreerd.
+                                Hallo {{ $emailName }}, er is een succesvolle login
+                                op je Mashal Automotive-account geregistreerd.
                             </p>
                         </td>
                     </tr>
 
-                    {{-- New device warning --}}
-                    @if ($activity->is_new_device)
-                        <tr>
-                            <td
-                                style="
-                                    padding: 18px 34px 0;
-                                "
-                            >
-                                <div
-                                    style="
-                                        padding: 14px 16px;
-                                        border: 1px solid #5a4225;
-                                        border-radius: 14px;
-                                        background: #1b160f;
-                                        color: #efc985;
-                                        font-size: 13px;
-                                        line-height: 1.55;
-                                    "
-                                >
-                                    <strong>
-                                        Nieuw apparaat
-                                    </strong>
-                                    <br>
-                                    Dit apparaat is nog niet eerder in je recente
-                                    Mashal-loginhistorie gezien.
-                                </div>
-                            </td>
-                        </tr>
-                    @endif
-
-                    {{-- Login information --}}
+                    <!-- LOGININFORMATIE -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 28px 34px 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <div
+                                class="section-title"
                                 style="
-                                    margin-bottom: 12px;
-                                    color: #d7a45f;
-                                    font-size: 10px;
-                                    font-weight: 700;
-                                    letter-spacing: 1.6px;
+                                    margin-bottom: 8px;
+                                    color: #c99b55;
+                                    font-size: 15px;
+                                    line-height: 1.4;
+                                    font-weight: 800;
+                                    letter-spacing: 3px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -276,112 +582,124 @@
                             <table
                                 role="presentation"
                                 width="100%"
-                                cellspacing="0"
+                                class="data-table"
                                 cellpadding="0"
+                                cellspacing="0"
                                 border="0"
                                 style="
                                     width: 100%;
-                                    border-collapse: collapse;
+                                    table-layout: fixed;
                                 "
                             >
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Apparaat
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $deviceLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Apparaattype
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $deviceTypeLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Browser
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $browserLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Besturingssysteem
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $operatingSystemLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Loginmethode
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $resolvedProviderLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Apparaatstatus
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: {{ $activity->is_new_device ? '#efc985' : '#ffffff' }}; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $newDeviceLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Tijdstip
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $resolvedDisplayTime }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Gebruikte timezone
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #efc985; font-size: 13px; font-weight: 700;">
-                                        {{ $resolvedTimezone }}
+                                    <td class="data-value">
+                                        {{ $timezoneLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0 0; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         UTC-tijd
                                     </td>
-                                    <td align="right" style="padding: 12px 0 0; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $utcTime ?: 'Onbekend' }}
+                                    <td class="data-value">
+                                        {{ $utcTime }}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    {{-- Network and approximate location --}}
+                    <!-- Ruimte -->
+                    <tr>
+                        <td style="height: 32px; font-size: 0; line-height: 0;">
+                            &nbsp;
+                        </td>
+                    </tr>
+
+                    <!-- NETWERK -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 20px 34px 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <div
+                                class="section-title"
                                 style="
-                                    margin-bottom: 12px;
-                                    color: #d7a45f;
-                                    font-size: 10px;
-                                    font-weight: 700;
-                                    letter-spacing: 1.6px;
+                                    margin-bottom: 8px;
+                                    color: #c99b55;
+                                    font-size: 15px;
+                                    line-height: 1.4;
+                                    font-weight: 800;
+                                    letter-spacing: 3px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -391,106 +709,115 @@
                             <table
                                 role="presentation"
                                 width="100%"
-                                cellspacing="0"
+                                class="data-table"
                                 cellpadding="0"
+                                cellspacing="0"
                                 border="0"
                                 style="
                                     width: 100%;
-                                    border-collapse: collapse;
+                                    table-layout: fixed;
                                 "
                             >
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         IP-adres
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->ip_address ?: 'Onbekend' }}
+                                    <td class="data-value">
+                                        {{ $ipAddress }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Geschatte locatie
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $resolvedLocationLabel }}
+                                    <td class="data-value">
+                                        {{ $safeLocationLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Stad
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->city ?: 'Onbekend' }}
+                                    <td class="data-value">
+                                        {{ filled($activity->city ?? null) ? $activity->city : 'Niet beschikbaar' }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Regio
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->region ?: 'Onbekend' }}
+                                    <td class="data-value">
+                                        {{ filled($activity->region ?? null) ? $activity->region : 'Niet beschikbaar' }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Land
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->country ?: 'Onbekend' }}
-                                        @if ($activity->country_code)
-                                            ({{ strtoupper($activity->country_code) }})
-                                        @endif
+                                    <td class="data-value">
+                                        {{ $countryLabel !== '' ? $countryLabel : 'Niet beschikbaar' }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Locatiebron
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
+                                    <td class="data-value">
                                         {{ $locationSourceLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Browser-timezone
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->browser_timezone ?: 'Niet meegestuurd' }}
+                                    <td class="data-value">
+                                        {{ $browserTimezone }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0 0; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         IP-timezone
                                     </td>
-                                    <td align="right" style="padding: 12px 0 0; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->timezone ?: 'Onbekend' }}
+                                    <td class="data-value">
+                                        {{ $ipTimezone }}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    {{-- Precise browser location --}}
+                    <!-- Ruimte -->
+                    <tr>
+                        <td style="height: 32px; font-size: 0; line-height: 0;">
+                            &nbsp;
+                        </td>
+                    </tr>
+
+                    <!-- PRECISE LOCATIE -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 20px 34px 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <div
+                                class="section-title"
                                 style="
-                                    margin-bottom: 12px;
-                                    color: #d7a45f;
-                                    font-size: 10px;
-                                    font-weight: 700;
-                                    letter-spacing: 1.6px;
+                                    margin-bottom: 8px;
+                                    color: #c99b55;
+                                    font-size: 15px;
+                                    line-height: 1.4;
+                                    font-weight: 800;
+                                    letter-spacing: 3px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -500,71 +827,79 @@
                             <table
                                 role="presentation"
                                 width="100%"
-                                cellspacing="0"
+                                class="data-table"
                                 cellpadding="0"
+                                cellspacing="0"
                                 border="0"
                                 style="
                                     width: 100%;
-                                    border-collapse: collapse;
+                                    table-layout: fixed;
                                 "
                             >
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Locatietoestemming
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: {{ strtolower((string) $activity->location_permission) === 'granted' ? '#9fe0ba' : '#ffffff' }}; font-size: 13px; font-weight: 700;">
-                                        {{ $permissionLabel }}
+                                    <td class="data-value">
+                                        {{ $locationPermission }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         GPS-coördinaten
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: {{ $hasPreciseLocation ? '#efc985' : '#ffffff' }}; font-size: 13px; font-weight: 700;">
-                                        {{ $coordinatesLabel ?: 'Niet beschikbaar' }}
+                                    <td class="data-value">
+                                        {{ $coordinatesLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         GPS-nauwkeurigheid
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $accuracyLabel ?: 'Niet beschikbaar' }}
+                                    <td class="data-value">
+                                        {{ $accuracyLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0 0; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Vastgelegd op
                                     </td>
-                                    <td align="right" style="padding: 12px 0 0; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        @if ($activity->precise_location_captured_at)
-                                            {{ $activity->precise_location_captured_at->copy()->timezone($resolvedTimezone)->format('d-m-Y H:i') }}
-                                        @else
-                                            Niet beschikbaar
-                                        @endif
+                                    <td class="data-value">
+                                        {{ $preciseCapturedAt }}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    {{-- Technical detail --}}
+                    <!-- Ruimte -->
+                    <tr>
+                        <td style="height: 32px; font-size: 0; line-height: 0;">
+                            &nbsp;
+                        </td>
+                    </tr>
+
+                    <!-- TECHNISCH -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 20px 34px 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <div
+                                class="section-title"
                                 style="
-                                    margin-bottom: 12px;
-                                    color: #d7a45f;
-                                    font-size: 10px;
-                                    font-weight: 700;
-                                    letter-spacing: 1.6px;
+                                    margin-bottom: 8px;
+                                    color: #c99b55;
+                                    font-size: 15px;
+                                    line-height: 1.4;
+                                    font-weight: 800;
+                                    letter-spacing: 3px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -574,110 +909,211 @@
                             <table
                                 role="presentation"
                                 width="100%"
-                                cellspacing="0"
+                                class="data-table"
                                 cellpadding="0"
+                                cellspacing="0"
                                 border="0"
                                 style="
                                     width: 100%;
-                                    border-collapse: collapse;
+                                    table-layout: fixed;
                                 "
                             >
-                                <tr>
-                                    <td style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #72777e; font-size: 12px;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         Onthouden
                                     </td>
-                                    <td align="right" style="padding: 12px 0; border-bottom: 1px solid #24262a; color: #ffffff; font-size: 13px; font-weight: 700;">
-                                        {{ $activity->remember ? 'Ja' : 'Nee' }}
+                                    <td class="data-value">
+                                        {{ $rememberLabel }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="padding: 12px 0 0; color: #72777e; font-size: 12px; vertical-align: top;">
+                                <tr class="data-row">
+                                    <td class="data-label">
                                         User-Agent
                                     </td>
-                                    <td align="right" style="padding: 12px 0 0 18px; color: #ffffff; font-size: 11px; line-height: 1.55; overflow-wrap: anywhere;">
-                                        {{ $activity->user_agent ?: 'Niet beschikbaar' }}
+                                    <td
+                                        class="data-value technical-value"
+                                        style="
+                                            word-break: break-word;
+                                            overflow-wrap: anywhere;
+                                        "
+                                    >
+                                        {{ $userAgent }}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    {{-- CTA --}}
+                    <!-- CTA -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 24px 34px 30px;
+                                padding-top: 34px;
+                                padding-bottom: 12px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
-                            <a
-                                href="{{ $securityUrl }}"
-                                style="
-                                    display: inline-block;
-                                    padding: 14px 20px;
-                                    border-radius: 999px;
-                                    background: #d7a45f;
-                                    color: #17120d;
-                                    font-size: 13px;
-                                    font-weight: 700;
-                                    text-decoration: none;
-                                "
+                            <table
+                                role="presentation"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                width="100%"
                             >
-                                Bekijk loginactiviteit
-                            </a>
+                                <tr>
+                                    <td align="center">
+                                        <a
+                                            href="{{ $securityUrl }}"
+                                            class="cta"
+                                            style="
+                                                display: inline-block;
+                                                padding: 15px 26px;
+                                                background: #0b0b0c;
+                                                border: 1px solid #c99b55;
+                                                color: #ffffff;
+                                                font-size: 15px;
+                                                line-height: 1.2;
+                                                font-weight: 800;
+                                                text-decoration: none;
+                                                letter-spacing: 0.4px;
+                                            "
+                                        >
+                                            Bekijk loginactiviteit
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    {{-- Footer --}}
+                    <!-- Waarschuwing -->
                     <tr>
                         <td
+                            class="content-padding"
                             style="
-                                padding: 24px 34px;
-                                border-top: 1px solid #25272b;
-                                border-radius: 0 0 24px 24px;
-                                background: #0c0e10;
+                                padding-top: 22px;
+                                padding-bottom: 8px;
+                                padding-left: 34px;
+                                padding-right: 34px;
                             "
                         >
                             <p
                                 style="
                                     margin: 0;
-                                    color: #858a91;
-                                    font-size: 12px;
+                                    color: #1d2025;
+                                    font-size: 14px;
                                     line-height: 1.7;
+                                    font-weight: 700;
                                 "
                             >
-                                Was jij dit? Dan hoef je niets te doen.
-                                Herken je deze login niet, wijzig dan direct
-                                je wachtwoord en controleer je account.
+                                Was jij dit?
                             </p>
 
                             <p
                                 style="
-                                    margin: 12px 0 0;
-                                    color: #5f646b;
-                                    font-size: 11px;
-                                    line-height: 1.6;
+                                    margin: 6px 0 0 0;
+                                    color: #73777f;
+                                    font-size: 14px;
+                                    line-height: 1.7;
+                                "
+                            >
+                                Dan hoef je niets te doen. Herken je deze login niet,
+                                wijzig dan direct je wachtwoord en controleer je account.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Privacy-uitleg -->
+                    <tr>
+                        <td
+                            class="content-padding"
+                            style="
+                                padding-top: 18px;
+                                padding-bottom: 8px;
+                                padding-left: 34px;
+                                padding-right: 34px;
+                            "
+                        >
+                            <p
+                                class="footer-copy"
+                                style="
+                                    margin: 0;
+                                    color: #858991;
+                                    font-size: 12px;
+                                    line-height: 1.75;
                                 "
                             >
                                 De IP-locatie is een schatting en kan bijvoorbeeld
                                 je internetprovider, VPN of mobiele provider tonen.
                                 Precieze GPS-locatie wordt alleen opgeslagen wanneer
                                 daarvoor in de browser toestemming is gegeven.
-                                Browsers geven daarnaast niet altijd het exacte
-                                model van een telefoon vrij.
+                                Browsers geven daarnaast niet altijd het exacte model
+                                van een telefoon vrij.
                             </p>
+                        </td>
+                    </tr>
 
+                    <!-- Gevoelige informatie -->
+                    <tr>
+                        <td
+                            class="content-padding"
+                            style="
+                                padding-top: 14px;
+                                padding-bottom: 30px;
+                                padding-left: 34px;
+                                padding-right: 34px;
+                            "
+                        >
                             <p
+                                class="footer-copy"
                                 style="
-                                    margin: 12px 0 0;
-                                    color: #4f545a;
-                                    font-size: 10px;
-                                    line-height: 1.6;
+                                    margin: 0;
+                                    color: #858991;
+                                    font-size: 12px;
+                                    line-height: 1.75;
                                 "
                             >
                                 Let op: deze e-mail kan gevoelige beveiligingsinformatie
                                 bevatten. Deel hem niet met anderen.
                             </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td
+                            style="
+                                background: #0b0b0c;
+                                padding: 18px 24px;
+                                text-align: center;
+                            "
+                        >
+                            <div
+                                style="
+                                    color: #c99b55;
+                                    font-size: 11px;
+                                    line-height: 1.5;
+                                    font-weight: 700;
+                                    letter-spacing: 2px;
+                                    text-transform: uppercase;
+                                "
+                            >
+                                Mashal Automotive
+                            </div>
+
+                            <div
+                                style="
+                                    margin-top: 6px;
+                                    color: #9b9da2;
+                                    font-size: 11px;
+                                    line-height: 1.5;
+                                "
+                            >
+                                Automatische beveiligingsmelding
+                            </div>
                         </td>
                     </tr>
                 </table>
