@@ -568,6 +568,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* ========================================================= */
 
     /* E-MAILCODE LOGIN                                         */
@@ -688,7 +720,7 @@
 
         font-size: 13px;
 
-        transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+        transition: border-color .2s ease, *background* .2s ease, box-shadow .2s ease;
 
     }
 
@@ -906,7 +938,7 @@
 
         border-color .2s ease,
 
-        background .2s ease,
+        *background* .2s ease,
 
         box-shadow .2s ease;
 
@@ -964,7 +996,7 @@
 
         border-color .2s ease,
 
-        background .2s ease,
+        *background* .2s ease,
 
         box-shadow .2s ease;
 
@@ -1054,6 +1086,8 @@
 
 
 
+
+
 /* ========================================================= */
 
     /* GOOGLE OAUTH                                              */
@@ -1118,7 +1152,7 @@
 
             border-color .22s ease,
 
-            background .22s ease,
+            *background* .22s ease,
 
             box-shadow .22s ease;
 
@@ -1352,7 +1386,7 @@
 
             border-color .22s ease,
 
-            background .22s ease,
+            *background* .22s ease,
 
             box-shadow .22s ease;
 
@@ -1542,6 +1576,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* ========================================================= */
 
     /* FACEBOOK OAUTH                                           */
@@ -1608,7 +1658,7 @@
 
             border-color .22s ease,
 
-            background .22s ease,
+            *background* .22s ease,
 
             box-shadow .22s ease;
 
@@ -1783,131 +1833,259 @@
     }
 
     /* ========================================================= */
+
     /* TIKTOK OAUTH                                              */
+
     /* ========================================================= */
 
     .tiktok-auth {
+
         margin: -12px 0 24px;
+
     }
 
     .tiktok-auth-button {
+
         position: relative;
+
         width: 100%;
+
         min-height: 58px;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         gap: 13px;
+
         padding: 0 58px;
+
         overflow: hidden;
+
         border: 1px solid rgba(255,255,255,.14);
+
         border-radius: 999px;
+
         background:
+
             radial-gradient(circle at 15% 50%, rgba(37,244,238,.10), transparent 28%),
+
             radial-gradient(circle at 85% 50%, rgba(254,44,85,.10), transparent 28%),
+
             linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.025)),
+
             #090a0c;
+
         color: #f4f1eb;
+
         text-decoration: none;
+
         box-shadow:
+
             inset 0 1px 0 rgba(255,255,255,.055),
+
             0 14px 36px rgba(0,0,0,.22);
+
         transition:
+
             transform .22s ease,
+
             border-color .22s ease,
-            background .22s ease,
+
+            *background* .22s ease,
+
             box-shadow .22s ease;
+
     }
 
     .tiktok-auth-button::before {
+
         content: "";
+
         position: absolute;
+
         inset: 0;
+
         background:
+
             linear-gradient(
+
                 110deg,
+
                 transparent 20%,
+
                 rgba(255,255,255,.055) 48%,
+
                 transparent 76%
+
             );
+
         transform: translateX(-130%);
+
         transition: transform .7s ease;
+
         pointer-events: none;
+
     }
 
     .tiktok-auth-button:hover {
+
         transform: translateY(-2px);
+
         border-color: rgba(255,255,255,.28);
+
         background:
+
             radial-gradient(circle at 15% 50%, rgba(37,244,238,.15), transparent 30%),
+
             radial-gradient(circle at 85% 50%, rgba(254,44,85,.15), transparent 30%),
+
             linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.032)),
+
             #090a0c;
+
         box-shadow:
+
             inset 0 1px 0 rgba(255,255,255,.07),
+
             0 22px 50px rgba(0,0,0,.28);
+
     }
 
     .tiktok-auth-button:hover::before {
+
         transform: translateX(130%);
+
     }
 
     .tiktok-auth-icon {
+
         position: absolute;
+
         left: 17px;
+
         width: 25px;
+
         height: 25px;
+
         display: grid;
+
         place-items: center;
+
         border-radius: 50%;
+
         background: #050607;
+
         color: #ffffff;
+
         font-size: 16px;
+
         font-weight: 950;
+
         box-shadow:
+
             -2px 0 0 rgba(37,244,238,.85),
+
             2px 0 0 rgba(254,44,85,.80),
+
             0 8px 22px rgba(0,0,0,.24);
+
     }
 
     .tiktok-auth-copy {
+
         position: relative;
+
         z-index: 1;
+
         display: flex;
+
         flex-direction: column;
+
         align-items: center;
+
         gap: 2px;
+
         text-align: center;
+
     }
 
     .tiktok-auth-copy strong {
+
         color: #f4f1eb;
+
         font-size: 12px;
+
         line-height: 1.2;
+
         font-weight: 950;
+
         letter-spacing: .01em;
+
     }
 
     .tiktok-auth-copy small {
+
         color: #747a81;
+
         font-size: 8px;
+
         line-height: 1.4;
+
         font-weight: 750;
+
         letter-spacing: .035em;
+
     }
 
     .tiktok-auth-note {
+
         margin-top: 10px;
+
         text-align: center;
+
         color: #555b61;
+
         font-size: 9px;
+
         line-height: 1.65;
+
     }
 
     .tiktok-auth-note strong {
+
         color: #8e949b;
+
         font-weight: 850;
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2062,7 +2240,7 @@
 
             border-color .2s ease,
 
-            background .2s ease,
+            *background* .2s ease,
 
             box-shadow .2s ease,
 
@@ -2138,7 +2316,7 @@
 
             color .2s ease,
 
-            background .2s ease;
+            *background* .2s ease;
 
     }
 
@@ -2414,7 +2592,7 @@
 
         transition:
 
-            background .2s ease,
+            *background* .2s ease,
 
             border-color .2s ease,
 
@@ -2632,6 +2810,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @section('content')
 
 <section class="login-page">
@@ -2740,6 +2982,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="visual-trust-row">
 
                     <span class="visual-trust">
@@ -2765,6 +3071,70 @@
             </div>
 
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2930,6 +3300,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <span class="auth-kicker">
 
                     Member access
@@ -2949,6 +3383,70 @@
                     of gebruik je e-mailadres en wachtwoord voor jouw Mashal-account.
 
                 </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3058,6 +3556,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {{-- SESSION ERROR --}}
 
                 @if (session('error'))
@@ -3069,6 +3599,38 @@
                     </div>
 
                 @endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3228,6 +3790,102 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {{-- E-MAILCODE LOGIN --}}
 
                 <div class="email-code-auth">
@@ -3257,6 +3915,8 @@
                         method="POST"
 
                         action="{{ route('email-login.send') }}"
+
+                        data-login-security-form
 
                     >
 
@@ -3340,6 +4000,8 @@
 
                         action="{{ route('email-login.link.send') }}"
 
+                        data-login-security-form
+
                     >
 
                         @csrf
@@ -3399,6 +4061,8 @@
                     <a
 
                         class="google-auth-button"
+
+                        data-login-security-oauth
 
                         href="{{ route('google.redirect') }}"
 
@@ -3494,6 +4158,8 @@
 
                         class="github-auth-button"
 
+                        data-login-security-oauth
+
                         href="{{ route('github.redirect') }}"
 
                         aria-label="Doorgaan met GitHub"
@@ -3568,6 +4234,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {{-- FACEBOOK OAUTH --}}
 
                 <div class="facebook-auth">
@@ -3575,6 +4257,8 @@
                     <a
 
                         class="facebook-auth-button"
+
+                        data-login-security-oauth
 
                         href="{{ route('facebook.redirect') }}"
 
@@ -3674,37 +4358,102 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                 {{-- TIKTOK OAUTH --}}
 
                 <div class="tiktok-auth">
+
                     <a
+
                         class="tiktok-auth-button"
+
+                        data-login-security-oauth
+
                         href="{{ route('tiktok.redirect') }}"
+
                         aria-label="Doorgaan met TikTok"
+
                     >
+
                         <span
+
                             class="tiktok-auth-icon"
+
                             aria-hidden="true"
+
                         >
+
                             ♪
+
                         </span>
 
                         <span class="tiktok-auth-copy">
+
                             <strong>
+
                                 Doorgaan met TikTok
+
                             </strong>
 
                             <small>
+
                                 Veilig inloggen met je TikTok-account
+
                             </small>
+
                         </span>
+
                     </a>
 
                     <div class="tiktok-auth-note">
+
                         Je wordt doorgestuurd naar <strong>TikTok</strong>.
+
                         Mashal ontvangt nooit je TikTok-wachtwoord.
+
                     </div>
+
                 </div>
+
 
 
 <div class="oauth-divider">
@@ -3712,6 +4461,38 @@
                     Of gebruik je wachtwoord
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3753,9 +4534,75 @@
 
                     action="{{ route('login.submit') }}"
 
+                    data-login-security-form
+
                 >
 
                     @csrf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3844,6 +4691,70 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4007,6 +4918,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- PASSWORD --}}
 
                     <div class="auth-field">
@@ -4030,6 +5005,70 @@
                             @enderror
 
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4199,6 +5238,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {{-- OPTIONS --}}
 
                     <div class="auth-options">
@@ -4297,6 +5400,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <a
 
                             class="auth-link"
@@ -4310,6 +5477,70 @@
                         </a>
 
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4455,11 +5686,139 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="auth-divider">
 
                     Nieuw bij Mashal?
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4609,6 +5968,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     <a
 
                         class="register-card-link"
@@ -4622,6 +6045,70 @@
                     </a>
 
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4779,52 +6266,470 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @push('scripts')
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function () {
+        /*
+        |--------------------------------------------------------------------------
+        | Wachtwoord tonen / verbergen
+        |--------------------------------------------------------------------------
+        |
+        | Bestaande functionaliteit behouden.
+        |
+        */
 
         document
-
             .querySelectorAll('[data-toggle-password]')
-
             .forEach(function (button) {
-
                 button.addEventListener('click', function () {
-
                     const inputId =
-
                         button.getAttribute('data-toggle-password');
 
                     const input =
-
                         document.getElementById(inputId);
 
                     if (!input) {
-
                         return;
-
                     }
 
                     const isHidden =
-
                         input.type === 'password';
 
                     input.type =
-
                         isHidden ? 'text' : 'password';
 
                     button.textContent =
-
                         isHidden ? 'Verberg' : 'Tonen';
-
                 });
-
             });
 
-    });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Login Security Browser Context
+        |--------------------------------------------------------------------------
+        |
+        | Vóór een login bewaren we tijdelijk in de Laravel-sessie:
+        |
+        | - browser timezone
+        | - locatie-permission
+        | - latitude / longitude na toestemming
+        | - GPS-nauwkeurigheid
+        |
+        | De login gaat altijd door wanneer:
+        |
+        | - locatie wordt geweigerd;
+        | - GPS niet beschikbaar is;
+        | - de context-endpoint tijdelijk niet bereikbaar is.
+        |
+        */
+
+        const securityContextUrl =
+            @json(route('login-security.context'));
+
+        const csrfToken =
+            @json(csrf_token());
+
+        const preciseLocationEnabled =
+            @json((bool) config('login-security.precise_location.enabled', true));
+
+        const highAccuracy =
+            @json((bool) config('login-security.precise_location.high_accuracy', true));
+
+        const geolocationTimeout =
+            {{ max(1000, (int) config('login-security.precise_location.timeout_ms', 10000)) }};
+
+        const geolocationMaximumAge =
+            {{ max(0, (int) config('login-security.precise_location.maximum_age_ms', 60000)) }};
+
+
+        /**
+         * Lees de IANA-timezone van de browser.
+         *
+         * Bijvoorbeeld:
+         *
+         * Europe/Amsterdam
+         * Asia/Karachi
+         * America/New_York
+         */
+        function getBrowserTimezone() {
+            try {
+                return Intl
+                    .DateTimeFormat()
+                    .resolvedOptions()
+                    .timeZone || null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+
+        /**
+         * Probeer de huidige geolocation-permission te lezen.
+         *
+         * Niet iedere browser ondersteunt navigator.permissions
+         * volledig voor geolocation, daarom is dit best-effort.
+         */
+        async function getLocationPermissionState() {
+            if (
+                !navigator.permissions ||
+                typeof navigator.permissions.query !== 'function'
+            ) {
+                return 'prompt';
+            }
+
+            try {
+                const status =
+                    await navigator.permissions.query({
+                        name: 'geolocation'
+                    });
+
+                if (
+                    status &&
+                    ['granted', 'denied', 'prompt'].includes(status.state)
+                ) {
+                    return status.state;
+                }
+            } catch (error) {
+                //
+            }
+
+            return 'prompt';
+        }
+
+
+        /**
+         * Vraag browserlocatie op.
+         *
+         * De browser zelf toont de toestemmingsvraag.
+         * Zonder toestemming worden geen coördinaten opgeslagen.
+         */
+        async function getPreciseLocation() {
+            const base = {
+                latitude: null,
+                longitude: null,
+                location_accuracy: null,
+                location_permission: 'unknown',
+            };
+
+            if (!preciseLocationEnabled) {
+                return {
+                    ...base,
+                    location_permission: 'unavailable',
+                };
+            }
+
+            if (
+                !navigator.geolocation ||
+                typeof navigator.geolocation.getCurrentPosition !== 'function'
+            ) {
+                return {
+                    ...base,
+                    location_permission: 'unsupported',
+                };
+            }
+
+            const initialPermission =
+                await getLocationPermissionState();
+
+            if (initialPermission === 'denied') {
+                return {
+                    ...base,
+                    location_permission: 'denied',
+                };
+            }
+
+            return new Promise(function (resolve) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        const coords =
+                            position && position.coords
+                                ? position.coords
+                                : null;
+
+                        if (!coords) {
+                            resolve({
+                                ...base,
+                                location_permission: 'unavailable',
+                            });
+
+                            return;
+                        }
+
+                        const latitude =
+                            Number(coords.latitude);
+
+                        const longitude =
+                            Number(coords.longitude);
+
+                        const accuracy =
+                            Number(coords.accuracy);
+
+                        if (
+                            !Number.isFinite(latitude) ||
+                            !Number.isFinite(longitude)
+                        ) {
+                            resolve({
+                                ...base,
+                                location_permission: 'unavailable',
+                            });
+
+                            return;
+                        }
+
+                        resolve({
+                            latitude: latitude,
+                            longitude: longitude,
+                            location_accuracy:
+                                Number.isFinite(accuracy)
+                                    ? Math.max(0, accuracy)
+                                    : null,
+                            location_permission: 'granted',
+                        });
+                    },
+
+                    function (error) {
+                        let permission =
+                            initialPermission === 'prompt'
+                                ? 'unavailable'
+                                : initialPermission;
+
+                        if (error && error.code === 1) {
+                            permission = 'denied';
+                        }
+
+                        resolve({
+                            ...base,
+                            location_permission: permission,
+                        });
+                    },
+
+                    {
+                        enableHighAccuracy: highAccuracy,
+                        timeout: geolocationTimeout,
+                        maximumAge: geolocationMaximumAge,
+                    }
+                );
+            });
+        }
+
+
+        /**
+         * Verzamel browsercontext.
+         */
+        async function collectLoginSecurityContext() {
+            const location =
+                await getPreciseLocation();
+
+            return {
+                browser_timezone:
+                    getBrowserTimezone(),
+
+                latitude:
+                    location.latitude,
+
+                longitude:
+                    location.longitude,
+
+                location_accuracy:
+                    location.location_accuracy,
+
+                location_permission:
+                    location.location_permission,
+            };
+        }
+
+
+        /**
+         * Bewaar context tijdelijk in de Laravel-sessie.
+         *
+         * Een storing hier mag de echte login nooit blokkeren.
+         */
+        async function storeLoginSecurityContext() {
+            try {
+                const context =
+                    await collectLoginSecurityContext();
+
+                const response =
+                    await fetch(
+                        securityContextUrl,
+                        {
+                            method: 'POST',
+
+                            credentials: 'same-origin',
+
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+
+                            body: JSON.stringify(context),
+                        }
+                    );
+
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Normale formulieren
+        |--------------------------------------------------------------------------
+        |
+        | Dit geldt voor:
+        |
+        | - wachtwoord-login
+        | - e-mailcode aanvragen
+        | - magic link aanvragen
+        |
+        */
+
+        document
+            .querySelectorAll('form[data-login-security-form]')
+            .forEach(function (form) {
+                form.addEventListener('submit', async function (event) {
+                    if (
+                        form.dataset.loginSecuritySubmitting === '1'
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    form.dataset.loginSecuritySubmitting = '1';
+
+                    try {
+                        await storeLoginSecurityContext();
+                    } finally {
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Altijd doorgaan
+                        |--------------------------------------------------------------------------
+                        |
+                        | De browsercontext is extra beveiligingsinformatie.
+                        | Een storing mag authenticatie niet onmogelijk maken.
+                        |
+                        */
+
+                        HTMLFormElement.prototype.submit.call(form);
+                    }
+                });
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OAuth links
+        |--------------------------------------------------------------------------
+        |
+        | Eerst context opslaan, daarna redirect naar:
+        |
+        | - Google
+        | - GitHub
+        | - Facebook
+        | - TikTok
+        |
+        */
+
+        document
+            .querySelectorAll('a[data-login-security-oauth]')
+            .forEach(function (link) {
+                link.addEventListener('click', async function (event) {
+                    const destination =
+                        link.getAttribute('href');
+
+                    if (!destination) {
+                        return;
+                    }
+
+                    if (
+                        link.dataset.loginSecurityOpening === '1'
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    link.dataset.loginSecurityOpening = '1';
+
+                    try {
+                        await storeLoginSecurityContext();
+                    } finally {
+                        window.location.assign(destination);
+                    }
+                });
+            });
+    });
 </script>
 
 @endpush

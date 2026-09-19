@@ -17,8 +17,54 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [UserController::class, 'home'])
-    ->name('home');
+Route::get(
+    '/',
+    [UserController::class, 'home']
+)->name('home');
+
+
+/*
+|--------------------------------------------------------------------------
+| Login Security Browser Context
+|--------------------------------------------------------------------------
+|
+| Deze route moet bewust BUITEN de "guest" en "auth" middleware-groepen
+| staan.
+|
+| De browser gebruikt deze endpoint vóór de daadwerkelijke login om
+| beveiligingscontext tijdelijk in de Laravel-sessie te bewaren.
+|
+| Mogelijke informatie:
+|
+| - browser timezone
+| - GPS latitude
+| - GPS longitude
+| - GPS accuracy
+| - location permission
+|
+| GPS wordt alleen opgeslagen wanneer de gebruiker in de browser
+| expliciet toestemming heeft gegeven.
+|
+| Deze gegevens kunnen daarna worden gebruikt bij:
+|
+| - wachtwoord-login
+| - e-mailcode
+| - magic link
+| - Google OAuth
+| - GitHub OAuth
+| - Facebook OAuth
+| - TikTok OAuth
+|
+| Omdat dit een web-route is, blijft Laravel CSRF-bescherming actief.
+|
+*/
+
+Route::post(
+    '/login-security/context',
+    [SecurityController::class, 'storeBrowserContext']
+)
+    ->middleware('throttle:30,1')
+    ->name('login-security.context');
 
 
 /*
@@ -27,11 +73,10 @@ Route::get('/', [UserController::class, 'home'])
 |--------------------------------------------------------------------------
 |
 | Deze routes zijn alleen bedoeld voor bezoekers die nog niet zijn
-| ingelogd. Daardoor kan een ingelogde gebruiker niet opnieuw de
-| login-, registratie-, passwordless- of OAuth-flow openen.
+| ingelogd.
 |
-| Als een ingelogde gebruiker bijvoorbeeld /login opent, grijpt de
-| Laravel "guest" middleware in en wordt die gebruiker doorgestuurd.
+| Daardoor kan een ingelogde gebruiker niet opnieuw de login-,
+| registratie-, passwordless- of OAuth-flow openen.
 |
 */
 
@@ -43,11 +88,16 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/register', [UserController::class, 'register'])
-        ->name('register');
+    Route::get(
+        '/register',
+        [UserController::class, 'register']
+    )->name('register');
 
-    Route::post('/register', [UserController::class, 'registerSubmit'])
-        ->name('register.submit');
+
+    Route::post(
+        '/register',
+        [UserController::class, 'registerSubmit']
+    )->name('register.submit');
 
 
     /*
@@ -56,11 +106,16 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/login', [UserController::class, 'login'])
-        ->name('login');
+    Route::get(
+        '/login',
+        [UserController::class, 'login']
+    )->name('login');
 
-    Route::post('/login', [UserController::class, 'loginSubmit'])
-        ->name('login.submit');
+
+    Route::post(
+        '/login',
+        [UserController::class, 'loginSubmit']
+    )->name('login.submit');
 
 
     /*
@@ -68,15 +123,10 @@ Route::middleware('guest')->group(function () {
     | Inloggen met e-mailcode of magic link
     |--------------------------------------------------------------------------
     |
-    | Flow:
-    |
     | De gebruiker kan kiezen uit:
     |
     | - een 6-cijferige e-mailcode;
     | - een eenmalige magic login link via Brevo.
-    |
-    | Beide methodes loggen de gebruiker veilig in zonder dat daarvoor
-    | een wachtwoord nodig is.
     |
     */
 
@@ -117,7 +167,6 @@ Route::middleware('guest')->group(function () {
         |--------------------------------------------------------------------------
         |
         | De gebruiker ontvangt per e-mail een eenmalige loginlink.
-        | Na openen van de geldige link wordt het account direct ingelogd.
         |
         */
 
@@ -135,6 +184,43 @@ Route::middleware('guest')->group(function () {
         )
             ->middleware('throttle:30,1')
             ->name('email-login.link.verify');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic link bevestigingspagina
+        |--------------------------------------------------------------------------
+        |
+        | De token is op dit punt al gecontroleerd door verifyMagicLink().
+        | Deze pagina draait op het apparaat waarop de link werkelijk is
+        | geopend en kan daardoor de browser-timezone en, na toestemming,
+        | de precieze browserlocatie vastleggen.
+        |
+        */
+
+        Route::get(
+            '/link/confirm',
+            [EmailLoginController::class, 'showMagicLinkConfirmation']
+        )
+            ->name('email-login.link.confirm');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Magic link definitief afronden
+        |--------------------------------------------------------------------------
+        |
+        | De bevestigingspagina stuurt deze POST pas nadat de browser-security
+        | context via /login-security/context is opgeslagen.
+        |
+        */
+
+        Route::post(
+            '/link/complete',
+            [EmailLoginController::class, 'completeMagicLink']
+        )
+            ->middleware('throttle:20,1')
+            ->name('email-login.link.complete');
     });
 
 
@@ -142,9 +228,6 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     | Google OAuth
     |--------------------------------------------------------------------------
-    |
-    | Inloggen en registreren via Google met Laravel Socialite.
-    |
     */
 
     Route::get(
@@ -152,6 +235,7 @@ Route::middleware('guest')->group(function () {
         [GoogleAuthController::class, 'redirect']
     )
         ->name('google.redirect');
+
 
     Route::get(
         '/auth/google/callback',
@@ -164,9 +248,6 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     | GitHub OAuth
     |--------------------------------------------------------------------------
-    |
-    | Inloggen en registreren via GitHub met Laravel Socialite.
-    |
     */
 
     Route::get(
@@ -174,6 +255,7 @@ Route::middleware('guest')->group(function () {
         [GitHubAuthController::class, 'redirect']
     )
         ->name('github.redirect');
+
 
     Route::get(
         '/auth/github/callback',
@@ -186,9 +268,6 @@ Route::middleware('guest')->group(function () {
     |--------------------------------------------------------------------------
     | Facebook OAuth
     |--------------------------------------------------------------------------
-    |
-    | Inloggen en registreren via Facebook met Laravel Socialite.
-    |
     */
 
     Route::get(
@@ -196,6 +275,7 @@ Route::middleware('guest')->group(function () {
         [FacebookAuthController::class, 'redirect']
     )
         ->name('facebook.redirect');
+
 
     Route::get(
         '/auth/facebook/callback',
@@ -209,11 +289,10 @@ Route::middleware('guest')->group(function () {
     | TikTok OAuth
     |--------------------------------------------------------------------------
     |
-    | Inloggen en registreren via TikTok Login Kit.
-    |
     | Bestaande TikTok-gebruikers worden direct ingelogd.
-    | Nieuwe TikTok-gebruikers ronden hun Mashal-account eerst af via
-    | het aanvullende registratieformulier.
+    |
+    | Nieuwe TikTok-gebruikers ronden hun Mashal-account eerst af
+    | via het aanvullende registratieformulier.
     |
     */
 
@@ -223,17 +302,20 @@ Route::middleware('guest')->group(function () {
     )
         ->name('tiktok.redirect');
 
+
     Route::get(
         '/auth/tiktok/callback',
         [TikTokAuthController::class, 'callback']
     )
         ->name('tiktok.callback');
 
+
     Route::get(
         '/auth/tiktok/complete',
         [TikTokAuthController::class, 'showCompleteRegistration']
     )
         ->name('tiktok.complete');
+
 
     Route::post(
         '/auth/tiktok/complete',
@@ -478,7 +560,8 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     |
     | Deze routes vereisen minimaal een ingelogde gebruiker.
-    | De UserController moet daarnaast nog steeds controleren
+    |
+    | UserController moet daarnaast zelf blijven controleren
     | of is_admin daadwerkelijk true is.
     |
     */

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\BrevoMailService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,7 +55,7 @@ class GitHubAuthController extends Controller
      * 9. Sessie regenereren.
      * 10. Doorsturen naar het accountdashboard.
      */
-    public function callback(): RedirectResponse
+    public function callback(Request $request): RedirectResponse
     {
         try {
 
@@ -87,6 +88,8 @@ class GitHubAuthController extends Controller
             */
 
             if (!$githubId) {
+                $this->forgetLoginSecurityBrowserContext($request);
+
                 return redirect()
                     ->route('login')
                     ->with(
@@ -109,6 +112,8 @@ class GitHubAuthController extends Controller
             */
 
             if (!$email) {
+                $this->forgetLoginSecurityBrowserContext($request);
+
                 return redirect()
                     ->route('login')
                     ->with(
@@ -193,6 +198,32 @@ class GitHubAuthController extends Controller
                     'email',
                     $email
                 )->first();
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Bestaande GitHub-koppeling beschermen
+            |--------------------------------------------------------------------------
+            |
+            | Als een Mashal-account al aan een ander GitHub-account gekoppeld
+            | is, overschrijven we die koppeling niet automatisch.
+            |
+            */
+
+            if (
+                $user &&
+                filled($user->github_id) &&
+                (string) $user->github_id !== (string) $githubId
+            ) {
+                $this->forgetLoginSecurityBrowserContext($request);
+
+                return redirect()
+                    ->route('login')
+                    ->with(
+                        'error',
+                        'Dit Mashal-account is al gekoppeld aan een ander GitHub-account.'
+                    );
             }
 
 
@@ -308,7 +339,7 @@ class GitHubAuthController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                if ($user->github_id !== $githubId) {
+                if (blank($user->github_id)) {
                     $user->github_id = $githubId;
 
                     $changed = true;
@@ -413,6 +444,21 @@ class GitHubAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
+            | Loginmethode beschikbaar maken voor LoginSecurityService
+            |--------------------------------------------------------------------------
+            |
+            | Laravel vuurt het Login-event af tijdens Auth::login().
+            | Daarom moet de provider vóór Auth::login() op de request staan.
+            |
+            */
+
+            $request->merge([
+                'login_provider' => 'github',
+            ]);
+
+
+            /*
+            |--------------------------------------------------------------------------
             | Gebruiker inloggen
             |--------------------------------------------------------------------------
             */
@@ -433,7 +479,7 @@ class GitHubAuthController extends Controller
             |
             */
 
-            request()
+            $request
                 ->session()
                 ->regenerate();
 
@@ -471,6 +517,10 @@ class GitHubAuthController extends Controller
 
             report($exception);
 
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -486,4 +536,33 @@ class GitHubAuthController extends Controller
                 );
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tijdelijke login-security browsercontext opruimen
+    |--------------------------------------------------------------------------
+    |
+    | Na een succesvolle login ruimt LoginSecurityService deze context op.
+    | Bij een mislukte GitHub-flow verwijderen we hem hier zodat oude
+    | browser- of locatiegegevens niet aan een latere login worden gekoppeld.
+    |
+    */
+
+    private function forgetLoginSecurityBrowserContext(
+        Request $request
+    ): void {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $request->session()->forget([
+            'login_security.browser_timezone',
+            'login_security.latitude',
+            'login_security.longitude',
+            'login_security.location_accuracy',
+            'login_security.location_permission',
+            'login_security.context_captured_at',
+        ]);
+    }
+
 }

@@ -7,120 +7,211 @@ return [
     | Application Name
     |--------------------------------------------------------------------------
     |
-    | This value is the name of your application, which will be used when the
-    | framework needs to place the application's name in a notification or
-    | other UI elements where an application name needs to be displayed.
+    | De naam van de applicatie.
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env(
+        'APP_NAME',
+        'Mashal Automotive'
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
-    | This value determines the "environment" your application is currently
-    | running in. This may determine how you prefer to configure various
-    | services the application utilizes. Set this in your ".env" file.
+    | Bijvoorbeeld:
+    |
+    | production
+    | local
+    | staging
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env(
+        'APP_ENV',
+        'production'
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     |
-    | When your application is in debug mode, detailed error messages with
-    | stack traces will be shown on every error that occurs within your
-    | application. If disabled, a simple generic error page is shown.
+    | Op productie hoort APP_DEBUG=false te staan.
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool) env(
+        'APP_DEBUG',
+        false
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
-    | This URL is used by the console to properly generate URLs when using
-    | the Artisan command line tool. You should set this to the root of
-    | the application so that it's available within Artisan commands.
+    | Op Railway bijvoorbeeld:
+    |
+    | https://mashalhussain.up.railway.app
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env(
+        'APP_URL',
+        'http://localhost'
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
-    | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | Mashal Automotive gebruikt standaard Nederlandse tijd.
+    |
+    | Europe/Amsterdam regelt automatisch:
+    |
+    | - CET in de winter
+    | - CEST in de zomer
+    | - zomer-/wintertijd
+    |
+    | In Railway kun je optioneel instellen:
+    |
+    | APP_TIMEZONE=Europe/Amsterdam
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env(
+        'APP_TIMEZONE',
+        'Europe/Amsterdam'
+    ),
+
 
     /*
     |--------------------------------------------------------------------------
-    | Application Locale Configuration
+    | Application Locale
     |--------------------------------------------------------------------------
     |
-    | The application locale determines the default locale that will be used
-    | by Laravel's translation / localization methods. This option can be
-    | set to any locale for which you plan to have translation strings.
+    | De standaardtaal van de applicatie.
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env(
+        'APP_LOCALE',
+        'nl'
+    ),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    /*
+    |--------------------------------------------------------------------------
+    | Fallback Locale
+    |--------------------------------------------------------------------------
+    |
+    | Als een Nederlandse vertaling ontbreekt,
+    | kan Laravel terugvallen op Engels.
+    |
+    */
+
+    'fallback_locale' => env(
+        'APP_FALLBACK_LOCALE',
+        'en'
+    ),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | Gebruikt voor testdata / factories.
+    |
+    */
+
+    'faker_locale' => env(
+        'APP_FAKER_LOCALE',
+        'nl_NL'
+    ),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Cipher
+    |--------------------------------------------------------------------------
+    */
+
+    'cipher' => 'AES-256-CBC',
+
 
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
-    | This key is utilized by Laravel's encryption services and should be set
-    | to a random, 32 character string to ensure that all encrypted values
-    | are secure. You should do this prior to deploying the application.
+    | Deze waarde komt uit APP_KEY.
+    |
+    | Deel APP_KEY nooit openbaar.
     |
     */
 
-    'cipher' => 'AES-256-CBC',
+    'key' => env(
+        'APP_KEY'
+    ),
 
-    'key' => env('APP_KEY'),
-
-    'previous_keys' => [
-        ...array_filter(
-            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
-        ),
-    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Maintenance Mode Driver
+    | Previous Encryption Keys
     |--------------------------------------------------------------------------
     |
-    | These configuration options determine the driver used to determine and
-    | manage Laravel's "maintenance mode" status. The "cache" driver will
-    | allow maintenance mode to be controlled across multiple machines.
+    | Hiermee kan Laravel oude versleutelde data blijven lezen
+    | nadat APP_KEY ooit is gewijzigd.
     |
-    | Supported drivers: "file", "cache", "array"
+    */
+
+    'previous_keys' => [
+        ...array_filter(
+            explode(
+                ',',
+                (string) env(
+                    'APP_PREVIOUS_KEYS',
+                    ''
+                )
+            )
+        ),
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance Mode
+    |--------------------------------------------------------------------------
+    |
+    | Mogelijke drivers:
+    |
+    | file
+    | cache
+    | array
     |
     */
 
     'maintenance' => [
-        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
-        'store' => env('APP_MAINTENANCE_STORE', 'database'),
+
+        'driver' => env(
+            'APP_MAINTENANCE_DRIVER',
+            'file'
+        ),
+
+        'store' => env(
+            'APP_MAINTENANCE_STORE',
+            'database'
+        ),
+
     ],
 
 ];

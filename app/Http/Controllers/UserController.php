@@ -123,6 +123,9 @@ class UserController extends Controller
                 'min:8',
                 'confirmed',
             ],
+            'terms' => [
+                'accepted',
+            ],
         ]);
 
         $user = User::create([
@@ -139,6 +142,21 @@ class UserController extends Controller
         $emailSent = $this->sendVerificationEmail(
             $user,
             'Je verificatiecode voor SmartDesk'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tijdelijke login-security context opruimen
+        |--------------------------------------------------------------------------
+        |
+        | Registratie logt de gebruiker in deze controller niet automatisch in.
+        | De browsercontext die vóór registratie is opgeslagen mag daarom niet
+        | later per ongeluk aan een andere login worden gekoppeld.
+        |
+        */
+
+        $this->forgetLoginSecurityBrowserContext(
+            $request
         );
 
         if (! $emailSent) {
@@ -187,6 +205,21 @@ class UserController extends Controller
         );
 
         $remember = $request->boolean('remember');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Loginmethode vóór Auth::attempt beschikbaar maken
+        |--------------------------------------------------------------------------
+        |
+        | Laravel vuurt het Login-event tijdens Auth::attempt af.
+        | Door de provider vooraf op de request te zetten kan de
+        | LoginSecurityService direct zien dat dit een wachtwoordlogin is.
+        |
+        */
+
+        $request->merge([
+            'login_provider' => 'password',
+        ]);
 
         if (! Auth::attempt($credentials, $remember)) {
             return back()
@@ -1766,6 +1799,35 @@ class UserController extends Controller
     | Helpers
     |--------------------------------------------------------------------------
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tijdelijke login-security browsercontext opruimen
+    |--------------------------------------------------------------------------
+    |
+    | Dezelfde sessiesleutels worden gebruikt door SecurityController en
+    | LoginSecurityService. Registratie zelf is geen login, dus na een
+    | succesvolle registratie moet deze tijdelijke context worden verwijderd.
+    |
+    */
+
+    private function forgetLoginSecurityBrowserContext(
+        Request $request
+    ): void {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $request->session()->forget([
+            'login_security.browser_timezone',
+            'login_security.latitude',
+            'login_security.longitude',
+            'login_security.location_accuracy',
+            'login_security.location_permission',
+            'login_security.context_captured_at',
+        ]);
+    }
+
 
     /*
     |--------------------------------------------------------------------------

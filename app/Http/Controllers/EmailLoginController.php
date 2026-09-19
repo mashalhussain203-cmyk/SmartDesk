@@ -56,14 +56,9 @@ class EmailLoginController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function sendCode(Request $request): RedirectResponse
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Invoer valideren
-        |--------------------------------------------------------------------------
-        */
-
+    public function sendCode(
+        Request $request
+    ): RedirectResponse {
         $validated = $request->validate([
             'email' => [
                 'required',
@@ -73,21 +68,9 @@ class EmailLoginController extends Controller
             ],
         ]);
 
-        $email = strtolower(
-            trim(
-                (string) $validated['email']
-            )
+        $email = $this->normalizeEmail(
+            $validated['email']
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Rate limiting
-        |--------------------------------------------------------------------------
-        |
-        | Voorkomt dat iemand onbeperkt e-mails kan laten versturen.
-        |
-        */
 
         $rateLimitKey = $this->sendRateLimitKey(
             $request,
@@ -119,28 +102,25 @@ class EmailLoginController extends Controller
             60
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Oude codes opruimen
+        | Oude ongebruikte codes verwijderen
         |--------------------------------------------------------------------------
-        |
-        | Zodra een nieuwe code wordt aangevraagd worden eerdere ongebruikte
-        | codes voor hetzelfde e-mailadres verwijderd.
-        |
         */
 
-        EmailLoginCode::where(
-            'email',
-            $email
-        )
-            ->whereNull('used_at')
+        EmailLoginCode::query()
+            ->where(
+                'email',
+                $email
+            )
+            ->whereNull(
+                'used_at'
+            )
             ->delete();
-
 
         /*
         |--------------------------------------------------------------------------
-        | Nieuwe 6-cijferige code genereren
+        | Nieuwe code genereren en veilig opslaan
         |--------------------------------------------------------------------------
         */
 
@@ -148,16 +128,6 @@ class EmailLoginController extends Controller
             100000,
             999999
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Code veilig opslaan
-        |--------------------------------------------------------------------------
-        |
-        | De echte code wordt nooit leesbaar in de database opgeslagen.
-        |
-        */
 
         $loginCode = EmailLoginCode::create([
             'email' => $email,
@@ -175,10 +145,9 @@ class EmailLoginController extends Controller
             'used_at' => null,
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | Code versturen via Brevo
+        | Code via Brevo versturen
         |--------------------------------------------------------------------------
         */
 
@@ -198,20 +167,17 @@ class EmailLoginController extends Controller
                 ]
             );
         } catch (Throwable $exception) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Code verwijderen wanneer e-mail verzenden mislukt
-            |--------------------------------------------------------------------------
-            */
-
             try {
                 $loginCode->delete();
             } catch (Throwable $deleteException) {
-                report($deleteException);
+                report(
+                    $deleteException
+                );
             }
 
-            report($exception);
+            report(
+                $exception
+            );
 
             return back()
                 ->withInput()
@@ -221,14 +187,10 @@ class EmailLoginController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | E-mailadres tijdelijk in sessie bewaren
+        | E-mailadres tijdelijk bewaren
         |--------------------------------------------------------------------------
-        |
-        | Hierdoor kunnen we het verificatieformulier automatisch invullen.
-        |
         */
 
         $request->session()->put(
@@ -236,15 +198,10 @@ class EmailLoginController extends Controller
             $email
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Naar verificatiepagina
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
-            ->route('email-login.form')
+            ->route(
+                'email-login.form'
+            )
             ->with(
                 'success',
                 'We hebben een 6-cijferige inlogcode naar je e-mailadres gestuurd. De code is ' .
@@ -260,23 +217,23 @@ class EmailLoginController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function showVerifyForm(Request $request): View
-    {
-        $email = strtolower(
-            trim(
-                (string) $request
-                    ->session()
-                    ->get(
-                        'email_login_email',
-                        ''
-                    )
-            )
+    public function showVerifyForm(
+        Request $request
+    ): View {
+        $email = $this->normalizeEmail(
+            $request
+                ->session()
+                ->get(
+                    'email_login_email',
+                    ''
+                )
         );
 
         return view(
             'auth.email-login',
             [
-                'email' => $email,
+                'email' =>
+                    $email,
 
                 'expiresInMinutes' =>
                     self::CODE_EXPIRES_MINUTES,
@@ -291,14 +248,9 @@ class EmailLoginController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function verifyCode(Request $request): RedirectResponse
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Invoer valideren
-        |--------------------------------------------------------------------------
-        */
-
+    public function verifyCode(
+        Request $request
+    ): RedirectResponse {
         $validated = $request->validate([
             'email' => [
                 'required',
@@ -313,20 +265,17 @@ class EmailLoginController extends Controller
             ],
         ]);
 
-        $email = strtolower(
-            trim(
-                (string) $validated['email']
-            )
+        $email = $this->normalizeEmail(
+            $validated['email']
         );
 
         $code = trim(
             (string) $validated['code']
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Rate limiting verificatie
+        | Rate limiting
         |--------------------------------------------------------------------------
         */
 
@@ -356,27 +305,24 @@ class EmailLoginController extends Controller
             300
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Laatste ongebruikte code zoeken
+        | Laatste actieve code zoeken
         |--------------------------------------------------------------------------
         */
 
-        $loginCode = EmailLoginCode::where(
-            'email',
-            $email
-        )
-            ->whereNull('used_at')
-            ->latest('id')
+        $loginCode = EmailLoginCode::query()
+            ->where(
+                'email',
+                $email
+            )
+            ->whereNull(
+                'used_at'
+            )
+            ->latest(
+                'id'
+            )
             ->first();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Code bestaat niet
-        |--------------------------------------------------------------------------
-        */
 
         if (! $loginCode) {
             return back()
@@ -389,10 +335,9 @@ class EmailLoginController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Vervaldatum controleren
+        | Vervaldatum
         |--------------------------------------------------------------------------
         */
 
@@ -412,15 +357,14 @@ class EmailLoginController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Maximum verkeerde pogingen controleren
+        | Pogingen
         |--------------------------------------------------------------------------
         */
 
         if (
-            $loginCode->attempts >=
+            (int) $loginCode->attempts >=
             self::MAX_CODE_ATTEMPTS
         ) {
             return back()
@@ -433,7 +377,6 @@ class EmailLoginController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Code controleren
@@ -443,14 +386,18 @@ class EmailLoginController extends Controller
         if (
             ! Hash::check(
                 $code,
-                $loginCode->code_hash
+                (string) $loginCode->code_hash
             )
         ) {
             $loginCode->registerFailedAttempt();
 
-            $remainingAttempts =
+            $loginCode->refresh();
+
+            $remainingAttempts = max(
+                0,
                 self::MAX_CODE_ATTEMPTS -
-                $loginCode->attempts;
+                (int) $loginCode->attempts
+            );
 
             if ($remainingAttempts <= 0) {
                 return back()
@@ -477,40 +424,26 @@ class EmailLoginController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Code direct als gebruikt markeren
+        | Code meteen als gebruikt markeren
         |--------------------------------------------------------------------------
-        |
-        | Hierdoor kan dezelfde code niet opnieuw worden gebruikt.
-        |
         */
 
         $loginCode->markAsUsed();
 
-
         /*
         |--------------------------------------------------------------------------
-        | Gebruiker zoeken
+        | Gebruiker zoeken of aanmaken
         |--------------------------------------------------------------------------
         */
 
-        $user = User::where(
-            'email',
-            $email
-        )->first();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe gebruiker
-        |--------------------------------------------------------------------------
-        |
-        | Het bezit van het e-mailadres is nu bevestigd door de juiste code.
-        | Daarom kan het e-mailadres direct als geverifieerd worden gemarkeerd.
-        |
-        */
+        $user = User::query()
+            ->where(
+                'email',
+                $email
+            )
+            ->first();
 
         if (! $user) {
             $user = $this->createUser(
@@ -518,23 +451,14 @@ class EmailLoginController extends Controller
                 'email_code'
             );
         } else {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Bestaande gebruiker bijwerken
-            |--------------------------------------------------------------------------
-            |
-            | Een succesvolle e-mailcode bevestigt het e-mailadres en registreert
-            | meteen dat de laatste login via e-mailcode plaatsvond.
-            |
-            */
-
             $changes = [
-                'login_provider' => 'email_code',
+                'login_provider' =>
+                    'email_code',
             ];
 
             if (! $user->email_verified_at) {
-                $changes['email_verified_at'] = now();
+                $changes['email_verified_at'] =
+                    now();
             }
 
             $user->forceFill(
@@ -542,11 +466,30 @@ class EmailLoginController extends Controller
             )->save();
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Login-provider expliciet op huidige request zetten
+        |--------------------------------------------------------------------------
+        |
+        | De LoginSecurityService kan dit gebruiken wanneer het Login-event
+        | wordt afgevuurd.
+        |
+        */
+
+        $request->merge([
+            'login_provider' =>
+                'email_code',
+        ]);
 
         /*
         |--------------------------------------------------------------------------
         | Gebruiker inloggen
         |--------------------------------------------------------------------------
+        |
+        | Auth::login vuurt Laravel's Login-event af. De security-listener
+        | leest op dat moment de browser-context die door de verificatiepagina
+        | in de sessie is opgeslagen.
+        |
         */
 
         Auth::login(
@@ -554,10 +497,9 @@ class EmailLoginController extends Controller
             true
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Session-ID vernieuwen
+        | Sessiebeveiliging
         |--------------------------------------------------------------------------
         */
 
@@ -565,19 +507,11 @@ class EmailLoginController extends Controller
             ->session()
             ->regenerate();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijke login-sessie opruimen
-        |--------------------------------------------------------------------------
-        */
-
         $request
             ->session()
             ->forget(
                 'email_login_email'
             );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -596,29 +530,26 @@ class EmailLoginController extends Controller
             )
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Andere ongebruikte codes verwijderen
         |--------------------------------------------------------------------------
         */
 
-        EmailLoginCode::where(
-            'email',
-            $email
-        )
-            ->whereNull('used_at')
+        EmailLoginCode::query()
+            ->where(
+                'email',
+                $email
+            )
+            ->whereNull(
+                'used_at'
+            )
             ->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Naar accountpagina
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
-            ->route('account')
+            ->route(
+                'account'
+            )
             ->with(
                 'success',
                 'Je bent succesvol ingelogd met je e-mailcode.'
@@ -632,14 +563,9 @@ class EmailLoginController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function sendMagicLink(Request $request): RedirectResponse
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Invoer valideren
-        |--------------------------------------------------------------------------
-        */
-
+    public function sendMagicLink(
+        Request $request
+    ): RedirectResponse {
         $validated = $request->validate([
             'email' => [
                 'required',
@@ -649,18 +575,9 @@ class EmailLoginController extends Controller
             ],
         ]);
 
-        $email = strtolower(
-            trim(
-                (string) $validated['email']
-            )
+        $email = $this->normalizeEmail(
+            $validated['email']
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Rate limiting
-        |--------------------------------------------------------------------------
-        */
 
         $rateLimitKey = $this->magicLinkSendRateLimitKey(
             $request,
@@ -694,7 +611,6 @@ class EmailLoginController extends Controller
             60
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Oude ongebruikte links verwijderen
@@ -705,19 +621,19 @@ class EmailLoginController extends Controller
             $email
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Veilige token genereren
         |--------------------------------------------------------------------------
         |
-        | Alleen de SHA-256 hash wordt in de database opgeslagen.
-        | De echte token bestaat uitsluitend in de e-mail-URL.
+        | Alleen de SHA-256 hash wordt opgeslagen.
         |
         */
 
         $token = bin2hex(
-            random_bytes(32)
+            random_bytes(
+                32
+            )
         );
 
         $tokenHash = hash(
@@ -725,40 +641,33 @@ class EmailLoginController extends Controller
             $token
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Magic link opslaan
-        |--------------------------------------------------------------------------
-        */
-
         $loginLink = EmailLoginLink::create([
-            'email' => $email,
-            'token_hash' => $tokenHash,
-            'expires_at' => now()->addMinutes(
-                self::MAGIC_LINK_EXPIRES_MINUTES
-            ),
-            'used_at' => null,
+            'email' =>
+                $email,
+
+            'token_hash' =>
+                $tokenHash,
+
+            'expires_at' =>
+                now()->addMinutes(
+                    self::MAGIC_LINK_EXPIRES_MINUTES
+                ),
+
+            'used_at' =>
+                null,
         ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Veilige URL maken
-        |--------------------------------------------------------------------------
-        */
 
         $magicLinkUrl = route(
             'email-login.link.verify',
             [
-                'token' => $token,
+                'token' =>
+                    $token,
             ]
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Magic link versturen via Brevo
+        | Magic link versturen
         |--------------------------------------------------------------------------
         */
 
@@ -769,27 +678,28 @@ class EmailLoginController extends Controller
                 'Je veilige loginlink voor Mashal Automotive',
                 'emails.magic-login-link',
                 [
-                    'email' => $email,
-                    'magicLinkUrl' => $magicLinkUrl,
+                    'email' =>
+                        $email,
+
+                    'magicLinkUrl' =>
+                        $magicLinkUrl,
+
                     'expiresInMinutes' =>
                         self::MAGIC_LINK_EXPIRES_MINUTES,
                 ]
             );
         } catch (Throwable $exception) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Link verwijderen wanneer e-mail verzenden mislukt
-            |--------------------------------------------------------------------------
-            */
-
             try {
                 $loginLink->delete();
             } catch (Throwable $deleteException) {
-                report($deleteException);
+                report(
+                    $deleteException
+                );
             }
 
-            report($exception);
+            report(
+                $exception
+            );
 
             return back()
                 ->withInput([
@@ -800,13 +710,6 @@ class EmailLoginController extends Controller
                     'De loginlink kon niet worden verzonden. Probeer het later opnieuw.'
                 );
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Succesmelding
-        |--------------------------------------------------------------------------
-        */
 
         return back()
             ->withInput([
@@ -823,18 +726,27 @@ class EmailLoginController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Magic login link controleren
+    | Magic link: token controleren
     |--------------------------------------------------------------------------
+    |
+    | BELANGRIJK:
+    |
+    | We loggen hier bewust nog NIET direct in.
+    |
+    | Eerst wordt de token gecontroleerd en tijdelijk aan de huidige
+    | browsersessie gekoppeld. Daarna gaat de gebruiker naar een korte
+    | bevestigingspagina waarop browser-timezone en, na toestemming,
+    | GPS-locatie kunnen worden opgeslagen.
+    |
+    | Daardoor registreren we het apparaat waarop de magic link werkelijk
+    | wordt geopend, ook wanneer dat een ander apparaat is dan waarop de
+    | loginlink oorspronkelijk werd aangevraagd.
+    |
     */
 
-    public function verifyMagicLink(Request $request): RedirectResponse
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Token valideren
-        |--------------------------------------------------------------------------
-        */
-
+    public function verifyMagicLink(
+        Request $request
+    ): RedirectResponse {
         $validated = $request->validate([
             'token' => [
                 'required',
@@ -847,16 +759,10 @@ class EmailLoginController extends Controller
             (string) $validated['token']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Algemene verificatie-rate-limit
-        |--------------------------------------------------------------------------
-        */
-
-        $rateLimitKey = $this->magicLinkVerifyRateLimitKey(
-            $request
-        );
+        $rateLimitKey =
+            $this->magicLinkVerifyRateLimitKey(
+                $request
+            );
 
         if (
             RateLimiter::tooManyAttempts(
@@ -865,7 +771,9 @@ class EmailLoginController extends Controller
             )
         ) {
             return redirect()
-                ->route('login')
+                ->route(
+                    'login'
+                )
                 ->with(
                     'error',
                     'Te veel loginlink-pogingen. Probeer het later opnieuw.'
@@ -876,13 +784,6 @@ class EmailLoginController extends Controller
             $rateLimitKey,
             300
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Token hashen en link zoeken
-        |--------------------------------------------------------------------------
-        */
 
         $tokenHash = hash(
             'sha256',
@@ -896,78 +797,267 @@ class EmailLoginController extends Controller
             )
             ->first();
 
+        $invalidResponse =
+            $this->validateMagicLinkForUse(
+                $loginLink
+            );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Link bestaat niet
-        |--------------------------------------------------------------------------
-        */
+        if ($invalidResponse !== null) {
+            $this->clearPendingMagicLink(
+                $request
+            );
 
-        if (! $loginLink) {
             return redirect()
-                ->route('login')
+                ->route(
+                    'login'
+                )
                 ->with(
                     'error',
-                    'Deze loginlink is ongeldig. Vraag een nieuwe loginlink aan.'
+                    $invalidResponse
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Link al gebruikt
-        |--------------------------------------------------------------------------
-        */
-
-        if ($loginLink->isUsed()) {
-            return redirect()
-                ->route('login')
-                ->with(
-                    'error',
-                    'Deze loginlink is al gebruikt. Vraag een nieuwe loginlink aan.'
-                );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Link verlopen
-        |--------------------------------------------------------------------------
-        */
-
-        if ($loginLink->isExpired()) {
-            $loginLink->delete();
-
-            return redirect()
-                ->route('login')
-                ->with(
-                    'error',
-                    'Deze loginlink is verlopen. Vraag een nieuwe loginlink aan.'
-                );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | E-mailadres uit link
-        |--------------------------------------------------------------------------
-        */
-
-        $email = strtolower(
-            trim(
-                (string) $loginLink->email
-            )
+        $email = $this->normalizeEmail(
+            $loginLink->email
         );
 
         if ($email === '') {
+            $this->clearPendingMagicLink(
+                $request
+            );
+
             return redirect()
-                ->route('login')
+                ->route(
+                    'login'
+                )
                 ->with(
                     'error',
                     'Deze loginlink bevat geen geldig e-mailadres.'
                 );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Token-hash veilig in huidige sessie bewaren
+        |--------------------------------------------------------------------------
+        |
+        | De echte token hoeft na dit punt niet meer in een formulier of URL
+        | te worden meegestuurd.
+        |
+        */
+
+        $request->session()->put([
+            'email_magic_login.token_hash' =>
+                $tokenHash,
+
+            'email_magic_login.email' =>
+                $email,
+
+            'email_magic_login.started_at' =>
+                now()->toIso8601String(),
+        ]);
+
+        return redirect()
+            ->route(
+                'email-login.link.confirm'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic link: bevestigingspagina tonen
+    |--------------------------------------------------------------------------
+    */
+
+    public function showMagicLinkConfirmation(
+        Request $request
+    ): View|RedirectResponse {
+        $tokenHash = trim(
+            (string) $request
+                ->session()
+                ->get(
+                    'email_magic_login.token_hash',
+                    ''
+                )
+        );
+
+        if ($tokenHash === '') {
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    'Er is geen actieve loginlink-sessie gevonden. Open de loginlink opnieuw vanuit je e-mail.'
+                );
+        }
+
+        $loginLink = EmailLoginLink::query()
+            ->where(
+                'token_hash',
+                $tokenHash
+            )
+            ->first();
+
+        $invalidResponse =
+            $this->validateMagicLinkForUse(
+                $loginLink
+            );
+
+        if ($invalidResponse !== null) {
+            $this->clearPendingMagicLink(
+                $request
+            );
+
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    $invalidResponse
+                );
+        }
+
+        $email = $this->normalizeEmail(
+            $loginLink->email
+        );
+
+        return view(
+            'auth.magic-link-confirm',
+            [
+                'email' =>
+                    $email,
+
+                'maskedEmail' =>
+                    $this->maskEmail(
+                        $email
+                    ),
+
+                'expiresInMinutes' =>
+                    self::MAGIC_LINK_EXPIRES_MINUTES,
+            ]
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic link: definitief inloggen
+    |--------------------------------------------------------------------------
+    |
+    | De browser heeft vóór deze POST de login-security-context opgeslagen
+    | via /login-security/context.
+    |
+    */
+
+    public function completeMagicLink(
+        Request $request
+    ): RedirectResponse {
+        $request->validate([
+            'login_provider' => [
+                'nullable',
+                'string',
+                'in:magic_link',
+            ],
+        ]);
+
+        $tokenHash = trim(
+            (string) $request
+                ->session()
+                ->get(
+                    'email_magic_login.token_hash',
+                    ''
+                )
+        );
+
+        if ($tokenHash === '') {
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    'Je loginlink-sessie is verlopen. Open de loginlink opnieuw vanuit je e-mail.'
+                );
+        }
+
+        $rateLimitKey =
+            $this->magicLinkVerifyRateLimitKey(
+                $request
+            );
+
+        if (
+            RateLimiter::tooManyAttempts(
+                $rateLimitKey,
+                self::MAX_MAGIC_LINK_VERIFY_ATTEMPTS
+            )
+        ) {
+            $this->clearPendingMagicLink(
+                $request
+            );
+
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    'Te veel loginlink-pogingen. Probeer het later opnieuw.'
+                );
+        }
+
+        RateLimiter::hit(
+            $rateLimitKey,
+            300
+        );
+
+        $loginLink = EmailLoginLink::query()
+            ->where(
+                'token_hash',
+                $tokenHash
+            )
+            ->first();
+
+        $invalidResponse =
+            $this->validateMagicLinkForUse(
+                $loginLink
+            );
+
+        if ($invalidResponse !== null) {
+            $this->clearPendingMagicLink(
+                $request
+            );
+
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    $invalidResponse
+                );
+        }
+
+        $email = $this->normalizeEmail(
+            $loginLink->email
+        );
+
+        if ($email === '') {
+            $this->clearPendingMagicLink(
+                $request
+            );
+
+            return redirect()
+                ->route(
+                    'login'
+                )
+                ->with(
+                    'error',
+                    'Deze loginlink bevat geen geldig e-mailadres.'
+                );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -975,10 +1065,12 @@ class EmailLoginController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $user = User::where(
-            'email',
-            $email
-        )->first();
+        $user = User::query()
+            ->where(
+                'email',
+                $email
+            )
+            ->first();
 
         if (! $user) {
             $user = $this->createUser(
@@ -987,11 +1079,13 @@ class EmailLoginController extends Controller
             );
         } else {
             $changes = [
-                'login_provider' => 'magic_link',
+                'login_provider' =>
+                    'magic_link',
             ];
 
             if (! $user->email_verified_at) {
-                $changes['email_verified_at'] = now();
+                $changes['email_verified_at'] =
+                    now();
             }
 
             $user->forceFill(
@@ -999,20 +1093,35 @@ class EmailLoginController extends Controller
             )->save();
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Link als gebruikt markeren
+        | Link vóór de login als gebruikt markeren
         |--------------------------------------------------------------------------
         */
 
         $loginLink->markAsUsed();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Provider expliciet beschikbaar maken voor LoginSecurityService
+        |--------------------------------------------------------------------------
+        */
+
+        $request->merge([
+            'login_provider' =>
+                'magic_link',
+        ]);
 
         /*
         |--------------------------------------------------------------------------
         | Gebruiker inloggen
         |--------------------------------------------------------------------------
+        |
+        | Op dit moment wordt Laravel's Login-event afgevuurd.
+        |
+        | De LoginSecurityService kan nu de browsercontext lezen die op de
+        | bevestigingspagina is opgeslagen.
+        |
         */
 
         Auth::login(
@@ -1020,22 +1129,31 @@ class EmailLoginController extends Controller
             true
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Sessie vernieuwen en tijdelijke data opruimen
+        |--------------------------------------------------------------------------
+        */
+
         $request
             ->session()
             ->regenerate();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Oude tijdelijke authenticatiegegevens opruimen
-        |--------------------------------------------------------------------------
-        */
 
         $request
             ->session()
             ->forget(
                 'email_login_email'
             );
+
+        $this->clearPendingMagicLink(
+            $request
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rate limits opruimen
+        |--------------------------------------------------------------------------
+        */
 
         RateLimiter::clear(
             $rateLimitKey
@@ -1048,7 +1166,6 @@ class EmailLoginController extends Controller
             )
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Andere ongebruikte magic links verwijderen
@@ -1059,19 +1176,68 @@ class EmailLoginController extends Controller
             $email
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Naar accountpagina
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
-            ->route('account')
+            ->route(
+                'account'
+            )
             ->with(
                 'success',
                 'Je bent succesvol ingelogd via je veilige loginlink.'
             );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic link veilig controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function validateMagicLinkForUse(
+        ?EmailLoginLink $loginLink
+    ): ?string {
+        if (! $loginLink) {
+            return 'Deze loginlink is ongeldig. Vraag een nieuwe loginlink aan.';
+        }
+
+        if ($loginLink->isUsed()) {
+            return 'Deze loginlink is al gebruikt. Vraag een nieuwe loginlink aan.';
+        }
+
+        if ($loginLink->isExpired()) {
+            try {
+                $loginLink->delete();
+            } catch (Throwable $exception) {
+                report(
+                    $exception
+                );
+            }
+
+            return 'Deze loginlink is verlopen. Vraag een nieuwe loginlink aan.';
+        }
+
+        return null;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tijdelijke magic-link sessie opruimen
+    |--------------------------------------------------------------------------
+    */
+
+    private function clearPendingMagicLink(
+        Request $request
+    ): void {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $request->session()->forget([
+            'email_magic_login.token_hash',
+            'email_magic_login.email',
+            'email_magic_login.started_at',
+        ]);
     }
 
 
@@ -1084,31 +1250,13 @@ class EmailLoginController extends Controller
     private function createUser(
         string $email,
         string $loginProvider = 'email_code'
-    ): User
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Naam uit e-mailadres halen
-        |--------------------------------------------------------------------------
-        */
-
+    ): User {
         $emailName = trim(
             Str::before(
                 $email,
                 '@'
             )
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Leesbaardere naam maken
-        |--------------------------------------------------------------------------
-        |
-        | Voorbeeld:
-        |
-        | mashal.hussain -> Mashal Hussain
-        |
-        */
 
         $displayName = Str::of(
             $emailName
@@ -1126,41 +1274,119 @@ class EmailLoginController extends Controller
             ->toString();
 
         if ($displayName === '') {
-            $displayName = 'Mashal gebruiker';
+            $displayName =
+                'Mashal gebruiker';
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Account aanmaken
-        |--------------------------------------------------------------------------
-        */
-
         return User::create([
-            'name' => $displayName,
+            'name' =>
+                $displayName,
 
-            'email' => $email,
+            'email' =>
+                $email,
 
             /*
             |--------------------------------------------------------------------------
             | Willekeurig intern wachtwoord
             |--------------------------------------------------------------------------
             |
-            | De gebruiker hoeft dit wachtwoord niet te kennen omdat hij
-            | via de e-mailcode inlogt.
+            | Passwordless-gebruikers hoeven dit wachtwoord niet te kennen.
             |
             */
 
-            'password' => Hash::make(
-                Str::random(64)
-            ),
+            'password' =>
+                Hash::make(
+                    Str::random(
+                        64
+                    )
+                ),
 
-            'email_verified_at' => now(),
+            'email_verified_at' =>
+                now(),
 
-            'login_provider' => $loginProvider,
+            'login_provider' =>
+                $loginProvider,
 
-            'is_admin' => false,
+            'is_admin' =>
+                false,
         ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | E-mailadres normaliseren
+    |--------------------------------------------------------------------------
+    */
+
+    private function normalizeEmail(
+        mixed $email
+    ): string {
+        if (! is_scalar($email)) {
+            return '';
+        }
+
+        return strtolower(
+            trim(
+                (string) $email
+            )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | E-mailadres maskeren
+    |--------------------------------------------------------------------------
+    |
+    | Voorbeeld:
+    |
+    | mashal@example.com -> m*****@example.com
+    |
+    */
+
+    private function maskEmail(
+        string $email
+    ): string {
+        if (
+            $email === '' ||
+            ! str_contains(
+                $email,
+                '@'
+            )
+        ) {
+            return $email;
+        }
+
+        [$localPart, $domain] =
+            explode(
+                '@',
+                $email,
+                2
+            );
+
+        $firstCharacter =
+            Str::substr(
+                $localPart,
+                0,
+                1
+            );
+
+        $maskedLength = max(
+            3,
+            Str::length(
+                $localPart
+            ) - 1
+        );
+
+        return
+            $firstCharacter .
+            str_repeat(
+                '*',
+                $maskedLength
+            ) .
+            '@' .
+            $domain;
     }
 
 
@@ -1174,9 +1400,10 @@ class EmailLoginController extends Controller
         Request $request,
         string $email
     ): string {
-        return 'email-login-send:' .
+        return
+            'email-login-send:' .
             sha1(
-                $request->ip() .
+                (string) $request->ip() .
                 '|' .
                 $email
             );
@@ -1193,9 +1420,10 @@ class EmailLoginController extends Controller
         Request $request,
         string $email
     ): string {
-        return 'email-login-verify:' .
+        return
+            'email-login-verify:' .
             sha1(
-                $request->ip() .
+                (string) $request->ip() .
                 '|' .
                 $email
             );
@@ -1212,9 +1440,10 @@ class EmailLoginController extends Controller
         Request $request,
         string $email
     ): string {
-        return 'email-magic-link-send:' .
+        return
+            'email-magic-link-send:' .
             sha1(
-                $request->ip() .
+                (string) $request->ip() .
                 '|' .
                 $email
             );
@@ -1230,7 +1459,8 @@ class EmailLoginController extends Controller
     private function magicLinkVerifyRateLimitKey(
         Request $request
     ): string {
-        return 'email-magic-link-verify:' .
+        return
+            'email-magic-link-verify:' .
             sha1(
                 (string) $request->ip()
             );

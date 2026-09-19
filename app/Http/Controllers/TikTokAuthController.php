@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -36,6 +37,10 @@ class TikTokAuthController extends Controller
             $avatar = trim((string) $tiktokUser->getAvatar());
 
             if ($tiktokId === '') {
+                $this->forgetLoginSecurityBrowserContext(
+                    $request
+                );
+
                 return redirect()
                     ->route('login')
                     ->withErrors([
@@ -63,7 +68,25 @@ class TikTokAuthController extends Controller
 
                 $user->save();
 
-                Auth::login($user, true);
+                /*
+                |--------------------------------------------------------------------------
+                | Loginmethode vóór Auth::login beschikbaar maken
+                |--------------------------------------------------------------------------
+                |
+                | Laravel vuurt het Login-event tijdens Auth::login() af.
+                | De LoginSecurityService kan hierdoor direct zien dat deze
+                | succesvolle login via TikTok plaatsvindt.
+                |
+                */
+
+                $request->merge([
+                    'login_provider' => 'tiktok',
+                ]);
+
+                Auth::login(
+                    $user,
+                    true
+                );
 
                 $request->session()->regenerate();
 
@@ -97,6 +120,21 @@ class TikTokAuthController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Mislukte OAuth-flow opruimen
+            |--------------------------------------------------------------------------
+            |
+            | Er heeft geen succesvolle Laravel-login plaatsgevonden.
+            | We verwijderen daarom alleen de tijdelijke login-securitycontext,
+            | zodat deze niet per ongeluk aan een latere login wordt gekoppeld.
+            |
+            */
+
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
+
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -109,11 +147,16 @@ class TikTokAuthController extends Controller
      * Formulier tonen waarmee een nieuwe TikTok-gebruiker
      * zijn registratie kan afronden.
      */
-    public function showCompleteRegistration(): View|RedirectResponse
-    {
+    public function showCompleteRegistration(
+        Request $request
+    ): View|RedirectResponse {
         $registration = Session::get('tiktok_registration');
 
         if (! is_array($registration)) {
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
+
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -127,6 +170,10 @@ class TikTokAuthController extends Controller
 
         if ($tiktokId === '') {
             Session::forget('tiktok_registration');
+
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
 
             return redirect()
                 ->route('login')
@@ -149,6 +196,10 @@ class TikTokAuthController extends Controller
         $registration = Session::get('tiktok_registration');
 
         if (! is_array($registration)) {
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
+
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -162,6 +213,10 @@ class TikTokAuthController extends Controller
 
         if ($tiktokId === '') {
             Session::forget('tiktok_registration');
+
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
 
             return redirect()
                 ->route('login')
@@ -240,6 +295,16 @@ class TikTokAuthController extends Controller
 
             $existingTikTokUser->save();
 
+            /*
+            |--------------------------------------------------------------------------
+            | Loginmethode vóór Auth::login beschikbaar maken
+            |--------------------------------------------------------------------------
+            */
+
+            $request->merge([
+                'login_provider' => 'tiktok',
+            ]);
+
             Auth::login(
                 $existingTikTokUser,
                 true
@@ -285,7 +350,9 @@ class TikTokAuthController extends Controller
         $user = User::create([
             'name' => $name,
             'email' => $email,
-            'password' => Str::random(64),
+            'password' => Hash::make(
+                Str::random(64)
+            ),
             'tiktok_id' => $tiktokId,
             'tiktok_avatar' => $avatar !== ''
                 ? $avatar
@@ -308,6 +375,20 @@ class TikTokAuthController extends Controller
         | Nieuwe gebruiker inloggen
         |--------------------------------------------------------------------------
         */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Loginmethode vóór Auth::login beschikbaar maken
+        |--------------------------------------------------------------------------
+        |
+        | De browser-securitycontext uit de sessie blijft beschikbaar totdat
+        | het Laravel Login-event tijdens Auth::login() is verwerkt.
+        |
+        */
+
+        $request->merge([
+            'login_provider' => 'tiktok',
+        ]);
 
         Auth::login(
             $user,
@@ -340,6 +421,35 @@ class TikTokAuthController extends Controller
 
         return 'TikTok gebruiker';
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tijdelijke login-security browsercontext opruimen
+    |--------------------------------------------------------------------------
+    |
+    | Bij een succesvolle login verwijdert LoginSecurityService deze gegevens.
+    | Deze helper is alleen bedoeld voor TikTok-flows die stoppen vóórdat
+    | Auth::login() succesvol is uitgevoerd.
+    |
+    */
+
+    private function forgetLoginSecurityBrowserContext(
+        Request $request
+    ): void {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $request->session()->forget([
+            'login_security.browser_timezone',
+            'login_security.latitude',
+            'login_security.longitude',
+            'login_security.location_accuracy',
+            'login_security.location_permission',
+            'login_security.context_captured_at',
+        ]);
+    }
+
 
     /**
      * Redirect na succesvolle TikTok-login.

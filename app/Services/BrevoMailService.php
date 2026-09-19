@@ -14,10 +14,18 @@ class BrevoMailService
     /**
      * Verstuur één transactionele e-mail via de Brevo HTTPS API.
      *
-     * @param  string  $toEmail
-     * @param  string  $toName
-     * @param  string  $subject
-     * @param  string  $view
+     * Deze service:
+     *
+     * - gebruikt geen SMTP;
+     * - gebruikt de Brevo HTTPS API;
+     * - rendert eerst een Blade-template;
+     * - valideert afzender en ontvanger;
+     * - gebruikt bewust geen automatische retry;
+     * - geeft fouten door aan de aanroepende service.
+     *
+     * LoginSecurityService vangt deze fouten vervolgens af,
+     * zodat een mislukte beveiligingsmail nooit een login blokkeert.
+     *
      * @param  array<string, mixed>  $data
      */
     public function send(
@@ -29,7 +37,7 @@ class BrevoMailService
     ): void {
         /*
         |--------------------------------------------------------------------------
-        | Brevo configuratie
+        | Configuratie
         |--------------------------------------------------------------------------
         */
 
@@ -64,22 +72,33 @@ class BrevoMailService
             '/'
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Invoer normaliseren
         |--------------------------------------------------------------------------
         */
 
-        $toEmail = trim($toEmail);
-        $toName = trim($toName);
-        $subject = trim($subject);
-        $view = trim($view);
+        $toEmail = strtolower(
+            trim(
+                $toEmail
+            )
+        );
 
+        $toName = $this->cleanHeaderValue(
+            $toName
+        );
+
+        $subject = $this->cleanHeaderValue(
+            $subject
+        );
+
+        $view = trim(
+            $view
+        );
 
         /*
         |--------------------------------------------------------------------------
-        | Configuratie valideren
+        | Brevo-configuratie valideren
         |--------------------------------------------------------------------------
         */
 
@@ -89,23 +108,26 @@ class BrevoMailService
             $baseUrl
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Ontvanger valideren
         |--------------------------------------------------------------------------
         */
 
-        if (! filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+        if (
+            ! filter_var(
+                $toEmail,
+                FILTER_VALIDATE_EMAIL
+            )
+        ) {
             throw new RuntimeException(
                 'De ontvanger heeft geen geldig e-mailadres.'
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Onderwerp valideren
+        | Onderwerp
         |--------------------------------------------------------------------------
         */
 
@@ -115,10 +137,21 @@ class BrevoMailService
             );
         }
 
+        if (
+            mb_strlen(
+                $subject
+            ) > 255
+        ) {
+            $subject = mb_substr(
+                $subject,
+                0,
+                255
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
-        | Blade-template valideren
+        | Blade-template
         |--------------------------------------------------------------------------
         */
 
@@ -128,16 +161,19 @@ class BrevoMailService
             );
         }
 
-        if (! View::exists($view)) {
+        if (
+            ! View::exists(
+                $view
+            )
+        ) {
             throw new RuntimeException(
                 "E-mailtemplate [{$view}] bestaat niet."
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Blade-template renderen
+        | Template renderen
         |--------------------------------------------------------------------------
         */
 
@@ -146,21 +182,23 @@ class BrevoMailService
             $data
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Afzendernaam fallback
         |--------------------------------------------------------------------------
         */
 
+        $fromName = $this->cleanHeaderValue(
+            $fromName
+        );
+
         if ($fromName === '') {
             $fromName = 'Mashal Automotive';
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Ontvanger samenstellen
+        | Ontvanger
         |--------------------------------------------------------------------------
         */
 
@@ -169,9 +207,12 @@ class BrevoMailService
         ];
 
         if ($toName !== '') {
-            $recipient['name'] = $toName;
+            $recipient['name'] = mb_substr(
+                $toName,
+                0,
+                200
+            );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -181,8 +222,15 @@ class BrevoMailService
 
         $payload = [
             'sender' => [
-                'name' => $fromName,
-                'email' => $fromEmail,
+                'name' => mb_substr(
+                    $fromName,
+                    0,
+                    200
+                ),
+
+                'email' => strtolower(
+                    $fromEmail
+                ),
             ],
 
             'to' => [
@@ -194,10 +242,9 @@ class BrevoMailService
             'htmlContent' => $htmlContent,
         ];
 
-
         /*
         |--------------------------------------------------------------------------
-        | Verzenden via Brevo
+        | API-call
         |--------------------------------------------------------------------------
         */
 
@@ -207,31 +254,35 @@ class BrevoMailService
             $payload
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Response controleren
+        | Brevo-response controleren
         |--------------------------------------------------------------------------
         */
 
-        if (! $response->successful()) {
+        if (
+            ! $response->successful()
+        ) {
             throw new RuntimeException(
-                'Brevo heeft de e-mail niet geaccepteerd. ' .
-                'HTTP-status: ' . $response->status() . '. ' .
-                'Antwoord: ' . $response->body()
+                $this->buildBrevoErrorMessage(
+                    $response
+                )
             );
         }
     }
 
-
     /**
-     * Verstuur dezelfde e-mail afzonderlijk naar meerdere ontvangers.
+     * Verstuur dezelfde template afzonderlijk naar meerdere ontvangers.
      *
-     * Iedere ontvanger ontvangt een afzonderlijke Brevo API-call.
+     * Iedere ontvanger krijgt bewust een aparte API-call.
+     *
+     * Daardoor:
+     *
+     * - ziet iedere ontvanger alleen zijn eigen adres;
+     * - blijft de bestaande send()-validatie gelden;
+     * - kunnen templates later eventueel per ontvanger worden aangepast.
      *
      * @param  array<int, array<string, mixed>>  $recipients
-     * @param  string  $subject
-     * @param  string  $view
      * @param  array<string, mixed>  $data
      */
     public function sendToMany(
@@ -240,37 +291,46 @@ class BrevoMailService
         string $view,
         array $data = []
     ): void {
-        foreach ($recipients as $recipient) {
-
+        foreach (
+            $recipients as $recipient
+        ) {
             /*
             |--------------------------------------------------------------------------
-            | Ongeldige recipient structuur overslaan
+            | Structuur controleren
             |--------------------------------------------------------------------------
             */
 
-            if (! is_array($recipient)) {
+            if (
+                ! is_array(
+                    $recipient
+                )
+            ) {
                 continue;
             }
 
-
             /*
             |--------------------------------------------------------------------------
-            | Ontvangergegevens ophalen
+            | Ontvanger uitlezen
             |--------------------------------------------------------------------------
             */
 
             $email = trim(
-                (string) ($recipient['email'] ?? '')
+                (string) (
+                    $recipient['email']
+                    ?? ''
+                )
             );
 
             $name = trim(
-                (string) ($recipient['name'] ?? '')
+                (string) (
+                    $recipient['name']
+                    ?? ''
+                )
             );
-
 
             /*
             |--------------------------------------------------------------------------
-            | Lege e-mail overslaan
+            | Leeg / ongeldig adres overslaan
             |--------------------------------------------------------------------------
             */
 
@@ -278,21 +338,18 @@ class BrevoMailService
                 continue;
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Ongeldig e-mailadres overslaan
-            |--------------------------------------------------------------------------
-            */
-
-            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (
+                ! filter_var(
+                    $email,
+                    FILTER_VALIDATE_EMAIL
+                )
+            ) {
                 continue;
             }
 
-
             /*
             |--------------------------------------------------------------------------
-            | Individuele e-mail versturen
+            | Versturen
             |--------------------------------------------------------------------------
             */
 
@@ -306,9 +363,8 @@ class BrevoMailService
         }
     }
 
-
     /**
-     * Controleer de Brevo configuratie.
+     * Controleer of de Brevo-configuratie bruikbaar is.
      */
     private function validateConfiguration(
         string $apiKey,
@@ -317,7 +373,7 @@ class BrevoMailService
     ): void {
         /*
         |--------------------------------------------------------------------------
-        | API Key
+        | API-key
         |--------------------------------------------------------------------------
         */
 
@@ -326,7 +382,6 @@ class BrevoMailService
                 'BREVO_API_KEY ontbreekt.'
             );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -340,12 +395,16 @@ class BrevoMailService
             );
         }
 
-        if (! filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+        if (
+            ! filter_var(
+                $fromEmail,
+                FILTER_VALIDATE_EMAIL
+            )
+        ) {
             throw new RuntimeException(
                 'BREVO_FROM_EMAIL is geen geldig e-mailadres.'
             );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -354,20 +413,48 @@ class BrevoMailService
         */
 
         if (
-            ! filter_var($baseUrl, FILTER_VALIDATE_URL) ||
-            strtolower(
-                (string) parse_url(
-                    $baseUrl,
-                    PHP_URL_SCHEME
-                )
-            ) !== 'https'
+            ! filter_var(
+                $baseUrl,
+                FILTER_VALIDATE_URL
+            )
         ) {
             throw new RuntimeException(
-                'BREVO_BASE_URL moet een geldige HTTPS-URL zijn.'
+                'BREVO_BASE_URL is geen geldige URL.'
+            );
+        }
+
+        $scheme = strtolower(
+            (string) parse_url(
+                $baseUrl,
+                PHP_URL_SCHEME
+            )
+        );
+
+        if ($scheme !== 'https') {
+            throw new RuntimeException(
+                'BREVO_BASE_URL moet HTTPS gebruiken.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alleen geldige host
+        |--------------------------------------------------------------------------
+        */
+
+        $host = trim(
+            (string) parse_url(
+                $baseUrl,
+                PHP_URL_HOST
+            )
+        );
+
+        if ($host === '') {
+            throw new RuntimeException(
+                'BREVO_BASE_URL bevat geen geldige host.'
             );
         }
     }
-
 
     /**
      * Render een Blade-template naar HTML.
@@ -383,16 +470,14 @@ class BrevoMailService
                 $view,
                 $data
             )->render();
-
         } catch (Throwable $exception) {
             throw new RuntimeException(
-                "E-mailtemplate [{$view}] kon niet worden gerenderd: " .
-                $exception->getMessage(),
+                "E-mailtemplate [{$view}] kon niet worden gerenderd: "
+                . $exception->getMessage(),
                 0,
                 $exception
             );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -400,7 +485,11 @@ class BrevoMailService
         |--------------------------------------------------------------------------
         */
 
-        if (trim($htmlContent) === '') {
+        if (
+            trim(
+                $htmlContent
+            ) === ''
+        ) {
             throw new RuntimeException(
                 "E-mailtemplate [{$view}] levert lege inhoud op."
             );
@@ -409,9 +498,14 @@ class BrevoMailService
         return $htmlContent;
     }
 
-
     /**
-     * Voer de daadwerkelijke Brevo API-call uit.
+     * Voer de daadwerkelijke HTTPS-call naar Brevo uit.
+     *
+     * Er wordt bewust GEEN automatische retry uitgevoerd.
+     *
+     * Als Brevo een e-mail al heeft ontvangen maar de HTTP-response
+     * verloren gaat, kan automatisch opnieuw proberen anders leiden
+     * tot dubbele beveiligingsmails.
      *
      * @param  array<string, mixed>  $payload
      */
@@ -422,37 +516,191 @@ class BrevoMailService
     ): Response {
         /*
         |--------------------------------------------------------------------------
-        | Geen automatische retry
+        | Timeouts
         |--------------------------------------------------------------------------
-        |
-        | Er wordt bewust geen retry gebruikt.
-        |
-        | Wanneer Brevo de e-mail al heeft ontvangen maar de HTTP-response
-        | onderweg verloren gaat, kan een automatische retry namelijk leiden
-        | tot dubbele e-mails.
-        |
         */
+
+        $connectTimeout = max(
+            1,
+            min(
+                15,
+                (int) config(
+                    'services.brevo.connect_timeout',
+                    10
+                )
+            )
+        );
+
+        $timeout = max(
+            $connectTimeout,
+            min(
+                60,
+                (int) config(
+                    'services.brevo.timeout',
+                    20
+                )
+            )
+        );
 
         try {
             return Http::withHeaders([
                 'api-key' => $apiKey,
+
+                'Accept' => 'application/json',
+
+                'User-Agent' =>
+                    'MashalAutomotive-Brevo/2.0',
             ])
-                ->acceptJson()
                 ->asJson()
-                ->connectTimeout(10)
-                ->timeout(20)
+                ->connectTimeout(
+                    $connectTimeout
+                )
+                ->timeout(
+                    $timeout
+                )
                 ->post(
                     $baseUrl . '/smtp/email',
                     $payload
                 );
-
         } catch (ConnectionException $exception) {
+            /*
+            |--------------------------------------------------------------------------
+            | Geen zekerheid over afleverstatus
+            |--------------------------------------------------------------------------
+            |
+            | Bij een timeout kan niet altijd worden vastgesteld of Brevo
+            | de request vóór het verbreken van de verbinding al ontving.
+            |
+            */
+
             throw new RuntimeException(
-                'Brevo kon niet worden bereikt of reageerde niet op tijd. ' .
-                'Het is niet zeker of de e-mail door Brevo is geaccepteerd.',
+                'Brevo kon niet worden bereikt of reageerde niet op tijd. '
+                . 'Het is niet zeker of de e-mail door Brevo is geaccepteerd.',
+                0,
+                $exception
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException(
+                'Er is een fout opgetreden tijdens de verbinding met Brevo: '
+                . $exception->getMessage(),
                 0,
                 $exception
             );
         }
+    }
+
+    /**
+     * Maak een veilige foutmelding van een mislukte Brevo-response.
+     *
+     * De API-key wordt nooit in de foutmelding opgenomen.
+     */
+    private function buildBrevoErrorMessage(
+        Response $response
+    ): string {
+        $status = $response->status();
+
+        $detail = null;
+
+        try {
+            $json = $response->json();
+
+            if (
+                is_array(
+                    $json
+                )
+            ) {
+                $candidate =
+                    $json['message']
+                    ?? $json['error']
+                    ?? $json['code']
+                    ?? null;
+
+                if (
+                    is_scalar(
+                        $candidate
+                    )
+                ) {
+                    $detail = trim(
+                        (string) $candidate
+                    );
+                }
+            }
+        } catch (Throwable) {
+            //
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Geen volledige responsebody loggen
+        |--------------------------------------------------------------------------
+        |
+        | Alleen een korte foutmelding gebruiken.
+        |
+        */
+
+        if (
+            $detail !== null &&
+            $detail !== ''
+        ) {
+            $detail = mb_substr(
+                $detail,
+                0,
+                500
+            );
+
+            return
+                'Brevo heeft de e-mail niet geaccepteerd. '
+                . 'HTTP-status: '
+                . $status
+                . '. '
+                . 'Melding: '
+                . $detail;
+        }
+
+        return
+            'Brevo heeft de e-mail niet geaccepteerd. '
+            . 'HTTP-status: '
+            . $status
+            . '.';
+    }
+
+    /**
+     * Verwijder CR/LF uit waarden die als mailheaderachtige tekst
+     * worden gebruikt.
+     *
+     * Hiermee voorkomen we ongewenste header-injectieachtige invoer.
+     */
+    private function cleanHeaderValue(
+        mixed $value
+    ): string {
+        if (
+            ! is_scalar(
+                $value
+            )
+        ) {
+            return '';
+        }
+
+        $value = (string) $value;
+
+        $value = str_replace(
+            [
+                "\r",
+                "\n",
+                "\0",
+            ],
+            ' ',
+            $value
+        );
+
+        $value = preg_replace(
+            '/\s+/',
+            ' ',
+            $value
+        ) ?? $value;
+
+        return trim(
+            $value
+        );
     }
 }

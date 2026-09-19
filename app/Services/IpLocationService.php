@@ -11,71 +11,202 @@ use Throwable;
 class IpLocationService
 {
     /**
-     * Bepaal het IP-adres dat we uitsluitend voor de loginmelding tonen.
+     * Bepaal het publieke IP-adres van de bezoeker.
      *
-     * BELANGRIJK:
-     * deze waarde wordt nooit gebruikt voor autorisatie of toegangsbeslissingen.
+     * Volgorde:
+     *
+     * 1. Laravel request()->ip()
+     *    - met trustProxies() hoort dit op Railway het client-IP te zijn
+     *
+     * 2. Railway / reverse-proxy headers
+     *    - X-Real-IP
+     *    - CF-Connecting-IP
+     *    - X-Forwarded-For
+     *
+     * 3. REMOTE_ADDR
+     *
+     * Dit IP-adres wordt uitsluitend gebruikt voor:
+     *
+     * - loginhistorie
+     * - beveiligingsmail
+     * - geschatte IP-geolocatie
+     *
+     * Nooit als zelfstandig authenticatie- of autorisatiemiddel.
      */
-    public function resolveClientIp(Request $request): string
-    {
-        $requestIp = trim(
-            (string) $request->ip()
+    public function resolveClientIp(
+        Request $request
+    ): string {
+        /*
+        |--------------------------------------------------------------------------
+        | IP-opslag / verwerking uitgeschakeld
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! (bool) config(
+                'login-security.ip.enabled',
+                true
+            )
+        ) {
+            return 'unknown';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel client-IP
+        |--------------------------------------------------------------------------
+        |
+        | Omdat bootstrap/app.php trustProxies('*') gebruikt, kan Laravel
+        | forwarded proxyheaders correct interpreteren.
+        |
+        */
+
+        $requestIp = $this->normalizeIp(
+            $request->ip()
         );
 
-        if ($this->isValidPublicIp($requestIp)) {
+        if (
+            $requestIp !== null &&
+            $this->isValidPublicIp($requestIp)
+        ) {
             return $requestIp;
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Cloud-proxy fallback
+        | Proxyheaders
         |--------------------------------------------------------------------------
-        |
-        | Op Railway en andere reverse-proxy omgevingen kan request()->ip()
-        | soms het interne proxy-IP opleveren. In dat geval proberen we de
-        | gebruikelijke forwarding headers.
-        |
-        | Omdat headers in sommige configuraties spoofbaar kunnen zijn, wordt
-        | dit IP ALLEEN gebruikt voor informatieve loginmeldingen.
-        |
         */
 
-        $headerCandidates = [
-            $request->header('CF-Connecting-IP'),
-            $request->header('X-Real-IP'),
-            $this->firstForwardedIp(
-                $request->header('X-Forwarded-For')
-            ),
-            $request->server('REMOTE_ADDR'),
-        ];
+        $allowForwardedHeaders = (bool) config(
+            'login-security.ip.allow_forwarded_headers',
+            true
+        );
 
-        foreach ($headerCandidates as $candidate) {
-            $candidate = trim(
-                (string) $candidate
+        $headerCandidates = [];
+
+        if ($allowForwardedHeaders) {
+            /*
+            |--------------------------------------------------------------------------
+            | X-Real-IP
+            |--------------------------------------------------------------------------
+            |
+            | Railway/reverse proxies kunnen hier het oorspronkelijke client-IP
+            | plaatsen.
+            |
+            */
+
+            $headerCandidates[] = $this->normalizeIp(
+                $request->header(
+                    'X-Real-IP'
+                )
             );
 
-            if ($this->isValidPublicIp($candidate)) {
+            /*
+            |--------------------------------------------------------------------------
+            | Cloudflare
+            |--------------------------------------------------------------------------
+            |
+            | Relevant wanneer later Cloudflare voor de website wordt gebruikt.
+            |
+            */
+
+            $headerCandidates[] = $this->normalizeIp(
+                $request->header(
+                    'CF-Connecting-IP'
+                )
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | X-Forwarded-For
+            |--------------------------------------------------------------------------
+            |
+            | Dit kan meerdere adressen bevatten:
+            |
+            | client, proxy1, proxy2
+            |
+            | We zoeken het eerste geldige publieke IP.
+            |
+            */
+
+            foreach (
+                $this->forwardedIps(
+                    $request->header(
+                        'X-Forwarded-For'
+                    )
+                ) as $forwardedIp
+            ) {
+                $headerCandidates[] = $forwardedIp;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Eerste publieke kandidaat
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($headerCandidates as $candidate) {
+            if (
+                $candidate !== null &&
+                $this->isValidPublicIp($candidate)
+            ) {
                 return $candidate;
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Lokale/private fallback
+        | REMOTE_ADDR
         |--------------------------------------------------------------------------
         */
 
-        foreach (
-            array_merge(
-                [$requestIp],
-                $headerCandidates
-            ) as $candidate
-        ) {
-            $candidate = trim(
-                (string) $candidate
-            );
+        $remoteAddress = $this->normalizeIp(
+            $request->server(
+                'REMOTE_ADDR'
+            )
+        );
 
-            if ($this->isValidIp($candidate)) {
+        if (
+            $remoteAddress !== null &&
+            $this->isValidPublicIp($remoteAddress)
+        ) {
+            return $remoteAddress;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Private/lokale fallback
+        |--------------------------------------------------------------------------
+        |
+        | Dit is vooral nuttig bij:
+        |
+        | - localhost
+        | - Tinker
+        | - lokale ontwikkeling
+        |
+        | Bijvoorbeeld:
+        |
+        | 127.0.0.1
+        | ::1
+        | 10.x.x.x
+        |
+        */
+
+        $allCandidates = array_merge(
+            [
+                $requestIp,
+                $remoteAddress,
+            ],
+            $headerCandidates
+        );
+
+        foreach ($allCandidates as $candidate) {
+            if (
+                $candidate !== null &&
+                $this->isValidIp($candidate)
+            ) {
                 return $candidate;
             }
         }
@@ -84,36 +215,111 @@ class IpLocationService
     }
 
     /**
-     * Zoek een geschatte locatie bij een IP-adres.
+     * Zoek de geschatte geografische locatie van een IP-adres.
+     *
+     * Dit is GEEN GPS.
+     *
+     * Een IP-provider kan doorgaans ongeveer bepalen:
+     *
+     * - stad
+     * - regio
+     * - land
+     * - landcode
+     * - timezone
      *
      * @return array{
-     *     city:?string,
-     *     region:?string,
-     *     country:?string,
-     *     country_code:?string,
-     *     timezone:?string,
-     *     source:string
+     *     city: ?string,
+     *     region: ?string,
+     *     country: ?string,
+     *     country_code: ?string,
+     *     timezone: ?string,
+     *     source: string
      * }
      */
-    public function lookup(string $ipAddress): array
-    {
-        $ipAddress = trim($ipAddress);
+    public function lookup(
+        string $ipAddress
+    ): array {
+        $ipAddress = $this->normalizeIp(
+            $ipAddress
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Geen geldig IP
+        |--------------------------------------------------------------------------
+        */
 
         if (
-            $ipAddress === '' ||
-            $ipAddress === 'unknown' ||
+            $ipAddress === null ||
             ! $this->isValidIp($ipAddress)
         ) {
-            return $this->emptyLocation('unavailable');
+            return $this->emptyLocation(
+                'unavailable'
+            );
         }
 
-        if (! $this->isValidPublicIp($ipAddress)) {
-            return $this->emptyLocation('local');
+        /*
+        |--------------------------------------------------------------------------
+        | Lokaal / private IP
+        |--------------------------------------------------------------------------
+        |
+        | Bijvoorbeeld een Tinker-test vanaf Railway of localhost.
+        |
+        */
+
+        if (
+            ! $this->isValidPublicIp(
+                $ipAddress
+            )
+        ) {
+            return $this->emptyLocation(
+                'local'
+            );
         }
 
-        if (! (bool) config('login-security.geolocation.enabled', true)) {
-            return $this->emptyLocation('disabled');
+        /*
+        |--------------------------------------------------------------------------
+        | IP-geolocatie uitgeschakeld
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! (bool) config(
+                'login-security.geolocation.enabled',
+                true
+            )
+        ) {
+            return $this->emptyLocation(
+                'disabled'
+            );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Privacyinstelling
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! (bool) config(
+                'login-security.privacy.store_estimated_location',
+                true
+            )
+        ) {
+            return $this->emptyLocation(
+                'disabled'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache
+        |--------------------------------------------------------------------------
+        |
+        | Hetzelfde IP hoeft niet bij iedere login opnieuw extern te
+        | worden opgezocht.
+        |
+        */
 
         $cacheHours = max(
             1,
@@ -123,30 +329,66 @@ class IpLocationService
             )
         );
 
-        $cacheKey = 'login-security:geo:' . hash(
-            'sha256',
-            $ipAddress
-        );
+        $cacheKey =
+            'login-security:geo:'
+            . hash(
+                'sha256',
+                $ipAddress
+            );
 
-        return Cache::remember(
-            $cacheKey,
-            now()->addHours($cacheHours),
-            fn (): array => $this->requestLocation($ipAddress)
-        );
+        try {
+            return Cache::remember(
+                $cacheKey,
+                now()->addHours(
+                    $cacheHours
+                ),
+                fn (): array =>
+                    $this->requestLocation(
+                        $ipAddress
+                    )
+            );
+        } catch (Throwable $exception) {
+            /*
+            |--------------------------------------------------------------------------
+            | Cache mag login niet blokkeren
+            |--------------------------------------------------------------------------
+            */
+
+            Log::warning(
+                'Loginbeveiliging: locatiecache gaf een fout.',
+                [
+                    'message' =>
+                        $exception->getMessage(),
+                ]
+            );
+
+            return $this->requestLocation(
+                $ipAddress
+            );
+        }
     }
 
     /**
+     * Vraag de IP-geolocatieprovider om informatie.
+     *
      * @return array{
-     *     city:?string,
-     *     region:?string,
-     *     country:?string,
-     *     country_code:?string,
-     *     timezone:?string,
-     *     source:string
+     *     city: ?string,
+     *     region: ?string,
+     *     country: ?string,
+     *     country_code: ?string,
+     *     timezone: ?string,
+     *     source: string
      * }
      */
-    private function requestLocation(string $ipAddress): array
-    {
+    private function requestLocation(
+        string $ipAddress
+    ): array {
+        /*
+        |--------------------------------------------------------------------------
+        | Endpoint
+        |--------------------------------------------------------------------------
+        */
+
         $urlTemplate = trim(
             (string) config(
                 'login-security.geolocation.url',
@@ -155,161 +397,269 @@ class IpLocationService
         );
 
         if ($urlTemplate === '') {
-            return $this->emptyLocation('unavailable');
+            return $this->emptyLocation(
+                'unavailable'
+            );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | IP veilig in URL plaatsen
+        |--------------------------------------------------------------------------
+        */
 
         $url = str_replace(
             '{ip}',
-            rawurlencode($ipAddress),
+            rawurlencode(
+                $ipAddress
+            ),
             $urlTemplate
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Timeout
+        |--------------------------------------------------------------------------
+        */
+
         $timeout = max(
             1,
-            (int) config(
-                'login-security.geolocation.timeout_seconds',
-                4
+            min(
+                15,
+                (int) config(
+                    'login-security.geolocation.timeout_seconds',
+                    4
+                )
+            )
+        );
+
+        $connectTimeout = max(
+            1,
+            min(
+                3,
+                $timeout
             )
         );
 
         try {
+            /*
+            |--------------------------------------------------------------------------
+            | Request
+            |--------------------------------------------------------------------------
+            */
+
             $response = Http::acceptJson()
+                ->asJson()
                 ->withHeaders([
-                    'User-Agent' => 'MashalAutomotive-LoginSecurity/1.0',
+                    'User-Agent' =>
+                        'MashalAutomotive-LoginSecurity/2.0',
                 ])
                 ->connectTimeout(
-                    min(3, $timeout)
+                    $connectTimeout
                 )
-                ->timeout($timeout)
-                ->get($url);
+                ->timeout(
+                    $timeout
+                )
+                ->get(
+                    $url
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | HTTP-fout
+            |--------------------------------------------------------------------------
+            */
 
             if (! $response->successful()) {
                 Log::warning(
-                    'Login IP-locatie kon niet worden opgehaald.',
+                    'Loginbeveiliging: IP-locatie kon niet worden opgehaald.',
                     [
-                        'status' => $response->status(),
+                        'status' =>
+                            $response->status(),
+
+                        /*
+                        | Geen API-responsebody loggen:
+                        | daar kan onnodige metadata in staan.
+                        */
                     ]
                 );
 
-                return $this->emptyLocation('unavailable');
-            }
-
-            $payload = $response->json();
-
-            if (! is_array($payload)) {
-                return $this->emptyLocation('unavailable');
+                return $this->emptyLocation(
+                    'unavailable'
+                );
             }
 
             /*
             |--------------------------------------------------------------------------
-            | ipapi.co response
+            | JSON
+            |--------------------------------------------------------------------------
+            */
+
+            $payload = $response->json();
+
+            if (! is_array($payload)) {
+                return $this->emptyLocation(
+                    'unavailable'
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Provider meldt fout
             |--------------------------------------------------------------------------
             */
 
             if (
-                array_key_exists('error', $payload) &&
+                array_key_exists(
+                    'error',
+                    $payload
+                ) &&
                 filter_var(
                     $payload['error'],
                     FILTER_VALIDATE_BOOLEAN
                 )
             ) {
-                return $this->emptyLocation('unavailable');
+                Log::warning(
+                    'Loginbeveiliging: IP-locatieprovider retourneerde een fout.',
+                    [
+                        'reason' =>
+                            $this->cleanNullable(
+                                $payload['reason']
+                                    ?? null
+                            ),
+                    ]
+                );
+
+                return $this->emptyLocation(
+                    'unavailable'
+                );
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Resultaat normaliseren
+            |--------------------------------------------------------------------------
+            */
+
             return [
-                'city' => $this->cleanNullable(
-                    $payload['city'] ?? null
-                ),
-                'region' => $this->cleanNullable(
-                    $payload['region'] ?? null
-                ),
-                'country' => $this->cleanNullable(
-                    $payload['country_name']
-                        ?? $payload['country']
-                        ?? null
-                ),
-                'country_code' => $this->cleanNullable(
-                    $payload['country_code']
-                        ?? $payload['country_code_iso3']
-                        ?? null
-                ),
-                'timezone' => $this->cleanTimezone(
-                    $payload['timezone'] ?? null
-                ),
+                'city' =>
+                    $this->cleanNullable(
+                        $payload['city']
+                            ?? null
+                    ),
+
+                'region' =>
+                    $this->cleanNullable(
+                        $payload['region']
+                            ?? $payload['region_name']
+                            ?? null
+                    ),
+
+                'country' =>
+                    $this->cleanNullable(
+                        $payload['country_name']
+                            ?? $payload['country']
+                            ?? null
+                    ),
+
+                'country_code' =>
+                    $this->cleanCountryCode(
+                        $payload['country_code']
+                            ?? null
+                    ),
+
+                'timezone' =>
+                    $this->cleanTimezone(
+                        $payload['timezone']
+                            ?? null
+                    ),
+
                 'source' => 'ipapi',
             ];
         } catch (Throwable $exception) {
+            /*
+            |--------------------------------------------------------------------------
+            | Externe API mag login nooit blokkeren
+            |--------------------------------------------------------------------------
+            */
+
             Log::warning(
-                'Login IP-locatieservice gaf een fout.',
+                'Loginbeveiliging: IP-locatieservice gaf een fout.',
                 [
-                    'message' => $exception->getMessage(),
+                    'message' =>
+                        $exception->getMessage(),
                 ]
             );
 
-            return $this->emptyLocation('unavailable');
+            return $this->emptyLocation(
+                'unavailable'
+            );
         }
-    }
-
-    private function firstForwardedIp(?string $header): ?string
-    {
-        $header = trim((string) $header);
-
-        if ($header === '') {
-            return null;
-        }
-
-        $parts = explode(',', $header);
-
-        return trim(
-            (string) ($parts[0] ?? '')
-        );
-    }
-
-    private function isValidIp(string $ipAddress): bool
-    {
-        return filter_var(
-            $ipAddress,
-            FILTER_VALIDATE_IP
-        ) !== false;
-    }
-
-    private function isValidPublicIp(string $ipAddress): bool
-    {
-        if (! $this->isValidIp($ipAddress)) {
-            return false;
-        }
-
-        return filter_var(
-            $ipAddress,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-        ) !== false;
     }
 
     /**
-     * @return array{
-     *     city:?string,
-     *     region:?string,
-     *     country:?string,
-     *     country_code:?string,
-     *     timezone:?string,
-     *     source:string
-     * }
+     * Parse X-Forwarded-For.
+     *
+     * Voorbeeld:
+     *
+     * 203.0.113.10, 172.16.0.5, 10.0.0.3
+     *
+     * @return array<int, string>
      */
-    private function emptyLocation(string $source): array
-    {
-        return [
-            'city' => null,
-            'region' => null,
-            'country' => null,
-            'country_code' => null,
-            'timezone' => null,
-            'source' => $source,
-        ];
+    private function forwardedIps(
+        mixed $header
+    ): array {
+        if (! is_scalar($header)) {
+            return [];
+        }
+
+        $header = trim(
+            (string) $header
+        );
+
+        if ($header === '') {
+            return [];
+        }
+
+        $result = [];
+
+        foreach (
+            explode(
+                ',',
+                $header
+            ) as $part
+        ) {
+            $ip = $this->normalizeIp(
+                $part
+            );
+
+            if (
+                $ip !== null &&
+                $this->isValidIp($ip)
+            ) {
+                $result[] = $ip;
+            }
+        }
+
+        return array_values(
+            array_unique(
+                $result
+            )
+        );
     }
 
-    private function cleanNullable(mixed $value): ?string
-    {
+    /**
+     * Normaliseer een IP-adres.
+     *
+     * Ondersteunt onder andere:
+     *
+     * 203.0.113.10
+     * "203.0.113.10"
+     * [2001:db8::1]
+     */
+    private function normalizeIp(
+        mixed $value
+    ): ?string {
         if (! is_scalar($value)) {
             return null;
         }
@@ -318,19 +668,283 @@ class IpLocationService
             (string) $value
         );
 
-        return $value !== ''
-            ? mb_substr($value, 0, 120)
+        if ($value === '') {
+            return null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Quotes verwijderen
+        |--------------------------------------------------------------------------
+        */
+
+        $value = trim(
+            $value,
+            " \t\n\r\0\x0B\"'"
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | IPv6 tussen vierkante haken
+        |--------------------------------------------------------------------------
+        |
+        | [2001:db8::1]
+        |
+        */
+
+        if (
+            str_starts_with(
+                $value,
+                '['
+            ) &&
+            str_ends_with(
+                $value,
+                ']'
+            )
+        ) {
+            $value = substr(
+                $value,
+                1,
+                -1
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | IPv4 met poort
+        |--------------------------------------------------------------------------
+        |
+        | Bijvoorbeeld:
+        |
+        | 203.0.113.10:443
+        |
+        */
+
+        if (
+            substr_count(
+                $value,
+                ':'
+            ) === 1
+        ) {
+            [$possibleIp, $possiblePort] =
+                array_pad(
+                    explode(
+                        ':',
+                        $value,
+                        2
+                    ),
+                    2,
+                    null
+                );
+
+            if (
+                $possibleIp !== null &&
+                $possiblePort !== null &&
+                ctype_digit(
+                    $possiblePort
+                ) &&
+                $this->isValidIp(
+                    $possibleIp
+                )
+            ) {
+                $value = $possibleIp;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | IPv6 zone identifier verwijderen
+        |--------------------------------------------------------------------------
+        |
+        | Bijvoorbeeld:
+        |
+        | fe80::1%eth0
+        |
+        */
+
+        if (
+            str_contains(
+                $value,
+                '%'
+            )
+        ) {
+            $value = explode(
+                '%',
+                $value,
+                2
+            )[0];
+        }
+
+        return $this->isValidIp(
+            $value
+        )
+            ? $value
             : null;
     }
 
-    private function cleanTimezone(mixed $value): ?string
-    {
+    /**
+     * Controleer of het een syntactisch geldig IPv4/IPv6-adres is.
+     */
+    private function isValidIp(
+        string $ipAddress
+    ): bool {
+        return filter_var(
+            $ipAddress,
+            FILTER_VALIDATE_IP
+        ) !== false;
+    }
+
+    /**
+     * Controleer of het een publiek routeerbaar IP-adres is.
+     *
+     * Private/reserved adressen zoals:
+     *
+     * 127.0.0.1
+     * ::1
+     * 10.0.0.0/8
+     * 172.16.0.0/12
+     * 192.168.0.0/16
+     *
+     * worden niet naar de externe geolocatieprovider gestuurd.
+     */
+    private function isValidPublicIp(
+        string $ipAddress
+    ): bool {
+        if (
+            ! $this->isValidIp(
+                $ipAddress
+            )
+        ) {
+            return false;
+        }
+
+        return filter_var(
+            $ipAddress,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE |
+            FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
+    }
+
+    /**
+     * Lege locatie-response.
+     *
+     * @return array{
+     *     city: ?string,
+     *     region: ?string,
+     *     country: ?string,
+     *     country_code: ?string,
+     *     timezone: ?string,
+     *     source: string
+     * }
+     */
+    private function emptyLocation(
+        string $source
+    ): array {
+        return [
+            'city' => null,
+
+            'region' => null,
+
+            'country' => null,
+
+            'country_code' => null,
+
+            'timezone' => null,
+
+            'source' => $source,
+        ];
+    }
+
+    /**
+     * Maak een veilige nullable string.
+     */
+    private function cleanNullable(
+        mixed $value
+    ): ?string {
+        if (! is_scalar($value)) {
+            return null;
+        }
+
+        $value = trim(
+            (string) $value
+        );
+
+        if ($value === '') {
+            return null;
+        }
+
+        return mb_substr(
+            $value,
+            0,
+            120
+        );
+    }
+
+    /**
+     * Landcode normaliseren.
+     *
+     * Bijvoorbeeld:
+     *
+     * nl -> NL
+     * us -> US
+     */
+    private function cleanCountryCode(
+        mixed $value
+    ): ?string {
+        $value = $this->cleanNullable(
+            $value
+        );
+
+        if ($value === null) {
+            return null;
+        }
+
+        $value = strtoupper(
+            $value
+        );
+
+        return mb_substr(
+            $value,
+            0,
+            3
+        );
+    }
+
+    /**
+     * Timezone controleren.
+     *
+     * Bijvoorbeeld:
+     *
+     * Europe/Amsterdam
+     * America/New_York
+     */
+    private function cleanTimezone(
+        mixed $value
+    ): ?string {
         if (is_array($value)) {
-            $value = $value['id']
+            $value =
+                $value['id']
                 ?? $value['name']
                 ?? null;
         }
 
-        return $this->cleanNullable($value);
+        $timezone = $this->cleanNullable(
+            $value
+        );
+
+        if ($timezone === null) {
+            return null;
+        }
+
+        try {
+            new \DateTimeZone(
+                $timezone
+            );
+
+            return $timezone;
+        } catch (Throwable) {
+            return null;
+        }
     }
 }

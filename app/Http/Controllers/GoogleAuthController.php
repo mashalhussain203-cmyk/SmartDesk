@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -12,64 +13,95 @@ use Throwable;
 
 class GoogleAuthController extends Controller
 {
-    /**
-     * Stuur de gebruiker door naar Google OAuth.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Google OAuth redirect
+    |--------------------------------------------------------------------------
+    */
+
     public function redirect(): RedirectResponse
     {
-        return Socialite::driver('google')
-            ->redirect();
+        return Socialite::driver(
+            'google'
+        )->redirect();
     }
 
-    /**
-     * Verwerk de callback van Google.
-     *
-     * Werking:
-     *
-     * 1. Google-account ophalen.
-     * 2. Eerst zoeken op google_id.
-     * 3. Daarna zoeken op e-mailadres.
-     * 4. Bestaand account aan Google koppelen.
-     * 5. Of automatisch een nieuw Mashal-account aanmaken.
-     * 6. Gebruiker direct inloggen.
-     */
-    public function callback(): RedirectResponse
-    {
-        try {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google OAuth callback
+    |--------------------------------------------------------------------------
+    |
+    | Werking:
+    |
+    | 1. Google-profiel ophalen.
+    | 2. Google-ID en e-mailadres controleren.
+    | 3. Eerst zoeken op google_id.
+    | 4. Daarna zoeken op e-mailadres.
+    | 5. Bestaand account koppelen/synchroniseren of nieuw account maken.
+    | 6. login_provider vóór Auth::login() op de request zetten.
+    | 7. Auth::login() vuurt Laravel's Login-event af.
+    | 8. LoginSecurityService leest de browsercontext die vóór de OAuth-
+    |    redirect via /login-security/context in dezelfde sessie is opgeslagen.
+    | 9. Na de login wordt de sessie-ID vernieuwd.
+    |
+    */
+
+    public function callback(
+        Request $request
+    ): RedirectResponse {
+        try {
             /*
             |--------------------------------------------------------------------------
             | Google-gebruiker ophalen
             |--------------------------------------------------------------------------
             */
 
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver(
+                'google'
+            )->user();
 
 
             /*
             |--------------------------------------------------------------------------
-            | Google-gegevens ophalen
+            | Google-gegevens normaliseren
             |--------------------------------------------------------------------------
             */
 
-            $googleId = $googleUser->getId();
+            $googleId = trim(
+                (string) $googleUser->getId()
+            );
 
-            $email = $googleUser->getEmail();
+            $email = strtolower(
+                trim(
+                    (string) $googleUser->getEmail()
+                )
+            );
 
-            $name = $googleUser->getName();
+            $name = trim(
+                (string) $googleUser->getName()
+            );
 
-            $avatar = $googleUser->getAvatar();
+            $avatar = trim(
+                (string) $googleUser->getAvatar()
+            );
 
 
             /*
             |--------------------------------------------------------------------------
-            | Google ID controleren
+            | Google-ID controleren
             |--------------------------------------------------------------------------
             */
 
-            if (!$googleId) {
+            if ($googleId === '') {
+                $this->forgetLoginSecurityBrowserContext(
+                    $request
+                );
+
                 return redirect()
-                    ->route('login')
+                    ->route(
+                        'login'
+                    )
                     ->with(
                         'error',
                         'Google heeft geen geldige account-ID teruggegeven.'
@@ -83,9 +115,15 @@ class GoogleAuthController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if (!$email) {
+            if ($email === '') {
+                $this->forgetLoginSecurityBrowserContext(
+                    $request
+                );
+
                 return redirect()
-                    ->route('login')
+                    ->route(
+                        'login'
+                    )
                     ->with(
                         'error',
                         'Google heeft geen geldig e-mailadres teruggegeven.'
@@ -95,29 +133,20 @@ class GoogleAuthController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | E-mailadres normaliseren
-            |--------------------------------------------------------------------------
-            */
-
-            $email = strtolower(
-                trim($email)
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Eerst zoeken op Google ID
+            | Eerst zoeken op Google-ID
             |--------------------------------------------------------------------------
             |
-            | Dit is de meest betrouwbare manier om een reeds gekoppeld
-            | Google-account terug te vinden.
+            | Dit is de primaire koppeling voor een reeds verbonden
+            | Google-account.
             |
             */
 
-            $user = User::where(
-                'google_id',
-                $googleId
-            )->first();
+            $user = User::query()
+                ->where(
+                    'google_id',
+                    $googleId
+                )
+                ->first();
 
 
             /*
@@ -125,126 +154,88 @@ class GoogleAuthController extends Controller
             | Daarna zoeken op e-mailadres
             |--------------------------------------------------------------------------
             |
-            | Als het Google-account nog niet gekoppeld is, maar er al wel
-            | een normaal Mashal-account bestaat met hetzelfde e-mailadres,
-            | koppelen we Google aan dat bestaande account.
-            |
-            | Hierdoor ontstaan geen dubbele accounts.
+            | Hierdoor koppelen we een bestaand Mashal-account met hetzelfde
+            | e-mailadres aan Google in plaats van een dubbel account te maken.
             |
             */
 
-            if (!$user) {
-                $user = User::where(
-                    'email',
-                    $email
-                )->first();
+            if (! $user) {
+                $user = User::query()
+                    ->where(
+                        'email',
+                        $email
+                    )
+                    ->first();
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | Nieuw Mashal-account aanmaken
+            | Nieuw Mashal-account
             |--------------------------------------------------------------------------
             */
 
-            if (!$user) {
-
+            if (! $user) {
                 $user = User::create([
+                    'name' =>
+                        $name !== ''
+                            ? $name
+                            : $this->displayNameFromEmail(
+                                $email
+                            ),
+
+                    'email' =>
+                        $email,
+
+                    'google_id' =>
+                        $googleId,
+
+                    'google_avatar' =>
+                        $avatar !== ''
+                            ? $avatar
+                            : null,
+
+                    'login_provider' =>
+                        'google',
 
                     /*
-                    |--------------------------------------------------------------
-                    | Naam
-                    |--------------------------------------------------------------
-                    */
-
-                    'name' => $name ?: 'Mashal gebruiker',
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | E-mailadres
-                    |--------------------------------------------------------------
-                    */
-
-                    'email' => $email,
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | Google ID
-                    |--------------------------------------------------------------
-                    */
-
-                    'google_id' => $googleId,
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | Google profielfoto
-                    |--------------------------------------------------------------
-                    */
-
-                    'google_avatar' => $avatar,
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | Laatste loginmethode
-                    |--------------------------------------------------------------
-                    */
-
-                    'login_provider' => 'google',
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | Intern wachtwoord
-                    |--------------------------------------------------------------
+                    |--------------------------------------------------------------------------
+                    | Intern willekeurig wachtwoord
+                    |--------------------------------------------------------------------------
                     |
-                    | Een Google-gebruiker hoeft dit wachtwoord niet te kennen.
-                    |
-                    | We genereren een sterk willekeurig wachtwoord zodat er
-                    | nooit een voorspelbaar of leeg wachtwoord wordt opgeslagen.
+                    | Een OAuth-gebruiker hoeft dit wachtwoord niet te kennen.
                     |
                     */
 
-                    'password' => Hash::make(
-                        Str::random(64)
-                    ),
-
-
-                    /*
-                    |--------------------------------------------------------------
-                    | E-mail geverifieerd
-                    |--------------------------------------------------------------
-                    |
-                    | Google heeft bevestigd dat de gebruiker toegang heeft
-                    | tot dit Google-account.
-                    |
-                    */
-
-                    'email_verified_at' => now(),
-
+                    'password' =>
+                        Hash::make(
+                            Str::random(
+                                64
+                            )
+                        ),
 
                     /*
-                    |--------------------------------------------------------------
-                    | Administrator
-                    |--------------------------------------------------------------
-                    |
-                    | Een gebruiker die zichzelf met Google registreert krijgt
-                    | nooit automatisch administratorrechten.
-                    |
+                    |--------------------------------------------------------------------------
+                    | Google-login bevestigt toegang tot het Google-account
+                    |--------------------------------------------------------------------------
                     */
 
-                    'is_admin' => false,
+                    'email_verified_at' =>
+                        now(),
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Zelfregistratie geeft nooit adminrechten
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'is_admin' =>
+                        false,
                 ]);
-
             } else {
-
                 /*
                 |--------------------------------------------------------------------------
-                | Bestaand account koppelen / synchroniseren
+                | Bestaand account synchroniseren
                 |--------------------------------------------------------------------------
                 */
 
@@ -252,79 +243,102 @@ class GoogleAuthController extends Controller
 
 
                 /*
-                |--------------------------------------------------------------
-                | Google ID koppelen
-                |--------------------------------------------------------------
-                */
-
-                if ($user->google_id !== $googleId) {
-
-                    $user->google_id = $googleId;
-
-                    $changed = true;
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------
-                | Google avatar bijwerken
-                |--------------------------------------------------------------
+                |--------------------------------------------------------------------------
+                | Google-ID koppelen
+                |--------------------------------------------------------------------------
                 */
 
                 if (
-                    $avatar &&
-                    $user->google_avatar !== $avatar
+                    (string) $user->google_id !==
+                    $googleId
                 ) {
+                    $user->google_id =
+                        $googleId;
 
-                    $user->google_avatar = $avatar;
-
-                    $changed = true;
-
+                    $changed =
+                        true;
                 }
 
 
                 /*
-                |--------------------------------------------------------------
-                | E-mailverificatie
-                |--------------------------------------------------------------
+                |--------------------------------------------------------------------------
+                | Google-avatar bijwerken
+                |--------------------------------------------------------------------------
                 */
 
-                if (!$user->email_verified_at) {
+                if (
+                    $avatar !== '' &&
+                    (string) $user->google_avatar !==
+                    $avatar
+                ) {
+                    $user->google_avatar =
+                        $avatar;
 
-                    $user->email_verified_at = now();
-
-                    $changed = true;
-
+                    $changed =
+                        true;
                 }
 
 
                 /*
-                |--------------------------------------------------------------
+                |--------------------------------------------------------------------------
+                | E-mail als geverifieerd markeren
+                |--------------------------------------------------------------------------
+                */
+
+                if (! $user->email_verified_at) {
+                    $user->email_verified_at =
+                        now();
+
+                    $changed =
+                        true;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
                 | Laatste loginmethode
-                |--------------------------------------------------------------
+                |--------------------------------------------------------------------------
                 */
 
-                if ($user->login_provider !== 'google') {
+                if (
+                    (string) $user->login_provider !==
+                    'google'
+                ) {
+                    $user->login_provider =
+                        'google';
 
-                    $user->login_provider = 'google';
-
-                    $changed = true;
-
+                    $changed =
+                        true;
                 }
 
 
                 /*
-                |--------------------------------------------------------------
-                | Alleen opslaan wanneer iets is gewijzigd
-                |--------------------------------------------------------------
+                |--------------------------------------------------------------------------
+                | Alleen opslaan bij wijzigingen
+                |--------------------------------------------------------------------------
                 */
 
                 if ($changed) {
                     $user->save();
                 }
-
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Login-provider vóór Auth::login beschikbaar maken
+            |--------------------------------------------------------------------------
+            |
+            | Laravel vuurt het Login-event tijdens Auth::login() af.
+            | De security-listener kan hierdoor direct zien dat deze login
+            | via Google plaatsvindt.
+            |
+            */
+
+            $request->merge([
+                'login_provider' =>
+                    'google',
+            ]);
 
 
             /*
@@ -332,7 +346,8 @@ class GoogleAuthController extends Controller
             | Gebruiker inloggen
             |--------------------------------------------------------------------------
             |
-            | true betekent dat Laravel een remember-login mag gebruiken.
+            | true behoudt het bestaande gedrag: Laravel mag een remember-login
+            | gebruiken.
             |
             */
 
@@ -347,58 +362,138 @@ class GoogleAuthController extends Controller
             | Sessiebeveiliging
             |--------------------------------------------------------------------------
             |
-            | Na authenticatie regenereren we de session ID om bescherming
-            | tegen session fixation te bieden.
+            | De Login-listener is op dit moment al uitgevoerd. Daarna vernieuwen
+            | we de session ID tegen session fixation.
             |
             */
 
-            request()
+            $request
                 ->session()
                 ->regenerate();
 
 
             /*
             |--------------------------------------------------------------------------
-            | Redirect naar account
+            | Redirect
             |--------------------------------------------------------------------------
             */
 
             return redirect()
-                ->route('account')
+                ->route(
+                    'account'
+                )
                 ->with(
                     'success',
                     'Welkom bij Mashal Automotive. Je bent succesvol ingelogd met Google.'
                 );
-
-
         } catch (Throwable $exception) {
+            /*
+            |--------------------------------------------------------------------------
+            | Technische fout intern loggen
+            |--------------------------------------------------------------------------
+            */
+
+            report(
+                $exception
+            );
+
 
             /*
             |--------------------------------------------------------------------------
-            | Fout intern loggen
+            | Eventuele oude browser-securitycontext opruimen
             |--------------------------------------------------------------------------
             |
-            | De technische fout komt in de Laravel logs terecht.
-            | De bezoeker krijgt geen technische details te zien.
+            | Bij een mislukte OAuth-callback heeft geen succesvolle login
+            | plaatsgevonden. We voorkomen daarom dat deze context later per
+            | ongeluk bij een andere login wordt gebruikt.
             |
             */
 
-            report($exception);
+            $this->forgetLoginSecurityBrowserContext(
+                $request
+            );
 
 
             /*
             |--------------------------------------------------------------------------
-            | Gebruiker terugsturen
+            | Veilige foutmelding voor gebruiker
             |--------------------------------------------------------------------------
             */
 
             return redirect()
-                ->route('login')
+                ->route(
+                    'login'
+                )
                 ->with(
                     'error',
                     'Inloggen met Google is niet gelukt. Probeer het opnieuw.'
                 );
-
         }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Leesbare naam uit e-mailadres
+    |--------------------------------------------------------------------------
+    */
+
+    private function displayNameFromEmail(
+        string $email
+    ): string {
+        $emailName = trim(
+            Str::before(
+                $email,
+                '@'
+            )
+        );
+
+        $displayName = Str::of(
+            $emailName
+        )
+            ->replace(
+                [
+                    '.',
+                    '_',
+                    '-',
+                ],
+                ' '
+            )
+            ->squish()
+            ->title()
+            ->toString();
+
+        return $displayName !== ''
+            ? $displayName
+            : 'Mashal gebruiker';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tijdelijke login-security browsercontext opruimen
+    |--------------------------------------------------------------------------
+    |
+    | Normaal wordt deze context na een succesvolle login door de
+    | LoginSecurityService verwijderd. Deze helper is alleen voor OAuth-
+    | fouten vóórdat Auth::login() succesvol is uitgevoerd.
+    |
+    */
+
+    private function forgetLoginSecurityBrowserContext(
+        Request $request
+    ): void {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        $request->session()->forget([
+            'login_security.browser_timezone',
+            'login_security.latitude',
+            'login_security.longitude',
+            'login_security.location_accuracy',
+            'login_security.location_permission',
+            'login_security.context_captured_at',
+        ]);
     }
 }

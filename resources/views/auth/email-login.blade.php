@@ -150,6 +150,10 @@
         color: #ffffff;
         font-size: 14px;
         box-sizing: border-box;
+        transition:
+            border-color .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
     }
 
     .email-input:focus {
@@ -182,10 +186,34 @@
         font-weight: 950;
         cursor: pointer;
         box-shadow: 0 18px 44px rgba(215,164,95,.20);
+        transition:
+            transform .2s ease,
+            opacity .2s ease,
+            box-shadow .2s ease;
     }
 
-    .email-submit:hover {
+    .email-submit:hover:not(:disabled) {
         transform: translateY(-1px);
+        box-shadow: 0 22px 50px rgba(215,164,95,.26);
+    }
+
+    .email-submit:disabled {
+        cursor: wait;
+        opacity: .72;
+        transform: none;
+    }
+
+    .email-security-status {
+        min-height: 18px;
+        margin: 12px 0 0;
+        color: #747a81;
+        font-size: 9px;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    .email-security-status.is-active {
+        color: #caa46d;
     }
 
     .email-back {
@@ -198,6 +226,11 @@
         text-decoration: none;
         font-size: 11px;
         font-weight: 800;
+        transition: color .2s ease;
+    }
+
+    .email-back a:hover {
+        color: #f0c983;
     }
 
     .email-note {
@@ -207,8 +240,44 @@
         line-height: 1.7;
         text-align: center;
     }
+
+    .email-security-note {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,.055);
+        color: #555b61;
+        font-size: 9px;
+        line-height: 1.7;
+        text-align: center;
+    }
+
+    .email-security-note strong {
+        color: #8e949b;
+        font-weight: 850;
+    }
+
+    @media (max-width: 560px) {
+        .email-verify-page {
+            padding: 24px 14px;
+        }
+
+        .email-verify-card {
+            padding: 26px 20px;
+            border-radius: 20px;
+        }
+
+        .email-verify-title {
+            font-size: 34px;
+        }
+
+        .email-code-input {
+            font-size: 24px;
+            letter-spacing: 8px;
+        }
+    }
 </style>
 @endpush
+
 
 @section('content')
 <section class="email-verify-page">
@@ -225,42 +294,57 @@
             </div>
         </div>
 
+
         <div class="email-verify-kicker">
             Secure access
         </div>
 
+
         <h1 class="email-verify-title">
             Vul je code in
         </h1>
+
 
         <p class="email-verify-subtitle">
             We hebben een 6-cijferige code naar je e-mailadres gestuurd.
             Vul de code hieronder in om verder te gaan.
         </p>
 
+
+        {{-- SUCCESS --}}
         @if (session('success'))
             <div class="email-message success">
                 {{ session('success') }}
             </div>
         @endif
 
+
+        {{-- SESSION ERROR --}}
         @if (session('error'))
             <div class="email-message error">
                 {{ session('error') }}
             </div>
         @endif
 
+
+        {{-- VALIDATION ERRORS --}}
         @if ($errors->any())
             <div class="email-message error">
                 @foreach ($errors->all() as $error)
-                    <div>{{ $error }}</div>
+                    <div>
+                        {{ $error }}
+                    </div>
                 @endforeach
             </div>
         @endif
 
+
+        {{-- VERIFY FORM --}}
         <form
+            id="emailCodeVerifyForm"
             method="POST"
             action="{{ route('email-login.verify') }}"
+            data-login-security-form
         >
             @csrf
 
@@ -283,6 +367,7 @@
                     required
                 >
             </div>
+
 
             <div class="email-field">
                 <label
@@ -308,13 +393,23 @@
                 >
             </div>
 
+
             <button
+                id="emailCodeSubmitButton"
                 class="email-submit"
                 type="submit"
             >
                 Code controleren
             </button>
+
+
+            <div
+                id="emailSecurityStatus"
+                class="email-security-status"
+                aria-live="polite"
+            ></div>
         </form>
+
 
         <div class="email-back">
             <a href="{{ route('login') }}">
@@ -322,11 +417,440 @@
             </a>
         </div>
 
+
         <div class="email-note">
             De code is {{ $expiresInMinutes ?? 5 }} minuten geldig.
             Deel je code nooit met iemand anders.
         </div>
 
+
+        <div class="email-security-note">
+            <strong>Loginbeveiliging:</strong>
+            bij een succesvolle login registreren we onder andere
+            apparaat, browser, IP-adres en timezone.
+            Een precieze locatie wordt alleen opgeslagen wanneer je browser
+            daar toestemming voor geeft.
+        </div>
+
     </div>
 </section>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    const form = document.getElementById('emailCodeVerifyForm');
+    const submitButton = document.getElementById('emailCodeSubmitButton');
+    const statusElement = document.getElementById('emailSecurityStatus');
+
+    if (!form) {
+        return;
+    }
+
+    let securityContextHandled = false;
+
+    const securityContextUrl = @json(route('login-security.context'));
+    const csrfToken = @json(csrf_token());
+
+    const geolocationOptions = {
+        enableHighAccuracy: @json(
+            (bool) config(
+                'login-security.precise_location.high_accuracy',
+                true
+            )
+        ),
+
+        timeout: {{ max(
+            1000,
+            (int) config(
+                'login-security.precise_location.timeout_ms',
+                10000
+            )
+        ) }},
+
+        maximumAge: {{ max(
+            0,
+            (int) config(
+                'login-security.precise_location.maximum_age_ms',
+                60000
+            )
+        ) }}
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status weergeven
+    |--------------------------------------------------------------------------
+    */
+
+    function setStatus(message, active = false) {
+        if (!statusElement) {
+            return;
+        }
+
+        statusElement.textContent = message || '';
+        statusElement.classList.toggle(
+            'is-active',
+            Boolean(active)
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submitknop blokkeren tijdens beveiligingscontrole
+    |--------------------------------------------------------------------------
+    */
+
+    function setSubmitting(submitting) {
+        if (!submitButton) {
+            return;
+        }
+
+        submitButton.disabled = Boolean(submitting);
+
+        submitButton.textContent = submitting
+            ? 'Beveiliging controleren...'
+            : 'Code controleren';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Browser timezone
+    |--------------------------------------------------------------------------
+    */
+
+    function getBrowserTimezone() {
+        try {
+            return Intl.DateTimeFormat()
+                .resolvedOptions()
+                .timeZone || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Browsercontext naar Laravel sturen
+    |--------------------------------------------------------------------------
+    */
+
+    async function storeSecurityContext(payload) {
+        try {
+            const response = await fetch(
+                securityContextUrl,
+                {
+                    method: 'POST',
+
+                    credentials: 'same-origin',
+
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            return response.ok;
+        } catch (error) {
+            /*
+            |--------------------------------------------------------------------------
+            | Security-context mag login nooit blokkeren
+            |--------------------------------------------------------------------------
+            */
+
+            return false;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Locatietoestemming bepalen
+    |--------------------------------------------------------------------------
+    */
+
+    async function getPermissionState() {
+        if (
+            !navigator.permissions ||
+            typeof navigator.permissions.query !== 'function'
+        ) {
+            return null;
+        }
+
+        try {
+            const result = await navigator.permissions.query({
+                name: 'geolocation'
+            });
+
+            return result.state || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GPS-locatie ophalen
+    |--------------------------------------------------------------------------
+    */
+
+    function getCurrentLocation() {
+        return new Promise(function (resolve) {
+            /*
+            |--------------------------------------------------------------------------
+            | Browser ondersteunt geen geolocation
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                !navigator.geolocation ||
+                typeof navigator.geolocation.getCurrentPosition !== 'function'
+            ) {
+                resolve({
+                    permission: 'unsupported',
+                    latitude: null,
+                    longitude: null,
+                    accuracy: null
+                });
+
+                return;
+            }
+
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    resolve({
+                        permission: 'granted',
+
+                        latitude:
+                            Number.isFinite(position.coords.latitude)
+                                ? position.coords.latitude
+                                : null,
+
+                        longitude:
+                            Number.isFinite(position.coords.longitude)
+                                ? position.coords.longitude
+                                : null,
+
+                        accuracy:
+                            Number.isFinite(position.coords.accuracy)
+                                ? position.coords.accuracy
+                                : null
+                    });
+                },
+
+                function (error) {
+                    let permission = 'unavailable';
+
+                    if (
+                        error &&
+                        error.code === error.PERMISSION_DENIED
+                    ) {
+                        permission = 'denied';
+                    }
+
+                    resolve({
+                        permission: permission,
+                        latitude: null,
+                        longitude: null,
+                        accuracy: null
+                    });
+                },
+
+                geolocationOptions
+            );
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Volledige security-context verzamelen
+    |--------------------------------------------------------------------------
+    */
+
+    async function captureLoginSecurityContext() {
+        const payload = {
+            browser_timezone: getBrowserTimezone(),
+
+            latitude: null,
+
+            longitude: null,
+
+            location_accuracy: null,
+
+            location_permission: 'unknown'
+        };
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Geen geolocation beschikbaar
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !navigator.geolocation ||
+            typeof navigator.geolocation.getCurrentPosition !== 'function'
+        ) {
+            payload.location_permission = 'unsupported';
+
+            await storeSecurityContext(payload);
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bestaande permission-status proberen te lezen
+        |--------------------------------------------------------------------------
+        */
+
+        const permissionState = await getPermissionState();
+
+        if (permissionState === 'denied') {
+            payload.location_permission = 'denied';
+
+            await storeSecurityContext(payload);
+
+            return;
+        }
+
+
+        if (permissionState === 'prompt') {
+            payload.location_permission = 'prompt';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Browserlocatie aanvragen
+        |--------------------------------------------------------------------------
+        |
+        | Als toestemming nog niet is gegeven, toont de browser zelf
+        | de officiële toestemmingsvraag.
+        |
+        */
+
+        const location = await getCurrentLocation();
+
+        payload.location_permission =
+            location.permission || 'unknown';
+
+        payload.latitude =
+            location.latitude;
+
+        payload.longitude =
+            location.longitude;
+
+        payload.location_accuracy =
+            location.accuracy;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Context opslaan
+        |--------------------------------------------------------------------------
+        */
+
+        await storeSecurityContext(
+            payload
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Form submit
+    |--------------------------------------------------------------------------
+    */
+
+    form.addEventListener(
+        'submit',
+        async function (event) {
+            /*
+            |--------------------------------------------------------------------------
+            | Context is al verwerkt
+            |--------------------------------------------------------------------------
+            */
+
+            if (securityContextHandled) {
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Normale submit tijdelijk stoppen
+            |--------------------------------------------------------------------------
+            */
+
+            event.preventDefault();
+
+            setSubmitting(true);
+
+            setStatus(
+                'Loginbeveiliging wordt voorbereid...',
+                true
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Security-context verzamelen
+            |--------------------------------------------------------------------------
+            |
+            | Een fout hierin mag het inloggen nooit blokkeren.
+            |
+            */
+
+            try {
+                await captureLoginSecurityContext();
+            } catch (error) {
+                //
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Login alsnog uitvoeren
+            |--------------------------------------------------------------------------
+            */
+
+            securityContextHandled = true;
+
+            setStatus(
+                'Code wordt gecontroleerd...',
+                true
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Native submit
+            |--------------------------------------------------------------------------
+            |
+            | Hiermee voorkomen we dat dezelfde submit-listener opnieuw
+            | wordt uitgevoerd.
+            |
+            */
+
+            HTMLFormElement.prototype.submit.call(
+                form
+            );
+        }
+    );
+});
+</script>
 @endsection
