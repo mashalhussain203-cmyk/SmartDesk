@@ -86,7 +86,7 @@
             'ipapi.co' => 'IP-geolocatie',
             'ip' => 'IP-geolocatie',
             'disabled' => 'Uitgeschakeld',
-            'privacy_disabled' => 'Niet opgeslagen wegens privacy-instelling',
+            'privacy_disabled' => 'Niet opgeslagen',
             default => 'Niet beschikbaar',
         };
 
@@ -144,8 +144,7 @@
         ? 'Ja'
         : 'Nee';
 
-    $securityUrl = $securityUrl
-        ?? route('security.index');
+    $securityUrl = $securityUrl ?? route('security.index');
 
     $userAgent = filled($activity->user_agent ?? null)
         ? (string) $activity->user_agent
@@ -183,31 +182,18 @@
         ? $countryLabel
         : 'Niet beschikbaar';
 
-    $statusAccent = (bool) ($activity->is_new_device ?? false)
-        ? '#d8a44e'
-        : '#76b98d';
+    $isNewDevice = (bool) ($activity->is_new_device ?? false);
 @endphp
 
 <!doctype html>
 <html lang="nl">
 <head>
     <meta charset="utf-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
-    <meta
-        name="color-scheme"
-        content="light"
-    >
-    <meta
-        name="supported-color-schemes"
-        content="light"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <meta name="supported-color-schemes" content="dark light">
 
-    <title>
-        Nieuwe login gedetecteerd
-    </title>
+    <title>Nieuwe login gedetecteerd</title>
 
     <style>
         html,
@@ -216,7 +202,7 @@
             padding: 0 !important;
             width: 100% !important;
             min-width: 100% !important;
-            background: #eceef1 !important;
+            background: #08090b !important;
             -webkit-text-size-adjust: 100% !important;
             -ms-text-size-adjust: 100% !important;
         }
@@ -227,51 +213,59 @@
         }
 
         img {
-            border: 0;
-            outline: none;
-            text-decoration: none;
+            border: 0 !important;
+            outline: none !important;
+            text-decoration: none !important;
         }
 
         a {
-            text-decoration: none;
+            text-decoration: none !important;
+        }
+
+        .hybrid-card {
+            display: inline-block !important;
+            width: 100% !important;
+            max-width: 196px !important;
+            vertical-align: top !important;
         }
 
         @media only screen and (max-width: 620px) {
             .page-pad {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
+                padding: 0 !important;
+            }
+
+            .shell {
+                border-left: 0 !important;
+                border-right: 0 !important;
             }
 
             .content-pad {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
+                padding-left: 18px !important;
+                padding-right: 18px !important;
+            }
+
+            .brand-name {
+                font-size: 21px !important;
+                letter-spacing: 4px !important;
             }
 
             .hero-title {
-                font-size: 30px !important;
-                line-height: 1.12 !important;
+                font-size: 31px !important;
+                line-height: 1.08 !important;
             }
 
             .hero-copy {
-                font-size: 16px !important;
+                font-size: 15px !important;
                 line-height: 1.65 !important;
+            }
+
+            .hybrid-card {
+                max-width: 100% !important;
             }
 
             .section-title {
                 font-size: 13px !important;
-                letter-spacing: 2px !important;
-            }
-
-            .detail-label {
-                font-size: 11px !important;
-            }
-
-            .detail-value {
-                font-size: 17px !important;
-            }
-
-            .technical-value {
-                font-size: 11px !important;
+                letter-spacing: 1.7px !important;
             }
 
             .cta {
@@ -279,22 +273,26 @@
                 width: 100% !important;
                 box-sizing: border-box !important;
             }
+
+            .technical {
+                font-size: 10px !important;
+            }
         }
     </style>
 </head>
 
 <body
+    bgcolor="#08090b"
     style="
         margin: 0;
         padding: 0;
         width: 100%;
         min-width: 100%;
-        background: #eceef1;
+        background: #08090b;
+        color: #ffffff;
         font-family: Arial, Helvetica, sans-serif;
-        color: #17191d;
     "
 >
-    <!-- Preheader -->
     <div
         style="
             display: none;
@@ -305,8 +303,7 @@
             mso-hide: all;
         "
     >
-        Nieuwe succesvolle login op je Mashal Automotive-account via
-        {{ $resolvedProviderLabel }}.
+        Nieuwe succesvolle login op je Mashal Automotive-account via {{ $resolvedProviderLabel }}.
     </div>
 
     <table
@@ -315,18 +312,18 @@
         cellpadding="0"
         cellspacing="0"
         border="0"
-        bgcolor="#eceef1"
+        bgcolor="#08090b"
         style="
             width: 100%;
-            background: #eceef1;
+            background: #08090b;
         "
     >
         <tr>
             <td
-                align="center"
                 class="page-pad"
+                align="center"
                 style="
-                    padding: 26px 12px;
+                    padding: 24px 12px;
                 "
             >
                 <table
@@ -335,22 +332,22 @@
                     cellpadding="0"
                     cellspacing="0"
                     border="0"
-                    bgcolor="#ffffff"
+                    bgcolor="#0d0f12"
+                    class="shell"
                     style="
                         width: 100%;
                         max-width: 680px;
-                        background: #ffffff;
-                        border: 1px solid #dfe2e6;
+                        background: #0d0f12;
+                        border: 1px solid #2b2d31;
                     "
                 >
-                    <!-- Premium topbar -->
+                    <!-- GOLD TOP LINE -->
                     <tr>
                         <td
-                            bgcolor="#090a0c"
+                            bgcolor="#cfa557"
                             style="
-                                background: #090a0c;
-                                padding: 0;
-                                height: 12px;
+                                height: 4px;
+                                background: #cfa557;
                                 font-size: 0;
                                 line-height: 0;
                             "
@@ -359,96 +356,14 @@
                         </td>
                     </tr>
 
-                    <!-- Brand -->
-                    <tr>
-                        <td
-                            bgcolor="#111214"
-                            class="content-pad"
-                            style="
-                                background: #111214;
-                                padding: 25px 32px 22px 32px;
-                            "
-                        >
-                            <div
-                                style="
-                                    color: #d1a15b;
-                                    font-size: 15px;
-                                    line-height: 1.3;
-                                    font-weight: 800;
-                                    letter-spacing: 3px;
-                                    text-transform: uppercase;
-                                "
-                            >
-                                Mashal Automotive Security
-                            </div>
-
-                            <div
-                                style="
-                                    margin-top: 12px;
-                                    width: 52px;
-                                    height: 3px;
-                                    background: #d1a15b;
-                                    font-size: 0;
-                                    line-height: 0;
-                                "
-                            >
-                                &nbsp;
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Hero -->
+                    <!-- BRAND HEADER -->
                     <tr>
                         <td
                             class="content-pad"
+                            bgcolor="#0a0b0d"
                             style="
-                                padding: 34px 32px 18px 32px;
-                            "
-                        >
-                            <h1
-                                class="hero-title"
-                                style="
-                                    margin: 0;
-                                    color: #111214;
-                                    font-size: 38px;
-                                    line-height: 1.12;
-                                    font-weight: 800;
-                                    letter-spacing: -0.8px;
-                                "
-                            >
-                                Nieuwe login gedetecteerd
-                            </h1>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td
-                            class="content-pad"
-                            style="
-                                padding: 0 32px 28px 32px;
-                            "
-                        >
-                            <p
-                                class="hero-copy"
-                                style="
-                                    margin: 0;
-                                    color: #6e737c;
-                                    font-size: 17px;
-                                    line-height: 1.7;
-                                "
-                            >
-                                Hallo {{ $emailName }}, er is een succesvolle login
-                                op je Mashal Automotive-account geregistreerd.
-                            </p>
-                        </td>
-                    </tr>
-
-                    <!-- Status card -->
-                    <tr>
-                        <td
-                            class="content-pad"
-                            style="
-                                padding: 0 32px 30px 32px;
+                                padding: 28px 30px 26px 30px;
+                                background: #0a0b0d;
                             "
                         >
                             <table
@@ -457,213 +372,400 @@
                                 cellpadding="0"
                                 cellspacing="0"
                                 border="0"
-                                bgcolor="#f7f4ee"
-                                style="
-                                    width: 100%;
-                                    background: #f7f4ee;
-                                    border: 1px solid #e7dcc8;
-                                "
                             >
                                 <tr>
                                     <td
-                                        width="6"
-                                        bgcolor="{{ $statusAccent }}"
+                                        width="58"
+                                        valign="middle"
                                         style="
-                                            width: 6px;
-                                            background: {{ $statusAccent }};
-                                            font-size: 0;
-                                            line-height: 0;
+                                            width: 58px;
+                                            vertical-align: middle;
                                         "
                                     >
-                                        &nbsp;
+                                        <table
+                                            role="presentation"
+                                            width="48"
+                                            height="48"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            bgcolor="#cfa557"
+                                            style="
+                                                width: 48px;
+                                                height: 48px;
+                                                background: #cfa557;
+                                            "
+                                        >
+                                            <tr>
+                                                <td
+                                                    align="center"
+                                                    valign="middle"
+                                                    style="
+                                                        color: #0a0b0d;
+                                                        font-size: 30px;
+                                                        line-height: 48px;
+                                                        font-weight: 900;
+                                                        text-align: center;
+                                                        vertical-align: middle;
+                                                    "
+                                                >
+                                                    M
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
 
                                     <td
+                                        valign="middle"
                                         style="
-                                            padding: 18px 18px;
+                                            vertical-align: middle;
                                         "
                                     >
                                         <div
+                                            class="brand-name"
                                             style="
-                                                color: #a57736;
-                                                font-size: 11px;
-                                                line-height: 1.3;
+                                                color: #ffffff;
+                                                font-size: 24px;
+                                                line-height: 1.1;
                                                 font-weight: 800;
-                                                letter-spacing: 2px;
+                                                letter-spacing: 5px;
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            Apparaatstatus
+                                            Mashal
                                         </div>
 
                                         <div
                                             style="
                                                 margin-top: 5px;
-                                                color: #17191d;
-                                                font-size: 19px;
-                                                line-height: 1.4;
-                                                font-weight: 800;
+                                                color: #cfa557;
+                                                font-size: 10px;
+                                                line-height: 1.3;
+                                                font-weight: 700;
+                                                letter-spacing: 4px;
+                                                text-transform: uppercase;
                                             "
                                         >
-                                            {{ $newDeviceLabel }}
+                                            Automotive
                                         </div>
+                                    </td>
 
-                                        <div
-                                            style="
-                                                margin-top: 4px;
-                                                color: #747982;
-                                                font-size: 13px;
-                                                line-height: 1.5;
-                                            "
-                                        >
-                                            {{ $resolvedProviderLabel }}
-                                            ·
-                                            {{ $resolvedDisplayTime }}
-                                        </div>
+                                    <td
+                                        align="right"
+                                        valign="top"
+                                        style="
+                                            color: #9b9ea5;
+                                            font-size: 9px;
+                                            line-height: 1.4;
+                                            letter-spacing: 1.7px;
+                                            text-transform: uppercase;
+                                            vertical-align: top;
+                                        "
+                                    >
+                                        Security notification
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    <!-- Section: Login -->
+                    <!-- HERO -->
                     <tr>
                         <td
                             class="content-pad"
+                            bgcolor="#0d0f12"
                             style="
-                                padding: 0 32px 10px 32px;
+                                padding: 34px 30px 8px 30px;
+                                background: #0d0f12;
                             "
                         >
-                            <div
-                                class="section-title"
+                            <h1
+                                class="hero-title"
                                 style="
-                                    color: #b98743;
-                                    font-size: 13px;
-                                    line-height: 1.4;
-                                    font-weight: 800;
-                                    letter-spacing: 2.5px;
-                                    text-transform: uppercase;
+                                    margin: 0;
+                                    color: #ffffff;
+                                    font-size: 38px;
+                                    line-height: 1.08;
+                                    font-weight: 900;
+                                    letter-spacing: -0.7px;
                                 "
                             >
-                                Logininformatie
+                                Nieuwe login
+                                <span style="color: #cfa557;">
+                                    gedetecteerd
+                                </span>
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td
+                            class="content-pad"
+                            bgcolor="#0d0f12"
+                            style="
+                                padding: 8px 30px 28px 30px;
+                                background: #0d0f12;
+                            "
+                        >
+                            <p
+                                class="hero-copy"
+                                style="
+                                    margin: 0;
+                                    color: #c9cbd0;
+                                    font-size: 16px;
+                                    line-height: 1.65;
+                                "
+                            >
+                                Hallo {{ $emailName }}, er is een succesvolle login op je
+                                Mashal Automotive-account geregistreerd.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- 3 HYBRID CARDS -->
+                    <tr>
+                        <td
+                            class="content-pad"
+                            align="center"
+                            style="
+                                padding: 0 24px 30px 24px;
+                                font-size: 0;
+                                text-align: center;
+                            "
+                        >
+                            <!--[if mso]>
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                            <td width="33.33%" valign="top">
+                            <![endif]-->
+
+                            <div class="hybrid-card" style="display:inline-block;width:100%;max-width:196px;vertical-align:top;">
+                                <table
+                                    role="presentation"
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    border="0"
+                                    bgcolor="#121417"
+                                    style="
+                                        width: 100%;
+                                        background: #121417;
+                                        border: 1px solid #34363b;
+                                    "
+                                >
+                                    <tr>
+                                        <td
+                                            style="
+                                                padding: 18px 16px;
+                                                text-align: left;
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    color: #cfa557;
+                                                    font-size: 10px;
+                                                    line-height: 1.3;
+                                                    font-weight: 800;
+                                                    letter-spacing: 1.5px;
+                                                    text-transform: uppercase;
+                                                "
+                                            >
+                                                Apparaat
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    margin-top: 9px;
+                                                    color: #ffffff;
+                                                    font-size: 17px;
+                                                    line-height: 1.35;
+                                                    font-weight: 800;
+                                                "
+                                            >
+                                                {{ $deviceLabel }}
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    margin-top: 7px;
+                                                    color: #a9acb2;
+                                                    font-size: 12px;
+                                                    line-height: 1.55;
+                                                "
+                                            >
+                                                {{ $deviceTypeLabel }}
+                                                <br>
+                                                {{ $browserLabel }}
+                                                <br>
+                                                {{ $operatingSystemLabel }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
-                        </td>
-                    </tr>
 
-                    <!-- Apparaat -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Apparaat
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $deviceLabel }}
-                                        </div>
-                                        <div
-                                            style="margin-top:4px; color:#a6a9af; font-size:13px; line-height:1.5;">
-                                            {{ $deviceTypeLabel }}
-                                        </div>
-                                    </td>
-                                </tr>
+                            <!--[if mso]>
+                            </td>
+                            <td width="33.33%" valign="top">
+                            <![endif]-->
+
+                            <div class="hybrid-card" style="display:inline-block;width:100%;max-width:196px;vertical-align:top;">
+                                <table
+                                    role="presentation"
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    border="0"
+                                    bgcolor="#121417"
+                                    style="
+                                        width: 100%;
+                                        background: #121417;
+                                        border: 1px solid #34363b;
+                                    "
+                                >
+                                    <tr>
+                                        <td
+                                            style="
+                                                padding: 18px 16px;
+                                                text-align: left;
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    color: #cfa557;
+                                                    font-size: 10px;
+                                                    line-height: 1.3;
+                                                    font-weight: 800;
+                                                    letter-spacing: 1.5px;
+                                                    text-transform: uppercase;
+                                                "
+                                            >
+                                                Loginmethode
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    margin-top: 9px;
+                                                    color: #ffffff;
+                                                    font-size: 17px;
+                                                    line-height: 1.35;
+                                                    font-weight: 800;
+                                                "
+                                            >
+                                                {{ $resolvedProviderLabel }}
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    display: inline-block;
+                                                    margin-top: 9px;
+                                                    padding: 5px 8px;
+                                                    background: {{ $isNewDevice ? '#6e4e20' : '#224b31' }};
+                                                    color: {{ $isNewDevice ? '#f2cc88' : '#9de0b3' }};
+                                                    font-size: 10px;
+                                                    line-height: 1.3;
+                                                    font-weight: 800;
+                                                "
+                                            >
+                                                {{ $newDeviceLabel }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!--[if mso]>
+                            </td>
+                            <td width="33.33%" valign="top">
+                            <![endif]-->
+
+                            <div class="hybrid-card" style="display:inline-block;width:100%;max-width:196px;vertical-align:top;">
+                                <table
+                                    role="presentation"
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    border="0"
+                                    bgcolor="#121417"
+                                    style="
+                                        width: 100%;
+                                        background: #121417;
+                                        border: 1px solid #34363b;
+                                    "
+                                >
+                                    <tr>
+                                        <td
+                                            style="
+                                                padding: 18px 16px;
+                                                text-align: left;
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    color: #cfa557;
+                                                    font-size: 10px;
+                                                    line-height: 1.3;
+                                                    font-weight: 800;
+                                                    letter-spacing: 1.5px;
+                                                    text-transform: uppercase;
+                                                "
+                                            >
+                                                Tijdstip
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    margin-top: 9px;
+                                                    color: #ffffff;
+                                                    font-size: 16px;
+                                                    line-height: 1.4;
+                                                    font-weight: 800;
+                                                "
+                                            >
+                                                {{ $resolvedDisplayTime }}
+                                            </div>
+
+                                            <div
+                                                style="
+                                                    margin-top: 7px;
+                                                    color: #a9acb2;
+                                                    font-size: 12px;
+                                                    line-height: 1.55;
+                                                "
+                                            >
+                                                {{ $timezoneLabel }}
+                                                <br>
+                                                UTC: {{ $utcTime }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!--[if mso]>
+                            </td>
+                            </tr>
                             </table>
+                            <![endif]-->
                         </td>
                     </tr>
 
-                    <!-- Browser -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Browser & besturingssysteem
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $browserLabel }}
-                                        </div>
-                                        <div
-                                            style="margin-top:4px; color:#a6a9af; font-size:13px; line-height:1.5;">
-                                            {{ $operatingSystemLabel }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Methode -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Loginmethode
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $resolvedProviderLabel }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Tijd -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 30px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Tijdstip
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $resolvedDisplayTime }}
-                                        </div>
-                                        <div
-                                            style="margin-top:5px; color:#a6a9af; font-size:13px; line-height:1.55;">
-                                            {{ $timezoneLabel }}
-                                            <br>
-                                            UTC: {{ $utcTime }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Section: Network -->
+                    <!-- NETWORK SECTION -->
                     <tr>
                         <td
                             class="content-pad"
                             style="
-                                padding: 0 32px 10px 32px;
+                                padding: 0 30px 10px 30px;
                             "
                         >
                             <div
                                 class="section-title"
                                 style="
-                                    color: #b98743;
-                                    font-size: 13px;
+                                    color: #cfa557;
+                                    font-size: 14px;
                                     line-height: 1.4;
                                     font-weight: 800;
-                                    letter-spacing: 2.5px;
+                                    letter-spacing: 2px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -672,97 +774,149 @@
                         </td>
                     </tr>
 
-                    <!-- IP -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f7f8f9"
-                                style="width:100%; background:#f7f8f9; border:1px solid #e3e5e8;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#8b6b3c; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            IP-adres
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#17191d; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $ipAddress }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Estimated location -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f7f8f9"
-                                style="width:100%; background:#f7f8f9; border:1px solid #e3e5e8;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#8b6b3c; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Geschatte locatie
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#17191d; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $safeLocationLabel }}
-                                        </div>
-                                        <div
-                                            style="margin-top:5px; color:#747982; font-size:13px; line-height:1.55;">
-                                            Stad: {{ $cityLabel }}
-                                            <br>
-                                            Regio: {{ $regionLabel }}
-                                            <br>
-                                            Land: {{ $countryDisplay }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Source/timezones -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 30px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f7f8f9"
-                                style="width:100%; background:#f7f8f9; border:1px solid #e3e5e8;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#8b6b3c; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Locatiebron & timezones
-                                        </div>
-                                        <div
-                                            style="margin-top:6px; color:#17191d; font-size:15px; line-height:1.65; font-weight:700;">
-                                            {{ $locationSourceLabel }}
-                                            <br>
-                                            Browser: {{ $browserTimezone }}
-                                            <br>
-                                            IP: {{ $ipTimezone }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Section: Precise location -->
                     <tr>
                         <td
                             class="content-pad"
                             style="
-                                padding: 0 32px 10px 32px;
+                                padding: 0 30px 28px 30px;
+                            "
+                        >
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                bgcolor="#111316"
+                                style="
+                                    width: 100%;
+                                    background: #111316;
+                                    border: 1px solid #34363b;
+                                "
+                            >
+                                <tr>
+                                    <td style="padding: 18px 18px 8px 18px;">
+                                        <div
+                                            style="
+                                                color: #8f939a;
+                                                font-size: 10px;
+                                                line-height: 1.3;
+                                                font-weight: 700;
+                                                letter-spacing: 1.3px;
+                                                text-transform: uppercase;
+                                            "
+                                        >
+                                            IP-adres
+                                        </div>
+
+                                        <div
+                                            style="
+                                                margin-top: 4px;
+                                                color: #ffffff;
+                                                font-size: 16px;
+                                                line-height: 1.4;
+                                                font-weight: 800;
+                                            "
+                                        >
+                                            {{ $ipAddress }}
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding: 8px 18px;">
+                                        <div
+                                            style="
+                                                color: #8f939a;
+                                                font-size: 10px;
+                                                line-height: 1.3;
+                                                font-weight: 700;
+                                                letter-spacing: 1.3px;
+                                                text-transform: uppercase;
+                                            "
+                                        >
+                                            Geschatte locatie
+                                        </div>
+
+                                        <div
+                                            style="
+                                                margin-top: 4px;
+                                                color: #ffffff;
+                                                font-size: 16px;
+                                                line-height: 1.45;
+                                                font-weight: 800;
+                                            "
+                                        >
+                                            {{ $safeLocationLabel }}
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding: 8px 18px;">
+                                        <div
+                                            style="
+                                                color: #c3c6cb;
+                                                font-size: 13px;
+                                                line-height: 1.7;
+                                            "
+                                        >
+                                            <strong style="color:#ffffff;">Stad:</strong>
+                                            {{ $cityLabel }}
+                                            <br>
+
+                                            <strong style="color:#ffffff;">Regio:</strong>
+                                            {{ $regionLabel }}
+                                            <br>
+
+                                            <strong style="color:#ffffff;">Land:</strong>
+                                            {{ $countryDisplay }}
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding: 8px 18px 18px 18px;">
+                                        <div
+                                            style="
+                                                color: #c3c6cb;
+                                                font-size: 13px;
+                                                line-height: 1.7;
+                                            "
+                                        >
+                                            <strong style="color:#ffffff;">Locatiebron:</strong>
+                                            {{ $locationSourceLabel }}
+                                            <br>
+
+                                            <strong style="color:#ffffff;">Browser-timezone:</strong>
+                                            {{ $browserTimezone }}
+                                            <br>
+
+                                            <strong style="color:#ffffff;">IP-timezone:</strong>
+                                            {{ $ipTimezone }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- PRECISE LOCATION -->
+                    <tr>
+                        <td
+                            class="content-pad"
+                            style="
+                                padding: 0 30px 10px 30px;
                             "
                         >
                             <div
                                 class="section-title"
                                 style="
-                                    color: #b98743;
-                                    font-size: 13px;
+                                    color: #cfa557;
+                                    font-size: 14px;
                                     line-height: 1.4;
                                     font-weight: 800;
-                                    letter-spacing: 2.5px;
+                                    letter-spacing: 2px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -771,88 +925,86 @@
                         </td>
                     </tr>
 
-                    <!-- Permission -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Locatietoestemming
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800;">
-                                            {{ $locationPermission }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- GPS -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111214"
-                                style="width:100%; background:#111214; border:1px solid #24262b;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#c89a58; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            GPS-coördinaten
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#ffffff; font-size:18px; line-height:1.45; font-weight:800; word-break:break-word;">
-                                            {{ $coordinatesLabel }}
-                                        </div>
-                                        <div
-                                            style="margin-top:5px; color:#a6a9af; font-size:13px; line-height:1.55;">
-                                            Nauwkeurigheid: {{ $accuracyLabel }}
-                                            <br>
-                                            Vastgelegd: {{ $preciseCapturedAt }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Privacy note -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 30px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fbf7ef"
-                                style="width:100%; background:#fbf7ef; border:1px solid #eee0c7;">
-                                <tr>
-                                    <td style="padding:14px 16px;">
-                                        <div
-                                            style="color:#725c3c; font-size:12px; line-height:1.65;">
-                                            Precieze GPS-locatie wordt alleen opgeslagen wanneer
-                                            daarvoor in de browser toestemming is gegeven.
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Section: Technical -->
                     <tr>
                         <td
                             class="content-pad"
                             style="
-                                padding: 0 32px 10px 32px;
+                                padding: 0 30px 28px 30px;
+                            "
+                        >
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                bgcolor="#111316"
+                                style="
+                                    width: 100%;
+                                    background: #111316;
+                                    border: 1px solid #34363b;
+                                "
+                            >
+                                <tr>
+                                    <td style="padding: 18px;">
+                                        <div
+                                            style="
+                                                color: #c3c6cb;
+                                                font-size: 13px;
+                                                line-height: 1.8;
+                                            "
+                                        >
+                                            <strong style="color:#ffffff;">Locatietoestemming:</strong>
+                                            <span
+                                                style="
+                                                    display: inline-block;
+                                                    padding: 3px 7px;
+                                                    background: {{ ($activity->location_permission ?? null) === 'granted' ? '#1f5631' : '#503520' }};
+                                                    color: {{ ($activity->location_permission ?? null) === 'granted' ? '#a9edbb' : '#f2cb90' }};
+                                                    font-size: 11px;
+                                                    font-weight: 800;
+                                                "
+                                            >
+                                                {{ $locationPermission }}
+                                            </span>
+
+                                            <br>
+
+                                            <strong style="color:#ffffff;">GPS-coördinaten:</strong>
+                                            {{ $coordinatesLabel }}
+
+                                            <br>
+
+                                            <strong style="color:#ffffff;">GPS-nauwkeurigheid:</strong>
+                                            {{ $accuracyLabel }}
+
+                                            <br>
+
+                                            <strong style="color:#ffffff;">Vastgelegd op:</strong>
+                                            {{ $preciseCapturedAt }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- TECHNICAL -->
+                    <tr>
+                        <td
+                            class="content-pad"
+                            style="
+                                padding: 0 30px 10px 30px;
                             "
                         >
                             <div
                                 class="section-title"
                                 style="
-                                    color: #b98743;
-                                    font-size: 13px;
+                                    color: #cfa557;
+                                    font-size: 14px;
                                     line-height: 1.4;
                                     font-weight: 800;
-                                    letter-spacing: 2.5px;
+                                    letter-spacing: 2px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -861,49 +1013,51 @@
                         </td>
                     </tr>
 
-                    <!-- Remember -->
                     <tr>
-                        <td class="content-pad" style="padding: 0 32px 10px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f7f8f9"
-                                style="width:100%; background:#f7f8f9; border:1px solid #e3e5e8;">
+                        <td
+                            class="content-pad"
+                            style="
+                                padding: 0 30px 30px 30px;
+                            "
+                        >
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                bgcolor="#111316"
+                                style="
+                                    width: 100%;
+                                    background: #111316;
+                                    border: 1px solid #34363b;
+                                "
+                            >
                                 <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#8b6b3c; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            Ingelogd blijven
-                                        </div>
-                                        <div class="detail-value"
-                                            style="margin-top:5px; color:#17191d; font-size:18px; line-height:1.45; font-weight:800;">
+                                    <td style="padding: 18px;">
+                                        <div
+                                            style="
+                                                color: #c3c6cb;
+                                                font-size: 13px;
+                                                line-height: 1.7;
+                                            "
+                                        >
+                                            <strong style="color:#ffffff;">Onthouden:</strong>
                                             {{ $rememberLabel }}
                                         </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
 
-                    <!-- User agent -->
-                    <tr>
-                        <td class="content-pad" style="padding: 0 32px 32px 32px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f7f8f9"
-                                style="width:100%; background:#f7f8f9; border:1px solid #e3e5e8;">
-                                <tr>
-                                    <td style="padding:16px 18px;">
-                                        <div class="detail-label"
-                                            style="color:#8b6b3c; font-size:11px; line-height:1.3; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;">
-                                            User-Agent
-                                        </div>
                                         <div
-                                            class="technical-value"
+                                            class="technical"
                                             style="
-                                                margin-top:6px;
-                                                color:#5c6068;
-                                                font-family:'Courier New', Courier, monospace;
-                                                font-size:11px;
-                                                line-height:1.6;
-                                                font-weight:400;
-                                                word-break:break-all;
-                                                overflow-wrap:anywhere;
+                                                margin-top: 12px;
+                                                padding-top: 12px;
+                                                border-top: 1px solid #2d3035;
+                                                color: #8e9299;
+                                                font-family: 'Courier New', Courier, monospace;
+                                                font-size: 11px;
+                                                line-height: 1.6;
+                                                word-break: break-all;
+                                                overflow-wrap: anywhere;
                                             "
                                         >
                                             {{ $userAgent }}
@@ -914,12 +1068,42 @@
                         </td>
                     </tr>
 
-                    <!-- Security CTA -->
+                    <!-- CTA -->
+                    <tr>
+                        <td
+                            class="content-pad"
+                            align="center"
+                            style="
+                                padding: 0 30px 28px 30px;
+                                text-align: center;
+                            "
+                        >
+                            <a
+                                href="{{ $securityUrl }}"
+                                class="cta"
+                                style="
+                                    display: inline-block;
+                                    padding: 15px 26px;
+                                    background: #d4aa5c;
+                                    border: 1px solid #e1bd78;
+                                    color: #0a0b0d;
+                                    font-size: 14px;
+                                    line-height: 1.2;
+                                    font-weight: 900;
+                                    letter-spacing: 0.2px;
+                                "
+                            >
+                                Bekijk loginactiviteit →
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- WAS JIJ DIT -->
                     <tr>
                         <td
                             class="content-pad"
                             style="
-                                padding: 0 32px 14px 32px;
+                                padding: 0 30px 28px 30px;
                             "
                         >
                             <table
@@ -928,98 +1112,71 @@
                                 cellpadding="0"
                                 cellspacing="0"
                                 border="0"
-                                bgcolor="#111214"
+                                bgcolor="#101216"
                                 style="
                                     width: 100%;
-                                    background: #111214;
-                                    border: 1px solid #24262b;
+                                    background: #101216;
+                                    border: 1px solid #34363b;
                                 "
                             >
                                 <tr>
-                                    <td
-                                        style="
-                                            padding: 22px 20px;
-                                            text-align: center;
-                                        "
-                                    >
+                                    <td style="padding: 18px;">
                                         <div
                                             style="
                                                 color: #ffffff;
-                                                font-size: 17px;
+                                                font-size: 15px;
                                                 line-height: 1.4;
                                                 font-weight: 800;
                                             "
                                         >
-                                            Herken je deze login?
+                                            Was jij dit?
                                         </div>
 
                                         <div
                                             style="
-                                                margin-top: 7px;
-                                                color: #a9acb2;
-                                                font-size: 13px;
-                                                line-height: 1.6;
+                                                margin-top: 6px;
+                                                color: #aeb1b7;
+                                                font-size: 12px;
+                                                line-height: 1.65;
                                             "
                                         >
-                                            Als jij dit was, hoef je niets te doen.
-                                            Was jij dit niet, controleer dan direct je account.
+                                            Dan hoef je niets te doen. Herken je deze login niet,
+                                            wijzig dan direct je wachtwoord en controleer je account.
                                         </div>
-
-                                        <div style="height:18px; font-size:0; line-height:0;">
-                                            &nbsp;
-                                        </div>
-
-                                        <a
-                                            href="{{ $securityUrl }}"
-                                            class="cta"
-                                            style="
-                                                display: inline-block;
-                                                padding: 14px 24px;
-                                                background: #d1a15b;
-                                                border: 1px solid #d1a15b;
-                                                color: #111214;
-                                                font-size: 14px;
-                                                line-height: 1.2;
-                                                font-weight: 800;
-                                                text-decoration: none;
-                                                letter-spacing: 0.3px;
-                                            "
-                                        >
-                                            Bekijk loginactiviteit
-                                        </a>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    <!-- Explanatory text -->
+                    <!-- PRIVACY -->
                     <tr>
                         <td
                             class="content-pad"
                             style="
-                                padding: 12px 32px 26px 32px;
+                                padding: 0 30px 28px 30px;
                             "
                         >
                             <p
                                 style="
                                     margin: 0;
-                                    color: #7c818a;
-                                    font-size: 12px;
+                                    color: #777b82;
+                                    font-size: 11px;
                                     line-height: 1.7;
                                 "
                             >
-                                De IP-locatie is een schatting en kan bijvoorbeeld
-                                je internetprovider, VPN of mobiele provider tonen.
-                                Browsers geven daarnaast niet altijd het exacte model
-                                van een telefoon vrij.
+                                De IP-locatie is een schatting en kan bijvoorbeeld je
+                                internetprovider, VPN of mobiele provider tonen. Precieze
+                                GPS-locatie wordt alleen opgeslagen wanneer daarvoor in de
+                                browser toestemming is gegeven. Browsers geven daarnaast niet
+                                altijd het exacte model van een telefoon vrij.
                             </p>
 
                             <p
                                 style="
-                                    margin: 13px 0 0 0;
-                                    color: #7c818a;
-                                    font-size: 12px;
+                                    margin: 12px 0 0 0;
+                                    color: #777b82;
+                                    font-size: 11px;
                                     line-height: 1.7;
                                 "
                             >
@@ -1029,23 +1186,24 @@
                         </td>
                     </tr>
 
-                    <!-- Footer -->
+                    <!-- FOOTER -->
                     <tr>
                         <td
                             bgcolor="#090a0c"
                             style="
+                                padding: 22px 24px;
                                 background: #090a0c;
-                                padding: 20px 24px;
+                                border-top: 1px solid #cfa557;
                                 text-align: center;
                             "
                         >
                             <div
                                 style="
-                                    color: #d1a15b;
-                                    font-size: 11px;
+                                    color: #cfa557;
+                                    font-size: 10px;
                                     line-height: 1.4;
                                     font-weight: 800;
-                                    letter-spacing: 2px;
+                                    letter-spacing: 3px;
                                     text-transform: uppercase;
                                 "
                             >
@@ -1054,13 +1212,13 @@
 
                             <div
                                 style="
-                                    margin-top: 5px;
-                                    color: #8c9097;
-                                    font-size: 11px;
+                                    margin-top: 7px;
+                                    color: #777b82;
+                                    font-size: 10px;
                                     line-height: 1.5;
                                 "
                             >
-                                Automatische beveiligingsmelding
+                                Veilig. Betrouwbaar. Altijd onderweg.
                             </div>
                         </td>
                     </tr>
