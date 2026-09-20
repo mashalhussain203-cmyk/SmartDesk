@@ -34,14 +34,24 @@ class LoginSecurityService
         Request $request
     ): ?LoginActivity {
         if (! (bool) config('login-security.enabled', true)) {
+            $this->forgetBrowserMetadata(
+                $request
+            );
+
             return null;
         }
 
         if (! $event->user instanceof User) {
+            $this->forgetBrowserMetadata(
+                $request
+            );
+
             return null;
         }
 
         $user = $event->user;
+
+        try {
 
         /*
         |--------------------------------------------------------------------------
@@ -85,19 +95,42 @@ class LoginSecurityService
         |
         */
 
-        $ipAddress = $this->ipLocation->resolveClientIp(
+        $resolvedIpAddress = $this->ipLocation->resolveClientIp(
             $request
         );
+
+        $ipAddress = (bool) config(
+            'login-security.privacy.store_ip',
+            true
+        )
+            ? $resolvedIpAddress
+            : null;
 
         /*
         |--------------------------------------------------------------------------
         | Geschatte IP-locatie
         |--------------------------------------------------------------------------
+        |
+        | Voor de schatting mag het tijdelijk bepaalde client-IP worden gebruikt,
+        | ook wanneer het IP-adres zelf niet in login_activities wordt opgeslagen.
+        |
         */
 
-        $location = $this->safeLookupLocation(
-            $ipAddress
-        );
+        $location = (bool) config(
+            'login-security.privacy.store_estimated_location',
+            true
+        )
+            ? $this->safeLookupLocation(
+                $resolvedIpAddress
+            )
+            : [
+                'city' => null,
+                'region' => null,
+                'country' => null,
+                'country_code' => null,
+                'timezone' => null,
+                'source' => 'privacy_disabled',
+            ];
 
         /*
         |--------------------------------------------------------------------------
@@ -171,6 +204,10 @@ class LoginSecurityService
         */
 
         $isNewDevice =
+            (bool) config(
+                'login-security.new_device.enabled',
+                true
+            ) &&
             $hadPreviousActivity &&
             ! $knownFingerprint;
 
@@ -213,7 +250,13 @@ class LoginSecurityService
                 $device['operating_system']
                 ?? 'Onbekend besturingssysteem',
 
-            'user_agent' => $userAgent !== ''
+            'user_agent' => (
+                (bool) config(
+                    'login-security.privacy.store_user_agent',
+                    true
+                ) &&
+                $userAgent !== ''
+            )
                 ? mb_substr(
                     $userAgent,
                     0,
@@ -328,23 +371,24 @@ class LoginSecurityService
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijke browsermetadata verwijderen
-        |--------------------------------------------------------------------------
-        |
-        | Vooral belangrijk voor OAuth:
-        |
-        | metadata die vóór de redirect in de sessie is opgeslagen mag niet
-        | per ongeluk bij een volgende login opnieuw gebruikt worden.
-        |
-        */
-
-        $this->forgetBrowserMetadata(
-            $request
-        );
-
         return $activity->fresh();
+
+        } finally {
+            /*
+            |--------------------------------------------------------------------------
+            | Tijdelijke browsermetadata altijd verwijderen
+            |--------------------------------------------------------------------------
+            |
+            | Ook wanneer een onverwachte fout optreedt tijdens het opslaan van
+            | de loginactiviteit mag browser-/GPS-context niet blijven staan en
+            | later aan een andere login worden gekoppeld.
+            |
+            */
+
+            $this->forgetBrowserMetadata(
+                $request
+            );
+        }
     }
 
     /**
@@ -673,6 +717,8 @@ class LoginSecurityService
 
             'email-login.link.verify' => 'magic_link',
 
+            'email-login.link.complete' => 'magic_link',
+
             'google.callback' => 'google',
 
             'github.callback' => 'github',
@@ -959,6 +1005,8 @@ class LoginSecurityService
                 'login_security.location_accuracy',
 
                 'login_security.location_permission',
+
+                'login_security.context_captured_at',
             ]);
         } catch (Throwable) {
             //
