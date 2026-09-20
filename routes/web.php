@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\EmailLoginController;
 use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\FavoriteController;
@@ -11,6 +12,17 @@ use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+
+/*
+|--------------------------------------------------------------------------
+| Mashal Studio web routes
+|--------------------------------------------------------------------------
+|
+| Publieke routes, authenticatie, image workflow, Mashal AI, account,
+| beveiliging en admin-functionaliteit staan hieronder gegroepeerd.
+|
+*/
 
 
 /*
@@ -596,8 +608,13 @@ Route::middleware('auth')->group(function () {
         | - crop;
         | - rotate;
         | - flip;
+        | - enhance;
+        | - pasfoto / ID-foto;
         | - compress;
-        | - convert.
+        | - convert;
+        | - achtergrond verwijderen;
+        | - achtergrondkleur;
+        | - achtergrondafbeelding.
         |
         | Iedere geslaagde bewerking wordt als nieuwe ImageVersion opgeslagen.
         |
@@ -689,6 +706,35 @@ Route::middleware('auth')->group(function () {
                     ->name('images.versions.destroy');
             });
     });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mashal AI
+    |--------------------------------------------------------------------------
+    |
+    | De AI-chat staat bewust binnen de auth-groep:
+    |
+    | - alleen ingelogde gebruikers kunnen de chat openen;
+    | - de browser krijgt nooit Modal credentials te zien;
+    | - Laravel verstuurt de request server-side naar Modal;
+    | - de POST-route heeft extra throttling tegen misbruik.
+    |
+    */
+
+    Route::get(
+        '/ai-chat',
+        [AiChatController::class, 'index']
+    )
+        ->name('ai.chat');
+
+
+    Route::post(
+        '/ai-chat/message',
+        [AiChatController::class, 'message']
+    )
+        ->middleware('throttle:20,1')
+        ->name('ai.chat.message');
 
 
     /*
