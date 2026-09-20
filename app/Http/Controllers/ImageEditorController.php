@@ -35,6 +35,8 @@ class ImageEditorController extends Controller
         'crop',
         'rotate',
         'flip',
+        'enhance',
+        'passport',
         'compress',
         'convert',
     ];
@@ -265,6 +267,43 @@ class ImageEditorController extends Controller
                     'integer',
                     'min:1',
                     'max:100',
+                ],
+
+                'brightness' => [
+                    'nullable',
+                    'integer',
+                    'min:-100',
+                    'max:100',
+                ],
+
+                'contrast' => [
+                    'nullable',
+                    'integer',
+                    'min:-100',
+                    'max:100',
+                ],
+
+                'grayscale' => [
+                    'nullable',
+                    'boolean',
+                ],
+
+                'sepia' => [
+                    'nullable',
+                    'boolean',
+                ],
+
+                'blur' => [
+                    'nullable',
+                    'integer',
+                    'min:0',
+                    'max:6',
+                ],
+
+                'passport_preset' => [
+                    'nullable',
+                    'string',
+                    'max:80',
                 ],
 
                 'format' => [
@@ -698,6 +737,20 @@ class ImageEditorController extends Controller
                 $data
             ),
 
+            'enhance' => $this->enhanceImage(
+                $source,
+                $sourceWidth,
+                $sourceHeight,
+                $data
+            ),
+
+            'passport' => $this->passportImage(
+                $source,
+                $sourceWidth,
+                $sourceHeight,
+                $data
+            ),
+
             'compress',
             'convert' => $this->copyImage(
                 $source,
@@ -1019,6 +1072,314 @@ class ImageEditorController extends Controller
         }
 
         return $canvas;
+    }
+
+    private function enhanceImage(
+        mixed $source,
+        int $width,
+        int $height,
+        array $data
+    ): mixed {
+        if (! function_exists('imagefilter')) {
+            throw ValidationException::withMessages([
+                'image' => 'Deze PHP/GD-installatie ondersteunt geen afbeeldingsfilters.',
+            ]);
+        }
+
+        $output = $this->copyImage(
+            $source,
+            $width,
+            $height
+        );
+
+        try {
+            $brightness = max(
+                -100,
+                min(
+                    100,
+                    (int) ($data['brightness'] ?? 0)
+                )
+            );
+
+            $contrast = max(
+                -100,
+                min(
+                    100,
+                    (int) ($data['contrast'] ?? 0)
+                )
+            );
+
+            $blur = max(
+                0,
+                min(
+                    6,
+                    (int) ($data['blur'] ?? 0)
+                )
+            );
+
+            $grayscale = filter_var(
+                $data['grayscale'] ?? false,
+                FILTER_VALIDATE_BOOLEAN
+            );
+
+            $sepia = filter_var(
+                $data['sepia'] ?? false,
+                FILTER_VALIDATE_BOOLEAN
+            );
+
+            if ($brightness !== 0) {
+                $this->applyGdFilter(
+                    $output,
+                    IMG_FILTER_BRIGHTNESS,
+                    (int) round(
+                        ($brightness / 100) * 255
+                    )
+                );
+            }
+
+            if ($contrast !== 0) {
+                /*
+                 * GD gebruikt een omgekeerde contrastschaal:
+                 * negatieve waarden verhogen het contrast.
+                 */
+                $this->applyGdFilter(
+                    $output,
+                    IMG_FILTER_CONTRAST,
+                    -$contrast
+                );
+            }
+
+            if ($grayscale || $sepia) {
+                $this->applyGdFilter(
+                    $output,
+                    IMG_FILTER_GRAYSCALE
+                );
+            }
+
+            if ($sepia) {
+                $this->applyGdFilter(
+                    $output,
+                    IMG_FILTER_COLORIZE,
+                    90,
+                    55,
+                    30,
+                    0
+                );
+            }
+
+            for ($index = 0; $index < $blur; $index++) {
+                $this->applyGdFilter(
+                    $output,
+                    IMG_FILTER_GAUSSIAN_BLUR
+                );
+            }
+
+            return $output;
+        } catch (Throwable $exception) {
+            $this->destroyGdImage(
+                $output
+            );
+
+            throw $exception;
+        }
+    }
+
+    private function passportImage(
+        mixed $source,
+        int $sourceWidth,
+        int $sourceHeight,
+        array $data
+    ): mixed {
+        $presetKey = trim(
+            (string) ($data['passport_preset'] ?? 'nl_35x45')
+        );
+
+        $presets = config(
+            'mashal-image.passport_presets',
+            []
+        );
+
+        if (
+            ! is_array($presets) ||
+            ! isset($presets[$presetKey]) ||
+            ! is_array($presets[$presetKey])
+        ) {
+            throw ValidationException::withMessages([
+                'passport_preset' => 'Kies een geldige pasfoto- of ID-fotopreset.',
+            ]);
+        }
+
+        $preset = $presets[$presetKey];
+
+        $targetWidth = (int) ($preset['width'] ?? 0);
+        $targetHeight = (int) ($preset['height'] ?? 0);
+
+        $this->assertValidDimensions(
+            $targetWidth,
+            $targetHeight
+        );
+
+        $crop = $this->passportCropRectangle(
+            $sourceWidth,
+            $sourceHeight,
+            $targetWidth,
+            $targetHeight,
+            $data
+        );
+
+        $cropped = $this->cropImage(
+            $source,
+            $sourceWidth,
+            $sourceHeight,
+            [
+                'crop_x' => $crop['x'],
+                'crop_y' => $crop['y'],
+                'crop_width' => $crop['width'],
+                'crop_height' => $crop['height'],
+            ]
+        );
+
+        try {
+            return $this->resizeImage(
+                $cropped,
+                imagesx($cropped),
+                imagesy($cropped),
+                [
+                    'width' => $targetWidth,
+                    'height' => $targetHeight,
+                    'keep_aspect' => false,
+                ]
+            );
+        } finally {
+            $this->destroyGdImage(
+                $cropped
+            );
+        }
+    }
+
+    /**
+     * Maak het gekozen cropgebied passend op de exportverhouding zonder
+     * buiten de bronafbeelding te komen.
+     *
+     * @return array{x:int,y:int,width:int,height:int}
+     */
+    private function passportCropRectangle(
+        int $sourceWidth,
+        int $sourceHeight,
+        int $targetWidth,
+        int $targetHeight,
+        array $data
+    ): array {
+        $x = max(
+            0,
+            (int) ($data['crop_x'] ?? 0)
+        );
+
+        $y = max(
+            0,
+            (int) ($data['crop_y'] ?? 0)
+        );
+
+        $width = max(
+            1,
+            min(
+                $sourceWidth - $x,
+                (int) ($data['crop_width'] ?? $sourceWidth)
+            )
+        );
+
+        $height = max(
+            1,
+            min(
+                $sourceHeight - $y,
+                (int) ($data['crop_height'] ?? $sourceHeight)
+            )
+        );
+
+        $targetRatio =
+            $targetWidth /
+            $targetHeight;
+
+        $cropRatio =
+            $width /
+            $height;
+
+        if ($cropRatio > $targetRatio) {
+            $newWidth = max(
+                1,
+                (int) round(
+                    $height *
+                    $targetRatio
+                )
+            );
+
+            $x += max(
+                0,
+                (int) floor(
+                    ($width - $newWidth) / 2
+                )
+            );
+
+            $width = $newWidth;
+        } elseif ($cropRatio < $targetRatio) {
+            $newHeight = max(
+                1,
+                (int) round(
+                    $width /
+                    $targetRatio
+                )
+            );
+
+            $y += max(
+                0,
+                (int) floor(
+                    ($height - $newHeight) / 2
+                )
+            );
+
+            $height = $newHeight;
+        }
+
+        $x = max(
+            0,
+            min(
+                $x,
+                $sourceWidth - $width
+            )
+        );
+
+        $y = max(
+            0,
+            min(
+                $y,
+                $sourceHeight - $height
+            )
+        );
+
+        return [
+            'x' => $x,
+            'y' => $y,
+            'width' => $width,
+            'height' => $height,
+        ];
+    }
+
+    private function applyGdFilter(
+        mixed $image,
+        int $filter,
+        mixed ...$arguments
+    ): void {
+        $applied = imagefilter(
+            $image,
+            $filter,
+            ...$arguments
+        );
+
+        if (! $applied) {
+            throw new RuntimeException(
+                'Een afbeeldingsfilter kon niet worden toegepast.'
+            );
+        }
     }
 
     private function createTransparentCanvas(
@@ -1584,6 +1945,8 @@ class ImageEditorController extends Controller
             'crop' => 'Crop',
             'rotate' => 'Rotatie',
             'flip' => 'Spiegelen',
+            'enhance' => 'Fotoverbetering',
+            'passport' => 'Pasfoto / ID-foto',
             'compress' => 'Compressie',
             'convert' => 'Conversie',
             default => ucfirst($operation),

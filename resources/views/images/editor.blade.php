@@ -852,6 +852,74 @@
         }
     }
 
+    .passport-guide {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .passport-head-guide {
+        position: absolute;
+        left: 50%;
+        top: 12%;
+        width: 56%;
+        height: 68%;
+        transform: translateX(-50%);
+        border: 2px dashed rgba(239, 208, 145, .9);
+        border-radius: 48% 48% 45% 45% / 42% 42% 56% 56%;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, .28);
+    }
+
+    .passport-eye-line {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 43%;
+        height: 1px;
+        border-top: 1px dashed rgba(120, 210, 255, .95);
+    }
+
+    .passport-eye-line span {
+        position: absolute;
+        right: 0;
+        top: -18px;
+        padding: 3px 6px;
+        border-radius: 999px;
+        color: #d8f3ff;
+        background: rgba(7, 14, 19, .72);
+        font-size: 8px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .passport-center-line {
+        position: absolute;
+        top: 6%;
+        bottom: 6%;
+        left: 50%;
+        width: 1px;
+        border-left: 1px dashed rgba(255, 255, 255, .32);
+    }
+
+    .visual-crop-box.is-passport .crop-handle-n,
+    .visual-crop-box.is-passport .crop-handle-e,
+    .visual-crop-box.is-passport .crop-handle-s,
+    .visual-crop-box.is-passport .crop-handle-w {
+        display: none;
+    }
+
+    .passport-preset-info {
+        margin-top: 12px;
+        padding: 11px 12px;
+        border: 1px solid rgba(120, 210, 255, .12);
+        border-radius: 11px;
+        color: #93b7c8;
+        background: rgba(120, 210, 255, .025);
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
     /*
      * --------------------------------------------------------------------------
      * Mobile editor
@@ -1438,6 +1506,16 @@
                         Flip
                     </button>
 
+                    <button type="button" class="editor-tool" data-operation="enhance" role="tab" aria-selected="false">
+                        <span class="tool-icon">✦</span>
+                        Enhance
+                    </button>
+
+                    <button type="button" class="editor-tool" data-operation="passport" role="tab" aria-selected="false">
+                        <span class="tool-icon">▣</span>
+                        Pasfoto
+                    </button>
+
                     <button type="button" class="editor-tool" data-operation="compress" role="tab" aria-selected="false">
                         <span class="tool-icon">↓</span>
                         Compress
@@ -1547,6 +1625,19 @@
                                     aria-label="Sleep om het cropgebied te verplaatsen. Gebruik de handgrepen om het formaat te wijzigen."
                                 >
                                     <div class="visual-crop-grid" aria-hidden="true"></div>
+
+                                    <div
+                                        id="passport-guide"
+                                        class="passport-guide"
+                                        hidden
+                                        aria-hidden="true"
+                                    >
+                                        <div class="passport-head-guide"></div>
+                                        <div class="passport-eye-line">
+                                            <span>ogenlijn</span>
+                                        </div>
+                                        <div class="passport-center-line"></div>
+                                    </div>
 
                                     <span class="crop-handle crop-handle-nw" data-crop-handle="nw" aria-hidden="true"></span>
                                     <span class="crop-handle crop-handle-n" data-crop-handle="n" aria-hidden="true"></span>
@@ -1816,6 +1907,162 @@
 
                             <button class="editor-submit" type="submit">
                                 Spiegelen
+                            </button>
+                        </div>
+                    </section>
+
+                    <section
+                        class="editor-operation-panel"
+                        data-panel="enhance"
+                        hidden
+                    >
+                        <div class="property-card">
+                            <h3>Enhance</h3>
+
+                            <p>
+                                Verbeter de foto live. De preview verandert direct terwijl je schuift.
+                                Opslaan maakt daarna een echte nieuwe versie op de server.
+                            </p>
+
+                            <label class="editor-field">
+                                <span>
+                                    Helderheid:
+                                    <strong id="enhance-brightness-value">0</strong>
+                                </span>
+
+                                <input
+                                    id="enhance-brightness"
+                                    type="range"
+                                    name="brightness"
+                                    min="-100"
+                                    max="100"
+                                    value="0"
+                                >
+                            </label>
+
+                            <label class="editor-field">
+                                <span>
+                                    Contrast:
+                                    <strong id="enhance-contrast-value">0</strong>
+                                </span>
+
+                                <input
+                                    id="enhance-contrast"
+                                    type="range"
+                                    name="contrast"
+                                    min="-100"
+                                    max="100"
+                                    value="0"
+                                >
+                            </label>
+
+                            <label class="editor-field">
+                                <span>
+                                    Blur:
+                                    <strong id="enhance-blur-value">0</strong>
+                                </span>
+
+                                <input
+                                    id="enhance-blur"
+                                    type="range"
+                                    name="blur"
+                                    min="0"
+                                    max="6"
+                                    step="1"
+                                    value="0"
+                                >
+                            </label>
+
+                            <label class="editor-checkbox">
+                                <input
+                                    id="enhance-grayscale"
+                                    type="checkbox"
+                                    name="grayscale"
+                                    value="1"
+                                >
+
+                                <span>Zwart-wit</span>
+                            </label>
+
+                            <label class="editor-checkbox">
+                                <input
+                                    id="enhance-sepia"
+                                    type="checkbox"
+                                    name="sepia"
+                                    value="1"
+                                >
+
+                                <span>Sepia / warme klassieke look</span>
+                            </label>
+
+                            <div class="editor-source-note">
+                                Tip: combineer lichte contrast- en helderheidsaanpassingen voor een natuurlijk resultaat.
+                            </div>
+
+                            <button class="editor-submit" type="submit">
+                                Verbetering opslaan
+                            </button>
+                        </div>
+                    </section>
+
+                    <section
+                        class="editor-operation-panel"
+                        data-panel="passport"
+                        hidden
+                    >
+                        <div class="property-card">
+                            <h3>Pasfoto / ID-foto</h3>
+
+                            <p>
+                                Kies een formaat en positioneer de persoon rechtstreeks in het kader.
+                                Het kader behoudt automatisch de juiste verhouding.
+                            </p>
+
+                            <label class="editor-field">
+                                <span>Formaat</span>
+
+                                <select
+                                    id="passport-preset"
+                                    name="passport_preset"
+                                >
+                                    @foreach (config('mashal-image.passport_presets', []) as $presetKey => $preset)
+                                        <option
+                                            value="{{ $presetKey }}"
+                                            data-width="{{ (int) ($preset['width'] ?? 0) }}"
+                                            data-height="{{ (int) ($preset['height'] ?? 0) }}"
+                                            data-description="{{ $preset['description'] ?? '' }}"
+                                            @selected($presetKey === 'nl_35x45')
+                                        >
+                                            {{ $preset['label'] ?? $presetKey }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </label>
+
+                            <div
+                                id="passport-preset-info"
+                                class="passport-preset-info"
+                                role="status"
+                                aria-live="polite"
+                            ></div>
+
+                            <div class="crop-instructions">
+                                Sleep het kader over de foto en gebruik de hoekhandgrepen.
+                                De gestippelde hoofdvorm en ogenlijn zijn visuele hulpmiddelen,
+                                geen automatische officiële goedkeuring.
+                            </div>
+
+                            <input id="passport-crop-x" type="hidden" name="crop_x" value="0">
+                            <input id="passport-crop-y" type="hidden" name="crop_y" value="0">
+                            <input id="passport-crop-width" type="hidden" name="crop_width" value="{{ $image->width }}">
+                            <input id="passport-crop-height" type="hidden" name="crop_height" value="{{ $image->height }}">
+
+                            <div class="editor-source-note">
+                                Controleer altijd de actuele officiële foto-eisen van het document waarvoor je exporteert.
+                            </div>
+
+                            <button class="editor-submit" type="submit">
+                                Pasfoto-versie maken
                             </button>
                         </div>
                     </section>
@@ -2173,6 +2420,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const convertQualityValue =
         document.getElementById('convert-quality-value');
 
+    const enhanceBrightness =
+        document.getElementById('enhance-brightness');
+
+    const enhanceBrightnessValue =
+        document.getElementById('enhance-brightness-value');
+
+    const enhanceContrast =
+        document.getElementById('enhance-contrast');
+
+    const enhanceContrastValue =
+        document.getElementById('enhance-contrast-value');
+
+    const enhanceBlur =
+        document.getElementById('enhance-blur');
+
+    const enhanceBlurValue =
+        document.getElementById('enhance-blur-value');
+
+    const enhanceGrayscale =
+        document.getElementById('enhance-grayscale');
+
+    const enhanceSepia =
+        document.getElementById('enhance-sepia');
+
+    const passportPreset =
+        document.getElementById('passport-preset');
+
+    const passportPresetInfo =
+        document.getElementById('passport-preset-info');
+
+    const passportGuide =
+        document.getElementById('passport-guide');
+
+    const passportCropX =
+        document.getElementById('passport-crop-x');
+
+    const passportCropY =
+        document.getElementById('passport-crop-y');
+
+    const passportCropWidth =
+        document.getElementById('passport-crop-width');
+
+    const passportCropHeight =
+        document.getElementById('passport-crop-height');
+
     const propertiesSidebar =
         document.getElementById('editor-properties-sidebar');
 
@@ -2211,6 +2503,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     let cropPointerState = null;
+    let lockedCropAspectRatio = null;
 
     function positiveNumber(value, fallback = null) {
         const parsed = Number(value);
@@ -2403,12 +2696,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (operation === 'crop') {
+            lockedCropAspectRatio = null;
+            cropBox?.classList.remove('is-passport');
+
+            if (passportGuide) {
+                passportGuide.hidden = true;
+            }
+
             showSourceWithoutTransformation();
             showVisualCrop();
             setStatus(
                 'Crop is actief. Sleep het kader of de witte handgrepen rechtstreeks op de afbeelding.'
             );
             return;
+        }
+
+        if (operation === 'passport') {
+            configurePassportMode(true);
+            showSourceWithoutTransformation();
+            showVisualCrop();
+
+            setStatus(
+                'Pasfoto-modus actief. Positioneer de persoon in het kader en gebruik de hoekhandgrepen.'
+            );
+
+            return;
+        }
+
+        lockedCropAspectRatio = null;
+        cropBox?.classList.remove('is-passport');
+
+        if (passportGuide) {
+            passportGuide.hidden = true;
         }
 
         hideVisualCrop();
@@ -3075,6 +3394,26 @@ document.addEventListener('DOMContentLoaded', function () {
             cropHeight.value =
                 Math.round(cropRect.height);
         }
+
+        if (passportCropX) {
+            passportCropX.value =
+                Math.round(cropRect.x);
+        }
+
+        if (passportCropY) {
+            passportCropY.value =
+                Math.round(cropRect.y);
+        }
+
+        if (passportCropWidth) {
+            passportCropWidth.value =
+                Math.round(cropRect.width);
+        }
+
+        if (passportCropHeight) {
+            passportCropHeight.value =
+                Math.round(cropRect.height);
+        }
     }
 
     function updateVisualCrop() {
@@ -3173,6 +3512,147 @@ document.addEventListener('DOMContentLoaded', function () {
                 ) + '%';
             cropShadeRight.style.height = height + '%';
         }
+    }
+
+    function selectedPassportPreset() {
+        if (!passportPreset) {
+            return null;
+        }
+
+        return passportPreset.options[
+            passportPreset.selectedIndex
+        ] || null;
+    }
+
+    function passportTarget() {
+        const option =
+            selectedPassportPreset();
+
+        if (!option) {
+            return null;
+        }
+
+        const width =
+            positiveNumber(
+                option.dataset.width,
+                null
+            );
+
+        const height =
+            positiveNumber(
+                option.dataset.height,
+                null
+            );
+
+        if (
+            width === null ||
+            height === null
+        ) {
+            return null;
+        }
+
+        return {
+            width,
+            height,
+            ratio:
+                width / height,
+            description:
+                option.dataset.description || '',
+            label:
+                option.textContent?.trim() || 'Pasfoto',
+        };
+    }
+
+    function updatePassportPresetInfo() {
+        const target =
+            passportTarget();
+
+        if (
+            !target ||
+            !passportPresetInfo
+        ) {
+            return;
+        }
+
+        passportPresetInfo.textContent =
+            target.label +
+            ' · export ' +
+            Math.round(target.width) +
+            ' × ' +
+            Math.round(target.height) +
+            ' px' +
+            (
+                target.description
+                    ? ' · ' + target.description
+                    : ''
+            );
+    }
+
+    function initializePassportCrop(force = false) {
+        const target =
+            passportTarget();
+
+        if (!target) {
+            return;
+        }
+
+        lockedCropAspectRatio =
+            target.ratio;
+
+        cropBox?.classList.add(
+            'is-passport'
+        );
+
+        if (passportGuide) {
+            passportGuide.hidden = false;
+        }
+
+        if (
+            !force &&
+            cropRect.width > 1 &&
+            cropRect.height > 1
+        ) {
+            updateVisualCrop();
+            return;
+        }
+
+        const maxWidth =
+            sourceWidth * 0.84;
+
+        const maxHeight =
+            sourceHeight * 0.84;
+
+        let width =
+            maxWidth;
+
+        let height =
+            width /
+            target.ratio;
+
+        if (height > maxHeight) {
+            height =
+                maxHeight;
+
+            width =
+                height *
+                target.ratio;
+        }
+
+        cropRect = normalizeCropRect({
+            x:
+                (sourceWidth - width) / 2,
+            y:
+                (sourceHeight - height) / 2,
+            width,
+            height,
+        });
+
+        updateVisualCrop();
+    }
+
+    function configurePassportMode(force = false) {
+        updatePassportPresetInfo();
+        initializePassportCrop(force);
     }
 
     function initializeVisualCrop(force = false) {
@@ -3334,6 +3814,21 @@ document.addEventListener('DOMContentLoaded', function () {
         startRect,
         handle
     ) {
+        if (
+            lockedCropAspectRatio &&
+            ['nw', 'ne', 'se', 'sw'].includes(handle)
+        ) {
+            resizeLockedAspectCropRect(
+                deltaX,
+                deltaY,
+                startRect,
+                handle,
+                lockedCropAspectRatio
+            );
+
+            return;
+        }
+
         const minSize =
             minimumCropSize();
 
@@ -3398,6 +3893,151 @@ document.addEventListener('DOMContentLoaded', function () {
                 right - left,
             height:
                 bottom - top,
+        });
+    }
+
+    function resizeLockedAspectCropRect(
+        deltaX,
+        deltaY,
+        startRect,
+        handle,
+        ratio
+    ) {
+        const minSize =
+            minimumCropSize();
+
+        let anchorX;
+        let anchorY;
+        let horizontalDirection;
+        let verticalDirection;
+
+        switch (handle) {
+            case 'nw':
+                anchorX =
+                    startRect.x +
+                    startRect.width;
+                anchorY =
+                    startRect.y +
+                    startRect.height;
+                horizontalDirection = -1;
+                verticalDirection = -1;
+                break;
+
+            case 'ne':
+                anchorX =
+                    startRect.x;
+                anchorY =
+                    startRect.y +
+                    startRect.height;
+                horizontalDirection = 1;
+                verticalDirection = -1;
+                break;
+
+            case 'sw':
+                anchorX =
+                    startRect.x +
+                    startRect.width;
+                anchorY =
+                    startRect.y;
+                horizontalDirection = -1;
+                verticalDirection = 1;
+                break;
+
+            default:
+                anchorX =
+                    startRect.x;
+                anchorY =
+                    startRect.y;
+                horizontalDirection = 1;
+                verticalDirection = 1;
+                break;
+        }
+
+        const startCornerX =
+            horizontalDirection === 1
+                ? startRect.x + startRect.width
+                : startRect.x;
+
+        const startCornerY =
+            verticalDirection === 1
+                ? startRect.y + startRect.height
+                : startRect.y;
+
+        const pointerX =
+            startCornerX +
+            deltaX;
+
+        const pointerY =
+            startCornerY +
+            deltaY;
+
+        const rawWidth =
+            Math.abs(
+                pointerX -
+                anchorX
+            );
+
+        const rawHeight =
+            Math.abs(
+                pointerY -
+                anchorY
+            );
+
+        let width =
+            Math.max(
+                minSize,
+                rawWidth,
+                rawHeight * ratio
+            );
+
+        const maxWidthFromX =
+            horizontalDirection === 1
+                ? sourceWidth - anchorX
+                : anchorX;
+
+        const maxHeightFromY =
+            verticalDirection === 1
+                ? sourceHeight - anchorY
+                : anchorY;
+
+        width =
+            Math.min(
+                width,
+                maxWidthFromX,
+                maxHeightFromY * ratio
+            );
+
+        width =
+            Math.max(
+                Math.min(
+                    width,
+                    sourceWidth
+                ),
+                Math.min(
+                    minSize,
+                    maxWidthFromX
+                )
+            );
+
+        const height =
+            width /
+            ratio;
+
+        const x =
+            horizontalDirection === 1
+                ? anchorX
+                : anchorX - width;
+
+        const y =
+            verticalDirection === 1
+                ? anchorY
+                : anchorY - height;
+
+        cropRect = normalizeCropRect({
+            x,
+            y,
+            width,
+            height,
         });
     }
 
@@ -3792,6 +4432,101 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    function renderEnhance() {
+        const result =
+            renderBaseCanvas(
+                sourceWidth,
+                sourceHeight
+            );
+
+        const canvas =
+            createCanvas(
+                result.canvas.width,
+                result.canvas.height
+            );
+
+        const ctx =
+            context2d(
+                canvas
+            );
+
+        const brightness =
+            integer(
+                enhanceBrightness?.value,
+                0
+            );
+
+        const contrast =
+            integer(
+                enhanceContrast?.value,
+                0
+            );
+
+        const blur =
+            integer(
+                enhanceBlur?.value,
+                0
+            );
+
+        const filters = [
+            'brightness(' +
+                Math.max(
+                    0,
+                    100 + brightness
+                ) +
+                '%)',
+
+            'contrast(' +
+                Math.max(
+                    0,
+                    100 + contrast
+                ) +
+                '%)',
+        ];
+
+        if (enhanceGrayscale?.checked) {
+            filters.push(
+                'grayscale(100%)'
+            );
+        }
+
+        if (enhanceSepia?.checked) {
+            filters.push(
+                'sepia(100%)'
+            );
+        }
+
+        if (blur > 0) {
+            filters.push(
+                'blur(' +
+                Math.min(
+                    12,
+                    blur * 0.75
+                ) +
+                'px)'
+            );
+        }
+
+        ctx.filter =
+            filters.join(' ');
+
+        ctx.drawImage(
+            result.canvas,
+            0,
+            0
+        );
+
+        ctx.filter = 'none';
+
+        return {
+            canvas,
+            targetWidth:
+                sourceWidth,
+            targetHeight:
+                sourceHeight,
+        };
+    }
+
     function renderCopy() {
         return renderBaseCanvas(
             sourceWidth,
@@ -3812,6 +4547,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             case 'flip':
                 return renderFlip();
+
+            case 'enhance':
+                return renderEnhance();
 
             case 'compress':
             case 'convert':
@@ -3976,6 +4714,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 crop: 'Crop',
                 rotate: 'Rotatie',
                 flip: 'Spiegelen',
+                enhance: 'Fotoverbetering',
+                passport: 'Pasfoto / ID-foto',
                 compress: 'Compressie',
                 convert: 'Conversie',
             },
@@ -4008,6 +4748,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (operation === 'crop') {
             showSourceWithoutTransformation();
+            showVisualCrop();
+            return;
+        }
+
+        if (operation === 'passport') {
+            showSourceWithoutTransformation();
+            configurePassportMode();
             showVisualCrop();
             return;
         }
@@ -4153,10 +4900,46 @@ document.addEventListener('DOMContentLoaded', function () {
             height: sourceHeight,
         };
 
+        if (enhanceBrightness) {
+            enhanceBrightness.value = '0';
+        }
+
+        if (enhanceBrightnessValue) {
+            enhanceBrightnessValue.textContent = '0';
+        }
+
+        if (enhanceContrast) {
+            enhanceContrast.value = '0';
+        }
+
+        if (enhanceContrastValue) {
+            enhanceContrastValue.textContent = '0';
+        }
+
+        if (enhanceBlur) {
+            enhanceBlur.value = '0';
+        }
+
+        if (enhanceBlurValue) {
+            enhanceBlurValue.textContent = '0';
+        }
+
+        if (enhanceGrayscale) {
+            enhanceGrayscale.checked = false;
+        }
+
+        if (enhanceSepia) {
+            enhanceSepia.checked = false;
+        }
+
         syncCropInputs();
 
         if (activeOperation() === 'crop') {
             initializeVisualCrop(true);
+        }
+
+        if (activeOperation() === 'passport') {
+            configurePassportMode(true);
         }
     }
 
@@ -4253,6 +5036,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 initializeVisualCrop(true);
                 showSourceWithoutTransformation();
                 showVisualCrop();
+            } else if (activeOperation() === 'passport') {
+                configurePassportMode(true);
+                showSourceWithoutTransformation();
+                showVisualCrop();
             } else if (activeOperation()) {
                 scheduleLiveRender(
                     true
@@ -4334,6 +5121,73 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         });
 
+    [
+        [
+            enhanceBrightness,
+            enhanceBrightnessValue,
+        ],
+        [
+            enhanceContrast,
+            enhanceContrastValue,
+        ],
+        [
+            enhanceBlur,
+            enhanceBlurValue,
+        ],
+    ].forEach(function (entry) {
+        const input =
+            entry[0];
+
+        const output =
+            entry[1];
+
+        input?.addEventListener(
+            'input',
+            function () {
+                if (output) {
+                    output.textContent =
+                        input.value;
+                }
+
+                scheduleLiveRender();
+            }
+        );
+    });
+
+    enhanceGrayscale?.addEventListener(
+        'change',
+        function () {
+            scheduleLiveRender(
+                true
+            );
+        }
+    );
+
+    enhanceSepia?.addEventListener(
+        'change',
+        function () {
+            scheduleLiveRender(
+                true
+            );
+        }
+    );
+
+    passportPreset?.addEventListener(
+        'change',
+        function () {
+            configurePassportMode(
+                true
+            );
+
+            showSourceWithoutTransformation();
+            showVisualCrop();
+
+            setStatus(
+                'Pasfotoformaat gewijzigd. Positioneer de persoon opnieuw indien nodig.'
+            );
+        }
+    );
+
     compressQuality?.addEventListener(
         'input',
         function () {
@@ -4406,6 +5260,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 setStatus(
                     'Cropgebied is opnieuw ingesteld. Sleep het kader op de afbeelding.'
+                );
+
+                return;
+            }
+
+            if (operation === 'passport') {
+                configurePassportMode(true);
+                showSourceWithoutTransformation();
+                showVisualCrop();
+
+                setStatus(
+                    'Pasfoto-kader is opnieuw gecentreerd.'
                 );
 
                 return;
@@ -4531,7 +5397,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (operation === 'crop') {
+            if (
+                operation === 'crop' ||
+                operation === 'passport'
+            ) {
                 cropRect =
                     normalizeCropRect(
                         cropRect
@@ -4636,6 +5505,8 @@ document.addEventListener('DOMContentLoaded', function () {
     /*
      * Start altijd met Resize als actieve tool en laad daarna de gekozen bron.
      */
+    updatePassportPresetInfo();
+
     activateOperation(
         'resize'
     );

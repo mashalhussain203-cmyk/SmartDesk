@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LoginActivity;
 use DateTimeZone;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -312,9 +313,11 @@ class SecurityController extends Controller
 
     /**
      * Tel activiteiten met opgeslagen precieze coördinaten.
+     *
+     * @param Collection<int, LoginActivity> $activities
      */
     private function countPreciseLocations(
-        $activities
+        Collection $activities
     ): int {
         if (
             ! $this->loginActivityColumnExists('latitude') ||
@@ -336,9 +339,11 @@ class SecurityController extends Controller
 
     /**
      * Tel activiteiten waarvoor locatietoestemming expliciet was verleend.
+     *
+     * @param Collection<int, LoginActivity> $activities
      */
     private function countGrantedLocationPermissions(
-        $activities
+        Collection $activities
     ): int {
         if (
             ! $this->loginActivityColumnExists(
@@ -364,9 +369,11 @@ class SecurityController extends Controller
 
     /**
      * Tel activiteiten waarvoor een optionele datumkolom een waarde heeft.
+     *
+     * @param Collection<int, LoginActivity> $activities
      */
     private function countActivitiesWithColumnValue(
-        $activities,
+        Collection $activities,
         string $column
     ): int {
         if (
