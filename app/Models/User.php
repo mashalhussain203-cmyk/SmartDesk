@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -119,6 +120,33 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_admin' => 'boolean',
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mashal Studio afbeeldingen
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Alle originele afbeeldingsprojecten van deze gebruiker.
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(
+            Image::class
+        );
+    }
+
+    /**
+     * Alle gegenereerde afbeeldingsversies van deze gebruiker.
+     */
+    public function imageVersions(): HasMany
+    {
+        return $this->hasMany(
+            ImageVersion::class
+        );
+    }
+
 
     /*
     |--------------------------------------------------------------------------

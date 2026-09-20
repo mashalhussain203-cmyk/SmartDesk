@@ -104,7 +104,7 @@ class GitHubAuthController extends Controller
             | E-mailadres controleren
             |--------------------------------------------------------------------------
             |
-            | Mashal Automotive heeft een e-mailadres nodig om een gebruiker
+            | Mashal Studio heeft een e-mailadres nodig om een gebruiker
             | veilig te koppelen of automatisch te registreren.
             |
             | De benodigde GitHub email-scope staat in config/services.php.
@@ -418,7 +418,7 @@ class GitHubAuthController extends Controller
                     $this->brevoMail->send(
                         $user->email,
                         $user->name,
-                        'Welkom bij Mashal Automotive',
+                        'Welkom bij Mashal Studio',
                         'emails.welcome-account-created',
                         [
                             'user' => $user,
@@ -490,22 +490,12 @@ class GitHubAuthController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if ($isNewUser) {
-                return redirect()
-                    ->route('account')
-                    ->with(
-                        'success',
-                        'Welkom bij Mashal Automotive. Je account is succesvol aangemaakt met GitHub.'
-                    );
-            }
-
-
-            return redirect()
-                ->route('account')
-                ->with(
-                    'success',
-                    'Welkom terug. Je bent succesvol ingelogd met GitHub.'
-                );
+            return $this->redirectAfterSuccessfulLogin(
+                $request,
+                $isNewUser
+                    ? 'Welkom bij Mashal Studio. Je account is succesvol aangemaakt met GitHub.'
+                    : 'Welkom terug. Je bent succesvol ingelogd met GitHub.'
+            );
 
         } catch (Throwable $exception) {
 
@@ -536,6 +526,92 @@ class GitHubAuthController extends Controller
                 );
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect na succesvolle GitHub-login
+    |--------------------------------------------------------------------------
+    |
+    | Een upload die vóór de login is gedaan krijgt altijd voorrang.
+    |
+    | Flow:
+    |
+    | upload -> GitHub-login -> images.claim -> editor.
+    |
+    */
+
+    private function redirectAfterSuccessfulLogin(
+        Request $request,
+        string $successMessage
+    ): RedirectResponse {
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl(
+                $request
+            );
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    $successMessage . ' Je eerdere upload wordt nu automatisch geopend.'
+                );
+        }
+
+        return redirect()
+            ->intended(
+                route('account')
+            )
+            ->with(
+                'success',
+                $successMessage
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending image controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function hasPendingImage(
+        Request $request
+    ): bool {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $pending = $request->session()->get(
+            'pending_image'
+        );
+
+        return is_array($pending)
+            && ! empty($pending['path']);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Claim-route als intended URL bewaren
+    |--------------------------------------------------------------------------
+    */
+
+    private function ensurePendingImageIntendedUrl(
+        Request $request
+    ): void {
+        if (
+            ! $request->hasSession() ||
+            ! $this->hasPendingImage($request)
+        ) {
+            return;
+        }
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
+    }
+
 
     /*
     |--------------------------------------------------------------------------

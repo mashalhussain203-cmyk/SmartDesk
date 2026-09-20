@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal | Accountbeveiliging')
+@section('title', 'Mashal Studio | Accountbeveiliging')
 
 @push('styles')
 <style>
@@ -8,16 +8,8 @@
         min-height: 74vh;
         padding: 86px 0 110px;
         background:
-            radial-gradient(
-                circle at 10% 4%,
-                rgba(215,164,95,.09),
-                transparent 24rem
-            ),
-            radial-gradient(
-                circle at 92% 18%,
-                rgba(255,255,255,.025),
-                transparent 28rem
-            ),
+            radial-gradient(circle at 10% 4%, rgba(215, 164, 95, .09), transparent 24rem),
+            radial-gradient(circle at 92% 18%, rgba(255, 255, 255, .025), transparent 28rem),
             #08090b;
     }
 
@@ -77,18 +69,23 @@
     .security-summary {
         min-width: 230px;
         padding: 18px 20px;
-        border: 1px solid rgba(255,255,255,.08);
+        border: 1px solid rgba(255, 255, 255, .08);
         border-radius: 18px;
-        background: rgba(255,255,255,.03);
+        background: rgba(255, 255, 255, .03);
+    }
+
+    .security-summary small,
+    .security-stat span,
+    .login-detail small {
+        display: block;
+        color: #777d84;
+        font-weight: 850;
+        text-transform: uppercase;
     }
 
     .security-summary small {
-        display: block;
-        color: #777d84;
         font-size: 9px;
-        font-weight: 850;
         letter-spacing: .13em;
-        text-transform: uppercase;
     }
 
     .security-summary strong {
@@ -117,23 +114,14 @@
 
     .security-stat {
         padding: 16px 17px;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid rgba(255, 255, 255, .07);
         border-radius: 17px;
-        background:
-            linear-gradient(
-                145deg,
-                rgba(255,255,255,.035),
-                rgba(255,255,255,.012)
-            );
+        background: linear-gradient(145deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
     }
 
     .security-stat span {
-        display: block;
-        color: #6f757c;
         font-size: 8px;
-        font-weight: 900;
         letter-spacing: .13em;
-        text-transform: uppercase;
     }
 
     .security-stat strong {
@@ -155,9 +143,9 @@
     .security-flash {
         margin-bottom: 22px;
         padding: 14px 16px;
-        border: 1px solid rgba(124,203,153,.22);
+        border: 1px solid rgba(124, 203, 153, .22);
         border-radius: 14px;
-        background: rgba(124,203,153,.07);
+        background: rgba(124, 203, 153, .07);
         color: #bce8cb;
         font-size: 13px;
     }
@@ -170,9 +158,9 @@
         justify-content: space-between;
         gap: 16px;
         flex-wrap: wrap;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid rgba(255, 255, 255, .07);
         border-radius: 16px;
-        background: rgba(255,255,255,.02);
+        background: rgba(255, 255, 255, .02);
     }
 
     .security-toolbar-copy strong {
@@ -192,9 +180,9 @@
     .security-clear {
         min-height: 39px;
         padding: 0 14px;
-        border: 1px solid rgba(239,143,143,.18);
+        border: 1px solid rgba(239, 143, 143, .18);
         border-radius: 999px;
-        background: rgba(239,143,143,.05);
+        background: rgba(239, 143, 143, .05);
         color: #eeb0b0;
         cursor: pointer;
         font-size: 10px;
@@ -207,8 +195,8 @@
 
     .security-clear:hover {
         transform: translateY(-1px);
-        border-color: rgba(239,143,143,.34);
-        background: rgba(239,143,143,.09);
+        border-color: rgba(239, 143, 143, .34);
+        background: rgba(239, 143, 143, .09);
     }
 
     .login-list {
@@ -223,25 +211,15 @@
         align-items: start;
         gap: 18px;
         padding: 20px;
-        border: 1px solid rgba(255,255,255,.075);
+        border: 1px solid rgba(255, 255, 255, .075);
         border-radius: 22px;
-        background:
-            linear-gradient(
-                145deg,
-                rgba(255,255,255,.038),
-                rgba(255,255,255,.014)
-            );
-        box-shadow: 0 14px 36px rgba(0,0,0,.16);
+        background: linear-gradient(145deg, rgba(255, 255, 255, .038), rgba(255, 255, 255, .014));
+        box-shadow: 0 14px 36px rgba(0, 0, 0, .16);
     }
 
     .login-card.is-new-device {
-        border-color: rgba(215,164,95,.25);
-        background:
-            linear-gradient(
-                145deg,
-                rgba(215,164,95,.075),
-                rgba(255,255,255,.014)
-            );
+        border-color: rgba(215, 164, 95, .25);
+        background: linear-gradient(145deg, rgba(215, 164, 95, .075), rgba(255, 255, 255, .014));
     }
 
     .login-icon {
@@ -249,9 +227,9 @@
         height: 64px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(215,164,95,.19);
+        border: 1px solid rgba(215, 164, 95, .19);
         border-radius: 20px;
-        background: rgba(215,164,95,.065);
+        background: rgba(215, 164, 95, .065);
         color: #efc985;
         font-size: 25px;
     }
@@ -299,7 +277,7 @@
     .login-details {
         margin-top: 16px;
         padding-top: 15px;
-        border-top: 1px solid rgba(255,255,255,.055);
+        border-top: 1px solid rgba(255, 255, 255, .055);
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
@@ -308,19 +286,16 @@
     .login-detail {
         min-width: 0;
         padding: 11px 12px;
-        border: 1px solid rgba(255,255,255,.055);
+        border: 1px solid rgba(255, 255, 255, .055);
         border-radius: 13px;
-        background: rgba(255,255,255,.018);
+        background: rgba(255, 255, 255, .018);
     }
 
     .login-detail small {
-        display: block;
         margin-bottom: 5px;
         color: #62686f;
         font-size: 7px;
-        font-weight: 900;
         letter-spacing: .11em;
-        text-transform: uppercase;
     }
 
     .login-detail strong {
@@ -353,31 +328,29 @@
         text-align: right;
     }
 
-    .login-provider {
+    .login-provider,
+    .new-device-badge {
         display: inline-flex;
         padding: 7px 10px;
-        border: 1px solid rgba(255,255,255,.08);
         border-radius: 999px;
-        background: rgba(255,255,255,.025);
-        color: #d7d8d5;
         font-size: 9px;
         font-weight: 850;
         letter-spacing: .06em;
         text-transform: uppercase;
     }
 
+    .login-provider {
+        border: 1px solid rgba(255, 255, 255, .08);
+        background: rgba(255, 255, 255, .025);
+        color: #d7d8d5;
+    }
+
     .new-device-badge {
-        display: inline-flex;
         margin-left: 6px;
-        padding: 7px 10px;
-        border: 1px solid rgba(215,164,95,.24);
-        border-radius: 999px;
-        background: rgba(215,164,95,.08);
+        border: 1px solid rgba(215, 164, 95, .24);
+        background: rgba(215, 164, 95, .08);
         color: #efc985;
-        font-size: 9px;
         font-weight: 900;
-        letter-spacing: .06em;
-        text-transform: uppercase;
     }
 
     .login-date {
@@ -405,19 +378,19 @@
     .security-empty {
         padding: 70px 24px;
         text-align: center;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid rgba(255, 255, 255, .07);
         border-radius: 24px;
-        background: rgba(255,255,255,.02);
+        background: rgba(255, 255, 255, .02);
     }
 
-    .security-empty div {
+    .security-empty-icon {
         width: 66px;
         height: 66px;
         margin: 0 auto 18px;
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: rgba(215,164,95,.07);
+        background: rgba(215, 164, 95, .07);
         color: #efc985;
         font-size: 25px;
     }
@@ -439,9 +412,9 @@
     .security-note {
         margin-top: 24px;
         padding: 18px 20px;
-        border: 1px solid rgba(255,255,255,.065);
+        border: 1px solid rgba(255, 255, 255, .065);
         border-radius: 18px;
-        background: rgba(255,255,255,.018);
+        background: rgba(255, 255, 255, .018);
         color: #747a81;
         font-size: 11px;
         line-height: 1.75;
@@ -483,7 +456,7 @@
         .login-side {
             grid-column: 1 / -1;
             padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,.06);
+            border-top: 1px solid rgba(255, 255, 255, .06);
             text-align: left;
         }
     }
@@ -527,19 +500,14 @@
 @endpush
 
 @section('content')
-
 <section class="security-page">
     <div class="security-shell">
-
         <header class="security-hero">
             <div>
-                <span class="security-kicker">
-                    Mashal Account Security
-                </span>
+                <span class="security-kicker">Mashal Studio Security</span>
 
                 <h1 class="security-title">
-                    Login
-                    <span>beveiliging.</span>
+                    Login <span>beveiliging.</span>
                 </h1>
 
                 <p class="security-copy">
@@ -551,9 +519,7 @@
             </div>
 
             <aside class="security-summary">
-                <small>
-                    Opgeslagen loginactiviteit
-                </small>
+                <small>Opgeslagen loginactiviteit</small>
 
                 <strong>
                     {{ $totalActivityCount ?? $activities->count() }}
@@ -567,65 +533,31 @@
             </aside>
         </header>
 
-
         <div class="security-stats">
             <div class="security-stat">
-                <span>
-                    Bekende apparaten
-                </span>
-
-                <strong>
-                    {{ $knownDeviceCount ?? 0 }}
-                </strong>
-
-                <small>
-                    Logins die niet als nieuw apparaat zijn gemarkeerd.
-                </small>
+                <span>Bekende apparaten</span>
+                <strong>{{ $knownDeviceCount ?? 0 }}</strong>
+                <small>Logins die niet als nieuw apparaat zijn gemarkeerd.</small>
             </div>
 
             <div class="security-stat">
-                <span>
-                    Precieze locaties
-                </span>
-
-                <strong>
-                    {{ $preciseLocationCount ?? 0 }}
-                </strong>
-
-                <small>
-                    GPS/browserlocaties die met toestemming zijn opgeslagen.
-                </small>
+                <span>Precieze locaties</span>
+                <strong>{{ $preciseLocationCount ?? 0 }}</strong>
+                <small>GPS/browserlocaties die met toestemming zijn opgeslagen.</small>
             </div>
 
             <div class="security-stat">
-                <span>
-                    Beveiligingsmails
-                </span>
-
-                <strong>
-                    {{ $notificationSentCount ?? 0 }}
-                </strong>
-
-                <small>
-                    Succesvol via Brevo verzonden.
-                </small>
+                <span>Beveiligingsmails</span>
+                <strong>{{ $notificationSentCount ?? 0 }}</strong>
+                <small>Succesvol via Brevo verzonden.</small>
             </div>
 
             <div class="security-stat">
-                <span>
-                    Mailfouten
-                </span>
-
-                <strong>
-                    {{ $notificationFailedCount ?? 0 }}
-                </strong>
-
-                <small>
-                    Mislukte beveiligingsmeldingen in deze lijst.
-                </small>
+                <span>Mailfouten</span>
+                <strong>{{ $notificationFailedCount ?? 0 }}</strong>
+                <small>Mislukte beveiligingsmeldingen in deze lijst.</small>
             </div>
         </div>
-
 
         @if (session('success'))
             <div class="security-flash">
@@ -633,11 +565,10 @@
             </div>
         @endif
 
-
         <div class="security-toolbar">
             <div class="security-toolbar-copy">
                 <strong>
-                    Loginactiviteit van {{ auth()->user()->name }}
+                    Loginactiviteit van {{ auth()->user()?->name ?? 'je account' }}
                 </strong>
 
                 <span>
@@ -666,16 +597,11 @@
             @endif
         </div>
 
-
         @if ($activities->isEmpty())
             <div class="security-empty">
-                <div aria-hidden="true">
-                    ◇
-                </div>
+                <div class="security-empty-icon" aria-hidden="true">◇</div>
 
-                <h2>
-                    Nog geen loginhistorie
-                </h2>
+                <h2>Nog geen loginhistorie</h2>
 
                 <p>
                     Na je volgende succesvolle login verschijnt hier het apparaat,
@@ -687,63 +613,17 @@
             <div class="login-list">
                 @foreach ($activities as $activity)
                     @php
-                        $hasPreciseLocation = method_exists($activity, 'hasPreciseLocation')
-                            ? $activity->hasPreciseLocation()
-                            : ($activity->latitude !== null && $activity->longitude !== null);
+                        $hasPreciseLocation = $activity->hasPreciseLocation();
+                        $coordinates = $activity->coordinatesLabel();
+                        $accuracy = $activity->accuracyLabel();
+                        $localTime = $activity->localLoginTimeLabel();
+                        $effectiveTimezone = $activity->timezoneLabel();
+                        $locationSource = $activity->locationSourceLabel();
+                        $mailStatus = $activity->notificationStatusLabel();
 
-                        $coordinates = method_exists($activity, 'coordinatesLabel')
-                            ? $activity->coordinatesLabel()
-                            : (
-                                $hasPreciseLocation
-                                    ? $activity->latitude . ', ' . $activity->longitude
-                                    : null
-                            );
-
-                        $accuracy = method_exists($activity, 'accuracyLabel')
-                            ? $activity->accuracyLabel()
-                            : (
-                                $activity->location_accuracy !== null
-                                    ? '± ' . round((float) $activity->location_accuracy) . ' meter'
-                                    : null
-                            );
-
-                        $localTime = method_exists($activity, 'localLoginTimeLabel')
-                            ? $activity->localLoginTimeLabel()
-                            : optional($activity->logged_in_at)->format('d-m-Y H:i');
-
-                        $effectiveTimezone = method_exists($activity, 'timezoneLabel')
-                            ? $activity->timezoneLabel()
-                            : (
-                                $activity->browser_timezone
-                                    ?: (
-                                        $activity->timezone
-                                            ?: config('app.timezone', 'Europe/Amsterdam')
-                                    )
-                            );
-
-                        $locationSource = method_exists($activity, 'locationSourceLabel')
-                            ? $activity->locationSourceLabel()
-                            : ($activity->location_source ?: 'Onbekend');
-
-                        $mailStatus = method_exists($activity, 'notificationStatusLabel')
-                            ? $activity->notificationStatusLabel()
-                            : (
-                                $activity->notification_sent_at
-                                    ? 'Beveiligingsmail verzonden'
-                                    : (
-                                        $activity->notification_failed_at
-                                            ? 'Beveiligingsmail mislukt'
-                                            : 'Nog geen mailstatus'
-                                    )
-                            );
-
-                        $mailClass = $activity->notification_sent_at
+                        $mailClass = $activity->notificationWasSent()
                             ? 'is-success'
-                            : (
-                                $activity->notification_failed_at
-                                    ? 'is-error'
-                                    : ''
-                            );
+                            : ($activity->notificationFailed() ? 'is-error' : '');
 
                         $permissionLabel = match (strtolower((string) $activity->location_permission)) {
                             'granted' => 'Toegestaan',
@@ -753,90 +633,48 @@
                             'unavailable' => 'Niet beschikbaar',
                             default => 'Onbekend',
                         };
+
+                        $deviceSymbol = match (strtolower((string) $activity->device_type)) {
+                            'mobile' => '◫',
+                            'tablet' => '▣',
+                            'bot' => '⟐',
+                            default => '◇',
+                        };
                     @endphp
 
-                    <article
-                        class="login-card {{ $activity->is_new_device ? 'is-new-device' : '' }}"
-                    >
-                        <div
-                            class="login-icon"
-                            aria-hidden="true"
-                        >
-                            @if ($activity->device_type === 'mobile')
-                                ◫
-                            @elseif ($activity->device_type === 'tablet')
-                                ▣
-                            @elseif ($activity->device_type === 'bot')
-                                ⟐
-                            @else
-                                ◇
-                            @endif
+                    <article class="login-card {{ $activity->is_new_device ? 'is-new-device' : '' }}">
+                        <div class="login-icon" aria-hidden="true">
+                            {{ $deviceSymbol }}
                         </div>
 
-
                         <div class="login-main">
-                            <h2>
-                                {{ $activity->deviceLabel() }}
-                            </h2>
+                            <h2>{{ $activity->deviceLabel() }}</h2>
 
                             <div class="login-meta">
-                                <span>
-                                    {{ method_exists($activity, 'deviceTypeLabel') ? $activity->deviceTypeLabel() : ($activity->device_type ?: 'Onbekend type') }}
-                                </span>
-
-                                <span>
-                                    {{ method_exists($activity, 'browserLabel') ? $activity->browserLabel() : ($activity->browser ?: 'Onbekende browser') }}
-                                </span>
-
-                                <span>
-                                    {{ method_exists($activity, 'operatingSystemLabel') ? $activity->operatingSystemLabel() : ($activity->operating_system ?: 'Onbekend OS') }}
-                                </span>
-
-                                <span>
-                                    {{ $activity->locationLabel() }}
-                                </span>
+                                <span>{{ $activity->deviceTypeLabel() }}</span>
+                                <span>{{ $activity->browserLabel() }}</span>
+                                <span>{{ $activity->operatingSystemLabel() }}</span>
+                                <span>{{ $activity->locationLabel() }}</span>
                             </div>
-
 
                             <div class="login-details">
                                 <div class="login-detail">
-                                    <small>
-                                        IP-adres
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->ip_address ?: 'Onbekend' }}
-                                    </strong>
+                                    <small>IP-adres</small>
+                                    <strong>{{ $activity->ip_address ?: 'Onbekend' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Stad
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->city ?: 'Onbekend' }}
-                                    </strong>
+                                    <small>Stad</small>
+                                    <strong>{{ $activity->city ?: 'Onbekend' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Regio
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->region ?: 'Onbekend' }}
-                                    </strong>
+                                    <small>Regio</small>
+                                    <strong>{{ $activity->region ?: 'Onbekend' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Land
-                                    </small>
-
+                                    <small>Land</small>
                                     <strong>
                                         {{ $activity->country ?: 'Onbekend' }}
                                         @if ($activity->country_code)
@@ -845,162 +683,97 @@
                                     </strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Locatiebron
-                                    </small>
-
-                                    <strong>
-                                        {{ $locationSource }}
-                                    </strong>
+                                    <small>Locatiebron</small>
+                                    <strong>{{ $locationSource }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Locatietoestemming
-                                    </small>
-
+                                    <small>Locatietoestemming</small>
                                     <strong class="{{ strtolower((string) $activity->location_permission) === 'granted' ? 'is-success' : '' }}">
                                         {{ $permissionLabel }}
                                     </strong>
                                 </div>
 
-
                                 <div class="login-detail login-detail-wide">
-                                    <small>
-                                        GPS-coördinaten
-                                    </small>
-
+                                    <small>GPS-coördinaten</small>
                                     <strong class="{{ $hasPreciseLocation ? 'is-gold' : '' }}">
                                         {{ $coordinates ?: 'Niet beschikbaar' }}
                                     </strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        GPS-nauwkeurigheid
-                                    </small>
-
-                                    <strong>
-                                        {{ $accuracy ?: 'Niet beschikbaar' }}
-                                    </strong>
+                                    <small>GPS-nauwkeurigheid</small>
+                                    <strong>{{ $accuracy ?: 'Niet beschikbaar' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Browser-timezone
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->browser_timezone ?: 'Niet meegestuurd' }}
-                                    </strong>
+                                    <small>Browser-timezone</small>
+                                    <strong>{{ $activity->browser_timezone ?: 'Niet meegestuurd' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        IP-timezone
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->timezone ?: 'Onbekend' }}
-                                    </strong>
+                                    <small>IP-timezone</small>
+                                    <strong>{{ $activity->timezone ?: 'Onbekend' }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Gebruikte timezone
-                                    </small>
-
-                                    <strong class="is-gold">
-                                        {{ $effectiveTimezone }}
-                                    </strong>
+                                    <small>Gebruikte timezone</small>
+                                    <strong class="is-gold">{{ $effectiveTimezone }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Loginmethode
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->providerLabel() }}
-                                    </strong>
+                                    <small>Loginmethode</small>
+                                    <strong>{{ $activity->providerLabel() }}</strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Apparaatstatus
-                                    </small>
-
+                                    <small>Apparaatstatus</small>
                                     <strong class="{{ $activity->is_new_device ? 'is-gold' : '' }}">
-                                        {{ method_exists($activity, 'newDeviceLabel') ? $activity->newDeviceLabel() : ($activity->is_new_device ? 'Nieuw apparaat' : 'Bekend apparaat') }}
+                                        {{ $activity->newDeviceLabel() }}
                                     </strong>
                                 </div>
-
 
                                 <div class="login-detail">
-                                    <small>
-                                        Onthouden
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->remember ? 'Ja' : 'Nee' }}
-                                    </strong>
+                                    <small>Onthouden</small>
+                                    <strong>{{ $activity->remember ? 'Ja' : 'Nee' }}</strong>
                                 </div>
-
 
                                 <div class="login-detail login-detail-wide">
-                                    <small>
-                                        Beveiligingsmail
-                                    </small>
-
+                                    <small>Beveiligingsmail</small>
                                     <strong class="{{ $mailClass }}">
                                         {{ $mailStatus }}
                                     </strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Mail verzonden
-                                    </small>
-
+                                    <small>Mail verzonden</small>
                                     <strong>
-                                        {{ optional($activity->notification_sent_at)->timezone($effectiveTimezone)->format('d-m-Y H:i') ?: 'Niet verzonden' }}
+                                        @if ($activity->notification_sent_at)
+                                            {{ $activity->notification_sent_at->copy()->timezone($effectiveTimezone)->format('d-m-Y H:i') }}
+                                        @else
+                                            Niet verzonden
+                                        @endif
                                     </strong>
                                 </div>
 
-
                                 <div class="login-detail">
-                                    <small>
-                                        Mailfout
-                                    </small>
-
+                                    <small>Mailfout</small>
                                     <strong>
-                                        {{ optional($activity->notification_failed_at)->timezone($effectiveTimezone)->format('d-m-Y H:i') ?: 'Geen fout' }}
+                                        @if ($activity->notification_failed_at)
+                                            {{ $activity->notification_failed_at->copy()->timezone($effectiveTimezone)->format('d-m-Y H:i') }}
+                                        @else
+                                            Geen fout
+                                        @endif
                                     </strong>
                                 </div>
-
 
                                 <div class="login-detail login-detail-wide">
-                                    <small>
-                                        User-Agent
-                                    </small>
-
-                                    <strong>
-                                        {{ $activity->user_agent ?: 'Niet beschikbaar' }}
-                                    </strong>
+                                    <small>User-Agent</small>
+                                    <strong>{{ $activity->user_agent ?: 'Niet beschikbaar' }}</strong>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="login-side">
                             <span class="login-provider">
@@ -1015,15 +788,12 @@
 
                             <time
                                 class="login-date"
-                                datetime="{{ optional($activity->logged_in_at)->toIso8601String() }}"
+                                @if ($activity->logged_in_at)
+                                    datetime="{{ $activity->logged_in_at->toIso8601String() }}"
+                                @endif
                             >
-                                <strong>
-                                    {{ $localTime }}
-                                </strong>
-
-                                <small>
-                                    {{ $effectiveTimezone }}
-                                </small>
+                                <strong>{{ $localTime }}</strong>
+                                <small>{{ $effectiveTimezone }}</small>
 
                                 @if ($activity->logged_in_at)
                                     <small>
@@ -1038,7 +808,6 @@
             </div>
         @endif
 
-
         <div class="security-note">
             <strong>Privacy en nauwkeurigheid.</strong>
             Een IP-locatie is een technische schatting en kan bijvoorbeeld de
@@ -1049,8 +818,6 @@
             uitsluitend als beveiligingsinformatie bij je account getoond en
             worden niet als zelfstandig authenticatiemiddel gebruikt.
         </div>
-
     </div>
 </section>
-
 @endsection

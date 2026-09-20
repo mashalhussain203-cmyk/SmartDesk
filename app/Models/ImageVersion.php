@@ -10,6 +10,11 @@ class ImageVersion extends Model
 {
     use HasFactory;
 
+    /**
+     * Velden die via mass assignment mogen worden opgeslagen.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'image_id',
         'user_id',
@@ -23,21 +28,31 @@ class ImageVersion extends Model
         'operation',
     ];
 
-    protected $casts = [
-        'image_id' => 'integer',
-        'user_id' => 'integer',
-        'width' => 'integer',
-        'height' => 'integer',
-        'quality' => 'integer',
-        'file_size' => 'integer',
-    ];
+    /**
+     * Database casts.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'image_id' => 'integer',
+            'user_id' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+            'quality' => 'integer',
+            'file_size' => 'integer',
+        ];
+    }
 
     /**
-     * Originele afbeelding/project.
+     * Bijbehorend afbeeldingsproject.
      */
     public function image(): BelongsTo
     {
-        return $this->belongsTo(Image::class);
+        return $this->belongsTo(
+            Image::class
+        );
     }
 
     /**
@@ -45,11 +60,13 @@ class ImageVersion extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class
+        );
     }
 
     /**
-     * Genormaliseerd formaat.
+     * Genormaliseerd uitvoerformaat.
      */
     public function getNormalizedFormatAttribute(): string
     {
@@ -59,11 +76,9 @@ class ImageVersion extends Model
             )
         );
 
-        if ($format === 'jpeg') {
-            return 'jpg';
-        }
-
-        return $format;
+        return $format === 'jpeg'
+            ? 'jpg'
+            : $format;
     }
 
     /**
@@ -71,12 +86,16 @@ class ImageVersion extends Model
      */
     public function getFormatLabelAttribute(): string
     {
-        return match ($this->normalized_format) {
+        return match (
+            $this->normalized_format
+        ) {
             'jpg' => 'JPG',
             'png' => 'PNG',
             'webp' => 'WEBP',
+
             default => strtoupper(
-                $this->normalized_format ?: 'IMAGE'
+                $this->normalized_format
+                ?: 'IMAGE'
             ),
         };
     }
@@ -86,66 +105,45 @@ class ImageVersion extends Model
      */
     public function getFormattedFileSizeAttribute(): string
     {
-        $bytes = max(
-            0,
+        return $this->formatBytes(
             (int) $this->file_size
         );
-
-        if ($bytes >= 1024 * 1024 * 1024) {
-            return number_format(
-                $bytes / 1024 / 1024 / 1024,
-                2
-            ) . ' GB';
-        }
-
-        if ($bytes >= 1024 * 1024) {
-            return number_format(
-                $bytes / 1024 / 1024,
-                2
-            ) . ' MB';
-        }
-
-        if ($bytes >= 1024) {
-            return number_format(
-                $bytes / 1024,
-                1
-            ) . ' KB';
-        }
-
-        return $bytes . ' B';
     }
 
     /**
-     * Leesbare afmetingen.
+     * Leesbare afbeeldingsafmetingen.
      */
     public function getDimensionsLabelAttribute(): string
     {
+        $width = (int) $this->width;
+        $height = (int) $this->height;
+
         if (
-            ! $this->width ||
-            ! $this->height
+            $width < 1 ||
+            $height < 1
         ) {
             return 'Onbekende afmetingen';
         }
 
         return sprintf(
             '%d × %d',
-            $this->width,
-            $this->height
+            $width,
+            $height
         );
     }
 
     /**
-     * Leesbare operation-naam.
+     * Leesbaar bewerkingslabel.
      */
     public function getOperationLabelAttribute(): string
     {
-        return match (
-            strtolower(
-                trim(
-                    (string) $this->operation
-                )
+        $operation = strtolower(
+            trim(
+                (string) $this->operation
             )
-        ) {
+        );
+
+        return match ($operation) {
             'resize' => 'Resize',
             'crop' => 'Crop',
             'rotate' => 'Rotatie',
@@ -153,8 +151,8 @@ class ImageVersion extends Model
             'compress' => 'Compressie',
             'convert' => 'Conversie',
 
-            default => $this->operation
-                ? ucfirst((string) $this->operation)
+            default => $operation !== ''
+                ? ucfirst($operation)
                 : 'Bewerking',
         };
     }
@@ -164,11 +162,19 @@ class ImageVersion extends Model
      */
     public function getQualityLabelAttribute(): string
     {
-        if ($this->quality === null) {
+        $quality = $this->quality;
+
+        if ($quality === null) {
             return 'Standaard';
         }
 
-        return $this->quality . '%';
+        return max(
+            1,
+            min(
+                100,
+                (int) $quality
+            )
+        ) . '%';
     }
 
     /**
@@ -182,7 +188,41 @@ class ImageVersion extends Model
 
         return $name !== ''
             ? $name
-            : 'Versie #' . $this->id;
+            : 'Versie #' . $this->getKey();
+    }
+
+    /**
+     * Bestandsgrootte formatteren.
+     */
+    private function formatBytes(
+        int $bytes
+    ): string {
+        $bytes = max(
+            0,
+            $bytes
+        );
+
+        if ($bytes >= 1024 ** 3) {
+            return number_format(
+                $bytes / (1024 ** 3),
+                2
+            ) . ' GB';
+        }
+
+        if ($bytes >= 1024 ** 2) {
+            return number_format(
+                $bytes / (1024 ** 2),
+                2
+            ) . ' MB';
+        }
+
+        if ($bytes >= 1024) {
+            return number_format(
+                $bytes / 1024,
+                1
+            ) . ' KB';
+        }
+
+        return $bytes . ' B';
     }
 }
-

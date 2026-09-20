@@ -18,15 +18,8 @@ class SecurityController extends Controller
      * Toon de beveiligingspagina met recente loginactiviteiten
      * van uitsluitend de ingelogde gebruiker.
      */
-    public function index(
-        Request $request
-    ): View {
-        /*
-        |--------------------------------------------------------------------------
-        | Ingelogde gebruiker
-        |--------------------------------------------------------------------------
-        */
-
+    public function index(Request $request): View
+    {
         $user = $request->user();
 
         abort_unless(
@@ -34,262 +27,82 @@ class SecurityController extends Controller
             401
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Maximum aantal loginactiviteiten
-        |--------------------------------------------------------------------------
-        */
-
-        $limit = max(
-            10,
-            min(
-                100,
-                (int) config(
-                    'login-security.history_limit',
-                    50
-                )
-            )
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Loginactiviteiten ophalen
-        |--------------------------------------------------------------------------
-        */
+        $historyLimit = $this->historyLimit();
 
         $activities = LoginActivity::query()
-            ->where(
-                'user_id',
-                $user->id
-            )
-            ->latest(
-                'logged_in_at'
-            )
-            ->latest(
-                'id'
-            )
-            ->limit(
-                $limit
-            )
+            ->where('user_id', $user->id)
+            ->latest('logged_in_at')
+            ->latest('id')
+            ->limit($historyLimit)
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Totaal aantal opgeslagen activiteiten
-        |--------------------------------------------------------------------------
-        */
-
         $totalActivityCount = LoginActivity::query()
-            ->where(
-                'user_id',
-                $user->id
-            )
+            ->where('user_id', $user->id)
             ->count();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe apparaten
-        |--------------------------------------------------------------------------
-        */
 
         $newDeviceCount = $activities
-            ->where(
-                'is_new_device',
-                true
-            )
+            ->where('is_new_device', true)
             ->count();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Bekende apparaten
-        |--------------------------------------------------------------------------
-        */
 
         $knownDeviceCount = $activities
-            ->where(
-                'is_new_device',
-                false
-            )
+            ->where('is_new_device', false)
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Laatste login
-        |--------------------------------------------------------------------------
-        */
+        $latestActivity = $activities->first();
 
-        $latestActivity = $activities
-            ->first();
+        $preciseLocationCount =
+            $this->countPreciseLocations($activities);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Precieze locatie-statistieken
-        |--------------------------------------------------------------------------
-        */
+        $locationPermissionGrantedCount =
+            $this->countGrantedLocationPermissions($activities);
 
-        $preciseLocationCount = 0;
-
-        if (
-            $this->loginActivityColumnExists(
-                'latitude'
-            ) &&
-            $this->loginActivityColumnExists(
-                'longitude'
-            )
-        ) {
-            $preciseLocationCount = $activities
-                ->filter(
-                    static fn (
-                        LoginActivity $activity
-                    ): bool =>
-                        $activity->latitude !== null &&
-                        $activity->longitude !== null
-                )
-                ->count();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Locatietoestemming
-        |--------------------------------------------------------------------------
-        */
-
-        $locationPermissionGrantedCount = 0;
-
-        if (
-            $this->loginActivityColumnExists(
-                'location_permission'
-            )
-        ) {
-            $locationPermissionGrantedCount = $activities
-                ->filter(
-                    static fn (
-                        LoginActivity $activity
-                    ): bool =>
-                        strtolower(
-                            trim(
-                                (string) $activity->location_permission
-                            )
-                        ) === 'granted'
-                )
-                ->count();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Beveiligingsmail statistieken
-        |--------------------------------------------------------------------------
-        */
-
-        $notificationSentCount = 0;
-        $notificationFailedCount = 0;
-
-        if (
-            $this->loginActivityColumnExists(
+        $notificationSentCount =
+            $this->countActivitiesWithColumnValue(
+                $activities,
                 'notification_sent_at'
-            )
-        ) {
-            $notificationSentCount = $activities
-                ->filter(
-                    static fn (
-                        LoginActivity $activity
-                    ): bool =>
-                        $activity->notification_sent_at !== null
-                )
-                ->count();
-        }
+            );
 
-        if (
-            $this->loginActivityColumnExists(
+        $notificationFailedCount =
+            $this->countActivitiesWithColumnValue(
+                $activities,
                 'notification_failed_at'
-            )
-        ) {
-            $notificationFailedCount = $activities
-                ->filter(
-                    static fn (
-                        LoginActivity $activity
-                    ): bool =>
-                        $activity->notification_failed_at !== null
-                )
-                ->count();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | View
-        |--------------------------------------------------------------------------
-        */
+            );
 
         return view(
             'site.security',
             [
-                'activities' =>
-                    $activities,
-
-                'latestActivity' =>
-                    $latestActivity,
-
-                'totalActivityCount' =>
-                    $totalActivityCount,
-
-                'newDeviceCount' =>
-                    $newDeviceCount,
-
-                'knownDeviceCount' =>
-                    $knownDeviceCount,
-
-                'preciseLocationCount' =>
-                    $preciseLocationCount,
-
+                'activities' => $activities,
+                'latestActivity' => $latestActivity,
+                'totalActivityCount' => $totalActivityCount,
+                'newDeviceCount' => $newDeviceCount,
+                'knownDeviceCount' => $knownDeviceCount,
+                'preciseLocationCount' => $preciseLocationCount,
                 'locationPermissionGrantedCount' =>
                     $locationPermissionGrantedCount,
-
-                'notificationSentCount' =>
-                    $notificationSentCount,
-
-                'notificationFailedCount' =>
-                    $notificationFailedCount,
-
-                'historyLimit' =>
-                    $limit,
+                'notificationSentCount' => $notificationSentCount,
+                'notificationFailedCount' => $notificationFailedCount,
+                'historyLimit' => $historyLimit,
             ]
         );
     }
 
     /**
-     * Sla browser-securitycontext tijdelijk op in de Laravel-sessie.
+     * Sla tijdelijke browser-securitycontext op in de huidige sessie.
      *
-     * Deze endpoint wordt gebruikt vóór de daadwerkelijke login.
+     * Deze endpoint wordt vóór een login gebruikt zodat de
+     * LoginSecurityService na wachtwoord-, e-mailcode-, magic-link-
+     * of OAuth-login dezelfde browsercontext kan gebruiken.
      *
-     * Daardoor zijn gegevens ook beschikbaar nadat de gebruiker
-     * bijvoorbeeld via Google, Facebook, GitHub of TikTok terugkomt.
-     *
-     * Mogelijke gegevens:
-     *
-     * - browser timezone
-     * - latitude
-     * - longitude
-     * - GPS accuracy
-     * - location permission
-     *
-     * GPS-coördinaten worden uitsluitend opgeslagen wanneer
-     * location_permission = granted.
+     * Precieze GPS-coördinaten worden uitsluitend opgeslagen wanneer:
+     * - precise location is ingeschakeld;
+     * - opslag met toestemming is toegestaan;
+     * - location_permission gelijk is aan "granted";
+     * - latitude én longitude geldig zijn.
      */
     public function storeBrowserContext(
         Request $request
     ): JsonResponse {
-        /*
-        |--------------------------------------------------------------------------
-        | Login-security uitgeschakeld
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            ! (bool) config(
-                'login-security.enabled',
-                true
-            )
-        ) {
+        if (! $this->loginSecurityEnabled()) {
             return response()->json([
                 'success' => true,
                 'stored' => false,
@@ -297,38 +110,28 @@ class SecurityController extends Controller
             ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validatie
-        |--------------------------------------------------------------------------
-        */
-
         $validated = $request->validate([
             'browser_timezone' => [
                 'nullable',
                 'string',
                 'max:100',
             ],
-
             'latitude' => [
                 'nullable',
                 'numeric',
                 'between:-90,90',
             ],
-
             'longitude' => [
                 'nullable',
                 'numeric',
                 'between:-180,180',
             ],
-
             'location_accuracy' => [
                 'nullable',
                 'numeric',
                 'min:0',
                 'max:100000',
             ],
-
             'location_permission' => [
                 'nullable',
                 'string',
@@ -343,70 +146,27 @@ class SecurityController extends Controller
             ],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Browser timezone
-        |--------------------------------------------------------------------------
-        */
+        if (! $request->hasSession()) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'stored' => false,
+                    'message' =>
+                        'Browsercontext kon niet in de sessie worden opgeslagen.',
+                ],
+                500
+            );
+        }
 
         $browserTimezone = $this->normalizeTimezone(
             $validated['browser_timezone']
                 ?? null
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Locatietoestemming
-        |--------------------------------------------------------------------------
-        */
-
-        $locationPermission = strtolower(
-            trim(
-                (string) (
-                    $validated['location_permission']
-                    ?? 'unknown'
-                )
-            )
+        $locationPermission = $this->normalizeLocationPermission(
+            $validated['location_permission']
+                ?? null
         );
-
-        if (
-            ! in_array(
-                $locationPermission,
-                [
-                    'granted',
-                    'denied',
-                    'prompt',
-                    'unavailable',
-                    'unsupported',
-                    'unknown',
-                ],
-                true
-            )
-        ) {
-            $locationPermission = 'unknown';
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Precieze locatie instellingen
-        |--------------------------------------------------------------------------
-        */
-
-        $preciseLocationEnabled = (bool) config(
-            'login-security.precise_location.enabled',
-            true
-        );
-
-        $storePreciseLocation = (bool) config(
-            'login-security.privacy.store_precise_location_with_consent',
-            true
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | GPS-data
-        |--------------------------------------------------------------------------
-        */
 
         $latitude = $this->nullableFloat(
             $validated['latitude']
@@ -423,27 +183,15 @@ class SecurityController extends Controller
                 ?? null
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Geen toestemming = geen GPS opslaan
-        |--------------------------------------------------------------------------
-        */
-
         if (
-            ! $preciseLocationEnabled ||
-            ! $storePreciseLocation ||
-            $locationPermission !== 'granted'
+            ! $this->mayStorePreciseLocation(
+                $locationPermission
+            )
         ) {
             $latitude = null;
             $longitude = null;
             $locationAccuracy = null;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Coördinaten moeten compleet zijn
-        |--------------------------------------------------------------------------
-        */
 
         if (
             $latitude === null ||
@@ -454,141 +202,33 @@ class SecurityController extends Controller
             $locationAccuracy = null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sessie controleren
-        |--------------------------------------------------------------------------
-        */
-
-        if (! $request->hasSession()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'stored' => false,
-                    'message' =>
-                        'Browsercontext kon niet in de sessie worden opgeslagen.',
-                ],
-                500
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Browser timezone opslaan
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            (bool) config(
-                'login-security.timezone.capture_browser_timezone',
-                true
-            )
-        ) {
-            if ($browserTimezone !== null) {
-                $request->session()->put(
-                    'login_security.browser_timezone',
-                    $browserTimezone
-                );
-            } else {
-                $request->session()->forget(
-                    'login_security.browser_timezone'
-                );
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Locatietoestemming altijd onthouden
-        |--------------------------------------------------------------------------
-        */
+        $this->storeTimezone(
+            $request,
+            $browserTimezone
+        );
 
         $request->session()->put(
             'login_security.location_permission',
             $locationPermission
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | GPS opslaan
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $latitude !== null &&
-            $longitude !== null
-        ) {
-            $request->session()->put(
-                'login_security.latitude',
-                $latitude
-            );
-
-            $request->session()->put(
-                'login_security.longitude',
-                $longitude
-            );
-
-            if ($locationAccuracy !== null) {
-                $request->session()->put(
-                    'login_security.location_accuracy',
-                    $locationAccuracy
-                );
-            } else {
-                $request->session()->forget(
-                    'login_security.location_accuracy'
-                );
-            }
-        } else {
-            /*
-            |--------------------------------------------------------------------------
-            | Oude GPS-data verwijderen
-            |--------------------------------------------------------------------------
-            |
-            | Bijvoorbeeld wanneer iemand bij een volgende login
-            | locatie weigert.
-            |
-            */
-
-            $request->session()->forget([
-                'login_security.latitude',
-                'login_security.longitude',
-                'login_security.location_accuracy',
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdstip context opslaan
-        |--------------------------------------------------------------------------
-        |
-        | Alleen informatief.
-        |
-        */
+        $this->storeCoordinates(
+            $request,
+            $latitude,
+            $longitude,
+            $locationAccuracy
+        );
 
         $request->session()->put(
             'login_security.context_captured_at',
             now()->toIso8601String()
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Response
-        |--------------------------------------------------------------------------
-        |
-        | We sturen de coördinaten niet terug naar de browserresponse.
-        |
-        */
-
         return response()->json([
             'success' => true,
-
             'stored' => true,
-
-            'browser_timezone' =>
-                $browserTimezone,
-
-            'location_permission' =>
-                $locationPermission,
-
+            'browser_timezone' => $browserTimezone,
+            'location_permission' => $locationPermission,
             'precise_location_stored' =>
                 $latitude !== null &&
                 $longitude !== null,
@@ -596,28 +236,18 @@ class SecurityController extends Controller
     }
 
     /**
-     * Verwijder alle loginhistorie van uitsluitend
-     * de huidige ingelogde gebruiker.
+     * Verwijder alle loginhistorie van uitsluitend de huidige gebruiker.
      *
-     * Dit verwijdert NIET:
-     *
-     * - account
-     * - wachtwoord
-     * - huidige sessie
-     * - Google-koppeling
-     * - Facebook-koppeling
-     * - GitHub-koppeling
-     * - TikTok-koppeling
+     * Dit verwijdert niet:
+     * - het account;
+     * - wachtwoorden;
+     * - huidige sessie;
+     * - OAuth-koppelingen;
+     * - pending_image.
      */
     public function destroyHistory(
         Request $request
     ): RedirectResponse {
-        /*
-        |--------------------------------------------------------------------------
-        | Ingelogde gebruiker
-        |--------------------------------------------------------------------------
-        */
-
         $user = $request->user();
 
         abort_unless(
@@ -625,34 +255,13 @@ class SecurityController extends Controller
             401
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Eigen loginhistorie verwijderen
-        |--------------------------------------------------------------------------
-        */
-
         $deletedCount = LoginActivity::query()
-            ->where(
-                'user_id',
-                $user->id
-            )
+            ->where('user_id', $user->id)
             ->delete();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijke browsermetadata opruimen
-        |--------------------------------------------------------------------------
-        */
 
         $this->forgetBrowserContext(
             $request
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Bericht
-        |--------------------------------------------------------------------------
-        */
 
         $message = match (true) {
             $deletedCount === 0 =>
@@ -666,9 +275,7 @@ class SecurityController extends Controller
         };
 
         return redirect()
-            ->route(
-                'security.index'
-            )
+            ->route('security.index')
             ->with(
                 'success',
                 $message
@@ -676,7 +283,215 @@ class SecurityController extends Controller
     }
 
     /**
-     * Verwijder tijdelijke browsersecuritycontext.
+     * Maximum aantal activiteiten dat op de beveiligingspagina wordt getoond.
+     */
+    private function historyLimit(): int
+    {
+        return max(
+            10,
+            min(
+                100,
+                (int) config(
+                    'login-security.history_limit',
+                    50
+                )
+            )
+        );
+    }
+
+    /**
+     * Controleer of login-security is ingeschakeld.
+     */
+    private function loginSecurityEnabled(): bool
+    {
+        return (bool) config(
+            'login-security.enabled',
+            true
+        );
+    }
+
+    /**
+     * Tel activiteiten met opgeslagen precieze coördinaten.
+     */
+    private function countPreciseLocations(
+        $activities
+    ): int {
+        if (
+            ! $this->loginActivityColumnExists('latitude') ||
+            ! $this->loginActivityColumnExists('longitude')
+        ) {
+            return 0;
+        }
+
+        return $activities
+            ->filter(
+                static fn (
+                    LoginActivity $activity
+                ): bool =>
+                    $activity->latitude !== null &&
+                    $activity->longitude !== null
+            )
+            ->count();
+    }
+
+    /**
+     * Tel activiteiten waarvoor locatietoestemming expliciet was verleend.
+     */
+    private function countGrantedLocationPermissions(
+        $activities
+    ): int {
+        if (
+            ! $this->loginActivityColumnExists(
+                'location_permission'
+            )
+        ) {
+            return 0;
+        }
+
+        return $activities
+            ->filter(
+                static fn (
+                    LoginActivity $activity
+                ): bool =>
+                    strtolower(
+                        trim(
+                            (string) $activity->location_permission
+                        )
+                    ) === 'granted'
+            )
+            ->count();
+    }
+
+    /**
+     * Tel activiteiten waarvoor een optionele datumkolom een waarde heeft.
+     */
+    private function countActivitiesWithColumnValue(
+        $activities,
+        string $column
+    ): int {
+        if (
+            ! $this->loginActivityColumnExists(
+                $column
+            )
+        ) {
+            return 0;
+        }
+
+        return $activities
+            ->filter(
+                static fn (
+                    LoginActivity $activity
+                ): bool =>
+                    $activity->getAttribute($column) !== null
+            )
+            ->count();
+    }
+
+    /**
+     * Sla de browser-timezone op of ruim de oude waarde op.
+     */
+    private function storeTimezone(
+        Request $request,
+        ?string $browserTimezone
+    ): void {
+        if (
+            ! (bool) config(
+                'login-security.timezone.capture_browser_timezone',
+                true
+            )
+        ) {
+            return;
+        }
+
+        if ($browserTimezone !== null) {
+            $request->session()->put(
+                'login_security.browser_timezone',
+                $browserTimezone
+            );
+
+            return;
+        }
+
+        $request->session()->forget(
+            'login_security.browser_timezone'
+        );
+    }
+
+    /**
+     * Bepaal of precieze locatie opgeslagen mag worden.
+     */
+    private function mayStorePreciseLocation(
+        string $permission
+    ): bool {
+        if ($permission !== 'granted') {
+            return false;
+        }
+
+        if (
+            ! (bool) config(
+                'login-security.precise_location.enabled',
+                true
+            )
+        ) {
+            return false;
+        }
+
+        return (bool) config(
+            'login-security.privacy.store_precise_location_with_consent',
+            true
+        );
+    }
+
+    /**
+     * Sla geldige coördinaten op of verwijder oude GPS-data.
+     */
+    private function storeCoordinates(
+        Request $request,
+        ?float $latitude,
+        ?float $longitude,
+        ?float $locationAccuracy
+    ): void {
+        if (
+            $latitude === null ||
+            $longitude === null
+        ) {
+            $request->session()->forget([
+                'login_security.latitude',
+                'login_security.longitude',
+                'login_security.location_accuracy',
+            ]);
+
+            return;
+        }
+
+        $request->session()->put(
+            'login_security.latitude',
+            $latitude
+        );
+
+        $request->session()->put(
+            'login_security.longitude',
+            $longitude
+        );
+
+        if ($locationAccuracy !== null) {
+            $request->session()->put(
+                'login_security.location_accuracy',
+                $locationAccuracy
+            );
+
+            return;
+        }
+
+        $request->session()->forget(
+            'login_security.location_accuracy'
+        );
+    }
+
+    /**
+     * Verwijder tijdelijke browser-securitycontext.
+     *
+     * Let op: pending_image wordt bewust niet verwijderd.
      */
     private function forgetBrowserContext(
         Request $request
@@ -688,15 +503,10 @@ class SecurityController extends Controller
 
             $request->session()->forget([
                 'login_security.browser_timezone',
-
                 'login_security.latitude',
-
                 'login_security.longitude',
-
                 'login_security.location_accuracy',
-
                 'login_security.location_permission',
-
                 'login_security.context_captured_at',
             ]);
         } catch (Throwable) {
@@ -705,7 +515,7 @@ class SecurityController extends Controller
     }
 
     /**
-     * Controleer veilig of een kolom bestaat.
+     * Controleer veilig of een kolom in login_activities bestaat.
      */
     private function loginActivityColumnExists(
         string $column
@@ -721,13 +531,39 @@ class SecurityController extends Controller
     }
 
     /**
-     * Controleer en normaliseer een IANA timezone.
-     *
-     * Bijvoorbeeld:
-     *
-     * Europe/Amsterdam
-     * America/New_York
-     * Asia/Karachi
+     * Normaliseer een locatietoestemming.
+     */
+    private function normalizeLocationPermission(
+        mixed $value
+    ): string {
+        if (! is_scalar($value)) {
+            return 'unknown';
+        }
+
+        $permission = strtolower(
+            trim(
+                (string) $value
+            )
+        );
+
+        return in_array(
+            $permission,
+            [
+                'granted',
+                'denied',
+                'prompt',
+                'unavailable',
+                'unsupported',
+                'unknown',
+            ],
+            true
+        )
+            ? $permission
+            : 'unknown';
+    }
+
+    /**
+     * Controleer en normaliseer een IANA-timezone.
      */
     private function normalizeTimezone(
         mixed $value
@@ -740,14 +576,9 @@ class SecurityController extends Controller
             (string) $value
         );
 
-        if ($timezone === '') {
-            return null;
-        }
-
         if (
-            mb_strlen(
-                $timezone
-            ) > 100
+            $timezone === '' ||
+            mb_strlen($timezone) > 100
         ) {
             return null;
         }
@@ -764,7 +595,7 @@ class SecurityController extends Controller
     }
 
     /**
-     * Maak een nullable float.
+     * Zet een optionele numerieke waarde veilig om naar float.
      */
     private function nullableFloat(
         mixed $value
@@ -782,9 +613,7 @@ class SecurityController extends Controller
 
         $number = (float) $value;
 
-        return is_finite(
-            $number
-        )
+        return is_finite($number)
             ? $number
             : null;
     }

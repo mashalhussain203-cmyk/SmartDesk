@@ -564,6 +564,45 @@
         color: #ce8585;
     }
 
+
+    .editor-stage {
+        overflow: auto;
+    }
+
+    .editor-stage-inner {
+        min-width: 1px;
+        min-height: 1px;
+        display: grid;
+        place-items: center;
+        transform-origin: center center;
+        transition:
+            transform .16s ease,
+            width .16s ease,
+            height .16s ease;
+    }
+
+    .editor-preview-image {
+        display: block;
+        max-width: none;
+        max-height: none;
+        object-fit: fill;
+        transition:
+            width .16s ease,
+            height .16s ease;
+    }
+
+    .editor-live-resize-status {
+        margin: 9px 0 13px;
+        color: #6d7480;
+        font-size: 8px;
+        line-height: 1.55;
+    }
+
+    .editor-live-resize-status strong {
+        color: #d7ad6d;
+        font-weight: 900;
+    }
+
     @media (max-width: 1150px) {
         .editor-workspace {
             grid-template-columns: 190px minmax(0, 1fr) 290px;
@@ -776,6 +815,14 @@
                             100%
                         </button>
 
+                        <button
+                            id="preview-reset"
+                            class="canvas-small-action"
+                            type="button"
+                        >
+                            Reset preview
+                        </button>
+
                         <a
                             id="preview-download"
                             class="canvas-small-action"
@@ -866,6 +913,15 @@
                         <div class="editor-source-note">
                             Kies het origineel of een opgeslagen versie. De gekozen bron wordt direct in het midden geladen.
                         </div>
+
+                        <div
+                            id="editor-live-status"
+                            class="editor-live-resize-status"
+                            role="status"
+                            aria-live="polite"
+                        >
+                            Live preview gereed.
+                        </div>
                     </div>
 
                     <section
@@ -883,6 +939,7 @@
                                 <label class="editor-field">
                                     <span>Breedte</span>
                                     <input
+                                        id="resize-width"
                                         type="number"
                                         name="width"
                                         min="1"
@@ -895,6 +952,7 @@
                                 <label class="editor-field">
                                     <span>Hoogte</span>
                                     <input
+                                        id="resize-height"
                                         type="number"
                                         name="height"
                                         min="1"
@@ -907,6 +965,7 @@
 
                             <label class="editor-checkbox">
                                 <input
+                                    id="resize-keep-aspect"
                                     type="checkbox"
                                     name="keep_aspect"
                                     value="1"
@@ -914,6 +973,10 @@
                                 >
                                 <span>Beeldverhouding behouden</span>
                             </label>
+
+                            <div class="editor-live-resize-status" id="editorLiveResizeStatus">
+                                Live preview gebruikt de huidige bronafmetingen.
+                            </div>
 
                             <button class="editor-submit" type="submit">
                                 Resize-versie maken
@@ -936,12 +999,12 @@
                             <div class="editor-field-grid">
                                 <label class="editor-field">
                                     <span>X</span>
-                                    <input type="number" name="crop_x" min="0" value="{{ old('crop_x', 0) }}">
+                                    <input id="crop-x" type="number" name="crop_x" min="0" value="{{ old('crop_x', 0) }}">
                                 </label>
 
                                 <label class="editor-field">
                                     <span>Y</span>
-                                    <input type="number" name="crop_y" min="0" value="{{ old('crop_y', 0) }}">
+                                    <input id="crop-y" type="number" name="crop_y" min="0" value="{{ old('crop_y', 0) }}">
                                 </label>
 
                                 <label class="editor-field">
@@ -1080,6 +1143,10 @@
                                 >
                             </label>
 
+                            <div class="editor-source-note">
+                                De preview wordt tijdens het schuiven opnieuw gecodeerd. De uiteindelijke server-export kan enkele bytes verschillen.
+                            </div>
+
                             <button class="editor-submit" type="submit">
                                 Comprimeren
                             </button>
@@ -1101,7 +1168,7 @@
                             <label class="editor-field">
                                 <span>Doelformaat</span>
 
-                                <select name="format">
+                                <select id="convert-format" name="format">
                                     <option value="jpg" @selected(old('format') === 'jpg')>JPG</option>
                                     <option value="png" @selected(old('format') === 'png')>PNG</option>
                                     <option value="webp" @selected(old('format', 'webp') === 'webp')>WEBP</option>
@@ -1125,6 +1192,10 @@
                                     value="{{ old('quality', 88) }}"
                                 >
                             </label>
+
+                            <div class="editor-source-note">
+                                Het gekozen formaat wordt live in de browser gerenderd. Opslaan maakt daarna de definitieve serverversie.
+                            </div>
 
                             <button class="editor-submit" type="submit">
                                 Converteren
@@ -1265,6 +1336,24 @@
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
+    /*
+     * Mashal Studio live image editor
+     * --------------------------------
+     * Alle bewerkingen worden eerst volledig client-side als preview uitgevoerd.
+     * Het bestaande Laravel-formulier blijft verantwoordelijk voor definitief opslaan.
+     */
+
+    const MAX_DIMENSION = 12000;
+    const MAX_PIXELS = 80000000;
+
+    /*
+     * Om de browser bij extreem grote afbeeldingen responsief te houden, renderen
+     * we een werkpreview met een begrensde resolutie. De weergegeven doelafmetingen
+     * en de backend-save blijven de echte gekozen afmetingen gebruiken.
+     */
+    const LIVE_RENDER_MAX_DIMENSION = 4096;
+    const LIVE_RENDER_MAX_PIXELS = 16000000;
+
     const tools = Array.from(
         document.querySelectorAll('[data-operation]')
     );
@@ -1294,6 +1383,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const previewDownload =
         document.getElementById('preview-download');
 
+    const liveStatus =
+        document.getElementById('editor-live-status');
+
     const stage =
         document.getElementById('editor-stage');
 
@@ -1302,23 +1394,47 @@ document.addEventListener('DOMContentLoaded', function () {
             ? stage.querySelector('.editor-stage-inner')
             : null;
 
-    const cropWidth =
-        document.getElementById('crop-width');
-
-    const cropHeight =
-        document.getElementById('crop-height');
-
     const fitButton =
         document.getElementById('preview-fit');
 
     const actualButton =
         document.getElementById('preview-100');
 
+    const resetButton =
+        document.getElementById('preview-reset');
+
+    const resizeWidth =
+        document.getElementById('resize-width');
+
+    const resizeHeight =
+        document.getElementById('resize-height');
+
+    const resizeKeepAspect =
+        document.getElementById('resize-keep-aspect');
+
+    const liveResizeStatus =
+        document.getElementById('editorLiveResizeStatus');
+
+    const cropX =
+        document.getElementById('crop-x');
+
+    const cropY =
+        document.getElementById('crop-y');
+
+    const cropWidth =
+        document.getElementById('crop-width');
+
+    const cropHeight =
+        document.getElementById('crop-height');
+
     const compressQuality =
         document.getElementById('compress-quality');
 
     const compressQualityValue =
         document.getElementById('compress-quality-value');
+
+    const convertFormat =
+        document.getElementById('convert-format');
 
     const convertQuality =
         document.getElementById('convert-quality');
@@ -1327,6 +1443,100 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('convert-quality-value');
 
     let zoomMode = 'fit';
+
+    let sourceWidth = 1;
+    let sourceHeight = 1;
+    let sourceFormat = 'IMAGE';
+    let sourceUrl = '';
+    let sourceName = 'Afbeelding';
+
+    let previewWidth = 1;
+    let previewHeight = 1;
+
+    let sourceBitmap = null;
+    let previewObjectUrl = null;
+
+    let aspectUpdating = false;
+    let renderTimer = null;
+    let renderSequence = 0;
+
+    function positiveNumber(value, fallback = null) {
+        const parsed = Number(value);
+
+        if (
+            !Number.isFinite(parsed) ||
+            parsed <= 0
+        ) {
+            return fallback;
+        }
+
+        return parsed;
+    }
+
+    function nonNegativeNumber(value, fallback = 0) {
+        const parsed = Number(value);
+
+        if (
+            !Number.isFinite(parsed) ||
+            parsed < 0
+        ) {
+            return fallback;
+        }
+
+        return parsed;
+    }
+
+    function integer(value, fallback = 0) {
+        const parsed = Number(value);
+
+        if (!Number.isFinite(parsed)) {
+            return fallback;
+        }
+
+        return Math.round(parsed);
+    }
+
+    function selectedSourceOption() {
+        if (!sourceSelect) {
+            return null;
+        }
+
+        return sourceSelect.options[
+            sourceSelect.selectedIndex
+        ] || null;
+    }
+
+    function activeOperation() {
+        return operationInput?.value || 'resize';
+    }
+
+    function setStatus(message, isError = false) {
+        if (!liveStatus) {
+            return;
+        }
+
+        liveStatus.textContent = message;
+        liveStatus.style.color = isError
+            ? '#efaaaa'
+            : '';
+    }
+
+    function setLoading(loading) {
+        stage?.classList.toggle(
+            'loading',
+            Boolean(loading)
+        );
+    }
+
+    function releasePreviewObjectUrl() {
+        if (previewObjectUrl) {
+            URL.revokeObjectURL(
+                previewObjectUrl
+            );
+
+            previewObjectUrl = null;
+        }
+    }
 
     function setPanelControlsEnabled(panel, enabled) {
         panel
@@ -1372,6 +1582,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     ? ''
                     : operation;
         }
+
+        if (operation === 'versions') {
+            showSourceWithoutTransformation();
+            setStatus(
+                'Versiegeschiedenis geopend. Kies een versie om die als nieuwe bron te gebruiken.'
+            );
+            return;
+        }
+
+        scheduleLiveRender(true);
     }
 
     tools.forEach(function (tool) {
@@ -1385,17 +1605,1167 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    function selectedSourceOption() {
-        if (!sourceSelect) {
-            return null;
-        }
+    function getStageAvailableSize() {
+        return {
+            width: stage
+                ? Math.max(
+                    1,
+                    stage.clientWidth - 80
+                )
+                : 1,
 
-        return sourceSelect.options[
-            sourceSelect.selectedIndex
-        ] || null;
+            height: stage
+                ? Math.max(
+                    1,
+                    stage.clientHeight - 80
+                )
+                : 1,
+        };
     }
 
-    function applySelectedSource() {
+    function getFitScale() {
+        const available =
+            getStageAvailableSize();
+
+        return Math.min(
+            1,
+            available.width /
+                Math.max(
+                    1,
+                    previewWidth
+                ),
+            available.height /
+                Math.max(
+                    1,
+                    previewHeight
+                )
+        );
+    }
+
+    function applyPreviewGeometry() {
+        if (
+            !previewImage ||
+            !stageInner
+        ) {
+            return;
+        }
+
+        previewImage.style.width =
+            previewWidth + 'px';
+
+        previewImage.style.height =
+            previewHeight + 'px';
+
+        stageInner.style.width =
+            previewWidth + 'px';
+
+        stageInner.style.height =
+            previewHeight + 'px';
+
+        const scale =
+            zoomMode === '100'
+                ? 1
+                : getFitScale();
+
+        stageInner.style.transform =
+            'scale(' + scale + ')';
+    }
+
+    function setPreviewDimensions(
+        width,
+        height
+    ) {
+        previewWidth = Math.max(
+            1,
+            Math.round(width)
+        );
+
+        previewHeight = Math.max(
+            1,
+            Math.round(height)
+        );
+
+        applyPreviewGeometry();
+    }
+
+    function formatBytes(bytes) {
+        if (
+            !Number.isFinite(bytes) ||
+            bytes < 0
+        ) {
+            return '';
+        }
+
+        if (bytes >= 1024 * 1024) {
+            return (
+                bytes /
+                (1024 * 1024)
+            ).toFixed(2) + ' MB';
+        }
+
+        if (bytes >= 1024) {
+            return (
+                bytes / 1024
+            ).toFixed(1) + ' KB';
+        }
+
+        return Math.round(bytes) + ' B';
+    }
+
+    function normalizeFormat(format) {
+        const value =
+            String(format || '')
+                .trim()
+                .toLowerCase();
+
+        if (
+            value === 'jpeg' ||
+            value === 'jpg'
+        ) {
+            return 'jpg';
+        }
+
+        if (value === 'png') {
+            return 'png';
+        }
+
+        if (value === 'webp') {
+            return 'webp';
+        }
+
+        return 'jpg';
+    }
+
+    function formatToMime(format) {
+        return matchFormat(
+            normalizeFormat(format),
+            {
+                jpg: 'image/jpeg',
+                png: 'image/png',
+                webp: 'image/webp',
+            },
+            'image/jpeg'
+        );
+    }
+
+    function matchFormat(value, map, fallback) {
+        return Object.prototype.hasOwnProperty.call(
+            map,
+            value
+        )
+            ? map[value]
+            : fallback;
+    }
+
+    function currentSourceFormat() {
+        return normalizeFormat(
+            sourceFormat
+        );
+    }
+
+    function outputFormatForOperation(operation) {
+        if (operation === 'convert') {
+            return normalizeFormat(
+                convertFormat?.value || 'webp'
+            );
+        }
+
+        return currentSourceFormat();
+    }
+
+    function qualityForOperation(operation) {
+        if (operation === 'compress') {
+            return Math.max(
+                1,
+                Math.min(
+                    100,
+                    integer(
+                        compressQuality?.value,
+                        82
+                    )
+                )
+            );
+        }
+
+        if (operation === 'convert') {
+            return Math.max(
+                1,
+                Math.min(
+                    100,
+                    integer(
+                        convertQuality?.value,
+                        88
+                    )
+                )
+            );
+        }
+
+        return 88;
+    }
+
+    function validateTargetDimensions(
+        width,
+        height
+    ) {
+        if (
+            width < 1 ||
+            height < 1 ||
+            width > MAX_DIMENSION ||
+            height > MAX_DIMENSION
+        ) {
+            throw new Error(
+                'Afmetingen moeten tussen 1 en ' +
+                MAX_DIMENSION +
+                ' pixels liggen.'
+            );
+        }
+
+        if (
+            width * height >
+            MAX_PIXELS
+        ) {
+            throw new Error(
+                'Deze afmetingen zijn te groot. Maximaal 80 miljoen pixels.'
+            );
+        }
+    }
+
+    function calculateResizeTarget() {
+        let width =
+            positiveNumber(
+                resizeWidth?.value,
+                null
+            );
+
+        let height =
+            positiveNumber(
+                resizeHeight?.value,
+                null
+            );
+
+        if (
+            width === null &&
+            height === null
+        ) {
+            width = sourceWidth;
+            height = sourceHeight;
+        }
+
+        if (resizeKeepAspect?.checked) {
+            if (
+                width !== null &&
+                height === null
+            ) {
+                height = Math.max(
+                    1,
+                    Math.round(
+                        sourceHeight *
+                        (width / sourceWidth)
+                    )
+                );
+            } else if (
+                height !== null &&
+                width === null
+            ) {
+                width = Math.max(
+                    1,
+                    Math.round(
+                        sourceWidth *
+                        (height / sourceHeight)
+                    )
+                );
+            } else if (
+                width !== null &&
+                height !== null
+            ) {
+                const scale = Math.min(
+                    width / sourceWidth,
+                    height / sourceHeight
+                );
+
+                width = Math.max(
+                    1,
+                    Math.round(
+                        sourceWidth * scale
+                    )
+                );
+
+                height = Math.max(
+                    1,
+                    Math.round(
+                        sourceHeight * scale
+                    )
+                );
+            }
+        } else {
+            width ??= sourceWidth;
+            height ??= sourceHeight;
+        }
+
+        width = Math.round(width);
+        height = Math.round(height);
+
+        validateTargetDimensions(
+            width,
+            height
+        );
+
+        return {
+            width,
+            height,
+        };
+    }
+
+    function syncHeightFromWidth() {
+        if (
+            aspectUpdating ||
+            !resizeKeepAspect?.checked
+        ) {
+            return;
+        }
+
+        const width =
+            positiveNumber(
+                resizeWidth?.value,
+                null
+            );
+
+        if (width === null) {
+            return;
+        }
+
+        aspectUpdating = true;
+
+        if (resizeHeight) {
+            resizeHeight.value =
+                Math.max(
+                    1,
+                    Math.round(
+                        sourceHeight *
+                        (width / sourceWidth)
+                    )
+                );
+        }
+
+        aspectUpdating = false;
+    }
+
+    function syncWidthFromHeight() {
+        if (
+            aspectUpdating ||
+            !resizeKeepAspect?.checked
+        ) {
+            return;
+        }
+
+        const height =
+            positiveNumber(
+                resizeHeight?.value,
+                null
+            );
+
+        if (height === null) {
+            return;
+        }
+
+        aspectUpdating = true;
+
+        if (resizeWidth) {
+            resizeWidth.value =
+                Math.max(
+                    1,
+                    Math.round(
+                        sourceWidth *
+                        (height / sourceHeight)
+                    )
+                );
+        }
+
+        aspectUpdating = false;
+    }
+
+    function updateResizeStatus(target) {
+        if (!liveResizeStatus) {
+            return;
+        }
+
+        const widthPercent =
+            Math.round(
+                (
+                    target.width /
+                    Math.max(
+                        1,
+                        sourceWidth
+                    )
+                ) * 100
+            );
+
+        const heightPercent =
+            Math.round(
+                (
+                    target.height /
+                    Math.max(
+                        1,
+                        sourceHeight
+                    )
+                ) * 100
+            );
+
+        liveResizeStatus.innerHTML =
+            'Live resultaat: <strong>' +
+            target.width +
+            ' × ' +
+            target.height +
+            ' px</strong> · ' +
+            widthPercent +
+            '% × ' +
+            heightPercent +
+            '% van de bron.';
+    }
+
+    function getPreviewRenderSize(
+        targetWidth,
+        targetHeight
+    ) {
+        let scale = Math.min(
+            1,
+            LIVE_RENDER_MAX_DIMENSION /
+                Math.max(
+                    targetWidth,
+                    targetHeight
+                ),
+            Math.sqrt(
+                LIVE_RENDER_MAX_PIXELS /
+                Math.max(
+                    1,
+                    targetWidth * targetHeight
+                )
+            )
+        );
+
+        if (
+            !Number.isFinite(scale) ||
+            scale <= 0
+        ) {
+            scale = 1;
+        }
+
+        return {
+            width: Math.max(
+                1,
+                Math.round(
+                    targetWidth * scale
+                )
+            ),
+            height: Math.max(
+                1,
+                Math.round(
+                    targetHeight * scale
+                )
+            ),
+            scale,
+        };
+    }
+
+    function createCanvas(width, height) {
+        const canvas =
+            document.createElement('canvas');
+
+        canvas.width =
+            Math.max(
+                1,
+                Math.round(width)
+            );
+
+        canvas.height =
+            Math.max(
+                1,
+                Math.round(height)
+            );
+
+        return canvas;
+    }
+
+    function context2d(canvas) {
+        const context =
+            canvas.getContext(
+                '2d',
+                {
+                    alpha: true,
+                    desynchronized: true,
+                }
+            );
+
+        if (!context) {
+            throw new Error(
+                'Je browser kan geen 2D afbeeldingspreview maken.'
+            );
+        }
+
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
+
+        return context;
+    }
+
+    function renderBaseCanvas(
+        width = sourceWidth,
+        height = sourceHeight
+    ) {
+        if (!sourceBitmap) {
+            throw new Error(
+                'De bronafbeelding is nog niet geladen.'
+            );
+        }
+
+        const renderSize =
+            getPreviewRenderSize(
+                width,
+                height
+            );
+
+        const canvas =
+            createCanvas(
+                renderSize.width,
+                renderSize.height
+            );
+
+        const ctx =
+            context2d(
+                canvas
+            );
+
+        ctx.drawImage(
+            sourceBitmap,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        return {
+            canvas,
+            targetWidth: width,
+            targetHeight: height,
+        };
+    }
+
+    function renderResize() {
+        const target =
+            calculateResizeTarget();
+
+        updateResizeStatus(
+            target
+        );
+
+        return renderBaseCanvas(
+            target.width,
+            target.height
+        );
+    }
+
+    function renderCrop() {
+        const x = Math.round(
+            nonNegativeNumber(
+                cropX?.value,
+                0
+            )
+        );
+
+        const y = Math.round(
+            nonNegativeNumber(
+                cropY?.value,
+                0
+            )
+        );
+
+        const width = Math.round(
+            positiveNumber(
+                cropWidth?.value,
+                sourceWidth
+            )
+        );
+
+        const height = Math.round(
+            positiveNumber(
+                cropHeight?.value,
+                sourceHeight
+            )
+        );
+
+        validateTargetDimensions(
+            width,
+            height
+        );
+
+        if (
+            x >= sourceWidth ||
+            y >= sourceHeight ||
+            x + width > sourceWidth ||
+            y + height > sourceHeight
+        ) {
+            throw new Error(
+                'De crop valt buiten de bronafbeelding.'
+            );
+        }
+
+        const renderSize =
+            getPreviewRenderSize(
+                width,
+                height
+            );
+
+        const canvas =
+            createCanvas(
+                renderSize.width,
+                renderSize.height
+            );
+
+        const ctx =
+            context2d(
+                canvas
+            );
+
+        ctx.drawImage(
+            sourceBitmap,
+            x,
+            y,
+            width,
+            height,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        return {
+            canvas,
+            targetWidth: width,
+            targetHeight: height,
+        };
+    }
+
+    function checkedValue(name, fallback = null) {
+        const checked =
+            form?.querySelector(
+                'input[name="' +
+                name +
+                '"]:checked'
+            );
+
+        return checked
+            ? checked.value
+            : fallback;
+    }
+
+    function renderRotate() {
+        const angle = integer(
+            checkedValue(
+                'angle',
+                90
+            ),
+            90
+        );
+
+        const normalized =
+            (
+                (angle % 360) +
+                360
+            ) % 360;
+
+        const swapsDimensions =
+            normalized === 90 ||
+            normalized === 270;
+
+        const targetWidth =
+            swapsDimensions
+                ? sourceHeight
+                : sourceWidth;
+
+        const targetHeight =
+            swapsDimensions
+                ? sourceWidth
+                : sourceHeight;
+
+        const renderSize =
+            getPreviewRenderSize(
+                targetWidth,
+                targetHeight
+            );
+
+        const canvas =
+            createCanvas(
+                renderSize.width,
+                renderSize.height
+            );
+
+        const ctx =
+            context2d(
+                canvas
+            );
+
+        ctx.translate(
+            canvas.width / 2,
+            canvas.height / 2
+        );
+
+        ctx.rotate(
+            angle *
+            Math.PI /
+            180
+        );
+
+        const drawWidth =
+            swapsDimensions
+                ? canvas.height
+                : canvas.width;
+
+        const drawHeight =
+            swapsDimensions
+                ? canvas.width
+                : canvas.height;
+
+        ctx.drawImage(
+            sourceBitmap,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight
+        );
+
+        return {
+            canvas,
+            targetWidth,
+            targetHeight,
+        };
+    }
+
+    function renderFlip() {
+        const direction =
+            checkedValue(
+                'flip_direction',
+                'horizontal'
+            );
+
+        const result =
+            renderBaseCanvas(
+                sourceWidth,
+                sourceHeight
+            );
+
+        const canvas =
+            createCanvas(
+                result.canvas.width,
+                result.canvas.height
+            );
+
+        const ctx =
+            context2d(
+                canvas
+            );
+
+        if (direction === 'vertical') {
+            ctx.translate(
+                0,
+                canvas.height
+            );
+
+            ctx.scale(
+                1,
+                -1
+            );
+        } else {
+            ctx.translate(
+                canvas.width,
+                0
+            );
+
+            ctx.scale(
+                -1,
+                1
+            );
+        }
+
+        ctx.drawImage(
+            result.canvas,
+            0,
+            0
+        );
+
+        return {
+            canvas,
+            targetWidth: sourceWidth,
+            targetHeight: sourceHeight,
+        };
+    }
+
+    function renderCopy() {
+        return renderBaseCanvas(
+            sourceWidth,
+            sourceHeight
+        );
+    }
+
+    function renderForOperation(operation) {
+        switch (operation) {
+            case 'resize':
+                return renderResize();
+
+            case 'crop':
+                return renderCrop();
+
+            case 'rotate':
+                return renderRotate();
+
+            case 'flip':
+                return renderFlip();
+
+            case 'compress':
+            case 'convert':
+                return renderCopy();
+
+            default:
+                return renderCopy();
+        }
+    }
+
+    function prepareCanvasForFormat(
+        canvas,
+        format
+    ) {
+        if (format !== 'jpg') {
+            return canvas;
+        }
+
+        const flattened =
+            createCanvas(
+                canvas.width,
+                canvas.height
+            );
+
+        const ctx =
+            context2d(
+                flattened
+            );
+
+        ctx.fillStyle = '#ffffff';
+
+        ctx.fillRect(
+            0,
+            0,
+            flattened.width,
+            flattened.height
+        );
+
+        ctx.drawImage(
+            canvas,
+            0,
+            0
+        );
+
+        return flattened;
+    }
+
+    function canvasToBlob(
+        canvas,
+        mime,
+        quality
+    ) {
+        return new Promise(function (
+            resolve,
+            reject
+        ) {
+            canvas.toBlob(
+                function (blob) {
+                    if (!blob) {
+                        reject(
+                            new Error(
+                                'De live export kon niet worden gemaakt.'
+                            )
+                        );
+
+                        return;
+                    }
+
+                    resolve(blob);
+                },
+                mime,
+                quality
+            );
+        });
+    }
+
+    async function applyRenderedPreview(
+        result,
+        operation,
+        sequence
+    ) {
+        const outputFormat =
+            outputFormatForOperation(
+                operation
+            );
+
+        const quality =
+            qualityForOperation(
+                operation
+            );
+
+        const exportCanvas =
+            prepareCanvasForFormat(
+                result.canvas,
+                outputFormat
+            );
+
+        const mime =
+            formatToMime(
+                outputFormat
+            );
+
+        const blob =
+            await canvasToBlob(
+                exportCanvas,
+                mime,
+                quality / 100
+            );
+
+        if (
+            sequence !==
+            renderSequence
+        ) {
+            return;
+        }
+
+        releasePreviewObjectUrl();
+
+        previewObjectUrl =
+            URL.createObjectURL(
+                blob
+            );
+
+        if (previewImage) {
+            previewImage.src =
+                previewObjectUrl;
+
+            previewImage.alt =
+                sourceName +
+                ' live preview';
+        }
+
+        setPreviewDimensions(
+            result.targetWidth,
+            result.targetHeight
+        );
+
+        const suffix =
+            operation === 'compress' ||
+            operation === 'convert'
+                ? ' · previewbestand ' +
+                    formatBytes(
+                        blob.size
+                    )
+                : '';
+
+        if (previewMeta) {
+            previewMeta.textContent =
+                result.targetWidth +
+                ' × ' +
+                result.targetHeight +
+                ' · ' +
+                outputFormat.toUpperCase() +
+                ' · LIVE' +
+                suffix;
+        }
+
+        const operationLabel = matchFormat(
+            operation,
+            {
+                resize: 'Resize',
+                crop: 'Crop',
+                rotate: 'Rotatie',
+                flip: 'Spiegelen',
+                compress: 'Compressie',
+                convert: 'Conversie',
+            },
+            'Preview'
+        );
+
+        setStatus(
+            operationLabel +
+            ' live toegepast. Klik op de opslaanknop om deze versie definitief te bewaren.'
+        );
+
+        setLoading(
+            false
+        );
+    }
+
+    async function renderLivePreview() {
+        if (!sourceBitmap) {
+            return;
+        }
+
+        const operation =
+            activeOperation();
+
+        if (!operation) {
+            showSourceWithoutTransformation();
+            return;
+        }
+
+        const sequence =
+            ++renderSequence;
+
+        setLoading(
+            true
+        );
+
+        setStatus(
+            'Live preview wordt bijgewerkt…'
+        );
+
+        try {
+            const result =
+                renderForOperation(
+                    operation
+                );
+
+            await applyRenderedPreview(
+                result,
+                operation,
+                sequence
+            );
+        } catch (error) {
+            if (
+                sequence !==
+                renderSequence
+            ) {
+                return;
+            }
+
+            setLoading(
+                false
+            );
+
+            setStatus(
+                error instanceof Error
+                    ? error.message
+                    : 'De live preview kon niet worden gemaakt.',
+                true
+            );
+        }
+    }
+
+    function scheduleLiveRender(immediate = false) {
+        if (renderTimer) {
+            window.clearTimeout(
+                renderTimer
+            );
+        }
+
+        renderTimer =
+            window.setTimeout(
+                renderLivePreview,
+                immediate
+                    ? 0
+                    : 90
+            );
+    }
+
+    function showSourceWithoutTransformation() {
+        if (!previewImage) {
+            return;
+        }
+
+        releasePreviewObjectUrl();
+
+        previewImage.src =
+            sourceUrl;
+
+        previewImage.alt =
+            sourceName;
+
+        setPreviewDimensions(
+            sourceWidth,
+            sourceHeight
+        );
+
+        if (previewMeta) {
+            previewMeta.textContent =
+                sourceWidth +
+                ' × ' +
+                sourceHeight +
+                ' · ' +
+                sourceFormat;
+        }
+
+        setLoading(
+            false
+        );
+    }
+
+    async function loadSourceImage(url) {
+        return new Promise(function (
+            resolve,
+            reject
+        ) {
+            const image =
+                new Image();
+
+            image.decoding =
+                'async';
+
+            image.onload =
+                function () {
+                    resolve(image);
+                };
+
+            image.onerror =
+                function () {
+                    reject(
+                        new Error(
+                            'De gekozen bronafbeelding kon niet worden geladen.'
+                        )
+                    );
+                };
+
+            image.src =
+                url;
+        });
+    }
+
+    function resetOperationFields() {
+        if (resizeWidth) {
+            resizeWidth.value =
+                sourceWidth;
+        }
+
+        if (resizeHeight) {
+            resizeHeight.value =
+                sourceHeight;
+        }
+
+        if (cropX) {
+            cropX.value =
+                0;
+        }
+
+        if (cropY) {
+            cropY.value =
+                0;
+        }
+
+        if (cropWidth) {
+            cropWidth.value =
+                sourceWidth;
+        }
+
+        if (cropHeight) {
+            cropHeight.value =
+                sourceHeight;
+        }
+    }
+
+    async function applySelectedSource() {
         const option =
             selectedSourceOption();
 
@@ -1403,158 +2773,212 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const preview =
+        const nextUrl =
             option.dataset.preview || '';
 
-        const download =
-            option.dataset.download || '#';
-
-        const name =
-            option.dataset.name || 'Afbeelding';
-
-        const width =
-            option.dataset.width || '?';
-
-        const height =
-            option.dataset.height || '?';
-
-        const format =
-            option.dataset.format || 'IMAGE';
-
-        if (previewImage && preview) {
-            stage?.classList.add('loading');
-
-            previewImage.src = preview;
-            previewImage.alt = name;
+        if (!nextUrl) {
+            setStatus(
+                'De gekozen bron heeft geen previewbestand.',
+                true
+            );
+            return;
         }
+
+        renderSequence++;
+
+        sourceUrl =
+            nextUrl;
+
+        sourceName =
+            option.dataset.name ||
+            'Afbeelding';
+
+        sourceWidth =
+            positiveNumber(
+                option.dataset.width,
+                1
+            );
+
+        sourceHeight =
+            positiveNumber(
+                option.dataset.height,
+                1
+            );
+
+        sourceFormat =
+            option.dataset.format ||
+            'IMAGE';
 
         if (previewName) {
             previewName.textContent =
-                name;
-        }
-
-        if (previewMeta) {
-            previewMeta.textContent =
-                width + ' × ' +
-                height + ' · ' +
-                format;
+                sourceName;
         }
 
         if (previewDownload) {
             previewDownload.href =
-                download;
+                option.dataset.download ||
+                '#';
         }
 
-        if (
-            cropWidth &&
-            width !== '?'
-        ) {
-            cropWidth.value =
-                width;
-        }
+        resetOperationFields();
 
-        if (
-            cropHeight &&
-            height !== '?'
-        ) {
-            cropHeight.value =
-                height;
-        }
-
-        setZoom('fit');
-    }
-
-    function fitScale() {
-        if (
-            !stage ||
-            !previewImage ||
-            !previewImage.naturalWidth ||
-            !previewImage.naturalHeight
-        ) {
-            return 1;
-        }
-
-        const availableWidth =
-            Math.max(
-                1,
-                stage.clientWidth - 64
-            );
-
-        const availableHeight =
-            Math.max(
-                1,
-                stage.clientHeight - 64
-            );
-
-        return Math.min(
-            1,
-            availableWidth /
-                previewImage.naturalWidth,
-            availableHeight /
-                previewImage.naturalHeight
+        setLoading(
+            true
         );
-    }
 
-    function setZoom(mode) {
-        zoomMode = mode;
+        setStatus(
+            'Bronafbeelding laden…'
+        );
 
-        if (!stageInner) {
-            return;
-        }
+        try {
+            sourceBitmap =
+                await loadSourceImage(
+                    sourceUrl
+                );
 
-        const scale =
-            mode === '100'
-                ? 1
-                : fitScale();
+            /*
+             * Vertrouw uiteindelijk op de werkelijk geladen natuurlijke
+             * dimensies als database-metadata ontbreekt of afwijkt.
+             */
+            sourceWidth =
+                positiveNumber(
+                    sourceBitmap.naturalWidth,
+                    sourceWidth
+                );
 
-        stageInner.style.transform =
-            'scale(' + scale + ')';
-    }
+            sourceHeight =
+                positiveNumber(
+                    sourceBitmap.naturalHeight,
+                    sourceHeight
+                );
 
-    fitButton?.addEventListener(
-        'click',
-        function () {
-            setZoom('fit');
-        }
-    );
+            resetOperationFields();
 
-    actualButton?.addEventListener(
-        'click',
-        function () {
-            setZoom('100');
-        }
-    );
-
-    previewImage?.addEventListener(
-        'load',
-        function () {
-            stage?.classList.remove(
-                'loading'
-            );
-
-            setZoom(
-                zoomMode
-            );
-        }
-    );
-
-    previewImage?.addEventListener(
-        'error',
-        function () {
-            stage?.classList.remove(
-                'loading'
-            );
-        }
-    );
-
-    window.addEventListener(
-        'resize',
-        function () {
-            if (
-                zoomMode === 'fit'
-            ) {
-                setZoom('fit');
+            if (activeOperation()) {
+                scheduleLiveRender(
+                    true
+                );
+            } else {
+                showSourceWithoutTransformation();
             }
+        } catch (error) {
+            sourceBitmap =
+                null;
+
+            showSourceWithoutTransformation();
+
+            setStatus(
+                error instanceof Error
+                    ? error.message
+                    : 'De bronafbeelding kon niet worden geladen.',
+                true
+            );
+        }
+    }
+
+    resizeWidth?.addEventListener(
+        'input',
+        function () {
+            syncHeightFromWidth();
+            scheduleLiveRender();
+        }
+    );
+
+    resizeHeight?.addEventListener(
+        'input',
+        function () {
+            syncWidthFromHeight();
+            scheduleLiveRender();
+        }
+    );
+
+    resizeKeepAspect?.addEventListener(
+        'change',
+        function () {
+            if (resizeKeepAspect.checked) {
+                syncHeightFromWidth();
+            }
+
+            scheduleLiveRender(
+                true
+            );
+        }
+    );
+
+    [
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+    ].forEach(function (input) {
+        input?.addEventListener(
+            'input',
+            function () {
+                scheduleLiveRender();
+            }
+        );
+    });
+
+    form
+        ?.querySelectorAll(
+            'input[name="angle"]'
+        )
+        .forEach(function (input) {
+            input.addEventListener(
+                'change',
+                function () {
+                    scheduleLiveRender(
+                        true
+                    );
+                }
+            );
+        });
+
+    form
+        ?.querySelectorAll(
+            'input[name="flip_direction"]'
+        )
+        .forEach(function (input) {
+            input.addEventListener(
+                'change',
+                function () {
+                    scheduleLiveRender(
+                        true
+                    );
+                }
+            );
+        });
+
+    compressQuality?.addEventListener(
+        'input',
+        function () {
+            if (compressQualityValue) {
+                compressQualityValue.textContent =
+                    compressQuality.value;
+            }
+
+            scheduleLiveRender();
+        }
+    );
+
+    convertFormat?.addEventListener(
+        'change',
+        function () {
+            scheduleLiveRender(
+                true
+            );
+        }
+    );
+
+    convertQuality?.addEventListener(
+        'input',
+        function () {
+            if (convertQualityValue) {
+                convertQualityValue.textContent =
+                    convertQuality.value;
+            }
+
+            scheduleLiveRender();
         }
     );
 
@@ -1563,20 +2987,83 @@ document.addEventListener('DOMContentLoaded', function () {
         applySelectedSource
     );
 
+    fitButton?.addEventListener(
+        'click',
+        function () {
+            zoomMode =
+                'fit';
+
+            applyPreviewGeometry();
+        }
+    );
+
+    actualButton?.addEventListener(
+        'click',
+        function () {
+            zoomMode =
+                '100';
+
+            applyPreviewGeometry();
+        }
+    );
+
+    resetButton?.addEventListener(
+        'click',
+        function () {
+            resetOperationFields();
+
+            const operation =
+                activeOperation();
+
+            if (operation) {
+                scheduleLiveRender(
+                    true
+                );
+            } else {
+                showSourceWithoutTransformation();
+            }
+
+            setStatus(
+                'Preview-instellingen zijn teruggezet naar de bron.'
+            );
+        }
+    );
+
+    previewImage?.addEventListener(
+        'load',
+        function () {
+            setLoading(
+                false
+            );
+
+            applyPreviewGeometry();
+        }
+    );
+
+    window.addEventListener(
+        'resize',
+        function () {
+            applyPreviewGeometry();
+        }
+    );
+
     document
-        .querySelectorAll('[data-use-version]')
+        .querySelectorAll(
+            '[data-use-version]'
+        )
         .forEach(function (button) {
             button.addEventListener(
                 'click',
-                function () {
+                async function () {
                     if (!sourceSelect) {
                         return;
                     }
 
                     sourceSelect.value =
-                        button.dataset.useVersion || '';
+                        button.dataset.useVersion ||
+                        '';
 
-                    applySelectedSource();
+                    await applySelectedSource();
 
                     activateOperation(
                         'resize'
@@ -1620,41 +3107,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     HTMLFormElement
                         .prototype
                         .submit
-                        .call(deleteForm);
+                        .call(
+                            deleteForm
+                        );
                 }
             );
         });
-
-    compressQuality?.addEventListener(
-        'input',
-        function () {
-            if (compressQualityValue) {
-                compressQualityValue.textContent =
-                    compressQuality.value;
-            }
-        }
-    );
-
-    convertQuality?.addEventListener(
-        'input',
-        function () {
-            if (convertQualityValue) {
-                convertQualityValue.textContent =
-                    convertQuality.value;
-            }
-        }
-    );
 
     form?.addEventListener(
         'submit',
         function (event) {
             const operation =
-                operationInput
-                    ? operationInput.value
-                    : '';
+                activeOperation();
 
             if (!operation) {
                 event.preventDefault();
+
+                setStatus(
+                    'Kies eerst een bewerking.',
+                    true
+                );
+
                 return;
             }
 
@@ -1671,6 +3144,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            /*
+             * Alleen velden van de actieve bewerking worden verstuurd.
+             * source_version_id blijft buiten de panels en blijft dus actief.
+             */
             panels.forEach(function (panel) {
                 setPanelControlsEnabled(
                     panel,
@@ -1678,24 +3155,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
             });
 
-            form
-                .querySelectorAll(
-                    '.editor-submit'
-                )
-                .forEach(function (button) {
-                    button.disabled =
-                        true;
-                });
-
             const submitButton =
                 activePanel.querySelector(
                     '.editor-submit'
                 );
 
             if (submitButton) {
+                submitButton.disabled =
+                    true;
+
                 submitButton.textContent =
-                    'Bezig…';
+                    'Versie opslaan…';
             }
+
+            setStatus(
+                'De live preview wordt nu als echte versie op de server opgeslagen…'
+            );
         }
     );
 
@@ -1710,22 +3185,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     button.disabled =
                         false;
                 });
-
-            const activeTool =
-                tools.find(function (tool) {
-                    return tool.classList
-                        .contains('active');
-                });
-
-            activateOperation(
-                activeTool
-                    ? activeTool.dataset.operation
-                    : 'resize'
-            );
         }
     );
 
-    activateOperation('resize');
+    window.addEventListener(
+        'beforeunload',
+        function () {
+            releasePreviewObjectUrl();
+        }
+    );
+
+    /*
+     * Start altijd met Resize als actieve tool en laad daarna de gekozen bron.
+     */
+    activateOperation(
+        'resize'
+    );
+
     applySelectedSource();
 });
 </script>

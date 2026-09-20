@@ -141,23 +141,28 @@ class UserController extends Controller
 
         $emailSent = $this->sendVerificationEmail(
             $user,
-            'Je verificatiecode voor SmartDesk'
+            'Je verificatiecode voor Mashal Studio'
         );
 
         /*
         |--------------------------------------------------------------------------
-        | Tijdelijke login-security context opruimen
+        | Login-security context opruimen, pending image behouden
         |--------------------------------------------------------------------------
         |
-        | Registratie logt de gebruiker in deze controller niet automatisch in.
-        | De browsercontext die vóór registratie is opgeslagen mag daarom niet
-        | later per ongeluk aan een andere login worden gekoppeld.
+        | De tijdelijke browserlocatie/security-context hoort niet mee te gaan,
+        | maar pending_image en url.intended laten we bewust staan.
+        |
+        | Daardoor blijft deze flow intact:
+        |
+        | upload -> registratie -> verificatie -> claim -> editor.
         |
         */
 
-        $this->forgetLoginSecurityBrowserContext(
-            $request
-        );
+        $this->forgetLoginSecurityBrowserContext($request);
+
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl($request);
+        }
 
         if (! $emailSent) {
             return redirect()
@@ -165,15 +170,19 @@ class UserController extends Controller
                 ->with(
                     'error',
                     'Je account is aangemaakt, maar de verificatiemail kon niet worden verzonden. Vraag een nieuwe verificatiecode aan.'
-                );
+                )
+                ->with('email', $user->email);
         }
 
         return redirect()
             ->route('verification.notice')
             ->with(
                 'success',
-                'Account aangemaakt. Controleer je e-mail voor de verificatiecode.'
-            );
+                $this->hasPendingImage($request)
+                    ? 'Account aangemaakt. Verifieer je e-mailadres; daarna openen we automatisch je geüploade afbeelding.'
+                    : 'Account aangemaakt. Controleer je e-mail voor de verificatiecode.'
+            )
+            ->with('email', $user->email);
     }
 
     /*
@@ -208,13 +217,8 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Loginmethode vóór Auth::attempt beschikbaar maken
+        | Provider vóór Auth::attempt bekendmaken
         |--------------------------------------------------------------------------
-        |
-        | Laravel vuurt het Login-event tijdens Auth::attempt af.
-        | Door de provider vooraf op de request te zetten kan de
-        | LoginSecurityService direct zien dat dit een wachtwoordlogin is.
-        |
         */
 
         $request->merge([
@@ -229,25 +233,46 @@ class UserController extends Controller
                 ->onlyInput('email');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Sessiefixatie voorkomen
+        |--------------------------------------------------------------------------
+        |
+        | Laravel houdt normale sessiedata bij regenerate() in stand.
+        | Daardoor blijft pending_image aanwezig na succesvolle login.
+        |
+        */
+
         $request->session()->regenerate();
 
         /** @var User $user */
         $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Laatste loginmethode opslaan
-        |--------------------------------------------------------------------------
-        |
-        | Deze login kwam via het normale e-mailadres + wachtwoordformulier.
-        | Het admin dashboard kan hierdoor tonen hoe de gebruiker het laatst
-        | is ingelogd.
-        |
-        */
-
         $user->forceFill([
             'login_provider' => 'password',
         ])->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pending upload heeft voorrang
+        |--------------------------------------------------------------------------
+        |
+        | Gebruik hier niet alleen redirect()->intended(), maar controleer de
+        | pending upload expliciet. Zo kan een andere controller of middleware
+        | de intended URL niet per ongeluk overschrijven.
+        |
+        */
+
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl($request);
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    'Je bent ingelogd. Je eerdere upload wordt nu aan je account gekoppeld.'
+                );
+        }
 
         if ($user->is_admin) {
             return redirect()
@@ -544,7 +569,7 @@ class UserController extends Controller
             $verificationSent =
                 $this->sendVerificationEmail(
                     $user,
-                    'Bevestig je nieuwe e-mailadres - SmartDesk'
+                    'Bevestig je nieuwe e-mailadres - Mashal Studio'
                 );
 
 
@@ -557,7 +582,7 @@ class UserController extends Controller
             $this->sendEmailSafely(
                 $oldEmail,
                 $oldName,
-                'Je SmartDesk-e-mailadres is gewijzigd',
+                'Je Mashal Studio-e-mailadres is gewijzigd',
                 'emails.email-changed',
                 [
                     'user' => $user,
@@ -580,7 +605,7 @@ class UserController extends Controller
                 $this->sendEmailSafely(
                     $user->email,
                     $user->name,
-                    'Je SmartDesk-accountgegevens zijn gewijzigd',
+                    'Je Mashal Studio-accountgegevens zijn gewijzigd',
                     'emails.account-updated',
                     [
                         'user' => $user,
@@ -627,7 +652,7 @@ class UserController extends Controller
                 $this->sendEmailSafely(
                     $user->email,
                     $user->name,
-                    'Je SmartDesk-accountgegevens zijn gewijzigd',
+                    'Je Mashal Studio-accountgegevens zijn gewijzigd',
                     'emails.account-updated',
                     [
                         'user' => $user,
@@ -724,7 +749,7 @@ class UserController extends Controller
         $emailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
-            'Je SmartDesk-wachtwoord is gewijzigd',
+            'Je Mashal Studio-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
                 'user' => $user,
@@ -1021,7 +1046,7 @@ class UserController extends Controller
 
         $emailSent = $this->sendVerificationEmail(
             $user,
-            'Je verificatiecode voor SmartDesk'
+            'Je verificatiecode voor Mashal Studio'
         );
 
         if (! $emailSent) {
@@ -1096,43 +1121,76 @@ class UserController extends Controller
         ) {
             return back()
                 ->withErrors([
-                    'code' =>
-                        'De code is ongeldig of verlopen.',
+                    'code' => 'De code is ongeldig of verlopen.',
                 ])
                 ->withInput();
         }
 
-        $user->email_verified_at = now();
+        DB::transaction(function () use ($user, $record): void {
+            $user->email_verified_at = now();
+            $user->save();
 
-        $user->save();
-
-        DB::table(
-            'email_verification_codes'
-        )
-            ->where(
-                'id',
-                $record->id
+            DB::table(
+                'email_verification_codes'
             )
-            ->update([
-                'used_at' => now(),
-                'updated_at' => now(),
-            ]);
+                ->where(
+                    'id',
+                    $record->id
+                )
+                ->update([
+                    'used_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        });
 
         $this->sendEmailSafely(
             $user->email,
             $user->name,
-            'Je e-mailadres is geverifieerd - SmartDesk',
+            'Je e-mailadres is geverifieerd - Mashal Studio',
             'emails.email-verified',
             [
                 'user' => $user,
             ]
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Registratie afronden
+        |--------------------------------------------------------------------------
+        |
+        | Een geldige verificatiecode bewijst toegang tot het e-mailadres.
+        | Daarom loggen we de gebruiker hier direct in.
+        |
+        | Dit voorkomt dat iemand na:
+        | upload -> registratie -> verificatie
+        | nóg een keer handmatig moet inloggen om zijn upload te claimen.
+        |
+        */
+
+        Auth::login($user);
+
+        $request->session()->regenerate();
+
+        $user->forceFill([
+            'login_provider' => $user->login_provider ?: 'password',
+        ])->save();
+
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl($request);
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    'Je e-mailadres is geverifieerd. Je eerdere upload wordt nu automatisch geopend.'
+                );
+        }
+
         return redirect()
-            ->route('login')
+            ->route('home')
             ->with(
                 'success',
-                'Je e-mailadres is succesvol geverifieerd.'
+                'Je e-mailadres is succesvol geverifieerd en je bent ingelogd.'
             );
     }
 
@@ -1189,7 +1247,7 @@ class UserController extends Controller
         $emailSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
-            'Wachtwoord herstellen - SmartDesk',
+            'Wachtwoord herstellen - Mashal Studio',
             'emails.password-reset',
             [
                 'user' => $user,
@@ -1353,7 +1411,7 @@ class UserController extends Controller
         $this->sendEmailSafely(
             $user->email,
             $user->name,
-            'Je SmartDesk-wachtwoord is gewijzigd',
+            'Je Mashal Studio-wachtwoord is gewijzigd',
             'emails.password-changed',
             [
                 'user' => $user,
@@ -1518,7 +1576,7 @@ class UserController extends Controller
         $emailSent = $this->sendEmailSafely(
             $user->email,
             (string) $user->name,
-            'Welkom bij SmartDesk - Je account is aangemaakt',
+            'Welkom bij Mashal Studio - Je account is aangemaakt',
             'emails.account-created',
             [
                 'user' => $user,
@@ -1674,7 +1732,7 @@ class UserController extends Controller
             $verificationSent =
                 $this->sendVerificationEmail(
                     $user,
-                    'Bevestig je e-mailadres - SmartDesk'
+                    'Bevestig je e-mailadres - Mashal Studio'
                 );
         }
 
@@ -1692,7 +1750,7 @@ class UserController extends Controller
         $notificationSent = $this->sendEmailSafely(
             $user->email,
             $user->name,
-            'Je accountgegevens zijn bijgewerkt door een beheerder - SmartDesk',
+            'Je accountgegevens zijn bijgewerkt door een beheerder - Mashal Studio',
             'emails.account-updated',
             [
                 'user' => $user,
@@ -1776,7 +1834,7 @@ class UserController extends Controller
         $emailSent = $this->sendEmailSafely(
             $email,
             $name,
-            'Je SmartDesk-account is verwijderd',
+            'Je Mashal Studio-account is verwijderd',
             'emails.account-deleted',
             [
                 'name' => $name,
@@ -1810,6 +1868,46 @@ class UserController extends Controller
     | succesvolle registratie moet deze tijdelijke context worden verwijderd.
     |
     */
+
+    /**
+     * Controleer of deze browsersessie nog een upload heeft die geclaimd moet
+     * worden.
+     */
+    private function hasPendingImage(
+        Request $request
+    ): bool {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $pending = $request->session()->get(
+            'pending_image'
+        );
+
+        return is_array($pending)
+            && ! empty($pending['path']);
+    }
+
+    /**
+     * Zorg dat Laravel na authenticatie altijd naar de claim-route wijst
+     * wanneer er een pending upload bestaat.
+     */
+    private function ensurePendingImageIntendedUrl(
+        Request $request
+    ): void {
+        if (
+            ! $request->hasSession() ||
+            ! $this->hasPendingImage($request)
+        ) {
+            return;
+        }
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
+    }
+
 
     private function forgetLoginSecurityBrowserContext(
         Request $request
@@ -1965,7 +2063,7 @@ class UserController extends Controller
 
             return true;
         } catch (Throwable $exception) {
-            logger()->error('SmartDesk e-mail kon niet worden verzonden.', [
+            logger()->error('Mashal Studio e-mail kon niet worden verzonden.', [
                 'recipient' => $toEmail,
                 'subject' => $subject,
                 'view' => $view,

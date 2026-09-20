@@ -155,7 +155,7 @@ class EmailLoginController extends Controller
             $this->brevoMail->send(
                 $email,
                 '',
-                'Je inlogcode voor Mashal Automotive',
+                'Je inlogcode voor Mashal Studio',
                 'emails.login-code',
                 [
                     'code' => $code,
@@ -196,6 +196,10 @@ class EmailLoginController extends Controller
         $request->session()->put(
             'email_login_email',
             $email
+        );
+
+        $this->ensurePendingImageIntendedUrl(
+            $request
         );
 
         return redirect()
@@ -546,14 +550,10 @@ class EmailLoginController extends Controller
             )
             ->delete();
 
-        return redirect()
-            ->route(
-                'account'
-            )
-            ->with(
-                'success',
-                'Je bent succesvol ingelogd met je e-mailcode.'
-            );
+        return $this->redirectAfterSuccessfulLogin(
+            $request,
+            'Je bent succesvol ingelogd met je e-mailcode.'
+        );
     }
 
 
@@ -675,7 +675,7 @@ class EmailLoginController extends Controller
             $this->brevoMail->send(
                 $email,
                 '',
-                'Je veilige loginlink voor Mashal Automotive',
+                'Je veilige loginlink voor Mashal Studio',
                 'emails.magic-login-link',
                 [
                     'email' =>
@@ -710,6 +710,10 @@ class EmailLoginController extends Controller
                     'De loginlink kon niet worden verzonden. Probeer het later opnieuw.'
                 );
         }
+
+        $this->ensurePendingImageIntendedUrl(
+            $request
+        );
 
         return back()
             ->withInput([
@@ -856,6 +860,10 @@ class EmailLoginController extends Controller
             'email_magic_login.started_at' =>
                 now()->toIso8601String(),
         ]);
+
+        $this->ensurePendingImageIntendedUrl(
+            $request
+        );
 
         return redirect()
             ->route(
@@ -1176,14 +1184,100 @@ class EmailLoginController extends Controller
             $email
         );
 
+        return $this->redirectAfterSuccessfulLogin(
+            $request,
+            'Je bent succesvol ingelogd via je veilige loginlink.'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect na succesvolle passwordless login
+    |--------------------------------------------------------------------------
+    |
+    | Een upload van vóór de login heeft altijd voorrang.
+    |
+    | Daardoor werkt zowel de e-mailcode-flow als de magic-link-flow zo:
+    |
+    | upload -> login -> claim -> editor.
+    |
+    */
+
+    private function redirectAfterSuccessfulLogin(
+        Request $request,
+        string $successMessage
+    ): RedirectResponse {
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl(
+                $request
+            );
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    $successMessage . ' Je eerdere upload wordt nu automatisch geopend.'
+                );
+        }
+
         return redirect()
-            ->route(
-                'account'
+            ->intended(
+                route('account')
             )
             ->with(
                 'success',
-                'Je bent succesvol ingelogd via je veilige loginlink.'
+                $successMessage
             );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending image controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function hasPendingImage(
+        Request $request
+    ): bool {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $pending = $request->session()->get(
+            'pending_image'
+        );
+
+        return is_array($pending)
+            && ! empty($pending['path']);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Claim-route als intended URL bewaren
+    |--------------------------------------------------------------------------
+    |
+    | Intermediate forms en sessieregeneratie mogen de oorspronkelijke upload
+    | niet laten verdwijnen uit de gebruikersflow.
+    |
+    */
+
+    private function ensurePendingImageIntendedUrl(
+        Request $request
+    ): void {
+        if (
+            ! $request->hasSession() ||
+            ! $this->hasPendingImage($request)
+        ) {
+            return;
+        }
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
     }
 
 

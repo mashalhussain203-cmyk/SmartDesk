@@ -16,6 +16,12 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
+/**
+ * Mashal Studio image editor.
+ *
+ * Verwerkt private originals en versies via Laravel's local disk en gebruikt
+ * GD voor resize, crop, rotate, flip, compress en convert.
+ */
 class ImageEditorController extends Controller
 {
     private const MAX_DIMENSION = 12000;
@@ -405,7 +411,13 @@ class ImageEditorController extends Controller
             }
 
             if (! $disk->exists($directory)) {
-                $disk->makeDirectory($directory);
+                $created = $disk->makeDirectory($directory);
+
+                if ($created === false) {
+                    throw new RuntimeException(
+                        'De opslagmap voor afbeeldingsversies kon niet worden aangemaakt.'
+                    );
+                }
             }
 
             $stream = fopen(
@@ -494,6 +506,14 @@ class ImageEditorController extends Controller
                         strtoupper($outputFormat)
                     )
                 );
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'image' => 'De bewerking kon niet worden uitgevoerd. Probeer het opnieuw.',
+            ]);
         } finally {
             if (
                 is_string($temporaryFile) &&
@@ -535,8 +555,12 @@ class ImageEditorController extends Controller
         if ($path) {
             $disk = $this->localDisk();
 
-            if ($disk->exists($path)) {
-                $disk->delete($path);
+            try {
+                if ($disk->exists($path)) {
+                    $disk->delete($path);
+                }
+            } catch (Throwable $exception) {
+                report($exception);
             }
         }
 
@@ -1390,6 +1414,15 @@ class ImageEditorController extends Controller
         int $width,
         int $height
     ): void {
+        if (
+            $height > 0 &&
+            $width > intdiv(PHP_INT_MAX, $height)
+        ) {
+            throw ValidationException::withMessages([
+                'dimensions' => 'De berekende afmetingen zijn ongeldig.',
+            ]);
+        }
+
         $pixels = $width * $height;
 
         if ($pixels > self::MAX_PIXELS) {
@@ -1413,7 +1446,10 @@ class ImageEditorController extends Controller
             ! extension_loaded('gd') ||
             ! function_exists('imagecreatefromstring') ||
             ! function_exists('imagecreatetruecolor') ||
-            ! function_exists('imagecopyresampled')
+            ! function_exists('imagecopyresampled') ||
+            ! function_exists('imagecopy') ||
+            ! function_exists('imagesx') ||
+            ! function_exists('imagesy')
         ) {
             throw ValidationException::withMessages([
                 'image' => 'De GD-extensie is niet beschikbaar of onvolledig op deze PHP-server.',

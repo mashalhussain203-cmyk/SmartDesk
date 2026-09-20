@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -15,26 +16,42 @@ use Throwable;
 class ImageUploadController extends Controller
 {
     /**
-     * Maximale bestandsgrootte in KB.
+     * Maximale uploadgrootte in kilobytes.
      *
      * 20480 KB = 20 MB.
      */
     private const MAX_UPLOAD_KB = 20480;
 
     /**
-     * Maximale breedte of hoogte van een afbeelding.
+     * Maximale breedte of hoogte.
      */
     private const MAX_DIMENSION = 20000;
 
     /**
      * Maximale hoeveelheid pixels.
-     *
-     * Beschermt de server tegen extreem grote afbeeldingen.
      */
     private const MAX_PIXELS = 100000000;
 
     /**
-     * Ondersteunde afbeeldingstypen.
+     * Hoelang een tijdelijke upload geldig blijft.
+     *
+     * 2 uur is ruim genoeg voor:
+     * upload -> login/registratie -> claim.
+     */
+    private const PENDING_TTL_SECONDS = 7200;
+
+    /**
+     * Sessiekey voor een nog niet geclaimde upload.
+     */
+    private const PENDING_SESSION_KEY = 'pending_image';
+
+    /**
+     * Tijdelijke uploadmap op de local disk.
+     */
+    private const TEMP_DIRECTORY = 'temp-images';
+
+    /**
+     * Ondersteunde MIME-types.
      */
     private const ALLOWED_MIME_TYPES = [
         'image/jpeg',
@@ -43,9 +60,24 @@ class ImageUploadController extends Controller
     ];
 
     /**
-     * Tijdelijke afbeelding uploaden.
+     * Upload een afbeelding voordat of nadat de gebruiker is ingelogd.
      *
-     * Dit mag ook gebeuren voordat de gebruiker is ingelogd.
+     * Flow:
+     *
+     * guest:
+     * upload
+     * -> tijdelijk bestand
+     * -> pending_image in sessie
+     * -> login
+     * -> images.claim
+     * -> editor
+     *
+     * authenticated:
+     * upload
+     * -> tijdelijk bestand
+     * -> pending_image in sessie
+     * -> images.claim
+     * -> editor
      */
     public function storeTemporary(Request $request): RedirectResponse
     {
@@ -71,30 +103,22 @@ class ImageUploadController extends Controller
         /** @var UploadedFile $file */
         $file = $validated['image'];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Bestand controleren
-        |--------------------------------------------------------------------------
-        */
-
         try {
             $metadata = $this->inspectUploadedImage($file);
         } catch (Throwable $exception) {
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    $exception->getMessage()
-                );
+                ->with('error', $exception->getMessage());
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Vorige tijdelijke upload verwijderen
+        | Oude pending upload opruimen
         |--------------------------------------------------------------------------
         |
-        | Wanneer dezelfde gebruiker opnieuw uploadt voordat de vorige
-        | afbeelding is geclaimd, verwijderen we het oude tijdelijke bestand.
+        | Per browser/sessie bewaren we bewust maar één nog niet geclaimde
+        | afbeelding. Uploadt iemand opnieuw, dan vervangt die nieuwe upload
+        | de vorige pending upload.
         |
         */
 
@@ -102,81 +126,112 @@ class ImageUploadController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Tijdelijk opslaan
+        | Tijdelijk bestand opslaan
         |--------------------------------------------------------------------------
         */
 
-        $temporaryPath = $file->store(
-            'temp-images',
-            'local'
-        );
+        try {
+            $temporaryPath = $file->store(
+                self::TEMP_DIRECTORY,
+                'local'
+            );
+        } catch (Throwable $exception) {
+            Log::warning(
+                'Temporary image upload failed.',
+                [
+                    'exception' => $exception->getMessage(),
+                ]
+            );
 
-        if (! is_string($temporaryPath) || $temporaryPath === '') {
             return back()
+                ->withInput()
                 ->with(
                     'error',
                     'De afbeelding kon niet tijdelijk worden opgeslagen.'
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Originele naam opschonen
-        |--------------------------------------------------------------------------
-        */
-
-        $originalName = $this->sanitizeOriginalName(
-            $file->getClientOriginalName()
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Upload in sessie bewaren
-        |--------------------------------------------------------------------------
-        */
-
-        $request->session()->put(
-            'pending_image',
-            [
-                'path' => $temporaryPath,
-                'original_name' => $originalName,
-                'mime_type' => $metadata['mime_type'],
-                'file_size' => $metadata['file_size'],
-                'width' => $metadata['width'],
-                'height' => $metadata['height'],
-                'uploaded_at' => now()->timestamp,
-            ]
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Gast naar login sturen
-        |--------------------------------------------------------------------------
-        */
-
-        if (! Auth::check()) {
-            /*
-             * Laravel gebruikt url.intended na succesvolle login.
-             *
-             * Daardoor wordt de tijdelijke afbeelding daarna automatisch
-             * aan het ingelogde account gekoppeld.
-             */
-            $request->session()->put(
-                'url.intended',
-                route('images.claim')
-            );
-
-            return redirect()
-                ->route('login')
+        if (! is_string($temporaryPath) || $temporaryPath === '') {
+            return back()
+                ->withInput()
                 ->with(
-                    'status',
-                    'Je afbeelding staat klaar. Log in of registreer om verder te gaan.'
+                    'error',
+                    'De afbeelding kon niet tijdelijk worden opgeslagen.'
+                );
+        }
+
+        $disk = Storage::disk('local');
+
+        if (! $disk->exists($temporaryPath)) {
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'De tijdelijke upload kon niet worden teruggevonden.'
                 );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Ingelogde gebruiker direct laten claimen
+        | Pending upload in sessie bewaren
+        |--------------------------------------------------------------------------
+        */
+
+        $pending = [
+            'path' => $temporaryPath,
+            'original_name' => $this->sanitizeOriginalName(
+                $file->getClientOriginalName()
+            ),
+            'mime_type' => $metadata['mime_type'],
+            'file_size' => $metadata['file_size'],
+            'width' => $metadata['width'],
+            'height' => $metadata['height'],
+            'uploaded_at' => now()->timestamp,
+            'expires_at' => now()
+                ->addSeconds(self::PENDING_TTL_SECONDS)
+                ->timestamp,
+        ];
+
+        $request->session()->put(
+            self::PENDING_SESSION_KEY,
+            $pending
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Belangrijk: intended URL altijd naar claim laten wijzen
+        |--------------------------------------------------------------------------
+        |
+        | Dit is de kern van de gewenste gebruikersflow.
+        |
+        | Ook als een logincontroller Laravel's redirect()->intended() gebruikt,
+        | komt de bezoeker na succesvolle login automatisch bij images.claim.
+        |
+        */
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gast -> login
+        |--------------------------------------------------------------------------
+        */
+
+        if (! Auth::check()) {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'status',
+                    'Je afbeelding staat klaar. Log in of maak een account aan om direct verder te gaan.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ingelogd -> direct claimen
         |--------------------------------------------------------------------------
         */
 
@@ -185,82 +240,77 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Tijdelijke afbeelding aan de ingelogde gebruiker koppelen.
+     * Koppel een tijdelijke upload aan de ingelogde gebruiker.
      */
     public function claim(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Gebruiker controleren
-        |--------------------------------------------------------------------------
-        |
-        | De route hoort al achter auth middleware te staan, maar deze controle
-        | zorgt voor extra veiligheid wanneer de routeconfiguratie ooit wijzigt.
-        |
-        */
-
         if (! $user) {
+            /*
+             * De route hoort achter auth middleware te staan.
+             * Deze fallback houdt de flow veilig wanneer routes ooit wijzigen.
+             */
+            $request->session()->put(
+                'url.intended',
+                route('images.claim')
+            );
+
             return redirect()
                 ->route('login');
         }
 
+        $pending = $request->session()->get(
+            self::PENDING_SESSION_KEY
+        );
+
+        if (! is_array($pending)) {
+            return $this->redirectWithoutPendingImage($request);
+        }
+
         /*
         |--------------------------------------------------------------------------
-        | Pending upload ophalen
+        | Pending upload controleren
         |--------------------------------------------------------------------------
         */
 
-        $pendingImage = $request->session()->get(
-            'pending_image'
-        );
+        $temporaryPath = isset($pending['path'])
+            ? trim((string) $pending['path'])
+            : '';
 
-        if (
-            ! is_array($pendingImage) ||
-            empty($pendingImage['path'])
-        ) {
+        if ($temporaryPath === '') {
+            $this->forgetPendingUpload($request);
+
+            return $this->redirectWithoutPendingImage($request);
+        }
+
+        if (! $this->isAllowedTemporaryPath($temporaryPath)) {
+            $this->forgetPendingUpload($request);
+
             return redirect()
                 ->route('home')
                 ->with(
                     'error',
-                    'Er staat geen afbeelding klaar om te bewerken.'
+                    'De tijdelijke afbeelding is ongeldig. Upload de afbeelding opnieuw.'
+                );
+        }
+
+        if ($this->pendingUploadHasExpired($pending)) {
+            $this->deletePendingFile($temporaryPath);
+            $this->forgetPendingUpload($request);
+
+            return redirect()
+                ->route('home')
+                ->with(
+                    'error',
+                    'De tijdelijke upload is verlopen. Upload de afbeelding opnieuw.'
                 );
         }
 
         $disk = Storage::disk('local');
 
-        $temporaryPath = (string) $pendingImage['path'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Alleen onze tijdelijke uploadmap accepteren
-        |--------------------------------------------------------------------------
-        */
-
-        if (! Str::startsWith($temporaryPath, 'temp-images/')) {
-            $request->session()->forget(
-                'pending_image'
-            );
-
-            return redirect()
-                ->route('home')
-                ->with(
-                    'error',
-                    'De tijdelijke afbeelding is ongeldig.'
-                );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijk bestand controleren
-        |--------------------------------------------------------------------------
-        */
-
         if (! $disk->exists($temporaryPath)) {
-            $request->session()->forget(
-                'pending_image'
-            );
+            $this->forgetPendingUpload($request);
 
             return redirect()
                 ->route('home')
@@ -272,28 +322,32 @@ class ImageUploadController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Werkelijke afbeelding opnieuw inspecteren
+        | Bestand opnieuw valideren
         |--------------------------------------------------------------------------
         |
-        | We vertrouwen niet alleen op gegevens uit de sessie.
+        | We vertrouwen niet uitsluitend op de sessiemetadata.
         |
         */
 
         try {
-            $absolutePath = $disk->path(
-                $temporaryPath
-            );
+            $absolutePath = $disk->path($temporaryPath);
 
-            $verified = $this->inspectStoredImage(
-                $absolutePath
+            $verified = $this->inspectStoredImage($absolutePath);
+
+            $extension = $this->extensionForMime(
+                $verified['mime_type']
             );
         } catch (Throwable $exception) {
-            $disk->delete(
-                $temporaryPath
-            );
+            $this->deletePendingFile($temporaryPath);
+            $this->forgetPendingUpload($request);
 
-            $request->session()->forget(
-                'pending_image'
+            Log::warning(
+                'Pending image validation failed during claim.',
+                [
+                    'user_id' => $user->id,
+                    'path' => $temporaryPath,
+                    'exception' => $exception->getMessage(),
+                ]
             );
 
             return redirect()
@@ -306,34 +360,7 @@ class ImageUploadController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Extensie bepalen vanuit werkelijke MIME
-        |--------------------------------------------------------------------------
-        */
-
-        try {
-            $extension = $this->extensionForMime(
-                $verified['mime_type']
-            );
-        } catch (Throwable $exception) {
-            $disk->delete(
-                $temporaryPath
-            );
-
-            $request->session()->forget(
-                'pending_image'
-            );
-
-            return redirect()
-                ->route('home')
-                ->with(
-                    'error',
-                    'Het afbeeldingstype wordt niet ondersteund.'
-                );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Unieke definitieve bestandsnaam maken
+        | Definitieve opslaglocatie
         |--------------------------------------------------------------------------
         */
 
@@ -350,30 +377,43 @@ class ImageUploadController extends Controller
             . '/'
             . $fileName;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Definitieve directory aanmaken
-        |--------------------------------------------------------------------------
-        */
-
-        if (! $disk->exists($finalDirectory)) {
-            $disk->makeDirectory(
-                $finalDirectory
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Bestand verplaatsen
-        |--------------------------------------------------------------------------
-        */
-
         try {
+            if (! $disk->exists($finalDirectory)) {
+                $created = $disk->makeDirectory(
+                    $finalDirectory
+                );
+
+                if ($created === false) {
+                    throw new RuntimeException(
+                        'De persoonlijke opslagmap kon niet worden aangemaakt.'
+                    );
+                }
+            }
+
             $moved = $disk->move(
                 $temporaryPath,
                 $finalPath
             );
+
+            if (
+                $moved === false ||
+                ! $disk->exists($finalPath)
+            ) {
+                throw new RuntimeException(
+                    'Het bestand kon niet definitief worden opgeslagen.'
+                );
+            }
         } catch (Throwable $exception) {
+            Log::error(
+                'Claimed image could not be moved to permanent storage.',
+                [
+                    'user_id' => $user->id,
+                    'temporary_path' => $temporaryPath,
+                    'final_path' => $finalPath,
+                    'exception' => $exception->getMessage(),
+                ]
+            );
+
             return redirect()
                 ->route('home')
                 ->with(
@@ -382,78 +422,63 @@ class ImageUploadController extends Controller
                 );
         }
 
-        if (
-            ! $moved ||
-            ! $disk->exists($finalPath)
-        ) {
-            return redirect()
-                ->route('home')
-                ->with(
-                    'error',
-                    'De afbeelding kon niet definitief worden opgeslagen.'
-                );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Originele bestandsnaam
-        |--------------------------------------------------------------------------
-        */
-
-        $originalName = $this->sanitizeOriginalName(
-            $pendingImage['original_name']
-                ?? 'afbeelding.' . $extension
-        );
-
         /*
         |--------------------------------------------------------------------------
         | Database-record aanmaken
         |--------------------------------------------------------------------------
         */
 
+        $originalName = $this->sanitizeOriginalName(
+            $pending['original_name']
+                ?? 'afbeelding.' . $extension
+        );
+
         try {
             $image = Image::create([
                 'user_id' => $user->id,
-
                 'original_name' => $originalName,
-
                 'original_path' => $finalPath,
-
                 'mime_type' => $verified['mime_type'],
-
                 'width' => $verified['width'],
-
                 'height' => $verified['height'],
-
                 'file_size' => $verified['file_size'],
             ]);
         } catch (Throwable $exception) {
             /*
-             * Geen database-record betekent dat we het reeds verplaatste
-             * bestand ook weer verwijderen.
+             * Geen database-record betekent ook geen permanent bestand.
              */
             if ($disk->exists($finalPath)) {
-                $disk->delete(
-                    $finalPath
-                );
+                $disk->delete($finalPath);
             }
 
-            throw $exception;
+            Log::error(
+                'Image database record could not be created after claim.',
+                [
+                    'user_id' => $user->id,
+                    'final_path' => $finalPath,
+                    'exception' => $exception->getMessage(),
+                ]
+            );
+
+            return redirect()
+                ->route('home')
+                ->with(
+                    'error',
+                    'De afbeelding kon niet aan je account worden gekoppeld. Probeer opnieuw.'
+                );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Pending sessie opruimen
+        | Pending state volledig opruimen
         |--------------------------------------------------------------------------
         */
 
-        $request->session()->forget(
-            'pending_image'
-        );
+        $this->forgetPendingUpload($request);
 
         /*
         |--------------------------------------------------------------------------
-        | Editor openen
+        | Direct naar editor
         |--------------------------------------------------------------------------
         */
 
@@ -464,12 +489,12 @@ class ImageUploadController extends Controller
             )
             ->with(
                 'status',
-                'Je afbeelding is opgeslagen en klaar om te bewerken.'
+                'Je upload is aan je account gekoppeld en staat klaar om te bewerken.'
             );
     }
 
     /**
-     * Een Laravel UploadedFile controleren.
+     * Inspecteer een Laravel UploadedFile.
      *
      * @return array{
      *     mime_type: string,
@@ -481,23 +506,11 @@ class ImageUploadController extends Controller
     private function inspectUploadedImage(
         UploadedFile $file
     ): array {
-        /*
-        |--------------------------------------------------------------------------
-        | Uploadstatus controleren
-        |--------------------------------------------------------------------------
-        */
-
         if (! $file->isValid()) {
             throw new RuntimeException(
                 'De upload is niet geldig.'
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tijdelijk bestandspad ophalen
-        |--------------------------------------------------------------------------
-        */
 
         $realPath = $file->getRealPath();
 
@@ -516,7 +529,7 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Een afbeeldingsbestand inhoudelijk inspecteren.
+     * Inspecteer een afbeeldingsbestand inhoudelijk.
      *
      * @return array{
      *     mime_type: string,
@@ -528,12 +541,6 @@ class ImageUploadController extends Controller
     private function inspectStoredImage(
         string $absolutePath
     ): array {
-        /*
-        |--------------------------------------------------------------------------
-        | Bestand moet bestaan
-        |--------------------------------------------------------------------------
-        */
-
         if (
             $absolutePath === '' ||
             ! is_file($absolutePath)
@@ -542,12 +549,6 @@ class ImageUploadController extends Controller
                 'Het afbeeldingsbestand bestaat niet.'
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Afbeeldingsmetadata lezen
-        |--------------------------------------------------------------------------
-        */
 
         $dimensions = @getimagesize(
             $absolutePath
@@ -558,12 +559,6 @@ class ImageUploadController extends Controller
                 'Het bestand is geen geldige afbeelding.'
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Breedte en hoogte
-        |--------------------------------------------------------------------------
-        */
 
         $width = isset($dimensions[0])
             ? (int) $dimensions[0]
@@ -582,12 +577,6 @@ class ImageUploadController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Maximale dimensies
-        |--------------------------------------------------------------------------
-        */
-
         if (
             $width > self::MAX_DIMENSION ||
             $height > self::MAX_DIMENSION
@@ -598,10 +587,19 @@ class ImageUploadController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Pixel-limiet
-        |--------------------------------------------------------------------------
-        */
+         * Integer overflow vermijden op ongebruikelijke platforms.
+         */
+        if (
+            $height > 0 &&
+            $width > intdiv(
+                PHP_INT_MAX,
+                $height
+            )
+        ) {
+            throw new RuntimeException(
+                'De afbeelding heeft ongeldige afmetingen.'
+            );
+        }
 
         $totalPixels = $width * $height;
 
@@ -610,12 +608,6 @@ class ImageUploadController extends Controller
                 'De afbeelding bevat te veel pixels.'
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | MIME-type bepalen
-        |--------------------------------------------------------------------------
-        */
 
         $mimeType = isset($dimensions['mime'])
             ? strtolower(
@@ -636,12 +628,6 @@ class ImageUploadController extends Controller
                 'Dit afbeeldingstype wordt niet ondersteund.'
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Bestandsgrootte controleren
-        |--------------------------------------------------------------------------
-        */
 
         $fileSize = filesize(
             $absolutePath
@@ -679,7 +665,7 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Veilige bestandsextensie bepalen op basis van MIME-type.
+     * Bepaal de veilige bestandsextensie vanuit het gevalideerde MIME-type.
      */
     private function extensionForMime(
         string $mimeType
@@ -690,9 +676,7 @@ class ImageUploadController extends Controller
             )
         ) {
             'image/jpeg' => 'jpg',
-
             'image/png' => 'png',
-
             'image/webp' => 'webp',
 
             default => throw new RuntimeException(
@@ -702,20 +686,11 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Originele bestandsnaam veilig opschonen.
-     *
-     * Deze naam wordt alleen als metadata opgeslagen.
-     * De daadwerkelijke bestandsnaam op de server is altijd een UUID.
+     * Maak een oorspronkelijke bestandsnaam veilig voor metadata.
      */
     private function sanitizeOriginalName(
         mixed $originalName
     ): string {
-        /*
-        |--------------------------------------------------------------------------
-        | Naar string converteren
-        |--------------------------------------------------------------------------
-        */
-
         $originalName = trim(
             (string) $originalName
         );
@@ -725,42 +700,27 @@ class ImageUploadController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Windows directory separators normaliseren
-        |--------------------------------------------------------------------------
-        */
-
+         * Windows separators normaliseren zodat basename altijd correct werkt.
+         */
         $originalName = str_replace(
             '\\',
             '/',
             $originalName
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Alleen daadwerkelijke bestandsnaam behouden
-        |--------------------------------------------------------------------------
-        */
-
         $originalName = basename(
             $originalName
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Control characters verwijderen
-        |--------------------------------------------------------------------------
-        */
-
-        $cleanedName = preg_replace(
+        $cleaned = preg_replace(
             '/[\x00-\x1F\x7F]/u',
             '',
             $originalName
         );
 
-        if (is_string($cleanedName)) {
+        if (is_string($cleaned)) {
             $originalName = trim(
-                $cleanedName
+                $cleaned
             );
         }
 
@@ -769,14 +729,9 @@ class ImageUploadController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Zeer lange namen inkorten
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            mb_strlen($originalName) > 220
-        ) {
+         * Extreem lange namen inkorten zonder de extensie kwijt te raken.
+         */
+        if (mb_strlen($originalName) > 220) {
             $extension = pathinfo(
                 $originalName,
                 PATHINFO_EXTENSION
@@ -804,50 +759,141 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Vorige nog niet geclaimde tijdelijke upload verwijderen.
+     * Controleer dat een pending pad echt in onze tijdelijke uploadmap zit.
+     */
+    private function isAllowedTemporaryPath(
+        string $path
+    ): bool {
+        return Str::startsWith(
+            $path,
+            self::TEMP_DIRECTORY . '/'
+        );
+    }
+
+    /**
+     * Controleer of de tijdelijke upload te oud is.
+     *
+     * Oude sessies zonder expires_at blijven compatibel via uploaded_at.
+     */
+    private function pendingUploadHasExpired(
+        array $pending
+    ): bool {
+        $expiresAt = isset($pending['expires_at'])
+            ? (int) $pending['expires_at']
+            : 0;
+
+        if ($expiresAt > 0) {
+            return now()->timestamp > $expiresAt;
+        }
+
+        $uploadedAt = isset($pending['uploaded_at'])
+            ? (int) $pending['uploaded_at']
+            : 0;
+
+        if ($uploadedAt < 1) {
+            /*
+             * Oude sessies zonder timestamp niet onverwacht blokkeren.
+             */
+            return false;
+        }
+
+        return (
+            now()->timestamp - $uploadedAt
+        ) > self::PENDING_TTL_SECONDS;
+    }
+
+    /**
+     * Verwijder een oud pending bestand en zijn sessiestatus.
      */
     private function deletePreviousPendingUpload(
         Request $request
     ): void {
         $previous = $request->session()->get(
-            'pending_image'
+            self::PENDING_SESSION_KEY
         );
+
+        if (! is_array($previous)) {
+            return;
+        }
+
+        $path = isset($previous['path'])
+            ? trim((string) $previous['path'])
+            : '';
 
         if (
-            ! is_array($previous) ||
-            empty($previous['path'])
+            $path !== '' &&
+            $this->isAllowedTemporaryPath($path)
         ) {
+            $this->deletePendingFile($path);
+        }
+
+        $this->forgetPendingUpload($request);
+    }
+
+    /**
+     * Verwijder uitsluitend een bestand binnen temp-images.
+     */
+    private function deletePendingFile(
+        string $path
+    ): void {
+        if (! $this->isAllowedTemporaryPath($path)) {
             return;
         }
 
-        $path = (string) $previous['path'];
+        try {
+            $disk = Storage::disk('local');
+
+            if ($disk->exists($path)) {
+                $disk->delete($path);
+            }
+        } catch (Throwable $exception) {
+            Log::warning(
+                'Pending image cleanup failed.',
+                [
+                    'path' => $path,
+                    'exception' => $exception->getMessage(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * Ruim pending upload en intended URL op.
+     */
+    private function forgetPendingUpload(
+        Request $request
+    ): void {
+        $request->session()->forget(
+            self::PENDING_SESSION_KEY
+        );
 
         /*
-        |--------------------------------------------------------------------------
-        | Alleen bestanden uit temp-images verwijderen
-        |--------------------------------------------------------------------------
-        */
-
-        if (! Str::startsWith($path, 'temp-images/')) {
-            $request->session()->forget(
-                'pending_image'
-            );
-
-            return;
-        }
-
-        $disk = Storage::disk(
-            'local'
-        );
-
-        if ($disk->exists($path)) {
-            $disk->delete(
-                $path
-            );
-        }
-
+         * Na claim hoeft een latere login niet opnieuw naar images.claim.
+         */
         $request->session()->forget(
-            'pending_image'
+            'url.intended'
         );
+    }
+
+    /**
+     * Redirect wanneer er geen pending upload beschikbaar is.
+     */
+    private function redirectWithoutPendingImage(
+        Request $request
+    ): RedirectResponse {
+        /*
+         * Geen pending upload betekent dat een oude intended claim-route
+         * ook niet meer nodig is.
+         */
+        $request->session()->forget(
+            'url.intended'
+        );
+
+        return redirect()
+            ->route('images.index')
+            ->with(
+                'status',
+                'Er stond geen tijdelijke upload meer klaar. Je bent naar je afbeeldingen gestuurd.'
+            );
     }
 }

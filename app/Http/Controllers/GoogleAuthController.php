@@ -378,14 +378,10 @@ class GoogleAuthController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            return redirect()
-                ->route(
-                    'account'
-                )
-                ->with(
-                    'success',
-                    'Welkom bij Mashal Automotive. Je bent succesvol ingelogd met Google.'
-                );
+            return $this->redirectAfterSuccessfulLogin(
+                $request,
+                'Welkom bij Mashal Studio. Je bent succesvol ingelogd met Google.'
+            );
         } catch (Throwable $exception) {
             /*
             |--------------------------------------------------------------------------
@@ -429,6 +425,92 @@ class GoogleAuthController extends Controller
                     'Inloggen met Google is niet gelukt. Probeer het opnieuw.'
                 );
         }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect na succesvolle Google-login
+    |--------------------------------------------------------------------------
+    |
+    | Een afbeelding die vóór de login is geüpload krijgt altijd voorrang.
+    |
+    | Flow:
+    |
+    | upload -> Google-login -> images.claim -> editor.
+    |
+    */
+
+    private function redirectAfterSuccessfulLogin(
+        Request $request,
+        string $successMessage
+    ): RedirectResponse {
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl(
+                $request
+            );
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    $successMessage . ' Je eerdere upload wordt nu automatisch geopend.'
+                );
+        }
+
+        return redirect()
+            ->intended(
+                route('account')
+            )
+            ->with(
+                'success',
+                $successMessage
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending image controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function hasPendingImage(
+        Request $request
+    ): bool {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $pending = $request->session()->get(
+            'pending_image'
+        );
+
+        return is_array($pending)
+            && ! empty($pending['path']);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Claim-route als intended URL bewaren
+    |--------------------------------------------------------------------------
+    */
+
+    private function ensurePendingImageIntendedUrl(
+        Request $request
+    ): void {
+        if (
+            ! $request->hasSession() ||
+            ! $this->hasPendingImage($request)
+        ) {
+            return;
+        }
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
     }
 
 

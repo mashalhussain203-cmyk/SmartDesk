@@ -151,7 +151,7 @@ class FacebookAuthController extends Controller
                     )
                     ->with(
                         'error',
-                        'Facebook heeft geen e-mailadres beschikbaar gesteld. Geef Mashal Automotive toestemming om je e-mailadres te gebruiken en probeer opnieuw.'
+                        'Facebook heeft geen e-mailadres beschikbaar gesteld. Geef Mashal Studio toestemming om je e-mailadres te gebruiken en probeer opnieuw.'
                     );
             }
 
@@ -418,7 +418,7 @@ class FacebookAuthController extends Controller
                     $this->brevoMail->send(
                         $user->email,
                         $user->name,
-                        'Welkom bij Mashal Automotive',
+                        'Welkom bij Mashal Studio',
                         'emails.welcome-account-created',
                         [
                             'user' =>
@@ -486,25 +486,12 @@ class FacebookAuthController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if ($isNewUser) {
-                return redirect()
-                    ->route(
-                        'account'
-                    )
-                    ->with(
-                        'success',
-                        'Welkom bij Mashal Automotive. Je account is succesvol aangemaakt met Facebook.'
-                    );
-            }
-
-            return redirect()
-                ->route(
-                    'account'
-                )
-                ->with(
-                    'success',
-                    'Welkom terug. Je bent succesvol ingelogd met Facebook.'
-                );
+            return $this->redirectAfterSuccessfulLogin(
+                $request,
+                $isNewUser
+                    ? 'Welkom bij Mashal Studio. Je account is succesvol aangemaakt met Facebook.'
+                    : 'Welkom terug. Je bent succesvol ingelogd met Facebook.'
+            );
         } catch (ClientException $exception) {
             /*
             |--------------------------------------------------------------------------
@@ -596,6 +583,92 @@ class FacebookAuthController extends Controller
                     'Facebook-login kon niet worden voltooid.'
                 );
         }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect na succesvolle Facebook-login
+    |--------------------------------------------------------------------------
+    |
+    | Een nog niet geclaimde upload krijgt altijd voorrang.
+    |
+    | Hierdoor blijft deze flow intact:
+    |
+    | upload -> Facebook-login -> images.claim -> editor.
+    |
+    */
+
+    private function redirectAfterSuccessfulLogin(
+        Request $request,
+        string $successMessage
+    ): RedirectResponse {
+        if ($this->hasPendingImage($request)) {
+            $this->ensurePendingImageIntendedUrl(
+                $request
+            );
+
+            return redirect()
+                ->route('images.claim')
+                ->with(
+                    'success',
+                    $successMessage . ' Je eerdere upload wordt nu automatisch geopend.'
+                );
+        }
+
+        return redirect()
+            ->intended(
+                route('account')
+            )
+            ->with(
+                'success',
+                $successMessage
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending image controleren
+    |--------------------------------------------------------------------------
+    */
+
+    private function hasPendingImage(
+        Request $request
+    ): bool {
+        if (! $request->hasSession()) {
+            return false;
+        }
+
+        $pending = $request->session()->get(
+            'pending_image'
+        );
+
+        return is_array($pending)
+            && ! empty($pending['path']);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Claim-route als intended URL bewaren
+    |--------------------------------------------------------------------------
+    */
+
+    private function ensurePendingImageIntendedUrl(
+        Request $request
+    ): void {
+        if (
+            ! $request->hasSession() ||
+            ! $this->hasPendingImage($request)
+        ) {
+            return;
+        }
+
+        $request->session()->put(
+            'url.intended',
+            route('images.claim')
+        );
     }
 
 

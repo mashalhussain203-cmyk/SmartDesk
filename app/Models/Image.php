@@ -12,6 +12,11 @@ class Image extends Model
 {
     use HasFactory;
 
+    /**
+     * Velden die via mass assignment mogen worden opgeslagen.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
         'original_name',
@@ -22,19 +27,29 @@ class Image extends Model
         'file_size',
     ];
 
-    protected $casts = [
-        'user_id' => 'integer',
-        'width' => 'integer',
-        'height' => 'integer',
-        'file_size' => 'integer',
-    ];
+    /**
+     * Database casts.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'user_id' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+            'file_size' => 'integer',
+        ];
+    }
 
     /**
-     * Eigenaar van de afbeelding.
+     * Eigenaar van dit afbeeldingsproject.
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class
+        );
     }
 
     /**
@@ -42,7 +57,9 @@ class Image extends Model
      */
     public function versions(): HasMany
     {
-        return $this->hasMany(ImageVersion::class);
+        return $this->hasMany(
+            ImageVersion::class
+        );
     }
 
     /**
@@ -50,8 +67,9 @@ class Image extends Model
      */
     public function latestVersion(): HasOne
     {
-        return $this->hasOne(ImageVersion::class)
-            ->latestOfMany();
+        return $this->hasOne(
+            ImageVersion::class
+        )->latestOfMany();
     }
 
     /**
@@ -78,25 +96,130 @@ class Image extends Model
     }
 
     /**
-     * Bestandsgrootte leesbaar maken.
+     * Leesbare bestandsgrootte.
      */
     public function getFormattedFileSizeAttribute(): string
     {
-        $bytes = max(
-            0,
+        return $this->formatBytes(
             (int) $this->file_size
         );
+    }
 
-        if ($bytes >= 1024 * 1024 * 1024) {
+    /**
+     * Leesbare afbeeldingsafmetingen.
+     */
+    public function getDimensionsLabelAttribute(): string
+    {
+        $width = (int) $this->width;
+        $height = (int) $this->height;
+
+        if (
+            $width < 1 ||
+            $height < 1
+        ) {
+            return 'Onbekende afmetingen';
+        }
+
+        return sprintf(
+            '%d × %d',
+            $width,
+            $height
+        );
+    }
+
+    /**
+     * Veilige naam voor weergave in de interface.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $name = trim(
+            (string) $this->original_name
+        );
+
+        return $name !== ''
+            ? $name
+            : 'Afbeelding #' . $this->getKey();
+    }
+
+    /**
+     * Controleer of dit project bewerkte versies heeft.
+     *
+     * Werkt efficiënt met:
+     * - withCount('versions')
+     * - eager loaded versions
+     * - losse modelinstanties
+     */
+    public function getHasVersionsAttribute(): bool
+    {
+        if (
+            array_key_exists(
+                'versions_count',
+                $this->attributes
+            )
+        ) {
+            return (int) $this->attributes['versions_count'] > 0;
+        }
+
+        if (
+            $this->relationLoaded(
+                'versions'
+            )
+        ) {
+            return $this->versions->isNotEmpty();
+        }
+
+        return $this->versions()
+            ->exists();
+    }
+
+    /**
+     * Aantal versies, zonder onnodige extra query wanneer de informatie
+     * al geladen is.
+     */
+    public function getVersionCountAttribute(): int
+    {
+        if (
+            array_key_exists(
+                'versions_count',
+                $this->attributes
+            )
+        ) {
+            return (int) $this->attributes['versions_count'];
+        }
+
+        if (
+            $this->relationLoaded(
+                'versions'
+            )
+        ) {
+            return $this->versions->count();
+        }
+
+        return $this->versions()
+            ->count();
+    }
+
+    /**
+     * Bestandsgrootte formatteren.
+     */
+    private function formatBytes(
+        int $bytes
+    ): string {
+        $bytes = max(
+            0,
+            $bytes
+        );
+
+        if ($bytes >= 1024 ** 3) {
             return number_format(
-                $bytes / 1024 / 1024 / 1024,
+                $bytes / (1024 ** 3),
                 2
             ) . ' GB';
         }
 
-        if ($bytes >= 1024 * 1024) {
+        if ($bytes >= 1024 ** 2) {
             return number_format(
-                $bytes / 1024 / 1024,
+                $bytes / (1024 ** 2),
                 2
             ) . ' MB';
         }
@@ -110,60 +233,4 @@ class Image extends Model
 
         return $bytes . ' B';
     }
-
-    /**
-     * Leesbare dimensies.
-     */
-    public function getDimensionsLabelAttribute(): string
-    {
-        if (
-            ! $this->width ||
-            ! $this->height
-        ) {
-            return 'Onbekende afmetingen';
-        }
-
-        return sprintf(
-            '%d × %d',
-            $this->width,
-            $this->height
-        );
-    }
-
-    /**
-     * Veilige weergavenaam.
-     */
-    public function getDisplayNameAttribute(): string
-    {
-        $name = trim(
-            (string) $this->original_name
-        );
-
-        return $name !== ''
-            ? $name
-            : 'Afbeelding #' . $this->id;
-    }
-
-    /**
-     * Controleren of er al bewerkte versies zijn.
-     */
-    public function getHasVersionsAttribute(): bool
-    {
-        if (
-            array_key_exists(
-                'versions_count',
-                $this->attributes
-            )
-        ) {
-            return (int) $this->attributes['versions_count'] > 0;
-        }
-
-        if ($this->relationLoaded('versions')) {
-            return $this->versions->isNotEmpty();
-        }
-
-        return $this->versions()
-            ->exists();
-    }
 }
-
