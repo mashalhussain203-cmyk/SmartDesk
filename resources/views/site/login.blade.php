@@ -918,25 +918,30 @@
     }
 
     .oauth-icon {
-        width: 33px;
-        height: 33px;
-        flex: 0 0 33px;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(255,255,255,.06);
-        border-radius: 10px;
-        font-size: 10px;
-        font-weight: 950;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 11px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .oauth-icon svg {
+        width: 21px;
+        height: 21px;
+        display: block;
     }
 
     .oauth-icon.google {
-        color: #4285f4;
-        background: #f3f3f3;
+        background: #fff;
     }
 
     .oauth-icon.github {
         color: #fff;
-        background: #15181c;
+        background: #16191d;
     }
 
     .oauth-icon.facebook {
@@ -946,8 +951,7 @@
 
     .oauth-icon.tiktok {
         color: #fff;
-        background: linear-gradient(135deg,#122f31,#2a0d15);
-        text-shadow: -1px 0 #25f4ee, 1px 0 #fe2c55;
+        background: #0f0f10;
     }
 
     .oauth-copy {
@@ -1666,8 +1670,13 @@
                             href="{{ route('google.redirect') }}"
                             aria-label="Doorgaan met Google"
                         >
-                            <span class="oauth-icon google">
-                                G
+                            <span class="oauth-icon google" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                    <path fill="#4285F4" d="M21.805 10.023h-9.18v3.955h5.28c-.228 1.273-.918 2.352-1.956 3.078v2.559h3.168c1.855-1.708 2.928-4.227 2.928-7.219 0-.8-.072-1.57-.24-2.373Z"/>
+                                    <path fill="#34A853" d="M12.625 22c2.65 0 4.873-.875 6.492-2.385l-3.168-2.559c-.88.59-2.003.94-3.324.94-2.55 0-4.71-1.724-5.486-4.04H3.865v2.64A9.812 9.812 0 0 0 12.625 22Z"/>
+                                    <path fill="#FBBC05" d="M7.139 13.956a5.96 5.96 0 0 1 0-3.912V7.405H3.865A9.82 9.82 0 0 0 2.82 12c0 1.585.38 3.086 1.045 4.595l3.274-2.639Z"/>
+                                    <path fill="#EA4335" d="M12.625 6.004c1.44 0 2.733.495 3.75 1.468l2.813-2.813C17.493 3.076 15.27 2 12.625 2a9.812 9.812 0 0 0-8.76 5.405l3.274 2.639c.776-2.316 2.936-4.04 5.486-4.04Z"/>
+                                </svg>
                             </span>
 
                             <span class="oauth-copy">
@@ -1682,8 +1691,10 @@
                             href="{{ route('github.redirect') }}"
                             aria-label="Doorgaan met GitHub"
                         >
-                            <span class="oauth-icon github">
-                                GH
+                            <span class="oauth-icon github" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                    <path fill="currentColor" d="M12 .7a11.5 11.5 0 0 0-3.636 22.41c.575.105.786-.25.786-.555 0-.274-.01-1-.016-1.962-3.198.695-3.874-1.541-3.874-1.541-.523-1.329-1.277-1.683-1.277-1.683-1.044-.714.08-.699.08-.699 1.154.081 1.761 1.185 1.761 1.185 1.026 1.758 2.692 1.25 3.348.956.104-.743.402-1.25.73-1.537-2.553-.29-5.237-1.276-5.237-5.68 0-1.255.449-2.281 1.184-3.085-.118-.291-.513-1.462.113-3.048 0 0 .965-.309 3.162 1.179A10.98 10.98 0 0 1 12 8.253c.977.004 1.961.132 2.88.387 2.195-1.488 3.158-1.179 3.158-1.179.628 1.586.233 2.757.115 3.048.737.804 1.182 1.83 1.182 3.085 0 4.415-2.688 5.387-5.249 5.671.413.356.78 1.057.78 2.13 0 1.538-.014 2.778-.014 3.155 0 .308.207.666.792.553A11.502 11.502 0 0 0 12 .7Z"/>
+                                </svg>
                             </span>
 
                             <span class="oauth-copy">
@@ -1698,8 +1709,10 @@
                             href="{{ route('facebook.redirect') }}"
                             aria-label="Doorgaan met Facebook"
                         >
-                            <span class="oauth-icon facebook">
-                                f
+                            <span class="oauth-icon facebook" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                    <path fill="currentColor" d="M13.6 22v-8h2.68l.4-3.12H13.6V8.89c0-.9.25-1.52 1.54-1.52h1.65V4.58a22.1 22.1 0 0 0-2.4-.12c-2.38 0-4.01 1.45-4.01 4.12v2.3H7.69V14h2.69v8h3.22Z"/>
+                                </svg>
                             </span>
 
                             <span class="oauth-copy">
@@ -1714,8 +1727,12 @@
                             href="{{ route('tiktok.redirect') }}"
                             aria-label="Doorgaan met TikTok"
                         >
-                            <span class="oauth-icon tiktok">
-                                ♪
+                            <span class="oauth-icon tiktok" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                    <path fill="#25F4EE" d="M15.62 3.2c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V3.2h2.13Z" transform="translate(-.8 .6)"/>
+                                    <path fill="#FE2C55" d="M16.32 2.6c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V2.6h2.13Z" transform="translate(.55 -.05)"/>
+                                    <path fill="#FFFFFF" d="M15.97 2.92c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V2.92h2.13Z"/>
+                                </svg>
                             </span>
 
                             <span class="oauth-copy">
