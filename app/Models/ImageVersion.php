@@ -148,11 +148,22 @@ class ImageVersion extends Model
             'crop' => 'Crop',
             'rotate' => 'Rotatie',
             'flip' => 'Spiegelen',
+            'enhance' => 'Fotoverbetering',
+            'passport' => 'Pasfoto / ID-foto',
             'compress' => 'Compressie',
             'convert' => 'Conversie',
+            'remove_background' => 'Achtergrond verwijderd',
+            'background_color' => 'Nieuwe achtergrondkleur',
+            'background_image' => 'Nieuwe achtergrondafbeelding',
 
             default => $operation !== ''
-                ? ucfirst($operation)
+                ? ucfirst(
+                    str_replace(
+                        '_',
+                        ' ',
+                        $operation
+                    )
+                )
                 : 'Bewerking',
         };
     }

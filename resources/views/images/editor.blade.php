@@ -4,7 +4,7 @@
 
 @section(
     'meta_description',
-    'Bewerk je afbeelding met resize, crop, rotate, flip, compress en convert. Iedere bewerking wordt als aparte versie opgeslagen.'
+    'Bewerk je afbeelding met resize, crop, rotate, flip, enhance, pasfoto, compress, convert en echte achtergrondverwijdering. Iedere bewerking wordt als aparte versie opgeslagen.'
 )
 
 @push('styles')
@@ -1424,6 +1424,74 @@
         }
     }
 
+
+    /*
+     * --------------------------------------------------------------------------
+     * Background removal
+     * --------------------------------------------------------------------------
+     */
+
+    .background-mode-grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .background-setting[hidden] {
+        display: none !important;
+    }
+
+    .background-color-row {
+        display: grid;
+        grid-template-columns: 58px minmax(0, 1fr);
+        align-items: end;
+        gap: 8px;
+    }
+
+    .background-color-row input[type="color"] {
+        width: 58px;
+        min-height: 46px;
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    .background-api-note {
+        margin-top: 12px;
+        padding: 11px 12px;
+        border: 1px solid rgba(120, 210, 255, .12);
+        border-radius: 11px;
+        color: #8eaebe;
+        background: rgba(120, 210, 255, .025);
+        font-size: 9px;
+        line-height: 1.6;
+    }
+
+    .background-api-note strong {
+        color: #c8e8f6;
+    }
+
+    @media (max-width: 760px) {
+        .background-mode-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .background-api-note {
+            font-size: 13px;
+        }
+
+        .background-color-row input[type="color"] {
+            min-height: 50px;
+        }
+    }
+
+    @media (max-width: 390px) {
+        .background-mode-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1514,6 +1582,11 @@
                     <button type="button" class="editor-tool" data-operation="passport" role="tab" aria-selected="false">
                         <span class="tool-icon">▣</span>
                         Pasfoto
+                    </button>
+
+                    <button type="button" class="editor-tool" data-operation="background" role="tab" aria-selected="false">
+                        <span class="tool-icon">◉</span>
+                        Achtergrond
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="compress" role="tab" aria-selected="false">
@@ -1678,6 +1751,7 @@
                     id="editor-operation-form"
                     method="POST"
                     action="{{ route('images.process', $image) }}"
+                    enctype="multipart/form-data"
                 >
                     @csrf
 
@@ -2063,6 +2137,174 @@
 
                             <button class="editor-submit" type="submit">
                                 Pasfoto-versie maken
+                            </button>
+                        </div>
+                    </section>
+
+                    <section
+                        class="editor-operation-panel"
+                        data-panel="background"
+                        hidden
+                    >
+                        <div class="property-card">
+                            <h3>Achtergrond</h3>
+
+                            <p>
+                                Verwijder de bestaande achtergrond met remove.bg en exporteer transparant,
+                                met een effen kleur of met een compleet nieuwe achtergrondafbeelding.
+                            </p>
+
+                            <div class="background-mode-grid" role="radiogroup" aria-label="Achtergrondmodus">
+                                <label class="editor-choice">
+                                    <input
+                                        type="radio"
+                                        name="background_mode"
+                                        value="transparent"
+                                        checked
+                                    >
+                                    <span>Transparant</span>
+                                </label>
+
+                                <label class="editor-choice">
+                                    <input
+                                        type="radio"
+                                        name="background_mode"
+                                        value="white"
+                                    >
+                                    <span>Wit</span>
+                                </label>
+
+                                <label class="editor-choice">
+                                    <input
+                                        type="radio"
+                                        name="background_mode"
+                                        value="color"
+                                    >
+                                    <span>Eigen kleur</span>
+                                </label>
+
+                                <label class="editor-choice">
+                                    <input
+                                        type="radio"
+                                        name="background_mode"
+                                        value="url"
+                                    >
+                                    <span>Afbeelding-URL</span>
+                                </label>
+
+                                <label class="editor-choice">
+                                    <input
+                                        type="radio"
+                                        name="background_mode"
+                                        value="upload"
+                                    >
+                                    <span>Upload achtergrond</span>
+                                </label>
+                            </div>
+
+                            <div
+                                class="background-setting"
+                                data-background-setting="color"
+                                hidden
+                            >
+                                <div class="background-color-row">
+                                    <label class="editor-field">
+                                        <span>Kleur</span>
+                                        <input
+                                            id="background-color-picker"
+                                            type="color"
+                                            value="#ffffff"
+                                            aria-label="Achtergrondkleur kiezen"
+                                        >
+                                    </label>
+
+                                    <label class="editor-field">
+                                        <span>Hexkleur</span>
+                                        <input
+                                            id="background-color"
+                                            type="text"
+                                            name="background_color"
+                                            value="#ffffff"
+                                            maxlength="32"
+                                            placeholder="#ffffff"
+                                            autocomplete="off"
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div
+                                class="background-setting"
+                                data-background-setting="url"
+                                hidden
+                            >
+                                <label class="editor-field">
+                                    <span>URL van nieuwe achtergrond</span>
+                                    <input
+                                        id="background-url"
+                                        type="url"
+                                        name="background_url"
+                                        placeholder="https://voorbeeld.nl/achtergrond.jpg"
+                                        autocomplete="off"
+                                        inputmode="url"
+                                    >
+                                </label>
+                            </div>
+
+                            <div
+                                class="background-setting"
+                                data-background-setting="upload"
+                                hidden
+                            >
+                                <label class="editor-field">
+                                    <span>Nieuwe achtergrond uploaden</span>
+                                    <input
+                                        id="background-image"
+                                        type="file"
+                                        name="background_image"
+                                        accept="image/jpeg,image/png,image/webp"
+                                    >
+                                </label>
+                            </div>
+
+                            <div class="editor-field-grid">
+                                <label class="editor-field">
+                                    <span>Outputformaat</span>
+
+                                    <select
+                                        id="background-format"
+                                        name="background_format"
+                                    >
+                                        <option value="png" selected>PNG</option>
+                                        <option value="webp">WEBP</option>
+                                        <option value="jpg">JPG</option>
+                                    </select>
+                                </label>
+
+                                <label class="editor-field">
+                                    <span>API-resolutie</span>
+
+                                    <select
+                                        id="background-size"
+                                        name="background_size"
+                                    >
+                                        <option value="auto" selected>Auto</option>
+                                        <option value="preview">Preview</option>
+                                        <option value="full">Full</option>
+                                        <option value="50mp">Tot 50 MP</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <div class="background-api-note">
+                                <strong>Echte AI-verwerking:</strong>
+                                de uitsnede wordt pas bij opslaan naar de server gestuurd.
+                                Daardoor verbruikt slepen of instellingen wijzigen geen onnodige API-calls.
+                                Transparante uitvoer gebruikt PNG of WebP.
+                            </div>
+
+                            <button class="editor-submit" type="submit">
+                                Achtergrond verwerken
                             </button>
                         </div>
                     </section>
@@ -2465,6 +2707,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const passportCropHeight =
         document.getElementById('passport-crop-height');
 
+    const backgroundModeInputs =
+        Array.from(
+            document.querySelectorAll(
+                'input[name="background_mode"]'
+            )
+        );
+
+    const backgroundSettings =
+        Array.from(
+            document.querySelectorAll(
+                '[data-background-setting]'
+            )
+        );
+
+    const backgroundColorPicker =
+        document.getElementById('background-color-picker');
+
+    const backgroundColor =
+        document.getElementById('background-color');
+
+    const backgroundUrl =
+        document.getElementById('background-url');
+
+    const backgroundImage =
+        document.getElementById('background-image');
+
+    const backgroundFormat =
+        document.getElementById('background-format');
+
+    const backgroundSize =
+        document.getElementById('background-size');
+
     const propertiesSidebar =
         document.getElementById('editor-properties-sidebar');
 
@@ -2651,6 +2925,83 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function selectedBackgroundMode() {
+        const selected =
+            backgroundModeInputs.find(
+                function (input) {
+                    return input.checked;
+                }
+            );
+
+        return selected?.value || 'transparent';
+    }
+
+    function syncBackgroundControls() {
+        const mode =
+            selectedBackgroundMode();
+
+        backgroundSettings.forEach(
+            function (setting) {
+                const active =
+                    setting.dataset.backgroundSetting ===
+                    mode;
+
+                setting.hidden =
+                    !active;
+
+                setting
+                    .querySelectorAll(
+                        'input, select, textarea'
+                    )
+                    .forEach(function (control) {
+                        control.disabled =
+                            !active;
+                    });
+            }
+        );
+
+        if (backgroundFormat) {
+            const jpgOption =
+                Array.from(
+                    backgroundFormat.options
+                ).find(
+                    function (option) {
+                        return option.value === 'jpg';
+                    }
+                );
+
+            if (jpgOption) {
+                jpgOption.disabled =
+                    mode === 'transparent';
+            }
+
+            if (
+                mode === 'transparent' &&
+                backgroundFormat.value === 'jpg'
+            ) {
+                backgroundFormat.value =
+                    'png';
+            }
+        }
+    }
+
+    function backgroundModeStatus() {
+        const mode =
+            selectedBackgroundMode();
+
+        return matchFormat(
+            mode,
+            {
+                transparent: 'De achtergrond wordt met AI verwijderd en transparant geëxporteerd.',
+                white: 'De achtergrond wordt met AI verwijderd en vervangen door wit.',
+                color: 'De achtergrond wordt met AI verwijderd en vervangen door jouw kleur.',
+                url: 'De achtergrond wordt met AI verwijderd en vervangen door de afbeelding van de URL.',
+                upload: 'De achtergrond wordt met AI verwijderd en vervangen door jouw geüploade achtergrond.',
+            },
+            'Achtergrondbewerking gereed.'
+        );
+    }
+
     function activateOperation(operation) {
         tools.forEach(function (tool) {
             const active =
@@ -2718,6 +3069,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
             setStatus(
                 'Pasfoto-modus actief. Positioneer de persoon in het kader en gebruik de hoekhandgrepen.'
+            );
+
+            return;
+        }
+
+        if (operation === 'background') {
+            lockedCropAspectRatio = null;
+            cropBox?.classList.remove('is-passport');
+
+            if (passportGuide) {
+                passportGuide.hidden = true;
+            }
+
+            hideVisualCrop();
+            showSourceWithoutTransformation();
+            syncBackgroundControls();
+
+            setStatus(
+                backgroundModeStatus()
             );
 
             return;
@@ -2920,6 +3290,12 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
 
+        if (operation === 'background') {
+            return normalizeFormat(
+                backgroundFormat?.value || 'png'
+            );
+        }
+
         return currentSourceFormat();
     }
 
@@ -2948,6 +3324,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     )
                 )
             );
+        }
+
+        if (operation === 'background') {
+            return 100;
         }
 
         return 88;
@@ -4716,6 +5096,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 flip: 'Spiegelen',
                 enhance: 'Fotoverbetering',
                 passport: 'Pasfoto / ID-foto',
+                background: 'Achtergrond',
                 compress: 'Compressie',
                 convert: 'Conversie',
             },
@@ -4756,6 +5137,18 @@ document.addEventListener('DOMContentLoaded', function () {
             showSourceWithoutTransformation();
             configurePassportMode();
             showVisualCrop();
+            return;
+        }
+
+        if (operation === 'background') {
+            hideVisualCrop();
+            showSourceWithoutTransformation();
+            syncBackgroundControls();
+
+            setStatus(
+                backgroundModeStatus()
+            );
+
             return;
         }
 
@@ -4932,6 +5325,44 @@ document.addEventListener('DOMContentLoaded', function () {
             enhanceSepia.checked = false;
         }
 
+        backgroundModeInputs.forEach(
+            function (input) {
+                input.checked =
+                    input.value === 'transparent';
+            }
+        );
+
+        if (backgroundColorPicker) {
+            backgroundColorPicker.value =
+                '#ffffff';
+        }
+
+        if (backgroundColor) {
+            backgroundColor.value =
+                '#ffffff';
+        }
+
+        if (backgroundUrl) {
+            backgroundUrl.value =
+                '';
+        }
+
+        if (backgroundImage) {
+            backgroundImage.value =
+                '';
+        }
+
+        if (backgroundFormat) {
+            backgroundFormat.value =
+                'png';
+        }
+
+        if (backgroundSize) {
+            backgroundSize.value =
+                'auto';
+        }
+
+        syncBackgroundControls();
         syncCropInputs();
 
         if (activeOperation() === 'crop') {
@@ -5040,6 +5471,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 configurePassportMode(true);
                 showSourceWithoutTransformation();
                 showVisualCrop();
+            } else if (activeOperation() === 'background') {
+                hideVisualCrop();
+                showSourceWithoutTransformation();
+                syncBackgroundControls();
+
+                setStatus(
+                    backgroundModeStatus()
+                );
             } else if (activeOperation()) {
                 scheduleLiveRender(
                     true
@@ -5221,6 +5660,107 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
+    backgroundModeInputs.forEach(
+        function (input) {
+            input.addEventListener(
+                'change',
+                function () {
+                    syncBackgroundControls();
+
+                    if (
+                        activeOperation() ===
+                        'background'
+                    ) {
+                        showSourceWithoutTransformation();
+
+                        setStatus(
+                            backgroundModeStatus()
+                        );
+                    }
+                }
+            );
+        }
+    );
+
+    backgroundColorPicker?.addEventListener(
+        'input',
+        function () {
+            if (backgroundColor) {
+                backgroundColor.value =
+                    backgroundColorPicker.value;
+            }
+
+            if (
+                activeOperation() ===
+                'background'
+            ) {
+                setStatus(
+                    backgroundModeStatus()
+                );
+            }
+        }
+    );
+
+    backgroundColor?.addEventListener(
+        'input',
+        function () {
+            const value =
+                backgroundColor.value.trim();
+
+            if (
+                backgroundColorPicker &&
+                /^#[0-9a-fA-F]{6}$/.test(
+                    value
+                )
+            ) {
+                backgroundColorPicker.value =
+                    value;
+            }
+        }
+    );
+
+    backgroundFormat?.addEventListener(
+        'change',
+        function () {
+            syncBackgroundControls();
+        }
+    );
+
+    backgroundUrl?.addEventListener(
+        'input',
+        function () {
+            if (
+                activeOperation() ===
+                'background'
+            ) {
+                setStatus(
+                    backgroundModeStatus()
+                );
+            }
+        }
+    );
+
+    backgroundImage?.addEventListener(
+        'change',
+        function () {
+            if (
+                activeOperation() !==
+                'background'
+            ) {
+                return;
+            }
+
+            const file =
+                backgroundImage.files?.[0];
+
+            setStatus(
+                file
+                    ? 'Nieuwe achtergrond geselecteerd: ' + file.name
+                    : backgroundModeStatus()
+            );
+        }
+    );
+
     sourceSelect?.addEventListener(
         'change',
         applySelectedSource
@@ -5272,6 +5812,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 setStatus(
                     'Pasfoto-kader is opnieuw gecentreerd.'
+                );
+
+                return;
+            }
+
+            if (operation === 'background') {
+                hideVisualCrop();
+                showSourceWithoutTransformation();
+                syncBackgroundControls();
+
+                setStatus(
+                    backgroundModeStatus()
                 );
 
                 return;
@@ -5423,6 +5975,67 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
+            if (operation === 'background') {
+                const mode =
+                    selectedBackgroundMode();
+
+                if (
+                    mode === 'color' &&
+                    !backgroundColor?.value.trim()
+                ) {
+                    event.preventDefault();
+
+                    setStatus(
+                        'Kies eerst een achtergrondkleur.',
+                        true
+                    );
+
+                    return;
+                }
+
+                if (
+                    mode === 'url' &&
+                    !backgroundUrl?.value.trim()
+                ) {
+                    event.preventDefault();
+
+                    setStatus(
+                        'Vul eerst een URL van een achtergrondafbeelding in.',
+                        true
+                    );
+
+                    return;
+                }
+
+                if (
+                    mode === 'upload' &&
+                    !backgroundImage?.files?.length
+                ) {
+                    event.preventDefault();
+
+                    setStatus(
+                        'Kies eerst een achtergrondafbeelding om te uploaden.',
+                        true
+                    );
+
+                    return;
+                }
+
+                if (
+                    mode === 'transparent' &&
+                    backgroundFormat?.value === 'jpg'
+                ) {
+                    event.preventDefault();
+
+                    setStatus(
+                        'Kies PNG of WebP voor een transparante achtergrond.',
+                        true
+                    );
+
+                    return;
+                }
+            }
+
             const activePanel =
                 panels.find(function (panel) {
                     return (
@@ -5446,6 +6059,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     panel === activePanel
                 );
             });
+
+            if (operation === 'background') {
+                syncBackgroundControls();
+            }
 
             const submitButton =
                 activePanel.querySelector(
@@ -5506,6 +6123,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * Start altijd met Resize als actieve tool en laad daarna de gekozen bron.
      */
     updatePassportPresetInfo();
+    syncBackgroundControls();
 
     activateOperation(
         'resize'

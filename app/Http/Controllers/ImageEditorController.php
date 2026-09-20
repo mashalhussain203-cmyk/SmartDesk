@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Image;
 use App\Models\ImageVersion;
+use App\Services\BackgroundRemovalService;
+use App\Services\ImageProcessingService;
+use App\Services\PassportPhotoService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -16,20 +20,17 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
-/**
- * Mashal Studio image editor.
- *
- * Verwerkt private originals en versies via Laravel's local disk en gebruikt
- * GD voor resize, crop, rotate, flip, compress en convert.
- */
 class ImageEditorController extends Controller
 {
-    private const MAX_DIMENSION = 12000;
-
-    private const MAX_PIXELS = 80000000;
-
-    private const DEFAULT_QUALITY = 88;
-
+    /**
+     * Alle bewerkingen die via de centrale process-route mogen worden uitgevoerd.
+     *
+     * "background" is één editor-tool. Bij opslag wordt de database-operation
+     * specifieker opgeslagen als remove_background, background_color of
+     * background_image.
+     *
+     * @var array<int, string>
+     */
     private const OPERATIONS = [
         'resize',
         'crop',
@@ -39,13 +40,15 @@ class ImageEditorController extends Controller
         'passport',
         'compress',
         'convert',
+        'background',
     ];
 
-    private const OUTPUT_FORMATS = [
-        'jpg',
-        'png',
-        'webp',
-    ];
+    public function __construct(
+        private readonly ImageProcessingService $images,
+        private readonly PassportPhotoService $passportPhotos,
+        private readonly BackgroundRemovalService $backgroundRemoval
+    ) {
+    }
 
     public function index(Request $request): View
     {
@@ -64,9 +67,14 @@ class ImageEditorController extends Controller
         ]);
     }
 
-    public function edit(Request $request, Image $image): View
-    {
-        $this->authorizeOwner($request, $image);
+    public function edit(
+        Request $request,
+        Image $image
+    ): View {
+        $this->authorizeOwner(
+            $request,
+            $image
+        );
 
         $image->load([
             'versions' => function ($query) {
@@ -83,7 +91,10 @@ class ImageEditorController extends Controller
         Request $request,
         Image $image
     ): StreamedResponse {
-        $this->authorizeOwner($request, $image);
+        $this->authorizeOwner(
+            $request,
+            $image
+        );
 
         $disk = $this->localDisk();
 
@@ -96,7 +107,9 @@ class ImageEditorController extends Controller
 
         return $disk->response(
             $image->original_path,
-            $this->safeDownloadName($image->original_name),
+            $this->safeDownloadName(
+                $image->original_name
+            ),
             [
                 'Content-Type' => $image->mime_type ?: 'application/octet-stream',
                 'Cache-Control' => 'private, max-age=300',
@@ -109,7 +122,10 @@ class ImageEditorController extends Controller
         Request $request,
         Image $image
     ): StreamedResponse {
-        $this->authorizeOwner($request, $image);
+        $this->authorizeOwner(
+            $request,
+            $image
+        );
 
         $disk = $this->localDisk();
 
@@ -122,7 +138,9 @@ class ImageEditorController extends Controller
 
         return $disk->download(
             $image->original_path,
-            $this->safeDownloadName($image->original_name),
+            $this->safeDownloadName(
+                $image->original_name
+            ),
             [
                 'Content-Type' => $image->mime_type ?: 'application/octet-stream',
                 'X-Content-Type-Options' => 'nosniff',
@@ -135,7 +153,11 @@ class ImageEditorController extends Controller
         Image $image,
         ImageVersion $version
     ): StreamedResponse {
-        $this->authorizeVersion($request, $image, $version);
+        $this->authorizeVersion(
+            $request,
+            $image,
+            $version
+        );
 
         $disk = $this->localDisk();
 
@@ -148,9 +170,13 @@ class ImageEditorController extends Controller
 
         return $disk->response(
             $version->path,
-            $this->safeDownloadName($version->file_name),
+            $this->safeDownloadName(
+                $version->file_name
+            ),
             [
-                'Content-Type' => $this->mimeForFormat($version->format),
+                'Content-Type' => $this->images->mimeForFormat(
+                    (string) $version->format
+                ),
                 'Cache-Control' => 'private, max-age=300',
                 'X-Content-Type-Options' => 'nosniff',
             ]
@@ -162,7 +188,11 @@ class ImageEditorController extends Controller
         Image $image,
         ImageVersion $version
     ): StreamedResponse {
-        $this->authorizeVersion($request, $image, $version);
+        $this->authorizeVersion(
+            $request,
+            $image,
+            $version
+        );
 
         $disk = $this->localDisk();
 
@@ -175,9 +205,13 @@ class ImageEditorController extends Controller
 
         return $disk->download(
             $version->path,
-            $this->safeDownloadName($version->file_name),
+            $this->safeDownloadName(
+                $version->file_name
+            ),
             [
-                'Content-Type' => $this->mimeForFormat($version->format),
+                'Content-Type' => $this->images->mimeForFormat(
+                    (string) $version->format
+                ),
                 'X-Content-Type-Options' => 'nosniff',
             ]
         );
@@ -187,303 +221,171 @@ class ImageEditorController extends Controller
         Request $request,
         Image $image
     ): RedirectResponse {
-        $this->authorizeOwner($request, $image);
-
-        $this->ensureGdAvailable();
+        $this->authorizeOwner(
+            $request,
+            $image
+        );
 
         $validated = $request->validate(
-            [
-                'operation' => [
-                    'required',
-                    'string',
-                    'in:' . implode(',', self::OPERATIONS),
-                ],
-
-                'source_version_id' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                ],
-
-                'width' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                    'max:' . self::MAX_DIMENSION,
-                ],
-
-                'height' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                    'max:' . self::MAX_DIMENSION,
-                ],
-
-                'keep_aspect' => [
-                    'nullable',
-                    'boolean',
-                ],
-
-                'crop_x' => [
-                    'nullable',
-                    'integer',
-                    'min:0',
-                ],
-
-                'crop_y' => [
-                    'nullable',
-                    'integer',
-                    'min:0',
-                ],
-
-                'crop_width' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                    'max:' . self::MAX_DIMENSION,
-                ],
-
-                'crop_height' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                    'max:' . self::MAX_DIMENSION,
-                ],
-
-                'angle' => [
-                    'nullable',
-                    'integer',
-                    'in:-270,-180,-90,90,180,270',
-                ],
-
-                'flip_direction' => [
-                    'nullable',
-                    'string',
-                    'in:horizontal,vertical',
-                ],
-
-                'quality' => [
-                    'nullable',
-                    'integer',
-                    'min:1',
-                    'max:100',
-                ],
-
-                'brightness' => [
-                    'nullable',
-                    'integer',
-                    'min:-100',
-                    'max:100',
-                ],
-
-                'contrast' => [
-                    'nullable',
-                    'integer',
-                    'min:-100',
-                    'max:100',
-                ],
-
-                'grayscale' => [
-                    'nullable',
-                    'boolean',
-                ],
-
-                'sepia' => [
-                    'nullable',
-                    'boolean',
-                ],
-
-                'blur' => [
-                    'nullable',
-                    'integer',
-                    'min:0',
-                    'max:6',
-                ],
-
-                'passport_preset' => [
-                    'nullable',
-                    'string',
-                    'max:80',
-                ],
-
-                'format' => [
-                    'nullable',
-                    'string',
-                    'in:jpg,jpeg,png,webp',
-                ],
-            ],
-            [
-                'operation.required' => 'Kies eerst een afbeeldingsbewerking.',
-                'operation.in' => 'De gekozen afbeeldingsbewerking wordt niet ondersteund.',
-                'width.max' => sprintf(
-                    'De maximale breedte is %d pixels.',
-                    self::MAX_DIMENSION
-                ),
-                'height.max' => sprintf(
-                    'De maximale hoogte is %d pixels.',
-                    self::MAX_DIMENSION
-                ),
-                'quality.min' => 'De kwaliteit moet minimaal 1 zijn.',
-                'quality.max' => 'De kwaliteit mag maximaal 100 zijn.',
-            ]
+            $this->validationRules(),
+            $this->validationMessages()
         );
 
         $user = $request->user();
 
-        abort_unless($user !== null, 401);
-
-        $sourceVersion = $this->resolveSourceVersion(
-            $request,
-            $image,
-            $validated['source_version_id'] ?? null
+        abort_unless(
+            $user !== null,
+            401
         );
 
-        if ($sourceVersion) {
-            $sourcePath = $sourceVersion->path;
-            $sourceFormat = $this->normalizeFormat($sourceVersion->format);
+        $operation =
+            (string) $validated['operation'];
+
+        $sourceVersion =
+            $this->resolveSourceVersion(
+                $request,
+                $image,
+                $validated['source_version_id'] ?? null
+            );
+
+        if ($sourceVersion !== null) {
+            $sourcePath =
+                (string) $sourceVersion->path;
+
+            $sourceFormat =
+                $this->images->normalizeFormat(
+                    (string) $sourceVersion->format
+                );
         } else {
-            $sourcePath = $image->original_path;
-            $sourceFormat = $this->formatFromMime($image->mime_type);
+            $sourcePath =
+                (string) $image->original_path;
+
+            $sourceFormat =
+                $this->images->formatFromMime(
+                    $image->mime_type
+                );
         }
 
-        if (empty($sourcePath)) {
+        if ($sourcePath === '') {
             throw ValidationException::withMessages([
                 'image' => 'Het bronbestand van deze afbeelding ontbreekt.',
             ]);
         }
 
-        $disk = $this->localDisk();
+        $disk =
+            $this->localDisk();
 
         if (! $disk->exists($sourcePath)) {
             throw ValidationException::withMessages([
-                'image' => 'Het bronbestand van deze afbeelding bestaat niet meer.',
+                'image' => 'Het bronbestand van deze afbeelding bestaat niet meer. Upload een nieuwe afbeelding of kies een bestaande versie.',
             ]);
         }
 
-        $absoluteSourcePath = $disk->path($sourcePath);
-        $source = $this->loadGdImage($absoluteSourcePath);
+        if ($operation === 'background') {
+            try {
+                return $this->processBackground(
+                    $request,
+                    $image,
+                    (int) $user->id,
+                    $sourcePath,
+                    $validated
+                );
+            } catch (ValidationException $exception) {
+                throw $exception;
+            } catch (Throwable $exception) {
+                report($exception);
 
-        $outputImage = null;
-        $temporaryFile = null;
+                throw ValidationException::withMessages([
+                    'image' => 'De achtergrondbewerking kon niet worden uitgevoerd. Probeer het opnieuw.',
+                ]);
+            }
+        }
+
+        $source = null;
+        $output = null;
         $storedPath = null;
 
         try {
-            $sourceWidth = imagesx($source);
-            $sourceHeight = imagesy($source);
+            $this->images->ensureAvailable();
 
-            $this->assertValidDimensions(
-                $sourceWidth,
-                $sourceHeight
-            );
-
-            $operation = (string) $validated['operation'];
-
-            $outputImage = $this->applyOperation(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $operation,
-                $validated
-            );
-
-            $outputWidth = imagesx($outputImage);
-            $outputHeight = imagesy($outputImage);
-
-            $this->assertValidDimensions(
-                $outputWidth,
-                $outputHeight
-            );
-
-            $outputFormat = $this->resolveOutputFormat(
-                $operation,
-                $sourceFormat,
-                $validated['format'] ?? null
-            );
-
-            $this->ensureFormatSupport($outputFormat);
-
-            $quality = $this->resolveQuality(
-                $validated['quality'] ?? null
-            );
-
-            $directory = sprintf(
-                'users/%d/images/versions/%d',
-                $user->id,
-                $image->id
-            );
-
-            $fileName = $this->makeVersionFileName(
-                $image,
-                $operation,
-                $outputFormat
-            );
-
-            $storedPath = $directory . '/' . $fileName;
-
-            $temporaryFile = tempnam(
-                sys_get_temp_dir(),
-                'mashal-image-'
-            );
-
-            if ($temporaryFile === false) {
-                throw new RuntimeException(
-                    'Er kon geen tijdelijk afbeeldingsbestand worden aangemaakt.'
+            $source =
+                $this->images->load(
+                    $disk->path(
+                        $sourcePath
+                    )
                 );
-            }
 
-            $this->encodeImage(
-                $outputImage,
-                $temporaryFile,
+            $dimensions =
+                $this->images->dimensions(
+                    $source
+                );
+
+            $sourceWidth =
+                $dimensions['width'];
+
+            $sourceHeight =
+                $dimensions['height'];
+
+            $output =
+                $this->applyOperation(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $operation,
+                    $validated
+                );
+
+            $outputDimensions =
+                $this->images->dimensions(
+                    $output
+                );
+
+            $outputFormat =
+                $this->resolveOutputFormat(
+                    $operation,
+                    $sourceFormat,
+                    $validated['format'] ?? null
+                );
+
+            $quality =
+                $this->images->normalizeQuality(
+                    isset($validated['quality'])
+                        ? (int) $validated['quality']
+                        : ImageProcessingService::DEFAULT_QUALITY
+                );
+
+            $directory =
+                $this->versionDirectory(
+                    (int) $user->id,
+                    (int) $image->id
+                );
+
+            $fileName =
+                $this->makeVersionFileName(
+                    $image,
+                    $operation,
+                    $outputFormat
+                );
+
+            $storedPath =
+                $directory . '/' . $fileName;
+
+            /*
+             * De local disk wijst in productie naar /app/storage/app/private.
+             * ImageProcessingService schrijft dus rechtstreeks op het Railway
+             * volume wanneer dat op die map gemount is.
+             */
+            $absoluteOutputPath =
+                $disk->path(
+                    $storedPath
+                );
+
+            $this->images->save(
+                $output,
+                $absoluteOutputPath,
                 $outputFormat,
                 $quality
             );
-
-            $temporarySize = filesize($temporaryFile);
-
-            if (
-                $temporarySize === false ||
-                $temporarySize < 1
-            ) {
-                throw new RuntimeException(
-                    'De gegenereerde afbeelding is leeg.'
-                );
-            }
-
-            if (! $disk->exists($directory)) {
-                $created = $disk->makeDirectory($directory);
-
-                if ($created === false) {
-                    throw new RuntimeException(
-                        'De opslagmap voor afbeeldingsversies kon niet worden aangemaakt.'
-                    );
-                }
-            }
-
-            $stream = fopen(
-                $temporaryFile,
-                'rb'
-            );
-
-            if ($stream === false) {
-                throw new RuntimeException(
-                    'Het tijdelijke afbeeldingsbestand kon niet worden geopend.'
-                );
-            }
-
-            try {
-                $stored = $disk->put(
-                    $storedPath,
-                    $stream
-                );
-            } finally {
-                fclose($stream);
-            }
-
-            if (! $stored) {
-                throw new RuntimeException(
-                    'De nieuwe afbeeldingsversie kon niet worden opgeslagen.'
-                );
-            }
 
             if (! $disk->exists($storedPath)) {
                 throw new RuntimeException(
@@ -491,63 +393,43 @@ class ImageEditorController extends Controller
                 );
             }
 
-            $fileSize = $disk->size($storedPath);
-
-            try {
-                $version = DB::transaction(
-                    function () use (
-                        $user,
-                        $image,
-                        $fileName,
-                        $storedPath,
-                        $outputFormat,
-                        $outputWidth,
-                        $outputHeight,
-                        $quality,
-                        $fileSize,
-                        $operation
-                    ): ImageVersion {
-                        return ImageVersion::create([
-                            'image_id' => $image->id,
-                            'user_id' => $user->id,
-                            'file_name' => $fileName,
-                            'path' => $storedPath,
-                            'format' => $outputFormat,
-                            'width' => $outputWidth,
-                            'height' => $outputHeight,
-                            'quality' => $quality,
-                            'file_size' => $fileSize,
-                            'operation' => $operation,
-                        ]);
-                    }
+            $fileSize =
+                (int) $disk->size(
+                    $storedPath
                 );
-            } catch (Throwable $exception) {
-                if (
-                    $storedPath &&
-                    $disk->exists($storedPath)
-                ) {
-                    $disk->delete($storedPath);
-                }
 
-                throw $exception;
-            }
-
-            return redirect()
-                ->route('images.editor', $image)
-                ->with(
-                    'status',
-                    sprintf(
-                        '%s voltooid. Versie #%d is opgeslagen als %d × %d %s.',
-                        $this->operationLabel($operation),
-                        $version->id,
-                        $outputWidth,
-                        $outputHeight,
-                        strtoupper($outputFormat)
-                    )
+            $version =
+                $this->createVersionRecord(
+                    image: $image,
+                    userId: (int) $user->id,
+                    fileName: $fileName,
+                    path: $storedPath,
+                    format: $outputFormat,
+                    width: $outputDimensions['width'],
+                    height: $outputDimensions['height'],
+                    quality: $quality,
+                    fileSize: $fileSize,
+                    operation: $operation
                 );
+
+            return $this->successfulProcessRedirect(
+                $image,
+                $version
+            );
         } catch (ValidationException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
+            if (
+                $storedPath !== null &&
+                $disk->exists($storedPath)
+            ) {
+                try {
+                    $disk->delete($storedPath);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
             report($exception);
 
             throw ValidationException::withMessages([
@@ -555,20 +437,19 @@ class ImageEditorController extends Controller
             ]);
         } finally {
             if (
-                is_string($temporaryFile) &&
-                is_file($temporaryFile)
+                $output !== null &&
+                $output !== $source
             ) {
-                @unlink($temporaryFile);
+                $this->images->destroy(
+                    $output
+                );
             }
 
-            if (
-                $outputImage !== null &&
-                $outputImage !== $source
-            ) {
-                $this->destroyGdImage($outputImage);
+            if ($source !== null) {
+                $this->images->destroy(
+                    $source
+                );
             }
-
-            $this->destroyGdImage($source);
         }
     }
 
@@ -583,7 +464,8 @@ class ImageEditorController extends Controller
             $version
         );
 
-        $path = $version->path;
+        $path =
+            (string) $version->path;
 
         DB::transaction(
             function () use ($version): void {
@@ -591,8 +473,9 @@ class ImageEditorController extends Controller
             }
         );
 
-        if ($path) {
-            $disk = $this->localDisk();
+        if ($path !== '') {
+            $disk =
+                $this->localDisk();
 
             try {
                 if ($disk->exists($path)) {
@@ -604,7 +487,10 @@ class ImageEditorController extends Controller
         }
 
         return redirect()
-            ->route('images.editor', $image)
+            ->route(
+                'images.editor',
+                $image
+            )
             ->with(
                 'status',
                 'De afbeeldingsversie is verwijderd. Het originele bestand is behouden.'
@@ -620,21 +506,30 @@ class ImageEditorController extends Controller
             $image
         );
 
-        $image->load('versions');
+        $image->load(
+            'versions'
+        );
 
-        $paths = $image->versions
-            ->pluck('path')
-            ->filter()
-            ->map(fn ($path) => (string) $path)
-            ->values()
-            ->all();
+        $paths =
+            $image->versions
+                ->pluck('path')
+                ->filter()
+                ->map(
+                    fn ($path) => (string) $path
+                )
+                ->values()
+                ->all();
 
         if (! empty($image->original_path)) {
-            $paths[] = (string) $image->original_path;
+            $paths[] =
+                (string) $image->original_path;
         }
 
-        $imageId = (int) $image->id;
-        $userId = (int) $image->user_id;
+        $imageId =
+            (int) $image->id;
+
+        $userId =
+            (int) $image->user_id;
 
         DB::transaction(
             function () use ($image): void {
@@ -642,26 +537,40 @@ class ImageEditorController extends Controller
             }
         );
 
-        $disk = $this->localDisk();
+        $disk =
+            $this->localDisk();
 
-        foreach (array_unique($paths) as $path) {
+        foreach (
+            array_unique($paths)
+            as $path
+        ) {
             if (
                 is_string($path) &&
                 $path !== '' &&
                 $disk->exists($path)
             ) {
-                $disk->delete($path);
+                try {
+                    $disk->delete($path);
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
             }
         }
 
-        $versionsDirectory = sprintf(
-            'users/%d/images/versions/%d',
-            $userId,
-            $imageId
-        );
+        $versionsDirectory =
+            $this->versionDirectory(
+                $userId,
+                $imageId
+            );
 
         if ($disk->exists($versionsDirectory)) {
-            $disk->deleteDirectory($versionsDirectory);
+            try {
+                $disk->deleteDirectory(
+                    $versionsDirectory
+                );
+            } catch (Throwable $exception) {
+                report($exception);
+            }
         }
 
         return redirect()
@@ -670,6 +579,202 @@ class ImageEditorController extends Controller
                 'status',
                 'De afbeelding en alle opgeslagen versies zijn verwijderd.'
             );
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function validationRules(): array
+    {
+        return [
+            'operation' => [
+                'required',
+                'string',
+                'in:' . implode(
+                    ',',
+                    self::OPERATIONS
+                ),
+            ],
+
+            'source_version_id' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
+
+            'width' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:' . ImageProcessingService::MAX_DIMENSION,
+            ],
+
+            'height' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:' . ImageProcessingService::MAX_DIMENSION,
+            ],
+
+            'keep_aspect' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'crop_x' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+
+            'crop_y' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+
+            'crop_width' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:' . ImageProcessingService::MAX_DIMENSION,
+            ],
+
+            'crop_height' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:' . ImageProcessingService::MAX_DIMENSION,
+            ],
+
+            'angle' => [
+                'nullable',
+                'integer',
+                'in:-270,-180,-90,90,180,270',
+            ],
+
+            'flip_direction' => [
+                'nullable',
+                'string',
+                'in:horizontal,vertical',
+            ],
+
+            'quality' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:100',
+            ],
+
+            'brightness' => [
+                'nullable',
+                'integer',
+                'min:-100',
+                'max:100',
+            ],
+
+            'contrast' => [
+                'nullable',
+                'integer',
+                'min:-100',
+                'max:100',
+            ],
+
+            'grayscale' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'sepia' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'blur' => [
+                'nullable',
+                'integer',
+                'min:0',
+                'max:6',
+            ],
+
+            'passport_preset' => [
+                'nullable',
+                'string',
+                'max:80',
+            ],
+
+            'format' => [
+                'nullable',
+                'string',
+                'in:jpg,jpeg,png,webp',
+            ],
+
+            /*
+             * Background Removal.
+             */
+            'background_mode' => [
+                'nullable',
+                'string',
+                'in:transparent,white,color,url,upload',
+            ],
+
+            'background_color' => [
+                'nullable',
+                'string',
+                'max:32',
+            ],
+
+            'background_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+            ],
+
+            'background_image' => [
+                'nullable',
+                'file',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:20480',
+            ],
+
+            'background_format' => [
+                'nullable',
+                'string',
+                'in:jpg,jpeg,png,webp',
+            ],
+
+            'background_size' => [
+                'nullable',
+                'string',
+                'in:auto,preview,full,50mp',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function validationMessages(): array
+    {
+        return [
+            'operation.required' => 'Kies eerst een afbeeldingsbewerking.',
+            'operation.in' => 'De gekozen afbeeldingsbewerking wordt niet ondersteund.',
+            'width.max' => sprintf(
+                'De maximale breedte is %d pixels.',
+                ImageProcessingService::MAX_DIMENSION
+            ),
+            'height.max' => sprintf(
+                'De maximale hoogte is %d pixels.',
+                ImageProcessingService::MAX_DIMENSION
+            ),
+            'quality.min' => 'De kwaliteit moet minimaal 1 zijn.',
+            'quality.max' => 'De kwaliteit mag maximaal 100 zijn.',
+            'background_url.url' => 'Vul een geldige URL voor de achtergrondafbeelding in.',
+            'background_image.image' => 'Het achtergrondbestand moet een afbeelding zijn.',
+            'background_image.mimes' => 'Gebruik JPG, PNG of WebP als achtergrondafbeelding.',
+            'background_image.max' => 'De achtergrondafbeelding mag maximaal 20 MB zijn.',
+        ];
     }
 
     private function resolveSourceVersion(
@@ -684,17 +789,30 @@ class ImageEditorController extends Controller
             return null;
         }
 
-        $user = $request->user();
+        $user =
+            $request->user();
 
-        abort_unless($user !== null, 401);
+        abort_unless(
+            $user !== null,
+            401
+        );
 
-        $version = ImageVersion::query()
-            ->whereKey((int) $sourceVersionId)
-            ->where('image_id', $image->id)
-            ->where('user_id', $user->id)
-            ->first();
+        $version =
+            ImageVersion::query()
+                ->whereKey(
+                    (int) $sourceVersionId
+                )
+                ->where(
+                    'image_id',
+                    $image->id
+                )
+                ->where(
+                    'user_id',
+                    $user->id
+                )
+                ->first();
 
-        if (! $version) {
+        if ($version === null) {
             throw ValidationException::withMessages([
                 'source_version_id' => 'De gekozen bronversie bestaat niet of hoort niet bij dit project.',
             ]);
@@ -703,6 +821,9 @@ class ImageEditorController extends Controller
         return $version;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function applyOperation(
         mixed $source,
         int $sourceWidth,
@@ -711,905 +832,442 @@ class ImageEditorController extends Controller
         array $data
     ): mixed {
         return match ($operation) {
-            'resize' => $this->resizeImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $data
-            ),
+            'resize' =>
+                $this->images->resize(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $this->nullableInteger(
+                        $data['width'] ?? null
+                    ),
+                    $this->nullableInteger(
+                        $data['height'] ?? null
+                    ),
+                    filter_var(
+                        $data['keep_aspect'] ?? true,
+                        FILTER_VALIDATE_BOOLEAN
+                    )
+                ),
 
-            'crop' => $this->cropImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $data
-            ),
+            'crop' =>
+                $this->images->crop(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $this->requiredInteger(
+                        $data,
+                        'crop_x',
+                        'Kies een geldig cropgebied.'
+                    ),
+                    $this->requiredInteger(
+                        $data,
+                        'crop_y',
+                        'Kies een geldig cropgebied.'
+                    ),
+                    $this->requiredInteger(
+                        $data,
+                        'crop_width',
+                        'Kies een geldige crop-breedte.'
+                    ),
+                    $this->requiredInteger(
+                        $data,
+                        'crop_height',
+                        'Kies een geldige crop-hoogte.'
+                    )
+                ),
 
-            'rotate' => $this->rotateImage(
-                $source,
-                $data
-            ),
+            'rotate' =>
+                $this->images->rotate(
+                    $source,
+                    $this->requiredInteger(
+                        $data,
+                        'angle',
+                        'Kies een rotatiehoek.'
+                    )
+                ),
 
-            'flip' => $this->flipImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $data
-            ),
+            'flip' =>
+                $this->images->flip(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $this->requiredString(
+                        $data,
+                        'flip_direction',
+                        'Kies horizontaal of verticaal spiegelen.'
+                    )
+                ),
 
-            'enhance' => $this->enhanceImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $data
-            ),
+            'enhance' =>
+                $this->images->enhance(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $data
+                ),
 
-            'passport' => $this->passportImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $data
-            ),
+            'passport' =>
+                $this->passportPhotos->create(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $this->requiredString(
+                        $data,
+                        'passport_preset',
+                        'Kies een pasfoto- of ID-fotopreset.'
+                    ),
+                    $data
+                ),
 
             'compress',
-            'convert' => $this->copyImage(
-                $source,
-                $sourceWidth,
-                $sourceHeight
-            ),
+            'convert' =>
+                $this->images->copy(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight
+                ),
 
-            default => throw ValidationException::withMessages([
-                'operation' => 'Onbekende afbeeldingsbewerking.',
-            ]),
+            default =>
+                throw ValidationException::withMessages([
+                    'operation' => 'Onbekende afbeeldingsbewerking.',
+                ]),
         };
     }
 
-    private function resizeImage(
-        mixed $source,
-        int $sourceWidth,
-        int $sourceHeight,
+    /**
+     * Verwerk echte achtergrondverwijdering via BackgroundRemovalService.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function processBackground(
+        Request $request,
+        Image $image,
+        int $userId,
+        string $sourcePath,
         array $data
-    ): mixed {
-        $requestedWidth = isset($data['width'])
-            ? (int) $data['width']
-            : null;
+    ): RedirectResponse {
+        $this->backgroundRemoval->assertConfigured();
 
-        $requestedHeight = isset($data['height'])
-            ? (int) $data['height']
-            : null;
-
-        if (
-            $requestedWidth === null &&
-            $requestedHeight === null
-        ) {
-            throw ValidationException::withMessages([
-                'width' => 'Vul een nieuwe breedte en/of hoogte in.',
-            ]);
-        }
-
-        $keepAspect = filter_var(
-            $data['keep_aspect'] ?? true,
-            FILTER_VALIDATE_BOOLEAN
-        );
-
-        if ($keepAspect) {
-            if (
-                $requestedWidth !== null &&
-                $requestedHeight === null
-            ) {
-                $requestedHeight = max(
-                    1,
-                    (int) round(
-                        $sourceHeight *
-                        ($requestedWidth / $sourceWidth)
+        $mode =
+            strtolower(
+                trim(
+                    (string) (
+                        $data['background_mode'] ??
+                        'transparent'
                     )
-                );
-            } elseif (
-                $requestedHeight !== null &&
-                $requestedWidth === null
-            ) {
-                $requestedWidth = max(
-                    1,
-                    (int) round(
-                        $sourceWidth *
-                        ($requestedHeight / $sourceHeight)
-                    )
-                );
-            } elseif (
-                $requestedWidth !== null &&
-                $requestedHeight !== null
-            ) {
-                $scale = min(
-                    $requestedWidth / $sourceWidth,
-                    $requestedHeight / $sourceHeight
-                );
-
-                $requestedWidth = max(
-                    1,
-                    (int) round(
-                        $sourceWidth * $scale
-                    )
-                );
-
-                $requestedHeight = max(
-                    1,
-                    (int) round(
-                        $sourceHeight * $scale
-                    )
-                );
-            }
-        } else {
-            $requestedWidth ??= $sourceWidth;
-            $requestedHeight ??= $sourceHeight;
-        }
-
-        $this->assertValidDimensions(
-            $requestedWidth,
-            $requestedHeight
-        );
-
-        $canvas = $this->createTransparentCanvas(
-            $requestedWidth,
-            $requestedHeight
-        );
-
-        $resampled = imagecopyresampled(
-            $canvas,
-            $source,
-            0,
-            0,
-            0,
-            0,
-            $requestedWidth,
-            $requestedHeight,
-            $sourceWidth,
-            $sourceHeight
-        );
-
-        if (! $resampled) {
-            $this->destroyGdImage($canvas);
-
-            throw new RuntimeException(
-                'Resize kon niet worden uitgevoerd.'
+                )
             );
-        }
 
-        return $canvas;
-    }
-
-    private function cropImage(
-        mixed $source,
-        int $sourceWidth,
-        int $sourceHeight,
-        array $data
-    ): mixed {
-        $x = isset($data['crop_x'])
-            ? (int) $data['crop_x']
-            : 0;
-
-        $y = isset($data['crop_y'])
-            ? (int) $data['crop_y']
-            : 0;
-
-        $width = isset($data['crop_width'])
-            ? (int) $data['crop_width']
-            : null;
-
-        $height = isset($data['crop_height'])
-            ? (int) $data['crop_height']
-            : null;
-
-        if (
-            $width === null ||
-            $height === null
-        ) {
-            throw ValidationException::withMessages([
-                'crop_width' => 'Vul een crop-breedte en crop-hoogte in.',
-            ]);
-        }
-
-        if (
-            $x < 0 ||
-            $y < 0 ||
-            $x >= $sourceWidth ||
-            $y >= $sourceHeight ||
-            ($x + $width) > $sourceWidth ||
-            ($y + $height) > $sourceHeight
-        ) {
-            throw ValidationException::withMessages([
-                'crop_width' => 'De gekozen crop valt buiten de grenzen van de afbeelding.',
-            ]);
-        }
-
-        $this->assertValidDimensions(
-            $width,
-            $height
-        );
-
-        $canvas = $this->createTransparentCanvas(
-            $width,
-            $height
-        );
-
-        $copied = imagecopy(
-            $canvas,
-            $source,
-            0,
-            0,
-            $x,
-            $y,
-            $width,
-            $height
-        );
-
-        if (! $copied) {
-            $this->destroyGdImage($canvas);
-
-            throw new RuntimeException(
-                'Crop kon niet worden uitgevoerd.'
+        $size =
+            strtolower(
+                trim(
+                    (string) (
+                        $data['background_size'] ??
+                        'auto'
+                    )
+                )
             );
-        }
 
-        return $canvas;
-    }
-
-    private function rotateImage(
-        mixed $source,
-        array $data
-    ): mixed {
-        if (! isset($data['angle'])) {
-            throw ValidationException::withMessages([
-                'angle' => 'Kies een rotatiehoek.',
-            ]);
-        }
-
-        $angle = (int) $data['angle'];
-
-        $transparent = imagecolorallocatealpha(
-            $source,
-            0,
-            0,
-            0,
-            127
-        );
-
-        $rotated = imagerotate(
-            $source,
-            -$angle,
-            $transparent
-        );
-
-        if ($rotated === false) {
-            throw new RuntimeException(
-                'Rotatie kon niet worden uitgevoerd.'
+        $requestedFormat =
+            $this->images->normalizeFormat(
+                (string) (
+                    $data['background_format'] ??
+                    (
+                        $mode === 'transparent'
+                            ? 'png'
+                            : 'jpg'
+                    )
+                )
             );
-        }
-
-        imagealphablending(
-            $rotated,
-            false
-        );
-
-        imagesavealpha(
-            $rotated,
-            true
-        );
-
-        return $rotated;
-    }
-
-    private function flipImage(
-        mixed $source,
-        int $sourceWidth,
-        int $sourceHeight,
-        array $data
-    ): mixed {
-        $direction = $data['flip_direction'] ?? null;
 
         if (
+            $mode === 'transparent' &&
             ! in_array(
-                $direction,
-                [
-                    'horizontal',
-                    'vertical',
-                ],
+                $requestedFormat,
+                ['png', 'webp'],
                 true
             )
         ) {
             throw ValidationException::withMessages([
-                'flip_direction' => 'Kies horizontaal of verticaal spiegelen.',
+                'background_format' => 'Een transparante achtergrond moet als PNG of WebP worden opgeslagen.',
             ]);
         }
 
-        $copy = $this->copyImage(
-            $source,
-            $sourceWidth,
-            $sourceHeight
-        );
+        $storedOperation =
+            match ($mode) {
+                'transparent' => 'remove_background',
+                'white',
+                'color' => 'background_color',
+                'url',
+                'upload' => 'background_image',
 
-        $mode = $direction === 'horizontal'
-            ? IMG_FLIP_HORIZONTAL
-            : IMG_FLIP_VERTICAL;
+                default => throw ValidationException::withMessages([
+                    'background_mode' => 'Kies een geldige achtergrondbewerking.',
+                ]),
+            };
 
-        if (! imageflip($copy, $mode)) {
-            $this->destroyGdImage($copy);
-
-            throw new RuntimeException(
-                'Spiegelen kon niet worden uitgevoerd.'
+        $directory =
+            $this->versionDirectory(
+                $userId,
+                (int) $image->id
             );
-        }
 
-        return $copy;
-    }
-
-    private function copyImage(
-        mixed $source,
-        int $width,
-        int $height
-    ): mixed {
-        $canvas = $this->createTransparentCanvas(
-            $width,
-            $height
-        );
-
-        $copied = imagecopy(
-            $canvas,
-            $source,
-            0,
-            0,
-            0,
-            0,
-            $width,
-            $height
-        );
-
-        if (! $copied) {
-            $this->destroyGdImage($canvas);
-
-            throw new RuntimeException(
-                'De afbeelding kon niet worden gekopieerd.'
+        $fileName =
+            $this->makeVersionFileName(
+                $image,
+                $storedOperation,
+                $requestedFormat
             );
-        }
 
-        return $canvas;
-    }
+        $storedPath =
+            $directory . '/' . $fileName;
 
-    private function enhanceImage(
-        mixed $source,
-        int $width,
-        int $height,
-        array $data
-    ): mixed {
-        if (! function_exists('imagefilter')) {
-            throw ValidationException::withMessages([
-                'image' => 'Deze PHP/GD-installatie ondersteunt geen afbeeldingsfilters.',
-            ]);
-        }
+        $options = [
+            'size' => $size,
+            'format' => $requestedFormat,
+        ];
 
-        $output = $this->copyImage(
-            $source,
-            $width,
-            $height
-        );
+        $result = null;
 
         try {
-            $brightness = max(
-                -100,
-                min(
-                    100,
-                    (int) ($data['brightness'] ?? 0)
-                )
+            $result =
+                match ($mode) {
+                    'transparent' =>
+                        $this->backgroundRemoval->transparent(
+                            'local',
+                            $sourcePath,
+                            'local',
+                            $storedPath,
+                            $options
+                        ),
+
+                    'white' =>
+                        $this->backgroundRemoval->withColor(
+                            'local',
+                            $sourcePath,
+                            'local',
+                            $storedPath,
+                            '#ffffff',
+                            $options
+                        ),
+
+                    'color' =>
+                        $this->backgroundRemoval->withColor(
+                            'local',
+                            $sourcePath,
+                            'local',
+                            $storedPath,
+                            $this->requiredString(
+                                $data,
+                                'background_color',
+                                'Kies een achtergrondkleur.'
+                            ),
+                            $options
+                        ),
+
+                    'url' =>
+                        $this->backgroundRemoval->withBackgroundUrl(
+                            'local',
+                            $sourcePath,
+                            'local',
+                            $storedPath,
+                            $this->requiredString(
+                                $data,
+                                'background_url',
+                                'Vul een URL van een achtergrondafbeelding in.'
+                            ),
+                            $options
+                        ),
+
+                    'upload' =>
+                        $this->backgroundRemoval->withBackgroundFile(
+                            'local',
+                            $sourcePath,
+                            'local',
+                            $storedPath,
+                            $this->uploadedBackgroundPath(
+                                $request
+                            ),
+                            $options
+                        ),
+
+                    default =>
+                        throw ValidationException::withMessages([
+                            'background_mode' => 'Kies een geldige achtergrondbewerking.',
+                        ]),
+                };
+
+            $disk =
+                $this->localDisk();
+
+            if (! $disk->exists($storedPath)) {
+                throw new RuntimeException(
+                    'De achtergrondbewerking is voltooid, maar het resultaat kon niet in storage worden gevonden.'
+                );
+            }
+
+            [
+                $width,
+                $height,
+            ] = $this->backgroundResultDimensions(
+                $result,
+                $storedPath
             );
 
-            $contrast = max(
-                -100,
-                min(
-                    100,
-                    (int) ($data['contrast'] ?? 0)
-                )
-            );
-
-            $blur = max(
-                0,
-                min(
-                    6,
-                    (int) ($data['blur'] ?? 0)
-                )
-            );
-
-            $grayscale = filter_var(
-                $data['grayscale'] ?? false,
-                FILTER_VALIDATE_BOOLEAN
-            );
-
-            $sepia = filter_var(
-                $data['sepia'] ?? false,
-                FILTER_VALIDATE_BOOLEAN
-            );
-
-            if ($brightness !== 0) {
-                $this->applyGdFilter(
-                    $output,
-                    IMG_FILTER_BRIGHTNESS,
-                    (int) round(
-                        ($brightness / 100) * 255
+            $format =
+                $this->images->normalizeFormat(
+                    (string) (
+                        $result['format'] ??
+                        $requestedFormat
                     )
                 );
-            }
 
-            if ($contrast !== 0) {
-                /*
-                 * GD gebruikt een omgekeerde contrastschaal:
-                 * negatieve waarden verhogen het contrast.
-                 */
-                $this->applyGdFilter(
-                    $output,
-                    IMG_FILTER_CONTRAST,
-                    -$contrast
+            $fileSize =
+                (int) (
+                    $result['size'] ??
+                    $disk->size($storedPath)
                 );
-            }
 
-            if ($grayscale || $sepia) {
-                $this->applyGdFilter(
-                    $output,
-                    IMG_FILTER_GRAYSCALE
+            $version =
+                $this->createVersionRecord(
+                    image: $image,
+                    userId: $userId,
+                    fileName: $fileName,
+                    path: $storedPath,
+                    format: $format,
+                    width: $width,
+                    height: $height,
+                    quality: 100,
+                    fileSize: $fileSize,
+                    operation: $storedOperation
                 );
-            }
 
-            if ($sepia) {
-                $this->applyGdFilter(
-                    $output,
-                    IMG_FILTER_COLORIZE,
-                    90,
-                    55,
-                    30,
-                    0
-                );
-            }
-
-            for ($index = 0; $index < $blur; $index++) {
-                $this->applyGdFilter(
-                    $output,
-                    IMG_FILTER_GAUSSIAN_BLUR
-                );
-            }
-
-            return $output;
-        } catch (Throwable $exception) {
-            $this->destroyGdImage(
-                $output
+            return $this->successfulProcessRedirect(
+                $image,
+                $version
             );
+        } catch (Throwable $exception) {
+            $disk =
+                $this->localDisk();
+
+            if ($disk->exists($storedPath)) {
+                try {
+                    $disk->delete(
+                        $storedPath
+                    );
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
 
             throw $exception;
         }
     }
 
-    private function passportImage(
-        mixed $source,
-        int $sourceWidth,
-        int $sourceHeight,
-        array $data
-    ): mixed {
-        $presetKey = trim(
-            (string) ($data['passport_preset'] ?? 'nl_35x45')
-        );
-
-        $presets = config(
-            'mashal-image.passport_presets',
-            []
-        );
+    private function uploadedBackgroundPath(
+        Request $request
+    ): string {
+        $file =
+            $request->file(
+                'background_image'
+            );
 
         if (
-            ! is_array($presets) ||
-            ! isset($presets[$presetKey]) ||
-            ! is_array($presets[$presetKey])
+            ! $file instanceof UploadedFile ||
+            ! $file->isValid()
         ) {
             throw ValidationException::withMessages([
-                'passport_preset' => 'Kies een geldige pasfoto- of ID-fotopreset.',
+                'background_image' => 'Kies een geldige achtergrondafbeelding om te uploaden.',
             ]);
         }
 
-        $preset = $presets[$presetKey];
+        $path =
+            $file->getRealPath();
 
-        $targetWidth = (int) ($preset['width'] ?? 0);
-        $targetHeight = (int) ($preset['height'] ?? 0);
-
-        $this->assertValidDimensions(
-            $targetWidth,
-            $targetHeight
-        );
-
-        $crop = $this->passportCropRectangle(
-            $sourceWidth,
-            $sourceHeight,
-            $targetWidth,
-            $targetHeight,
-            $data
-        );
-
-        $cropped = $this->cropImage(
-            $source,
-            $sourceWidth,
-            $sourceHeight,
-            [
-                'crop_x' => $crop['x'],
-                'crop_y' => $crop['y'],
-                'crop_width' => $crop['width'],
-                'crop_height' => $crop['height'],
-            ]
-        );
-
-        try {
-            return $this->resizeImage(
-                $cropped,
-                imagesx($cropped),
-                imagesy($cropped),
-                [
-                    'width' => $targetWidth,
-                    'height' => $targetHeight,
-                    'keep_aspect' => false,
-                ]
-            );
-        } finally {
-            $this->destroyGdImage(
-                $cropped
-            );
+        if (
+            ! is_string($path) ||
+            $path === '' ||
+            ! is_file($path)
+        ) {
+            throw ValidationException::withMessages([
+                'background_image' => 'De geüploade achtergrondafbeelding kon niet worden gelezen.',
+            ]);
         }
+
+        return $path;
     }
 
     /**
-     * Maak het gekozen cropgebied passend op de exportverhouding zonder
-     * buiten de bronafbeelding te komen.
+     * @param array<string, mixed> $result
      *
-     * @return array{x:int,y:int,width:int,height:int}
+     * @return array{0:int,1:int}
      */
-    private function passportCropRectangle(
-        int $sourceWidth,
-        int $sourceHeight,
-        int $targetWidth,
-        int $targetHeight,
-        array $data
+    private function backgroundResultDimensions(
+        array $result,
+        string $storedPath
     ): array {
-        $x = max(
-            0,
-            (int) ($data['crop_x'] ?? 0)
-        );
+        $width =
+            isset($result['width'])
+                ? (int) $result['width']
+                : 0;
 
-        $y = max(
-            0,
-            (int) ($data['crop_y'] ?? 0)
-        );
-
-        $width = max(
-            1,
-            min(
-                $sourceWidth - $x,
-                (int) ($data['crop_width'] ?? $sourceWidth)
-            )
-        );
-
-        $height = max(
-            1,
-            min(
-                $sourceHeight - $y,
-                (int) ($data['crop_height'] ?? $sourceHeight)
-            )
-        );
-
-        $targetRatio =
-            $targetWidth /
-            $targetHeight;
-
-        $cropRatio =
-            $width /
-            $height;
-
-        if ($cropRatio > $targetRatio) {
-            $newWidth = max(
-                1,
-                (int) round(
-                    $height *
-                    $targetRatio
-                )
-            );
-
-            $x += max(
-                0,
-                (int) floor(
-                    ($width - $newWidth) / 2
-                )
-            );
-
-            $width = $newWidth;
-        } elseif ($cropRatio < $targetRatio) {
-            $newHeight = max(
-                1,
-                (int) round(
-                    $width /
-                    $targetRatio
-                )
-            );
-
-            $y += max(
-                0,
-                (int) floor(
-                    ($height - $newHeight) / 2
-                )
-            );
-
-            $height = $newHeight;
-        }
-
-        $x = max(
-            0,
-            min(
-                $x,
-                $sourceWidth - $width
-            )
-        );
-
-        $y = max(
-            0,
-            min(
-                $y,
-                $sourceHeight - $height
-            )
-        );
-
-        return [
-            'x' => $x,
-            'y' => $y,
-            'width' => $width,
-            'height' => $height,
-        ];
-    }
-
-    private function applyGdFilter(
-        mixed $image,
-        int $filter,
-        mixed ...$arguments
-    ): void {
-        $applied = imagefilter(
-            $image,
-            $filter,
-            ...$arguments
-        );
-
-        if (! $applied) {
-            throw new RuntimeException(
-                'Een afbeeldingsfilter kon niet worden toegepast.'
-            );
-        }
-    }
-
-    private function createTransparentCanvas(
-        int $width,
-        int $height
-    ): mixed {
-        $this->assertValidDimensions(
-            $width,
-            $height
-        );
-
-        $canvas = imagecreatetruecolor(
-            $width,
-            $height
-        );
-
-        if ($canvas === false) {
-            throw new RuntimeException(
-                'Er kon geen nieuw afbeeldingscanvas worden aangemaakt.'
-            );
-        }
-
-        imagealphablending(
-            $canvas,
-            false
-        );
-
-        imagesavealpha(
-            $canvas,
-            true
-        );
-
-        $transparent = imagecolorallocatealpha(
-            $canvas,
-            0,
-            0,
-            0,
-            127
-        );
-
-        imagefilledrectangle(
-            $canvas,
-            0,
-            0,
-            max(0, $width - 1),
-            max(0, $height - 1),
-            $transparent
-        );
-
-        return $canvas;
-    }
-
-    private function loadGdImage(
-        string $absolutePath
-    ): mixed {
-        if (
-            $absolutePath === '' ||
-            ! is_file($absolutePath)
-        ) {
-            throw ValidationException::withMessages([
-                'image' => 'Het afbeeldingsbestand bestaat niet meer.',
-            ]);
-        }
-
-        $contents = @file_get_contents(
-            $absolutePath
-        );
+        $height =
+            isset($result['height'])
+                ? (int) $result['height']
+                : 0;
 
         if (
-            $contents === false ||
-            $contents === ''
+            $width > 0 &&
+            $height > 0
         ) {
-            throw ValidationException::withMessages([
-                'image' => 'Het afbeeldingsbestand kon niet worden gelezen.',
-            ]);
-        }
-
-        $gdImage = @imagecreatefromstring(
-            $contents
-        );
-
-        unset($contents);
-
-        if ($gdImage === false) {
-            throw ValidationException::withMessages([
-                'image' => 'Dit afbeeldingsbestand kan niet door GD worden geopend.',
-            ]);
-        }
-
-        imagealphablending(
-            $gdImage,
-            true
-        );
-
-        imagesavealpha(
-            $gdImage,
-            true
-        );
-
-        return $gdImage;
-    }
-
-    private function encodeImage(
-        mixed $image,
-        string $path,
-        string $format,
-        int $quality
-    ): void {
-        $format = $this->normalizeFormat(
-            $format
-        );
-
-        $this->ensureFormatSupport(
-            $format
-        );
-
-        $encoded = match ($format) {
-            'jpg' => $this->encodeJpeg(
-                $image,
-                $path,
-                $quality
-            ),
-
-            'png' => imagepng(
-                $image,
-                $path,
-                $this->pngCompressionLevel($quality)
-            ),
-
-            'webp' => imagewebp(
-                $image,
-                $path,
-                $quality
-            ),
-
-            default => false,
-        };
-
-        if (! $encoded) {
-            throw new RuntimeException(
-                'De afbeelding kon niet naar het gekozen formaat worden geëxporteerd.'
-            );
-        }
-    }
-
-    private function encodeJpeg(
-        mixed $image,
-        string $path,
-        int $quality
-    ): bool {
-        $width = imagesx($image);
-        $height = imagesy($image);
-
-        $flattened = imagecreatetruecolor(
-            $width,
-            $height
-        );
-
-        if ($flattened === false) {
-            return false;
-        }
-
-        try {
-            $white = imagecolorallocate(
-                $flattened,
-                255,
-                255,
-                255
-            );
-
-            imagefilledrectangle(
-                $flattened,
-                0,
-                0,
-                max(0, $width - 1),
-                max(0, $height - 1),
-                $white
-            );
-
-            imagealphablending(
-                $flattened,
-                true
-            );
-
-            $copied = imagecopy(
-                $flattened,
-                $image,
-                0,
-                0,
-                0,
-                0,
+            $this->images->assertDimensions(
                 $width,
                 $height
             );
 
-            if (! $copied) {
-                return false;
-            }
+            return [
+                $width,
+                $height,
+            ];
+        }
 
-            imageinterlace(
-                $flattened,
-                true
+        $absolutePath =
+            $this->localDisk()->path(
+                $storedPath
             );
 
-            return imagejpeg(
-                $flattened,
-                $path,
-                $quality
+        $size =
+            @getimagesize(
+                $absolutePath
             );
-        } finally {
-            $this->destroyGdImage(
-                $flattened
+
+        if (
+            ! is_array($size) ||
+            ! isset(
+                $size[0],
+                $size[1]
+            )
+        ) {
+            throw new RuntimeException(
+                'De afmetingen van het background-removal resultaat konden niet worden bepaald.'
             );
         }
-    }
 
-    private function pngCompressionLevel(
-        int $quality
-    ): int {
-        $quality = max(
-            1,
-            min(
-                100,
-                $quality
-            )
+        $width =
+            (int) $size[0];
+
+        $height =
+            (int) $size[1];
+
+        $this->images->assertDimensions(
+            $width,
+            $height
         );
 
-        return (int) round(
-            9 - (($quality / 100) * 9)
-        );
+        return [
+            $width,
+            $height,
+        ];
     }
 
     private function resolveOutputFormat(
@@ -1620,53 +1278,113 @@ class ImageEditorController extends Controller
         if ($operation === 'convert') {
             if (
                 $requestedFormat === null ||
-                $requestedFormat === ''
+                trim((string) $requestedFormat) === ''
             ) {
                 throw ValidationException::withMessages([
                     'format' => 'Kies het formaat waarnaar je wilt converteren.',
                 ]);
             }
 
-            $format = $this->normalizeFormat(
+            return $this->images->normalizeFormat(
                 (string) $requestedFormat
             );
-        } else {
-            $format = $this->normalizeFormat(
-                $sourceFormat
-            );
         }
 
-        if (
-            ! in_array(
-                $format,
-                self::OUTPUT_FORMATS,
-                true
-            )
-        ) {
-            throw ValidationException::withMessages([
-                'format' => 'Dit uitvoerformaat wordt niet ondersteund.',
-            ]);
-        }
-
-        return $format;
+        return $this->images->normalizeFormat(
+            $sourceFormat
+        );
     }
 
-    private function resolveQuality(
-        mixed $requestedQuality
-    ): int {
-        if (
-            $requestedQuality === null ||
-            $requestedQuality === ''
-        ) {
-            return self::DEFAULT_QUALITY;
-        }
+    private function createVersionRecord(
+        Image $image,
+        int $userId,
+        string $fileName,
+        string $path,
+        string $format,
+        int $width,
+        int $height,
+        int $quality,
+        int $fileSize,
+        string $operation
+    ): ImageVersion {
+        try {
+            return DB::transaction(
+                function () use (
+                    $image,
+                    $userId,
+                    $fileName,
+                    $path,
+                    $format,
+                    $width,
+                    $height,
+                    $quality,
+                    $fileSize,
+                    $operation
+                ): ImageVersion {
+                    return ImageVersion::create([
+                        'image_id' => $image->id,
+                        'user_id' => $userId,
+                        'file_name' => $fileName,
+                        'path' => $path,
+                        'format' => $format,
+                        'width' => $width,
+                        'height' => $height,
+                        'quality' => $quality,
+                        'file_size' => $fileSize,
+                        'operation' => $operation,
+                    ]);
+                }
+            );
+        } catch (Throwable $exception) {
+            $disk =
+                $this->localDisk();
 
-        return max(
-            1,
-            min(
-                100,
-                (int) $requestedQuality
+            if ($disk->exists($path)) {
+                try {
+                    $disk->delete($path);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
+    }
+
+    private function successfulProcessRedirect(
+        Image $image,
+        ImageVersion $version
+    ): RedirectResponse {
+        return redirect()
+            ->route(
+                'images.editor',
+                $image
             )
+            ->with(
+                'status',
+                sprintf(
+                    '%s voltooid. Versie #%d is opgeslagen als %d × %d %s.',
+                    $this->operationLabel(
+                        (string) $version->operation
+                    ),
+                    $version->id,
+                    (int) $version->width,
+                    (int) $version->height,
+                    strtoupper(
+                        (string) $version->format
+                    )
+                )
+            );
+    }
+
+    private function versionDirectory(
+        int $userId,
+        int $imageId
+    ): string {
+        return sprintf(
+            'users/%d/images/versions/%d',
+            $userId,
+            $imageId
         );
     }
 
@@ -1675,178 +1393,103 @@ class ImageEditorController extends Controller
         string $operation,
         string $format
     ): string {
-        $base = pathinfo(
-            (string) $image->original_name,
-            PATHINFO_FILENAME
-        );
+        $base =
+            pathinfo(
+                (string) $image->original_name,
+                PATHINFO_FILENAME
+            );
 
-        $base = Str::slug($base);
+        $base =
+            Str::slug(
+                $base
+            );
 
         if ($base === '') {
-            $base = 'image';
+            $base =
+                'image';
         }
 
         return sprintf(
             '%s-%s-%s.%s',
             $base,
-            Str::slug($operation),
+            Str::slug(
+                $operation
+            ),
             Str::uuid()->toString(),
-            $this->normalizeFormat($format)
+            $this->images->extensionForFormat(
+                $format
+            )
         );
     }
 
-    private function normalizeFormat(
-        ?string $format
+    private function nullableInteger(
+        mixed $value
+    ): ?int {
+        if (
+            $value === null ||
+            $value === ''
+        ) {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function requiredInteger(
+        array $data,
+        string $key,
+        string $message
+    ): int {
+        if (
+            ! array_key_exists(
+                $key,
+                $data
+            ) ||
+            $data[$key] === null ||
+            $data[$key] === ''
+        ) {
+            throw ValidationException::withMessages([
+                $key => $message,
+            ]);
+        }
+
+        return (int) $data[$key];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function requiredString(
+        array $data,
+        string $key,
+        string $message
     ): string {
-        $format = strtolower(
+        $value =
             trim(
-                (string) $format
-            )
-        );
-
-        if ($format === 'jpeg') {
-            return 'jpg';
-        }
-
-        return $format;
-    }
-
-    private function formatFromMime(
-        ?string $mime
-    ): string {
-        return match (
-            strtolower(
-                trim(
-                    (string) $mime
+                (string) (
+                    $data[$key] ??
+                    ''
                 )
-            )
-        ) {
-            'image/jpeg',
-            'image/jpg' => 'jpg',
+            );
 
-            'image/png' => 'png',
-
-            'image/webp' => 'webp',
-
-            default => throw ValidationException::withMessages([
-                'image' => 'Het formaat van het bronbestand wordt niet ondersteund.',
-            ]),
-        };
-    }
-
-    private function mimeForFormat(
-        ?string $format
-    ): string {
-        return match (
-            $this->normalizeFormat($format)
-        ) {
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp',
-            default => 'application/octet-stream',
-        };
-    }
-
-    private function assertValidDimensions(
-        int $width,
-        int $height
-    ): void {
-        if (
-            $width < 1 ||
-            $height < 1 ||
-            $width > self::MAX_DIMENSION ||
-            $height > self::MAX_DIMENSION
-        ) {
+        if ($value === '') {
             throw ValidationException::withMessages([
-                'dimensions' => sprintf(
-                    'Afmetingen moeten tussen 1 en %d pixels liggen.',
-                    self::MAX_DIMENSION
-                ),
+                $key => $message,
             ]);
         }
 
-        $this->assertValidPixelCount(
-            $width,
-            $height
-        );
-    }
-
-    private function assertValidPixelCount(
-        int $width,
-        int $height
-    ): void {
-        if (
-            $height > 0 &&
-            $width > intdiv(PHP_INT_MAX, $height)
-        ) {
-            throw ValidationException::withMessages([
-                'dimensions' => 'De berekende afmetingen zijn ongeldig.',
-            ]);
-        }
-
-        $pixels = $width * $height;
-
-        if ($pixels > self::MAX_PIXELS) {
-            throw ValidationException::withMessages([
-                'dimensions' => sprintf(
-                    'De afbeelding bevat te veel pixels. Maximaal %s pixels zijn toegestaan.',
-                    number_format(
-                        self::MAX_PIXELS,
-                        0,
-                        ',',
-                        '.'
-                    )
-                ),
-            ]);
-        }
-    }
-
-    private function ensureGdAvailable(): void
-    {
-        if (
-            ! extension_loaded('gd') ||
-            ! function_exists('imagecreatefromstring') ||
-            ! function_exists('imagecreatetruecolor') ||
-            ! function_exists('imagecopyresampled') ||
-            ! function_exists('imagecopy') ||
-            ! function_exists('imagesx') ||
-            ! function_exists('imagesy')
-        ) {
-            throw ValidationException::withMessages([
-                'image' => 'De GD-extensie is niet beschikbaar of onvolledig op deze PHP-server.',
-            ]);
-        }
-    }
-
-    private function ensureFormatSupport(
-        string $format
-    ): void {
-        $format = $this->normalizeFormat(
-            $format
-        );
-
-        $supported = match ($format) {
-            'jpg' => function_exists('imagejpeg'),
-            'png' => function_exists('imagepng'),
-            'webp' => function_exists('imagewebp'),
-            default => false,
-        };
-
-        if (! $supported) {
-            throw ValidationException::withMessages([
-                'format' => sprintf(
-                    'Deze PHP/GD-installatie ondersteunt geen %s-export.',
-                    strtoupper($format)
-                ),
-            ]);
-        }
+        return $value;
     }
 
     private function authorizeOwner(
         Request $request,
         Image $image
     ): void {
-        $user = $request->user();
+        $user =
+            $request->user();
 
         abort_unless(
             $user !== null &&
@@ -1866,7 +1509,8 @@ class ImageEditorController extends Controller
             $image
         );
 
-        $user = $request->user();
+        $user =
+            $request->user();
 
         abort_unless(
             $user !== null &&
@@ -1881,7 +1525,10 @@ class ImageEditorController extends Controller
     private function localDisk(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('local');
+        $disk =
+            Storage::disk(
+                'local'
+            );
 
         return $disk;
     }
@@ -1889,47 +1536,53 @@ class ImageEditorController extends Controller
     private function safeDownloadName(
         ?string $name
     ): string {
-        $name = str_replace(
-            '\\',
-            '/',
-            (string) $name
-        );
+        $name =
+            str_replace(
+                '\\',
+                '/',
+                (string) $name
+            );
 
-        $name = basename($name);
+        $name =
+            basename(
+                $name
+            );
 
-        $name = preg_replace(
-            '/[^\pL\pN._ -]+/u',
-            '-',
-            $name
-        );
+        $name =
+            preg_replace(
+                '/[^\pL\pN._ -]+/u',
+                '-',
+                $name
+            );
 
-        $name = trim(
-            (string) $name,
-            " .-\t\n\r\0\x0B"
-        );
+        $name =
+            trim(
+                (string) $name,
+                " .-\t\n\r\0\x0B"
+            );
 
         if ($name === '') {
             return 'mashal-image';
         }
 
         if (mb_strlen($name) > 220) {
-            $extension = pathinfo(
-                $name,
-                PATHINFO_EXTENSION
-            );
+            $extension =
+                pathinfo(
+                    $name,
+                    PATHINFO_EXTENSION
+                );
 
-            $baseName = pathinfo(
-                $name,
-                PATHINFO_FILENAME
-            );
+            $baseName =
+                mb_substr(
+                    pathinfo(
+                        $name,
+                        PATHINFO_FILENAME
+                    ),
+                    0,
+                    180
+                );
 
-            $baseName = mb_substr(
-                $baseName,
-                0,
-                180
-            );
-
-            $name = $extension !== ''
+            return $extension !== ''
                 ? $baseName . '.' . $extension
                 : $baseName;
         }
@@ -1949,18 +1602,16 @@ class ImageEditorController extends Controller
             'passport' => 'Pasfoto / ID-foto',
             'compress' => 'Compressie',
             'convert' => 'Conversie',
-            default => ucfirst($operation),
+            'remove_background' => 'Achtergrond verwijderd',
+            'background_color' => 'Nieuwe achtergrondkleur',
+            'background_image' => 'Nieuwe achtergrondafbeelding',
+            default => ucfirst(
+                str_replace(
+                    '_',
+                    ' ',
+                    $operation
+                )
+            ),
         };
-    }
-
-    private function destroyGdImage(
-        mixed $image
-    ): void {
-        if (
-            $image !== null &&
-            function_exists('imagedestroy')
-        ) {
-            @imagedestroy($image);
-        }
     }
 }
