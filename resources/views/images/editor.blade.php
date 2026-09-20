@@ -851,6 +851,511 @@
             flex-direction: column;
         }
     }
+
+    /*
+     * --------------------------------------------------------------------------
+     * Mobile editor
+     * --------------------------------------------------------------------------
+     *
+     * Op telefoon werkt de editor als een echte mobiele editor:
+     * - canvas blijft compact en bruikbaar;
+     * - tools blijven onderaan altijd bereikbaar;
+     * - instellingen openen als bottom sheet;
+     * - form controls zijn minimaal 16px zodat iOS niet automatisch inzoomt;
+     * - knoppen hebben comfortabele touch-targets;
+     * - geen lange verticale tocht van tools -> canvas -> properties.
+     */
+
+    .mobile-properties-open,
+    .mobile-properties-close {
+        display: none;
+    }
+
+    .editor-properties-heading {
+        display: block;
+    }
+
+    @media (max-width: 760px) {
+        .image-editor-page {
+            min-height: calc(100svh - 64px);
+            padding: 10px 0 calc(96px + env(safe-area-inset-bottom));
+            overflow-x: clip;
+        }
+
+        .image-editor-shell {
+            width: min(100% - 12px, 1480px);
+        }
+
+        .editor-topbar {
+            margin-bottom: 9px;
+            padding: 10px;
+            gap: 9px;
+            border-radius: 14px;
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .editor-brand {
+            gap: 9px;
+        }
+
+        .editor-brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            font-size: 14px;
+        }
+
+        .editor-brand-copy strong {
+            font-size: 14px;
+        }
+
+        .editor-brand-copy span {
+            margin-top: 3px;
+            font-size: 10px;
+            letter-spacing: .05em;
+        }
+
+        .editor-top-actions {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 7px;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .editor-top-actions::-webkit-scrollbar,
+        .editor-tool-list::-webkit-scrollbar,
+        .canvas-toolbar-actions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .editor-link {
+            min-height: 44px;
+            padding: 0 13px;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .editor-alert {
+            margin-bottom: 9px;
+            padding: 12px 13px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .editor-workspace {
+            display: block;
+            min-height: 0;
+            overflow: visible;
+            border-radius: 18px;
+        }
+
+        /*
+         * Onderste toolbalk.
+         * Deze blijft altijd bereikbaar en voorkomt terug naar boven swipen.
+         */
+        .editor-sidebar:not(.right) {
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 7px 7px calc(7px + env(safe-area-inset-bottom));
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,.10);
+            background: rgba(10, 12, 16, .96);
+            box-shadow: 0 -18px 45px rgba(0,0,0,.38);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .editor-sidebar:not(.right) .editor-sidebar-label {
+            display: none;
+        }
+
+        .editor-tool-list {
+            display: flex;
+            grid-template-columns: none;
+            gap: 5px;
+            width: 100%;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .editor-tool {
+            width: auto;
+            min-width: 72px;
+            min-height: 64px;
+            padding: 6px 5px;
+            flex: 0 0 72px;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            border-radius: 11px;
+            font-size: 11px;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .tool-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+        .editor-canvas-area {
+            padding: 8px;
+            overflow: visible;
+        }
+
+        .editor-canvas-toolbar {
+            margin-bottom: 8px;
+            padding: 10px;
+            gap: 9px;
+            align-items: stretch;
+            flex-direction: column;
+            border-radius: 12px;
+        }
+
+        .canvas-toolbar-meta strong {
+            font-size: 14px;
+        }
+
+        .canvas-toolbar-meta span {
+            margin-top: 4px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .canvas-toolbar-actions {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .canvas-small-action {
+            min-height: 43px;
+            padding: 0 12px;
+            flex: 0 0 auto;
+            border-radius: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .editor-stage {
+            height: 56svh;
+            min-height: 330px;
+            max-height: 620px;
+            border-radius: 14px;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .editor-stage-loading {
+            font-size: 14px;
+        }
+
+        /*
+         * Properties als bottom sheet.
+         * Hierdoor hoef je niet meer onder het canvas naar de instellingen te scrollen.
+         */
+        .editor-sidebar.right {
+            position: fixed;
+            z-index: 110;
+            left: 8px;
+            right: 8px;
+            bottom: calc(80px + env(safe-area-inset-bottom));
+            max-height: min(58svh, 570px);
+            padding: 0 12px 14px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            border: 1px solid rgba(255,255,255,.11);
+            border-radius: 19px;
+            background: rgba(12, 15, 20, .985);
+            box-shadow: 0 -18px 60px rgba(0,0,0,.56);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            transform: translateY(calc(100% + 120px));
+            opacity: 0;
+            pointer-events: none;
+            transition:
+                transform .24s ease,
+                opacity .18s ease;
+        }
+
+        body.mobile-editor-properties-open {
+            overflow: hidden;
+        }
+
+        body.mobile-editor-properties-open .editor-sidebar.right {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .editor-properties-heading {
+            position: sticky;
+            z-index: 12;
+            top: 0;
+            margin: 0 -12px 9px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            background: rgba(12, 15, 20, .985);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .editor-sidebar.right .editor-sidebar-label {
+            margin: 0;
+            color: #d7dbe0;
+            font-size: 14px;
+            letter-spacing: .02em;
+            text-transform: none;
+        }
+
+        .mobile-properties-close {
+            min-height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(229,182,111,.18);
+            border-radius: 10px;
+            color: #edc786;
+            background: rgba(229,182,111,.055);
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .mobile-properties-open {
+            position: fixed;
+            z-index: 105;
+            right: 12px;
+            bottom: calc(84px + env(safe-area-inset-bottom));
+            min-height: 46px;
+            padding: 0 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-color: rgba(229,182,111,.22);
+            color: #161009;
+            background: linear-gradient(135deg, #efd08e, #d49b50);
+            box-shadow: 0 12px 34px rgba(0,0,0,.34);
+            font-size: 13px;
+        }
+
+        body.mobile-editor-properties-open .mobile-properties-open {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .property-card {
+            margin-bottom: 10px;
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+        .property-card h3 {
+            font-size: 18px;
+            line-height: 1.25;
+        }
+
+        .property-card p {
+            margin-top: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .editor-field {
+            margin-top: 14px;
+            gap: 7px;
+        }
+
+        .editor-field > span {
+            font-size: 13px;
+        }
+
+        /*
+         * 16px is bewust: Safari/iOS zoomt niet automatisch in op deze velden.
+         */
+        .editor-field input,
+        .editor-field select {
+            min-height: 50px;
+            padding: 0 12px;
+            border-radius: 11px;
+            font-size: 16px;
+        }
+
+        .editor-field input[type="range"] {
+            min-height: 36px;
+            padding: 0;
+        }
+
+        .editor-field input[type="range"]::-webkit-slider-thumb {
+            width: 24px;
+            height: 24px;
+        }
+
+        .editor-field-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .editor-checkbox {
+            margin-top: 14px;
+            gap: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .editor-checkbox input {
+            width: 22px;
+            height: 22px;
+            flex: 0 0 22px;
+        }
+
+        .editor-choice-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .editor-choice span {
+            min-height: 50px;
+            padding: 0 11px;
+            border-radius: 11px;
+            font-size: 14px;
+        }
+
+        .editor-submit {
+            position: sticky;
+            z-index: 8;
+            bottom: 0;
+            min-height: 52px;
+            margin-top: 16px;
+            border-radius: 12px;
+            box-shadow: 0 -8px 24px rgba(12,15,20,.86);
+            font-size: 15px;
+        }
+
+        .editor-live-resize-status,
+        .crop-instructions {
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .visual-crop-size {
+            bottom: 8px;
+            padding: 6px 9px;
+            font-size: 11px;
+        }
+
+        .crop-handle {
+            width: 22px;
+            height: 22px;
+            border-width: 3px;
+        }
+
+        .version-list {
+            max-height: none;
+            gap: 10px;
+        }
+
+        .version-item {
+            padding: 12px;
+            grid-template-columns: 62px minmax(0,1fr);
+            gap: 11px;
+        }
+
+        .version-thumb {
+            width: 62px;
+            height: 62px;
+        }
+
+        .version-copy strong {
+            font-size: 14px;
+        }
+
+        .version-copy span,
+        .version-copy small {
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .version-actions button,
+        .version-actions a {
+            min-height: 42px;
+            padding: 0 12px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 540px) {
+        .image-editor-shell {
+            width: min(100% - 8px, 1480px);
+        }
+
+        .editor-stage {
+            height: 52svh;
+            min-height: 290px;
+        }
+
+        .editor-canvas-area {
+            padding: 5px;
+        }
+
+        .editor-canvas-toolbar {
+            padding: 9px;
+        }
+
+        .editor-sidebar.right {
+            left: 5px;
+            right: 5px;
+            bottom: calc(78px + env(safe-area-inset-bottom));
+            max-height: 60svh;
+        }
+
+        .mobile-properties-open {
+            right: 8px;
+            bottom: calc(82px + env(safe-area-inset-bottom));
+        }
+    }
+
+    @media (max-width: 390px) {
+        .editor-field-grid,
+        .editor-choice-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .editor-tool {
+            min-width: 68px;
+            flex-basis: 68px;
+        }
+
+        .editor-stage {
+            min-height: 265px;
+        }
+    }
+
 </style>
 @endpush
 
@@ -966,6 +1471,16 @@
 
                     <div class="canvas-toolbar-actions">
                         <button
+                            id="mobile-properties-open"
+                            class="canvas-small-action mobile-properties-open"
+                            type="button"
+                            aria-controls="editor-properties-sidebar"
+                            aria-expanded="false"
+                        >
+                            Instellingen
+                        </button>
+
+                        <button
                             id="preview-fit"
                             class="canvas-small-action"
                             type="button"
@@ -1050,8 +1565,23 @@
                 </div>
             </main>
 
-            <aside class="editor-sidebar right">
-                <div class="editor-sidebar-label">Properties</div>
+            <aside
+                class="editor-sidebar right"
+                id="editor-properties-sidebar"
+                aria-label="Editor instellingen"
+            >
+                <div class="editor-properties-heading">
+                    <div class="editor-sidebar-label">Instellingen</div>
+
+                    <button
+                        id="mobile-properties-close"
+                        class="mobile-properties-close"
+                        type="button"
+                        aria-label="Instellingen sluiten"
+                    >
+                        Gereed
+                    </button>
+                </div>
 
                 <form
                     id="editor-operation-form"
@@ -1643,6 +2173,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const convertQualityValue =
         document.getElementById('convert-quality-value');
 
+    const propertiesSidebar =
+        document.getElementById('editor-properties-sidebar');
+
+    const mobilePropertiesOpen =
+        document.getElementById('mobile-properties-open');
+
+    const mobilePropertiesClose =
+        document.getElementById('mobile-properties-close');
+
+    const mobileEditorMedia =
+        window.matchMedia('(max-width: 760px)');
+
     let zoomMode = 'fit';
 
     let sourceWidth = 1;
@@ -1748,6 +2290,64 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
+    function isMobileEditor() {
+        return mobileEditorMedia.matches;
+    }
+
+    function openMobileProperties() {
+        if (!isMobileEditor()) {
+            return;
+        }
+
+        document.body.classList.add(
+            'mobile-editor-properties-open'
+        );
+
+        mobilePropertiesOpen?.setAttribute(
+            'aria-expanded',
+            'true'
+        );
+
+        /*
+         * Zorg dat het actieve paneel bovenin zichtbaar begint zonder
+         * de hoofdwebpagina te verplaatsen.
+         */
+        if (propertiesSidebar) {
+            propertiesSidebar.scrollTop = 0;
+        }
+    }
+
+    function closeMobileProperties() {
+        document.body.classList.remove(
+            'mobile-editor-properties-open'
+        );
+
+        mobilePropertiesOpen?.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+    }
+
+    mobilePropertiesOpen?.addEventListener(
+        'click',
+        openMobileProperties
+    );
+
+    mobilePropertiesClose?.addEventListener(
+        'click',
+        closeMobileProperties
+    );
+
+    mobileEditorMedia.addEventListener?.(
+        'change',
+        function (event) {
+            if (!event.matches) {
+                closeMobileProperties();
+            }
+        }
+    );
+
     function setPanelControlsEnabled(panel, enabled) {
         panel
             .querySelectorAll(
@@ -1822,6 +2422,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 activateOperation(
                     tool.dataset.operation
                 );
+
+                openMobileProperties();
             }
         );
     });
@@ -3862,6 +4464,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     activateOperation(
                         'resize'
                     );
+
+                    if (isMobileEditor()) {
+                        openMobileProperties();
+                    }
                 }
             );
         });
@@ -4002,6 +4608,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     button.disabled =
                         false;
                 });
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+            if (
+                event.key === 'Escape' &&
+                isMobileEditor() &&
+                document.body.classList.contains(
+                    'mobile-editor-properties-open'
+                )
+            ) {
+                closeMobileProperties();
+            }
         }
     );
 
