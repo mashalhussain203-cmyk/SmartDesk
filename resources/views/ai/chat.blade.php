@@ -683,7 +683,8 @@
                     <h1>Waar kan ik je mee helpen?</h1>
 
                     <p>
-                        Typ een bericht of start Live Voice.
+                        Typ een bericht, stuur een foto/document of start Live Voice.
+                        Mashal AI kan afbeeldingen, PDF, Word, Excel, PowerPoint, tekst en code analyseren.
                         Je kunt Nederlands, English of اردو spreken.
                         Mashal AI luistert, antwoordt in dezelfde taal en luistert daarna automatisch opnieuw.
                     </p>
@@ -696,7 +697,7 @@
                         class="ai-file-button"
                         for="ai-files"
                     >
-                        ＋ Bestand
+                        ＋ Foto / bestand
                     </label>
 
                     <input
@@ -704,11 +705,12 @@
                         class="ai-file-input"
                         type="file"
                         multiple
+                        accept=".pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.json,.xml,.html,.log,.php,.js,.ts,.css,.sql,.yaml,.yml,.py,.java,.c,.cpp,.cs,.go,.rs,.sh,.ps1,.rb,.swift,.dart,.vue,.svelte,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf"
                     >
 
                     <span class="ai-file-help">
-                        Max. {{ $maxChatFiles ?? 5 }} bestanden,
-                        {{ $maxChatFileMb ?? 10 }} MB per bestand.
+                        PDF, Word, Excel, PowerPoint, foto's, tekst en code.
+                        Max. {{ $maxChatFiles ?? 5 }} bestanden, {{ $maxChatFileMb ?? 10 }} MB per bestand.
                     </span>
                 </div>
 
@@ -1200,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     pushHistory(
                         'user',
-                        'Ik heb bestanden toegevoegd om te analyseren.'
+                        'Ik heb bestanden of afbeeldingen toegevoegd. Lees en analyseer ze.'
                     );
                 }
 

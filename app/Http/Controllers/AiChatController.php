@@ -6,6 +6,7 @@ use App\Services\AzureSpeechService;
 use App\Services\ChatFileReaderService;
 use App\Services\GroqChatService;
 use App\Services\GroqVoiceService;
+use App\Services\GroqVisionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class AiChatController extends Controller
     public function __construct(
         private readonly GroqChatService $groqChat,
         private readonly GroqVoiceService $groqVoice,
+        private readonly GroqVisionService $groqVision,
         private readonly AzureSpeechService $azureSpeech,
         private readonly ChatFileReaderService $fileReader
     ) {
@@ -45,6 +47,12 @@ class AiChatController extends Controller
 
             'voiceModelName' =>
                 $this->groqVoice->modelName(),
+
+            'visionConfigured' =>
+                $this->groqVision->isConfigured(),
+
+            'visionModelName' =>
+                $this->groqVision->modelName(),
 
             'serverTtsConfigured' =>
                 $this->azureSpeech->isConfigured(),
@@ -93,14 +101,14 @@ class AiChatController extends Controller
             ]);
         }
 
-        $conversation = $this->buildConversation(
-            $validated['history'] ?? [],
-            $message,
-            $uploadedFiles,
-            false
-        );
-
         try {
+            $conversation = $this->buildConversation(
+                $validated['history'] ?? [],
+                $message,
+                $uploadedFiles,
+                false
+            );
+
             $result = $this->groqChat->chat(
                 $conversation['messages']
             );
@@ -664,7 +672,8 @@ class AiChatController extends Controller
 
         if ($uploadedFiles !== []) {
             $fileResult = $this->fileReader->readMany(
-                $uploadedFiles
+                $uploadedFiles,
+                $message
             );
         }
 
@@ -759,6 +768,7 @@ class AiChatController extends Controller
         $retryAfter = max(
             $this->groqChat->lastRetryAfterSeconds() ?? 0,
             $this->groqVoice->lastRetryAfterSeconds() ?? 0,
+            $this->groqVision->lastRetryAfterSeconds() ?? 0,
             $this->fallbackCooldownSeconds()
         );
 
@@ -789,6 +799,9 @@ class AiChatController extends Controller
 
                 'voice_status' =>
                     $this->groqVoice->lastStatus(),
+
+                'vision_status' =>
+                    $this->groqVision->lastStatus(),
 
                 'exception' =>
                     $exception::class,
