@@ -148,6 +148,17 @@ class AiChatController extends Controller
                 ),
             ],
 
+            'language' => [
+                'nullable',
+                'string',
+                Rule::in([
+                    'auto',
+                    'nl',
+                    'en',
+                    'ur',
+                ]),
+            ],
+
             'history' => [
                 'nullable',
                 'array',
@@ -191,16 +202,29 @@ class AiChatController extends Controller
             ]);
         }
 
+        $voiceLanguage = strtolower(
+            trim(
+                (string) (
+                    $validated['language']
+                    ?? 'auto'
+                )
+            )
+        );
+
         try {
             $transcript = $this->groqVoice->transcribe(
-                $audio
+                $audio,
+                $voiceLanguage === 'auto'
+                    ? null
+                    : $voiceLanguage
             );
 
             $conversation = $this->buildConversation(
                 $validated['history'] ?? [],
                 $transcript,
                 [],
-                true
+                true,
+                $voiceLanguage
             );
 
             $result = $this->groqChat->chat(
@@ -215,6 +239,7 @@ class AiChatController extends Controller
                 'message' => $result['message'],
                 'model' => $result['model'],
                 'usage' => $result['usage'],
+                'language' => $voiceLanguage,
             ]);
         } catch (ValidationException $exception) {
             throw $exception;
@@ -334,7 +359,8 @@ class AiChatController extends Controller
         array $history,
         string $message,
         array $uploadedFiles,
-        bool $voiceMode
+        bool $voiceMode,
+        ?string $voiceLanguage = null
     ): array {
         $messages = [];
 
@@ -364,6 +390,27 @@ class AiChatController extends Controller
                 $messages[] = [
                     'role' => 'system',
                     'content' => $voicePrompt,
+                ];
+            }
+
+            $languagePrompt = match ($voiceLanguage) {
+                'nl' =>
+                    'De gebruiker heeft Nederlands gekozen voor Live Voice. Antwoord in natuurlijk Nederlands.',
+
+                'en' =>
+                    'The user selected English for Live Voice. Reply in natural English.',
+
+                'ur' =>
+                    'The user selected Urdu for Live Voice. Reply naturally in Urdu script. Do not switch to Hindi or Roman Urdu unless the user asks for it.',
+
+                default =>
+                    '',
+            };
+
+            if ($languagePrompt !== '') {
+                $messages[] = [
+                    'role' => 'system',
+                    'content' => $languagePrompt,
                 ];
             }
         }

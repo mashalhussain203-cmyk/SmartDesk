@@ -72,7 +72,8 @@ class GroqVoiceService
      * Zet één browseropname om naar tekst via Groq Whisper.
      */
     public function transcribe(
-        UploadedFile $audio
+        UploadedFile $audio,
+        ?string $languageOverride = null
     ): string {
         $this->resetMetadata();
 
@@ -130,7 +131,9 @@ class GroqVoiceService
          * Wanneer language leeg is, mag Whisper zelf de taal detecteren.
          */
         $language =
-            $this->language();
+            $this->resolveLanguage(
+                $languageOverride
+            );
 
         if ($language !== '') {
             $payload['language'] =
@@ -653,6 +656,39 @@ class GroqVoiceService
                 )
             ),
             '/'
+        );
+    }
+
+    private function resolveLanguage(
+        ?string $languageOverride
+    ): string {
+        if ($languageOverride !== null) {
+            $languageOverride = strtolower(
+                trim(
+                    $languageOverride
+                )
+            );
+
+            if (
+                $languageOverride === ''
+                || $languageOverride === 'auto'
+            ) {
+                return '';
+            }
+
+            if (
+                in_array(
+                    $languageOverride,
+                    ['nl', 'en', 'ur'],
+                    true
+                )
+            ) {
+                return $languageOverride;
+            }
+        }
+
+        return strtolower(
+            $this->language()
         );
     }
 
