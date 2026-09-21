@@ -188,6 +188,9 @@
             --studio-shell:
                 1360px;
 
+            --studio-visual-height:
+                100dvh;
+
             --studio-font:
                 Inter,
                 ui-sans-serif,
@@ -264,6 +267,17 @@
         body.studio-menu-open {
             overflow:
                 hidden;
+
+            overscroll-behavior:
+                none;
+
+            touch-action:
+                none;
+        }
+
+        body.studio-menu-open .studio-mobile-drawer {
+            touch-action:
+                pan-y;
         }
 
         body::selection {
@@ -1949,13 +1963,29 @@
             opacity:
                 0;
 
+            visibility:
+                hidden;
+
+            pointer-events:
+                none;
+
+            touch-action:
+                none;
+
             transition:
-                opacity .2s ease;
+                opacity .2s ease,
+                visibility .2s ease;
         }
 
         .studio-mobile-overlay.is-open {
             opacity:
                 1;
+
+            visibility:
+                visible;
+
+            pointer-events:
+                auto;
         }
 
         .studio-mobile-drawer {
@@ -1978,6 +2008,9 @@
                 min(390px, 92vw);
 
             padding:
+                calc(18px + env(safe-area-inset-top))
+                calc(18px + env(safe-area-inset-right))
+                calc(18px + env(safe-area-inset-bottom))
                 18px;
 
             display:
@@ -2005,15 +2038,37 @@
                 blur(24px);
 
             transform:
-                translateX(105%);
+                translate3d(105%, 0, 0);
+
+            visibility:
+                hidden;
+
+            pointer-events:
+                none;
+
+            overscroll-behavior:
+                contain;
+
+            -webkit-overflow-scrolling:
+                touch;
+
+            touch-action:
+                pan-y;
 
             transition:
-                transform .25s cubic-bezier(.2, .7, .2, 1);
+                transform .25s cubic-bezier(.2, .7, .2, 1),
+                visibility .25s ease;
         }
 
         .studio-mobile-drawer.is-open {
             transform:
-                translateX(0);
+                translate3d(0, 0, 0);
+
+            visibility:
+                visible;
+
+            pointer-events:
+                auto;
         }
 
         .studio-mobile-head {
@@ -2273,7 +2328,7 @@
                 100%;
 
             min-height:
-                calc(100vh - var(--studio-header-height));
+                calc(100dvh - var(--studio-header-height));
         }
 
         /*
@@ -3119,6 +3174,37 @@
                 translateY(0);
         }
 
+
+        .studio-menu-toggle,
+        .studio-mobile-close,
+        .studio-mobile-link,
+        .studio-action-link,
+        .studio-action-button,
+        .studio-account-trigger,
+        .studio-account-menu-link,
+        .studio-account-menu-logout,
+        .studio-flash-close,
+        .studio-quick-upload {
+            touch-action:
+                manipulation;
+
+            -webkit-tap-highlight-color:
+                transparent;
+        }
+
+        .studio-menu-toggle,
+        .studio-mobile-close,
+        .studio-account-trigger,
+        .studio-action-button,
+        .studio-account-menu-logout,
+        .studio-flash-close {
+            -webkit-appearance:
+                none;
+
+            appearance:
+                none;
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Responsive - large tablet
@@ -3233,6 +3319,71 @@
         */
 
         @media (max-width: 620px) {
+
+            .studio-header {
+                padding-top:
+                    env(safe-area-inset-top);
+            }
+
+            .studio-menu-toggle {
+                width:
+                    46px;
+
+                height:
+                    46px;
+
+                flex:
+                    0 0 46px;
+
+                position:
+                    relative;
+
+                z-index:
+                    3;
+            }
+
+            .studio-mobile-close {
+                width:
+                    44px;
+
+                height:
+                    44px;
+
+                flex:
+                    0 0 44px;
+            }
+
+            .studio-mobile-drawer {
+                width:
+                    min(390px, 94vw);
+
+                max-width:
+                    100%;
+
+                height:
+                    100dvh;
+
+                min-height:
+                    100svh;
+            }
+
+            .studio-mobile-link {
+                min-height:
+                    52px;
+
+                padding:
+                    0 14px;
+
+                font-size:
+                    11px;
+            }
+
+            .studio-mobile-actions .studio-action-link,
+            .studio-mobile-actions .studio-action-button {
+                min-height:
+                    52px;
+            }
+
             .studio-shell {
                 width:
                     min(
@@ -4347,6 +4498,32 @@
                 let accountMenuOpen =
                     false;
 
+
+                let mobileMenuScrollY =
+                    0;
+
+                const visualViewport =
+                    window.visualViewport ||
+                    null;
+
+                function updateVisualViewport() {
+                    const height =
+                        visualViewport?.height ||
+                        window.innerHeight;
+
+                    document.documentElement.style.setProperty(
+                        '--studio-visual-height',
+                        height + 'px'
+                    );
+                }
+
+                updateVisualViewport();
+
+                visualViewport?.addEventListener(
+                    'resize',
+                    updateVisualViewport
+                );
+
                 /*
                 |--------------------------------------------------------------------------
                 | Header state
@@ -4410,8 +4587,17 @@
                 function setMobileMenu(
                     open
                 ) {
-                    mobileMenuOpen =
+                    const nextOpen =
                         Boolean(open);
+
+                    if (
+                        nextOpen === mobileMenuOpen
+                    ) {
+                        return;
+                    }
+
+                    mobileMenuOpen =
+                        nextOpen;
 
                     if (menuToggle) {
                         menuToggle.setAttribute(
@@ -4419,6 +4605,13 @@
                             mobileMenuOpen
                                 ? 'true'
                                 : 'false'
+                        );
+
+                        menuToggle.setAttribute(
+                            'aria-label',
+                            mobileMenuOpen
+                                ? 'Menu sluiten'
+                                : 'Menu openen'
                         );
                     }
 
@@ -4450,10 +4643,66 @@
                         );
                     }
 
-                    body.classList.toggle(
-                        'studio-menu-open',
-                        mobileMenuOpen
-                    );
+                    if (mobileMenuOpen) {
+                        mobileMenuScrollY =
+                            window.scrollY ||
+                            document.documentElement.scrollTop ||
+                            0;
+
+                        body.style.position =
+                            'fixed';
+
+                        body.style.top =
+                            '-' +
+                            mobileMenuScrollY +
+                            'px';
+
+                        body.style.left =
+                            '0';
+
+                        body.style.right =
+                            '0';
+
+                        body.style.width =
+                            '100%';
+
+                        body.classList.add(
+                            'studio-menu-open'
+                        );
+
+                        window.setTimeout(
+                            function () {
+                                mobileClose?.focus({
+                                    preventScroll: true
+                                });
+                            },
+                            60
+                        );
+                    } else {
+                        body.classList.remove(
+                            'studio-menu-open'
+                        );
+
+                        body.style.position =
+                            '';
+
+                        body.style.top =
+                            '';
+
+                        body.style.left =
+                            '';
+
+                        body.style.right =
+                            '';
+
+                        body.style.width =
+                            '';
+
+                        window.scrollTo(
+                            0,
+                            mobileMenuScrollY
+                        );
+                    }
                 }
 
                 /*
@@ -4501,7 +4750,10 @@
                 if (menuToggle) {
                     menuToggle.addEventListener(
                         'click',
-                        function () {
+                        function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
                             setAccountMenu(false);
 
                             setMobileMenu(
@@ -4514,8 +4766,15 @@
                 if (mobileClose) {
                     mobileClose.addEventListener(
                         'click',
-                        function () {
+                        function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
                             setMobileMenu(false);
+
+                            menuToggle?.focus({
+                                preventScroll: true
+                            });
                         }
                     );
                 }
@@ -4523,7 +4782,9 @@
                 if (mobileOverlay) {
                     mobileOverlay.addEventListener(
                         'click',
-                        function () {
+                        function (event) {
+                            event.preventDefault();
+
                             setMobileMenu(false);
                         }
                     );
@@ -4575,7 +4836,7 @@
 
                 if (mobileDrawer) {
                     mobileDrawer
-                        .querySelectorAll('a')
+                        .querySelectorAll('a[href]')
                         .forEach(
                             function (link) {
                                 link.addEventListener(
@@ -4833,12 +5094,36 @@
                 window.addEventListener(
                     'resize',
                     function () {
+                        updateVisualViewport();
+
                         if (
                             window.innerWidth >
                             1120
                         ) {
                             setMobileMenu(false);
                         }
+                    },
+                    {
+                        passive:
+                            true
+                    }
+                );
+
+                window.addEventListener(
+                    'orientationchange',
+                    function () {
+                        window.setTimeout(
+                            function () {
+                                updateVisualViewport();
+                                setMobileMenu(false);
+                                setAccountMenu(false);
+                            },
+                            120
+                        );
+                    },
+                    {
+                        passive:
+                            true
                     }
                 );
             }
