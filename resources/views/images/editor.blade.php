@@ -4,7 +4,7 @@
 
 @section(
     'meta_description',
-    'Bewerk je afbeelding met resize, crop, rotate, flip, enhance, pasfoto, compress, convert en echte achtergrondverwijdering. Iedere bewerking wordt als aparte versie opgeslagen.'
+    'Professionele live image editor voor resize, crop, rotate, flip, enhance, pasfoto, compress, convert en AI-achtergrondverwijdering. Bekijk wijzigingen direct en sla alleen op wanneer je tevreden bent.'
 )
 
 @push('styles')
@@ -640,6 +640,46 @@
     .editor-submit[disabled] {
         opacity: .55;
         cursor: not-allowed;
+    }
+
+    .editor-action-stack {
+        margin-top: 14px;
+        display: grid;
+        gap: 8px;
+    }
+
+    .editor-action-stack .editor-submit {
+        margin-top: 0;
+    }
+
+    .editor-secondary-action {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid rgba(120, 210, 255, .14);
+        border-radius: 11px;
+        color: #a9d7e8;
+        background: rgba(120, 210, 255, .04);
+        font-size: 9px;
+        font-weight: 950;
+        cursor: pointer;
+        transition:
+            border-color .18s ease,
+            background .18s ease,
+            color .18s ease,
+            transform .18s ease;
+    }
+
+    .editor-secondary-action:hover {
+        transform: translateY(-1px);
+        border-color: rgba(120, 210, 255, .24);
+        color: #d2eff9;
+        background: rgba(120, 210, 255, .07);
+    }
+
+    .editor-secondary-action[disabled] {
+        opacity: .55;
+        cursor: not-allowed;
+        transform: none;
     }
 
     .editor-operation-panel[hidden] {
@@ -1325,6 +1365,15 @@
             font-size: 15px;
         }
 
+        .editor-secondary-action {
+            min-height: 50px;
+            font-size: 14px;
+        }
+
+        .editor-action-stack .editor-submit {
+            margin-top: 0;
+        }
+
         .editor-live-resize-status,
         .crop-instructions {
             font-size: 12px;
@@ -1784,6 +1833,7 @@
                                     data-width="{{ $image->width }}"
                                     data-height="{{ $image->height }}"
                                     data-format="{{ $image->format_label ?? strtoupper(str_replace('image/', '', (string) $image->mime_type)) }}"
+                                    @selected(($activeSourceVersionId ?? null) === null)
                                 >
                                     Origineel · {{ $image->width ?? '?' }} × {{ $image->height ?? '?' }}
                                 </option>
@@ -1797,6 +1847,7 @@
                                         data-width="{{ $version->width }}"
                                         data-height="{{ $version->height }}"
                                         data-format="{{ $version->format_label ?? strtoupper($version->format) }}"
+                                        @selected((int) ($activeSourceVersionId ?? 0) === (int) $version->id)
                                     >
                                         #{{ $version->id }}
                                         · {{ $version->operation_label ?? ucfirst((string) $version->operation) }}
@@ -1807,7 +1858,7 @@
                         </label>
 
                         <div class="editor-source-note">
-                            Kies het origineel of een opgeslagen versie. De gekozen bron wordt direct in het midden geladen.
+                            De gekozen bron wordt direct in het midden geladen. Na opslaan wordt de nieuwe versie automatisch de actieve bron; je hoeft niet meer handmatig te wisselen.
                         </div>
 
                         <div
@@ -1875,7 +1926,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Resize-versie maken
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -1905,7 +1956,7 @@
                             <input id="crop-height" type="hidden" name="crop_height" value="{{ old('crop_height', $image->height) }}">
 
                             <button class="editor-submit" type="submit">
-                                Crop opslaan
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -1938,7 +1989,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Roteren
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -1980,7 +2031,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Spiegelen
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -2074,7 +2125,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Verbetering opslaan
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -2136,7 +2187,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Pasfoto-versie maken
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -2297,15 +2348,33 @@
                             </div>
 
                             <div class="background-api-note">
-                                <strong>Echte AI-verwerking:</strong>
-                                de uitsnede wordt pas bij opslaan naar de server gestuurd.
-                                Daardoor verbruikt slepen of instellingen wijzigen geen onnodige API-calls.
-                                Transparante uitvoer gebruikt PNG of WebP.
+                                <strong>Live AI-preview:</strong>
+                                klik eerst op <em>AI-preview uitvoeren</em>.
+                                Het resultaat verschijnt direct op dezelfde foto en wordt nog niet als versie opgeslagen.
+                                Als je daarna op <em>Opslaan als versie</em> klikt, gebruikt Laravel dezelfde tijdelijke preview
+                                zodat de externe background-API niet onnodig nog een keer wordt aangeroepen.
                             </div>
 
-                            <button class="editor-submit" type="submit">
-                                Achtergrond verwerken
-                            </button>
+                            <input
+                                id="background-preview-token"
+                                type="hidden"
+                                name="background_preview_token"
+                                value=""
+                            >
+
+                            <div class="editor-action-stack">
+                                <button
+                                    id="background-live-preview"
+                                    class="editor-secondary-action"
+                                    type="button"
+                                >
+                                    AI-preview uitvoeren
+                                </button>
+
+                                <button class="editor-submit" type="submit">
+                                    Opslaan als versie
+                                </button>
+                            </div>
                         </div>
                     </section>
 
@@ -2344,7 +2413,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Comprimeren
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -2394,7 +2463,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Converteren
+                                Opslaan als versie
                             </button>
                         </div>
                     </section>
@@ -2739,6 +2808,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const backgroundSize =
         document.getElementById('background-size');
 
+    const backgroundPreviewToken =
+        document.getElementById('background-preview-token');
+
+    const backgroundLivePreviewButton =
+        document.getElementById('background-live-preview');
+
     const propertiesSidebar =
         document.getElementById('editor-properties-sidebar');
 
@@ -2768,6 +2843,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let aspectUpdating = false;
     let renderTimer = null;
     let renderSequence = 0;
+    let savingOperation = false;
+    let requestingBackgroundPreview = false;
 
     let cropRect = {
         x: 0,
@@ -2925,6 +3002,546 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function activePanelFor(operation) {
+        return panels.find(function (panel) {
+            return (
+                panel.dataset.panel ===
+                operation
+            );
+        }) || null;
+    }
+
+    function clearBackgroundPreviewToken() {
+        if (backgroundPreviewToken) {
+            backgroundPreviewToken.value = '';
+        }
+    }
+
+    function invalidateBackgroundPreview(
+        restoreSource = true
+    ) {
+        clearBackgroundPreviewToken();
+
+        if (
+            restoreSource &&
+            activeOperation() === 'background'
+        ) {
+            showSourceWithoutTransformation();
+        }
+    }
+
+    function validateBackgroundSelection() {
+        const mode =
+            selectedBackgroundMode();
+
+        if (
+            mode === 'color' &&
+            !backgroundColor?.value.trim()
+        ) {
+            return 'Kies eerst een achtergrondkleur.';
+        }
+
+        if (
+            mode === 'url' &&
+            !backgroundUrl?.value.trim()
+        ) {
+            return 'Vul eerst een URL van een achtergrondafbeelding in.';
+        }
+
+        if (
+            mode === 'upload' &&
+            !backgroundImage?.files?.length
+        ) {
+            return 'Kies eerst een achtergrondafbeelding om te uploaden.';
+        }
+
+        if (
+            mode === 'transparent' &&
+            backgroundFormat?.value === 'jpg'
+        ) {
+            return 'Kies PNG of WebP voor een transparante achtergrond.';
+        }
+
+        return '';
+    }
+
+    function prepareActiveFormData(
+        operation,
+        extra = {}
+    ) {
+        if (!form) {
+            throw new Error(
+                'Het editorformulier kon niet worden gevonden.'
+            );
+        }
+
+        const activePanel =
+            activePanelFor(
+                operation
+            );
+
+        if (!activePanel) {
+            throw new Error(
+                'De gekozen editorbewerking is niet beschikbaar.'
+            );
+        }
+
+        panels.forEach(function (panel) {
+            setPanelControlsEnabled(
+                panel,
+                panel === activePanel
+            );
+        });
+
+        if (operation === 'background') {
+            syncBackgroundControls();
+        }
+
+        const data =
+            new FormData(
+                form
+            );
+
+        Object.entries(
+            extra
+        ).forEach(function (entry) {
+            data.set(
+                entry[0],
+                String(
+                    entry[1]
+                )
+            );
+        });
+
+        return {
+            activePanel,
+            data,
+        };
+    }
+
+    function responseErrorMessage(
+        payload,
+        fallback
+    ) {
+        if (
+            payload &&
+            typeof payload.message === 'string' &&
+            payload.message.trim()
+        ) {
+            return payload.message.trim();
+        }
+
+        if (
+            payload &&
+            payload.errors &&
+            typeof payload.errors === 'object'
+        ) {
+            for (
+                const messages
+                of Object.values(
+                    payload.errors
+                )
+            ) {
+                if (
+                    Array.isArray(messages) &&
+                    typeof messages[0] === 'string'
+                ) {
+                    return messages[0];
+                }
+            }
+        }
+
+        return fallback;
+    }
+
+    async function readJsonResponse(
+        response
+    ) {
+        try {
+            return await response.json();
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function updateAddressBarSource(
+        versionId
+    ) {
+        try {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.set(
+                'source',
+                String(
+                    versionId
+                )
+            );
+
+            window.history.replaceState(
+                {},
+                '',
+                url
+            );
+        } catch (error) {
+            // Niet kritisch: de editor blijft gewoon werken.
+        }
+    }
+
+    async function useSavedVersion(
+        version
+    ) {
+        if (
+            !sourceSelect ||
+            !version ||
+            !version.id
+        ) {
+            return;
+        }
+
+        const value =
+            String(
+                version.id
+            );
+
+        let option =
+            Array.from(
+                sourceSelect.options
+            ).find(function (candidate) {
+                return candidate.value === value;
+            });
+
+        if (!option) {
+            option =
+                document.createElement(
+                    'option'
+                );
+
+            option.value =
+                value;
+
+            /*
+             * Nieuwe versies bovenaan houden, direct na Origineel.
+             */
+            if (
+                sourceSelect.options.length > 1
+            ) {
+                sourceSelect.insertBefore(
+                    option,
+                    sourceSelect.options[1]
+                );
+            } else {
+                sourceSelect.appendChild(
+                    option
+                );
+            }
+        }
+
+        option.dataset.preview =
+            version.preview_url ||
+            '';
+
+        option.dataset.download =
+            version.download_url ||
+            '';
+
+        option.dataset.name =
+            version.name ||
+            (
+                'Versie #' +
+                value
+            );
+
+        option.dataset.width =
+            String(
+                version.width ||
+                1
+            );
+
+        option.dataset.height =
+            String(
+                version.height ||
+                1
+            );
+
+        option.dataset.format =
+            version.format_label ||
+            (
+                version.format
+                    ? String(version.format).toUpperCase()
+                    : 'IMAGE'
+            );
+
+        option.textContent =
+            '#' +
+            value +
+            ' · ' +
+            (
+                version.operation_label ||
+                'Bewerking'
+            ) +
+            ' · ' +
+            (
+                version.width ||
+                '?'
+            ) +
+            ' × ' +
+            (
+                version.height ||
+                '?'
+            );
+
+        sourceSelect.value =
+            value;
+
+        updateAddressBarSource(
+            value
+        );
+
+        await applySelectedSource();
+    }
+
+    async function requestBackgroundLivePreview() {
+        if (
+            requestingBackgroundPreview ||
+            savingOperation
+        ) {
+            return;
+        }
+
+        if (
+            activeOperation() !==
+            'background'
+        ) {
+            activateOperation(
+                'background'
+            );
+        }
+
+        const validationMessage =
+            validateBackgroundSelection();
+
+        if (validationMessage) {
+            setStatus(
+                validationMessage,
+                true
+            );
+
+            return;
+        }
+
+        let prepared;
+
+        try {
+            prepared =
+                prepareActiveFormData(
+                    'background',
+                    {
+                        preview_only: 1,
+                    }
+                );
+        } catch (error) {
+            setStatus(
+                error instanceof Error
+                    ? error.message
+                    : 'De AI-preview kon niet worden voorbereid.',
+                true
+            );
+
+            return;
+        }
+
+        requestingBackgroundPreview =
+            true;
+
+        clearBackgroundPreviewToken();
+
+        const originalLabel =
+            backgroundLivePreviewButton?.textContent ||
+            'AI-preview uitvoeren';
+
+        if (backgroundLivePreviewButton) {
+            backgroundLivePreviewButton.disabled =
+                true;
+
+            backgroundLivePreviewButton.textContent =
+                'AI-preview maken…';
+        }
+
+        setLoading(
+            true
+        );
+
+        setStatus(
+            'AI-achtergrond wordt verwerkt. Het resultaat verschijnt direct op dezelfde foto…'
+        );
+
+        try {
+            const response =
+                await fetch(
+                    form.action,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept':
+                                'application/json, image/*',
+                            'X-Requested-With':
+                                'XMLHttpRequest',
+                        },
+                        body:
+                            prepared.data,
+                    }
+                );
+
+            if (!response.ok) {
+                const contentType =
+                    response.headers.get(
+                        'content-type'
+                    ) || '';
+
+                let message =
+                    'De live achtergrond-preview kon niet worden gemaakt.';
+
+                if (
+                    contentType.includes(
+                        'application/json'
+                    )
+                ) {
+                    const payload =
+                        await readJsonResponse(
+                            response
+                        );
+
+                    message =
+                        responseErrorMessage(
+                            payload,
+                            message
+                        );
+                } else {
+                    const text =
+                        await response.text();
+
+                    if (text.trim()) {
+                        message =
+                            text.trim();
+                    }
+                }
+
+                throw new Error(
+                    message
+                );
+            }
+
+            const token =
+                response.headers.get(
+                    'X-Mashal-Background-Preview-Token'
+                ) || '';
+
+            const width =
+                positiveNumber(
+                    response.headers.get(
+                        'X-Mashal-Preview-Width'
+                    ),
+                    sourceWidth
+                );
+
+            const height =
+                positiveNumber(
+                    response.headers.get(
+                        'X-Mashal-Preview-Height'
+                    ),
+                    sourceHeight
+                );
+
+            const format =
+                response.headers.get(
+                    'X-Mashal-Preview-Format'
+                ) ||
+                (
+                    backgroundFormat?.value ||
+                    'png'
+                ).toUpperCase();
+
+            const blob =
+                await response.blob();
+
+            if (!blob.size) {
+                throw new Error(
+                    'De AI-preview bevatte geen afbeeldingsdata.'
+                );
+            }
+
+            releasePreviewObjectUrl();
+
+            previewObjectUrl =
+                URL.createObjectURL(
+                    blob
+                );
+
+            if (previewImage) {
+                previewImage.src =
+                    previewObjectUrl;
+
+                previewImage.alt =
+                    sourceName +
+                    ' AI-achtergrond-preview';
+            }
+
+            setPreviewDimensions(
+                width,
+                height
+            );
+
+            if (previewMeta) {
+                previewMeta.textContent =
+                    Math.round(width) +
+                    ' × ' +
+                    Math.round(height) +
+                    ' · ' +
+                    format +
+                    ' · LIVE AI';
+            }
+
+            if (backgroundPreviewToken) {
+                backgroundPreviewToken.value =
+                    token;
+            }
+
+            setStatus(
+                'AI-preview gereed. Dit resultaat staat nu live op de foto en is nog niet opgeslagen. Klik op "Opslaan als versie" wanneer je tevreden bent.'
+            );
+        } catch (error) {
+            clearBackgroundPreviewToken();
+
+            showSourceWithoutTransformation();
+
+            setStatus(
+                error instanceof Error
+                    ? error.message
+                    : 'De live achtergrond-preview kon niet worden gemaakt.',
+                true
+            );
+        } finally {
+            requestingBackgroundPreview =
+                false;
+
+            setLoading(
+                false
+            );
+
+            if (backgroundLivePreviewButton) {
+                backgroundLivePreviewButton.disabled =
+                    false;
+
+                backgroundLivePreviewButton.textContent =
+                    originalLabel;
+            }
+        }
+    }
+
     function selectedBackgroundMode() {
         const selected =
             backgroundModeInputs.find(
@@ -2992,11 +3609,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return matchFormat(
             mode,
             {
-                transparent: 'De achtergrond wordt met AI verwijderd en transparant geëxporteerd.',
-                white: 'De achtergrond wordt met AI verwijderd en vervangen door wit.',
-                color: 'De achtergrond wordt met AI verwijderd en vervangen door jouw kleur.',
-                url: 'De achtergrond wordt met AI verwijderd en vervangen door de afbeelding van de URL.',
-                upload: 'De achtergrond wordt met AI verwijderd en vervangen door jouw geüploade achtergrond.',
+                transparent: 'Transparant geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
+                white: 'Wit geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
+                color: 'Kleur geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
+                url: 'URL-achtergrond geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
+                upload: 'Geüploade achtergrond geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
             },
             'Achtergrondbewerking gereed.'
         );
@@ -3075,6 +3692,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (operation === 'background') {
+            clearBackgroundPreviewToken();
             lockedCropAspectRatio = null;
             cropBox?.classList.remove('is-passport');
 
@@ -4475,7 +5093,7 @@ document.addEventListener('DOMContentLoaded', function () {
             Math.round(cropRect.width) +
             ' × ' +
             Math.round(cropRect.height) +
-            ' px. Sleep verder of klik op Crop opslaan.'
+            ' px. Sleep verder of klik op Opslaan als versie.'
         );
     }
 
@@ -5276,6 +5894,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function resetOperationFields() {
+        clearBackgroundPreviewToken();
+
         if (resizeWidth) {
             resizeWidth.value =
                 sourceWidth;
@@ -5375,6 +5995,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function applySelectedSource() {
+        clearBackgroundPreviewToken();
+
         const option =
             selectedSourceOption();
 
@@ -5660,19 +6282,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
+    backgroundLivePreviewButton?.addEventListener(
+        'click',
+        requestBackgroundLivePreview
+    );
+
     backgroundModeInputs.forEach(
         function (input) {
             input.addEventListener(
                 'change',
                 function () {
+                    invalidateBackgroundPreview();
                     syncBackgroundControls();
 
                     if (
                         activeOperation() ===
                         'background'
                     ) {
-                        showSourceWithoutTransformation();
-
                         setStatus(
                             backgroundModeStatus()
                         );
@@ -5685,6 +6311,8 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundColorPicker?.addEventListener(
         'input',
         function () {
+            invalidateBackgroundPreview();
+
             if (backgroundColor) {
                 backgroundColor.value =
                     backgroundColorPicker.value;
@@ -5704,6 +6332,8 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundColor?.addEventListener(
         'input',
         function () {
+            invalidateBackgroundPreview();
+
             const value =
                 backgroundColor.value.trim();
 
@@ -5722,13 +6352,23 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundFormat?.addEventListener(
         'change',
         function () {
+            invalidateBackgroundPreview();
             syncBackgroundControls();
         }
     );
+    backgroundSize?.addEventListener(
+        'change',
+        function () {
+            invalidateBackgroundPreview();
+        }
+    );
+
 
     backgroundUrl?.addEventListener(
         'input',
         function () {
+            invalidateBackgroundPreview();
+
             if (
                 activeOperation() ===
                 'background'
@@ -5743,6 +6383,8 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundImage?.addEventListener(
         'change',
         function () {
+            invalidateBackgroundPreview();
+
             if (
                 activeOperation() !==
                 'background'
@@ -5934,13 +6576,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form?.addEventListener(
         'submit',
-        function (event) {
+        async function (event) {
+            event.preventDefault();
+
+            if (savingOperation) {
+                return;
+            }
+
             const operation =
                 activeOperation();
 
             if (!operation) {
-                event.preventDefault();
-
                 setStatus(
                     'Kies eerst een bewerking.',
                     true
@@ -5964,8 +6610,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     cropRect.width < 1 ||
                     cropRect.height < 1
                 ) {
-                    event.preventDefault();
-
                     setStatus(
                         'Kies eerst een geldig cropgebied op de afbeelding.',
                         true
@@ -5976,59 +6620,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (operation === 'background') {
-                const mode =
-                    selectedBackgroundMode();
+                const validationMessage =
+                    validateBackgroundSelection();
 
-                if (
-                    mode === 'color' &&
-                    !backgroundColor?.value.trim()
-                ) {
-                    event.preventDefault();
-
+                if (validationMessage) {
                     setStatus(
-                        'Kies eerst een achtergrondkleur.',
-                        true
-                    );
-
-                    return;
-                }
-
-                if (
-                    mode === 'url' &&
-                    !backgroundUrl?.value.trim()
-                ) {
-                    event.preventDefault();
-
-                    setStatus(
-                        'Vul eerst een URL van een achtergrondafbeelding in.',
-                        true
-                    );
-
-                    return;
-                }
-
-                if (
-                    mode === 'upload' &&
-                    !backgroundImage?.files?.length
-                ) {
-                    event.preventDefault();
-
-                    setStatus(
-                        'Kies eerst een achtergrondafbeelding om te uploaden.',
-                        true
-                    );
-
-                    return;
-                }
-
-                if (
-                    mode === 'transparent' &&
-                    backgroundFormat?.value === 'jpg'
-                ) {
-                    event.preventDefault();
-
-                    setStatus(
-                        'Kies PNG of WebP voor een transparante achtergrond.',
+                        validationMessage,
                         true
                     );
 
@@ -6036,38 +6633,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            const activePanel =
-                panels.find(function (panel) {
-                    return (
-                        panel.dataset.panel ===
+            let prepared;
+
+            try {
+                prepared =
+                    prepareActiveFormData(
                         operation
                     );
-                });
+            } catch (error) {
+                setStatus(
+                    error instanceof Error
+                        ? error.message
+                        : 'De bewerking kon niet worden voorbereid.',
+                    true
+                );
 
-            if (!activePanel) {
-                event.preventDefault();
                 return;
             }
 
-            /*
-             * Alleen velden van de actieve bewerking worden verstuurd.
-             * source_version_id blijft buiten de panels en blijft dus actief.
-             */
-            panels.forEach(function (panel) {
-                setPanelControlsEnabled(
-                    panel,
-                    panel === activePanel
-                );
-            });
-
-            if (operation === 'background') {
-                syncBackgroundControls();
-            }
-
             const submitButton =
-                activePanel.querySelector(
+                prepared.activePanel.querySelector(
                     '.editor-submit'
                 );
+
+            const originalLabel =
+                submitButton?.textContent ||
+                'Opslaan als versie';
+
+            savingOperation =
+                true;
 
             if (submitButton) {
                 submitButton.disabled =
@@ -6077,23 +6671,111 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Versie opslaan…';
             }
 
-            setStatus(
-                'De live preview wordt nu als echte versie op de server opgeslagen…'
+            setLoading(
+                true
             );
+
+            setStatus(
+                'De live preview wordt nu definitief als nieuwe versie opgeslagen…'
+            );
+
+            try {
+                const response =
+                    await fetch(
+                        form.action,
+                        {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept':
+                                    'application/json',
+                                'X-Requested-With':
+                                    'XMLHttpRequest',
+                            },
+                            body:
+                                prepared.data,
+                        }
+                    );
+
+                const payload =
+                    await readJsonResponse(
+                        response
+                    );
+
+                if (
+                    !response.ok ||
+                    !payload ||
+                    payload.ok !== true
+                ) {
+                    throw new Error(
+                        responseErrorMessage(
+                            payload,
+                            response.status === 419
+                                ? 'Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw.'
+                                : 'De versie kon niet worden opgeslagen.'
+                        )
+                    );
+                }
+
+                if (!payload.version) {
+                    throw new Error(
+                        'De server heeft de versie opgeslagen maar geen versiegegevens teruggestuurd.'
+                    );
+                }
+
+                clearBackgroundPreviewToken();
+
+                await useSavedVersion(
+                    payload.version
+                );
+
+                setStatus(
+                    (
+                        payload.message ||
+                        'De nieuwe versie is opgeslagen.'
+                    ) +
+                    ' De nieuwe versie is direct actief; je hoeft niet handmatig te wisselen.'
+                );
+            } catch (error) {
+                setStatus(
+                    error instanceof Error
+                        ? error.message
+                        : 'De versie kon niet worden opgeslagen.',
+                    true
+                );
+            } finally {
+                savingOperation =
+                    false;
+
+                setLoading(
+                    false
+                );
+
+                if (submitButton) {
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.textContent =
+                        originalLabel;
+                }
+            }
         }
     );
 
     window.addEventListener(
         'pageshow',
         function () {
-            form
-                ?.querySelectorAll(
-                    '.editor-submit'
-                )
-                .forEach(function (button) {
-                    button.disabled =
-                        false;
-                });
+            savingOperation = false;
+            requestingBackgroundPreview = false;
+
+            const operation =
+                activeOperation();
+
+            if (operation) {
+                activateOperation(
+                    operation
+                );
+            }
         }
     );
 

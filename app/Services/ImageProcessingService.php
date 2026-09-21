@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GdImage;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 use Throwable;
@@ -37,17 +38,22 @@ class ImageProcessingService
             'imagedestroy',
         ];
 
-        foreach ($requiredFunctions as $function) {
+        foreach (
+            $requiredFunctions
+            as $function
+        ) {
             if (! function_exists($function)) {
                 throw ValidationException::withMessages([
-                    'image' => 'De GD-extensie is niet beschikbaar of onvolledig op deze server.',
+                    'image' =>
+                        'De GD-extensie is niet beschikbaar of onvolledig op deze server.',
                 ]);
             }
         }
     }
 
-    public function load(string $absolutePath): mixed
-    {
+    public function load(
+        string $absolutePath
+    ): GdImage {
         $this->ensureAvailable();
 
         if (
@@ -55,35 +61,68 @@ class ImageProcessingService
             ! is_file($absolutePath)
         ) {
             throw ValidationException::withMessages([
-                'image' => 'Het afbeeldingsbestand bestaat niet meer.',
+                'image' =>
+                    'Het afbeeldingsbestand bestaat niet meer.',
             ]);
         }
 
-        $contents = @file_get_contents($absolutePath);
+        $contents =
+            @file_get_contents(
+                $absolutePath
+            );
 
         if (
             $contents === false ||
             $contents === ''
         ) {
             throw ValidationException::withMessages([
-                'image' => 'Het afbeeldingsbestand kon niet worden gelezen.',
+                'image' =>
+                    'Het afbeeldingsbestand kon niet worden gelezen.',
             ]);
         }
 
         try {
-            $image = @imagecreatefromstring($contents);
+            return $this->loadBytes(
+                $contents
+            );
         } finally {
             unset($contents);
         }
+    }
 
-        if ($image === false) {
+    public function loadBytes(
+        string $contents
+    ): GdImage {
+        $this->ensureAvailable();
+
+        if ($contents === '') {
             throw ValidationException::withMessages([
-                'image' => 'Dit afbeeldingsbestand kan niet door GD worden geopend.',
+                'image' =>
+                    'Het afbeeldingsbestand is leeg.',
             ]);
         }
 
-        imagealphablending($image, true);
-        imagesavealpha($image, true);
+        $image =
+            @imagecreatefromstring(
+                $contents
+            );
+
+        if (! $image instanceof GdImage) {
+            throw ValidationException::withMessages([
+                'image' =>
+                    'Dit afbeeldingsbestand kan niet door GD worden geopend.',
+            ]);
+        }
+
+        imagealphablending(
+            $image,
+            true
+        );
+
+        imagesavealpha(
+            $image,
+            true
+        );
 
         $this->assertDimensions(
             imagesx($image),
@@ -96,10 +135,14 @@ class ImageProcessingService
     /**
      * @return array{width:int,height:int}
      */
-    public function dimensions(mixed $image): array
-    {
-        $width = imagesx($image);
-        $height = imagesy($image);
+    public function dimensions(
+        GdImage $image
+    ): array {
+        $width =
+            imagesx($image);
+
+        $height =
+            imagesy($image);
 
         $this->assertDimensions(
             $width,
@@ -113,36 +156,42 @@ class ImageProcessingService
     }
 
     public function copy(
-        mixed $source,
+        GdImage $source,
         ?int $sourceWidth = null,
         ?int $sourceHeight = null
-    ): mixed {
-        $sourceWidth ??= imagesx($source);
-        $sourceHeight ??= imagesy($source);
+    ): GdImage {
+        $sourceWidth ??=
+            imagesx($source);
+
+        $sourceHeight ??=
+            imagesy($source);
 
         $this->assertDimensions(
             $sourceWidth,
             $sourceHeight
         );
 
-        $canvas = $this->createTransparentCanvas(
-            $sourceWidth,
-            $sourceHeight
-        );
+        $canvas =
+            $this->createTransparentCanvas(
+                $sourceWidth,
+                $sourceHeight
+            );
 
-        $copied = imagecopy(
-            $canvas,
-            $source,
-            0,
-            0,
-            0,
-            0,
-            $sourceWidth,
-            $sourceHeight
-        );
-
-        if (! $copied) {
-            $this->destroy($canvas);
+        if (
+            ! imagecopy(
+                $canvas,
+                $source,
+                0,
+                0,
+                0,
+                0,
+                $sourceWidth,
+                $sourceHeight
+            )
+        ) {
+            $this->destroy(
+                $canvas
+            );
 
             throw new RuntimeException(
                 'De afbeelding kon niet worden gekopieerd.'
@@ -153,19 +202,20 @@ class ImageProcessingService
     }
 
     public function resize(
-        mixed $source,
+        GdImage $source,
         int $sourceWidth,
         int $sourceHeight,
         ?int $requestedWidth,
         ?int $requestedHeight,
         bool $keepAspect = true
-    ): mixed {
+    ): GdImage {
         if (
             $requestedWidth === null &&
             $requestedHeight === null
         ) {
             throw ValidationException::withMessages([
-                'width' => 'Vul een nieuwe breedte en/of hoogte in.',
+                'width' =>
+                    'Vul een nieuwe breedte en/of hoogte in.',
             ]);
         }
 
@@ -180,8 +230,11 @@ class ImageProcessingService
                 $requestedHeight
             );
         } else {
-            $requestedWidth ??= $sourceWidth;
-            $requestedHeight ??= $sourceHeight;
+            $requestedWidth ??=
+                $sourceWidth;
+
+            $requestedHeight ??=
+                $sourceHeight;
         }
 
         $this->assertDimensions(
@@ -189,26 +242,29 @@ class ImageProcessingService
             $requestedHeight
         );
 
-        $canvas = $this->createTransparentCanvas(
-            $requestedWidth,
-            $requestedHeight
-        );
+        $canvas =
+            $this->createTransparentCanvas(
+                $requestedWidth,
+                $requestedHeight
+            );
 
-        $resampled = imagecopyresampled(
-            $canvas,
-            $source,
-            0,
-            0,
-            0,
-            0,
-            $requestedWidth,
-            $requestedHeight,
-            $sourceWidth,
-            $sourceHeight
-        );
-
-        if (! $resampled) {
-            $this->destroy($canvas);
+        if (
+            ! imagecopyresampled(
+                $canvas,
+                $source,
+                0,
+                0,
+                0,
+                0,
+                $requestedWidth,
+                $requestedHeight,
+                $sourceWidth,
+                $sourceHeight
+            )
+        ) {
+            $this->destroy(
+                $canvas
+            );
 
             throw new RuntimeException(
                 'Resize kon niet worden uitgevoerd.'
@@ -219,12 +275,12 @@ class ImageProcessingService
     }
 
     public function resizeExact(
-        mixed $source,
+        GdImage $source,
         int $sourceWidth,
         int $sourceHeight,
         int $targetWidth,
         int $targetHeight
-    ): mixed {
+    ): GdImage {
         return $this->resize(
             $source,
             $sourceWidth,
@@ -236,14 +292,14 @@ class ImageProcessingService
     }
 
     public function crop(
-        mixed $source,
+        GdImage $source,
         int $sourceWidth,
         int $sourceHeight,
         int $x,
         int $y,
         int $width,
         int $height
-    ): mixed {
+    ): GdImage {
         $this->assertCropRectangle(
             $sourceWidth,
             $sourceHeight,
@@ -253,24 +309,27 @@ class ImageProcessingService
             $height
         );
 
-        $canvas = $this->createTransparentCanvas(
-            $width,
-            $height
-        );
+        $canvas =
+            $this->createTransparentCanvas(
+                $width,
+                $height
+            );
 
-        $copied = imagecopy(
-            $canvas,
-            $source,
-            0,
-            0,
-            $x,
-            $y,
-            $width,
-            $height
-        );
-
-        if (! $copied) {
-            $this->destroy($canvas);
+        if (
+            ! imagecopy(
+                $canvas,
+                $source,
+                0,
+                0,
+                $x,
+                $y,
+                $width,
+                $height
+            )
+        ) {
+            $this->destroy(
+                $canvas
+            );
 
             throw new RuntimeException(
                 'Crop kon niet worden uitgevoerd.'
@@ -281,49 +340,64 @@ class ImageProcessingService
     }
 
     public function rotate(
-        mixed $source,
+        GdImage $source,
         int $angle
-    ): mixed {
+    ): GdImage {
         if (
             ! in_array(
                 $angle,
-                [-270, -180, -90, 90, 180, 270],
+                [
+                    -270,
+                    -180,
+                    -90,
+                    90,
+                    180,
+                    270,
+                ],
                 true
             )
         ) {
             throw ValidationException::withMessages([
-                'angle' => 'Kies een geldige rotatiehoek.',
+                'angle' =>
+                    'Kies een geldige rotatiehoek.',
             ]);
         }
 
+        $transparent =
+            imagecolorallocatealpha(
+                $source,
+                0,
+                0,
+                0,
+                127
+            );
+
         /*
-         * GD draait tegen de klok in bij positieve waarden.
-         * Voor de editor gebruiken we een intuïtieve klokwijzer-richting.
+         * GD gebruikt bij positieve hoeken tegen-de-klok-in.
+         * In de editor betekent positief juist met-de-klok-mee.
          */
-        $gdAngle = -$angle;
+        $rotated =
+            imagerotate(
+                $source,
+                -$angle,
+                $transparent
+            );
 
-        $transparent = imagecolorallocatealpha(
-            $source,
-            0,
-            0,
-            0,
-            127
-        );
-
-        $rotated = imagerotate(
-            $source,
-            $gdAngle,
-            $transparent
-        );
-
-        if ($rotated === false) {
+        if (! $rotated instanceof GdImage) {
             throw new RuntimeException(
                 'Roteren kon niet worden uitgevoerd.'
             );
         }
 
-        imagealphablending($rotated, false);
-        imagesavealpha($rotated, true);
+        imagealphablending(
+            $rotated,
+            false
+        );
+
+        imagesavealpha(
+            $rotated,
+            true
+        );
 
         $this->assertDimensions(
             imagesx($rotated),
@@ -334,36 +408,49 @@ class ImageProcessingService
     }
 
     public function flip(
-        mixed $source,
+        GdImage $source,
         int $sourceWidth,
         int $sourceHeight,
         string $direction
-    ): mixed {
+    ): GdImage {
         if (
             ! in_array(
                 $direction,
-                ['horizontal', 'vertical'],
+                [
+                    'horizontal',
+                    'vertical',
+                ],
                 true
             )
         ) {
             throw ValidationException::withMessages([
-                'flip_direction' => 'Kies horizontaal of verticaal spiegelen.',
+                'flip_direction' =>
+                    'Kies horizontaal of verticaal spiegelen.',
             ]);
         }
 
-        $output = $this->copy(
-            $source,
-            $sourceWidth,
-            $sourceHeight
-        );
+        $output =
+            $this->copy(
+                $source,
+                $sourceWidth,
+                $sourceHeight
+            );
 
         if (function_exists('imageflip')) {
-            $mode = $direction === 'horizontal'
-                ? IMG_FLIP_HORIZONTAL
-                : IMG_FLIP_VERTICAL;
+            $mode =
+                $direction === 'horizontal'
+                    ? IMG_FLIP_HORIZONTAL
+                    : IMG_FLIP_VERTICAL;
 
-            if (! imageflip($output, $mode)) {
-                $this->destroy($output);
+            if (
+                ! imageflip(
+                    $output,
+                    $mode
+                )
+            ) {
+                $this->destroy(
+                    $output
+                );
 
                 throw new RuntimeException(
                     'Spiegelen kon niet worden uitgevoerd.'
@@ -373,14 +460,19 @@ class ImageProcessingService
             return $output;
         }
 
-        $fallback = $this->createTransparentCanvas(
-            $sourceWidth,
-            $sourceHeight
-        );
+        $fallback =
+            $this->createTransparentCanvas(
+                $sourceWidth,
+                $sourceHeight
+            );
 
         try {
             if ($direction === 'horizontal') {
-                for ($x = 0; $x < $sourceWidth; $x++) {
+                for (
+                    $x = 0;
+                    $x < $sourceWidth;
+                    $x++
+                ) {
                     imagecopy(
                         $fallback,
                         $source,
@@ -393,7 +485,11 @@ class ImageProcessingService
                     );
                 }
             } else {
-                for ($y = 0; $y < $sourceHeight; $y++) {
+                for (
+                    $y = 0;
+                    $y < $sourceHeight;
+                    $y++
+                ) {
                     imagecopy(
                         $fallback,
                         $source,
@@ -407,13 +503,20 @@ class ImageProcessingService
                 }
             }
         } catch (Throwable $exception) {
-            $this->destroy($fallback);
-            $this->destroy($output);
+            $this->destroy(
+                $fallback
+            );
+
+            $this->destroy(
+                $output
+            );
 
             throw $exception;
         }
 
-        $this->destroy($output);
+        $this->destroy(
+            $output
+        );
 
         return $fallback;
     }
@@ -429,71 +532,90 @@ class ImageProcessingService
      * @param array<string, mixed> $options
      */
     public function enhance(
-        mixed $source,
+        GdImage $source,
         int $sourceWidth,
         int $sourceHeight,
         array $options
-    ): mixed {
+    ): GdImage {
         if (! function_exists('imagefilter')) {
             throw ValidationException::withMessages([
-                'image' => 'Deze PHP/GD-installatie ondersteunt geen afbeeldingsfilters.',
+                'image' =>
+                    'Deze PHP/GD-installatie ondersteunt geen afbeeldingsfilters.',
             ]);
         }
 
-        $output = $this->copy(
-            $source,
-            $sourceWidth,
-            $sourceHeight
-        );
+        $output =
+            $this->copy(
+                $source,
+                $sourceWidth,
+                $sourceHeight
+            );
 
         try {
-            $brightness = max(
-                -100,
-                min(
-                    100,
-                    (int) ($options['brightness'] ?? 0)
-                )
-            );
+            $brightness =
+                max(
+                    -100,
+                    min(
+                        100,
+                        (int) (
+                            $options['brightness']
+                            ?? 0
+                        )
+                    )
+                );
 
-            $contrast = max(
-                -100,
-                min(
-                    100,
-                    (int) ($options['contrast'] ?? 0)
-                )
-            );
+            $contrast =
+                max(
+                    -100,
+                    min(
+                        100,
+                        (int) (
+                            $options['contrast']
+                            ?? 0
+                        )
+                    )
+                );
 
-            $blur = max(
-                0,
-                min(
-                    6,
-                    (int) ($options['blur'] ?? 0)
-                )
-            );
+            $blur =
+                max(
+                    0,
+                    min(
+                        6,
+                        (int) (
+                            $options['blur']
+                            ?? 0
+                        )
+                    )
+                );
 
-            $grayscale = filter_var(
-                $options['grayscale'] ?? false,
-                FILTER_VALIDATE_BOOLEAN
-            );
+            $grayscale =
+                filter_var(
+                    $options['grayscale']
+                    ?? false,
+                    FILTER_VALIDATE_BOOLEAN
+                );
 
-            $sepia = filter_var(
-                $options['sepia'] ?? false,
-                FILTER_VALIDATE_BOOLEAN
-            );
+            $sepia =
+                filter_var(
+                    $options['sepia']
+                    ?? false,
+                    FILTER_VALIDATE_BOOLEAN
+                );
 
             if ($brightness !== 0) {
                 $this->filter(
                     $output,
                     IMG_FILTER_BRIGHTNESS,
                     (int) round(
-                        ($brightness / 100) * 255
+                        ($brightness / 100) *
+                        255
                     )
                 );
             }
 
             if ($contrast !== 0) {
                 /*
-                 * IMG_FILTER_CONTRAST gebruikt de omgekeerde richting:
+                 * IMG_FILTER_CONTRAST heeft een omgekeerde richting:
                  * negatieve waarden versterken contrast.
                  */
                 $this->filter(
@@ -503,7 +625,10 @@ class ImageProcessingService
                 );
             }
 
-            if ($grayscale || $sepia) {
+            if (
+                $grayscale ||
+                $sepia
+            ) {
                 $this->filter(
                     $output,
                     IMG_FILTER_GRAYSCALE
@@ -521,7 +646,11 @@ class ImageProcessingService
                 );
             }
 
-            for ($index = 0; $index < $blur; $index++) {
+            for (
+                $index = 0;
+                $index < $blur;
+                $index++
+            ) {
                 $this->filter(
                     $output,
                     IMG_FILTER_GAUSSIAN_BLUR
@@ -530,7 +659,9 @@ class ImageProcessingService
 
             return $output;
         } catch (Throwable $exception) {
-            $this->destroy($output);
+            $this->destroy(
+                $output
+            );
 
             throw $exception;
         }
@@ -539,20 +670,21 @@ class ImageProcessingService
     public function createTransparentCanvas(
         int $width,
         int $height
-    ): mixed {
+    ): GdImage {
         $this->assertDimensions(
             $width,
             $height
         );
 
-        $canvas = imagecreatetruecolor(
-            $width,
-            $height
-        );
+        $canvas =
+            imagecreatetruecolor(
+                $width,
+                $height
+            );
 
-        if ($canvas === false) {
+        if (! $canvas instanceof GdImage) {
             throw new RuntimeException(
-                'Er kon geen nieuw afbeeldingscanvas worden aangemaakt.'
+                'Er kon geen transparant afbeeldingscanvas worden aangemaakt.'
             );
         }
 
@@ -566,20 +698,27 @@ class ImageProcessingService
             true
         );
 
-        $transparent = imagecolorallocatealpha(
-            $canvas,
-            0,
-            0,
-            0,
-            127
-        );
+        $transparent =
+            imagecolorallocatealpha(
+                $canvas,
+                0,
+                0,
+                0,
+                127
+            );
 
         imagefilledrectangle(
             $canvas,
             0,
             0,
-            max(0, $width - 1),
-            max(0, $height - 1),
+            max(
+                0,
+                $width - 1
+            ),
+            max(
+                0,
+                $height - 1
+            ),
             $transparent
         );
 
@@ -590,39 +729,52 @@ class ImageProcessingService
         int $width,
         int $height,
         string $hexColor = '#ffffff'
-    ): mixed {
+    ): GdImage {
         $this->assertDimensions(
             $width,
             $height
         );
 
-        [$red, $green, $blue] =
-            $this->hexToRgb($hexColor);
-
-        $canvas = imagecreatetruecolor(
-            $width,
-            $height
+        [
+            $red,
+            $green,
+            $blue,
+        ] = $this->hexToRgb(
+            $hexColor
         );
 
-        if ($canvas === false) {
+        $canvas =
+            imagecreatetruecolor(
+                $width,
+                $height
+            );
+
+        if (! $canvas instanceof GdImage) {
             throw new RuntimeException(
                 'Er kon geen afbeeldingscanvas worden aangemaakt.'
             );
         }
 
-        $color = imagecolorallocate(
-            $canvas,
-            $red,
-            $green,
-            $blue
-        );
+        $color =
+            imagecolorallocate(
+                $canvas,
+                $red,
+                $green,
+                $blue
+            );
 
         imagefilledrectangle(
             $canvas,
             0,
             0,
-            max(0, $width - 1),
-            max(0, $height - 1),
+            max(
+                0,
+                $width - 1
+            ),
+            max(
+                0,
+                $height - 1
+            ),
             $color
         );
 
@@ -630,47 +782,82 @@ class ImageProcessingService
     }
 
     public function compositeCentered(
-        mixed $background,
-        mixed $foreground
-    ): mixed {
-        $backgroundWidth = imagesx($background);
-        $backgroundHeight = imagesy($background);
-        $foregroundWidth = imagesx($foreground);
-        $foregroundHeight = imagesy($foreground);
+        GdImage $background,
+        GdImage $foreground
+    ): GdImage {
+        $backgroundWidth =
+            imagesx(
+                $background
+            );
+
+        $backgroundHeight =
+            imagesy(
+                $background
+            );
+
+        $foregroundWidth =
+            imagesx(
+                $foreground
+            );
+
+        $foregroundHeight =
+            imagesy(
+                $foreground
+            );
 
         $this->assertDimensions(
             $backgroundWidth,
             $backgroundHeight
         );
 
-        $output = $this->copy(
-            $background,
-            $backgroundWidth,
-            $backgroundHeight
-        );
+        $output =
+            $this->copy(
+                $background,
+                $backgroundWidth,
+                $backgroundHeight
+            );
 
-        imagealphablending($output, true);
-        imagesavealpha($output, true);
-
-        $x = (int) floor(
-            ($backgroundWidth - $foregroundWidth) / 2
-        );
-
-        $y = (int) floor(
-            ($backgroundHeight - $foregroundHeight) / 2
-        );
-
-        if (! imagecopy(
+        imagealphablending(
             $output,
-            $foreground,
-            $x,
-            $y,
-            0,
-            0,
-            $foregroundWidth,
-            $foregroundHeight
-        )) {
-            $this->destroy($output);
+            true
+        );
+
+        imagesavealpha(
+            $output,
+            true
+        );
+
+        $x =
+            (int) floor(
+                (
+                    $backgroundWidth -
+                    $foregroundWidth
+                ) / 2
+            );
+
+        $y =
+            (int) floor(
+                (
+                    $backgroundHeight -
+                    $foregroundHeight
+                ) / 2
+            );
+
+        if (
+            ! imagecopy(
+                $output,
+                $foreground,
+                $x,
+                $y,
+                0,
+                0,
+                $foregroundWidth,
+                $foregroundHeight
+            )
+        ) {
+            $this->destroy(
+                $output
+            );
 
             throw new RuntimeException(
                 'De voorgrond kon niet op de achtergrond worden geplaatst.'
@@ -681,26 +868,29 @@ class ImageProcessingService
     }
 
     public function save(
-        mixed $image,
+        GdImage $image,
         string $absolutePath,
         string $format,
         int $quality = self::DEFAULT_QUALITY
     ): void {
-        $format = $this->normalizeFormat(
-            $format
-        );
+        $format =
+            $this->normalizeFormat(
+                $format
+            );
 
-        $quality = $this->normalizeQuality(
-            $quality
-        );
+        $quality =
+            $this->normalizeQuality(
+                $quality
+            );
 
         $this->ensureFormatSupport(
             $format
         );
 
-        $directory = dirname(
-            $absolutePath
-        );
+        $directory =
+            dirname(
+                $absolutePath
+            );
 
         if (
             ! is_dir($directory) &&
@@ -716,29 +906,34 @@ class ImageProcessingService
             );
         }
 
-        $encoded = match ($format) {
-            'jpg' => $this->encodeJpeg(
-                $image,
-                $absolutePath,
-                $quality
-            ),
+        $encoded =
+            match ($format) {
+                'jpg' =>
+                    $this->encodeJpeg(
+                        $image,
+                        $absolutePath,
+                        $quality
+                    ),
 
-            'png' => imagepng(
-                $image,
-                $absolutePath,
-                $this->pngCompressionLevel(
-                    $quality
-                )
-            ),
+                'png' =>
+                    imagepng(
+                        $image,
+                        $absolutePath,
+                        $this->pngCompressionLevel(
+                            $quality
+                        )
+                    ),
 
-            'webp' => imagewebp(
-                $image,
-                $absolutePath,
-                $quality
-            ),
+                'webp' =>
+                    imagewebp(
+                        $image,
+                        $absolutePath,
+                        $quality
+                    ),
 
-            default => false,
-        };
+                default =>
+                    false,
+            };
 
         if (! $encoded) {
             throw new RuntimeException(
@@ -747,14 +942,19 @@ class ImageProcessingService
         }
     }
 
-    public function normalizeFormat(string $format): string
-    {
-        $format = strtolower(
-            trim($format)
-        );
+    public function normalizeFormat(
+        string $format
+    ): string {
+        $format =
+            strtolower(
+                trim(
+                    $format
+                )
+            );
 
         if ($format === 'jpeg') {
-            $format = 'jpg';
+            $format =
+                'jpg';
         }
 
         if (
@@ -765,15 +965,17 @@ class ImageProcessingService
             )
         ) {
             throw ValidationException::withMessages([
-                'format' => 'Dit afbeeldingsformaat wordt niet ondersteund.',
+                'format' =>
+                    'Dit afbeeldingsformaat wordt niet ondersteund.',
             ]);
         }
 
         return $format;
     }
 
-    public function formatFromMime(?string $mime): string
-    {
+    public function formatFromMime(
+        ?string $mime
+    ): string {
         return match (
             strtolower(
                 trim(
@@ -782,33 +984,45 @@ class ImageProcessingService
             )
         ) {
             'image/jpeg',
-            'image/jpg' => 'jpg',
+            'image/jpg' =>
+                'jpg',
 
-            'image/png' => 'png',
+            'image/png' =>
+                'png',
 
-            'image/webp' => 'webp',
+            'image/webp' =>
+                'webp',
 
-            default => throw ValidationException::withMessages([
-                'format' => 'Het bronformaat van deze afbeelding wordt niet ondersteund.',
-            ]),
+            default =>
+                throw ValidationException::withMessages([
+                    'format' =>
+                        'Het bronformaat van deze afbeelding wordt niet ondersteund.',
+                ]),
         };
     }
 
-    public function mimeForFormat(string $format): string
-    {
+    public function mimeForFormat(
+        string $format
+    ): string {
         return match (
             $this->normalizeFormat(
                 $format
             )
         ) {
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp',
+            'jpg' =>
+                'image/jpeg',
+
+            'png' =>
+                'image/png',
+
+            'webp' =>
+                'image/webp',
         };
     }
 
-    public function extensionForFormat(string $format): string
-    {
+    public function extensionForFormat(
+        string $format
+    ): string {
         return $this->normalizeFormat(
             $format
         );
@@ -842,7 +1056,8 @@ class ImageProcessingService
             $height < 1
         ) {
             throw ValidationException::withMessages([
-                'image' => 'De afbeelding heeft ongeldige afmetingen.',
+                'image' =>
+                    'De afbeelding heeft ongeldige afmetingen.',
             ]);
         }
 
@@ -851,10 +1066,11 @@ class ImageProcessingService
             $height > self::MAX_DIMENSION
         ) {
             throw ValidationException::withMessages([
-                'image' => sprintf(
-                    'De maximale afbeeldingsafmeting is %d pixels per zijde.',
-                    self::MAX_DIMENSION
-                ),
+                'image' =>
+                    sprintf(
+                        'De maximale afbeeldingsafmeting is %d pixels per zijde.',
+                        self::MAX_DIMENSION
+                    ),
             ]);
         }
 
@@ -862,11 +1078,22 @@ class ImageProcessingService
             $width >
             intdiv(
                 self::MAX_PIXELS,
-                max(1, $height)
+                max(
+                    1,
+                    $height
+                )
             )
         ) {
             throw ValidationException::withMessages([
-                'image' => 'De afbeelding bevat te veel pixels om veilig te verwerken.',
+                'image' =>
+                    sprintf(
+                        'De afbeelding is te groot. Maximaal %s megapixels zijn toegestaan.',
+                        number_format(
+                            self::MAX_PIXELS /
+                            1_000_000,
+                            0
+                        )
+                    ),
             ]);
         }
     }
@@ -880,34 +1107,32 @@ class ImageProcessingService
         int $height
     ): void {
         $this->assertDimensions(
-            $width,
-            $height
+            $sourceWidth,
+            $sourceHeight
         );
 
         if (
             $x < 0 ||
             $y < 0 ||
-            $x >= $sourceWidth ||
-            $y >= $sourceHeight ||
-            ($x + $width) > $sourceWidth ||
-            ($y + $height) > $sourceHeight
+            $width < 1 ||
+            $height < 1 ||
+            $x + $width > $sourceWidth ||
+            $y + $height > $sourceHeight
         ) {
             throw ValidationException::withMessages([
-                'crop_width' => 'Het gekozen cropgebied valt buiten de afbeelding.',
+                'crop' =>
+                    'Het gekozen cropgebied valt buiten de afbeelding.',
             ]);
         }
     }
 
-    public function destroy(mixed $image): void
-    {
-        if (
-            $image !== null &&
-            (
-                is_resource($image) ||
-                $image instanceof \GdImage
-            )
-        ) {
-            @imagedestroy($image);
+    public function destroy(
+        mixed $image
+    ): void {
+        if ($image instanceof GdImage) {
+            @imagedestroy(
+                $image
+            );
         }
     }
 
@@ -924,46 +1149,64 @@ class ImageProcessingService
             $requestedWidth !== null &&
             $requestedHeight === null
         ) {
-            $requestedHeight = max(
-                1,
-                (int) round(
-                    $sourceHeight *
-                    ($requestedWidth / $sourceWidth)
-                )
-            );
+            $requestedHeight =
+                max(
+                    1,
+                    (int) round(
+                        $sourceHeight *
+                        (
+                            $requestedWidth /
+                            $sourceWidth
+                        )
+                    )
+                );
         } elseif (
             $requestedHeight !== null &&
             $requestedWidth === null
         ) {
-            $requestedWidth = max(
-                1,
-                (int) round(
-                    $sourceWidth *
-                    ($requestedHeight / $sourceHeight)
-                )
-            );
+            $requestedWidth =
+                max(
+                    1,
+                    (int) round(
+                        $sourceWidth *
+                        (
+                            $requestedHeight /
+                            $sourceHeight
+                        )
+                    )
+                );
         } else {
-            $requestedWidth ??= $sourceWidth;
-            $requestedHeight ??= $sourceHeight;
+            $requestedWidth ??=
+                $sourceWidth;
 
-            $scale = min(
-                $requestedWidth / $sourceWidth,
-                $requestedHeight / $sourceHeight
-            );
+            $requestedHeight ??=
+                $sourceHeight;
 
-            $requestedWidth = max(
-                1,
-                (int) round(
-                    $sourceWidth * $scale
-                )
-            );
+            $scale =
+                min(
+                    $requestedWidth /
+                        $sourceWidth,
+                    $requestedHeight /
+                        $sourceHeight
+                );
 
-            $requestedHeight = max(
-                1,
-                (int) round(
-                    $sourceHeight * $scale
-                )
-            );
+            $requestedWidth =
+                max(
+                    1,
+                    (int) round(
+                        $sourceWidth *
+                        $scale
+                    )
+                );
+
+            $requestedHeight =
+                max(
+                    1,
+                    (int) round(
+                        $sourceHeight *
+                        $scale
+                    )
+                );
         }
 
         return [
@@ -973,17 +1216,17 @@ class ImageProcessingService
     }
 
     private function filter(
-        mixed $image,
+        GdImage $image,
         int $filter,
         mixed ...$arguments
     ): void {
-        $applied = imagefilter(
-            $image,
-            $filter,
-            ...$arguments
-        );
-
-        if (! $applied) {
+        if (
+            ! imagefilter(
+                $image,
+                $filter,
+                ...$arguments
+            )
+        ) {
             throw new RuntimeException(
                 'Een afbeeldingsfilter kon niet worden toegepast.'
             );
@@ -991,36 +1234,47 @@ class ImageProcessingService
     }
 
     private function encodeJpeg(
-        mixed $image,
+        GdImage $image,
         string $absolutePath,
         int $quality
     ): bool {
-        $width = imagesx($image);
-        $height = imagesy($image);
+        $width =
+            imagesx($image);
 
-        $flattened = imagecreatetruecolor(
-            $width,
-            $height
-        );
+        $height =
+            imagesy($image);
 
-        if ($flattened === false) {
+        $flattened =
+            imagecreatetruecolor(
+                $width,
+                $height
+            );
+
+        if (! $flattened instanceof GdImage) {
             return false;
         }
 
         try {
-            $white = imagecolorallocate(
-                $flattened,
-                255,
-                255,
-                255
-            );
+            $white =
+                imagecolorallocate(
+                    $flattened,
+                    255,
+                    255,
+                    255
+                );
 
             imagefilledrectangle(
                 $flattened,
                 0,
                 0,
-                max(0, $width - 1),
-                max(0, $height - 1),
+                max(
+                    0,
+                    $width - 1
+                ),
+                max(
+                    0,
+                    $height - 1
+                ),
                 $white
             );
 
@@ -1029,16 +1283,18 @@ class ImageProcessingService
                 true
             );
 
-            if (! imagecopy(
-                $flattened,
-                $image,
-                0,
-                0,
-                0,
-                0,
-                $width,
-                $height
-            )) {
+            if (
+                ! imagecopy(
+                    $flattened,
+                    $image,
+                    0,
+                    0,
+                    0,
+                    0,
+                    $width,
+                    $height
+                )
+            ) {
                 return false;
             }
 
@@ -1068,8 +1324,10 @@ class ImageProcessingService
                 (
                     $this->normalizeQuality(
                         $quality
-                    ) / 100
-                ) * 9
+                    ) /
+                    100
+                ) *
+                9
             )
         );
     }
@@ -1077,19 +1335,36 @@ class ImageProcessingService
     private function ensureFormatSupport(
         string $format
     ): void {
-        $supported = match ($format) {
-            'jpg' => function_exists('imagejpeg'),
-            'png' => function_exists('imagepng'),
-            'webp' => function_exists('imagewebp'),
-            default => false,
-        };
+        $supported =
+            match ($format) {
+                'jpg' =>
+                    function_exists(
+                        'imagejpeg'
+                    ),
+
+                'png' =>
+                    function_exists(
+                        'imagepng'
+                    ),
+
+                'webp' =>
+                    function_exists(
+                        'imagewebp'
+                    ),
+
+                default =>
+                    false,
+            };
 
         if (! $supported) {
             throw ValidationException::withMessages([
-                'format' => sprintf(
-                    'Deze server ondersteunt geen %s-export via GD.',
-                    strtoupper($format)
-                ),
+                'format' =>
+                    sprintf(
+                        'Deze server ondersteunt geen %s-export via GD.',
+                        strtoupper(
+                            $format
+                        )
+                    ),
             ]);
         }
     }
@@ -1100,10 +1375,13 @@ class ImageProcessingService
     private function hexToRgb(
         string $hex
     ): array {
-        $hex = ltrim(
-            trim($hex),
-            '#'
-        );
+        $hex =
+            ltrim(
+                trim(
+                    $hex
+                ),
+                '#'
+            );
 
         if (
             strlen($hex) === 3
@@ -1119,14 +1397,33 @@ class ImageProcessingService
             ! ctype_xdigit($hex)
         ) {
             throw ValidationException::withMessages([
-                'background_color' => 'Kies een geldige achtergrondkleur.',
+                'background_color' =>
+                    'Kies een geldige achtergrondkleur.',
             ]);
         }
 
         return [
-            hexdec(substr($hex, 0, 2)),
-            hexdec(substr($hex, 2, 2)),
-            hexdec(substr($hex, 4, 2)),
+            hexdec(
+                substr(
+                    $hex,
+                    0,
+                    2
+                )
+            ),
+            hexdec(
+                substr(
+                    $hex,
+                    2,
+                    2
+                )
+            ),
+            hexdec(
+                substr(
+                    $hex,
+                    4,
+                    2
+                )
+            ),
         ];
     }
 }
