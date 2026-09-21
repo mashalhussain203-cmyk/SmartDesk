@@ -330,6 +330,15 @@
         -webkit-user-drag: none;
     }
 
+    .editor-preview-image[hidden] {
+        display: none !important;
+    }
+
+    .editor-live-canvas {
+        contain: strict;
+        image-rendering: auto;
+    }
+
     .visual-crop-overlay {
         position: absolute;
         inset: 0;
@@ -1728,6 +1737,13 @@
                                 alt="{{ $image->display_name ?? $image->original_name }}"
                             >
 
+                            <canvas
+                                id="editor-live-canvas"
+                                class="editor-preview-image editor-live-canvas"
+                                aria-hidden="true"
+                                hidden
+                            ></canvas>
+
                             <div
                                 id="visual-crop-overlay"
                                 class="visual-crop-overlay"
@@ -2348,11 +2364,10 @@
                             </div>
 
                             <div class="background-api-note">
-                                <strong>Live AI-preview:</strong>
-                                klik eerst op <em>AI-preview uitvoeren</em>.
-                                Het resultaat verschijnt direct op dezelfde foto en wordt nog niet als versie opgeslagen.
-                                Als je daarna op <em>Opslaan als versie</em> klikt, gebruikt Laravel dezelfde tijdelijke preview
-                                zodat de externe background-API niet onnodig nog een keer wordt aangeroepen.
+                                <strong>Automatische AI-preview:</strong>
+                                zodra je deze tool of een achtergrondoptie wijzigt, start de preview automatisch.
+                                Er is geen aparte previewknop nodig. Kleur- en URL-wijzigingen worden kort gebundeld
+                                zodat de editor snel blijft en de externe background-API niet bij iedere toetsaanslag wordt aangeroepen.
                             </div>
 
                             <input
@@ -2363,14 +2378,6 @@
                             >
 
                             <div class="editor-action-stack">
-                                <button
-                                    id="background-live-preview"
-                                    class="editor-secondary-action"
-                                    type="button"
-                                >
-                                    AI-preview uitvoeren
-                                </button>
-
                                 <button class="editor-submit" type="submit">
                                     Opslaan als versie
                                 </button>
@@ -2616,8 +2623,15 @@ document.addEventListener('DOMContentLoaded', function () {
      * we een werkpreview met een begrensde resolutie. De weergegeven doelafmetingen
      * en de backend-save blijven de echte gekozen afmetingen gebruiken.
      */
-    const LIVE_RENDER_MAX_DIMENSION = 4096;
-    const LIVE_RENDER_MAX_PIXELS = 16000000;
+    /*
+     * Previewkwaliteit is bewust veel lager dan de uiteindelijke export.
+     * De backend blijft bij Opslaan de echte bron op volledige resolutie verwerken.
+     * Hierdoor reageren sliders en knoppen direct, ook op grote telefoonfoto's.
+     */
+    const LIVE_RENDER_MAX_DIMENSION = 1600;
+    const LIVE_RENDER_MAX_PIXELS = 2500000;
+    const MOBILE_RENDER_MAX_DIMENSION = 1100;
+    const MOBILE_RENDER_MAX_PIXELS = 1400000;
 
     const tools = Array.from(
         document.querySelectorAll('[data-operation]')
@@ -2638,6 +2652,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const previewImage =
         document.getElementById('editor-preview-image');
+
+    const liveCanvas =
+        document.getElementById('editor-live-canvas');
 
     const previewName =
         document.getElementById('preview-name');
@@ -2841,10 +2858,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let previewObjectUrl = null;
 
     let aspectUpdating = false;
-    let renderTimer = null;
+    let renderFrame = null;
     let renderSequence = 0;
     let savingOperation = false;
     let requestingBackgroundPreview = false;
+    let backgroundPreviewTimer = null;
+    let backgroundPreviewSequence = 0;
+    let backgroundPreviewDirty = false;
 
     let cropRect = {
         x: 0,
@@ -3303,11 +3323,68 @@ document.addEventListener('DOMContentLoaded', function () {
         await applySelectedSource();
     }
 
-    async function requestBackgroundLivePreview() {
+    function scheduleBackgroundPreview(delay = 650) {
+        if (backgroundPreviewTimer !== null) {
+            window.clearTimeout(
+                backgroundPreviewTimer
+            );
+        }
+
+        backgroundPreviewSequence++;
+        backgroundPreviewDirty = true;
+        clearBackgroundPreviewToken();
+
         if (
-            requestingBackgroundPreview ||
-            savingOperation
+            activeOperation() !==
+            'background'
         ) {
+            return;
+        }
+
+        const validationMessage =
+            validateBackgroundSelection();
+
+        if (validationMessage) {
+            setStatus(
+                validationMessage
+            );
+
+            return;
+        }
+
+        setStatus(
+            'AI-preview wordt automatisch voorbereid…'
+        );
+
+        if (requestingBackgroundPreview) {
+            return;
+        }
+
+        const sequence =
+            backgroundPreviewSequence;
+
+        backgroundPreviewTimer =
+            window.setTimeout(
+                function () {
+                    backgroundPreviewTimer = null;
+                    requestBackgroundLivePreview(
+                        sequence
+                    );
+                },
+                Math.max(
+                    0,
+                    delay
+                )
+            );
+    }
+
+    async function requestBackgroundLivePreview(sequence = backgroundPreviewSequence) {
+        if (savingOperation) {
+            return;
+        }
+
+        if (requestingBackgroundPreview) {
+            backgroundPreviewDirty = true;
             return;
         }
 
@@ -3355,6 +3432,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         requestingBackgroundPreview =
             true;
+
+        backgroundPreviewDirty = false;
 
         clearBackgroundPreviewToken();
 
@@ -3474,6 +3553,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
             }
 
+            if (
+                sequence !==
+                backgroundPreviewSequence
+            ) {
+                backgroundPreviewDirty = true;
+                return;
+            }
+
             releasePreviewObjectUrl();
 
             previewObjectUrl =
@@ -3481,7 +3568,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     blob
                 );
 
+            if (liveCanvas) {
+                liveCanvas.hidden = true;
+            }
+
             if (previewImage) {
+                previewImage.hidden = false;
                 previewImage.src =
                     previewObjectUrl;
 
@@ -3511,7 +3603,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             setStatus(
-                'AI-preview gereed. Dit resultaat staat nu live op de foto en is nog niet opgeslagen. Klik op "Opslaan als versie" wanneer je tevreden bent.'
+                'AI-preview gereed en live zichtbaar. Je kunt verder aanpassen; Opslaan is alleen nodig wanneer je deze versie wilt bewaren.'
             );
         } catch (error) {
             clearBackgroundPreviewToken();
@@ -3538,6 +3630,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 backgroundLivePreviewButton.textContent =
                     originalLabel;
+            }
+
+            if (
+                backgroundPreviewDirty &&
+                activeOperation() === 'background'
+            ) {
+                scheduleBackgroundPreview(
+                    550
+                );
             }
         }
     }
@@ -3609,11 +3710,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return matchFormat(
             mode,
             {
-                transparent: 'Transparant geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
-                white: 'Wit geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
-                color: 'Kleur geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
-                url: 'URL-achtergrond geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
-                upload: 'Geüploade achtergrond geselecteerd. Klik op AI-preview uitvoeren om het resultaat direct op de foto te bekijken.',
+                transparent: 'Transparant geselecteerd. De AI-preview start automatisch.',
+                white: 'Wit geselecteerd. De AI-preview start automatisch.',
+                color: 'Kleur geselecteerd. De AI-preview wordt automatisch bijgewerkt zodra je stopt met wijzigen.',
+                url: 'URL-achtergrond geselecteerd. De AI-preview start automatisch zodra de URL compleet is.',
+                upload: 'Achtergrondafbeelding geselecteerd. De AI-preview start automatisch.',
             },
             'Achtergrondbewerking gereed.'
         );
@@ -3708,6 +3809,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 backgroundModeStatus()
             );
 
+            scheduleBackgroundPreview(
+                120
+            );
+
             return;
         }
 
@@ -3785,6 +3890,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         previewImage.style.height =
             previewHeight + 'px';
+
+        if (liveCanvas) {
+            liveCanvas.style.width =
+                previewWidth + 'px';
+
+            liveCanvas.style.height =
+                previewHeight + 'px';
+        }
 
         stageInner.style.width =
             previewWidth + 'px';
@@ -4175,15 +4288,25 @@ document.addEventListener('DOMContentLoaded', function () {
         targetWidth,
         targetHeight
     ) {
+        const maxDimension =
+            isMobileEditor()
+                ? MOBILE_RENDER_MAX_DIMENSION
+                : LIVE_RENDER_MAX_DIMENSION;
+
+        const maxPixels =
+            isMobileEditor()
+                ? MOBILE_RENDER_MAX_PIXELS
+                : LIVE_RENDER_MAX_PIXELS;
+
         let scale = Math.min(
             1,
-            LIVE_RENDER_MAX_DIMENSION /
+            maxDimension /
                 Math.max(
                     targetWidth,
                     targetHeight
                 ),
             Math.sqrt(
-                LIVE_RENDER_MAX_PIXELS /
+                maxPixels /
                 Math.max(
                     1,
                     targetWidth * targetHeight
@@ -4251,7 +4374,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         context.imageSmoothingEnabled = true;
-        context.imageSmoothingQuality = 'high';
+        context.imageSmoothingQuality = 'medium';
 
         return context;
     }
@@ -5624,39 +5747,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    async function applyRenderedPreview(
+    function applyRenderedPreview(
         result,
         operation,
         sequence
     ) {
-        const outputFormat =
-            outputFormatForOperation(
-                operation
-            );
-
-        const quality =
-            qualityForOperation(
-                operation
-            );
-
-        const exportCanvas =
-            prepareCanvasForFormat(
-                result.canvas,
-                outputFormat
-            );
-
-        const mime =
-            formatToMime(
-                outputFormat
-            );
-
-        const blob =
-            await canvasToBlob(
-                exportCanvas,
-                mime,
-                quality / 100
-            );
-
         if (
             sequence !==
             renderSequence
@@ -5664,35 +5759,53 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        releasePreviewObjectUrl();
-
-        previewObjectUrl =
-            URL.createObjectURL(
-                blob
+        const outputFormat =
+            outputFormatForOperation(
+                operation
             );
 
-        if (previewImage) {
-            previewImage.src =
-                previewObjectUrl;
-
-            previewImage.alt =
-                sourceName +
-                ' live preview';
+        if (!liveCanvas) {
+            throw new Error(
+                'Het live preview-canvas ontbreekt.'
+            );
         }
+
+        releasePreviewObjectUrl();
+
+        liveCanvas.width =
+            result.canvas.width;
+
+        liveCanvas.height =
+            result.canvas.height;
+
+        const ctx =
+            context2d(
+                liveCanvas
+            );
+
+        ctx.clearRect(
+            0,
+            0,
+            liveCanvas.width,
+            liveCanvas.height
+        );
+
+        ctx.drawImage(
+            result.canvas,
+            0,
+            0
+        );
+
+        if (previewImage) {
+            previewImage.hidden = true;
+        }
+
+        liveCanvas.hidden = false;
 
         setPreviewDimensions(
             result.targetWidth,
             result.targetHeight
         );
-
-        const suffix =
-            operation === 'compress' ||
-            operation === 'convert'
-                ? ' · previewbestand ' +
-                    formatBytes(
-                        blob.size
-                    )
-                : '';
 
         if (previewMeta) {
             previewMeta.textContent =
@@ -5701,8 +5814,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 result.targetHeight +
                 ' · ' +
                 outputFormat.toUpperCase() +
-                ' · LIVE' +
-                suffix;
+                ' · LIVE';
         }
 
         const operationLabel = matchFormat(
@@ -5723,7 +5835,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setStatus(
             operationLabel +
-            ' live toegepast. Klik op de opslaanknop om deze versie definitief te bewaren.'
+            ' wordt live weergegeven. Opslaan is alleen nodig om een definitieve versie te bewaren.'
         );
 
         setLoading(
@@ -5775,10 +5887,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const sequence =
             ++renderSequence;
 
-        setLoading(
-            true
-        );
-
+        /*
+         * Lokale previews blokkeren de editor niet met een loading-overlay.
+         * Ze worden op de eerstvolgende animation frame getekend.
+         */
         setStatus(
             'Live preview wordt bijgewerkt…'
         );
@@ -5789,7 +5901,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     operation
                 );
 
-            await applyRenderedPreview(
+            applyRenderedPreview(
                 result,
                 operation,
                 sequence
@@ -5816,18 +5928,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function scheduleLiveRender(immediate = false) {
-        if (renderTimer) {
-            window.clearTimeout(
-                renderTimer
+        if (renderFrame !== null) {
+            window.cancelAnimationFrame(
+                renderFrame
             );
         }
 
-        renderTimer =
-            window.setTimeout(
-                renderLivePreview,
-                immediate
-                    ? 0
-                    : 90
+        renderFrame =
+            window.requestAnimationFrame(
+                function () {
+                    renderFrame = null;
+                    renderLivePreview();
+                }
             );
     }
 
@@ -5837,6 +5949,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         releasePreviewObjectUrl();
+
+        if (liveCanvas) {
+            liveCanvas.hidden = true;
+        }
+
+        previewImage.hidden = false;
 
         previewImage.src =
             sourceUrl;
@@ -6282,11 +6400,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-    backgroundLivePreviewButton?.addEventListener(
-        'click',
-        requestBackgroundLivePreview
-    );
-
     backgroundModeInputs.forEach(
         function (input) {
             input.addEventListener(
@@ -6301,6 +6414,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     ) {
                         setStatus(
                             backgroundModeStatus()
+                        );
+
+                        scheduleBackgroundPreview(
+                            220
                         );
                     }
                 }
@@ -6325,6 +6442,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 setStatus(
                     backgroundModeStatus()
                 );
+
+                scheduleBackgroundPreview(
+                    500
+                );
             }
         }
     );
@@ -6346,6 +6467,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 backgroundColorPicker.value =
                     value;
             }
+
+            if (
+                activeOperation() === 'background' &&
+                /^#[0-9a-fA-F]{6}$/.test(value)
+            ) {
+                scheduleBackgroundPreview(
+                    600
+                );
+            }
         }
     );
 
@@ -6354,12 +6484,19 @@ document.addEventListener('DOMContentLoaded', function () {
         function () {
             invalidateBackgroundPreview();
             syncBackgroundControls();
+            scheduleBackgroundPreview(
+                250
+            );
         }
     );
+
     backgroundSize?.addEventListener(
         'change',
         function () {
             invalidateBackgroundPreview();
+            scheduleBackgroundPreview(
+                250
+            );
         }
     );
 
@@ -6375,6 +6512,10 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
                 setStatus(
                     backgroundModeStatus()
+                );
+
+                scheduleBackgroundPreview(
+                    900
                 );
             }
         }
@@ -6400,6 +6541,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     ? 'Nieuwe achtergrond geselecteerd: ' + file.name
                     : backgroundModeStatus()
             );
+
+            if (file) {
+                scheduleBackgroundPreview(
+                    180
+                );
+            }
         }
     );
 
