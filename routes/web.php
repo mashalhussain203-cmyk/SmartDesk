@@ -741,6 +741,14 @@ Route::middleware('auth')->group(function () {
         ->name('ai.chat.voice.turn');
 
 
+    Route::post(
+        '/ai-chat/voice/tts',
+        [AiChatController::class, 'speech']
+    )
+        ->middleware('throttle:60,1')
+        ->name('ai.chat.voice.tts');
+
+
     /*
     |--------------------------------------------------------------------------
     | Favorieten

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AzureSpeechService;
 use App\Services\ChatFileReaderService;
 use App\Services\GroqChatService;
 use App\Services\GroqVoiceService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +26,7 @@ class AiChatController extends Controller
     public function __construct(
         private readonly GroqChatService $groqChat,
         private readonly GroqVoiceService $groqVoice,
+        private readonly AzureSpeechService $azureSpeech,
         private readonly ChatFileReaderService $fileReader
     ) {
     }
@@ -42,6 +45,9 @@ class AiChatController extends Controller
 
             'voiceModelName' =>
                 $this->groqVoice->modelName(),
+
+            'serverTtsConfigured' =>
+                $this->azureSpeech->isConfigured(),
 
             'maxChatFiles' =>
                 ChatFileReaderService::MAX_FILES,
@@ -233,6 +239,13 @@ class AiChatController extends Controller
 
             $this->clearCooldown($request);
 
+            $replyLocale =
+                $this->resolveReplyLocale(
+                    $voiceLanguage,
+                    $transcript,
+                    (string) $result['message']
+                );
+
             return response()->json([
                 'ok' => true,
                 'transcript' => $transcript,
@@ -240,6 +253,8 @@ class AiChatController extends Controller
                 'model' => $result['model'],
                 'usage' => $result['usage'],
                 'language' => $voiceLanguage,
+                'reply_locale' => $replyLocale,
+                'server_tts' => $this->azureSpeech->isConfigured(),
             ]);
         } catch (ValidationException $exception) {
             throw $exception;
@@ -249,6 +264,199 @@ class AiChatController extends Controller
                 $exception
             );
         }
+    }
+
+    /**
+     * Server-side TTS voor Live Voice.
+     *
+     * Geeft MP3 terug zodat ook mobiele browsers en Urdu niet afhankelijk
+     * zijn van lokaal geïnstalleerde speechSynthesis-stemmen.
+     */
+    public function speech(Request $request): Response|JsonResponse
+    {
+        if (! $this->azureSpeech->isConfigured()) {
+            return response()->json([
+                'ok' => false,
+                'error_code' => 'tts_not_configured',
+                'message' =>
+                    'Server-spraak is nog niet geconfigureerd.',
+            ], 503);
+        }
+
+        $validated = $request->validate([
+            'text' => [
+                'required',
+                'string',
+                'max:5000',
+            ],
+
+            'locale' => [
+                'required',
+                'string',
+                Rule::in([
+                    'nl-NL',
+                    'en-US',
+                    'ur-PK',
+                ]),
+            ],
+        ], [
+            'text.required' =>
+                'Er is geen antwoord om uit te spreken.',
+
+            'text.max' =>
+                'Het antwoord is te lang om in één keer uit te spreken.',
+
+            'locale.in' =>
+                'Deze gesproken taal wordt niet ondersteund.',
+        ]);
+
+        try {
+            $audio = $this->azureSpeech->synthesize(
+                (string) $validated['text'],
+                (string) $validated['locale']
+            );
+
+            return response(
+                $audio,
+                200,
+                [
+                    'Content-Type' =>
+                        'audio/mpeg',
+
+                    'Content-Length' =>
+                        (string) strlen($audio),
+
+                    'Cache-Control' =>
+                        'no-store, no-cache, must-revalidate, max-age=0',
+
+                    'Pragma' =>
+                        'no-cache',
+
+                    'X-Content-Type-Options' =>
+                        'nosniff',
+                ]
+            );
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            $status =
+                (int) $exception->getCode();
+
+            if (
+                $status < 400
+                || $status > 599
+            ) {
+                $status = 502;
+            }
+
+            return response()->json([
+                'ok' => false,
+                'error_code' => 'tts_error',
+                'message' =>
+                    $exception->getMessage()
+                    ?: 'Het gesproken antwoord kon niet worden gegenereerd.',
+            ], $status);
+        }
+    }
+
+    private function resolveReplyLocale(
+        string $selectedLanguage,
+        string $transcript,
+        string $reply
+    ): string {
+        return match ($selectedLanguage) {
+            'ur' => 'ur-PK',
+            'en' => 'en-US',
+            'nl' => 'nl-NL',
+            default =>
+                $this->detectLocaleFromText(
+                    $transcript !== ''
+                        ? $transcript
+                        : $reply
+                ),
+        };
+    }
+
+    private function detectLocaleFromText(
+        string $text
+    ): string {
+        $value =
+            trim($text);
+
+        if ($value === '') {
+            return 'nl-NL';
+        }
+
+        if (
+            preg_match(
+                '/[\x{0600}-\x{06FF}]/u',
+                $value
+            ) === 1
+        ) {
+            return 'ur-PK';
+        }
+
+        $lower =
+            mb_strtolower(
+                ' ' . $value . ' '
+            );
+
+        $englishWords = [
+            ' the ',
+            ' you ',
+            ' your ',
+            ' is ',
+            ' are ',
+            ' what ',
+            ' how ',
+            ' why ',
+            ' please ',
+            ' thanks ',
+            ' thank ',
+            ' this ',
+            ' that ',
+            ' can ',
+        ];
+
+        $dutchWords = [
+            ' de ',
+            ' het ',
+            ' een ',
+            ' je ',
+            ' jij ',
+            ' jouw ',
+            ' is ',
+            ' zijn ',
+            ' wat ',
+            ' hoe ',
+            ' waarom ',
+            ' graag ',
+            ' bedankt ',
+            ' deze ',
+            ' dit ',
+            ' dat ',
+        ];
+
+        $englishScore = 0;
+        $dutchScore = 0;
+
+        foreach ($englishWords as $word) {
+            if (str_contains($lower, $word)) {
+                $englishScore++;
+            }
+        }
+
+        foreach ($dutchWords as $word) {
+            if (str_contains($lower, $word)) {
+                $dutchScore++;
+            }
+        }
+
+        return $englishScore > $dutchScore
+            ? 'en-US'
+            : 'nl-NL';
     }
 
     /**

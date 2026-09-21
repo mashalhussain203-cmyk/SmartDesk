@@ -835,9 +835,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     const messageEndpoint = @json(route('ai.chat.message'));
     const voiceEndpoint = @json(route('ai.chat.voice.turn'));
+    const ttsEndpoint = @json(route('ai.chat.voice.tts'));
     const csrfToken = @json(csrf_token());
     const chatConfigured = @json((bool) $chatConfigured);
     const voiceConfigured = @json((bool) $voiceConfigured);
+    const serverTtsConfigured = @json((bool) ($serverTtsConfigured ?? false));
     const maxFiles = @json((int) ($maxChatFiles ?? 5));
     const maxFileBytes = @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
 
@@ -876,6 +878,18 @@ document.addEventListener('DOMContentLoaded', function () {
     let voiceSpeaking = false;
     let selectedVoiceLanguage = loadVoiceLanguage();
     let speechVoices = [];
+
+    const serverVoiceAudio =
+        new Audio();
+
+    serverVoiceAudio.preload =
+        'auto';
+
+    serverVoiceAudio.playsInline =
+        true;
+
+    let serverVoiceObjectUrl =
+        null;
 
     let mediaStream = null;
     let mediaRecorder = null;
@@ -1444,41 +1458,80 @@ document.addEventListener('DOMContentLoaded', function () {
             || [];
     }
 
-    function primeSpeechSynthesis() {
+    async function unlockVoicePlayback() {
+        /*
+         * Deze functie draait direct vanuit de klik op "Live praten".
+         * Dat is belangrijk voor iPhone/Android autoplay-beperkingen.
+         */
+        try {
+            if (audioContext?.state === 'suspended') {
+                await audioContext.resume();
+            }
+        } catch (error) {
+            // AudioContext wordt later opnieuw geprobeerd.
+        }
+
         if (
-            !('speechSynthesis' in window)
-            || !('SpeechSynthesisUtterance' in window)
+            'speechSynthesis' in window
+            && 'SpeechSynthesisUtterance' in window
         ) {
-            return;
+            try {
+                refreshSpeechVoices();
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+
+                const primer =
+                    new SpeechSynthesisUtterance('.');
+
+                primer.lang =
+                    voiceLanguageLocale()
+                    || 'nl-NL';
+
+                primer.volume = 0;
+                primer.rate = 10;
+
+                window.speechSynthesis.speak(
+                    primer
+                );
+
+                window.setTimeout(
+                    function () {
+                        window.speechSynthesis.cancel();
+                    },
+                    50
+                );
+            } catch (error) {
+                // Browser-TTS is alleen fallback.
+            }
         }
 
         try {
-            refreshSpeechVoices();
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.resume();
+            /*
+             * Korte stille WAV om HTMLAudio in mobiele browsers te unlocken.
+             */
+            const silentWav =
+                'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAACAgICA';
 
-            const primer =
-                new SpeechSynthesisUtterance('.');
+            serverVoiceAudio.src =
+                silentWav;
 
-            primer.lang =
-                voiceLanguageLocale()
-                || 'nl-NL';
+            serverVoiceAudio.volume =
+                0;
 
-            primer.volume = 0;
-            primer.rate = 10;
+            await serverVoiceAudio.play();
 
-            window.speechSynthesis.speak(
-                primer
-            );
-
-            window.setTimeout(
-                function () {
-                    window.speechSynthesis.cancel();
-                },
-                60
-            );
+            serverVoiceAudio.pause();
+            serverVoiceAudio.currentTime = 0;
+            serverVoiceAudio.volume = 1;
+            serverVoiceAudio.removeAttribute('src');
+            serverVoiceAudio.load();
         } catch (error) {
-            // Sommige mobiele browsers blokkeren de primer; echte TTS kan nog werken.
+            /*
+             * Niet fataal. Sommige browsers accepteren de echte MP3 later
+             * alsnog omdat de Live Voice-knop al een gebruikersactie was.
+             */
+            serverVoiceAudio.volume = 1;
         }
     }
 
@@ -1511,8 +1564,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     renderVoiceLanguageSwitch();
                     refreshSpeechVoices();
 
-                    window.speechSynthesis?.cancel();
-        window.speechSynthesis?.resume();
+                    cancelVoicePlayback();
                     voiceSpeaking = false;
 
                     const locale =
@@ -1626,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', function () {
          * Belangrijk op iPhone/Android: ontgrendel TTS direct vanuit de
          * gebruikersklik, vóór de eerste await/getUserMedia-call.
          */
-        primeSpeechSynthesis();
+        await unlockVoicePlayback();
 
         if (
             !navigator.mediaDevices
@@ -1919,7 +1971,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ) {
             consecutiveVoiceFrames = 0;
 
-            window.speechSynthesis?.cancel();
+            cancelVoicePlayback();
 
             voiceSpeaking = false;
 
@@ -2207,7 +2259,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             await speakLiveReply(
                 payload.message,
-                voiceLocale
+                payload.reply_locale
+                    || voiceLocale
             );
         } catch (error) {
             voicePending = false;
@@ -2237,129 +2290,282 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function speakLiveReply(
+    async function speakLiveReply(
         text,
         preferredLocale = null
     ) {
-        return new Promise(
-            async function (resolve) {
-                if (
-                    !voiceActive
-                    || !('speechSynthesis' in window)
-                    || !('SpeechSynthesisUtterance' in window)
-                ) {
-                    setVoiceState(
-                        'error',
-                        'Geen spraakstem beschikbaar',
-                        'Je browser kan het antwoord niet hardop afspelen.'
-                    );
+        if (!voiceActive) {
+            return;
+        }
 
-                    resolve();
-                    return;
-                }
+        const cleanText =
+            speechText(text);
 
-                const cleanText =
-                    speechText(text);
+        if (!cleanText) {
+            return;
+        }
 
-                if (!cleanText) {
-                    resolve();
-                    return;
-                }
+        const locale =
+            normalizeSpeechLocale(
+                preferredLocale
+                || voiceLanguageLocale()
+                || detectSpeechLocale(cleanText)
+            );
 
-                const locale =
-                    normalizeSpeechLocale(
-                        preferredLocale
-                        || voiceLanguageLocale()
-                        || detectSpeechLocale(cleanText)
-                    );
+        cancelVoicePlayback();
 
-                refreshSpeechVoices();
+        voiceSpeaking = true;
+        speakingStartedAt =
+            Date.now();
 
-                const chunks =
-                    splitSpeechText(
-                        cleanText,
-                        180
-                    );
-
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.resume();
-
-                voiceSpeaking = true;
-                speakingStartedAt =
-                    Date.now();
-
-                setVoiceState(
-                    'speaking',
-                    voiceStateCopy(
-                        locale,
-                        'speakingTitle'
-                    ),
-                    voiceStateCopy(
-                        locale,
-                        'speakingDetail'
-                    )
-                );
-
-                for (const chunk of chunks) {
-                    if (
-                        !voiceActive
-                        || !voiceSpeaking
-                    ) {
-                        break;
-                    }
-
-                    const result =
-                        await speakChunk(
-                            chunk,
-                            locale
-                        );
-
-                    if (result === 'error') {
-                        voiceSpeaking = false;
-
-                        const language =
-                            locale.split('-')[0];
-
-                        setVoiceState(
-                            'error',
-                            language === 'ur'
-                                ? 'Urdu-stem niet beschikbaar'
-                                : 'Spraak kon niet worden afgespeeld',
-                            language === 'ur'
-                                ? 'Kies of installeer op je telefoon een Urdu/Pakistan tekst-naar-spraakstem en probeer opnieuw.'
-                                : 'Controleer het mediavolume van je telefoon en probeer opnieuw.'
-                        );
-
-                        resolve();
-                        return;
-                    }
-                }
-
-                voiceSpeaking = false;
-
-                if (
-                    voiceActive
-                    && !voiceMuted
-                ) {
-                    setVoiceState(
-                        'listening',
-                        voiceStateCopy(
-                            locale,
-                            'listeningTitle'
-                        ),
-                        voiceStateCopy(
-                            locale,
-                            'listeningDetail'
-                        )
-                    );
-                }
-
-                resolve();
-            }
+        setVoiceState(
+            'speaking',
+            voiceStateCopy(
+                locale,
+                'speakingTitle'
+            ),
+            serverTtsConfigured
+                ? serverVoiceDetail(locale)
+                : voiceStateCopy(
+                    locale,
+                    'speakingDetail'
+                )
         );
+
+        let spoken = false;
+
+        if (serverTtsConfigured) {
+            spoken =
+                await speakWithServerTts(
+                    cleanText,
+                    locale
+                );
+        }
+
+        /*
+         * Browser-TTS blijft fallback als Azure tijdelijk niet beschikbaar is.
+         */
+        if (
+            !spoken
+            && voiceActive
+            && voiceSpeaking
+        ) {
+            spoken =
+                await speakWithBrowserTts(
+                    cleanText,
+                    locale
+                );
+        }
+
+        voiceSpeaking = false;
+
+        if (
+            !spoken
+            && voiceActive
+        ) {
+            setVoiceState(
+                'error',
+                locale.startsWith('ur')
+                    ? 'Urdu-spraak niet beschikbaar'
+                    : 'Spraak kon niet worden afgespeeld',
+                locale.startsWith('ur')
+                    ? (
+                        serverTtsConfigured
+                            ? 'De server kon de Urdu-audio niet afspelen. Controleer het mediavolume en probeer opnieuw.'
+                            : 'Configureer Azure Speech voor betrouwbare Urdu-spraak op telefoon en desktop.'
+                    )
+                    : 'Controleer je mediavolume en probeer opnieuw.'
+            );
+
+            return;
+        }
+
+        if (
+            voiceActive
+            && !voiceMuted
+        ) {
+            setVoiceState(
+                'listening',
+                voiceStateCopy(
+                    locale,
+                    'listeningTitle'
+                ),
+                voiceStateCopy(
+                    locale,
+                    'listeningDetail'
+                )
+            );
+        }
     }
 
-    function speakChunk(
+    async function speakWithServerTts(
+        text,
+        locale
+    ) {
+        try {
+            const response =
+                await fetch(
+                    ttsEndpoint,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'X-CSRF-TOKEN':
+                                csrfToken,
+
+                            'Accept':
+                                'audio/mpeg, application/json',
+
+                            'Content-Type':
+                                'application/json',
+                        },
+
+                        credentials:
+                            'same-origin',
+
+                        body:
+                            JSON.stringify({
+                                text: text,
+                                locale: locale,
+                            }),
+                    }
+                );
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const contentType =
+                String(
+                    response.headers.get('content-type')
+                    || ''
+                ).toLowerCase();
+
+            if (!contentType.includes('audio/')) {
+                return false;
+            }
+
+            const blob =
+                await response.blob();
+
+            if (!blob.size) {
+                return false;
+            }
+
+            revokeServerVoiceUrl();
+
+            serverVoiceObjectUrl =
+                URL.createObjectURL(
+                    blob
+                );
+
+            serverVoiceAudio.src =
+                serverVoiceObjectUrl;
+
+            serverVoiceAudio.volume =
+                1;
+
+            serverVoiceAudio.currentTime =
+                0;
+
+            return await new Promise(
+                function (resolve) {
+                    let settled = false;
+
+                    const finish =
+                        function (result) {
+                            if (settled) {
+                                return;
+                            }
+
+                            settled = true;
+
+                            serverVoiceAudio.onended =
+                                null;
+
+                            serverVoiceAudio.onerror =
+                                null;
+
+                            resolve(result);
+                        };
+
+                    serverVoiceAudio.onended =
+                        function () {
+                            finish(true);
+                        };
+
+                    serverVoiceAudio.onerror =
+                        function () {
+                            finish(false);
+                        };
+
+                    serverVoiceAudio.play()
+                        .catch(
+                            function () {
+                                finish(false);
+                            }
+                        );
+                }
+            );
+        } catch (error) {
+            return false;
+        } finally {
+            revokeServerVoiceUrl();
+        }
+    }
+
+    async function speakWithBrowserTts(
+        text,
+        locale
+    ) {
+        if (
+            !('speechSynthesis' in window)
+            || !('SpeechSynthesisUtterance' in window)
+        ) {
+            return false;
+        }
+
+        refreshSpeechVoices();
+
+        if (
+            locale.startsWith('ur')
+            && !hasBrowserVoiceForLocale(locale)
+        ) {
+            return false;
+        }
+
+        const chunks =
+            splitSpeechText(
+                text,
+                180
+            );
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.resume();
+
+        for (const chunk of chunks) {
+            if (
+                !voiceActive
+                || !voiceSpeaking
+            ) {
+                return false;
+            }
+
+            const ok =
+                await speakBrowserChunk(
+                    chunk,
+                    locale
+                );
+
+            if (!ok) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function speakBrowserChunk(
         text,
         locale
     ) {
@@ -2378,11 +2584,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         locale
                     );
 
-                /*
-                 * Bij Urdu gebruiken we NOOIT automatisch een Nederlandse of
-                 * Engelse fallbackstem. Zonder expliciete Urdu-stem laten we
-                 * het besturingssysteem zelf ur-PK oplossen.
-                 */
                 if (voice) {
                     utterance.voice =
                         voice;
@@ -2394,6 +2595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 utterance.volume = 1;
                 utterance.pitch = 1;
+
                 utterance.rate =
                     locale.toLowerCase()
                         .startsWith('ur')
@@ -2414,12 +2616,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 utterance.onend =
                     function () {
-                        finish('ok');
+                        finish(true);
                     };
 
                 utterance.onerror =
                     function () {
-                        finish('error');
+                        finish(false);
                     };
 
                 try {
@@ -2428,10 +2630,97 @@ document.addEventListener('DOMContentLoaded', function () {
                         utterance
                     );
                 } catch (error) {
-                    finish('error');
+                    finish(false);
                 }
             }
         );
+    }
+
+    function hasBrowserVoiceForLocale(
+        locale
+    ) {
+        refreshSpeechVoices();
+
+        const wanted =
+            normalizeSpeechLocale(locale)
+                .toLowerCase();
+
+        const language =
+            wanted.split('-')[0];
+
+        return speechVoices.some(
+            function (voice) {
+                const lang =
+                    String(
+                        voice.lang || ''
+                    ).toLowerCase();
+
+                const name =
+                    String(
+                        voice.name || ''
+                    ).toLowerCase();
+
+                return (
+                    lang === wanted
+                    || lang.startsWith(language)
+                    || (
+                        language === 'ur'
+                        && (
+                            name.includes('urdu')
+                            || name.includes('pakistan')
+                        )
+                    )
+                );
+            }
+        );
+    }
+
+    function serverVoiceDetail(
+        locale
+    ) {
+        if (locale.startsWith('ur')) {
+            return 'Urdu server-stem wordt afgespeeld…';
+        }
+
+        if (locale.startsWith('en')) {
+            return 'Server voice is playing…';
+        }
+
+        return 'Serverstem wordt afgespeeld…';
+    }
+
+    function cancelVoicePlayback() {
+        try {
+            window.speechSynthesis?.cancel();
+        } catch (error) {
+            // Geen actie nodig.
+        }
+
+        try {
+            serverVoiceAudio.pause();
+            serverVoiceAudio.currentTime = 0;
+        } catch (error) {
+            // Geen actie nodig.
+        }
+
+        revokeServerVoiceUrl();
+    }
+
+    function revokeServerVoiceUrl() {
+        if (!serverVoiceObjectUrl) {
+            return;
+        }
+
+        try {
+            URL.revokeObjectURL(
+                serverVoiceObjectUrl
+            );
+        } catch (error) {
+            // Geen actie nodig.
+        }
+
+        serverVoiceObjectUrl =
+            null;
     }
 
     function splitSpeechText(
@@ -2804,7 +3093,7 @@ document.addEventListener('DOMContentLoaded', function () {
         voiceSpeaking = false;
         voiceMuted = false;
 
-        window.speechSynthesis?.cancel();
+        cancelVoicePlayback();
 
         if (recording) {
             stopRecording();
