@@ -470,6 +470,45 @@
             max(18px, env(safe-area-inset-right))
             calc(18px + env(safe-area-inset-bottom))
             max(18px, env(safe-area-inset-left));
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+    }
+
+    .voice-language-switch {
+        max-width: min(100%, 430px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 5px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 999px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .voice-language-option {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        color: #8f97a1;
+        background: transparent;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    .voice-language-option.active {
+        color: #111318;
+        background: #f3f4f5;
+        box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+
+    .voice-main-controls {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -579,6 +618,17 @@
 
         .live-orb {
             width: 48%;
+        }
+
+        .voice-language-switch {
+            width: min(100%, 360px);
+            gap: 4px;
+        }
+
+        .voice-language-option {
+            min-height: 34px;
+            padding-inline: 10px;
+            font-size: 10px;
         }
     }
 </style>
@@ -744,24 +794,38 @@
     </div>
 
     <div class="live-voice-bottom">
-        <button
-            type="button"
-            class="voice-control round"
-            id="voice-mute"
-            aria-pressed="false"
-            title="Microfoon dempen"
+        <div
+            class="voice-language-switch"
+            id="voice-language-switch"
+            role="group"
+            aria-label="Live Voice taal"
         >
-            🎤
-        </button>
+            <button type="button" class="voice-language-option active" data-voice-language="auto">🌐 Auto</button>
+            <button type="button" class="voice-language-option" data-voice-language="nl">NL</button>
+            <button type="button" class="voice-language-option" data-voice-language="en">EN</button>
+            <button type="button" class="voice-language-option" data-voice-language="ur">اردو</button>
+        </div>
 
-        <button
-            type="button"
-            class="voice-control danger round"
-            id="voice-close"
-            title="Live gesprek afsluiten"
-        >
-            ✕
-        </button>
+        <div class="voice-main-controls">
+            <button
+                type="button"
+                class="voice-control round"
+                id="voice-mute"
+                aria-pressed="false"
+                title="Microfoon dempen"
+            >
+                🎤
+            </button>
+
+            <button
+                type="button"
+                class="voice-control danger round"
+                id="voice-close"
+                title="Live gesprek afsluiten"
+            >
+                ✕
+            </button>
+        </div>
     </div>
 </div>
 @endsection
@@ -778,6 +842,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const maxFileBytes = @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
 
     const storageKey = 'mashal-ai-history-groq-v2';
+    const voiceLanguageStorageKey = 'mashal-ai-live-language-v1';
 
     const form = document.getElementById('ai-form');
     const input = document.getElementById('ai-input');
@@ -797,6 +862,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const voiceStatusTitle = document.getElementById('voice-status-title');
     const voiceStatusDetail = document.getElementById('voice-status-detail');
     const liveOrb = document.getElementById('live-orb');
+    const voiceLanguageButtons = Array.from(
+        document.querySelectorAll('[data-voice-language]')
+    );
 
     let history = loadHistory();
     let selectedFiles = [];
@@ -806,6 +874,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let voiceMuted = false;
     let voicePending = false;
     let voiceSpeaking = false;
+    let selectedVoiceLanguage = loadVoiceLanguage();
+    let speechVoices = [];
 
     let mediaStream = null;
     let mediaRecorder = null;
@@ -831,6 +901,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const BARGE_ARM_MS = 600;
 
     renderHistory();
+    refreshSpeechVoices();
+    renderVoiceLanguageSwitch();
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.addEventListener?.(
+            'voiceschanged',
+            refreshSpeechVoices
+        );
+
+        window.speechSynthesis.onvoiceschanged =
+            refreshSpeechVoices;
+    }
 
     function loadHistory() {
         try {
@@ -1268,9 +1350,191 @@ document.addEventListener('DOMContentLoaded', function () {
         renderFiles();
     }
 
+    function loadVoiceLanguage() {
+        try {
+            const value = String(
+                localStorage.getItem(
+                    voiceLanguageStorageKey
+                ) || 'auto'
+            ).toLowerCase();
+
+            return ['auto', 'nl', 'en', 'ur']
+                .includes(value)
+                    ? value
+                    : 'auto';
+        } catch (error) {
+            return 'auto';
+        }
+    }
+
+    function saveVoiceLanguage() {
+        try {
+            localStorage.setItem(
+                voiceLanguageStorageKey,
+                selectedVoiceLanguage
+            );
+        } catch (error) {
+            // Local storage is optioneel.
+        }
+    }
+
+    function renderVoiceLanguageSwitch() {
+        voiceLanguageButtons.forEach(
+            function (button) {
+                const active =
+                    button.dataset.voiceLanguage
+                    === selectedVoiceLanguage;
+
+                button.classList.toggle(
+                    'active',
+                    active
+                );
+
+                button.setAttribute(
+                    'aria-pressed',
+                    active ? 'true' : 'false'
+                );
+            }
+        );
+    }
+
+    function voiceLanguageLocale() {
+        return matchVoiceLanguage(
+            selectedVoiceLanguage
+        );
+    }
+
+    function matchVoiceLanguage(language) {
+        const value =
+            String(language || 'auto')
+                .toLowerCase();
+
+        if (value === 'ur') {
+            return 'ur-PK';
+        }
+
+        if (value === 'en') {
+            return 'en-US';
+        }
+
+        if (value === 'nl') {
+            return 'nl-NL';
+        }
+
+        return null;
+    }
+
+    function selectedLanguageLabel() {
+        return {
+            auto: 'Auto',
+            nl: 'Nederlands',
+            en: 'English',
+            ur: 'اردو',
+        }[selectedVoiceLanguage] || 'Auto';
+    }
+
+    function refreshSpeechVoices() {
+        if (!('speechSynthesis' in window)) {
+            speechVoices = [];
+            return;
+        }
+
+        speechVoices =
+            window.speechSynthesis.getVoices()
+            || [];
+    }
+
+    function primeSpeechSynthesis() {
+        if (
+            !('speechSynthesis' in window)
+            || !('SpeechSynthesisUtterance' in window)
+        ) {
+            return;
+        }
+
+        try {
+            refreshSpeechVoices();
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.resume();
+
+            const primer =
+                new SpeechSynthesisUtterance('.');
+
+            primer.lang =
+                voiceLanguageLocale()
+                || 'nl-NL';
+
+            primer.volume = 0;
+            primer.rate = 10;
+
+            window.speechSynthesis.speak(
+                primer
+            );
+
+            window.setTimeout(
+                function () {
+                    window.speechSynthesis.cancel();
+                },
+                60
+            );
+        } catch (error) {
+            // Sommige mobiele browsers blokkeren de primer; echte TTS kan nog werken.
+        }
+    }
+
     /* ------------------------------------------------------------------ */
     /* Live voice                                                         */
     /* ------------------------------------------------------------------ */
+
+    voiceLanguageButtons.forEach(
+        function (button) {
+            button.addEventListener(
+                'click',
+                function () {
+                    const language =
+                        String(
+                            button.dataset.voiceLanguage
+                            || 'auto'
+                        ).toLowerCase();
+
+                    if (
+                        !['auto', 'nl', 'en', 'ur']
+                            .includes(language)
+                    ) {
+                        return;
+                    }
+
+                    selectedVoiceLanguage =
+                        language;
+
+                    saveVoiceLanguage();
+                    renderVoiceLanguageSwitch();
+                    refreshSpeechVoices();
+
+                    window.speechSynthesis?.cancel();
+        window.speechSynthesis?.resume();
+                    voiceSpeaking = false;
+
+                    const locale =
+                        voiceLanguageLocale()
+                        || 'nl-NL';
+
+                    if (voiceActive) {
+                        setVoiceState(
+                            'listening',
+                            voiceStateCopy(
+                                locale,
+                                'listeningTitle'
+                            ),
+                            selectedVoiceLanguage === 'auto'
+                                ? 'Automatische taalherkenning staat aan.'
+                                : 'Taal: ' + selectedLanguageLabel()
+                        );
+                    }
+                }
+            );
+        }
+    );
 
     liveStartButton.addEventListener(
         'click',
@@ -1358,6 +1622,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        /*
+         * Belangrijk op iPhone/Android: ontgrendel TTS direct vanuit de
+         * gebruikersklik, vóór de eerste await/getUserMedia-call.
+         */
+        primeSpeechSynthesis();
+
         if (
             !navigator.mediaDevices
             || !navigator.mediaDevices.getUserMedia
@@ -1404,10 +1674,19 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.style.overflow =
                 'hidden';
 
+            const startLocale =
+                voiceLanguageLocale()
+                || 'nl-NL';
+
             setVoiceState(
                 'listening',
-                'Ik luister…',
-                'Praat gewoon. Na een korte stilte antwoordt Mashal AI vanzelf.'
+                voiceStateCopy(
+                    startLocale,
+                    'listeningTitle'
+                ),
+                selectedVoiceLanguage === 'auto'
+                    ? 'Praat Nederlands, English of اردو. Taal wordt automatisch herkend.'
+                    : 'Taal: ' + selectedLanguageLabel()
             );
 
             runVadLoop();
@@ -1841,6 +2120,11 @@ document.addEventListener('DOMContentLoaded', function () {
             'voice.' + extension
         );
 
+        data.append(
+            'language',
+            selectedVoiceLanguage
+        );
+
         historyBefore.forEach(
             function (item, index) {
                 data.append(
@@ -1915,7 +2199,8 @@ document.addEventListener('DOMContentLoaded', function () {
             voicePending = false;
 
             const voiceLocale =
-                detectSpeechLocale(
+                voiceLanguageLocale()
+                || detectSpeechLocale(
                     payload.transcript
                     || payload.message
                 );
@@ -1957,7 +2242,7 @@ document.addEventListener('DOMContentLoaded', function () {
         preferredLocale = null
     ) {
         return new Promise(
-            function (resolve) {
+            async function (resolve) {
                 if (
                     !voiceActive
                     || !('speechSynthesis' in window)
@@ -1970,24 +2255,119 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
                     resolve();
-
                     return;
                 }
-
-                window.speechSynthesis.cancel();
 
                 const cleanText =
                     speechText(text);
 
+                if (!cleanText) {
+                    resolve();
+                    return;
+                }
+
                 const locale =
                     normalizeSpeechLocale(
                         preferredLocale
+                        || voiceLanguageLocale()
                         || detectSpeechLocale(cleanText)
                     );
 
+                refreshSpeechVoices();
+
+                const chunks =
+                    splitSpeechText(
+                        cleanText,
+                        180
+                    );
+
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+
+                voiceSpeaking = true;
+                speakingStartedAt =
+                    Date.now();
+
+                setVoiceState(
+                    'speaking',
+                    voiceStateCopy(
+                        locale,
+                        'speakingTitle'
+                    ),
+                    voiceStateCopy(
+                        locale,
+                        'speakingDetail'
+                    )
+                );
+
+                for (const chunk of chunks) {
+                    if (
+                        !voiceActive
+                        || !voiceSpeaking
+                    ) {
+                        break;
+                    }
+
+                    const result =
+                        await speakChunk(
+                            chunk,
+                            locale
+                        );
+
+                    if (result === 'error') {
+                        voiceSpeaking = false;
+
+                        const language =
+                            locale.split('-')[0];
+
+                        setVoiceState(
+                            'error',
+                            language === 'ur'
+                                ? 'Urdu-stem niet beschikbaar'
+                                : 'Spraak kon niet worden afgespeeld',
+                            language === 'ur'
+                                ? 'Kies of installeer op je telefoon een Urdu/Pakistan tekst-naar-spraakstem en probeer opnieuw.'
+                                : 'Controleer het mediavolume van je telefoon en probeer opnieuw.'
+                        );
+
+                        resolve();
+                        return;
+                    }
+                }
+
+                voiceSpeaking = false;
+
+                if (
+                    voiceActive
+                    && !voiceMuted
+                ) {
+                    setVoiceState(
+                        'listening',
+                        voiceStateCopy(
+                            locale,
+                            'listeningTitle'
+                        ),
+                        voiceStateCopy(
+                            locale,
+                            'listeningDetail'
+                        )
+                    );
+                }
+
+                resolve();
+            }
+        );
+    }
+
+    function speakChunk(
+        text,
+        locale
+    ) {
+        return new Promise(
+            function (resolve) {
                 const utterance =
                     new SpeechSynthesisUtterance(
-                        cleanText
+                        text
                     );
 
                 utterance.lang =
@@ -1998,6 +2378,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         locale
                     );
 
+                /*
+                 * Bij Urdu gebruiken we NOOIT automatisch een Nederlandse of
+                 * Engelse fallbackstem. Zonder expliciete Urdu-stem laten we
+                 * het besturingssysteem zelf ur-PK oplossen.
+                 */
                 if (voice) {
                     utterance.voice =
                         voice;
@@ -2007,88 +2392,94 @@ document.addEventListener('DOMContentLoaded', function () {
                         || locale;
                 }
 
+                utterance.volume = 1;
+                utterance.pitch = 1;
                 utterance.rate =
                     locale.toLowerCase()
                         .startsWith('ur')
-                            ? 0.96
-                            : 1.02;
+                            ? 0.94
+                            : 1.0;
 
-                utterance.pitch =
-                    1;
+                let finished = false;
 
-                utterance.onstart =
-                    function () {
-                        voiceSpeaking = true;
+                const finish =
+                    function (result) {
+                        if (finished) {
+                            return;
+                        }
 
-                        speakingStartedAt =
-                            Date.now();
-
-                        setVoiceState(
-                            'speaking',
-                            voiceStateCopy(
-                                locale,
-                                'speakingTitle'
-                            ),
-                            voiceStateCopy(
-                                locale,
-                                'speakingDetail'
-                            )
-                        );
+                        finished = true;
+                        resolve(result);
                     };
 
                 utterance.onend =
                     function () {
-                        voiceSpeaking = false;
-
-                        if (
-                            voiceActive
-                            && !voiceMuted
-                        ) {
-                            setVoiceState(
-                                'listening',
-                                voiceStateCopy(
-                                    locale,
-                                    'listeningTitle'
-                                ),
-                                voiceStateCopy(
-                                    locale,
-                                    'listeningDetail'
-                                )
-                            );
-                        }
-
-                        resolve();
+                        finish('ok');
                     };
 
                 utterance.onerror =
                     function () {
-                        voiceSpeaking = false;
-
-                        if (
-                            voiceActive
-                            && !voiceMuted
-                        ) {
-                            setVoiceState(
-                                'listening',
-                                voiceStateCopy(
-                                    locale,
-                                    'listeningTitle'
-                                ),
-                                voiceStateCopy(
-                                    locale,
-                                    'speechErrorDetail'
-                                )
-                            );
-                        }
-
-                        resolve();
+                        finish('error');
                     };
 
-                window.speechSynthesis.speak(
-                    utterance
-                );
+                try {
+                    window.speechSynthesis.resume();
+                    window.speechSynthesis.speak(
+                        utterance
+                    );
+                } catch (error) {
+                    finish('error');
+                }
             }
         );
+    }
+
+    function splitSpeechText(
+        text,
+        maxLength = 180
+    ) {
+        const value =
+            String(text || '')
+                .trim();
+
+        if (
+            !value
+            || value.length <= maxLength
+        ) {
+            return value ? [value] : [];
+        }
+
+        const sentences =
+            value.match(/[^.!?؟]+[.!?؟]?/gu)
+            || [value];
+
+        const chunks = [];
+        let current = '';
+
+        sentences.forEach(
+            function (sentence) {
+                const next =
+                    (current + ' ' + sentence)
+                        .trim();
+
+                if (
+                    current
+                    && next.length > maxLength
+                ) {
+                    chunks.push(current);
+                    current = sentence.trim();
+                    return;
+                }
+
+                current = next;
+            }
+        );
+
+        if (current) {
+            chunks.push(current);
+        }
+
+        return chunks;
     }
 
     function detectSpeechLocale(text) {
@@ -2227,8 +2618,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function chooseSpeechVoice(locale) {
+        refreshSpeechVoices();
+
         const voices =
-            window.speechSynthesis.getVoices();
+            speechVoices;
 
         if (!voices.length) {
             return null;
@@ -2241,7 +2634,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const language =
             wanted.split('-')[0];
 
-        return (
+        const exact =
             voices.find(
                 function (voice) {
                     return (
@@ -2250,8 +2643,14 @@ document.addEventListener('DOMContentLoaded', function () {
                             === wanted
                     );
                 }
-            )
-            || voices.find(
+            );
+
+        if (exact) {
+            return exact;
+        }
+
+        const sameLanguage =
+            voices.find(
                 function (voice) {
                     return (
                         voice.lang
@@ -2259,25 +2658,30 @@ document.addEventListener('DOMContentLoaded', function () {
                             .startsWith(language)
                     );
                 }
-            )
-            || (
-                language === 'ur'
-                    ? voices.find(
-                        function (voice) {
-                            const name =
-                                String(
-                                    voice.name || ''
-                                ).toLowerCase();
+            );
 
-                            return (
-                                name.includes('urdu')
-                                || name.includes('pakistan')
-                            );
-                        }
-                    )
-                    : null
-            )
-            || voices.find(
+        if (sameLanguage) {
+            return sameLanguage;
+        }
+
+        if (language === 'ur') {
+            return voices.find(
+                function (voice) {
+                    const name =
+                        String(
+                            voice.name || ''
+                        ).toLowerCase();
+
+                    return (
+                        name.includes('urdu')
+                        || name.includes('pakistan')
+                    );
+                }
+            ) || null;
+        }
+
+        return (
+            voices.find(
                 function (voice) {
                     return voice.default;
                 }
