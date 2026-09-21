@@ -1,250 +1,198 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal AI | Chat')
+@section('title', 'Mashal AI | Live Voice')
 
 @section(
     'meta_description',
-    'Chat met Mashal AI via een veilige server-side Modal AI-integratie.'
+    'Praat live met Mashal AI of gebruik de gewone tekstchat met bestanden.'
 )
 
 @push('styles')
 <style>
+    :root {
+        --ai-bg: #050607;
+        --ai-panel: #0d0f12;
+        --ai-panel-2: #111419;
+        --ai-line: rgba(255,255,255,.08);
+        --ai-muted: #727983;
+        --ai-text: #f2f4f6;
+        --ai-accent: #e9bd76;
+        --ai-danger: #ef8787;
+    }
+
     .mashal-ai-page {
         min-height: calc(100vh - 78px);
-        padding: 34px 0 70px;
-        color: #f5f6f7;
+        padding: 22px 0 54px;
+        color: var(--ai-text);
         background:
-            radial-gradient(circle at 14% 8%, rgba(229, 182, 111, .10), transparent 28rem),
-            radial-gradient(circle at 88% 22%, rgba(91, 91, 255, .08), transparent 32rem),
-            linear-gradient(180deg, #07080b, #090b0f);
+            radial-gradient(circle at 15% 0%, rgba(229,182,111,.08), transparent 30rem),
+            radial-gradient(circle at 85% 18%, rgba(90,100,255,.08), transparent 30rem),
+            var(--ai-bg);
     }
 
     .mashal-ai-shell {
-        width: min(100% - 28px, 1180px);
+        width: min(100% - 24px, 1120px);
         margin-inline: auto;
     }
 
-    .mashal-ai-hero {
-        margin-bottom: 18px;
-        padding: 18px 20px;
+    .mashal-ai-card {
+        height: min(800px, calc(100dvh - 128px));
+        min-height: 590px;
+        display: grid;
+        grid-template-rows: auto minmax(0,1fr) auto auto;
+        overflow: hidden;
+        border: 1px solid var(--ai-line);
+        border-radius: 24px;
+        background: rgba(11,13,17,.96);
+        box-shadow: 0 36px 100px rgba(0,0,0,.42);
+    }
+
+    .mashal-ai-header {
+        padding: 13px 15px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 18px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 22px;
-        background: rgba(255,255,255,.025);
-        backdrop-filter: blur(18px);
+        gap: 12px;
+        border-bottom: 1px solid var(--ai-line);
     }
 
     .mashal-ai-brand {
+        min-width: 0;
         display: flex;
         align-items: center;
-        gap: 13px;
-        min-width: 0;
+        gap: 11px;
     }
 
     .mashal-ai-mark {
-        width: 46px;
-        height: 46px;
+        width: 40px;
+        height: 40px;
         display: grid;
         place-items: center;
         flex: 0 0 auto;
-        border: 1px solid rgba(229,182,111,.20);
-        border-radius: 14px;
-        color: #f0ca89;
-        background: rgba(229,182,111,.07);
+        border: 1px solid rgba(233,189,118,.18);
+        border-radius: 12px;
+        color: #f1c982;
+        background: rgba(233,189,118,.05);
+        font-size: 12px;
         font-weight: 950;
-        box-shadow: inset 0 0 30px rgba(229,182,111,.025);
     }
 
-    .mashal-ai-brand h1 {
-        margin: 0;
-        font-size: clamp(18px, 3vw, 27px);
-        line-height: 1.1;
-    }
-
-    .mashal-ai-brand p {
-        margin: 5px 0 0;
-        color: #737a84;
-        font-size: 12px;
-    }
-
-    .mashal-ai-status {
-        min-height: 36px;
-        padding: 0 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        flex: 0 0 auto;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 999px;
-        color: #8d949e;
-        background: rgba(255,255,255,.02);
-        font-size: 11px;
-        font-weight: 850;
-    }
-
-    .mashal-ai-status::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #6fd58c;
-        box-shadow: 0 0 12px rgba(111,213,140,.44);
-    }
-
-    .mashal-ai-status.offline::before {
-        background: #d66c6c;
-        box-shadow: 0 0 12px rgba(214,108,108,.38);
-    }
-
-    .mashal-ai-card {
-        height: min(760px, calc(100svh - 180px));
-        min-height: 560px;
-        display: grid;
-        grid-template-rows:
-            auto
-            minmax(0, 1fr)
-            auto
-            auto
-            auto;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 26px;
-        background: #0b0d12;
-        box-shadow: 0 35px 100px rgba(0,0,0,.42);
-    }
-
-    .mashal-ai-toolbar {
-        padding: 12px 14px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        border-bottom: 1px solid rgba(255,255,255,.06);
-        background: rgba(255,255,255,.012);
-    }
-
-    .mashal-ai-toolbar-copy strong {
+    .mashal-ai-brand strong {
         display: block;
-        color: #d6d9dd;
-        font-size: 12px;
+        font-size: 14px;
     }
 
-    .mashal-ai-toolbar-copy span {
+    .mashal-ai-brand span {
         display: block;
-        margin-top: 3px;
-        color: #606771;
+        margin-top: 2px;
+        color: var(--ai-muted);
         font-size: 10px;
     }
 
-    .mashal-ai-clear {
-        min-height: 36px;
-        padding: 0 12px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 10px;
-        color: #9ca2aa;
-        background: rgba(255,255,255,.02);
+    .mashal-ai-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ai-action,
+    .ai-send,
+    .ai-file-button {
+        min-height: 42px;
+        padding: 0 13px;
+        border: 1px solid var(--ai-line);
+        border-radius: 11px;
+        color: #c8cdd3;
+        background: rgba(255,255,255,.025);
+        font: inherit;
         font-size: 11px;
-        font-weight: 850;
+        font-weight: 900;
         cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    .ai-action.primary {
+        border-color: rgba(233,189,118,.22);
+        color: #191107;
+        background: linear-gradient(135deg, #f0cf8a, #d89e50);
+    }
+
+    .ai-action:disabled,
+    .ai-send:disabled {
+        opacity: .5;
+        cursor: not-allowed;
     }
 
     .mashal-ai-messages {
         min-height: 0;
-        padding: 22px;
-        overflow-x: hidden;
+        padding: 24px;
         overflow-y: auto;
         overscroll-behavior: contain;
-        scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
     }
 
-    .mashal-ai-welcome {
-        max-width: 690px;
-        margin: 58px auto;
+    .ai-welcome {
+        max-width: 650px;
+        margin: 70px auto 30px;
         text-align: center;
     }
 
-    .mashal-ai-welcome-icon {
-        width: 62px;
-        height: 62px;
-        margin: 0 auto 16px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(229,182,111,.14);
-        border-radius: 19px;
-        color: #eac481;
-        background: rgba(229,182,111,.045);
-        font-size: 21px;
+    .ai-welcome-orb {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 35% 30%, #fff 0 7%, #b9c7ff 20%, #6d7ff2 46%, #303669 70%, #111525 100%);
+        box-shadow:
+            0 0 50px rgba(112,129,255,.22),
+            inset -16px -14px 30px rgba(0,0,0,.28);
     }
 
-    .mashal-ai-welcome h2 {
+    .ai-welcome h1 {
         margin: 0;
-        color: #e1e4e7;
-        font-size: clamp(22px, 4vw, 34px);
+        font-size: clamp(24px, 4vw, 38px);
     }
 
-    .mashal-ai-welcome p {
+    .ai-welcome p {
         margin: 12px auto 0;
-        max-width: 560px;
-        color: #707781;
+        max-width: 530px;
+        color: var(--ai-muted);
         font-size: 13px;
         line-height: 1.7;
     }
 
-    .mashal-ai-suggestions {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .mashal-ai-suggestion {
-        min-height: 38px;
-        padding: 0 12px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 999px;
-        color: #8d949e;
-        background: rgba(255,255,255,.018);
-        font-size: 10px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .mashal-ai-message {
+    .ai-message {
         max-width: min(78%, 760px);
-        margin-bottom: 16px;
+        margin-bottom: 17px;
     }
 
-    .mashal-ai-message.user {
+    .ai-message.user {
         margin-left: auto;
     }
 
-    .mashal-ai-message.assistant {
+    .ai-message.assistant {
         margin-right: auto;
     }
 
-    .mashal-ai-message-meta {
+    .ai-message-meta {
         margin-bottom: 5px;
-        color: #59606a;
+        color: #5d646d;
         font-size: 9px;
         font-weight: 900;
-        letter-spacing: .08em;
         text-transform: uppercase;
+        letter-spacing: .08em;
     }
 
-    .mashal-ai-message.user .mashal-ai-message-meta {
+    .ai-message.user .ai-message-meta {
         text-align: right;
     }
 
-    .mashal-ai-bubble {
+    .ai-message-bubble {
         padding: 13px 15px;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid var(--ai-line);
         border-radius: 16px;
-        color: #cdd1d5;
+        color: #d4d8dc;
         background: rgba(255,255,255,.025);
         font-size: 13px;
         line-height: 1.7;
@@ -252,535 +200,385 @@
         overflow-wrap: anywhere;
     }
 
-    .mashal-ai-message.user .mashal-ai-bubble {
-        border-color: rgba(229,182,111,.14);
-        color: #18110a;
-        background: linear-gradient(135deg, #efd08e, #d49b50);
+    .ai-message.user .ai-message-bubble {
+        border-color: rgba(233,189,118,.16);
+        color: #1d140a;
+        background: linear-gradient(135deg, #efd08d, #d6a056);
     }
 
-    .mashal-ai-message.loading .mashal-ai-bubble {
-        color: #777e87;
+    .ai-attachments {
+        min-height: 0;
+        padding: 0 13px 9px;
     }
 
-
-
-    .mashal-ai-attachments {
-        padding: 0 13px 10px;
-    }
-
-    .mashal-ai-file-row {
+    .ai-file-row {
         display: flex;
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
     }
 
-    .mashal-ai-file-button {
-        min-height: 38px;
-        padding: 0 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 11px;
-        color: #aeb4bc;
-        background: rgba(255,255,255,.025);
-        font-size: 11px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-    .mashal-ai-file-button:hover {
-        border-color: rgba(229,182,111,.18);
-        color: #e9dfcf;
-        background: rgba(229,182,111,.045);
-    }
-
-    .mashal-ai-file-input {
+    .ai-file-input {
         position: absolute;
         width: 1px;
         height: 1px;
-        padding: 0;
-        margin: -1px;
         overflow: hidden;
         clip: rect(0,0,0,0);
         white-space: nowrap;
-        border: 0;
     }
 
-    .mashal-ai-file-help {
+    .ai-file-help {
         color: #59616b;
         font-size: 9px;
-        line-height: 1.45;
     }
 
-    .mashal-ai-file-list {
-        margin-top: 8px;
+    .ai-file-list {
+        margin-top: 7px;
         display: flex;
-        gap: 7px;
+        gap: 6px;
         flex-wrap: wrap;
     }
 
-    .mashal-ai-file-chip {
-        max-width: 100%;
-        min-height: 32px;
-        padding: 5px 7px 5px 10px;
+    .ai-file-chip {
+        max-width: 260px;
+        padding: 6px 8px 6px 10px;
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 10px;
-        color: #9ba2ab;
+        border: 1px solid var(--ai-line);
+        border-radius: 9px;
+        color: #9ba2aa;
         background: rgba(255,255,255,.02);
         font-size: 10px;
-        font-weight: 800;
     }
 
-    .mashal-ai-file-chip-name {
-        max-width: 230px;
+    .ai-file-chip span {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .mashal-ai-file-remove {
-        width: 24px;
-        height: 24px;
-        display: grid;
-        place-items: center;
+    .ai-file-chip button {
         border: 0;
-        border-radius: 7px;
-        color: #8e959e;
-        background: rgba(255,255,255,.035);
+        color: #a0a6ae;
+        background: transparent;
         cursor: pointer;
-    }
-
-    .mashal-ai-file-remove:hover {
-        color: #e3a5a5;
-        background: rgba(220,100,100,.06);
-    }
-
-    .mashal-ai-card.dragging {
-        outline: 1px solid rgba(229,182,111,.38);
-        outline-offset: -2px;
-    }
-
-    .mashal-ai-voicebar {
-        padding: 11px 13px 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .mashal-ai-voice-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .mashal-ai-voice-button,
-    .mashal-ai-voice-toggle,
-    .mashal-ai-voice-stop {
-        min-height: 38px;
-        padding: 0 12px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 11px;
-        color: #aeb4bc;
-        background: rgba(255,255,255,.025);
-        font-size: 11px;
-        font-weight: 900;
-        cursor: pointer;
-        transition:
-            border-color .18s ease,
-            background .18s ease,
-            color .18s ease,
-            transform .18s ease;
-    }
-
-    .mashal-ai-voice-button:hover,
-    .mashal-ai-voice-toggle:hover,
-    .mashal-ai-voice-stop:hover {
-        border-color: rgba(229,182,111,.18);
-        color: #e9dfcf;
-        background: rgba(229,182,111,.045);
-    }
-
-    .mashal-ai-voice-button.active,
-    .mashal-ai-voice-toggle.active {
-        border-color: rgba(111,213,140,.22);
-        color: #d8f6df;
-        background: rgba(111,213,140,.065);
-        box-shadow: 0 0 0 3px rgba(111,213,140,.025);
-    }
-
-    .mashal-ai-voice-button.listening {
-        animation: mashalAiPulse 1.25s ease-in-out infinite;
-    }
-
-    .mashal-ai-voice-stop {
-        color: #d99b9b;
-        border-color: rgba(217,105,105,.12);
-    }
-
-    .mashal-ai-voice-stop[hidden] {
-        display: none !important;
-    }
-
-    .mashal-ai-voice-status {
-        min-height: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: #666e78;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    .mashal-ai-voice-dot {
-        width: 7px;
-        height: 7px;
-        flex: 0 0 auto;
-        border-radius: 50%;
-        background: #505761;
-    }
-
-    .mashal-ai-voice-status.listening .mashal-ai-voice-dot {
-        background: #6fd58c;
-        box-shadow: 0 0 14px rgba(111,213,140,.50);
-    }
-
-    .mashal-ai-voice-status.speaking .mashal-ai-voice-dot {
-        background: #e7be76;
-        box-shadow: 0 0 14px rgba(231,190,118,.44);
-    }
-
-    .mashal-ai-voice-status.thinking .mashal-ai-voice-dot {
-        background: #8b83ff;
-        box-shadow: 0 0 14px rgba(139,131,255,.42);
-    }
-
-    .mashal-ai-voice-status.error .mashal-ai-voice-dot {
-        background: #d66c6c;
-        box-shadow: 0 0 14px rgba(214,108,108,.42);
-    }
-
-    .mashal-ai-voice-unsupported {
-        color: #9b7777;
-    }
-
-    @keyframes mashalAiPulse {
-        0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(111,213,140,.12);
-        }
-
-        50% {
-            transform: scale(1.015);
-            box-shadow: 0 0 0 7px rgba(111,213,140,0);
-        }
     }
 
     .mashal-ai-composer {
-        padding: 13px;
-        border-top: 1px solid rgba(255,255,255,.06);
-        background: rgba(7,9,12,.92);
-        backdrop-filter: blur(18px);
+        padding: 12px;
+        border-top: 1px solid var(--ai-line);
+        background: rgba(8,10,13,.96);
     }
 
-    .mashal-ai-input-wrap {
+    .ai-error {
+        margin-bottom: 9px;
+        padding: 10px 12px;
+        display: none;
+        border: 1px solid rgba(239,135,135,.16);
+        border-radius: 11px;
+        color: #dfa1a1;
+        background: rgba(239,135,135,.04);
+        font-size: 11px;
+    }
+
+    .ai-error.show {
+        display: block;
+    }
+
+    .ai-input-wrap {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0,1fr) auto;
         align-items: end;
-        gap: 9px;
-        padding: 8px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 16px;
-        background: #0d1015;
+        gap: 8px;
+        padding: 7px;
+        border: 1px solid var(--ai-line);
+        border-radius: 15px;
+        background: var(--ai-panel);
     }
 
-    .mashal-ai-input {
+    .ai-input {
         width: 100%;
-        max-height: 180px;
         min-height: 46px;
-        padding: 12px 11px;
+        max-height: 180px;
+        padding: 12px 10px;
         resize: none;
         overflow-y: auto;
         border: 0;
         outline: 0;
-        color: #e0e3e6;
+        color: var(--ai-text);
         background: transparent;
         font: inherit;
-        font-size: 13px;
-        line-height: 1.55;
-    }
-
-    .mashal-ai-input::placeholder {
-        color: #565d66;
-    }
-
-    .mashal-ai-send {
-        min-width: 100px;
-        min-height: 46px;
-        padding: 0 15px;
-        border: 1px solid rgba(229,182,111,.18);
-        border-radius: 12px;
-        color: #171009;
-        background: linear-gradient(135deg, #efd08e, #d49b50);
-        font-size: 11px;
-        font-weight: 950;
-        cursor: pointer;
-    }
-
-    .mashal-ai-send:disabled {
-        opacity: .52;
-        cursor: not-allowed;
-    }
-
-    .mashal-ai-note {
-        margin: 8px 4px 0;
-        color: #525963;
-        font-size: 9px;
+        font-size: 14px;
         line-height: 1.5;
     }
 
-    .mashal-ai-error {
-        margin: 0 0 12px;
-        padding: 11px 13px;
-        display: none;
-        border: 1px solid rgba(244,125,125,.13);
-        border-radius: 12px;
-        color: #d89999;
-        background: rgba(244,125,125,.035);
+    .ai-send {
+        min-width: 96px;
+        border-color: rgba(233,189,118,.2);
+        color: #171009;
+        background: linear-gradient(135deg, #efd08e, #d49b50);
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* Live Voice                                                           */
+    /* --------------------------------------------------------------------- */
+
+    .live-voice {
+        position: fixed;
+        z-index: 99999;
+        inset: 0;
+        display: grid;
+        grid-template-rows: auto minmax(0,1fr) auto;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        color: #f5f6f7;
+        background:
+            radial-gradient(circle at 50% 58%, rgba(73,83,155,.09), transparent 30rem),
+            #020303;
+        transition:
+            opacity .2s ease,
+            visibility .2s ease;
+    }
+
+    .live-voice.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .live-voice-top {
+        padding:
+            max(18px, env(safe-area-inset-top))
+            max(20px, env(safe-area-inset-right))
+            12px
+            max(20px, env(safe-area-inset-left));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .live-voice-title {
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .live-voice-title span {
+        color: #848b95;
+        font-weight: 500;
+    }
+
+    .live-voice-center {
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+    }
+
+    .live-voice-stage {
+        display: grid;
+        place-items: center;
+        text-align: center;
+    }
+
+    .live-orb-wrap {
+        width: min(46vw, 240px);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+    }
+
+    .live-orb {
+        width: 44%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 33% 28%, #ffffff 0 7%, #d6dfff 14%, #98a9ff 31%, #6478ea 47%, #3d477f 68%, #151929 100%);
+        box-shadow:
+            0 0 60px rgba(108,127,255,.24),
+            0 0 130px rgba(75,89,180,.10),
+            inset -18px -14px 34px rgba(0,0,0,.28);
+        transform: scale(1);
+        transition:
+            transform .16s ease,
+            filter .25s ease,
+            box-shadow .25s ease;
+        will-change: transform;
+    }
+
+    .live-voice[data-state="listening"] .live-orb {
+        animation: voiceBreath 2.5s ease-in-out infinite;
+    }
+
+    .live-voice[data-state="recording"] .live-orb {
+        filter: saturate(1.12) brightness(1.12);
+        box-shadow:
+            0 0 76px rgba(108,127,255,.38),
+            0 0 150px rgba(75,89,180,.15),
+            inset -18px -14px 34px rgba(0,0,0,.25);
+    }
+
+    .live-voice[data-state="thinking"] .live-orb {
+        animation: voiceThink 1.1s ease-in-out infinite;
+    }
+
+    .live-voice[data-state="speaking"] .live-orb {
+        animation: voiceSpeak .75s ease-in-out infinite alternate;
+    }
+
+    .live-voice[data-state="error"] .live-orb {
+        filter: saturate(.75) hue-rotate(110deg);
+    }
+
+    @keyframes voiceBreath {
+        0%, 100% { transform: scale(.96); }
+        50% { transform: scale(1.04); }
+    }
+
+    @keyframes voiceThink {
+        0%, 100% { transform: scale(.96) rotate(-2deg); }
+        50% { transform: scale(1.055) rotate(2deg); }
+    }
+
+    @keyframes voiceSpeak {
+        from { transform: scale(.94); }
+        to { transform: scale(1.08); }
+    }
+
+    .live-voice-status {
+        margin-top: 26px;
+        min-height: 52px;
+    }
+
+    .live-voice-status strong {
+        display: block;
+        font-size: clamp(17px, 3vw, 24px);
+    }
+
+    .live-voice-status span {
+        display: block;
+        margin-top: 6px;
+        color: #757d87;
         font-size: 11px;
     }
 
-    .mashal-ai-error.show {
-        display: block;
+    .live-voice-bottom {
+        padding:
+            12px
+            max(18px, env(safe-area-inset-right))
+            calc(18px + env(safe-area-inset-bottom))
+            max(18px, env(safe-area-inset-left));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
     }
 
-
-    .mashal-ai-clear,
-    .mashal-ai-suggestion,
-    .mashal-ai-file-button,
-    .mashal-ai-file-remove,
-    .mashal-ai-voice-button,
-    .mashal-ai-voice-toggle,
-    .mashal-ai-voice-stop,
-    .mashal-ai-send {
+    .voice-control {
+        min-width: 52px;
+        height: 52px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 999px;
+        color: #e4e6e9;
+        background: #1c1e21;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 850;
+        cursor: pointer;
         touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-        user-select: none;
-        -webkit-user-select: none;
     }
 
-    .mashal-ai-file-button,
-    .mashal-ai-voice-button,
-    .mashal-ai-voice-toggle,
-    .mashal-ai-voice-stop,
-    .mashal-ai-send,
-    .mashal-ai-clear {
-        position: relative;
-        z-index: 2;
+    .voice-control.round {
+        width: 52px;
+        padding: 0;
+        font-size: 18px;
+    }
+
+    .voice-control.danger {
+        color: #111;
+        background: #fff;
+    }
+
+    .voice-control.muted {
+        color: #efaaaa;
+        background: #352426;
     }
 
     @media (max-width: 760px) {
         .mashal-ai-page {
-            min-height: calc(100svh - 64px);
-            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            min-height: calc(100dvh - 64px);
+            padding: 7px 0 calc(7px + env(safe-area-inset-bottom));
         }
 
         .mashal-ai-shell {
-            width: min(100% - 8px, 1180px);
+            width: min(100% - 8px, 1120px);
         }
 
-        .mashal-ai-hero {
-            margin-bottom: 7px;
-            padding: 11px;
-            border-radius: 15px;
+        .mashal-ai-card {
+            height: calc(100dvh - 82px);
+            min-height: 0;
+            border-radius: 17px;
         }
 
-        .mashal-ai-mark {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+        .mashal-ai-header {
+            padding: 9px;
         }
 
-        .mashal-ai-brand p {
-            font-size: 11px;
-        }
-
-        .mashal-ai-status {
+        .mashal-ai-brand span {
             display: none;
         }
 
-        .mashal-ai-card {
-            height: calc(100dvh - 122px);
-            min-height: 0;
-            border-radius: 17px;
-            overflow: hidden;
-        }
-
-        @supports not (height: 100dvh) {
-            .mashal-ai-card {
-                height: calc(100svh - 122px);
-            }
-        }
-
-        .mashal-ai-toolbar {
-            padding: 9px 10px;
-        }
-
-
-        .mashal-ai-card {
-            height: min(
-                calc(100dvh - 122px),
-                calc(var(--mashal-visual-height, 100dvh) - 96px)
-            );
+        .mashal-ai-header-actions .ai-action:not(.primary) {
+            display: none;
         }
 
         .mashal-ai-messages {
             padding: 14px 10px;
         }
 
-        .mashal-ai-welcome {
-            margin: 36px auto;
+        .ai-message {
+            max-width: 91%;
         }
 
-        .mashal-ai-welcome p {
-            font-size: 13px;
-        }
-
-        .mashal-ai-message {
-            max-width: 90%;
-        }
-
-        .mashal-ai-bubble {
+        .ai-message-bubble {
             font-size: 14px;
         }
 
-
-
-        .mashal-ai-attachments {
-            min-width: 0;
-            padding: 6px 8px;
-            border-top: 1px solid rgba(255,255,255,.045);
-            background: rgba(8,10,14,.96);
-        }
-
-        .mashal-ai-file-row {
-            flex-wrap: nowrap;
-            min-width: 0;
-        }
-
-        .mashal-ai-file-button {
-            min-height: 44px;
-            flex: 0 0 auto;
-            font-size: 12px;
-        }
-
-        .mashal-ai-file-help {
-            min-width: 0;
-            width: auto;
-            flex: 1 1 auto;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 9px;
-        }
-
-        .mashal-ai-file-list {
-            max-height: 76px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            flex-wrap: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .mashal-ai-file-chip {
-            flex: 0 0 auto;
-        }
-
-        .mashal-ai-file-chip-name {
-            max-width: 170px;
-        }
-
-        .mashal-ai-voicebar {
-            min-width: 0;
-            padding: 6px 8px;
-            align-items: center;
-            flex-wrap: nowrap;
-            border-top: 1px solid rgba(255,255,255,.045);
-            background: rgba(8,10,14,.96);
-        }
-
-        .mashal-ai-voice-controls {
-            min-width: 0;
-            width: auto;
-            flex: 0 1 auto;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .mashal-ai-voice-button,
-        .mashal-ai-voice-toggle,
-        .mashal-ai-voice-stop {
-            min-height: 44px;
-            flex: 0 0 auto;
-            font-size: 12px;
-        }
-
-        .mashal-ai-voice-status {
-            min-width: 0;
-            width: auto;
-            flex: 1 1 auto;
-            padding: 0 2px;
-            overflow: hidden;
-            font-size: 9px;
-        }
-
-        .mashal-ai-voice-status > span:last-child {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .ai-file-help {
+            display: none;
         }
 
         .mashal-ai-composer {
-            position: relative;
-            z-index: 5;
             padding:
                 8px
                 8px
                 calc(8px + env(safe-area-inset-bottom));
-            background: rgba(7,9,12,.985);
         }
 
-        .mashal-ai-input-wrap {
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 5px;
-            padding: 5px;
-            border-radius: 13px;
-        }
-
-        .mashal-ai-input {
-            min-width: 0;
+        .ai-input {
             min-height: 48px;
-            max-height: 116px;
+            max-height: 120px;
             font-size: 16px;
         }
 
-        .mashal-ai-send {
-            min-width: 72px;
+        .ai-send {
+            min-width: 74px;
             min-height: 48px;
-            padding-inline: 11px;
-            font-size: 13px;
+            padding-inline: 10px;
         }
 
-        .mashal-ai-note {
-            font-size: 10px;
+        .live-orb-wrap {
+            width: min(76vw, 310px);
+        }
+
+        .live-orb {
+            width: 48%;
         }
     }
 </style>
@@ -789,192 +587,108 @@
 @section('content')
 <div class="mashal-ai-page">
     <div class="mashal-ai-shell">
-        <header class="mashal-ai-hero">
-            <div class="mashal-ai-brand">
-                <div class="mashal-ai-mark" aria-hidden="true">AI</div>
+        <section class="mashal-ai-card" aria-label="Mashal AI">
+            <header class="mashal-ai-header">
+                <div class="mashal-ai-brand">
+                    <div class="mashal-ai-mark" aria-hidden="true">AI</div>
 
-                <div>
-                    <h1>Mashal AI</h1>
-                    <p>
-                        Een aparte AI-assistent, veilig verbonden met jouw Modal endpoint.
-                    </p>
-                </div>
-            </div>
-
-            <div
-                class="mashal-ai-status {{ $chatConfigured ? '' : 'offline' }}"
-                id="chat-config-status"
-            >
-                {{ $chatConfigured ? 'Modal verbonden' : 'Configuratie ontbreekt' }}
-            </div>
-        </header>
-
-        <section class="mashal-ai-card" aria-label="Mashal AI chat">
-            <div class="mashal-ai-toolbar">
-                <div class="mashal-ai-toolbar-copy">
-                    <strong>Nieuwe conversatie</strong>
-                    <span>
-                        {{ $modelName !== '' ? $modelName : 'Modal AI endpoint' }}
-                    </span>
+                    <div>
+                        <strong>Mashal AI</strong>
+                        <span>
+                            {{ $modelName ?: 'Groq AI' }}
+                            ·
+                            {{ $voiceModelName ?: 'Whisper' }}
+                        </span>
+                    </div>
                 </div>
 
-                <button
-                    type="button"
-                    class="mashal-ai-clear"
-                    id="mashal-ai-clear"
-                >
-                    Chat wissen
-                </button>
-            </div>
+                <div class="mashal-ai-header-actions">
+                    <button
+                        type="button"
+                        class="ai-action"
+                        id="ai-clear"
+                    >
+                        Wissen
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ai-action primary"
+                        id="ai-live-start"
+                        @disabled(! $chatConfigured || ! $voiceConfigured)
+                    >
+                        🎙 Live praten
+                    </button>
+                </div>
+            </header>
 
             <div
                 class="mashal-ai-messages"
-                id="mashal-ai-messages"
+                id="ai-messages"
                 aria-live="polite"
             >
-                <div
-                    class="mashal-ai-welcome"
-                    id="mashal-ai-welcome"
-                >
-                    <div class="mashal-ai-welcome-icon" aria-hidden="true">✦</div>
+                <div class="ai-welcome" id="ai-welcome">
+                    <div class="ai-welcome-orb" aria-hidden="true"></div>
 
-                    <h2>Waar kan ik je mee helpen?</h2>
+                    <h1>Waar kan ik je mee helpen?</h1>
 
                     <p>
-                        Stel een vraag, laat tekst uitleggen, brainstorm over ideeën
-                        of gebruik Mashal AI als assistent tijdens je werk.
+                        Typ een bericht of start Live Voice.
+                        In Live Voice praat je gewoon door:
+                        Mashal AI luistert, antwoordt hardop en luistert daarna automatisch opnieuw.
                     </p>
-
-                    <div class="mashal-ai-suggestions">
-                        <button
-                            type="button"
-                            class="mashal-ai-suggestion"
-                            data-suggestion="Leg dit onderwerp eenvoudig aan mij uit."
-                        >
-                            Iets uitleggen
-                        </button>
-
-                        <button
-                            type="button"
-                            class="mashal-ai-suggestion"
-                            data-suggestion="Help mij ideeën te bedenken voor mijn project."
-                        >
-                            Ideeën bedenken
-                        </button>
-
-                        <button
-                            type="button"
-                            class="mashal-ai-suggestion"
-                            data-suggestion="Help mij deze tekst duidelijker en professioneler te schrijven."
-                        >
-                            Tekst verbeteren
-                        </button>
-                    </div>
                 </div>
             </div>
 
-
-
-            <div class="mashal-ai-attachments">
-                <div class="mashal-ai-file-row">
+            <div class="ai-attachments">
+                <div class="ai-file-row">
                     <label
-                        class="mashal-ai-file-button"
-                        for="mashal-ai-files"
+                        class="ai-file-button"
+                        for="ai-files"
                     >
-                        📎 Bestanden
+                        ＋ Bestand
                     </label>
 
                     <input
-                        id="mashal-ai-files"
-                        class="mashal-ai-file-input"
+                        id="ai-files"
+                        class="ai-file-input"
                         type="file"
-                        name="files[]"
                         multiple
-                        accept=".pdf,.docx,.xlsx,.txt,.md,.markdown,.csv,.json,.xml,.html,.htm,.log,.php,.js,.ts,.jsx,.tsx,.css,.scss,.sql,.yaml,.yml,.ini,.conf,.py,.java,.c,.cpp,.h,.hpp,.cs,.go,.rs,.sh,.ps1,.rb,.swift,.dart,.vue,.svelte"
                     >
 
-                    <span class="mashal-ai-file-help">
-                        Max. {{ $maxChatFiles ?? 5 }} bestanden · {{ $maxChatFileMb ?? 10 }} MB per bestand · PDF, DOCX, XLSX, tekst en code.
+                    <span class="ai-file-help">
+                        Max. {{ $maxChatFiles ?? 5 }} bestanden,
+                        {{ $maxChatFileMb ?? 10 }} MB per bestand.
                     </span>
                 </div>
 
                 <div
-                    class="mashal-ai-file-list"
-                    id="mashal-ai-file-list"
-                    aria-live="polite"
+                    id="ai-file-list"
+                    class="ai-file-list"
                 ></div>
-            </div>
-
-            <div class="mashal-ai-voicebar">
-                <div class="mashal-ai-voice-controls">
-                    <button
-                        type="button"
-                        class="mashal-ai-voice-button"
-                        id="mashal-ai-mic"
-                        aria-pressed="false"
-                    >
-                        🎤 Praat
-                    </button>
-
-                    <button
-                        type="button"
-                        class="mashal-ai-voice-toggle"
-                        id="mashal-ai-voice-mode"
-                        aria-pressed="false"
-                        title="Na het AI-antwoord automatisch opnieuw luisteren"
-                    >
-                        ↻ Doorpraten
-                    </button>
-
-                    <button
-                        type="button"
-                        class="mashal-ai-voice-stop"
-                        id="mashal-ai-voice-stop"
-                        hidden
-                    >
-                        ⏹ Stop
-                    </button>
-                </div>
-
-                <div
-                    class="mashal-ai-voice-status"
-                    id="mashal-ai-voice-status"
-                    role="status"
-                    aria-live="polite"
-                >
-                    <span
-                        class="mashal-ai-voice-dot"
-                        aria-hidden="true"
-                    ></span>
-
-                    <span id="mashal-ai-voice-status-text">
-                        Microfoon gereed
-                    </span>
-                </div>
             </div>
 
             <div class="mashal-ai-composer">
                 <div
-                    class="mashal-ai-error"
-                    id="mashal-ai-error"
+                    id="ai-error"
+                    class="ai-error"
                     role="alert"
                 ></div>
 
-                <form id="mashal-ai-form">
-                    <div class="mashal-ai-input-wrap">
+                <form id="ai-form">
+                    <div class="ai-input-wrap">
                         <textarea
-                            id="mashal-ai-input"
-                            class="mashal-ai-input"
+                            id="ai-input"
+                            class="ai-input"
                             rows="1"
                             maxlength="12000"
                             placeholder="Typ je bericht…"
                             autocomplete="off"
-                            required
                         ></textarea>
 
                         <button
-                            id="mashal-ai-send"
-                            class="mashal-ai-send"
+                            id="ai-send"
+                            class="ai-send"
                             type="submit"
                             @disabled(! $chatConfigured)
                         >
@@ -982,14 +696,72 @@
                         </button>
                     </div>
                 </form>
-
-                <p class="mashal-ai-note">
-                    Je Modal API-key blijft server-side in Railway en wordt nooit naar de browser gestuurd.
-                    Documenten worden tijdelijk door Laravel uitgelezen en alleen als tekstcontext naar de AI gestuurd.
-                    Voor voice gebruikt de pagina de spraakfuncties van je browser; microfoontoegang vereist HTTPS en jouw toestemming.
-                </p>
             </div>
         </section>
+    </div>
+</div>
+
+<div
+    id="live-voice"
+    class="live-voice"
+    data-state="idle"
+    aria-hidden="true"
+>
+    <div class="live-voice-top">
+        <div class="live-voice-title">
+            Mashal AI <span>Live</span>
+        </div>
+
+        <button
+            type="button"
+            class="voice-control"
+            id="voice-type"
+        >
+            ⌨ Typen
+        </button>
+    </div>
+
+    <div class="live-voice-center">
+        <div class="live-voice-stage">
+            <div class="live-orb-wrap">
+                <div
+                    id="live-orb"
+                    class="live-orb"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+            <div class="live-voice-status" aria-live="polite">
+                <strong id="voice-status-title">
+                    Klaar
+                </strong>
+
+                <span id="voice-status-detail">
+                    Tik op Live praten om te beginnen.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="live-voice-bottom">
+        <button
+            type="button"
+            class="voice-control round"
+            id="voice-mute"
+            aria-pressed="false"
+            title="Microfoon dempen"
+        >
+            🎤
+        </button>
+
+        <button
+            type="button"
+            class="voice-control danger round"
+            id="voice-close"
+            title="Live gesprek afsluiten"
+        >
+            ✕
+        </button>
     </div>
 </div>
 @endsection
@@ -997,277 +769,472 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const endpoint =
-        @json(route('ai.chat.message'));
+    const messageEndpoint = @json(route('ai.chat.message'));
+    const voiceEndpoint = @json(route('ai.chat.voice.turn'));
+    const csrfToken = @json(csrf_token());
+    const chatConfigured = @json((bool) $chatConfigured);
+    const voiceConfigured = @json((bool) $voiceConfigured);
+    const maxFiles = @json((int) ($maxChatFiles ?? 5));
+    const maxFileBytes = @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
 
-    const csrfToken =
-        @json(csrf_token());
+    const storageKey = 'mashal-ai-history-groq-v2';
 
-    const configured =
-        @json((bool) $chatConfigured);
+    const form = document.getElementById('ai-form');
+    const input = document.getElementById('ai-input');
+    const sendButton = document.getElementById('ai-send');
+    const messages = document.getElementById('ai-messages');
+    const welcome = document.getElementById('ai-welcome');
+    const errorBox = document.getElementById('ai-error');
+    const clearButton = document.getElementById('ai-clear');
+    const liveStartButton = document.getElementById('ai-live-start');
+    const fileInput = document.getElementById('ai-files');
+    const fileList = document.getElementById('ai-file-list');
 
-    const storageKey =
-        'mashal-ai-history-v1';
+    const liveVoice = document.getElementById('live-voice');
+    const voiceTypeButton = document.getElementById('voice-type');
+    const voiceCloseButton = document.getElementById('voice-close');
+    const voiceMuteButton = document.getElementById('voice-mute');
+    const voiceStatusTitle = document.getElementById('voice-status-title');
+    const voiceStatusDetail = document.getElementById('voice-status-detail');
+    const liveOrb = document.getElementById('live-orb');
 
-    const form =
-        document.getElementById('mashal-ai-form');
-
-    const input =
-        document.getElementById('mashal-ai-input');
-
-    const sendButton =
-        document.getElementById('mashal-ai-send');
-
-    const messagesContainer =
-        document.getElementById('mashal-ai-messages');
-
-    const welcome =
-        document.getElementById('mashal-ai-welcome');
-
-    const errorBox =
-        document.getElementById('mashal-ai-error');
-
-    const clearButton =
-        document.getElementById('mashal-ai-clear');
-
-
-    const micButton =
-        document.getElementById('mashal-ai-mic');
-
-    const voiceModeButton =
-        document.getElementById('mashal-ai-voice-mode');
-
-    const voiceStopButton =
-        document.getElementById('mashal-ai-voice-stop');
-
-    const voiceStatus =
-        document.getElementById('mashal-ai-voice-status');
-
-    const voiceStatusText =
-        document.getElementById('mashal-ai-voice-status-text');
-
-
-    const fileInput =
-        document.getElementById('mashal-ai-files');
-
-    const fileList =
-        document.getElementById('mashal-ai-file-list');
-
-    const chatCard =
-        document.querySelector('.mashal-ai-card');
-
-    const maxChatFiles =
-        @json((int) ($maxChatFiles ?? 5));
-
-    const maxChatFileBytes =
-        @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
-
+    let history = loadHistory();
     let selectedFiles = [];
+    let sendingText = false;
 
+    let voiceActive = false;
+    let voiceMuted = false;
+    let voicePending = false;
+    let voiceSpeaking = false;
 
-    const mobileViewport =
-        window.visualViewport || null;
+    let mediaStream = null;
+    let mediaRecorder = null;
+    let recorderChunks = [];
+    let recorderMimeType = '';
+    let audioContext = null;
+    let analyser = null;
+    let analyserData = null;
+    let analyserSource = null;
+    let vadFrame = null;
 
-    function updateMobileViewport() {
-        if (!mobileViewport) {
+    let recording = false;
+    let recordingStartedAt = 0;
+    let lastSpeechAt = 0;
+    let consecutiveVoiceFrames = 0;
+    let speakingStartedAt = 0;
+
+    const VOICE_THRESHOLD = 0.035;
+    const BARGE_THRESHOLD = 0.075;
+    const SILENCE_MS = 720;
+    const MIN_RECORD_MS = 320;
+    const MAX_RECORD_MS = 20000;
+    const BARGE_ARM_MS = 600;
+
+    renderHistory();
+
+    function loadHistory() {
+        try {
+            const parsed = JSON.parse(
+                localStorage.getItem(storageKey) || '[]'
+            );
+
+            if (!Array.isArray(parsed)) {
+                return [];
+            }
+
+            return parsed
+                .filter(function (item) {
+                    return item
+                        && (item.role === 'user' || item.role === 'assistant')
+                        && typeof item.content === 'string';
+                })
+                .slice(-20);
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveHistory() {
+        try {
+            localStorage.setItem(
+                storageKey,
+                JSON.stringify(history.slice(-20))
+            );
+        } catch (error) {
+            // Local storage is optioneel.
+        }
+    }
+
+    function pushHistory(role, content) {
+        const text = String(content || '').trim();
+
+        if (!text) {
             return;
         }
 
-        document.documentElement.style.setProperty(
-            '--mashal-visual-height',
-            mobileViewport.height + 'px'
+        history.push({
+            role: role,
+            content: text,
+        });
+
+        history = history.slice(-20);
+        saveHistory();
+    }
+
+    function setError(message = '') {
+        errorBox.textContent = message;
+        errorBox.classList.toggle(
+            'show',
+            Boolean(message)
         );
     }
 
-    updateMobileViewport();
+    function renderHistory() {
+        if (!history.length) {
+            return;
+        }
 
-    mobileViewport?.addEventListener(
-        'resize',
-        updateMobileViewport
+        welcome?.remove();
+
+        history.forEach(function (item) {
+            renderMessage(
+                item.role,
+                item.content
+            );
+        });
+    }
+
+    function renderMessage(role, content, loading = false) {
+        welcome?.remove();
+
+        const article = document.createElement('article');
+        article.className =
+            'ai-message '
+            + role
+            + (loading ? ' loading' : '');
+
+        const meta = document.createElement('div');
+        meta.className = 'ai-message-meta';
+        meta.textContent =
+            role === 'user'
+                ? 'Jij'
+                : 'Mashal AI';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'ai-message-bubble';
+        bubble.textContent = content;
+
+        article.append(
+            meta,
+            bubble
+        );
+
+        messages.appendChild(article);
+
+        messages.scrollTop =
+            messages.scrollHeight;
+
+        return article;
+    }
+
+    function appendHistoryToFormData(formData) {
+        history.slice(-20).forEach(
+            function (item, index) {
+                formData.append(
+                    'history[' + index + '][role]',
+                    item.role
+                );
+
+                formData.append(
+                    'history[' + index + '][content]',
+                    item.content
+                );
+            }
+        );
+    }
+
+    function autoResize() {
+        input.style.height = 'auto';
+
+        input.style.height =
+            Math.min(
+                input.scrollHeight,
+                180
+            ) + 'px';
+    }
+
+    input.addEventListener(
+        'input',
+        autoResize
     );
 
-    const SpeechRecognitionConstructor =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition ||
-        null;
-
-    const speechSynthesisSupported =
-        'speechSynthesis' in window &&
-        'SpeechSynthesisUtterance' in window;
-
-    let recognition = null;
-    let listening = false;
-    let voiceMode = false;
-    let shouldRestartListening = false;
-    let voiceStoppedManually = false;
-    let sendingMessage = false;
-
-    let history =
-        loadHistory();
-
-
-
-    function formatFileSize(bytes) {
-        if (!Number.isFinite(bytes)) {
-            return '';
-        }
-
-        if (bytes < 1024) {
-            return bytes + ' B';
-        }
-
-        if (bytes < 1024 * 1024) {
-            return (
-                bytes /
-                1024
-            ).toFixed(1) + ' KB';
-        }
-
-        return (
-            bytes /
-            1024 /
-            1024
-        ).toFixed(1) + ' MB';
-    }
-
-    function fileKey(file) {
-        return [
-            file.name,
-            file.size,
-            file.lastModified,
-        ].join('::');
-    }
-
-    function addFiles(files) {
-        const incoming =
-            Array.from(
-                files || []
-            );
-
-        for (const file of incoming) {
+    input.addEventListener(
+        'keydown',
+        function (event) {
             if (
-                selectedFiles.length >=
-                maxChatFiles
+                event.key === 'Enter'
+                && !event.shiftKey
+            ) {
+                event.preventDefault();
+
+                if (!sendingText) {
+                    form.requestSubmit();
+                }
+            }
+        }
+    );
+
+    form.addEventListener(
+        'submit',
+        async function (event) {
+            event.preventDefault();
+
+            if (
+                !chatConfigured
+                || sendingText
+            ) {
+                return;
+            }
+
+            const text = input.value.trim();
+
+            if (
+                !text
+                && selectedFiles.length === 0
             ) {
                 setError(
-                    'Je kunt maximaal ' +
-                    maxChatFiles +
-                    ' bestanden tegelijk toevoegen.'
+                    'Typ een bericht of voeg een bestand toe.'
+                );
+
+                return;
+            }
+
+            setError('');
+
+            const historyBefore =
+                history.slice(-20);
+
+            if (text) {
+                renderMessage(
+                    'user',
+                    text
+                );
+            } else {
+                renderMessage(
+                    'user',
+                    'Bestand(en) toegevoegd'
+                );
+            }
+
+            const loading = renderMessage(
+                'assistant',
+                'Mashal AI denkt…',
+                true
+            );
+
+            sendingText = true;
+            sendButton.disabled = true;
+
+            const data = new FormData();
+
+            data.append(
+                'message',
+                text
+            );
+
+            historyBefore.forEach(
+                function (item, index) {
+                    data.append(
+                        'history[' + index + '][role]',
+                        item.role
+                    );
+
+                    data.append(
+                        'history[' + index + '][content]',
+                        item.content
+                    );
+                }
+            );
+
+            selectedFiles.forEach(
+                function (file) {
+                    data.append(
+                        'files[]',
+                        file,
+                        file.name
+                    );
+                }
+            );
+
+            input.value = '';
+            autoResize();
+
+            try {
+                const response = await fetch(
+                    messageEndpoint,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: data,
+                        credentials: 'same-origin',
+                    }
+                );
+
+                const payload = await safeJson(
+                    response
+                );
+
+                loading?.remove();
+
+                if (!response.ok || !payload.ok) {
+                    throw new Error(
+                        payload.message
+                        || 'Mashal AI kon geen antwoord ophalen.'
+                    );
+                }
+
+                if (text) {
+                    pushHistory(
+                        'user',
+                        text
+                    );
+                } else {
+                    pushHistory(
+                        'user',
+                        'Ik heb bestanden toegevoegd om te analyseren.'
+                    );
+                }
+
+                pushHistory(
+                    'assistant',
+                    payload.message
+                );
+
+                renderMessage(
+                    'assistant',
+                    payload.message
+                );
+
+                clearSelectedFiles();
+            } catch (error) {
+                loading?.remove();
+
+                setError(
+                    error?.message
+                    || 'Er ging iets mis.'
+                );
+            } finally {
+                sendingText = false;
+                sendButton.disabled = !chatConfigured;
+            }
+        }
+    );
+
+    clearButton.addEventListener(
+        'click',
+        function () {
+            history = [];
+            saveHistory();
+
+            Array.from(
+                messages.children
+            ).forEach(function (child) {
+                child.remove();
+            });
+
+            const welcomeBlock =
+                document.createElement('div');
+
+            welcomeBlock.className =
+                'ai-welcome';
+
+            welcomeBlock.innerHTML =
+                '<div class="ai-welcome-orb" aria-hidden="true"></div>'
+                + '<h1>Nieuwe conversatie</h1>'
+                + '<p>Typ iets of start Live Voice.</p>';
+
+            messages.appendChild(
+                welcomeBlock
+            );
+
+            clearSelectedFiles();
+            setError('');
+        }
+    );
+
+    fileInput.addEventListener(
+        'change',
+        function () {
+            addFiles(
+                fileInput.files
+            );
+
+            fileInput.value = '';
+        }
+    );
+
+    function addFiles(fileCollection) {
+        const files =
+            Array.from(
+                fileCollection || []
+            );
+
+        for (const file of files) {
+            if (
+                selectedFiles.length
+                >= maxFiles
+            ) {
+                setError(
+                    'Je kunt maximaal '
+                    + maxFiles
+                    + ' bestanden toevoegen.'
                 );
 
                 break;
             }
 
             if (
-                file.size >
-                maxChatFileBytes
+                file.size
+                > maxFileBytes
             ) {
                 setError(
-                    '"' +
-                    file.name +
-                    '" is groter dan ' +
-                    Math.round(
-                        maxChatFileBytes /
-                        1024 /
-                        1024
-                    ) +
-                    ' MB.'
+                    '"' + file.name + '" is te groot.'
                 );
 
                 continue;
             }
 
-            const key =
-                fileKey(file);
-
-            if (
-                selectedFiles.some(
-                    function (existing) {
-                        return (
-                            fileKey(existing) ===
-                            key
-                        );
-                    }
-                )
-            ) {
-                continue;
-            }
-
-            selectedFiles.push(
-                file
-            );
+            selectedFiles.push(file);
         }
 
-        renderSelectedFiles();
+        renderFiles();
     }
 
-    function removeFile(index) {
-        selectedFiles.splice(
-            index,
-            1
-        );
-
-        renderSelectedFiles();
-    }
-
-    function clearSelectedFiles() {
-        selectedFiles = [];
-
-        if (fileInput) {
-            fileInput.value = '';
-        }
-
-        renderSelectedFiles();
-    }
-
-    function renderSelectedFiles() {
-        if (!fileList) {
-            return;
-        }
-
+    function renderFiles() {
         fileList.replaceChildren();
 
         selectedFiles.forEach(
             function (file, index) {
                 const chip =
-                    document.createElement(
-                        'div'
-                    );
+                    document.createElement('div');
 
                 chip.className =
-                    'mashal-ai-file-chip';
+                    'ai-file-chip';
 
                 const name =
-                    document.createElement(
-                        'span'
-                    );
-
-                name.className =
-                    'mashal-ai-file-chip-name';
+                    document.createElement('span');
 
                 name.textContent =
-                    file.name +
-                    ' · ' +
-                    formatFileSize(
-                        file.size
-                    );
+                    file.name;
 
                 const remove =
-                    document.createElement(
-                        'button'
-                    );
+                    document.createElement('button');
 
                 remove.type =
                     'button';
-
-                remove.className =
-                    'mashal-ai-file-remove';
-
-                remove.setAttribute(
-                    'aria-label',
-                    'Verwijder ' +
-                    file.name
-                );
 
                 remove.textContent =
                     '×';
@@ -1275,9 +1242,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 remove.addEventListener(
                     'click',
                     function () {
-                        removeFile(
-                            index
+                        selectedFiles.splice(
+                            index,
+                            1
                         );
+
+                        renderFiles();
                     }
                 );
 
@@ -1293,1110 +1263,967 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    function setVoiceStatus(
-        state = '',
-        message = 'Microfoon gereed'
-    ) {
-        if (voiceStatus) {
-            voiceStatus.classList.remove(
-                'listening',
-                'speaking',
-                'thinking',
-                'error'
-            );
-
-            if (state) {
-                voiceStatus.classList.add(
-                    state
-                );
-            }
-        }
-
-        if (voiceStatusText) {
-            voiceStatusText.textContent =
-                message;
-        }
+    function clearSelectedFiles() {
+        selectedFiles = [];
+        renderFiles();
     }
 
-    function updateVoiceButtons() {
-        if (micButton) {
-            micButton.classList.toggle(
-                'active',
-                listening
+    /* ------------------------------------------------------------------ */
+    /* Live voice                                                         */
+    /* ------------------------------------------------------------------ */
+
+    liveStartButton.addEventListener(
+        'click',
+        startLiveVoice
+    );
+
+    voiceCloseButton.addEventListener(
+        'click',
+        stopLiveVoice
+    );
+
+    voiceTypeButton.addEventListener(
+        'click',
+        function () {
+            stopLiveVoice();
+
+            window.setTimeout(
+                function () {
+                    input.focus();
+                },
+                80
+            );
+        }
+    );
+
+    voiceMuteButton.addEventListener(
+        'click',
+        function () {
+            voiceMuted =
+                !voiceMuted;
+
+            voiceMuteButton.classList.toggle(
+                'muted',
+                voiceMuted
             );
 
-            micButton.classList.toggle(
-                'listening',
-                listening
-            );
-
-            micButton.setAttribute(
+            voiceMuteButton.setAttribute(
                 'aria-pressed',
-                listening
+                voiceMuted
                     ? 'true'
                     : 'false'
             );
 
-            micButton.textContent =
-                listening
-                    ? '🎤 Luisteren…'
-                    : '🎤 Praat';
-        }
+            voiceMuteButton.textContent =
+                voiceMuted
+                    ? '🔇'
+                    : '🎤';
 
-        if (voiceModeButton) {
-            voiceModeButton.classList.toggle(
-                'active',
-                voiceMode
-            );
-
-            voiceModeButton.setAttribute(
-                'aria-pressed',
-                voiceMode
-                    ? 'true'
-                    : 'false'
-            );
-
-            voiceModeButton.textContent =
-                voiceMode
-                    ? '↻ Doorpraten aan'
-                    : '↻ Doorpraten';
-        }
-
-        if (voiceStopButton) {
-            voiceStopButton.hidden =
-                !(
-                    listening ||
-                    voiceMode ||
-                    (
-                        speechSynthesisSupported &&
-                        window.speechSynthesis.speaking
-                    )
-                );
-        }
-    }
-
-    function stopSpeaking() {
-        if (!speechSynthesisSupported) {
-            return;
-        }
-
-        window.speechSynthesis.cancel();
-    }
-
-    function stopListening() {
-        if (!recognition) {
-            listening = false;
-            updateVoiceButtons();
-            return;
-        }
-
-        try {
-            recognition.stop();
-        } catch (error) {
-            // Recognition kan al gestopt zijn.
-        }
-
-        listening = false;
-        updateVoiceButtons();
-    }
-
-    function stopVoiceConversation() {
-        voiceStoppedManually = true;
-        shouldRestartListening = false;
-        voiceMode = false;
-
-        stopListening();
-        stopSpeaking();
-
-        setVoiceStatus(
-            '',
-            'Stemmodus gestopt'
-        );
-
-        updateVoiceButtons();
-    }
-
-    function createRecognition() {
-        if (!SpeechRecognitionConstructor) {
-            return null;
-        }
-
-        const instance =
-            new SpeechRecognitionConstructor();
-
-        instance.lang =
-            document.documentElement.lang ||
-            navigator.language ||
-            'nl-NL';
-
-        instance.continuous =
-            false;
-
-        instance.interimResults =
-            true;
-
-        instance.maxAlternatives =
-            1;
-
-        instance.onstart = function () {
-            listening = true;
-
-            setVoiceStatus(
-                'listening',
-                'Luisteren… praat nu'
-            );
-
-            updateVoiceButtons();
-        };
-
-        instance.onresult = function (event) {
-            let interimText = '';
-            let finalText = '';
-
-            for (
-                let index = event.resultIndex;
-                index < event.results.length;
-                index++
-            ) {
-                const transcript =
-                    event.results[index][0]?.transcript ||
-                    '';
-
-                if (event.results[index].isFinal) {
-                    finalText +=
-                        transcript;
-                } else {
-                    interimText +=
-                        transcript;
-                }
-            }
-
-            const visibleText =
-                (
-                    finalText ||
-                    interimText
-                ).trim();
-
-            if (
-                input &&
-                visibleText
-            ) {
-                input.value =
-                    visibleText;
-
-                autoResize();
-            }
-
-            if (
-                finalText.trim() &&
-                !sendingMessage
-            ) {
-                stopListening();
-
-                const spokenMessage =
-                    finalText.trim();
-
-                if (input) {
-                    input.value = '';
-                    autoResize();
+            if (voiceMuted) {
+                if (recording) {
+                    stopRecording();
                 }
 
-                sendMessage(
-                    spokenMessage,
-                    true
-                );
-            }
-        };
-
-        instance.onerror = function (event) {
-            listening = false;
-            updateVoiceButtons();
-
-            let message =
-                'Microfoon kon niet worden gebruikt.';
-
-            if (
-                event.error === 'not-allowed' ||
-                event.error === 'service-not-allowed'
-            ) {
-                message =
-                    'Microfoontoegang is geweigerd. Geef deze website toestemming voor de microfoon.';
-            } else if (event.error === 'no-speech') {
-                message =
-                    'Ik hoorde geen spraak. Probeer opnieuw.';
-            } else if (event.error === 'audio-capture') {
-                message =
-                    'Er is geen werkende microfoon gevonden.';
-            } else if (event.error === 'network') {
-                message =
-                    'Spraakherkenning kon de netwerkservice niet bereiken.';
-            }
-
-            setVoiceStatus(
-                'error',
-                message
-            );
-        };
-
-        instance.onend = function () {
-            listening = false;
-            updateVoiceButtons();
-
-            if (
-                voiceMode &&
-                shouldRestartListening &&
-                !sendingMessage &&
-                !voiceStoppedManually
-            ) {
-                window.setTimeout(
-                    startListening,
-                    350
+                setVoiceState(
+                    'idle',
+                    'Microfoon gedempt',
+                    'Tik opnieuw op de microfoon om verder te praten.'
                 );
             } else if (
-                !sendingMessage &&
-                !(
-                    speechSynthesisSupported &&
-                    window.speechSynthesis.speaking
-                )
+                !voicePending
+                && !voiceSpeaking
             ) {
-                setVoiceStatus(
-                    '',
-                    voiceMode
-                        ? 'Doorpraten staat aan'
-                        : 'Microfoon gereed'
+                setVoiceState(
+                    'listening',
+                    'Ik luister…',
+                    'Praat gewoon. Je hoeft niets in te drukken.'
                 );
             }
-        };
+        }
+    );
 
-        return instance;
-    }
-
-    function startListening() {
-        if (!SpeechRecognitionConstructor) {
-            setVoiceStatus(
-                'error',
-                'Deze browser ondersteunt geen spraakherkenning. Gebruik bij voorkeur Chrome of Edge.'
+    async function startLiveVoice() {
+        if (
+            !chatConfigured
+            || !voiceConfigured
+        ) {
+            setError(
+                'Live Voice is nog niet volledig geconfigureerd.'
             );
 
-            micButton?.classList.add(
-                'mashal-ai-voice-unsupported'
-            );
+            return;
+        }
 
+        if (voiceActive) {
             return;
         }
 
         if (
-            sendingMessage ||
-            listening
+            !navigator.mediaDevices
+            || !navigator.mediaDevices.getUserMedia
+            || typeof MediaRecorder === 'undefined'
         ) {
-            return;
-        }
-
-        voiceStoppedManually = false;
-        shouldRestartListening = false;
-
-        stopSpeaking();
-
-        if (!recognition) {
-            recognition =
-                createRecognition();
-        }
-
-        try {
-            recognition.start();
-        } catch (error) {
-            setVoiceStatus(
-                'error',
-                'De microfoon kon niet worden gestart. Probeer opnieuw.'
+            setError(
+                'Deze browser ondersteunt de benodigde microfoonfuncties niet.'
             );
-        }
-    }
 
-    function chooseVoice() {
-        if (!speechSynthesisSupported) {
-            return null;
-        }
-
-        const voices =
-            window.speechSynthesis.getVoices();
-
-        if (!voices.length) {
-            return null;
-        }
-
-        const preferredLanguage =
-            (
-                document.documentElement.lang ||
-                navigator.language ||
-                'nl-NL'
-            ).toLowerCase();
-
-        return (
-            voices.find(function (voice) {
-                return (
-                    voice.lang?.toLowerCase() ===
-                    preferredLanguage
-                );
-            }) ||
-            voices.find(function (voice) {
-                return (
-                    voice.lang?.toLowerCase().startsWith(
-                        preferredLanguage.split('-')[0]
-                    )
-                );
-            }) ||
-            voices.find(function (voice) {
-                return voice.default;
-            }) ||
-            voices[0]
-        );
-    }
-
-    function speakText(text) {
-        return new Promise(function (resolve) {
-            if (
-                !speechSynthesisSupported ||
-                !text
-            ) {
-                resolve();
-                return;
-            }
-
-            stopListening();
-            stopSpeaking();
-
-            const utterance =
-                new SpeechSynthesisUtterance(
-                    text
-                );
-
-            utterance.lang =
-                document.documentElement.lang ||
-                navigator.language ||
-                'nl-NL';
-
-            const voice =
-                chooseVoice();
-
-            if (voice) {
-                utterance.voice =
-                    voice;
-            }
-
-            utterance.rate =
-                1;
-
-            utterance.pitch =
-                1;
-
-            utterance.onstart = function () {
-                setVoiceStatus(
-                    'speaking',
-                    'Mashal AI spreekt…'
-                );
-
-                updateVoiceButtons();
-            };
-
-            utterance.onend = function () {
-                setVoiceStatus(
-                    '',
-                    voiceMode
-                        ? 'Klaar. Ik luister zo weer…'
-                        : 'Microfoon gereed'
-                );
-
-                updateVoiceButtons();
-                resolve();
-            };
-
-            utterance.onerror = function () {
-                setVoiceStatus(
-                    'error',
-                    'Het antwoord kon niet hardop worden afgespeeld.'
-                );
-
-                updateVoiceButtons();
-                resolve();
-            };
-
-            window.speechSynthesis.speak(
-                utterance
-            );
-        });
-    }
-
-    function loadHistory() {
-        try {
-            const raw =
-                localStorage.getItem(
-                    storageKey
-                );
-
-            if (!raw) {
-                return [];
-            }
-
-            const parsed =
-                JSON.parse(raw);
-
-            if (!Array.isArray(parsed)) {
-                return [];
-            }
-
-            return parsed
-                .filter(function (item) {
-                    return (
-                        item &&
-                        (
-                            item.role === 'user' ||
-                            item.role === 'assistant'
-                        ) &&
-                        typeof item.content === 'string'
-                    );
-                })
-                .slice(-20);
-        } catch (error) {
-            return [];
-        }
-    }
-
-    function saveHistory() {
-        try {
-            localStorage.setItem(
-                storageKey,
-                JSON.stringify(
-                    history.slice(-20)
-                )
-            );
-        } catch (error) {
-            // Local storage is optioneel.
-        }
-    }
-
-    function setError(message = '') {
-        if (!errorBox) {
             return;
-        }
-
-        errorBox.textContent =
-            message;
-
-        errorBox.classList.toggle(
-            'show',
-            Boolean(message)
-        );
-    }
-
-    function scrollToBottom() {
-        if (!messagesContainer) {
-            return;
-        }
-
-        messagesContainer.scrollTop =
-            messagesContainer.scrollHeight;
-    }
-
-    function renderMessage(
-        role,
-        content,
-        loading = false
-    ) {
-        if (!messagesContainer) {
-            return null;
-        }
-
-        welcome?.remove();
-
-        const wrapper =
-            document.createElement('article');
-
-        wrapper.className =
-            'mashal-ai-message ' +
-            role +
-            (loading ? ' loading' : '');
-
-        const meta =
-            document.createElement('div');
-
-        meta.className =
-            'mashal-ai-message-meta';
-
-        meta.textContent =
-            role === 'user'
-                ? 'Jij'
-                : 'Mashal AI';
-
-        const bubble =
-            document.createElement('div');
-
-        bubble.className =
-            'mashal-ai-bubble';
-
-        /*
-         * textContent voorkomt dat model-output als HTML wordt uitgevoerd.
-         */
-        bubble.textContent =
-            content;
-
-        wrapper.append(
-            meta,
-            bubble
-        );
-
-        messagesContainer.appendChild(
-            wrapper
-        );
-
-        scrollToBottom();
-
-        return wrapper;
-    }
-
-    function renderHistory() {
-        if (!history.length) {
-            return;
-        }
-
-        history.forEach(
-            function (message) {
-                renderMessage(
-                    message.role,
-                    message.content
-                );
-            }
-        );
-    }
-
-    function autoResize() {
-        if (!input) {
-            return;
-        }
-
-        input.style.height =
-            'auto';
-
-        input.style.height =
-            Math.min(
-                input.scrollHeight,
-                180
-            ) + 'px';
-    }
-
-    async function sendMessage(message, fromVoice = false, files = []) {
-        if (
-            !configured ||
-            (
-                !message &&
-                (!files || !files.length)
-            ) ||
-            sendingMessage
-        ) {
-            return;
-        }
-
-        sendingMessage = true;
-
-        shouldRestartListening = false;
-
-        if (fromVoice) {
-            setVoiceStatus(
-                'thinking',
-                'Mashal AI denkt…'
-            );
         }
 
         setError('');
 
-        const historyForRequest =
-            history.slice(-20);
+        try {
+            mediaStream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                    },
+                    video: false,
+                });
 
-        const visibleUserMessage =
-            message ||
-            (
-                files && files.length
-                    ? '📎 ' +
-                        files.length +
-                        (
-                            files.length === 1
-                                ? ' bestand toegevoegd'
-                                : ' bestanden toegevoegd'
-                        )
-                    : ''
+            await setupAudioAnalysis(
+                mediaStream
             );
 
-        history.push({
-            role: 'user',
-            content: visibleUserMessage,
-        });
+            voiceActive = true;
+            voiceMuted = false;
+            voicePending = false;
+            voiceSpeaking = false;
 
-        renderMessage(
-            'user',
-            visibleUserMessage
-        );
-
-        const loadingMessage =
-            renderMessage(
-                'assistant',
-                'Mashal AI denkt…',
-                true
+            liveVoice.classList.add(
+                'active'
             );
 
-        if (sendButton) {
-            sendButton.disabled =
-                true;
+            liveVoice.setAttribute(
+                'aria-hidden',
+                'false'
+            );
 
-            sendButton.textContent =
-                'Bezig…';
+            document.body.style.overflow =
+                'hidden';
+
+            setVoiceState(
+                'listening',
+                'Ik luister…',
+                'Praat gewoon. Na een korte stilte antwoordt Mashal AI vanzelf.'
+            );
+
+            runVadLoop();
+        } catch (error) {
+            setError(
+                'Microfoontoegang is nodig voor Live Voice.'
+            );
+
+            cleanupVoiceResources();
+        }
+    }
+
+    async function setupAudioAnalysis(stream) {
+        const Context =
+            window.AudioContext
+            || window.webkitAudioContext;
+
+        if (!Context) {
+            throw new Error(
+                'AudioContext wordt niet ondersteund.'
+            );
         }
 
+        audioContext =
+            new Context();
+
+        if (
+            audioContext.state === 'suspended'
+        ) {
+            await audioContext.resume();
+        }
+
+        analyser =
+            audioContext.createAnalyser();
+
+        analyser.fftSize =
+            1024;
+
+        analyser.smoothingTimeConstant =
+            .72;
+
+        analyserData =
+            new Uint8Array(
+                analyser.fftSize
+            );
+
+        analyserSource =
+            audioContext.createMediaStreamSource(
+                stream
+            );
+
+        analyserSource.connect(
+            analyser
+        );
+    }
+
+    function runVadLoop() {
+        cancelAnimationFrame(
+            vadFrame
+        );
+
+        const loop = function () {
+            if (
+                !voiceActive
+                || !analyser
+                || !analyserData
+            ) {
+                return;
+            }
+
+            const level =
+                microphoneLevel();
+
+            animateOrbByLevel(
+                level
+            );
+
+            if (!voiceMuted) {
+                if (voiceSpeaking) {
+                    detectBargeIn(
+                        level
+                    );
+                } else if (!voicePending) {
+                    detectSpeechTurn(
+                        level
+                    );
+                }
+            }
+
+            vadFrame =
+                requestAnimationFrame(
+                    loop
+                );
+        };
+
+        vadFrame =
+            requestAnimationFrame(
+                loop
+            );
+    }
+
+    function microphoneLevel() {
+        analyser.getByteTimeDomainData(
+            analyserData
+        );
+
+        let total = 0;
+
+        for (
+            let index = 0;
+            index < analyserData.length;
+            index++
+        ) {
+            const normalized =
+                (
+                    analyserData[index]
+                    - 128
+                )
+                / 128;
+
+            total +=
+                normalized
+                * normalized;
+        }
+
+        return Math.sqrt(
+            total
+            / analyserData.length
+        );
+    }
+
+    function animateOrbByLevel(level) {
+        if (
+            !liveOrb
+            || voiceSpeaking
+        ) {
+            return;
+        }
+
+        if (
+            liveVoice.dataset.state
+            !== 'recording'
+        ) {
+            return;
+        }
+
+        const extra =
+            Math.min(
+                .15,
+                level * 1.9
+            );
+
+        liveOrb.style.transform =
+            'scale('
+            + (1 + extra).toFixed(3)
+            + ')';
+    }
+
+    function detectSpeechTurn(level) {
+        if (recording) {
+            if (level > VOICE_THRESHOLD) {
+                lastSpeechAt =
+                    Date.now();
+            }
+
+            const elapsed =
+                Date.now()
+                - recordingStartedAt;
+
+            const silence =
+                Date.now()
+                - lastSpeechAt;
+
+            if (
+                elapsed >= MIN_RECORD_MS
+                && silence >= SILENCE_MS
+            ) {
+                stopRecording();
+
+                return;
+            }
+
+            if (
+                elapsed >= MAX_RECORD_MS
+            ) {
+                stopRecording();
+            }
+
+            return;
+        }
+
+        if (level > VOICE_THRESHOLD) {
+            consecutiveVoiceFrames++;
+        } else {
+            consecutiveVoiceFrames =
+                Math.max(
+                    0,
+                    consecutiveVoiceFrames - 1
+                );
+        }
+
+        if (
+            consecutiveVoiceFrames >= 3
+        ) {
+            consecutiveVoiceFrames = 0;
+            startRecording();
+        }
+    }
+
+    function detectBargeIn(level) {
+        if (
+            Date.now() - speakingStartedAt
+            < BARGE_ARM_MS
+        ) {
+            return;
+        }
+
+        if (level > BARGE_THRESHOLD) {
+            consecutiveVoiceFrames++;
+        } else {
+            consecutiveVoiceFrames =
+                Math.max(
+                    0,
+                    consecutiveVoiceFrames - 1
+                );
+        }
+
+        if (
+            consecutiveVoiceFrames >= 4
+        ) {
+            consecutiveVoiceFrames = 0;
+
+            window.speechSynthesis?.cancel();
+
+            voiceSpeaking = false;
+
+            setVoiceState(
+                'listening',
+                'Ik luister…',
+                'Je hebt Mashal AI onderbroken.'
+            );
+
+            window.setTimeout(
+                startRecording,
+                120
+            );
+        }
+    }
+
+    function chooseRecorderMimeType() {
+        const candidates = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/ogg;codecs=opus',
+            'audio/mp4',
+        ];
+
+        for (const type of candidates) {
+            if (
+                MediaRecorder.isTypeSupported(type)
+            ) {
+                return type;
+            }
+        }
+
+        return '';
+    }
+
+    function startRecording() {
+        if (
+            !voiceActive
+            || voiceMuted
+            || voicePending
+            || recording
+            || !mediaStream
+        ) {
+            return;
+        }
+
+        recorderMimeType =
+            chooseRecorderMimeType();
+
         try {
-            const formData =
-                new FormData();
-
-            formData.append(
-                'message',
-                message || ''
+            mediaRecorder =
+                recorderMimeType
+                    ? new MediaRecorder(
+                        mediaStream,
+                        {
+                            mimeType:
+                                recorderMimeType,
+                        }
+                    )
+                    : new MediaRecorder(
+                        mediaStream
+                    );
+        } catch (error) {
+            setVoiceState(
+                'error',
+                'Opname kon niet starten',
+                'Probeer Live Voice opnieuw.'
             );
 
-            historyForRequest.forEach(
-                function (historyItem, index) {
-                    formData.append(
-                        'history[' +
-                        index +
-                        '][role]',
-                        historyItem.role
-                    );
+            return;
+        }
 
-                    formData.append(
-                        'history[' +
-                        index +
-                        '][content]',
-                        historyItem.content
-                    );
-                }
-            );
+        recorderChunks = [];
 
-            Array.from(
-                files || []
-            ).forEach(
-                function (file) {
-                    formData.append(
-                        'files[]',
-                        file,
-                        file.name
+        mediaRecorder.ondataavailable =
+            function (event) {
+                if (
+                    event.data
+                    && event.data.size > 0
+                ) {
+                    recorderChunks.push(
+                        event.data
                     );
                 }
+            };
+
+        mediaRecorder.onstop =
+            handleRecorderStop;
+
+        recording = true;
+
+        recordingStartedAt =
+            Date.now();
+
+        lastSpeechAt =
+            Date.now();
+
+        setVoiceState(
+            'recording',
+            'Ik hoor je…',
+            'Praat verder. Ik verstuur automatisch zodra je klaar bent.'
+        );
+
+        mediaRecorder.start(
+            180
+        );
+    }
+
+    function stopRecording() {
+        if (
+            !recording
+            || !mediaRecorder
+        ) {
+            return;
+        }
+
+        recording = false;
+
+        try {
+            if (
+                mediaRecorder.state
+                !== 'inactive'
+            ) {
+                mediaRecorder.stop();
+            }
+        } catch (error) {
+            // Recorder was al gestopt.
+        }
+    }
+
+    async function handleRecorderStop() {
+        liveOrb.style.transform = '';
+
+        if (
+            !voiceActive
+            || recorderChunks.length === 0
+        ) {
+            return;
+        }
+
+        const blob = new Blob(
+            recorderChunks,
+            {
+                type:
+                    mediaRecorder?.mimeType
+                    || recorderMimeType
+                    || 'audio/webm',
+            }
+        );
+
+        recorderChunks = [];
+
+        if (blob.size < 600) {
+            setVoiceState(
+                'listening',
+                'Ik luister…',
+                'Ik hoorde te weinig. Praat opnieuw.'
             );
 
+            return;
+        }
+
+        await sendVoiceTurn(
+            blob
+        );
+    }
+
+    async function sendVoiceTurn(blob) {
+        if (
+            !voiceActive
+            || voicePending
+        ) {
+            return;
+        }
+
+        voicePending = true;
+
+        setVoiceState(
+            'thinking',
+            'Mashal AI denkt…',
+            'Je hoeft niets te klikken.'
+        );
+
+        const historyBefore =
+            history.slice(-20);
+
+        const data =
+            new FormData();
+
+        const extension =
+            mimeExtension(
+                blob.type
+            );
+
+        data.append(
+            'audio',
+            blob,
+            'voice.' + extension
+        );
+
+        historyBefore.forEach(
+            function (item, index) {
+                data.append(
+                    'history[' + index + '][role]',
+                    item.role
+                );
+
+                data.append(
+                    'history[' + index + '][content]',
+                    item.content
+                );
+            }
+        );
+
+        try {
             const response =
                 await fetch(
-                    endpoint,
+                    voiceEndpoint,
                     {
                         method: 'POST',
                         headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
+                            'X-CSRF-TOKEN':
+                                csrfToken,
+                            'Accept':
+                                'application/json',
                         },
-                        credentials: 'same-origin',
-                        body: formData,
+                        body: data,
+                        credentials:
+                            'same-origin',
                     }
                 );
 
-            let data = null;
-
-            try {
-                data =
-                    await response.json();
-            } catch (error) {
-                data = null;
-            }
+            const payload =
+                await safeJson(
+                    response
+                );
 
             if (
-                !response.ok ||
-                !data ||
-                data.ok !== true ||
-                typeof data.message !== 'string'
+                !response.ok
+                || !payload.ok
             ) {
                 throw new Error(
-                    data?.message ||
-                    'Er kon geen AI-antwoord worden opgehaald.'
+                    payload.message
+                    || 'Live Voice kon geen antwoord ophalen.'
                 );
             }
 
-            loadingMessage?.remove();
+            pushHistory(
+                'user',
+                payload.transcript
+            );
 
-            history.push({
-                role: 'assistant',
-                content: data.message,
-            });
+            pushHistory(
+                'assistant',
+                payload.message
+            );
 
-            history =
-                history.slice(-20);
-
-            saveHistory();
+            /*
+             * De tekstchat wordt op de achtergrond bijgewerkt.
+             * Tijdens Live Voice blijft deze volledig uit beeld.
+             */
+            renderMessage(
+                'user',
+                payload.transcript
+            );
 
             renderMessage(
                 'assistant',
-                data.message
+                payload.message
             );
 
-            if (
-                files &&
-                files.length
-            ) {
-                clearSelectedFiles();
-            }
+            voicePending = false;
 
-            if (
-                fromVoice ||
-                voiceMode
-            ) {
-                await speakText(
-                    data.message
-                );
-            }
-
-            if (
-                voiceMode &&
-                !voiceStoppedManually
-            ) {
-                shouldRestartListening = true;
-
-                window.setTimeout(
-                    startListening,
-                    350
-                );
-            }
+            await speakLiveReply(
+                payload.message
+            );
         } catch (error) {
-            loadingMessage?.remove();
+            voicePending = false;
 
-            /*
-             * Het userbericht blijft zichtbaar, maar wordt uit de opgeslagen
-             * context verwijderd zodat een mislukte request niet dubbel komt.
-             */
-            history.pop();
-
-            setError(
-                error instanceof Error
-                    ? error.message
-                    : 'Er ging iets mis.'
+            setVoiceState(
+                'error',
+                'Er ging iets mis',
+                error?.message
+                || 'Probeer opnieuw.'
             );
 
-            if (fromVoice || voiceMode) {
-                setVoiceStatus(
-                    'error',
-                    'De AI kon nu niet antwoorden.'
-                );
-            }
-        } finally {
-            sendingMessage = false;
-
-            if (sendButton) {
-                sendButton.disabled =
-                    !configured;
-
-                sendButton.textContent =
-                    'Verstuur';
-            }
-
-            input?.focus();
+            window.setTimeout(
+                function () {
+                    if (
+                        voiceActive
+                        && !voiceMuted
+                    ) {
+                        setVoiceState(
+                            'listening',
+                            'Ik luister…',
+                            'Praat opnieuw wanneer je wilt.'
+                        );
+                    }
+                },
+                1800
+            );
         }
     }
 
-    form?.addEventListener(
-        'submit',
-        async function (event) {
-            event.preventDefault();
-
-            const message =
-                input?.value.trim() ||
-                '';
-
-            const filesToSend =
-                selectedFiles.slice();
-
-            if (
-                !message &&
-                filesToSend.length === 0
-            ) {
-                return;
-            }
-
-            if (input) {
-                input.value =
-                    '';
-
-                autoResize();
-            }
-
-            await sendMessage(
-                message,
-                false,
-                filesToSend
-            );
-        }
-    );
-
-    input?.addEventListener(
-        'input',
-        autoResize
-    );
-
-    input?.addEventListener(
-        'keydown',
-        function (event) {
-            if (
-                event.key === 'Enter' &&
-                !event.shiftKey &&
-                !event.isComposing
-            ) {
-                event.preventDefault();
-
-                form?.requestSubmit();
-            }
-        }
-    );
-
-    document
-        .querySelectorAll(
-            '[data-suggestion]'
-        )
-        .forEach(function (button) {
-            button.addEventListener(
-                'click',
-                function () {
-                    if (!input) {
-                        return;
-                    }
-
-                    input.value =
-                        button.dataset.suggestion ||
-                        '';
-
-                    autoResize();
-                    input.focus();
-                }
-            );
-        });
-
-    clearButton?.addEventListener(
-        'click',
-        function () {
-            stopVoiceConversation();
-            clearSelectedFiles();
-
-            history = [];
-
-            try {
-                localStorage.removeItem(
-                    storageKey
-                );
-            } catch (error) {
-                // Geen actie nodig.
-            }
-
-            window.location.reload();
-        }
-    );
-
-
-
-    document
-        .querySelector('.mashal-ai-file-button')
-        ?.addEventListener(
-            'click',
-            function (event) {
-                /*
-                 * Op sommige mobiele webviews werkt label->input minder
-                 * betrouwbaar. Een directe user-gesture click is robuuster.
-                 */
+    function speakLiveReply(text) {
+        return new Promise(
+            function (resolve) {
                 if (
-                    event.currentTarget?.tagName === 'LABEL' &&
-                    fileInput
+                    !voiceActive
+                    || !('speechSynthesis' in window)
+                    || !('SpeechSynthesisUtterance' in window)
                 ) {
-                    event.preventDefault();
+                    setVoiceState(
+                        'error',
+                        'Geen Nederlandse stem beschikbaar',
+                        'Je browser kan het antwoord niet hardop afspelen.'
+                    );
 
-                    try {
-                        fileInput.click();
-                    } catch (error) {
-                        // De standaard labelactie blijft de normale fallback.
-                    }
+                    resolve();
+
+                    return;
                 }
+
+                window.speechSynthesis.cancel();
+
+                const utterance =
+                    new SpeechSynthesisUtterance(
+                        speechText(text)
+                    );
+
+                utterance.lang =
+                    'nl-NL';
+
+                const voice =
+                    chooseDutchVoice();
+
+                if (voice) {
+                    utterance.voice =
+                        voice;
+
+                    utterance.lang =
+                        voice.lang
+                        || 'nl-NL';
+                }
+
+                utterance.rate =
+                    1.02;
+
+                utterance.pitch =
+                    1;
+
+                utterance.onstart =
+                    function () {
+                        voiceSpeaking = true;
+
+                        speakingStartedAt =
+                            Date.now();
+
+                        setVoiceState(
+                            'speaking',
+                            'Mashal AI spreekt…',
+                            'Je kunt hem onderbreken door zelf te beginnen praten.'
+                        );
+                    };
+
+                utterance.onend =
+                    function () {
+                        voiceSpeaking = false;
+
+                        if (
+                            voiceActive
+                            && !voiceMuted
+                        ) {
+                            setVoiceState(
+                                'listening',
+                                'Ik luister…',
+                                'Praat gewoon verder.'
+                            );
+                        }
+
+                        resolve();
+                    };
+
+                utterance.onerror =
+                    function () {
+                        voiceSpeaking = false;
+
+                        if (
+                            voiceActive
+                            && !voiceMuted
+                        ) {
+                            setVoiceState(
+                                'listening',
+                                'Ik luister…',
+                                'Het antwoord kon niet volledig worden uitgesproken.'
+                            );
+                        }
+
+                        resolve();
+                    };
+
+                window.speechSynthesis.speak(
+                    utterance
+                );
             }
         );
+    }
 
-    fileInput?.addEventListener(
-        'change',
-        function () {
-            addFiles(
-                fileInput.files
-            );
+    function chooseDutchVoice() {
+        const voices =
+            window.speechSynthesis.getVoices();
 
-            /*
-             * Input leegmaken zodat hetzelfde bestand later opnieuw gekozen
-             * kan worden nadat het uit de selectie is verwijderd.
-             */
-            fileInput.value = '';
-        }
-    );
-
-    chatCard?.addEventListener(
-        'dragover',
-        function (event) {
-            if (
-                !event.dataTransfer ||
-                !Array.from(
-                    event.dataTransfer.types || []
-                ).includes('Files')
-            ) {
-                return;
-            }
-
-            event.preventDefault();
-
-            chatCard.classList.add(
-                'dragging'
-            );
-        }
-    );
-
-    chatCard?.addEventListener(
-        'dragleave',
-        function (event) {
-            if (
-                event.relatedTarget &&
-                chatCard.contains(
-                    event.relatedTarget
-                )
-            ) {
-                return;
-            }
-
-            chatCard.classList.remove(
-                'dragging'
-            );
-        }
-    );
-
-    chatCard?.addEventListener(
-        'drop',
-        function (event) {
-            event.preventDefault();
-
-            chatCard.classList.remove(
-                'dragging'
-            );
-
-            addFiles(
-                event.dataTransfer?.files
-            );
-        }
-    );
-
-    micButton?.addEventListener(
-        'click',
-        function () {
-            if (listening) {
-                stopListening();
-
-                setVoiceStatus(
-                    '',
-                    'Microfoon gestopt'
+        return (
+            voices.find(function (voice) {
+                return (
+                    voice.lang
+                    && voice.lang.toLowerCase()
+                        === 'nl-nl'
                 );
-
-                return;
-            }
-
-            startListening();
-        }
-    );
-
-    voiceModeButton?.addEventListener(
-        'click',
-        function () {
-            voiceMode =
-                !voiceMode;
-
-            voiceStoppedManually =
-                false;
-
-            shouldRestartListening =
-                false;
-
-            updateVoiceButtons();
-
-            if (voiceMode) {
-                setVoiceStatus(
-                    '',
-                    'Doorpraten staat aan'
+            })
+            || voices.find(function (voice) {
+                return (
+                    voice.lang
+                    && voice.lang.toLowerCase()
+                        .startsWith('nl')
                 );
+            })
+            || voices.find(function (voice) {
+                return voice.default;
+            })
+            || voices[0]
+            || null
+        );
+    }
 
-                if (
-                    !listening &&
-                    !sendingMessage
-                ) {
-                    startListening();
-                }
-            } else {
-                stopListening();
-                stopSpeaking();
+    function speechText(text) {
+        return String(text || '')
+            .replace(/```[\s\S]*?```/g, ' codeblok ')
+            .replace(/[`*_#>-]/g, ' ')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
 
-                setVoiceStatus(
-                    '',
-                    'Doorpraten staat uit'
-                );
-            }
+    function setVoiceState(
+        state,
+        title,
+        detail
+    ) {
+        liveVoice.dataset.state =
+            state;
+
+        voiceStatusTitle.textContent =
+            title;
+
+        voiceStatusDetail.textContent =
+            detail;
+    }
+
+    function mimeExtension(mime) {
+        const normalized =
+            String(mime || '')
+                .toLowerCase();
+
+        if (
+            normalized.includes('ogg')
+        ) {
+            return 'ogg';
         }
-    );
 
-    voiceStopButton?.addEventListener(
-        'click',
-        stopVoiceConversation
-    );
+        if (
+            normalized.includes('mp4')
+            || normalized.includes('m4a')
+        ) {
+            return 'm4a';
+        }
+
+        if (
+            normalized.includes('wav')
+        ) {
+            return 'wav';
+        }
+
+        return 'webm';
+    }
+
+    function stopLiveVoice() {
+        voiceActive = false;
+        voicePending = false;
+        voiceSpeaking = false;
+        voiceMuted = false;
+
+        window.speechSynthesis?.cancel();
+
+        if (recording) {
+            stopRecording();
+        }
+
+        cleanupVoiceResources();
+
+        liveVoice.classList.remove(
+            'active'
+        );
+
+        liveVoice.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        liveVoice.dataset.state =
+            'idle';
+
+        voiceMuteButton.classList.remove(
+            'muted'
+        );
+
+        voiceMuteButton.setAttribute(
+            'aria-pressed',
+            'false'
+        );
+
+        voiceMuteButton.textContent =
+            '🎤';
+
+        document.body.style.overflow =
+            '';
+    }
+
+    function cleanupVoiceResources() {
+        cancelAnimationFrame(
+            vadFrame
+        );
+
+        vadFrame = null;
+
+        try {
+            analyserSource?.disconnect();
+        } catch (error) {
+            // Geen actie nodig.
+        }
+
+        analyserSource = null;
+        analyser = null;
+        analyserData = null;
+
+        if (audioContext) {
+            audioContext.close()
+                .catch(function () {});
+        }
+
+        audioContext = null;
+
+        if (mediaStream) {
+            mediaStream
+                .getTracks()
+                .forEach(function (track) {
+                    track.stop();
+                });
+        }
+
+        mediaStream = null;
+        mediaRecorder = null;
+        recorderChunks = [];
+        recording = false;
+        consecutiveVoiceFrames = 0;
+    }
+
+    async function safeJson(response) {
+        try {
+            return await response.json();
+        } catch (error) {
+            return {
+                ok: false,
+                message:
+                    'De server gaf geen geldig antwoord terug.',
+            };
+        }
+    }
 
     window.addEventListener(
         'beforeunload',
-        function () {
-            stopListening();
-            stopSpeaking();
-        }
+        cleanupVoiceResources
     );
-
-    if (!SpeechRecognitionConstructor) {
-        if (micButton) {
-            micButton.disabled = true;
-            micButton.title =
-                'Live spraakherkenning wordt niet ondersteund door deze mobiele browser.';
-        }
-
-        if (voiceModeButton) {
-            voiceModeButton.disabled = true;
-            voiceModeButton.title =
-                'Spraakherkenning wordt niet ondersteund door deze browser.';
-        }
-
-        setVoiceStatus(
-            'error',
-            'Live spraakherkenning wordt door deze mobiele browser niet ondersteund. Typen, bestanden uploaden en AI-antwoorden blijven wel werken.'
-        );
-    } else {
-        setVoiceStatus(
-            '',
-            'Microfoon gereed'
-        );
-    }
-
-    updateVoiceButtons();
-
-    renderHistory();
-    autoResize();
-
-    if (!configured) {
-        setError(
-            'Modal AI is nog niet volledig geconfigureerd op de server.'
-        );
-    }
 });
 </script>
 @endpush
