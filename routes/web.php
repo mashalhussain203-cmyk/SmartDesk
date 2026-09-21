@@ -710,15 +710,11 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Mashal AI
+    | Mashal AI + Live Voice
     |--------------------------------------------------------------------------
     |
-    | De AI-chat staat bewust binnen de auth-groep:
-    |
-    | - alleen ingelogde gebruikers kunnen de chat openen;
-    | - de browser krijgt nooit Modal credentials te zien;
-    | - Laravel verstuurt de request server-side naar Modal;
-    | - de POST-route heeft extra throttling tegen misbruik.
+    | Zowel tekstchat als Live Voice blijven volledig server-side gekoppeld
+    | aan Groq. De browser ontvangt nooit GROQ_API_KEY.
     |
     */
 
@@ -735,6 +731,14 @@ Route::middleware('auth')->group(function () {
     )
         ->middleware('throttle:20,1')
         ->name('ai.chat.message');
+
+
+    Route::post(
+        '/ai-chat/voice/turn',
+        [AiChatController::class, 'voiceTurn']
+    )
+        ->middleware('throttle:30,1')
+        ->name('ai.chat.voice.turn');
 
 
     /*
