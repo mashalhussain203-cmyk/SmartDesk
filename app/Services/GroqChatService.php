@@ -4,16 +4,13 @@ namespace App\Services;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 use Throwable;
 
-class GroqVoiceService
+class GroqChatService
 {
-    public const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
-
     private ?int $lastStatus = null;
 
     private ?int $lastRetryAfter = null;
@@ -29,8 +26,8 @@ class GroqVoiceService
     {
         return trim(
             (string) config(
-                'groq-chat.voice.model',
-                'whisper-large-v3-turbo'
+                'groq-chat.model',
+                'openai/gpt-oss-20b'
             )
         );
     }
@@ -45,87 +42,59 @@ class GroqVoiceService
         return $this->lastRetryAfter;
     }
 
-    public function transcribe(UploadedFile $audio): string
+    /**
+     * @param array<int, array{role:string, content:string}> $messages
+     *
+     * @return array{
+     *     message:string,
+     *     model:string,
+     *     usage:array<string,mixed>|null
+     * }
+     */
+    public function chat(array $messages): array
     {
         $this->resetMetadata();
         $this->assertConfigured();
-        $this->assertAudio($audio);
 
-        $path = $audio->getRealPath();
+        $messages = $this->normalizeMessages($messages);
 
-        if (
-            ! is_string($path)
-            || $path === ''
-            || ! is_file($path)
-        ) {
+        if ($messages === []) {
             throw ValidationException::withMessages([
-                'audio' => 'De opgenomen audio kon niet worden gelezen.',
+                'message' => 'Er is geen geldige chatinhoud om naar Groq te sturen.',
             ]);
-        }
-
-        $stream = @fopen($path, 'rb');
-
-        if ($stream === false) {
-            throw ValidationException::withMessages([
-                'audio' => 'De opgenomen audio kon niet worden geopend.',
-            ]);
-        }
-
-        $fileName = $this->safeAudioName(
-            $audio->getClientOriginalName(),
-            $audio->getMimeType()
-        );
-
-        $payload = [
-            'model' => $this->modelName(),
-            'response_format' => 'json',
-            'temperature' => '0',
-        ];
-
-        $language = trim(
-            (string) config(
-                'groq-chat.voice.language',
-                ''
-            )
-        );
-
-        if ($language !== '') {
-            $payload['language'] = $language;
         }
 
         try {
-            $response = Http::acceptJson()
+            $response = Http::asJson()
+                ->acceptJson()
                 ->withToken($this->apiKey())
                 ->connectTimeout($this->connectTimeout())
                 ->timeout($this->timeout())
                 ->withHeaders([
                     'User-Agent' => 'Mashal-Studio/1.0',
                 ])
-                ->attach(
-                    'file',
-                    $stream,
-                    $fileName
-                )
                 ->post(
                     $this->endpoint(),
-                    $payload
+                    [
+                        'model' => $this->modelName(),
+                        'messages' => $messages,
+                        'temperature' => $this->temperature(),
+                        'max_completion_tokens' => $this->maxCompletionTokens(),
+                        'stream' => false,
+                    ]
                 );
         } catch (ConnectionException $exception) {
             throw new RuntimeException(
-                'Groq Speech-to-Text kon niet worden bereikt.',
+                'Groq kon niet worden bereikt.',
                 503,
                 $exception
             );
         } catch (Throwable $exception) {
             throw new RuntimeException(
-                'De voice-opname kon niet naar Groq worden gestuurd.',
+                'Er ging iets mis tijdens de verbinding met Groq.',
                 503,
                 $exception
             );
-        } finally {
-            if (is_resource($stream)) {
-                fclose($stream);
-            }
         }
 
         $this->rememberMetadata($response);
@@ -134,138 +103,104 @@ class GroqVoiceService
             $this->throwForFailedResponse($response);
         }
 
-        $text = trim(
+        $data = $response->json();
+
+        if (! is_array($data)) {
+            throw new RuntimeException(
+                'Groq gaf een ongeldig antwoord terug.',
+                502
+            );
+        }
+
+        $message = trim(
             (string) data_get(
-                $response->json(),
-                'text',
+                $data,
+                'choices.0.message.content',
                 ''
             )
         );
 
-        if ($text === '') {
-            throw ValidationException::withMessages([
-                'audio' => 'Ik hoorde geen duidelijke spraak. Probeer opnieuw.',
-            ]);
+        if ($message === '') {
+            throw new RuntimeException(
+                'Groq gaf geen bruikbaar AI-antwoord terug.',
+                502
+            );
         }
 
-        return $text;
-    }
-
-    private function assertAudio(UploadedFile $audio): void
-    {
-        if (! $audio->isValid()) {
-            throw ValidationException::withMessages([
-                'audio' => 'De audio-upload is ongeldig.',
-            ]);
-        }
-
-        $size = (int) $audio->getSize();
-
-        if ($size < 1) {
-            throw ValidationException::withMessages([
-                'audio' => 'De audio-opname is leeg.',
-            ]);
-        }
-
-        if ($size > self::MAX_AUDIO_BYTES) {
-            throw ValidationException::withMessages([
-                'audio' => 'De audio-opname is te groot.',
-            ]);
-        }
-
-        $mime = strtolower(
-            trim(
-                (string) $audio->getMimeType()
-            )
-        );
-
-        $allowed = [
-            'audio/webm',
-            'video/webm',
-            'audio/ogg',
-            'application/ogg',
-            'audio/mp4',
-            'video/mp4',
-            'audio/m4a',
-            'audio/x-m4a',
-            'audio/mpeg',
-            'audio/mp3',
-            'audio/wav',
-            'audio/x-wav',
-            'audio/flac',
-            'application/octet-stream',
-        ];
-
-        if (
-            $mime !== ''
-            && ! in_array(
-                $mime,
-                $allowed,
-                true
-            )
-        ) {
-            throw ValidationException::withMessages([
-                'audio' => 'Dit audioformaat wordt niet ondersteund.',
-            ]);
-        }
-    }
-
-    private function safeAudioName(
-        string $originalName,
-        ?string $mime
-    ): string {
-        $name = trim($originalName);
-
-        if (
-            $name !== ''
-            && str_contains($name, '.')
-        ) {
-            return preg_replace(
-                '/[^A-Za-z0-9._-]+/',
-                '-',
-                basename($name)
-            ) ?: 'voice.webm';
-        }
-
-        $extension = match (
-            strtolower(
-                trim(
-                    (string) $mime
+        return [
+            'message' => $message,
+            'model' => trim(
+                (string) (
+                    $data['model']
+                    ?? $this->modelName()
                 )
-            )
-        ) {
-            'audio/ogg',
-            'application/ogg' => 'ogg',
+            ),
+            'usage' => isset($data['usage']) && is_array($data['usage'])
+                ? $data['usage']
+                : null,
+        ];
+    }
 
-            'audio/mp4',
-            'video/mp4',
-            'audio/m4a',
-            'audio/x-m4a' => 'm4a',
+    /**
+     * @param array<int, array<string,mixed>> $messages
+     *
+     * @return array<int, array{role:string,content:string}>
+     */
+    private function normalizeMessages(array $messages): array
+    {
+        $normalized = [];
 
-            'audio/mpeg',
-            'audio/mp3' => 'mp3',
+        foreach ($messages as $message) {
+            if (! is_array($message)) {
+                continue;
+            }
 
-            'audio/wav',
-            'audio/x-wav' => 'wav',
+            $role = trim(
+                (string) ($message['role'] ?? '')
+            );
 
-            'audio/flac' => 'flac',
+            $content = trim(
+                (string) ($message['content'] ?? '')
+            );
 
-            default => 'webm',
-        };
+            if (
+                ! in_array(
+                    $role,
+                    ['system', 'user', 'assistant'],
+                    true
+                )
+                || $content === ''
+            ) {
+                continue;
+            }
 
-        return 'mashal-voice.' . $extension;
+            $normalized[] = [
+                'role' => $role,
+                'content' => $content,
+            ];
+        }
+
+        return $normalized;
     }
 
     private function throwForFailedResponse(Response $response): never
     {
         $status = $response->status();
 
+        $providerMessage = trim(
+            (string) data_get(
+                $response->json(),
+                'error.message',
+                ''
+            )
+        );
+
         if ($status === 429) {
             $retryAfter = $this->lastRetryAfter
                 ?? $this->fallbackCooldown();
 
             throw new RuntimeException(
-                'Groq Speech-to-Text rate limit bereikt. Probeer over '
+                'Groq rate limit bereikt. Probeer over '
                 . $retryAfter
                 . ' seconden opnieuw.',
                 429
@@ -281,29 +216,21 @@ class GroqVoiceService
 
         if ($status === 403) {
             throw new RuntimeException(
-                'Groq heeft de voice-request geweigerd.',
+                'Groq heeft deze request geweigerd.',
                 403
             );
         }
 
         if ($status === 404) {
             throw new RuntimeException(
-                'Het ingestelde Groq Whisper-model bestaat niet.',
+                'Het ingestelde Groq-model of endpoint bestaat niet.',
                 404
             );
         }
 
         if ($status === 400) {
-            $providerMessage = trim(
-                (string) data_get(
-                    $response->json(),
-                    'error.message',
-                    ''
-                )
-            );
-
             throw new RuntimeException(
-                'Groq kon de audio niet verwerken.'
+                'Groq heeft de request afgewezen.'
                 . (
                     $providerMessage !== ''
                         ? ' ' . mb_substr($providerMessage, 0, 700)
@@ -314,7 +241,7 @@ class GroqVoiceService
         }
 
         throw new RuntimeException(
-            'Groq kon de voice-request niet verwerken.',
+            'Groq kon de AI-request niet verwerken.',
             $status >= 400 && $status <= 599
                 ? $status
                 : 502
@@ -377,14 +304,14 @@ class GroqVoiceService
 
         if ($this->endpoint() === '') {
             throw new RuntimeException(
-                'GROQ_VOICE_ENDPOINT ontbreekt.',
+                'GROQ_CHAT_ENDPOINT ontbreekt.',
                 500
             );
         }
 
         if ($this->modelName() === '') {
             throw new RuntimeException(
-                'GROQ_VOICE_MODEL ontbreekt.',
+                'GROQ_CHAT_MODEL ontbreekt.',
                 500
             );
         }
@@ -405,7 +332,7 @@ class GroqVoiceService
         return rtrim(
             trim(
                 (string) config(
-                    'groq-chat.voice.endpoint',
+                    'groq-chat.endpoint',
                     ''
                 )
             ),
@@ -418,10 +345,10 @@ class GroqVoiceService
         return max(
             5,
             min(
-                180,
+                300,
                 (int) config(
-                    'groq-chat.voice.timeout',
-                    60
+                    'groq-chat.timeout',
+                    120
                 )
             )
         );
@@ -436,6 +363,34 @@ class GroqVoiceService
                 (int) config(
                     'groq-chat.connect_timeout',
                     10
+                )
+            )
+        );
+    }
+
+    private function maxCompletionTokens(): int
+    {
+        return max(
+            1,
+            min(
+                65536,
+                (int) config(
+                    'groq-chat.max_completion_tokens',
+                    1200
+                )
+            )
+        );
+    }
+
+    private function temperature(): float
+    {
+        return max(
+            0.0,
+            min(
+                2.0,
+                (float) config(
+                    'groq-chat.temperature',
+                    0.7
                 )
             )
         );
