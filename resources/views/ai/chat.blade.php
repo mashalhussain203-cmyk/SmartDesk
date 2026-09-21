@@ -10,276 +10,571 @@
 @push('styles')
 <style>
     :root {
-        --ai-bg: #050607;
-        --ai-panel: #0d0f12;
-        --ai-panel-2: #111419;
-        --ai-line: rgba(255,255,255,.08);
-        --ai-muted: #727983;
-        --ai-text: #f2f4f6;
-        --ai-accent: #e9bd76;
-        --ai-danger: #ef8787;
+        --mashal-bg: #212121;
+        --mashal-sidebar: #171717;
+        --mashal-sidebar-hover: #2a2a2a;
+        --mashal-panel: #2f2f2f;
+        --mashal-panel-hover: #3a3a3a;
+        --mashal-border: rgba(255,255,255,.10);
+        --mashal-text: #ececec;
+        --mashal-muted: #a6a6a6;
+        --mashal-subtle: #7d7d7d;
+        --mashal-user: #303030;
+        --mashal-accent: #ffffff;
+        --mashal-danger: #ff6b6b;
+        --mashal-sidebar-width: 272px;
+        --mashal-content-width: 780px;
+        --mashal-radius: 18px;
     }
 
-    .mashal-ai-page {
-        min-height: calc(100vh - 78px);
-        padding: 22px 0 54px;
-        color: var(--ai-text);
-        background:
-            radial-gradient(circle at 15% 0%, rgba(229,182,111,.08), transparent 30rem),
-            radial-gradient(circle at 85% 18%, rgba(90,100,255,.08), transparent 30rem),
-            var(--ai-bg);
+    .mashal-chat-app,
+    .mashal-chat-app * {
+        box-sizing: border-box;
     }
 
-    .mashal-ai-shell {
-        width: min(100% - 24px, 1120px);
-        margin-inline: auto;
-    }
-
-    .mashal-ai-card {
-        height: min(800px, calc(100dvh - 128px));
-        min-height: 590px;
-        display: grid;
-        grid-template-rows: auto minmax(0,1fr) auto auto;
+    .mashal-chat-app {
+        position: relative;
+        display: flex;
+        height: calc(100dvh - 72px);
+        min-height: 620px;
         overflow: hidden;
-        border: 1px solid var(--ai-line);
-        border-radius: 24px;
-        background: rgba(11,13,17,.96);
-        box-shadow: 0 36px 100px rgba(0,0,0,.42);
+        color: var(--mashal-text);
+        background: var(--mashal-bg);
+        font-family: inherit;
     }
 
-    .mashal-ai-header {
-        padding: 13px 15px;
+    /* ---------------------------------------------------------------
+       Sidebar
+    --------------------------------------------------------------- */
+
+    .chat-sidebar {
+        position: relative;
+        z-index: 30;
+        width: var(--mashal-sidebar-width);
+        flex: 0 0 var(--mashal-sidebar-width);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        background: var(--mashal-sidebar);
+        border-right: 1px solid rgba(255,255,255,.04);
+    }
+
+    .chat-sidebar-head {
+        padding: 10px 10px 8px;
+    }
+
+    .chat-new-button {
+        width: 100%;
+        min-height: 44px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border-bottom: 1px solid var(--ai-line);
+        gap: 10px;
+        padding: 0 11px;
+        border: 0;
+        border-radius: 10px;
+        color: var(--mashal-text);
+        background: transparent;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        transition: background .16s ease;
     }
 
-    .mashal-ai-brand {
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        gap: 11px;
+    .chat-new-button:hover {
+        background: var(--mashal-sidebar-hover);
     }
 
-    .mashal-ai-mark {
-        width: 40px;
-        height: 40px;
+    .chat-new-button .brand-dot {
+        width: 28px;
+        height: 28px;
         display: grid;
         place-items: center;
         flex: 0 0 auto;
-        border: 1px solid rgba(233,189,118,.18);
-        border-radius: 12px;
-        color: #f1c982;
-        background: rgba(233,189,118,.05);
-        font-size: 12px;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 9px;
+        background: #fff;
+        color: #111;
+        font-size: 10px;
         font-weight: 950;
     }
 
-    .mashal-ai-brand strong {
+    .chat-new-button svg,
+    .chat-sidebar-button svg,
+    .chat-topbar-button svg,
+    .composer-icon-button svg,
+    .chat-row-delete svg,
+    .ai-send svg {
+        width: 18px;
+        height: 18px;
         display: block;
-        font-size: 14px;
     }
 
-    .mashal-ai-brand span {
-        display: block;
-        margin-top: 2px;
-        color: var(--ai-muted);
-        font-size: 10px;
+    .chat-search-wrap {
+        padding: 2px 10px 8px;
     }
 
-    .mashal-ai-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .ai-action,
-    .ai-send,
-    .ai-file-button {
-        min-height: 42px;
-        padding: 0 13px;
-        border: 1px solid var(--ai-line);
-        border-radius: 11px;
-        color: #c8cdd3;
-        background: rgba(255,255,255,.025);
-        font: inherit;
-        font-size: 11px;
-        font-weight: 900;
-        cursor: pointer;
-        touch-action: manipulation;
-    }
-
-    .ai-action.primary {
-        border-color: rgba(233,189,118,.22);
-        color: #191107;
-        background: linear-gradient(135deg, #f0cf8a, #d89e50);
-    }
-
-    .ai-action:disabled,
-    .ai-send:disabled {
-        opacity: .5;
-        cursor: not-allowed;
-    }
-
-    .mashal-ai-messages {
-        min-height: 0;
-        padding: 24px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .ai-welcome {
-        max-width: 650px;
-        margin: 70px auto 30px;
-        text-align: center;
-    }
-
-    .ai-welcome-orb {
-        width: 68px;
-        height: 68px;
-        margin: 0 auto 18px;
-        border-radius: 50%;
-        background:
-            radial-gradient(circle at 35% 30%, #fff 0 7%, #b9c7ff 20%, #6d7ff2 46%, #303669 70%, #111525 100%);
-        box-shadow:
-            0 0 50px rgba(112,129,255,.22),
-            inset -16px -14px 30px rgba(0,0,0,.28);
-    }
-
-    .ai-welcome h1 {
-        margin: 0;
-        font-size: clamp(24px, 4vw, 38px);
-    }
-
-    .ai-welcome p {
-        margin: 12px auto 0;
-        max-width: 530px;
-        color: var(--ai-muted);
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    .ai-message {
-        max-width: min(78%, 760px);
-        margin-bottom: 17px;
-    }
-
-    .ai-message.user {
-        margin-left: auto;
-    }
-
-    .ai-message.assistant {
-        margin-right: auto;
-    }
-
-    .ai-message-meta {
-        margin-bottom: 5px;
-        color: #5d646d;
-        font-size: 9px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: .08em;
-    }
-
-    .ai-message.user .ai-message-meta {
-        text-align: right;
-    }
-
-    .ai-message-bubble {
-        padding: 13px 15px;
-        border: 1px solid var(--ai-line);
-        border-radius: 16px;
-        color: #d4d8dc;
-        background: rgba(255,255,255,.025);
-        font-size: 13px;
-        line-height: 1.7;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-    }
-
-    .ai-message.user .ai-message-bubble {
-        border-color: rgba(233,189,118,.16);
-        color: #1d140a;
-        background: linear-gradient(135deg, #efd08d, #d6a056);
-    }
-
-    .ai-attachments {
-        min-height: 0;
-        padding: 0 13px 9px;
-    }
-
-    .ai-file-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .ai-file-input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0,0,0,0);
-        white-space: nowrap;
-    }
-
-    .ai-file-help {
-        color: #59616b;
-        font-size: 9px;
-    }
-
-    .ai-file-list {
-        margin-top: 7px;
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-
-    .ai-file-chip {
-        max-width: 260px;
-        padding: 6px 8px 6px 10px;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        border: 1px solid var(--ai-line);
+    .chat-search {
+        width: 100%;
+        min-height: 36px;
+        padding: 0 11px;
+        border: 1px solid transparent;
         border-radius: 9px;
-        color: #9ba2aa;
-        background: rgba(255,255,255,.02);
-        font-size: 10px;
+        outline: 0;
+        color: var(--mashal-text);
+        background: transparent;
+        font: inherit;
+        font-size: 12px;
+        transition: border-color .16s ease, background .16s ease;
     }
 
-    .ai-file-chip span {
+    .chat-search::placeholder {
+        color: #777;
+    }
+
+    .chat-search:focus {
+        border-color: rgba(255,255,255,.10);
+        background: rgba(255,255,255,.04);
+    }
+
+    .chat-sidebar-label {
+        padding: 10px 16px 7px;
+        color: #777;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .chat-list {
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 0 8px 12px;
+        scrollbar-width: thin;
+        scrollbar-color: #3b3b3b transparent;
+    }
+
+    .chat-row {
+        position: relative;
+        margin: 1px 0;
+    }
+
+    .chat-row-main {
+        width: 100%;
+        min-height: 39px;
+        display: flex;
+        align-items: center;
+        padding: 0 34px 0 10px;
+        border: 0;
+        border-radius: 9px;
+        color: #d7d7d7;
+        background: transparent;
+        font: inherit;
+        font-size: 13px;
+        text-align: left;
+        cursor: pointer;
+        transition: background .14s ease;
+    }
+
+    .chat-row-main:hover,
+    .chat-row.active .chat-row-main {
+        background: var(--mashal-sidebar-hover);
+    }
+
+    .chat-row-title {
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .ai-file-chip button {
+    .chat-row-delete {
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        translate: 0 -50%;
         border: 0;
-        color: #a0a6ae;
+        border-radius: 7px;
+        opacity: 0;
+        color: #a9a9a9;
         background: transparent;
         cursor: pointer;
+        transition: opacity .14s ease, background .14s ease, color .14s ease;
+    }
+
+    .chat-row:hover .chat-row-delete,
+    .chat-row.active .chat-row-delete {
+        opacity: 1;
+    }
+
+    .chat-row-delete:hover {
+        color: #fff;
+        background: #3a3a3a;
+    }
+
+    .chat-list-empty {
+        padding: 16px 10px;
+        color: #747474;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .chat-sidebar-footer {
+        padding: 8px;
+        border-top: 1px solid rgba(255,255,255,.05);
+    }
+
+    .chat-sidebar-button {
+        width: 100%;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 9px;
+        color: #c9c9c9;
+        background: transparent;
+        font: inherit;
+        font-size: 12px;
+        text-align: left;
+    }
+
+    .chat-sidebar-button strong {
+        display: block;
+        color: #e6e6e6;
+        font-size: 12px;
+    }
+
+    .chat-sidebar-button span {
+        display: block;
+        margin-top: 1px;
+        color: #777;
+        font-size: 10px;
+    }
+
+    .chat-sidebar-overlay {
+        display: none;
+    }
+
+    /* ---------------------------------------------------------------
+       Main chat
+    --------------------------------------------------------------- */
+
+    .chat-main {
+        min-width: 0;
+        min-height: 0;
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-rows: 52px minmax(0,1fr) auto;
+        background: var(--mashal-bg);
+    }
+
+    .chat-topbar {
+        position: relative;
+        z-index: 15;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+        padding: 0 14px;
+        background: rgba(33,33,33,.90);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    .chat-topbar-left,
+    .chat-topbar-right {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chat-title-wrap {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 9px;
+        border-radius: 8px;
+    }
+
+    .chat-current-title {
+        max-width: min(48vw, 440px);
+        overflow: hidden;
+        color: #f1f1f1;
+        font-size: 15px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-model-pill {
+        flex: 0 0 auto;
+        padding: 3px 7px;
+        border-radius: 999px;
+        color: #8c8c8c;
+        background: rgba(255,255,255,.04);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .chat-topbar-button {
+        min-width: 36px;
+        height: 36px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 9px;
+        color: #d5d5d5;
+        background: transparent;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background .14s ease, color .14s ease;
+    }
+
+    .chat-topbar-button:hover {
+        color: #fff;
+        background: rgba(255,255,255,.08);
+    }
+
+    .chat-sidebar-toggle {
+        display: none;
+    }
+
+    .mashal-ai-messages {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #454545 transparent;
+    }
+
+    .chat-scroll-inner {
+        width: min(100%, calc(var(--mashal-content-width) + 40px));
+        min-height: 100%;
+        margin: 0 auto;
+        padding: 22px 20px 170px;
+    }
+
+    /* ---------------------------------------------------------------
+       Welcome screen
+    --------------------------------------------------------------- */
+
+    .ai-welcome {
+        width: min(100%, 680px);
+        margin: min(13vh, 110px) auto 40px;
+    }
+
+    .ai-welcome-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+    }
+
+    .ai-welcome-mark {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        color: #101010;
+        background: #fff;
+        box-shadow: 0 8px 30px rgba(0,0,0,.18);
+        font-size: 12px;
+        font-weight: 950;
+    }
+
+    .ai-welcome h1 {
+        margin: 0;
+        color: #f4f4f4;
+        font-size: clamp(25px, 3vw, 32px);
+        font-weight: 650;
+        letter-spacing: -.03em;
+        text-align: center;
+    }
+
+    .ai-welcome p {
+        max-width: 590px;
+        margin: 12px auto 0;
+        color: #8f8f8f;
+        font-size: 13px;
+        line-height: 1.65;
+        text-align: center;
+    }
+
+    .ai-suggestions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 8px;
+        margin-top: 32px;
+    }
+
+    .ai-suggestion {
+        min-height: 78px;
+        padding: 13px 14px;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 14px;
+        color: #d9d9d9;
+        background: transparent;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: background .14s ease, border-color .14s ease;
+    }
+
+    .ai-suggestion:hover {
+        border-color: rgba(255,255,255,.16);
+        background: rgba(255,255,255,.035);
+    }
+
+    .ai-suggestion strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #ededed;
+        font-size: 12px;
+    }
+
+    .ai-suggestion span {
+        color: #8d8d8d;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    /* ---------------------------------------------------------------
+       Messages
+    --------------------------------------------------------------- */
+
+    .ai-message {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto 30px;
+    }
+
+    .ai-message.user {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .ai-message-meta {
+        margin: 0 0 7px;
+        color: #777;
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+    .ai-message.user .ai-message-meta {
+        display: none;
+    }
+
+    .ai-message.assistant .ai-message-meta {
+        padding-left: 2px;
+    }
+
+    .ai-message.assistant .ai-message-meta::before {
+        content: "M";
+        width: 23px;
+        height: 23px;
+        display: inline-grid;
+        place-items: center;
+        margin-right: 8px;
+        border-radius: 7px;
+        color: #111;
+        background: #fff;
+        font-size: 9px;
+        font-weight: 950;
+        vertical-align: middle;
+    }
+
+    .ai-message-bubble {
+        max-width: 100%;
+        color: #ececec;
+        font-size: 15px;
+        line-height: 1.72;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .ai-message.assistant .ai-message-bubble {
+        padding: 0 2px;
+    }
+
+    .ai-message.user .ai-message-bubble {
+        max-width: min(78%, 620px);
+        padding: 10px 15px;
+        border-radius: 20px;
+        background: var(--mashal-user);
+        line-height: 1.55;
+    }
+
+    .ai-message.loading .ai-message-bubble {
+        color: #9a9a9a;
+    }
+
+    .ai-message.loading .ai-message-bubble::after {
+        content: "";
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        margin-left: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: ai-thinking 1s infinite alternate;
+        vertical-align: middle;
+    }
+
+    @keyframes ai-thinking {
+        from { opacity: .25; transform: translateY(1px); }
+        to { opacity: 1; transform: translateY(-1px); }
+    }
+
+    /* ---------------------------------------------------------------
+       Composer
+    --------------------------------------------------------------- */
+
+    .composer-shell {
+        position: relative;
+        z-index: 20;
+        width: min(100%, calc(var(--mashal-content-width) + 40px));
+        margin: 0 auto;
+        padding: 0 20px max(13px, env(safe-area-inset-bottom));
+        background:
+            linear-gradient(
+                to bottom,
+                rgba(33,33,33,0),
+                rgba(33,33,33,.93) 18%,
+                var(--mashal-bg) 42%
+            );
     }
 
     .mashal-ai-composer {
-        padding: 12px;
-        border-top: 1px solid var(--ai-line);
-        background: rgba(8,10,13,.96);
+        position: relative;
+        padding-top: 18px;
     }
 
     .ai-error {
-        margin-bottom: 9px;
-        padding: 10px 12px;
         display: none;
-        border: 1px solid rgba(239,135,135,.16);
-        border-radius: 11px;
-        color: #dfa1a1;
-        background: rgba(239,135,135,.04);
+        margin: 0 6px 8px;
+        padding: 8px 11px;
+        border: 1px solid rgba(255,107,107,.22);
+        border-radius: 10px;
+        color: #ffb0b0;
+        background: rgba(255,80,80,.07);
         font-size: 11px;
+        line-height: 1.5;
     }
 
     .ai-error.show {
@@ -287,439 +582,679 @@
     }
 
     .ai-input-wrap {
-        display: grid;
-        grid-template-columns: minmax(0,1fr) auto;
-        align-items: end;
-        gap: 8px;
-        padding: 7px;
-        border: 1px solid var(--ai-line);
-        border-radius: 15px;
-        background: var(--ai-panel);
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 26px;
+        background: var(--mashal-panel);
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,.08),
+            0 8px 28px rgba(0,0,0,.20);
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .ai-input-wrap:focus-within {
+        border-color: rgba(255,255,255,.16);
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,.08),
+            0 10px 34px rgba(0,0,0,.23);
     }
 
     .ai-input {
         width: 100%;
-        min-height: 46px;
-        max-height: 180px;
-        padding: 12px 10px;
+        min-height: 54px;
+        max-height: 190px;
+        display: block;
         resize: none;
-        overflow-y: auto;
+        padding: 16px 18px 8px;
         border: 0;
         outline: 0;
-        color: var(--ai-text);
+        color: #f1f1f1;
         background: transparent;
         font: inherit;
-        font-size: 14px;
-        line-height: 1.5;
+        font-size: 15px;
+        line-height: 1.45;
+        overflow-y: auto;
     }
 
-    .ai-send {
-        min-width: 96px;
-        border-color: rgba(233,189,118,.2);
-        color: #171009;
-        background: linear-gradient(135deg, #efd08e, #d49b50);
+    .ai-input::placeholder {
+        color: #929292;
     }
 
-    /* --------------------------------------------------------------------- */
-    /* Live Voice                                                           */
-    /* --------------------------------------------------------------------- */
-
-    .live-voice {
-        position: fixed;
-        z-index: 99999;
-        inset: 0;
-        display: grid;
-        grid-template-rows: auto minmax(0,1fr) auto;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        color: #f5f6f7;
-        background:
-            radial-gradient(circle at 50% 58%, rgba(73,83,155,.09), transparent 30rem),
-            #020303;
-        transition:
-            opacity .2s ease,
-            visibility .2s ease;
-    }
-
-    .live-voice.active {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    .live-voice-top {
-        padding:
-            max(18px, env(safe-area-inset-top))
-            max(20px, env(safe-area-inset-right))
-            12px
-            max(20px, env(safe-area-inset-left));
+    .composer-bottom {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
+        min-height: 48px;
+        padding: 4px 8px 8px 10px;
+    }
+
+    .composer-left,
+    .composer-right {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .composer-icon-button,
+    .ai-file-button {
+        min-width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 999px;
+        color: #d4d4d4;
+        background: transparent;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background .14s ease, color .14s ease;
+    }
+
+    .composer-icon-button:hover,
+    .ai-file-button:hover {
+        color: #fff;
+        background: rgba(255,255,255,.09);
+    }
+
+    .composer-icon-button .label {
+        display: inline;
+    }
+
+    .ai-file-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .ai-send {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: #151515;
+        background: #fff;
+        cursor: pointer;
+        transition: transform .12s ease, opacity .12s ease;
+    }
+
+    .ai-send:hover:not(:disabled) {
+        transform: scale(1.04);
+    }
+
+    .ai-send:disabled {
+        opacity: .32;
+        cursor: not-allowed;
+    }
+
+    .ai-file-list {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding: 0 4px 8px;
+        scrollbar-width: none;
+    }
+
+    .ai-file-list:empty {
+        display: none;
+    }
+
+    .ai-file-list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ai-file-chip {
+        max-width: 250px;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 8px 7px 11px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 12px;
+        color: #d7d7d7;
+        background: #292929;
+        font-size: 11px;
+    }
+
+    .ai-file-chip span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ai-file-chip button {
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border: 0;
+        border-radius: 50%;
+        color: #aaa;
+        background: #3b3b3b;
+        cursor: pointer;
+    }
+
+    .composer-note {
+        padding: 7px 12px 0;
+        color: #747474;
+        font-size: 10px;
+        line-height: 1.35;
+        text-align: center;
+    }
+
+    /* ---------------------------------------------------------------
+       Live Voice
+    --------------------------------------------------------------- */
+
+    .live-voice {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        grid-template-rows: auto minmax(0,1fr) auto;
+        padding:
+            max(18px, env(safe-area-inset-top))
+            max(18px, env(safe-area-inset-right))
+            max(20px, env(safe-area-inset-bottom))
+            max(18px, env(safe-area-inset-left));
+        color: #f5f5f5;
+        background:
+            radial-gradient(circle at 50% 40%, rgba(100,110,255,.16), transparent 34rem),
+            #0d0d0d;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: scale(1.01);
+        transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
+    }
+
+    .live-voice.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: scale(1);
+    }
+
+    .live-voice-top,
+    .live-voice-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
     }
 
     .live-voice-title {
-        font-size: 15px;
-        font-weight: 900;
+        font-size: 14px;
+        font-weight: 800;
     }
 
     .live-voice-title span {
-        color: #848b95;
-        font-weight: 500;
+        margin-left: 6px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        color: #111;
+        background: #fff;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
     }
 
     .live-voice-center {
         min-height: 0;
         display: grid;
         place-items: center;
-        padding: 20px;
     }
 
     .live-voice-stage {
-        display: grid;
-        place-items: center;
+        width: min(100%, 620px);
         text-align: center;
     }
 
     .live-orb-wrap {
-        width: min(46vw, 240px);
+        width: min(58vw, 310px);
         aspect-ratio: 1;
         display: grid;
         place-items: center;
+        margin: 0 auto 32px;
     }
 
     .live-orb {
-        width: 44%;
+        width: 62%;
         aspect-ratio: 1;
         border-radius: 50%;
         background:
-            radial-gradient(circle at 33% 28%, #ffffff 0 7%, #d6dfff 14%, #98a9ff 31%, #6478ea 47%, #3d477f 68%, #151929 100%);
+            radial-gradient(circle at 33% 28%, #fff 0 4%, #dfe2ff 12%, #939bff 34%, #5b63c5 57%, #282d65 76%, #11152e 100%);
         box-shadow:
-            0 0 60px rgba(108,127,255,.24),
-            0 0 130px rgba(75,89,180,.10),
-            inset -18px -14px 34px rgba(0,0,0,.28);
-        transform: scale(1);
-        transition:
-            transform .16s ease,
-            filter .25s ease,
-            box-shadow .25s ease;
-        will-change: transform;
+            0 0 44px rgba(124,132,255,.24),
+            0 0 100px rgba(124,132,255,.14),
+            inset -24px -18px 42px rgba(0,0,0,.28);
+        transition: transform .16s ease, filter .16s ease;
     }
 
     .live-voice[data-state="listening"] .live-orb {
-        animation: voiceBreath 2.5s ease-in-out infinite;
-    }
-
-    .live-voice[data-state="recording"] .live-orb {
-        filter: saturate(1.12) brightness(1.12);
-        box-shadow:
-            0 0 76px rgba(108,127,255,.38),
-            0 0 150px rgba(75,89,180,.15),
-            inset -18px -14px 34px rgba(0,0,0,.25);
+        animation: orb-listen 1.9s ease-in-out infinite;
     }
 
     .live-voice[data-state="thinking"] .live-orb {
-        animation: voiceThink 1.1s ease-in-out infinite;
+        animation: orb-think 1.1s ease-in-out infinite;
+        filter: saturate(1.16);
     }
 
     .live-voice[data-state="speaking"] .live-orb {
-        animation: voiceSpeak .75s ease-in-out infinite alternate;
+        animation: orb-speak .72s ease-in-out infinite alternate;
+        filter: brightness(1.12) saturate(1.2);
     }
 
-    .live-voice[data-state="error"] .live-orb {
-        filter: saturate(.75) hue-rotate(110deg);
-    }
-
-    @keyframes voiceBreath {
-        0%, 100% { transform: scale(.96); }
+    @keyframes orb-listen {
+        0%,100% { transform: scale(.98); }
         50% { transform: scale(1.04); }
     }
 
-    @keyframes voiceThink {
-        0%, 100% { transform: scale(.96) rotate(-2deg); }
-        50% { transform: scale(1.055) rotate(2deg); }
+    @keyframes orb-think {
+        0%,100% { transform: scale(.96) rotate(-2deg); }
+        50% { transform: scale(1.05) rotate(2deg); }
     }
 
-    @keyframes voiceSpeak {
-        from { transform: scale(.94); }
-        to { transform: scale(1.08); }
-    }
-
-    .live-voice-status {
-        margin-top: 26px;
-        min-height: 52px;
+    @keyframes orb-speak {
+        from { transform: scale(.98); }
+        to { transform: scale(1.10); }
     }
 
     .live-voice-status strong {
         display: block;
-        font-size: clamp(17px, 3vw, 24px);
+        margin-bottom: 8px;
+        font-size: clamp(22px, 4vw, 34px);
+        font-weight: 650;
     }
 
     .live-voice-status span {
-        display: block;
-        margin-top: 6px;
-        color: #757d87;
-        font-size: 11px;
-    }
-
-    .live-voice-bottom {
-        padding:
-            12px
-            max(18px, env(safe-area-inset-right))
-            calc(18px + env(safe-area-inset-bottom))
-            max(18px, env(safe-area-inset-left));
-        display: grid;
-        justify-items: center;
-        gap: 12px;
-    }
-
-    .voice-language-switch {
-        max-width: min(100%, 430px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        padding: 5px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 999px;
-        background: rgba(255,255,255,.025);
-    }
-
-    .voice-language-option {
-        min-height: 36px;
-        padding: 0 12px;
-        border: 0;
-        border-radius: 999px;
-        color: #8f97a1;
-        background: transparent;
-        font: inherit;
-        font-size: 11px;
-        font-weight: 900;
-        cursor: pointer;
-        touch-action: manipulation;
-    }
-
-    .voice-language-option.active {
-        color: #111318;
-        background: #f3f4f5;
-        box-shadow: 0 8px 24px rgba(0,0,0,.2);
-    }
-
-    .voice-main-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
+        color: #8f8f8f;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     .voice-control {
-        min-width: 52px;
-        height: 52px;
-        padding: 0 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,.09);
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid rgba(255,255,255,.10);
         border-radius: 999px;
-        color: #e4e6e9;
-        background: #1c1e21;
+        color: #eee;
+        background: rgba(255,255,255,.06);
         font: inherit;
-        font-size: 13px;
-        font-weight: 850;
+        font-size: 11px;
+        font-weight: 750;
         cursor: pointer;
         touch-action: manipulation;
     }
 
     .voice-control.round {
-        width: 52px;
+        width: 48px;
+        height: 48px;
+        min-height: 48px;
         padding: 0;
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .voice-control.danger {
-        color: #111;
+        color: #fff;
+        background: #d95454;
+        border-color: transparent;
+    }
+
+    .voice-language-switch {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 999px;
+        background: rgba(255,255,255,.04);
+    }
+
+    .voice-language-option {
+        min-height: 34px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        color: #a7a7a7;
+        background: transparent;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .voice-language-option.active {
+        color: #151515;
         background: #fff;
     }
 
-    .voice-control.muted {
-        color: #efaaaa;
-        background: #352426;
+    .voice-main-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    @media (max-width: 760px) {
-        .mashal-ai-page {
-            min-height: calc(100dvh - 64px);
-            padding: 7px 0 calc(7px + env(safe-area-inset-bottom));
+    /* ---------------------------------------------------------------
+       Responsive
+    --------------------------------------------------------------- */
+
+    @media (max-width: 860px) {
+        .mashal-chat-app {
+            height: calc(100dvh - 64px);
+            min-height: 520px;
         }
 
-        .mashal-ai-shell {
-            width: min(100% - 8px, 1120px);
+        .chat-sidebar {
+            position: fixed;
+            inset: 64px auto 0 0;
+            z-index: 100;
+            width: min(86vw, 300px);
+            transform: translateX(-102%);
+            box-shadow: 18px 0 40px rgba(0,0,0,.32);
+            transition: transform .20s ease;
         }
 
-        .mashal-ai-card {
-            height: calc(100dvh - 82px);
-            min-height: 0;
-            border-radius: 17px;
+        .mashal-chat-app.sidebar-open .chat-sidebar {
+            transform: translateX(0);
         }
 
-        .mashal-ai-header {
-            padding: 9px;
+        .chat-sidebar-overlay {
+            position: fixed;
+            inset: 64px 0 0;
+            z-index: 90;
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            background: rgba(0,0,0,.56);
+            transition: opacity .18s ease, visibility .18s ease;
         }
 
-        .mashal-ai-brand span {
+        .mashal-chat-app.sidebar-open .chat-sidebar-overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .chat-sidebar-toggle {
+            display: inline-grid;
+        }
+
+        .chat-current-title {
+            max-width: 45vw;
+        }
+
+        .chat-model-pill {
             display: none;
         }
 
-        .mashal-ai-header-actions .ai-action:not(.primary) {
-            display: none;
+        .chat-scroll-inner {
+            padding-inline: 14px;
+            padding-bottom: 150px;
         }
 
-        .mashal-ai-messages {
-            padding: 14px 10px;
+        .composer-shell {
+            padding-inline: 10px;
+        }
+
+        .ai-message.user .ai-message-bubble {
+            max-width: 88%;
+        }
+
+        .ai-welcome {
+            margin-top: 8vh;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .chat-topbar {
+            padding-inline: 8px;
+        }
+
+        .chat-current-title {
+            max-width: 46vw;
+            font-size: 14px;
+        }
+
+        .chat-scroll-inner {
+            padding-top: 14px;
+        }
+
+        .ai-welcome {
+            margin-top: 5vh;
+        }
+
+        .ai-welcome h1 {
+            font-size: 25px;
+        }
+
+        .ai-welcome p {
+            font-size: 12px;
+        }
+
+        .ai-suggestions {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-suggestion:nth-child(n+3) {
+            display: none;
         }
 
         .ai-message {
-            max-width: 91%;
+            margin-bottom: 24px;
         }
 
         .ai-message-bubble {
             font-size: 14px;
         }
 
-        .ai-file-help {
+        .ai-input {
+            font-size: 16px; /* voorkomt iOS auto-zoom */
+        }
+
+        .composer-icon-button .label {
             display: none;
         }
 
-        .mashal-ai-composer {
-            padding:
-                8px
-                8px
-                calc(8px + env(safe-area-inset-bottom));
+        .composer-note {
+            font-size: 9px;
         }
 
-        .ai-input {
-            min-height: 48px;
-            max-height: 120px;
-            font-size: 16px;
+        .live-voice {
+            padding-inline: 14px;
         }
 
-        .ai-send {
-            min-width: 74px;
-            min-height: 48px;
-            padding-inline: 10px;
-        }
-
-        .live-orb-wrap {
-            width: min(76vw, 310px);
-        }
-
-        .live-orb {
-            width: 48%;
+        .live-voice-bottom {
+            flex-direction: column;
+            justify-content: center;
         }
 
         .voice-language-switch {
             width: min(100%, 360px);
-            gap: 4px;
+            justify-content: center;
         }
 
         .voice-language-option {
-            min-height: 34px;
-            padding-inline: 10px;
-            font-size: 10px;
+            flex: 1 1 0;
+            padding-inline: 8px;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="mashal-ai-page">
-    <div class="mashal-ai-shell">
-        <section class="mashal-ai-card" aria-label="Mashal AI">
-            <header class="mashal-ai-header">
-                <div class="mashal-ai-brand">
-                    <div class="mashal-ai-mark" aria-hidden="true">AI</div>
-
-                    <div>
-                        <strong>Mashal AI</strong>
-                        <span>
-                            {{ $modelName ?: 'Groq AI' }}
-                            ·
-                            {{ $voiceModelName ?: 'Whisper' }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="mashal-ai-header-actions">
-                    <button
-                        type="button"
-                        class="ai-action"
-                        id="ai-clear"
-                    >
-                        Wissen
-                    </button>
-
-                    <button
-                        type="button"
-                        class="ai-action primary"
-                        id="ai-live-start"
-                        @disabled(! $chatConfigured || ! $voiceConfigured)
-                    >
-                        🎙 Live praten
-                    </button>
-                </div>
-            </header>
-
-            <div
-                class="mashal-ai-messages"
-                id="ai-messages"
-                aria-live="polite"
+<div class="mashal-chat-app" id="mashal-chat-app">
+    <aside class="chat-sidebar" id="chat-sidebar" aria-label="Gesprekken">
+        <div class="chat-sidebar-head">
+            <button
+                type="button"
+                class="chat-new-button"
+                data-new-chat
             >
+                <span class="brand-dot" aria-hidden="true">M</span>
+                <span>Nieuwe chat</span>
+
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="margin-left:auto">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="chat-search-wrap">
+            <input
+                type="search"
+                id="chat-search"
+                class="chat-search"
+                placeholder="Zoek chats"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="chat-sidebar-label">Chats</div>
+
+        <div
+            class="chat-list"
+            id="chat-list"
+            aria-live="polite"
+        ></div>
+
+        <div class="chat-sidebar-footer">
+            <div class="chat-sidebar-button">
+                <span class="brand-dot" aria-hidden="true" style="width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#fff;color:#111;font-size:9px;font-weight:950">AI</span>
+
+                <div>
+                    <strong>Mashal AI</strong>
+                    <span>
+                        {{ $modelName ?: 'Groq AI' }}
+                        ·
+                        {{ $voiceModelName ?: 'Whisper' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <button
+        type="button"
+        class="chat-sidebar-overlay"
+        id="chat-sidebar-overlay"
+        aria-label="Sluit zijbalk"
+    ></button>
+
+    <main class="chat-main">
+        <header class="chat-topbar">
+            <div class="chat-topbar-left">
+                <button
+                    type="button"
+                    class="chat-topbar-button chat-sidebar-toggle"
+                    id="chat-sidebar-toggle"
+                    aria-label="Open chats"
+                    title="Chats"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <div class="chat-title-wrap">
+                    <span
+                        id="chat-current-title"
+                        class="chat-current-title"
+                    >
+                        Mashal AI
+                    </span>
+
+                    <span class="chat-model-pill">
+                        {{ $modelName ?: 'Groq' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="chat-topbar-right">
+                <button
+                    type="button"
+                    class="chat-topbar-button"
+                    data-new-chat
+                    aria-label="Nieuwe chat"
+                    title="Nieuwe chat"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    class="chat-topbar-button"
+                    id="ai-clear"
+                    aria-label="Verwijder deze chat"
+                    title="Verwijder deze chat"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M4 7h16M9 7V4h6v3M8 10v7M12 10v7M16 10v7M6 7l1 14h10l1-14"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div
+            class="mashal-ai-messages"
+            id="ai-messages"
+            aria-live="polite"
+        >
+            <div class="chat-scroll-inner" id="chat-scroll-inner">
                 <div class="ai-welcome" id="ai-welcome">
-                    <div class="ai-welcome-orb" aria-hidden="true"></div>
+                    <div class="ai-welcome-brand">
+                        <div class="ai-welcome-mark" aria-hidden="true">M</div>
+                    </div>
 
                     <h1>Waar kan ik je mee helpen?</h1>
 
                     <p>
-                        Typ een bericht, stuur een foto/document of start Live Voice.
-                        Mashal AI kan afbeeldingen, PDF, Word, Excel, PowerPoint, tekst en code analyseren.
-                        Je kunt Nederlands, English of اردو spreken.
-                        Mashal AI luistert, antwoordt in dezelfde taal en luistert daarna automatisch opnieuw.
+                        Praat met Mashal AI, upload foto's of documenten en laat ze
+                        uitleggen, samenvatten of analyseren. Live Voice ondersteunt
+                        Nederlands, English en اردو.
                     </p>
+
+                    <div class="ai-suggestions">
+                        <button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit.">
+                            <strong>Document begrijpen</strong>
+                            <span>Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.</span>
+                        </button>
+
+                        <button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is.">
+                            <strong>Afbeelding analyseren</strong>
+                            <span>Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.</span>
+                        </button>
+
+                        <button type="button" class="ai-suggestion" data-prompt="Help me stap voor stap met mijn vraag.">
+                            <strong>Stap voor stap helpen</strong>
+                            <span>Vraag uitleg, code, planning of praktisch advies.</span>
+                        </button>
+
+                        <button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen.">
+                            <strong>Samenvatten</strong>
+                            <span>Maak lange tekst of documenten snel begrijpelijk.</span>
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="ai-attachments">
-                <div class="ai-file-row">
-                    <label
-                        class="ai-file-button"
-                        for="ai-files"
-                    >
-                        ＋ Foto / bestand
-                    </label>
-
-                    <input
-                        id="ai-files"
-                        class="ai-file-input"
-                        type="file"
-                        multiple
-                        accept=".pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.json,.xml,.html,.log,.php,.js,.ts,.css,.sql,.yaml,.yml,.py,.java,.c,.cpp,.cs,.go,.rs,.sh,.ps1,.rb,.swift,.dart,.vue,.svelte,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf"
-                    >
-
-                    <span class="ai-file-help">
-                        PDF, Word, Excel, PowerPoint, foto's, tekst en code.
-                        Max. {{ $maxChatFiles ?? 5 }} bestanden, {{ $maxChatFileMb ?? 10 }} MB per bestand.
-                    </span>
-                </div>
-
-                <div
-                    id="ai-file-list"
-                    class="ai-file-list"
-                ></div>
-            </div>
-
+        <div class="composer-shell">
             <div class="mashal-ai-composer">
                 <div
                     id="ai-error"
@@ -728,29 +1263,83 @@
                 ></div>
 
                 <form id="ai-form">
+                    <div
+                        id="ai-file-list"
+                        class="ai-file-list"
+                    ></div>
+
                     <div class="ai-input-wrap">
                         <textarea
                             id="ai-input"
                             class="ai-input"
                             rows="1"
                             maxlength="12000"
-                            placeholder="Typ je bericht… / Type your message… / اپنا پیغام لکھیں…"
+                            placeholder="Stuur een bericht naar Mashal AI"
                             autocomplete="off"
                         ></textarea>
 
-                        <button
-                            id="ai-send"
-                            class="ai-send"
-                            type="submit"
-                            @disabled(! $chatConfigured)
-                        >
-                            Verstuur
-                        </button>
+                        <div class="composer-bottom">
+                            <div class="composer-left">
+                                <label
+                                    class="ai-file-button"
+                                    for="ai-files"
+                                    title="Foto of bestand toevoegen"
+                                >
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    <span class="label">Bestand</span>
+                                </label>
+
+                                <input
+                                    id="ai-files"
+                                    class="ai-file-input"
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.json,.xml,.html,.log,.php,.js,.ts,.css,.sql,.yaml,.yml,.py,.java,.c,.cpp,.cs,.go,.rs,.sh,.ps1,.rb,.swift,.dart,.vue,.svelte,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="composer-icon-button"
+                                    id="ai-live-start"
+                                    @disabled(! $chatConfigured || ! $voiceConfigured)
+                                    title="Live praten"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <rect x="9" y="3" width="6" height="12" rx="3"/>
+                                        <path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>
+                                    </svg>
+                                    <span class="label">Live</span>
+                                </button>
+                            </div>
+
+                            <div class="composer-right">
+                                <button
+                                    id="ai-send"
+                                    class="ai-send"
+                                    type="submit"
+                                    aria-label="Verstuur"
+                                    title="Verstuur"
+                                    @disabled(! $chatConfigured)
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" aria-hidden="true">
+                                        <path d="M12 19V5M6 11l6-6 6 6"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
+
+                <div class="composer-note">
+                    Mashal AI kan fouten maken. Controleer belangrijke informatie.
+                    Max. {{ $maxChatFiles ?? 5 }} bestanden van {{ $maxChatFileMb ?? 10 }} MB.
+                </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </main>
 </div>
 
 <div
@@ -845,19 +1434,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const maxFiles = @json((int) ($maxChatFiles ?? 5));
     const maxFileBytes = @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
 
-    const storageKey = 'mashal-ai-history-groq-v2';
+    const conversationsStorageKey = 'mashal-ai-conversations-v1';
+    const activeConversationStorageKey = 'mashal-ai-active-conversation-v1';
+    const legacyHistoryStorageKey = 'mashal-ai-history-groq-v2';
     const voiceLanguageStorageKey = 'mashal-ai-live-language-v1';
 
     const form = document.getElementById('ai-form');
     const input = document.getElementById('ai-input');
     const sendButton = document.getElementById('ai-send');
-    const messages = document.getElementById('ai-messages');
-    const welcome = document.getElementById('ai-welcome');
+    const messagesViewport = document.getElementById('ai-messages');
+    const messages = document.getElementById('chat-scroll-inner');
     const errorBox = document.getElementById('ai-error');
     const clearButton = document.getElementById('ai-clear');
     const liveStartButton = document.getElementById('ai-live-start');
     const fileInput = document.getElementById('ai-files');
     const fileList = document.getElementById('ai-file-list');
+
+    const chatApp = document.getElementById('mashal-chat-app');
+    const sidebar = document.getElementById('chat-sidebar');
+    const sidebarToggle = document.getElementById('chat-sidebar-toggle');
+    const sidebarOverlay = document.getElementById('chat-sidebar-overlay');
+    const chatList = document.getElementById('chat-list');
+    const chatSearch = document.getElementById('chat-search');
+    const chatCurrentTitle = document.getElementById('chat-current-title');
+    const newChatButtons = Array.from(
+        document.querySelectorAll('[data-new-chat]')
+    );
 
     const liveVoice = document.getElementById('live-voice');
     const voiceTypeButton = document.getElementById('voice-type');
@@ -870,7 +1472,33 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('[data-voice-language]')
     );
 
-    let history = loadHistory();
+    let conversations = loadConversations();
+    let activeConversationId = loadActiveConversationId();
+
+    if (!getConversationById(activeConversationId)) {
+        activeConversationId =
+            conversations[0]?.id
+            || null;
+    }
+
+    if (!activeConversationId) {
+        const firstConversation =
+            makeConversation();
+
+        conversations = [
+            firstConversation,
+        ];
+
+        activeConversationId =
+            firstConversation.id;
+
+        saveConversations();
+    }
+
+    let history =
+        getActiveConversation()?.messages
+        || [];
+
     let selectedFiles = [];
     let sendingText = false;
 
@@ -917,8 +1545,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const BARGE_ARM_MS = 600;
 
     renderHistory();
+    renderConversationList();
+    updateCurrentChatTitle();
     refreshSpeechVoices();
     renderVoiceLanguageSwitch();
+    bindConversationUi();
 
     if ('speechSynthesis' in window) {
         window.speechSynthesis.addEventListener?.(
@@ -930,41 +1561,231 @@ document.addEventListener('DOMContentLoaded', function () {
             refreshSpeechVoices;
     }
 
-    function loadHistory() {
-        try {
-            const parsed = JSON.parse(
-                localStorage.getItem(storageKey) || '[]'
-            );
+    function makeConversation(
+        title = 'Nieuwe chat',
+        initialMessages = []
+    ) {
+        const id =
+            (
+                window.crypto
+                && typeof window.crypto.randomUUID === 'function'
+            )
+                ? window.crypto.randomUUID()
+                : (
+                    'chat-'
+                    + Date.now()
+                    + '-'
+                    + Math.random()
+                        .toString(36)
+                        .slice(2, 10)
+                );
 
-            if (!Array.isArray(parsed)) {
-                return [];
+        const now =
+            Date.now();
+
+        return {
+            id: id,
+            title: String(title || 'Nieuwe chat'),
+            createdAt: now,
+            updatedAt: now,
+            messages: Array.isArray(initialMessages)
+                ? initialMessages
+                : [],
+        };
+    }
+
+    function sanitizeMessages(items) {
+        if (!Array.isArray(items)) {
+            return [];
+        }
+
+        return items
+            .filter(function (item) {
+                return item
+                    && (
+                        item.role === 'user'
+                        || item.role === 'assistant'
+                    )
+                    && typeof item.content === 'string';
+            })
+            .map(function (item) {
+                return {
+                    role: item.role,
+                    content: item.content,
+                };
+            })
+            .slice(-100);
+    }
+
+    function loadConversations() {
+        try {
+            const raw =
+                localStorage.getItem(
+                    conversationsStorageKey
+                );
+
+            const parsed =
+                raw
+                    ? JSON.parse(raw)
+                    : null;
+
+            if (Array.isArray(parsed)) {
+                const cleaned =
+                    parsed
+                        .filter(function (chat) {
+                            return chat
+                                && typeof chat.id === 'string';
+                        })
+                        .map(function (chat) {
+                            return {
+                                id: chat.id,
+                                title:
+                                    String(
+                                        chat.title
+                                        || 'Nieuwe chat'
+                                    ),
+                                createdAt:
+                                    Number(
+                                        chat.createdAt
+                                        || Date.now()
+                                    ),
+                                updatedAt:
+                                    Number(
+                                        chat.updatedAt
+                                        || Date.now()
+                                    ),
+                                messages:
+                                    sanitizeMessages(
+                                        chat.messages
+                                    ),
+                            };
+                        })
+                        .slice(0, 60);
+
+                if (cleaned.length) {
+                    return cleaned;
+                }
             }
 
-            return parsed
-                .filter(function (item) {
-                    return item
-                        && (item.role === 'user' || item.role === 'assistant')
-                        && typeof item.content === 'string';
-                })
-                .slice(-20);
+            /*
+             * Migreer automatisch de oude enkele chat zodat de gebruiker
+             * niets kwijtraakt bij de nieuwe sidebar-layout.
+             */
+            const legacy =
+                JSON.parse(
+                    localStorage.getItem(
+                        legacyHistoryStorageKey
+                    )
+                    || '[]'
+                );
+
+            const legacyMessages =
+                sanitizeMessages(legacy);
+
+            if (legacyMessages.length) {
+                const firstUserMessage =
+                    legacyMessages.find(
+                        function (item) {
+                            return item.role === 'user';
+                        }
+                    );
+
+                return [
+                    makeConversation(
+                        conversationTitleFromText(
+                            firstUserMessage?.content
+                            || 'Bestaande chat'
+                        ),
+                        legacyMessages
+                    ),
+                ];
+            }
         } catch (error) {
-            return [];
+            // Maak hieronder een lege chat.
+        }
+
+        return [
+            makeConversation(),
+        ];
+    }
+
+    function loadActiveConversationId() {
+        try {
+            return (
+                localStorage.getItem(
+                    activeConversationStorageKey
+                )
+                || conversations[0]?.id
+                || null
+            );
+        } catch (error) {
+            return (
+                conversations[0]?.id
+                || null
+            );
         }
     }
 
-    function saveHistory() {
+    function getConversationById(id) {
+        return conversations.find(
+            function (chat) {
+                return chat.id === id;
+            }
+        ) || null;
+    }
+
+    function getActiveConversation() {
+        return getConversationById(
+            activeConversationId
+        );
+    }
+
+    function saveConversations() {
         try {
             localStorage.setItem(
-                storageKey,
-                JSON.stringify(history.slice(-20))
+                conversationsStorageKey,
+                JSON.stringify(
+                    conversations.slice(0, 60)
+                )
+            );
+
+            localStorage.setItem(
+                activeConversationStorageKey,
+                activeConversationId
             );
         } catch (error) {
             // Local storage is optioneel.
         }
     }
 
+    function saveHistory() {
+        const chat =
+            getActiveConversation();
+
+        if (!chat) {
+            return;
+        }
+
+        chat.messages =
+            sanitizeMessages(history);
+
+        chat.updatedAt =
+            Date.now();
+
+        saveConversations();
+        renderConversationList(
+            chatSearch?.value
+            || ''
+        );
+        updateCurrentChatTitle();
+    }
+
     function pushHistory(role, content) {
-        const text = String(content || '').trim();
+        const text =
+            String(
+                content
+                || ''
+            ).trim();
 
         if (!text) {
             return;
@@ -975,8 +1796,494 @@ document.addEventListener('DOMContentLoaded', function () {
             content: text,
         });
 
-        history = history.slice(-20);
+        history =
+            history.slice(-100);
+
+        const chat =
+            getActiveConversation();
+
+        if (
+            chat
+            && role === 'user'
+            && (
+                !chat.title
+                || chat.title === 'Nieuwe chat'
+            )
+        ) {
+            chat.title =
+                conversationTitleFromText(
+                    text
+                );
+        }
+
         saveHistory();
+    }
+
+    function conversationTitleFromText(text) {
+        const clean =
+            String(text || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+        if (!clean) {
+            return 'Nieuwe chat';
+        }
+
+        const title =
+            clean.slice(0, 44);
+
+        return clean.length > 44
+            ? title + '…'
+            : title;
+    }
+
+    function renderConversationList(
+        query = ''
+    ) {
+        if (!chatList) {
+            return;
+        }
+
+        const search =
+            String(query || '')
+                .trim()
+                .toLowerCase();
+
+        chatList.replaceChildren();
+
+        const ordered =
+            conversations
+                .slice()
+                .sort(
+                    function (a, b) {
+                        return (
+                            Number(b.updatedAt || 0)
+                            - Number(a.updatedAt || 0)
+                        );
+                    }
+                )
+                .filter(
+                    function (chat) {
+                        if (!search) {
+                            return true;
+                        }
+
+                        return String(
+                            chat.title
+                            || ''
+                        )
+                            .toLowerCase()
+                            .includes(search);
+                    }
+                );
+
+        if (!ordered.length) {
+            const empty =
+                document.createElement('div');
+
+            empty.className =
+                'chat-list-empty';
+
+            empty.textContent =
+                search
+                    ? 'Geen chats gevonden.'
+                    : 'Nog geen chats.';
+
+            chatList.appendChild(
+                empty
+            );
+
+            return;
+        }
+
+        ordered.forEach(
+            function (chat) {
+                const row =
+                    document.createElement('div');
+
+                row.className =
+                    'chat-row'
+                    + (
+                        chat.id === activeConversationId
+                            ? ' active'
+                            : ''
+                    );
+
+                const main =
+                    document.createElement('button');
+
+                main.type =
+                    'button';
+
+                main.className =
+                    'chat-row-main';
+
+                main.title =
+                    chat.title
+                    || 'Nieuwe chat';
+
+                const title =
+                    document.createElement('span');
+
+                title.className =
+                    'chat-row-title';
+
+                title.textContent =
+                    chat.title
+                    || 'Nieuwe chat';
+
+                main.appendChild(
+                    title
+                );
+
+                main.addEventListener(
+                    'click',
+                    function () {
+                        switchConversation(
+                            chat.id
+                        );
+                    }
+                );
+
+                const remove =
+                    document.createElement('button');
+
+                remove.type =
+                    'button';
+
+                remove.className =
+                    'chat-row-delete';
+
+                remove.setAttribute(
+                    'aria-label',
+                    'Verwijder chat'
+                );
+
+                remove.title =
+                    'Verwijder chat';
+
+                remove.innerHTML =
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
+                    + '<path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M7 7l1 14h8l1-14"/>'
+                    + '</svg>';
+
+                remove.addEventListener(
+                    'click',
+                    function (event) {
+                        event.stopPropagation();
+
+                        deleteConversation(
+                            chat.id
+                        );
+                    }
+                );
+
+                row.append(
+                    main,
+                    remove
+                );
+
+                chatList.appendChild(
+                    row
+                );
+            }
+        );
+    }
+
+    function updateCurrentChatTitle() {
+        if (!chatCurrentTitle) {
+            return;
+        }
+
+        chatCurrentTitle.textContent =
+            getActiveConversation()?.title
+            || 'Mashal AI';
+    }
+
+    function switchConversation(id) {
+        if (
+            sendingText
+            || voicePending
+        ) {
+            setError(
+                'Wacht tot het huidige antwoord klaar is voordat je van chat wisselt.'
+            );
+
+            return;
+        }
+
+        const chat =
+            getConversationById(id);
+
+        if (!chat) {
+            return;
+        }
+
+        activeConversationId =
+            chat.id;
+
+        history =
+            sanitizeMessages(
+                chat.messages
+            );
+
+        clearSelectedFiles();
+        setError('');
+        saveConversations();
+        renderCurrentConversation();
+        renderConversationList(
+            chatSearch?.value
+            || ''
+        );
+        updateCurrentChatTitle();
+        closeSidebar();
+
+        window.setTimeout(
+            function () {
+                input?.focus();
+            },
+            0
+        );
+    }
+
+    function createNewConversation() {
+        if (
+            sendingText
+            || voicePending
+        ) {
+            setError(
+                'Wacht tot het huidige antwoord klaar is voordat je een nieuwe chat opent.'
+            );
+
+            return;
+        }
+
+        const current =
+            getActiveConversation();
+
+        if (
+            current
+            && history.length === 0
+        ) {
+            clearSelectedFiles();
+            setError('');
+            renderCurrentConversation();
+            closeSidebar();
+            input?.focus();
+            return;
+        }
+
+        const chat =
+            makeConversation();
+
+        conversations.unshift(
+            chat
+        );
+
+        activeConversationId =
+            chat.id;
+
+        history = [];
+
+        clearSelectedFiles();
+        setError('');
+        saveConversations();
+        renderCurrentConversation();
+        renderConversationList(
+            chatSearch?.value
+            || ''
+        );
+        updateCurrentChatTitle();
+        closeSidebar();
+
+        input?.focus();
+    }
+
+    function deleteConversation(id) {
+        const chat =
+            getConversationById(id);
+
+        if (!chat) {
+            return;
+        }
+
+        const confirmed =
+            window.confirm(
+                'Deze chat verwijderen?'
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        conversations =
+            conversations.filter(
+                function (item) {
+                    return item.id !== id;
+                }
+            );
+
+        if (!conversations.length) {
+            conversations = [
+                makeConversation(),
+            ];
+        }
+
+        if (activeConversationId === id) {
+            activeConversationId =
+                conversations[0].id;
+
+            history =
+                sanitizeMessages(
+                    conversations[0].messages
+                );
+
+            clearSelectedFiles();
+            setError('');
+            renderCurrentConversation();
+        }
+
+        saveConversations();
+        renderConversationList(
+            chatSearch?.value
+            || ''
+        );
+        updateCurrentChatTitle();
+    }
+
+    function buildWelcome() {
+        const wrapper =
+            document.createElement('div');
+
+        wrapper.className =
+            'ai-welcome';
+
+        wrapper.id =
+            'ai-welcome';
+
+        wrapper.innerHTML =
+            '<div class="ai-welcome-brand">'
+            + '<div class="ai-welcome-mark" aria-hidden="true">M</div>'
+            + '</div>'
+            + '<h1>Waar kan ik je mee helpen?</h1>'
+            + '<p>Praat met Mashal AI, upload foto\'s of documenten en laat ze uitleggen, samenvatten of analyseren. Live Voice ondersteunt Nederlands, English en اردو.</p>'
+            + '<div class="ai-suggestions">'
+            + '<button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit."><strong>Document begrijpen</strong><span>Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is."><strong>Afbeelding analyseren</strong><span>Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Help me stap voor stap met mijn vraag."><strong>Stap voor stap helpen</strong><span>Vraag uitleg, code, planning of praktisch advies.</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen."><strong>Samenvatten</strong><span>Maak lange tekst of documenten snel begrijpelijk.</span></button>'
+            + '</div>';
+
+        return wrapper;
+    }
+
+    function renderCurrentConversation() {
+        messages.replaceChildren();
+
+        if (!history.length) {
+            messages.appendChild(
+                buildWelcome()
+            );
+
+            messagesViewport.scrollTop = 0;
+            return;
+        }
+
+        history.forEach(
+            function (item) {
+                renderMessage(
+                    item.role,
+                    item.content,
+                    false,
+                    false
+                );
+            }
+        );
+
+        scrollMessagesToBottom();
+    }
+
+    function renderHistory() {
+        renderCurrentConversation();
+    }
+
+    function bindConversationUi() {
+        newChatButtons.forEach(
+            function (button) {
+                button.addEventListener(
+                    'click',
+                    createNewConversation
+                );
+            }
+        );
+
+        chatSearch?.addEventListener(
+            'input',
+            function () {
+                renderConversationList(
+                    chatSearch.value
+                );
+            }
+        );
+
+        sidebarToggle?.addEventListener(
+            'click',
+            function () {
+                chatApp.classList.toggle(
+                    'sidebar-open'
+                );
+            }
+        );
+
+        sidebarOverlay?.addEventListener(
+            'click',
+            closeSidebar
+        );
+
+        messages.addEventListener(
+            'click',
+            function (event) {
+                const suggestion =
+                    event.target.closest(
+                        '[data-prompt]'
+                    );
+
+                if (!suggestion) {
+                    return;
+                }
+
+                input.value =
+                    suggestion.dataset.prompt
+                    || '';
+
+                autoResize();
+                input.focus();
+            }
+        );
+
+        window.addEventListener(
+            'keydown',
+            function (event) {
+                if (event.key === 'Escape') {
+                    closeSidebar();
+                }
+            }
+        );
+    }
+
+    function closeSidebar() {
+        chatApp?.classList.remove(
+            'sidebar-open'
+        );
+    }
+
+    function scrollMessagesToBottom() {
+        if (!messagesViewport) {
+            return;
+        }
+
+        messagesViewport.scrollTop =
+            messagesViewport.scrollHeight;
     }
 
     function setError(message = '') {
@@ -987,23 +2294,9 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    function renderHistory() {
-        if (!history.length) {
-            return;
-        }
-
-        welcome?.remove();
-
-        history.forEach(function (item) {
-            renderMessage(
-                item.role,
-                item.content
-            );
-        });
-    }
 
     function renderMessage(role, content, loading = false) {
-        welcome?.remove();
+        messages.querySelector('.ai-welcome')?.remove();
 
         const article = document.createElement('article');
         article.className =
@@ -1029,8 +2322,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         messages.appendChild(article);
 
-        messages.scrollTop =
-            messages.scrollHeight;
+        scrollMessagesToBottom();
 
         return article;
     }
@@ -1112,17 +2404,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const historyBefore =
                 history.slice(-20);
 
-            if (text) {
-                renderMessage(
-                    'user',
-                    text
-                );
-            } else {
-                renderMessage(
-                    'user',
-                    'Bestand(en) toegevoegd'
-                );
-            }
+            const visibleUserText =
+                text
+                || 'Analyseer de toegevoegde bestanden.';
+
+            const visibleFileNames =
+                selectedFiles
+                    .map(function (file) {
+                        return file.name;
+                    })
+                    .join(', ');
+
+            renderMessage(
+                'user',
+                visibleFileNames
+                    ? (
+                        visibleUserText
+                        + '\n\n📎 '
+                        + visibleFileNames
+                    )
+                    : visibleUserText
+            );
 
             const loading = renderMessage(
                 'assistant',
@@ -1234,32 +2536,9 @@ document.addEventListener('DOMContentLoaded', function () {
     clearButton.addEventListener(
         'click',
         function () {
-            history = [];
-            saveHistory();
-
-            Array.from(
-                messages.children
-            ).forEach(function (child) {
-                child.remove();
-            });
-
-            const welcomeBlock =
-                document.createElement('div');
-
-            welcomeBlock.className =
-                'ai-welcome';
-
-            welcomeBlock.innerHTML =
-                '<div class="ai-welcome-orb" aria-hidden="true"></div>'
-                + '<h1>Nieuwe conversatie</h1>'
-                + '<p>Typ iets of start Live Voice.</p>';
-
-            messages.appendChild(
-                welcomeBlock
+            deleteConversation(
+                activeConversationId
             );
-
-            clearSelectedFiles();
-            setError('');
         }
     );
 
