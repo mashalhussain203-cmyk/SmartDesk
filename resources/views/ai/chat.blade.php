@@ -4,7 +4,7 @@
 
 @section(
     'meta_description',
-    'Praat live met Mashal AI of gebruik de gewone tekstchat met bestanden.'
+    'Praat live met Mashal AI in Nederlands, English of Urdu, of gebruik de gewone tekstchat met bestanden.'
 )
 
 @push('styles')
@@ -634,8 +634,8 @@
 
                     <p>
                         Typ een bericht of start Live Voice.
-                        In Live Voice praat je gewoon door:
-                        Mashal AI luistert, antwoordt hardop en luistert daarna automatisch opnieuw.
+                        Je kunt Nederlands, English of اردو spreken.
+                        Mashal AI luistert, antwoordt in dezelfde taal en luistert daarna automatisch opnieuw.
                     </p>
                 </div>
             </div>
@@ -682,7 +682,7 @@
                             class="ai-input"
                             rows="1"
                             maxlength="12000"
-                            placeholder="Typ je bericht…"
+                            placeholder="Typ je bericht… / Type your message… / اپنا پیغام لکھیں…"
                             autocomplete="off"
                         ></textarea>
 
@@ -737,7 +737,7 @@
                 </strong>
 
                 <span id="voice-status-detail">
-                    Tik op Live praten om te beginnen.
+                    Praat Nederlands, English of اردو.
                 </span>
             </div>
         </div>
@@ -1914,8 +1914,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             voicePending = false;
 
+            const voiceLocale =
+                detectSpeechLocale(
+                    payload.transcript
+                    || payload.message
+                );
+
             await speakLiveReply(
-                payload.message
+                payload.message,
+                voiceLocale
             );
         } catch (error) {
             voicePending = false;
@@ -1945,7 +1952,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function speakLiveReply(text) {
+    function speakLiveReply(
+        text,
+        preferredLocale = null
+    ) {
         return new Promise(
             function (resolve) {
                 if (
@@ -1955,7 +1965,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ) {
                     setVoiceState(
                         'error',
-                        'Geen Nederlandse stem beschikbaar',
+                        'Geen spraakstem beschikbaar',
                         'Je browser kan het antwoord niet hardop afspelen.'
                     );
 
@@ -1966,16 +1976,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 window.speechSynthesis.cancel();
 
+                const cleanText =
+                    speechText(text);
+
+                const locale =
+                    normalizeSpeechLocale(
+                        preferredLocale
+                        || detectSpeechLocale(cleanText)
+                    );
+
                 const utterance =
                     new SpeechSynthesisUtterance(
-                        speechText(text)
+                        cleanText
                     );
 
                 utterance.lang =
-                    'nl-NL';
+                    locale;
 
                 const voice =
-                    chooseDutchVoice();
+                    chooseSpeechVoice(
+                        locale
+                    );
 
                 if (voice) {
                     utterance.voice =
@@ -1983,11 +2004,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     utterance.lang =
                         voice.lang
-                        || 'nl-NL';
+                        || locale;
                 }
 
                 utterance.rate =
-                    1.02;
+                    locale.toLowerCase()
+                        .startsWith('ur')
+                            ? 0.96
+                            : 1.02;
 
                 utterance.pitch =
                     1;
@@ -2001,8 +2025,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         setVoiceState(
                             'speaking',
-                            'Mashal AI spreekt…',
-                            'Je kunt hem onderbreken door zelf te beginnen praten.'
+                            voiceStateCopy(
+                                locale,
+                                'speakingTitle'
+                            ),
+                            voiceStateCopy(
+                                locale,
+                                'speakingDetail'
+                            )
                         );
                     };
 
@@ -2016,8 +2046,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         ) {
                             setVoiceState(
                                 'listening',
-                                'Ik luister…',
-                                'Praat gewoon verder.'
+                                voiceStateCopy(
+                                    locale,
+                                    'listeningTitle'
+                                ),
+                                voiceStateCopy(
+                                    locale,
+                                    'listeningDetail'
+                                )
                             );
                         }
 
@@ -2034,8 +2070,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         ) {
                             setVoiceState(
                                 'listening',
-                                'Ik luister…',
-                                'Het antwoord kon niet volledig worden uitgesproken.'
+                                voiceStateCopy(
+                                    locale,
+                                    'listeningTitle'
+                                ),
+                                voiceStateCopy(
+                                    locale,
+                                    'speechErrorDetail'
+                                )
                             );
                         }
 
@@ -2049,30 +2091,255 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    function chooseDutchVoice() {
+    function detectSpeechLocale(text) {
+        const value =
+            String(text || '')
+                .trim();
+
+        if (!value) {
+            return 'nl-NL';
+        }
+
+        /*
+         * Urdu-specific characters.
+         */
+        if (
+            /[\u0679\u0688\u0691\u06BA\u06BE\u06C1\u06CC\u06D2\u06D3]/u
+                .test(value)
+        ) {
+            return 'ur-PK';
+        }
+
+        /*
+         * Arabic-script fallback.
+         * In Mashal AI Live Voice behandelen we dit als Urdu.
+         */
+        if (
+            /[\u0600-\u06FF]/u
+                .test(value)
+        ) {
+            return 'ur-PK';
+        }
+
+        const lower =
+            value.toLowerCase();
+
+        const padded =
+            ` ${lower} `;
+
+        const dutchWords = [
+            ' de ',
+            ' het ',
+            ' een ',
+            ' ik ',
+            ' jij ',
+            ' je ',
+            ' jouw ',
+            ' van ',
+            ' voor ',
+            ' met ',
+            ' niet ',
+            ' wel ',
+            ' wat ',
+            ' hoe ',
+            ' waarom ',
+            ' bedankt ',
+            ' graag ',
+            ' kunnen ',
+            ' deze ',
+            ' dit ',
+            ' dat ',
+            ' zijn ',
+            ' hebben ',
+            ' hallo ',
+            ' goed ',
+        ];
+
+        const englishWords = [
+            ' the ',
+            ' a ',
+            ' an ',
+            ' i ',
+            ' you ',
+            ' your ',
+            ' is ',
+            ' are ',
+            ' with ',
+            ' for ',
+            ' what ',
+            ' how ',
+            ' why ',
+            ' thanks ',
+            ' thank ',
+            ' please ',
+            ' can ',
+            ' this ',
+            ' that ',
+            ' have ',
+            ' hello ',
+            ' hi ',
+            ' sure ',
+            ' yes ',
+            ' no ',
+        ];
+
+        let dutchScore = 0;
+        let englishScore = 0;
+
+        dutchWords.forEach(
+            function (word) {
+                if (padded.includes(word)) {
+                    dutchScore++;
+                }
+            }
+        );
+
+        englishWords.forEach(
+            function (word) {
+                if (padded.includes(word)) {
+                    englishScore++;
+                }
+            }
+        );
+
+        if (englishScore > dutchScore) {
+            return 'en-US';
+        }
+
+        return 'nl-NL';
+    }
+
+    function normalizeSpeechLocale(locale) {
+        const value =
+            String(locale || '')
+                .trim()
+                .toLowerCase();
+
+        if (value.startsWith('ur')) {
+            return 'ur-PK';
+        }
+
+        if (value.startsWith('en')) {
+            return 'en-US';
+        }
+
+        return 'nl-NL';
+    }
+
+    function chooseSpeechVoice(locale) {
         const voices =
             window.speechSynthesis.getVoices();
 
+        if (!voices.length) {
+            return null;
+        }
+
+        const wanted =
+            normalizeSpeechLocale(locale)
+                .toLowerCase();
+
+        const language =
+            wanted.split('-')[0];
+
         return (
-            voices.find(function (voice) {
-                return (
-                    voice.lang
-                    && voice.lang.toLowerCase()
-                        === 'nl-nl'
-                );
-            })
-            || voices.find(function (voice) {
-                return (
-                    voice.lang
-                    && voice.lang.toLowerCase()
-                        .startsWith('nl')
-                );
-            })
-            || voices.find(function (voice) {
-                return voice.default;
-            })
+            voices.find(
+                function (voice) {
+                    return (
+                        voice.lang
+                        && voice.lang.toLowerCase()
+                            === wanted
+                    );
+                }
+            )
+            || voices.find(
+                function (voice) {
+                    return (
+                        voice.lang
+                        && voice.lang.toLowerCase()
+                            .startsWith(language)
+                    );
+                }
+            )
+            || (
+                language === 'ur'
+                    ? voices.find(
+                        function (voice) {
+                            const name =
+                                String(
+                                    voice.name || ''
+                                ).toLowerCase();
+
+                            return (
+                                name.includes('urdu')
+                                || name.includes('pakistan')
+                            );
+                        }
+                    )
+                    : null
+            )
+            || voices.find(
+                function (voice) {
+                    return voice.default;
+                }
+            )
             || voices[0]
             || null
+        );
+    }
+
+    function voiceStateCopy(
+        locale,
+        key
+    ) {
+        const language =
+            normalizeSpeechLocale(locale)
+                .split('-')[0];
+
+        const copy = {
+            nl: {
+                speakingTitle:
+                    'Mashal AI spreekt…',
+                speakingDetail:
+                    'Je kunt Mashal AI onderbreken door zelf te beginnen praten.',
+                listeningTitle:
+                    'Ik luister…',
+                listeningDetail:
+                    'Praat gewoon verder.',
+                speechErrorDetail:
+                    'Het antwoord kon niet volledig worden uitgesproken.',
+            },
+
+            en: {
+                speakingTitle:
+                    'Mashal AI is speaking…',
+                speakingDetail:
+                    'You can interrupt Mashal AI by speaking.',
+                listeningTitle:
+                    'I’m listening…',
+                listeningDetail:
+                    'Just keep talking.',
+                speechErrorDetail:
+                    'The response could not be spoken completely.',
+            },
+
+            ur: {
+                speakingTitle:
+                    'Mashal AI بول رہا ہے…',
+                speakingDetail:
+                    'آپ بول کر Mashal AI کو درمیان میں روک سکتے ہیں۔',
+                listeningTitle:
+                    'میں سن رہا ہوں…',
+                listeningDetail:
+                    'آپ بات جاری رکھیں۔',
+                speechErrorDetail:
+                    'جواب مکمل طور پر آواز میں نہیں سنایا جا سکا۔',
+            },
+        };
+
+        return (
+            copy[language]?.[key]
+            || copy.nl[key]
+            || ''
         );
     }
 
