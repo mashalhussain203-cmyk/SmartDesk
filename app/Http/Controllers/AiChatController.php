@@ -109,8 +109,19 @@ class AiChatController extends Controller
                 false
             );
 
+            $mode = (string) (
+                $validated['mode']
+                ?? config(
+                    'groq-chat.tools.default_mode',
+                    'auto'
+                )
+            );
+
             $result = $this->groqChat->chat(
-                $conversation['messages']
+                $conversation['messages'],
+                [
+                    'mode' => $mode,
+                ]
             );
 
             $this->clearCooldown($request);
@@ -121,6 +132,11 @@ class AiChatController extends Controller
                 'model' => $result['model'],
                 'usage' => $result['usage'],
                 'files' => $conversation['file_metadata'],
+                'mode' => $result['mode'] ?? $mode,
+                'used_web' => (bool) ($result['used_web'] ?? false),
+                'used_code' => (bool) ($result['used_code'] ?? false),
+                'sources' => $result['sources'] ?? [],
+                'tools' => $result['tools'] ?? [],
             ]);
         } catch (ValidationException $exception) {
             throw $exception;
@@ -242,7 +258,10 @@ class AiChatController extends Controller
             );
 
             $result = $this->groqChat->chat(
-                $conversation['messages']
+                $conversation['messages'],
+                [
+                    'mode' => 'auto',
+                ]
             );
 
             $this->clearCooldown($request);
@@ -263,6 +282,9 @@ class AiChatController extends Controller
                 'language' => $voiceLanguage,
                 'reply_locale' => $replyLocale,
                 'server_tts' => $this->azureSpeech->isConfigured(),
+                'used_web' => (bool) ($result['used_web'] ?? false),
+                'used_code' => (bool) ($result['used_code'] ?? false),
+                'sources' => $result['sources'] ?? [],
             ]);
         } catch (ValidationException $exception) {
             throw $exception;
@@ -512,6 +534,18 @@ class AiChatController extends Controller
                     ChatFileReaderService::MAX_FILE_BYTES /
                     1024
                 ),
+            ],
+
+            'mode' => [
+                'nullable',
+                'string',
+                Rule::in([
+                    'auto',
+                    'web',
+                    'research',
+                    'code',
+                    'plain',
+                ]),
             ],
         ], [
             'message.max' =>

@@ -2617,6 +2617,173 @@
        QA 288: Firefox desktop — very short viewport.
        ====================================================================== */
 
+
+
+    /* ================================================================
+       Mashal AI Expert tools: Auto / Web / Research / Code
+       ================================================================ */
+    .ai-mode-picker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .ai-mode-select {
+        appearance: none;
+        -webkit-appearance: none;
+        min-height: 38px;
+        max-width: 150px;
+        padding: 0 31px 0 11px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
+        color: #f3f4f6;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1;
+        cursor: pointer;
+        outline: none;
+        background-image:
+            linear-gradient(45deg, transparent 50%, rgba(255,255,255,.72) 50%),
+            linear-gradient(135deg, rgba(255,255,255,.72) 50%, transparent 50%);
+        background-position:
+            calc(100% - 14px) 16px,
+            calc(100% - 10px) 16px;
+        background-size: 4px 4px, 4px 4px;
+        background-repeat: no-repeat;
+        transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+    }
+
+    .ai-mode-select:hover,
+    .ai-mode-select:focus-visible {
+        border-color: rgba(255,255,255,.24);
+        background-color: rgba(255,255,255,.07);
+    }
+
+    .ai-mode-select option {
+        background: #202123;
+        color: #f5f5f5;
+    }
+
+    .ai-tool-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 12px;
+    }
+
+    .ai-tool-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 28px;
+        padding: 5px 9px;
+        border: 1px solid rgba(255,255,255,.11);
+        border-radius: 999px;
+        background: rgba(255,255,255,.045);
+        color: rgba(255,255,255,.72);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .ai-tool-badge.web {
+        border-color: rgba(86, 180, 255, .22);
+        background: rgba(56, 142, 215, .10);
+    }
+
+    .ai-tool-badge.code {
+        border-color: rgba(126, 231, 177, .22);
+        background: rgba(64, 183, 126, .10);
+    }
+
+    .ai-source-panel {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,.09);
+    }
+
+    .ai-source-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+        color: rgba(255,255,255,.66);
+        font-size: 12px;
+        font-weight: 720;
+        letter-spacing: .01em;
+    }
+
+    .ai-source-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .ai-source-card {
+        display: block;
+        min-width: 0;
+        padding: 10px 11px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 12px;
+        background: rgba(255,255,255,.035);
+        color: inherit;
+        text-decoration: none;
+        transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    }
+
+    .ai-source-card:hover {
+        background: rgba(255,255,255,.065);
+        border-color: rgba(255,255,255,.17);
+        transform: translateY(-1px);
+    }
+
+    .ai-source-card-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        margin: 0 0 4px;
+        color: rgba(255,255,255,.92);
+        font-size: 12.5px;
+        font-weight: 680;
+        line-height: 1.35;
+    }
+
+    .ai-source-card-host {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: rgba(255,255,255,.48);
+        font-size: 11px;
+    }
+
+    .ai-source-card-snippet {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        margin-top: 6px;
+        color: rgba(255,255,255,.56);
+        font-size: 11.5px;
+        line-height: 1.45;
+    }
+
+    @media (max-width: 720px) {
+        .ai-mode-select {
+            max-width: 123px;
+            min-height: 40px;
+            font-size: 12px;
+        }
+
+        .ai-source-list {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
 @endpush
 
@@ -2757,9 +2924,9 @@
                     <h1>Waar kan ik je mee helpen?</h1>
 
                     <p>
-                        Praat met Mashal AI, upload foto's of documenten en laat ze
-                        uitleggen, samenvatten of analyseren. Live Voice ondersteunt
-                        Nederlands, English en اردو.
+                        Praat met Mashal AI, upload foto's of documenten, laat informatie
+                        uitleggen en laat Mashal AI wanneer nodig live op internet zoeken of
+                        berekeningen uitvoeren. Live Voice ondersteunt Nederlands, English en اردو.
                     </p>
 
                     <div class="ai-suggestions">
@@ -2781,6 +2948,17 @@
                         <button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen.">
                             <strong>Samenvatten</strong>
                             <span>Maak lange tekst of documenten snel begrijpelijk.</span>
+                        </button>
+
+
+                        <button type="button" class="ai-suggestion" data-prompt="Zoek dit op internet en geef mij de nieuwste betrouwbare informatie met bronnen.">
+                            <strong>Internet zoeken</strong>
+                            <span>Actuele informatie zoeken en bronnen bij het antwoord tonen.</span>
+                        </button>
+
+                        <button type="button" class="ai-suggestion" data-prompt="Onderzoek dit uitgebreid, vergelijk meerdere bronnen en geef een duidelijke conclusie.">
+                            <strong>Deep Research</strong>
+                            <span>Meerdere webbronnen vergelijken en een onderbouwd antwoord maken.</span>
                         </button>
                     </div>
                 </div>
@@ -2879,6 +3057,22 @@
                                     </svg>
                                     <span class="label">Live</span>
                                 </button>
+
+
+                                <div class="ai-mode-picker">
+                                    <select
+                                        id="ai-mode"
+                                        class="ai-mode-select"
+                                        aria-label="AI modus"
+                                        title="Kies hoe Mashal AI tools gebruikt"
+                                    >
+                                        <option value="auto">✨ Auto</option>
+                                        <option value="web">🌐 Internet</option>
+                                        <option value="research">🔎 Research</option>
+                                        <option value="code">🧮 Code</option>
+                                        <option value="plain">💬 Alleen chat</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="composer-right">
@@ -2910,6 +3104,7 @@
 
                 <div class="composer-note">
                     Mashal AI kan fouten maken. Controleer belangrijke informatie.
+                    Auto kan internet en veilige Python-berekeningen gebruiken wanneer nodig.
                     Max. {{ $maxChatFiles ?? 5 }} bestanden van {{ $maxChatFileMb ?? 10 }} MB.
                 </div>
             </div>
@@ -3017,6 +3212,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const activeConversationStorageKey = 'mashal-ai-active-conversation-v1';
     const legacyHistoryStorageKey = 'mashal-ai-history-groq-v2';
     const voiceLanguageStorageKey = 'mashal-ai-live-language-v1';
+    const aiModeStorageKey = 'mashal-ai-tool-mode-v1';
 
     const form = document.getElementById('ai-form');
     const input = document.getElementById('ai-input');
@@ -3033,6 +3229,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const networkPill = document.getElementById('chat-network-pill');
     const mobileStatus = document.getElementById('chat-mobile-status');
     const mobileStatusText = document.getElementById('chat-mobile-status-text');
+    const aiModeSelect = document.getElementById('ai-mode');
 
     const chatApp = document.getElementById('mashal-chat-app');
     const sidebar = document.getElementById('chat-sidebar');
@@ -3056,6 +3253,95 @@ document.addEventListener('DOMContentLoaded', function () {
     const voiceLanguageButtons = Array.from(
         document.querySelectorAll('[data-voice-language]')
     );
+
+
+    const allowedAiModes = [
+        'auto',
+        'web',
+        'research',
+        'code',
+        'plain',
+    ];
+
+    function loadAiMode() {
+        try {
+            const saved =
+                localStorage.getItem(
+                    aiModeStorageKey
+                );
+
+            if (
+                allowedAiModes.includes(
+                    saved
+                )
+            ) {
+                return saved;
+            }
+        } catch (error) {
+            // localStorage kan in private mode geblokkeerd zijn.
+        }
+
+        return 'auto';
+    }
+
+    function currentAiMode() {
+        const value =
+            String(
+                aiModeSelect?.value
+                || 'auto'
+            );
+
+        return allowedAiModes.includes(value)
+            ? value
+            : 'auto';
+    }
+
+    if (aiModeSelect) {
+        aiModeSelect.value =
+            loadAiMode();
+
+        aiModeSelect.addEventListener(
+            'change',
+            function () {
+                const value =
+                    currentAiMode();
+
+                try {
+                    localStorage.setItem(
+                        aiModeStorageKey,
+                        value
+                    );
+                } catch (error) {
+                    // Niet fataal.
+                }
+
+                setMobileStatus(
+                    aiModeStatusCopy(value),
+                    1700
+                );
+            }
+        );
+    }
+
+    function aiModeStatusCopy(mode) {
+        return {
+            auto: 'Auto: internet en berekeningen wanneer nodig.',
+            web: 'Internetmodus: webzoekopdracht wordt gebruikt.',
+            research: 'Researchmodus: uitgebreid zoeken met bronnen.',
+            code: 'Codemodus: Python-berekening/controle wordt gebruikt.',
+            plain: 'Alleen chat: externe tools uitgeschakeld.',
+        }[mode] || 'Auto-modus actief.';
+    }
+
+    function aiModeLoadingCopy(mode) {
+        return {
+            auto: 'Mashal AI denkt…',
+            web: 'Mashal AI zoekt op internet…',
+            research: 'Mashal AI doet onderzoek…',
+            code: 'Mashal AI rekent en controleert…',
+            plain: 'Mashal AI denkt…',
+        }[mode] || 'Mashal AI denkt…';
+    }
 
     let conversations = loadConversations();
     let activeConversationId = loadActiveConversationId();
@@ -3958,6 +4244,187 @@ document.addEventListener('DOMContentLoaded', function () {
         return article;
     }
 
+
+
+    function renderAssistantToolDetails(
+        article,
+        payload
+    ) {
+        if (!article || !payload) {
+            return;
+        }
+
+        const sources =
+            Array.isArray(payload.sources)
+                ? payload.sources
+                : [];
+
+        const usedWeb =
+            Boolean(payload.used_web);
+
+        const usedCode =
+            Boolean(payload.used_code);
+
+        if (!usedWeb && !usedCode && !sources.length) {
+            return;
+        }
+
+        const bubble =
+            article.querySelector(
+                '.ai-message-bubble'
+            );
+
+        if (!bubble) {
+            return;
+        }
+
+        const strip =
+            document.createElement('div');
+
+        strip.className =
+            'ai-tool-strip';
+
+        if (usedWeb) {
+            const badge =
+                document.createElement('span');
+
+            badge.className =
+                'ai-tool-badge web';
+            badge.textContent =
+                '🌐 Internet gebruikt';
+            strip.appendChild(badge);
+        }
+
+        if (usedCode) {
+            const badge =
+                document.createElement('span');
+
+            badge.className =
+                'ai-tool-badge code';
+            badge.textContent =
+                '🧮 Python gebruikt';
+            strip.appendChild(badge);
+        }
+
+        if (strip.childNodes.length) {
+            bubble.appendChild(strip);
+        }
+
+        const safeSources =
+            sources
+                .filter(function (source) {
+                    return source
+                        && typeof source.url === 'string'
+                        && isSafeHttpUrl(source.url);
+                })
+                .slice(0, 8);
+
+        if (!safeSources.length) {
+            return;
+        }
+
+        const panel =
+            document.createElement('div');
+
+        panel.className =
+            'ai-source-panel';
+
+        const heading =
+            document.createElement('div');
+
+        heading.className =
+            'ai-source-heading';
+        heading.textContent =
+            'Bronnen ('
+            + safeSources.length
+            + ')';
+
+        const list =
+            document.createElement('div');
+
+        list.className =
+            'ai-source-list';
+
+        safeSources.forEach(
+            function (source) {
+                const link =
+                    document.createElement('a');
+
+                link.className =
+                    'ai-source-card';
+                link.href = source.url;
+                link.target = '_blank';
+                link.rel =
+                    'noopener noreferrer';
+
+                const title =
+                    document.createElement('div');
+                title.className =
+                    'ai-source-card-title';
+                title.textContent =
+                    source.title
+                    || source.url;
+
+                const host =
+                    document.createElement('div');
+                host.className =
+                    'ai-source-card-host';
+                host.textContent =
+                    sourceHost(source.url);
+
+                link.append(
+                    title,
+                    host
+                );
+
+                const snippetText =
+                    String(
+                        source.content
+                        || ''
+                    ).trim();
+
+                if (snippetText) {
+                    const snippet =
+                        document.createElement('div');
+                    snippet.className =
+                        'ai-source-card-snippet';
+                    snippet.textContent =
+                        snippetText;
+                    link.appendChild(snippet);
+                }
+
+                list.appendChild(link);
+            }
+        );
+
+        panel.append(
+            heading,
+            list
+        );
+
+        bubble.appendChild(panel);
+    }
+
+    function isSafeHttpUrl(value) {
+        try {
+            const url = new URL(value);
+            return url.protocol === 'http:'
+                || url.protocol === 'https:';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function sourceHost(value) {
+        try {
+            return new URL(value)
+                .hostname
+                .replace(/^www\./i, '');
+        } catch (error) {
+            return value;
+        }
+    }
+
     function buildMessageActions(
         role,
         content
@@ -4793,9 +5260,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     : visibleUserText
             );
 
+            const requestMode =
+                currentAiMode();
+
             const loading = renderMessage(
                 'assistant',
-                'Mashal AI denkt…',
+                aiModeLoadingCopy(requestMode),
                 true
             );
 
@@ -4809,6 +5279,11 @@ document.addEventListener('DOMContentLoaded', function () {
             data.append(
                 'message',
                 text
+            );
+
+            data.append(
+                'mode',
+                requestMode
             );
 
             historyBefore.forEach(
@@ -4888,9 +5363,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     activeConversationId
                 );
 
-                renderMessage(
-                    'assistant',
-                    payload.message
+                const assistantArticle =
+                    renderMessage(
+                        'assistant',
+                        payload.message
+                    );
+
+                renderAssistantToolDetails(
+                    assistantArticle,
+                    payload
                 );
 
                 clearSelectedFiles();
