@@ -3937,9 +3937,67 @@ document.addEventListener('DOMContentLoaded', function () {
         workspaceSyncTimers.set(chat.id, timer);
     }
 
+    function workspaceChatHasValidUuid(chat) {
+        return Boolean(
+            chat
+            && typeof chat.id === 'string'
+            && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                chat.id
+            )
+        );
+    }
+
+    function ensureWorkspaceChatUuid(chat) {
+        if (!chat) {
+            return false;
+        }
+
+        if (workspaceChatHasValidUuid(chat)) {
+            return true;
+        }
+
+        if (
+            !window.crypto
+            || typeof window.crypto.randomUUID !== 'function'
+        ) {
+            return false;
+        }
+
+        const oldId = chat.id;
+        const newId = window.crypto.randomUUID();
+
+        chat.id = newId;
+        chat.updatedAt = Date.now();
+
+        if (activeConversationId === oldId) {
+            activeConversationId = newId;
+        }
+
+        try {
+            localStorage.setItem(
+                activeConversationStorageKey,
+                newId
+            );
+        } catch (error) {
+            // localStorage blijft optioneel.
+        }
+
+        saveConversations();
+
+        return true;
+    }
+
     async function syncWorkspaceConversation(chat) {
-        if (!workspaceEnabled || !chat?.id) {
-            return;
+        if (!workspaceEnabled || !chat) {
+            return null;
+        }
+
+        if (!ensureWorkspaceChatUuid(chat)) {
+            setWorkspaceStatus(
+                'Deze chat heeft geen geldige UUID en kan niet worden gesynchroniseerd.'
+            );
+
+            return null;
         }
 
         try {
@@ -3965,11 +4023,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             );
 
-            if (!response.ok) {
-                return;
-            }
-
             const payload = await safeJson(response);
+
+            if (!response.ok || !payload?.ok) {
+                return null;
+            }
 
             if (payload?.conversation) {
                 chat.projectId =
@@ -3977,8 +4035,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     || chat.projectId
                     || null;
             }
+
+            return payload;
         } catch (error) {
             // Offline/local mode remains usable.
+            return null;
         }
     }
 
@@ -4301,13 +4362,24 @@ document.addEventListener('DOMContentLoaded', function () {
     async function shareWorkspaceConversation() {
         const chat = getActiveConversation();
 
-        if (!chat?.id) {
+        if (!chat) {
             return;
         }
 
-        await syncWorkspaceConversation(chat);
-
         try {
+            setWorkspaceStatus(
+                'Chat wordt eerst gesynchroniseerd…'
+            );
+
+            const syncResult =
+                await syncWorkspaceConversation(chat);
+
+            if (!syncResult?.ok) {
+                throw new Error(
+                    'De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'
+                );
+            }
+
             const response = await fetch(
                 workspaceShareEndpoint,
                 {
@@ -4353,17 +4425,52 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function exportWorkspaceConversation() {
+    async function exportWorkspaceConversation() {
         const chat = getActiveConversation();
 
-        if (!chat?.id) {
+        if (!chat) {
             return;
         }
 
-        window.location.href =
-            workspaceExportBase
-            + '/'
-            + encodeURIComponent(chat.id);
+        try {
+            setWorkspaceStatus(
+                'Chat wordt gesynchroniseerd voor export…'
+            );
+
+            const syncResult =
+                await syncWorkspaceConversation(chat);
+
+            if (!syncResult?.ok) {
+                throw new Error(
+                    'De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'
+                );
+            }
+
+            if (!workspaceChatHasValidUuid(chat)) {
+                throw new Error(
+                    'De chat heeft geen geldige export-ID.'
+                );
+            }
+
+            setWorkspaceStatus(
+                'Export wordt voorbereid…'
+            );
+
+            window.location.assign(
+                workspaceExportBase
+                + '/'
+                + encodeURIComponent(chat.id)
+            );
+        } catch (error) {
+            setError(
+                error?.message
+                || 'De chat kon niet worden geëxporteerd.'
+            );
+
+            setWorkspaceStatus(
+                'Export mislukt. Controleer de verbinding en probeer opnieuw.'
+            );
+        }
     }
 
     async function searchWorkspaceServer(query) {
