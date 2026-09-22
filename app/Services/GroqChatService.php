@@ -93,7 +93,17 @@ class GroqChatService
         $payload = [
             'model' => $this->modelName(),
             'messages' => $messages,
-            'temperature' => $this->temperature(),
+            'temperature' =>
+                in_array(
+                    $mode,
+                    ['web', 'research', 'code'],
+                    true
+                )
+                    ? min(
+                        $this->temperature(),
+                        0.2
+                    )
+                    : $this->temperature(),
             'max_completion_tokens' =>
                 $this->maxCompletionTokens(),
             'stream' => false,
@@ -123,6 +133,44 @@ class GroqChatService
         $this->rememberMetadata($response);
 
         /*
+         * Groq documents that tool_choice=required can return HTTP 400 when
+         * GPT-OSS decides not to emit a tool call. Retry once with a very
+         * deterministic temperature and an explicit user-level instruction.
+         *
+         * We keep tool_choice=required on the retry, so Web/Research/Code
+         * never silently pretend to have used a tool.
+         */
+        if (
+            $this->isRequiredToolNotCalledError(
+                $response
+            )
+            && in_array(
+                $mode,
+                ['web', 'research', 'code'],
+                true
+            )
+            && isset($payload['tools'])
+        ) {
+            $retryPayload = $payload;
+
+            $retryPayload['temperature'] =
+                0.0;
+
+            $retryPayload['messages'] =
+                $this->appendRequiredToolInstruction(
+                    $retryPayload['messages'],
+                    $mode
+                );
+
+            $response = $this->sendPayload(
+                $retryPayload,
+                $mode
+            );
+
+            $this->rememberMetadata($response);
+        }
+
+        /*
          * Auto mode is allowed to fall back to a normal chat request when
          * Groq rejects an experimental built-in-tool combination. This keeps
          * ordinary chat working while explicit Web/Research/Code modes still
@@ -140,7 +188,9 @@ class GroqChatService
                 $fallbackPayload['tools'],
                 $fallbackPayload['tool_choice'],
                 $fallbackPayload['parallel_tool_calls'],
-                $fallbackPayload['reasoning_format']
+                $fallbackPayload['reasoning_format'],
+                $fallbackPayload['reasoning_effort'],
+                $fallbackPayload['include_reasoning']
             );
 
             $response = $this->sendPayload(
@@ -315,14 +365,20 @@ class GroqChatService
                 : 'auto';
 
         /*
-         * GPT-OSS built-in tools do not support parallel tool calls. Groq's
-         * reasoning guidance also requires parsed/hidden reasoning when tool
-         * calling is active. Setting both explicitly avoids 400 responses
-         * caused by incompatible defaults.
+         * GPT-OSS built-in tools do not support parallel tool calls.
+         *
+         * Important: Groq's current GPT-OSS documentation says
+         * reasoning_format is NOT supported by openai/gpt-oss-20b/120b.
+         * Use include_reasoning=false instead. reasoning_effort=medium is
+         * supported and helps the model decide/tool-route reliably.
          */
         $payload['parallel_tool_calls'] = false;
-        $payload['reasoning_format'] =
-            $this->reasoningFormat();
+        $payload['include_reasoning'] = false;
+        $payload['reasoning_effort'] = 'medium';
+
+        unset(
+            $payload['reasoning_format']
+        );
     }
 
     /**
@@ -672,6 +728,64 @@ class GroqChatService
             ],
             true
         );
+    }
+
+    private function isRequiredToolNotCalledError(
+        Response $response
+    ): bool {
+        if ($response->status() !== 400) {
+            return false;
+        }
+
+        $message = strtolower(
+            trim(
+                (string) data_get(
+                    $response->json(),
+                    'error.message',
+                    ''
+                )
+            )
+        );
+
+        return str_contains(
+            $message,
+            'tool choice is required'
+        )
+            && str_contains(
+                $message,
+                'did not call a tool'
+            );
+    }
+
+    /**
+     * @param array<int,array{role:string,content:string}> $messages
+     * @return array<int,array{role:string,content:string}>
+     */
+    private function appendRequiredToolInstruction(
+        array $messages,
+        string $mode
+    ): array {
+        $instruction = match ($mode) {
+            'web' =>
+                'Internal tool instruction: before answering the previous user request, you MUST call the browser_search tool at least once. Do not answer from memory first. After the tool returns, answer the original user request using the search results.',
+
+            'research' =>
+                'Internal tool instruction: before answering the previous user request, you MUST call the browser_search tool at least once. Use the returned web evidence to research the original request. Do not provide a memory-only answer.',
+
+            'code' =>
+                'Internal tool instruction: before answering the previous user request, you MUST call the code_interpreter tool at least once. Use the tool result to calculate, test, transform, or verify the original request before answering.',
+
+            default => '',
+        };
+
+        if ($instruction !== '') {
+            $messages[] = [
+                'role' => 'user',
+                'content' => $instruction,
+            ];
+        }
+
+        return $messages;
     }
 
     /**
