@@ -1,0 +1,12 @@
+Mashal AI V5 Workspace Expert validation
+=======================================
+
+PHP syntax: checked with php -l for all PHP files in package.
+Blade JavaScript: extracted and checked with node --check.
+chat.blade.php lines: 9583
+
+Important runtime checks still required in the user's actual Laravel app:
+- php artisan migrate
+- php artisan view:cache
+- php artisan route:list --name=ai.workspace
+- Railway production migration with php artisan migrate --force

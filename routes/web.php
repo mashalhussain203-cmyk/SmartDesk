@@ -954,3 +954,7 @@ Route::middleware('auth')->group(function () {
             ->name('users.destroy');
     });
 });
+
+// Mashal AI Workspace V5
+require __DIR__.'/ai-workspace.php';
+

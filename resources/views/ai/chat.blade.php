@@ -2784,6 +2784,137 @@
         }
     }
 
+    /* ================================================================
+       Mashal AI Workspace V5
+       ================================================================ */
+    .workspace-panel {
+        margin: 0 10px 10px;
+        padding: 10px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 12px;
+        background: rgba(255,255,255,.035);
+    }
+    .workspace-panel-title {
+        margin: 0 0 8px;
+        color: rgba(255,255,255,.58);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+    .workspace-row {
+        display:flex;
+        align-items:center;
+        gap:7px;
+        margin-top:7px;
+    }
+    .workspace-select,
+    .workspace-action {
+        min-height:36px;
+        border:1px solid rgba(255,255,255,.10);
+        border-radius:9px;
+        background:rgba(255,255,255,.055);
+        color:#ececec;
+        font:inherit;
+    }
+    .workspace-select {
+        flex:1;
+        min-width:0;
+        padding:0 9px;
+        font-size:12px;
+    }
+    .workspace-select option {
+        background:#202020;
+        color:#ececec;
+    }
+    .workspace-action {
+        flex:0 0 auto;
+        padding:0 10px;
+        cursor:pointer;
+        font-size:12px;
+        font-weight:750;
+    }
+    .workspace-action:hover { background:rgba(255,255,255,.10); }
+    .workspace-action.primary {
+        background:#fff;
+        color:#111;
+        border-color:#fff;
+    }
+    .workspace-status {
+        margin-top:8px;
+        color:rgba(255,255,255,.5);
+        font-size:10.5px;
+        line-height:1.4;
+    }
+    .workspace-file-panel {
+        display:none;
+        margin-top:8px;
+        max-height:180px;
+        overflow:auto;
+        border-top:1px solid rgba(255,255,255,.07);
+        padding-top:8px;
+    }
+    .workspace-file-panel.open { display:block; }
+    .workspace-file-row {
+        display:flex;
+        align-items:center;
+        gap:7px;
+        padding:6px 2px;
+        font-size:11px;
+    }
+    .workspace-file-row-name {
+        flex:1;
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .workspace-file-delete {
+        border:0;
+        background:transparent;
+        color:rgba(255,255,255,.55);
+        cursor:pointer;
+        padding:3px 5px;
+    }
+    .workspace-source-panel {
+        margin-top:12px;
+        padding-top:10px;
+        border-top:1px solid rgba(255,255,255,.08);
+    }
+    .workspace-source-heading {
+        margin-bottom:7px;
+        color:rgba(255,255,255,.55);
+        font-size:11px;
+        font-weight:800;
+    }
+    .workspace-source-card {
+        display:block;
+        margin-top:6px;
+        padding:9px 10px;
+        border-radius:10px;
+        background:rgba(255,255,255,.045);
+        border:1px solid rgba(255,255,255,.07);
+    }
+    .workspace-source-card strong {
+        display:block;
+        color:#f3f3f3;
+        font-size:11.5px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .workspace-source-card span {
+        display:block;
+        margin-top:4px;
+        color:rgba(255,255,255,.5);
+        font-size:10.5px;
+        line-height:1.35;
+    }
+    @media (max-width:720px) {
+        .workspace-panel { margin-left:8px; margin-right:8px; }
+        .workspace-action, .workspace-select { min-height:40px; }
+    }
+
 </style>
 @endpush
 
@@ -2814,6 +2945,32 @@
                 autocomplete="off"
             >
         </div>
+
+
+        @if(($workspaceEnabled ?? false))
+        <div class="workspace-panel" id="workspace-panel">
+            <div class="workspace-panel-title">Workspace</div>
+            <div class="workspace-row">
+                <select id="workspace-project-select" class="workspace-select" aria-label="Project">
+                    <option value="">Geen project</option>
+                </select>
+                <button type="button" class="workspace-action primary" id="workspace-project-add" title="Nieuw project">+</button>
+            </div>
+            <div class="workspace-row">
+                <button type="button" class="workspace-action" id="workspace-project-files">📚 Bestanden</button>
+                <button type="button" class="workspace-action" id="workspace-memory-add">🧠 Onthoud</button>
+            </div>
+            <div class="workspace-row">
+                <button type="button" class="workspace-action" id="workspace-share-chat">↗ Delen</button>
+                <button type="button" class="workspace-action" id="workspace-export-chat">↓ Export</button>
+            </div>
+            <input type="file" id="workspace-project-file-input" hidden>
+            <div class="workspace-file-panel" id="workspace-file-panel"></div>
+            <div class="workspace-status" id="workspace-status">
+                Chats worden veilig op je account gesynchroniseerd.
+            </div>
+        </div>
+        @endif
 
         <div class="chat-sidebar-label">Chats</div>
 
@@ -3207,6 +3364,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const serverTtsConfigured = @json((bool) ($serverTtsConfigured ?? false));
     const maxFiles = @json((int) ($maxChatFiles ?? 5));
     const maxFileBytes = @json((int) (($maxChatFileMb ?? 10) * 1024 * 1024));
+    const workspaceEnabled = @json((bool) ($workspaceEnabled ?? false));
+    const workspaceBootstrapEndpoint = @json(route('ai.workspace.bootstrap'));
+    const workspaceConversationSyncEndpoint = @json(route('ai.workspace.conversation.sync'));
+    const workspaceConversationDeleteEndpoint = @json(route('ai.workspace.conversation.delete'));
+    const workspaceProjectSaveEndpoint = @json(route('ai.workspace.project.save'));
+    const workspaceDocumentsEndpoint = @json(route('ai.workspace.documents'));
+    const workspaceDocumentUploadEndpoint = @json(route('ai.workspace.document.upload'));
+    const workspaceDocumentDeleteEndpoint = @json(route('ai.workspace.document.delete'));
+    const workspaceMemorySaveEndpoint = @json(route('ai.workspace.memory.save'));
+    const workspaceSearchEndpoint = @json(route('ai.workspace.search'));
+    const workspaceShareEndpoint = @json(route('ai.workspace.share'));
+    const workspaceExportBase = @json(url('/ai-chat/workspace/export'));
 
     const conversationsStorageKey = 'mashal-ai-conversations-v1';
     const activeConversationStorageKey = 'mashal-ai-active-conversation-v1';
@@ -3241,6 +3410,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const newChatButtons = Array.from(
         document.querySelectorAll('[data-new-chat]')
     );
+
+    const workspaceProjectSelect = document.getElementById('workspace-project-select');
+    const workspaceProjectAdd = document.getElementById('workspace-project-add');
+    const workspaceProjectFiles = document.getElementById('workspace-project-files');
+    const workspaceProjectFileInput = document.getElementById('workspace-project-file-input');
+    const workspaceFilePanel = document.getElementById('workspace-file-panel');
+    const workspaceMemoryAdd = document.getElementById('workspace-memory-add');
+    const workspaceShareChat = document.getElementById('workspace-share-chat');
+    const workspaceExportChat = document.getElementById('workspace-export-chat');
+    const workspaceStatus = document.getElementById('workspace-status');
 
     const liveVoice = document.getElementById('live-voice');
     const voiceTypeButton = document.getElementById('voice-type');
@@ -3383,6 +3562,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let edgeTouchStartY = null;
     let draftSaveTimer = null;
     const draftStorageKey = 'mashal-ai-drafts-v1';
+    let workspaceProjects = [];
+    let workspaceMemories = [];
+    let workspaceBootstrapped = false;
+    let workspaceSyncTimers = new Map();
+    let workspaceFilePanelOpen = false;
 
     let voiceActive = false;
     let voiceMuted = false;
@@ -3439,6 +3623,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeDraftRuntime();
     initializeClipboardAndDropRuntime();
     restoreDraftForActiveConversation();
+    initializeWorkspaceRuntime();
 
     if ('speechSynthesis' in window) {
         window.speechSynthesis.addEventListener?.(
@@ -3448,6 +3633,784 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.speechSynthesis.onvoiceschanged =
             refreshSpeechVoices;
+    }
+
+
+    async function initializeWorkspaceRuntime() {
+        if (!workspaceEnabled) {
+            return;
+        }
+
+        bindWorkspaceUi();
+        setWorkspaceStatus('Synchroniseren…');
+
+        try {
+            const response = await fetch(
+                workspaceBootstrapEndpoint,
+                {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin',
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(
+                    payload.message
+                    || 'Workspace kon niet worden geladen.'
+                );
+            }
+
+            workspaceProjects = Array.isArray(payload.projects)
+                ? payload.projects
+                : [];
+
+            workspaceMemories = Array.isArray(payload.memories)
+                ? payload.memories
+                : [];
+
+            const serverConversations = Array.isArray(payload.conversations)
+                ? payload.conversations
+                : [];
+
+            mergeWorkspaceConversations(serverConversations);
+
+            workspaceBootstrapped = true;
+            renderWorkspaceProjects();
+            renderConversationList(chatSearch?.value || '');
+            updateCurrentChatTitle();
+
+            if (serverConversations.length === 0) {
+                for (const chat of conversations) {
+                    scheduleWorkspaceConversationSync(chat, 40);
+                }
+            }
+
+            setWorkspaceStatus(
+                'Gesynchroniseerd · chats, projecten en bestanden zijn accountgebonden.'
+            );
+        } catch (error) {
+            setWorkspaceStatus(
+                'Lokale modus · server-sync tijdelijk niet beschikbaar.'
+            );
+        }
+    }
+
+    function bindWorkspaceUi() {
+        workspaceProjectSelect?.addEventListener(
+            'change',
+            function () {
+                const chat = getActiveConversation();
+
+                if (!chat) {
+                    return;
+                }
+
+                chat.projectId = workspaceProjectSelect.value || null;
+                chat.updatedAt = Date.now();
+
+                saveConversations();
+                setWorkspaceStatus(
+                    chat.projectId
+                        ? 'Project gekoppeld aan deze chat.'
+                        : 'Deze chat staat buiten een project.'
+                );
+
+                refreshWorkspaceProjectFiles();
+            }
+        );
+
+        workspaceProjectAdd?.addEventListener(
+            'click',
+            createWorkspaceProject
+        );
+
+        workspaceProjectFiles?.addEventListener(
+            'click',
+            function () {
+                workspaceFilePanelOpen = !workspaceFilePanelOpen;
+
+                workspaceFilePanel?.classList.toggle(
+                    'open',
+                    workspaceFilePanelOpen
+                );
+
+                if (workspaceFilePanelOpen) {
+                    refreshWorkspaceProjectFiles();
+                }
+            }
+        );
+
+        workspaceProjectFileInput?.addEventListener(
+            'change',
+            async function () {
+                const file = workspaceProjectFileInput.files?.[0];
+
+                workspaceProjectFileInput.value = '';
+
+                if (!file) {
+                    return;
+                }
+
+                const projectId = getActiveConversation()?.projectId;
+
+                if (!projectId) {
+                    setError(
+                        'Kies eerst een project om dit bestand permanent op te slaan.'
+                    );
+
+                    return;
+                }
+
+                await uploadWorkspaceProjectFile(projectId, file);
+            }
+        );
+
+        workspaceMemoryAdd?.addEventListener(
+            'click',
+            createWorkspaceMemory
+        );
+
+        workspaceShareChat?.addEventListener(
+            'click',
+            shareWorkspaceConversation
+        );
+
+        workspaceExportChat?.addEventListener(
+            'click',
+            exportWorkspaceConversation
+        );
+    }
+
+    function mergeWorkspaceConversations(serverConversations) {
+        const byId = new Map(
+            conversations.map(
+                function (chat) {
+                    return [chat.id, chat];
+                }
+            )
+        );
+
+        serverConversations.forEach(
+            function (serverChat) {
+                if (
+                    !serverChat
+                    || typeof serverChat.id !== 'string'
+                ) {
+                    return;
+                }
+
+                const mapped = {
+                    id: serverChat.id,
+                    title: String(serverChat.title || 'Nieuwe chat'),
+                    projectId: serverChat.project_id || null,
+                    pinned: Boolean(serverChat.pinned),
+                    archived: Boolean(serverChat.archived),
+                    mode: allowedAiModes.includes(serverChat.mode)
+                        ? serverChat.mode
+                        : 'auto',
+                    createdAt:
+                        Date.parse(serverChat.created_at || '')
+                        || Date.now(),
+                    updatedAt:
+                        Date.parse(serverChat.updated_at || '')
+                        || Date.now(),
+                    messages: sanitizeMessages(serverChat.messages),
+                };
+
+                const existing = byId.get(mapped.id);
+
+                if (!existing) {
+                    conversations.push(mapped);
+                    byId.set(mapped.id, mapped);
+                    return;
+                }
+
+                const serverIsNewer =
+                    mapped.updatedAt
+                    >= Number(existing.updatedAt || 0);
+
+                if (serverIsNewer) {
+                    Object.assign(existing, mapped);
+                } else {
+                    scheduleWorkspaceConversationSync(existing, 80);
+                }
+            }
+        );
+
+        conversations = conversations
+            .filter(function (chat) {
+                return !chat.archived;
+            })
+            .sort(function (a, b) {
+                if (Boolean(a.pinned) !== Boolean(b.pinned)) {
+                    return a.pinned ? -1 : 1;
+                }
+
+                return (
+                    Number(b.updatedAt || 0)
+                    - Number(a.updatedAt || 0)
+                );
+            })
+            .slice(0, 100);
+
+        if (!getConversationById(activeConversationId)) {
+            activeConversationId = conversations[0]?.id || null;
+        }
+
+        if (!activeConversationId) {
+            const fresh = makeConversation();
+            conversations = [fresh];
+            activeConversationId = fresh.id;
+        }
+
+        history = sanitizeMessages(
+            getActiveConversation()?.messages
+        );
+
+        saveConversations();
+        renderCurrentConversation();
+    }
+
+    function renderWorkspaceProjects() {
+        if (!workspaceProjectSelect) {
+            return;
+        }
+
+        const current = getActiveConversation()?.projectId || '';
+
+        workspaceProjectSelect.replaceChildren();
+
+        const none = document.createElement('option');
+        none.value = '';
+        none.textContent = 'Geen project';
+        workspaceProjectSelect.appendChild(none);
+
+        workspaceProjects.forEach(
+            function (project) {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                workspaceProjectSelect.appendChild(option);
+            }
+        );
+
+        workspaceProjectSelect.value =
+            workspaceProjects.some(
+                function (project) {
+                    return project.id === current;
+                }
+            )
+                ? current
+                : '';
+    }
+
+    function setWorkspaceStatus(text) {
+        if (workspaceStatus) {
+            workspaceStatus.textContent = String(text || '');
+        }
+    }
+
+    function scheduleWorkspaceConversationSync(
+        chat,
+        delay = 500
+    ) {
+        if (!workspaceEnabled || !chat?.id) {
+            return;
+        }
+
+        const existing = workspaceSyncTimers.get(chat.id);
+
+        if (existing) {
+            clearTimeout(existing);
+        }
+
+        const timer = window.setTimeout(
+            function () {
+                workspaceSyncTimers.delete(chat.id);
+                syncWorkspaceConversation(chat);
+            },
+            delay
+        );
+
+        workspaceSyncTimers.set(chat.id, timer);
+    }
+
+    async function syncWorkspaceConversation(chat) {
+        if (!workspaceEnabled || !chat?.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                workspaceConversationSyncEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        id: chat.id,
+                        project_id: chat.projectId || null,
+                        title: chat.title || 'Nieuwe chat',
+                        mode: chat.mode || currentAiMode(),
+                        pinned: Boolean(chat.pinned),
+                        archived: Boolean(chat.archived),
+                        messages: sanitizeMessages(chat.messages),
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload = await safeJson(response);
+
+            if (payload?.conversation) {
+                chat.projectId =
+                    payload.conversation.project_id
+                    || chat.projectId
+                    || null;
+            }
+        } catch (error) {
+            // Offline/local mode remains usable.
+        }
+    }
+
+    async function deleteWorkspaceConversation(id) {
+        if (!workspaceEnabled || !id) {
+            return;
+        }
+
+        try {
+            await fetch(
+                workspaceConversationDeleteEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ id: id }),
+                }
+            );
+        } catch (error) {
+            // Local deletion remains completed.
+        }
+    }
+
+    async function createWorkspaceProject() {
+        const name = window.prompt(
+            'Naam van het nieuwe project:'
+        );
+
+        if (!name?.trim()) {
+            return;
+        }
+
+        const instructions = window.prompt(
+            'Optionele projectinstructies voor Mashal AI:',
+            ''
+        );
+
+        try {
+            const response = await fetch(
+                workspaceProjectSaveEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        name: name.trim(),
+                        instructions: instructions?.trim() || null,
+                    }),
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(
+                    payload.message
+                    || 'Project kon niet worden gemaakt.'
+                );
+            }
+
+            workspaceProjects.unshift(payload.project);
+
+            const chat = getActiveConversation();
+
+            if (chat) {
+                chat.projectId = payload.project.id;
+                saveConversations();
+            }
+
+            renderWorkspaceProjects();
+            setWorkspaceStatus(
+                'Project gemaakt en aan deze chat gekoppeld.'
+            );
+        } catch (error) {
+            setError(
+                error?.message
+                || 'Project kon niet worden gemaakt.'
+            );
+        }
+    }
+
+    async function refreshWorkspaceProjectFiles() {
+        if (!workspaceFilePanel || !workspaceFilePanelOpen) {
+            return;
+        }
+
+        const projectId = getActiveConversation()?.projectId;
+
+        workspaceFilePanel.replaceChildren();
+
+        if (!projectId) {
+            const empty = document.createElement('div');
+            empty.className = 'workspace-status';
+            empty.textContent =
+                'Kies een project om permanente bestanden te beheren.';
+            workspaceFilePanel.appendChild(empty);
+            return;
+        }
+
+        const add = document.createElement('button');
+        add.type = 'button';
+        add.className = 'workspace-action primary';
+        add.textContent = '+ Bestand toevoegen';
+        add.addEventListener(
+            'click',
+            function () {
+                workspaceProjectFileInput?.click();
+            }
+        );
+        workspaceFilePanel.appendChild(add);
+
+        try {
+            const url =
+                workspaceDocumentsEndpoint
+                + '?project_id='
+                + encodeURIComponent(projectId);
+
+            const response = await fetch(
+                url,
+                {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin',
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            const documents = Array.isArray(payload.documents)
+                ? payload.documents
+                : [];
+
+            if (!documents.length) {
+                const empty = document.createElement('div');
+                empty.className = 'workspace-status';
+                empty.textContent = 'Nog geen projectbestanden.';
+                workspaceFilePanel.appendChild(empty);
+                return;
+            }
+
+            documents.forEach(
+                function (documentInfo) {
+                    const row = document.createElement('div');
+                    row.className = 'workspace-file-row';
+
+                    const name = document.createElement('div');
+                    name.className = 'workspace-file-row-name';
+                    name.textContent = documentInfo.name || 'Bestand';
+
+                    const remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'workspace-file-delete';
+                    remove.textContent = '✕';
+                    remove.title = 'Verwijder bestand';
+
+                    remove.addEventListener(
+                        'click',
+                        async function () {
+                            if (
+                                !window.confirm(
+                                    'Dit projectbestand verwijderen?'
+                                )
+                            ) {
+                                return;
+                            }
+
+                            await deleteWorkspaceDocument(
+                                documentInfo.id
+                            );
+
+                            refreshWorkspaceProjectFiles();
+                        }
+                    );
+
+                    row.append(name, remove);
+                    workspaceFilePanel.appendChild(row);
+                }
+            );
+        } catch (error) {
+            const status = document.createElement('div');
+            status.className = 'workspace-status';
+            status.textContent =
+                'Bestanden konden nu niet worden geladen.';
+            workspaceFilePanel.appendChild(status);
+        }
+    }
+
+    async function uploadWorkspaceProjectFile(projectId, file) {
+        if (file.size > maxFileBytes) {
+            setError('Dit bestand is te groot.');
+            return;
+        }
+
+        setWorkspaceStatus(
+            'Projectbestand wordt gelezen en opgeslagen…'
+        );
+
+        const data = new FormData();
+        data.append('project_id', projectId);
+        data.append('file', file, file.name);
+
+        try {
+            const response = await fetch(
+                workspaceDocumentUploadEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: data,
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(
+                    payload.message
+                    || 'Bestand kon niet worden opgeslagen.'
+                );
+            }
+
+            setWorkspaceStatus(
+                'Projectbestand opgeslagen. Mashal AI kan het later opnieuw gebruiken.'
+            );
+
+            refreshWorkspaceProjectFiles();
+        } catch (error) {
+            setError(
+                error?.message
+                || 'Bestand kon niet worden opgeslagen.'
+            );
+        }
+    }
+
+    async function deleteWorkspaceDocument(id) {
+        try {
+            await fetch(
+                workspaceDocumentDeleteEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ id: id }),
+                }
+            );
+        } catch (error) {
+            // Refresh will expose remaining item.
+        }
+    }
+
+    async function createWorkspaceMemory() {
+        const content = window.prompt(
+            'Wat moet Mashal AI voor jou onthouden?'
+        );
+
+        if (!content?.trim()) {
+            return;
+        }
+
+        const label = window.prompt(
+            'Optioneel label, bijvoorbeeld "Voorkeur" of "Werk":',
+            ''
+        );
+
+        try {
+            const response = await fetch(
+                workspaceMemorySaveEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        label: label?.trim() || null,
+                        content: content.trim(),
+                        enabled: true,
+                    }),
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(
+                    payload.message
+                    || 'Geheugen kon niet worden opgeslagen.'
+                );
+            }
+
+            workspaceMemories.unshift(payload.memory);
+
+            setWorkspaceStatus(
+                'Geheugen opgeslagen. Het wordt alleen gebruikt wanneer relevant.'
+            );
+        } catch (error) {
+            setError(
+                error?.message
+                || 'Geheugen kon niet worden opgeslagen.'
+            );
+        }
+    }
+
+    async function shareWorkspaceConversation() {
+        const chat = getActiveConversation();
+
+        if (!chat?.id) {
+            return;
+        }
+
+        await syncWorkspaceConversation(chat);
+
+        try {
+            const response = await fetch(
+                workspaceShareEndpoint,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        conversation_id: chat.id,
+                    }),
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                throw new Error(
+                    payload.message
+                    || 'Deellink kon niet worden gemaakt.'
+                );
+            }
+
+            const copied = await copyTextToClipboard(payload.url);
+
+            if (copied) {
+                setWorkspaceStatus(
+                    'Deellink gekopieerd naar klembord.'
+                );
+            } else {
+                window.prompt(
+                    'Kopieer deze deellink:',
+                    payload.url
+                );
+            }
+        } catch (error) {
+            setError(
+                error?.message
+                || 'Deellink kon niet worden gemaakt.'
+            );
+        }
+    }
+
+    function exportWorkspaceConversation() {
+        const chat = getActiveConversation();
+
+        if (!chat?.id) {
+            return;
+        }
+
+        window.location.href =
+            workspaceExportBase
+            + '/'
+            + encodeURIComponent(chat.id);
+    }
+
+    async function searchWorkspaceServer(query) {
+        if (
+            !workspaceEnabled
+            || String(query || '').trim().length < 2
+        ) {
+            return;
+        }
+
+        try {
+            const url =
+                workspaceSearchEndpoint
+                + '?q='
+                + encodeURIComponent(String(query).trim());
+
+            const response = await fetch(
+                url,
+                {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin',
+                }
+            );
+
+            const payload = await safeJson(response);
+
+            if (!response.ok || !payload.ok) {
+                return;
+            }
+
+            const documentHits = Array.isArray(payload.documents)
+                ? payload.documents.length
+                : 0;
+
+            if (documentHits > 0) {
+                setWorkspaceStatus(
+                    documentHits
+                    + ' projectbestand'
+                    + (documentHits === 1 ? '' : 'en')
+                    + ' gevonden voor “'
+                    + String(query).trim()
+                    + '”.'
+                );
+            }
+        } catch (error) {
+            // Local chat filtering remains available.
+        }
     }
 
     function makeConversation(
@@ -3475,6 +4438,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return {
             id: id,
             title: String(title || 'Nieuwe chat'),
+            projectId: null,
+            pinned: false,
+            archived: false,
+            mode: 'auto',
             createdAt: now,
             updatedAt: now,
             messages: Array.isArray(initialMessages)
@@ -3533,6 +4500,18 @@ document.addEventListener('DOMContentLoaded', function () {
                                         chat.title
                                         || 'Nieuwe chat'
                                     ),
+                                projectId:
+                                    chat.projectId
+                                    || chat.project_id
+                                    || null,
+                                pinned:
+                                    Boolean(chat.pinned),
+                                archived:
+                                    Boolean(chat.archived),
+                                mode:
+                                    allowedAiModes.includes(chat.mode)
+                                        ? chat.mode
+                                        : 'auto',
                                 createdAt:
                                     Number(
                                         chat.createdAt
@@ -3645,6 +4624,14 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             // Local storage is optioneel.
         }
+
+        const active = getActiveConversation();
+
+        if (active) {
+            scheduleWorkspaceConversationSync(active);
+        }
+
+        renderWorkspaceProjects();
     }
 
     function saveHistory() {
@@ -3925,6 +4912,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || ''
         );
         updateCurrentChatTitle();
+        renderWorkspaceProjects();
         closeSidebar();
 
         window.setTimeout(
@@ -3962,8 +4950,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        const previousProjectId =
+            getActiveConversation()?.projectId
+            || null;
+
         const chat =
             makeConversation();
+
+        chat.projectId =
+            previousProjectId;
 
         conversations.unshift(
             chat
@@ -3983,6 +4978,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || ''
         );
         updateCurrentChatTitle();
+        renderWorkspaceProjects();
         closeSidebar();
 
         input?.focus();
@@ -4006,6 +5002,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         clearDraftForConversation(id);
+        deleteWorkspaceConversation(id);
 
         conversations =
             conversations.filter(
@@ -4040,6 +5037,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || ''
         );
         updateCurrentChatTitle();
+        renderWorkspaceProjects();
     }
 
     function buildWelcome() {
@@ -4112,6 +5110,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'input',
             function () {
                 renderConversationList(
+                    chatSearch.value
+                );
+
+                searchWorkspaceServer(
                     chatSearch.value
                 );
             }
@@ -4265,7 +5267,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const usedCode =
             Boolean(payload.used_code);
 
-        if (!usedWeb && !usedCode && !sources.length) {
+        const projectSources =
+            Array.isArray(
+                payload.project_sources
+            )
+                ? payload.project_sources
+                : [];
+
+        if (
+            !usedWeb
+            && !usedCode
+            && !sources.length
+            && !projectSources.length
+        ) {
             return;
         }
 
@@ -4308,6 +5322,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (strip.childNodes.length) {
             bubble.appendChild(strip);
+        }
+
+        if (projectSources.length) {
+            const projectPanel =
+                document.createElement(
+                    'div'
+                );
+
+            projectPanel.className =
+                'workspace-source-panel';
+
+            const projectHeading =
+                document.createElement(
+                    'div'
+                );
+
+            projectHeading.className =
+                'workspace-source-heading';
+
+            projectHeading.textContent =
+                'Projectbronnen ('
+                + projectSources.length
+                + ')';
+
+            projectPanel.appendChild(
+                projectHeading
+            );
+
+            projectSources
+                .slice(0, 6)
+                .forEach(
+                    function (source) {
+                        const card =
+                            document.createElement(
+                                'div'
+                            );
+
+                        card.className =
+                            'workspace-source-card';
+
+                        const name =
+                            document.createElement(
+                                'strong'
+                            );
+
+                        name.textContent =
+                            source.name
+                            || 'Projectbestand';
+
+                        const detail =
+                            document.createElement(
+                                'span'
+                            );
+
+                        detail.textContent =
+                            source.excerpt
+                            || (
+                                source.analysis
+                                    ? 'Analyse: '
+                                        + source.analysis
+                                    : 'Gebruikt als projectcontext.'
+                            );
+
+                        card.append(
+                            name,
+                            detail
+                        );
+
+                        projectPanel.appendChild(
+                            card
+                        );
+                    }
+                );
+
+            bubble.appendChild(
+                projectPanel
+            );
         }
 
         const safeSources =
@@ -5263,6 +6354,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const requestMode =
                 currentAiMode();
 
+            const activeChat =
+                getActiveConversation();
+
+            if (activeChat) {
+                activeChat.mode =
+                    requestMode;
+            }
+
             const loading = renderMessage(
                 'assistant',
                 aiModeLoadingCopy(requestMode),
@@ -5285,6 +6384,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 'mode',
                 requestMode
             );
+
+            data.append(
+                'conversation_id',
+                activeConversationId
+            );
+
+            const activeProjectId =
+                getActiveConversation()?.projectId;
+
+            if (activeProjectId) {
+                data.append(
+                    'project_id',
+                    activeProjectId
+                );
+            }
 
             historyBefore.forEach(
                 function (item, index) {

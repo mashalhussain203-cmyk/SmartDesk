@@ -145,15 +145,6 @@ return [
             true
         ),
 
-        /*
-         * GPT-OSS tool calling works most reliably with hidden or parsed
-         * reasoning. Keep hidden so internal reasoning is not rendered in UI.
-         */
-        'reasoning_format' => env(
-            'GROQ_REASONING_FORMAT',
-            'hidden'
-        ),
-
         'default_mode' => env(
             'GROQ_CHAT_DEFAULT_MODE',
             'auto'
