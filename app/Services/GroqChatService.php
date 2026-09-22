@@ -105,41 +105,41 @@ class GroqChatService
             $mode
         );
 
-        try {
-            $response = Http::asJson()
-                ->acceptJson()
-                ->withToken($this->apiKey())
-                ->connectTimeout(
-                    $this->connectTimeout()
-                )
-                ->timeout(
-                    $mode === 'research'
-                        ? $this->researchTimeout()
-                        : $this->timeout()
-                )
-                ->withHeaders([
-                    'User-Agent' =>
-                        'Mashal-Studio/1.0',
-                ])
-                ->post(
-                    $this->endpoint(),
-                    $payload
-                );
-        } catch (ConnectionException $exception) {
-            throw new RuntimeException(
-                'Groq kon niet worden bereikt.',
-                503,
-                $exception
-            );
-        } catch (Throwable $exception) {
-            throw new RuntimeException(
-                'Er ging iets mis tijdens de verbinding met Groq.',
-                503,
-                $exception
-            );
-        }
+        $response = $this->sendPayload(
+            $payload,
+            $mode
+        );
 
         $this->rememberMetadata($response);
+
+        /*
+         * Auto mode is allowed to fall back to a normal chat request when
+         * Groq rejects an experimental built-in-tool combination. This keeps
+         * ordinary chat working while explicit Web/Research/Code modes still
+         * fail loudly instead of pretending a tool was used.
+         */
+        if (
+            ! $response->successful()
+            && $response->status() === 400
+            && $mode === 'auto'
+            && isset($payload['tools'])
+        ) {
+            $fallbackPayload = $payload;
+
+            unset(
+                $fallbackPayload['tools'],
+                $fallbackPayload['tool_choice'],
+                $fallbackPayload['parallel_tool_calls'],
+                $fallbackPayload['reasoning_format']
+            );
+
+            $response = $this->sendPayload(
+                $fallbackPayload,
+                'plain'
+            );
+
+            $this->rememberMetadata($response);
+        }
 
         if (! $response->successful()) {
             $this->throwForFailedResponse(
@@ -303,6 +303,16 @@ class GroqChatService
             )
                 ? 'required'
                 : 'auto';
+
+        /*
+         * GPT-OSS built-in tools do not support parallel tool calls. Groq's
+         * reasoning guidance also requires parsed/hidden reasoning when tool
+         * calling is active. Setting both explicitly avoids 400 responses
+         * caused by incompatible defaults.
+         */
+        $payload['parallel_tool_calls'] = false;
+        $payload['reasoning_format'] =
+            $this->reasoningFormat();
     }
 
     /**
@@ -654,6 +664,48 @@ class GroqChatService
         );
     }
 
+    /**
+     * @param array<string,mixed> $payload
+     */
+    private function sendPayload(
+        array $payload,
+        string $mode
+    ): Response {
+        try {
+            return Http::asJson()
+                ->acceptJson()
+                ->withToken($this->apiKey())
+                ->connectTimeout(
+                    $this->connectTimeout()
+                )
+                ->timeout(
+                    $mode === 'research'
+                        ? $this->researchTimeout()
+                        : $this->timeout()
+                )
+                ->withHeaders([
+                    'User-Agent' =>
+                        'Mashal-Studio/1.0',
+                ])
+                ->post(
+                    $this->endpoint(),
+                    $payload
+                );
+        } catch (ConnectionException $exception) {
+            throw new RuntimeException(
+                'Groq kon niet worden bereikt.',
+                503,
+                $exception
+            );
+        } catch (Throwable $exception) {
+            throw new RuntimeException(
+                'Er ging iets mis tijdens de verbinding met Groq.',
+                503,
+                $exception
+            );
+        }
+    }
+
     private function throwForFailedResponse(
         Response $response
     ): never {
@@ -921,6 +973,26 @@ class GroqChatService
             'groq-chat.tools.code_interpreter',
             true
         );
+    }
+
+    private function reasoningFormat(): string
+    {
+        $value = strtolower(
+            trim(
+                (string) config(
+                    'groq-chat.tools.reasoning_format',
+                    'hidden'
+                )
+            )
+        );
+
+        return in_array(
+            $value,
+            ['hidden', 'parsed'],
+            true
+        )
+            ? $value
+            : 'hidden';
     }
 
     private function maxSources(): int
