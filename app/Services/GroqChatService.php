@@ -97,8 +97,18 @@ class GroqChatService
             'max_completion_tokens' =>
                 $this->maxCompletionTokens(),
             'stream' => false,
-            'citation_options' => 'enabled',
         ];
+
+        /*
+         * Do not send citation_options for GPT-OSS.
+         *
+         * Groq's Browser Search works without this flag. Explicitly enabling
+         * citations causes openai/gpt-oss-20b to return HTTP 400:
+         * "model openai/gpt-oss-20b does not support citations".
+         *
+         * Browser-search source data is still collected from executed_tools
+         * below and can still be shown by the Mashal AI UI.
+         */
 
         $this->applyBuiltInTools(
             $payload,
