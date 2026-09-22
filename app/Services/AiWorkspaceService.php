@@ -122,10 +122,24 @@ class AiWorkspaceService
         $isNew = ! $conversation;
 
         if (! $conversation) {
-            $conversation = new AiConversation([
-                'id' => $id,
-                'user_id' => $user->id,
-            ]);
+            /*
+             * Important:
+             * The browser already owns the conversation UUID. Do not pass the
+             * UUID through mass-assignment here because `id` is intentionally
+             * not fillable on AiConversation. If we used:
+             *
+             *     new AiConversation(['id' => $id, ...])
+             *
+             * Eloquent would discard `id`, HasUuids would generate a different
+             * UUID on save, and later share/export requests would look up the
+             * browser UUID and receive a 404.
+             *
+             * Assign the primary key directly so browser and database always
+             * use exactly the same conversation ID.
+             */
+            $conversation = new AiConversation();
+            $conversation->id = $id;
+            $conversation->user_id = $user->id;
         }
 
         $fill = [
