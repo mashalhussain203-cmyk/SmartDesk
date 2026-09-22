@@ -958,3 +958,7 @@ Route::middleware('auth')->group(function () {
 // Mashal AI Workspace V5
 require __DIR__.'/ai-workspace.php';
 
+
+// Mashal AI Studio V6
+require __DIR__.'/ai-studio.php';
+

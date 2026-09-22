@@ -73,6 +73,14 @@ class AiChatController extends Controller
                     1024 /
                     1024
                 ),
+
+            'aiTemplates' =>
+                array_values(
+                    (array) config(
+                        'ai-templates.templates',
+                        []
+                    )
+                ),
         ]);
     }
 

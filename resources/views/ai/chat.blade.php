@@ -2915,6 +2915,26 @@
         .workspace-action, .workspace-select { min-height:40px; }
     }
 
+    .studio-dashboard-link {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        min-height:38px;
+        margin:0 10px 10px;
+        padding:0 12px;
+        border:1px solid rgba(255,255,255,.09);
+        border-radius:10px;
+        background:rgba(255,255,255,.045);
+        color:#ececec;
+        text-decoration:none;
+        font-size:12px;
+        font-weight:800;
+    }
+    .studio-dashboard-link:hover {
+        background:rgba(255,255,255,.09);
+    }
+
 </style>
 @endpush
 
@@ -2935,6 +2955,14 @@
                 </svg>
             </button>
         </div>
+
+        <a
+            href="{{ route('ai.studio.dashboard') }}"
+            class="studio-dashboard-link"
+        >
+            <span aria-hidden="true">◫</span>
+            <span>AI Dashboard</span>
+        </a>
 
         <div class="chat-search-wrap">
             <input
@@ -3376,6 +3404,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const workspaceSearchEndpoint = @json(route('ai.workspace.search'));
     const workspaceShareEndpoint = @json(route('ai.workspace.share'));
     const workspaceExportBase = @json(url('/ai-chat/workspace/export'));
+    const aiTemplates = @json($aiTemplates ?? []);
+    const aiStudioDashboardUrl = @json(route('ai.studio.dashboard'));
 
     const conversationsStorageKey = 'mashal-ai-conversations-v1';
     const activeConversationStorageKey = 'mashal-ai-active-conversation-v1';
@@ -3624,6 +3654,8 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeClipboardAndDropRuntime();
     restoreDraftForActiveConversation();
     initializeWorkspaceRuntime();
+    initializeAiTemplateFromUrl();
+    initializeMashalPwa();
 
     if ('speechSynthesis' in window) {
         window.speechSynthesis.addEventListener?.(
@@ -3635,6 +3667,155 @@ document.addEventListener('DOMContentLoaded', function () {
             refreshSpeechVoices;
     }
 
+
+    function initializeAiTemplateFromUrl() {
+        if (!Array.isArray(aiTemplates) || !input) {
+            return;
+        }
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const slug =
+            String(
+                params.get('template')
+                || ''
+            ).trim();
+
+        if (!slug) {
+            return;
+        }
+
+        const template =
+            aiTemplates.find(
+                function (item) {
+                    return (
+                        item
+                        && item.slug === slug
+                    );
+                }
+            );
+
+        if (!template) {
+            return;
+        }
+
+        if (
+            String(input.value || '').trim() === ''
+        ) {
+            input.value =
+                String(
+                    template.prompt
+                    || ''
+                );
+
+            autoResizeInput();
+
+            input.focus();
+
+            try {
+                input.setSelectionRange(
+                    input.value.length,
+                    input.value.length
+                );
+            } catch (error) {
+                // Niet fataal.
+            }
+        }
+
+        if (
+            aiModeSelect
+            && allowedAiModes.includes(
+                template.mode
+            )
+        ) {
+            aiModeSelect.value =
+                template.mode;
+
+            try {
+                localStorage.setItem(
+                    aiModeStorageKey,
+                    template.mode
+                );
+            } catch (error) {
+                // localStorage is optioneel.
+            }
+        }
+
+        setMobileStatus(
+            'Template geladen: '
+            + String(
+                template.title
+                || slug
+            ),
+            2200
+        );
+
+        params.delete('template');
+
+        const cleanUrl =
+            window.location.pathname
+            + (
+                params.toString()
+                    ? '?'
+                        + params.toString()
+                    : ''
+            )
+            + window.location.hash;
+
+        window.history.replaceState(
+            {},
+            '',
+            cleanUrl
+        );
+    }
+
+    function initializeMashalPwa() {
+        try {
+            if (
+                !document.querySelector(
+                    'link[rel="manifest"]'
+                )
+            ) {
+                const manifest =
+                    document.createElement(
+                        'link'
+                    );
+
+                manifest.rel = 'manifest';
+                manifest.href =
+                    '/manifest.webmanifest';
+
+                document.head.appendChild(
+                    manifest
+                );
+            }
+
+            if (
+                'serviceWorker'
+                in navigator
+            ) {
+                window.addEventListener(
+                    'load',
+                    function () {
+                        navigator.serviceWorker
+                            .register(
+                                '/mashal-ai-sw.js'
+                            )
+                            .catch(
+                                function () {
+                                    // PWA blijft optioneel.
+                                }
+                            );
+                    }
+                );
+            }
+        } catch (error) {
+            // PWA-support mag chat nooit blokkeren.
+        }
+    }
 
     async function initializeWorkspaceRuntime() {
         if (!workspaceEnabled) {
