@@ -875,10 +875,9 @@
 
 
 
-    .register-glass-card {
-        min-height: 622px;
-    }
-
+   .register-glass-card {
+    min-height: 760px;
+}
     .register-tabs {
         margin-bottom: 13px;
         padding: 3px;
@@ -1118,12 +1117,11 @@
         line-height: 1.5;
     }
 
-    @media (max-width: 380px) {
-        .register-oauth-grid {
-            grid-template-columns: 1fr;
-        }
+ @media (max-width: 540px) {
+    .register-glass-card {
+        min-height: 790px;
     }
-
+}
 </style>
 @endpush
 
