@@ -9,27 +9,33 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use Throwable;
 
 class LinkedInAuthController extends Controller
 {
+    /**
+     * Stuur de gebruiker naar LinkedIn.
+     */
     public function redirect(): RedirectResponse
     {
         return Socialite::driver(
             'linkedin-openid'
-        )
-            ->scopes([
-                'openid',
-                'profile',
-                'email',
-            ])
-            ->redirect();
+        )->redirect();
     }
 
+    /**
+     * Verwerk de callback van LinkedIn.
+     */
     public function callback(
         Request $request
     ): RedirectResponse {
         try {
+            /**
+             * LinkedIn OpenID retourneert een Socialite Two\User-object.
+             *
+             * @var SocialiteUser $linkedinUser
+             */
             $linkedinUser = Socialite::driver(
                 'linkedin-openid'
             )->user();
@@ -52,17 +58,19 @@ class LinkedInAuthController extends Controller
                 (string) $linkedinUser->getAvatar()
             );
 
-            $rawUser = is_array(
-                $linkedinUser->user ?? null
-            )
-                ? $linkedinUser->user
-                : [];
+            /**
+             * Ruwe OpenID-claims van LinkedIn.
+             */
+            $rawUser = $linkedinUser->getRaw();
 
             $emailVerified = filter_var(
                 $rawUser['email_verified'] ?? false,
                 FILTER_VALIDATE_BOOLEAN
             );
 
+            /**
+             * LinkedIn moet een geldige gebruikers-ID teruggeven.
+             */
             if ($linkedinId === '') {
                 $this->forgetLoginSecurityBrowserContext(
                     $request
@@ -76,6 +84,10 @@ class LinkedInAuthController extends Controller
                     );
             }
 
+            /**
+             * Een e-mailadres is nodig om het Mashal-account
+             * veilig te kunnen koppelen.
+             */
             if ($email === '') {
                 $this->forgetLoginSecurityBrowserContext(
                     $request
@@ -85,13 +97,13 @@ class LinkedInAuthController extends Controller
                     ->route('login')
                     ->with(
                         'error',
-                        'LinkedIn heeft geen e-mailadres beschikbaar gesteld. Geef toegang tot je e-mailadres en probeer opnieuw.'
+                        'LinkedIn heeft geen e-mailadres beschikbaar gesteld. Geef LinkedIn toestemming om je e-mailadres te delen en probeer opnieuw.'
                     );
             }
 
-            /*
-             * We koppelen nooit automatisch op een onbevestigd e-mailadres.
-             * De huidige LinkedIn OpenID-flow levert email_verified als claim.
+            /**
+             * Koppel een bestaand account alleen wanneer LinkedIn
+             * aangeeft dat het e-mailadres bevestigd is.
              */
             if (! $emailVerified) {
                 $this->forgetLoginSecurityBrowserContext(
@@ -106,15 +118,15 @@ class LinkedInAuthController extends Controller
                     );
             }
 
-            $displayName =
-                $name !== ''
-                    ? $name
-                    : $this->displayNameFromEmail(
-                        $email
-                    );
+            $displayName = $name !== ''
+                ? $name
+                : $this->displayNameFromEmail(
+                    $email
+                );
 
-            $isNewUser = false;
-
+            /**
+             * Zoek eerst naar een bestaande LinkedIn-koppeling.
+             */
             $user = User::query()
                 ->where(
                     'linkedin_id',
@@ -122,6 +134,10 @@ class LinkedInAuthController extends Controller
                 )
                 ->first();
 
+            /**
+             * Geen LinkedIn-koppeling gevonden:
+             * probeer het bevestigde e-mailadres.
+             */
             if (! $user) {
                 $user = User::query()
                     ->where(
@@ -131,17 +147,14 @@ class LinkedInAuthController extends Controller
                     ->first();
             }
 
-            /*
-             * Beveilig bestaand account tegen automatische herkoppeling
-             * naar een ander LinkedIn-profiel.
+            /**
+             * Een bestaand Mashal-account mag niet automatisch
+             * aan een ander LinkedIn-profiel worden gekoppeld.
              */
             if (
                 $user &&
-                filled(
-                    $user->linkedin_id
-                ) &&
-                (string) $user->linkedin_id !==
-                $linkedinId
+                filled($user->linkedin_id) &&
+                (string) $user->linkedin_id !== $linkedinId
             ) {
                 $this->forgetLoginSecurityBrowserContext(
                     $request
@@ -155,97 +168,84 @@ class LinkedInAuthController extends Controller
                     );
             }
 
+            $isNewUser = false;
+
+            /**
+             * Nieuwe gebruiker aanmaken.
+             */
             if (! $user) {
                 $user = User::create([
-                    'name' =>
-                        $displayName,
+                    'name' => $displayName,
 
-                    'email' =>
-                        $email,
+                    'email' => $email,
 
-                    'linkedin_id' =>
-                        $linkedinId,
+                    'linkedin_id' => $linkedinId,
 
-                    'linkedin_avatar' =>
-                        $avatar !== ''
-                            ? $avatar
-                            : null,
+                    'linkedin_avatar' => $avatar !== ''
+                        ? $avatar
+                        : null,
 
-                    'login_provider' =>
-                        'linkedin',
+                    'login_provider' => 'linkedin',
 
-                    'password' =>
-                        Hash::make(
-                            Str::random(
-                                64
-                            )
-                        ),
+                    /**
+                     * OAuth-gebruikers krijgen een willekeurig intern
+                     * wachtwoord dat zij niet hoeven te kennen.
+                     */
+                    'password' => Hash::make(
+                        Str::random(64)
+                    ),
 
-                    'email_verified_at' =>
-                        now(),
+                    'email_verified_at' => now(),
 
-                    'is_admin' =>
-                        false,
+                    'is_admin' => false,
                 ]);
 
                 $isNewUser = true;
             } else {
+                /**
+                 * Bestaand account synchroniseren.
+                 */
                 $changed = false;
 
-                if (
-                    blank(
-                        $user->linkedin_id
-                    )
-                ) {
-                    $user->linkedin_id =
-                        $linkedinId;
+                if (blank($user->linkedin_id)) {
+                    $user->linkedin_id = $linkedinId;
 
-                    $changed =
-                        true;
+                    $changed = true;
                 }
 
                 if (
                     $avatar !== '' &&
-                    (string) $user->linkedin_avatar !==
-                    $avatar
+                    (string) $user->linkedin_avatar !== $avatar
                 ) {
-                    $user->linkedin_avatar =
-                        $avatar;
+                    $user->linkedin_avatar = $avatar;
 
-                    $changed =
-                        true;
+                    $changed = true;
                 }
 
+                /**
+                 * Bestaande lokale naam niet overschrijven.
+                 */
                 if (
-                    blank(
-                        $user->name
-                    ) &&
+                    blank($user->name) &&
                     $displayName !== ''
                 ) {
-                    $user->name =
-                        $displayName;
+                    $user->name = $displayName;
 
-                    $changed =
-                        true;
+                    $changed = true;
                 }
 
                 if (! $user->email_verified_at) {
-                    $user->email_verified_at =
-                        now();
+                    $user->email_verified_at = now();
 
-                    $changed =
-                        true;
+                    $changed = true;
                 }
 
                 if (
-                    (string) $user->login_provider !==
-                    'linkedin'
+                    (string) $user->login_provider !== 'linkedin'
                 ) {
-                    $user->login_provider =
-                        'linkedin';
+                    $user->login_provider = 'linkedin';
 
-                    $changed =
-                        true;
+                    $changed = true;
                 }
 
                 if ($changed) {
@@ -253,20 +253,30 @@ class LinkedInAuthController extends Controller
                 }
             }
 
-            /*
-             * LoginSecurityService leest dit tijdens Laravel's Login-event.
-             * De V6 groene succesanimatie luistert naar hetzelfde Login-event.
+            /**
+             * LoginSecurityService leest de provider tijdens
+             * Laravel's Login-event.
+             *
+             * Dit moet vóór Auth::login() gebeuren.
              */
             $request->merge([
-                'login_provider' =>
-                    'linkedin',
+                'login_provider' => 'linkedin',
             ]);
 
+            /**
+             * Inloggen.
+             *
+             * Hierdoor wordt ook het Laravel Login-event uitgevoerd,
+             * waarop je securityservice en succesanimatie kunnen reageren.
+             */
             Auth::login(
                 $user,
                 true
             );
 
+            /**
+             * Bescherming tegen session fixation.
+             */
             $request
                 ->session()
                 ->regenerate();
@@ -304,6 +314,9 @@ class LinkedInAuthController extends Controller
         }
     }
 
+    /**
+     * Maak een nette naam van het gedeelte vóór @.
+     */
     private function displayNameFromEmail(
         string $email
     ): string {
@@ -334,6 +347,10 @@ class LinkedInAuthController extends Controller
             : 'Mashal gebruiker';
     }
 
+    /**
+     * Verwijder tijdelijke browser/security-informatie
+     * wanneer de OAuth-login mislukt.
+     */
     private function forgetLoginSecurityBrowserContext(
         Request $request
     ): void {
