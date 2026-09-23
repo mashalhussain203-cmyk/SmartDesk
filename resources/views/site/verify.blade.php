@@ -1987,6 +1987,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 );
 
+                try {
+                    window.localStorage.removeItem(
+                        'mashal_auth_success_pending'
+                    );
+                } catch (error) {
+                    // Verify redirect mag niet blokkeren.
+                }
+
                 window.location.assign(
                     finalUrl.href
                 );

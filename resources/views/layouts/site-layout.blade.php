@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
@@ -25,7 +25,7 @@
 
     <meta
         name="description"
-        content="@yield('meta_description', 'Mashal Studio — upload, edit, resize and save images in your private image workspace.')"
+        content="@yield('meta_description', 'Mashal Studio â€” upload, edit, resize and save images in your private image workspace.')"
     >
 
     <title>
@@ -3632,7 +3632,7 @@
                         href="{{ route('home') }}"
                     >
                         <span class="studio-nav-icon" aria-hidden="true">
-                            ◇
+                            â—‡
                         </span>
 
                         Studio
@@ -3645,7 +3645,7 @@
                                 href="{{ route('images.index') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    ▦
+                                    â–¦
                                 </span>
 
                                 Mijn afbeeldingen
@@ -3664,7 +3664,7 @@
                                 href="{{ route('ai.chat') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    ✦
+                                    âœ¦
                                 </span>
 
                                 Mashal AI
@@ -3681,7 +3681,7 @@
                                 href="{{ route('account') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    ○
+                                    â—‹
                                 </span>
 
                                 Account
@@ -3694,7 +3694,7 @@
                                 href="{{ route('security.index') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    ◈
+                                    â—ˆ
                                 </span>
 
                                 Beveiliging
@@ -3707,7 +3707,7 @@
                         href="{{ route('home') }}#upload"
                     >
                         <span class="studio-nav-icon" aria-hidden="true">
-                            ↑
+                            â†‘
                         </span>
 
                         Upload
@@ -3768,7 +3768,7 @@
                                     class="studio-account-chevron"
                                     aria-hidden="true"
                                 >
-                                    ▾
+                                    â–¾
                                 </span>
                             </button>
 
@@ -3814,7 +3814,7 @@
                                             </span>
 
                                             <span>
-                                                {{ $layoutImageCount ?? '—' }}
+                                                {{ $layoutImageCount ?? 'â€”' }}
                                             </span>
                                         </a>
                                     @endif
@@ -3829,7 +3829,7 @@
                                             </span>
 
                                             <span aria-hidden="true">
-                                                ✦
+                                                âœ¦
                                             </span>
                                         </a>
                                     @endif
@@ -3844,7 +3844,7 @@
                                             </span>
 
                                             <span>
-                                                →
+                                                â†’
                                             </span>
                                         </a>
                                     @endif
@@ -3859,7 +3859,7 @@
                                             </span>
 
                                             <span>
-                                                →
+                                                â†’
                                             </span>
                                         </a>
                                     @endif
@@ -3879,7 +3879,7 @@
                                             </span>
 
                                             <span>
-                                                →
+                                                â†’
                                             </span>
                                         </a>
                                     @endif
@@ -3902,7 +3902,7 @@
                                             </span>
 
                                             <span>
-                                                →
+                                                â†’
                                             </span>
                                         </button>
                                     </form>
@@ -3950,7 +3950,7 @@
                 type="button"
                 aria-label="Menu sluiten"
             >
-                ×
+                Ã—
             </button>
         </div>
 
@@ -3996,7 +3996,7 @@
                 </span>
 
                 <span>
-                    ◇
+                    â—‡
                 </span>
             </a>
 
@@ -4009,7 +4009,7 @@
                 </span>
 
                 <span>
-                    ↑
+                    â†‘
                 </span>
             </a>
 
@@ -4024,7 +4024,7 @@
                         </span>
 
                         <span>
-                            {{ $layoutImageCount ?? '▦' }}
+                            {{ $layoutImageCount ?? 'â–¦' }}
                         </span>
                     </a>
                 @endif
@@ -4039,7 +4039,7 @@
                         </span>
 
                         <span aria-hidden="true">
-                            ✦ AI
+                            âœ¦ AI
                         </span>
                     </a>
                 @endif
@@ -4058,7 +4058,7 @@
                         </span>
 
                         <span>
-                            →
+                            â†’
                         </span>
                     </a>
                 @endif
@@ -4073,7 +4073,7 @@
                         </span>
 
                         <span>
-                            ◈
+                            â—ˆ
                         </span>
                     </a>
                 @endif
@@ -4091,7 +4091,7 @@
                         </span>
 
                         <span>
-                            →
+                            â†’
                         </span>
                     </a>
                 @endif
@@ -4159,7 +4159,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
             @endif
@@ -4179,7 +4179,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
             @endif
@@ -4199,7 +4199,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
             @endif
@@ -4219,7 +4219,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
             @endif
@@ -4249,7 +4249,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
             @endif
@@ -4276,7 +4276,7 @@
                 class="studio-quick-upload-icon"
                 aria-hidden="true"
             >
-                ↑
+                â†‘
             </span>
 
             <span>
@@ -4420,7 +4420,7 @@
 
             <div class="studio-footer-bottom">
                 <span>
-                    © {{ date('Y') }} Mashal Studio
+                    Â© {{ date('Y') }} Mashal Studio
                 </span>
 
                 <div class="studio-footer-bottom-links">
@@ -4429,7 +4429,7 @@
                     </span>
 
                     <span>
-                        JPG · PNG · WEBP
+                        JPG Â· PNG Â· WEBP
                     </span>
                 </div>
             </div>
@@ -5131,5 +5131,8 @@
     </script>
 
     @stack('scripts')
+
+    @include('partials.auth-success-overlay')
 </body>
 </html>
+

@@ -832,6 +832,46 @@
         }
     }
 
+
+    .glass-auth-switch {
+        width: min(100%, 270px);
+        margin: 0 auto 14px;
+        padding: 3px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 11px;
+        background: rgba(0,0,0,.19);
+    }
+
+    .glass-auth-switch a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        color: #77767c;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 900;
+        transition:
+            color .18s ease,
+            border-color .18s ease,
+            background .18s ease;
+    }
+
+    .glass-auth-switch a.active {
+        border-color: rgba(244,238,31,.20);
+        color: var(--glass-yellow);
+        background: rgba(244,238,31,.055);
+    }
+
+    .glass-auth-switch a:hover {
+        color: var(--glass-yellow);
+    }
+
 </style>
 @endpush
 
@@ -867,6 +907,15 @@
                         <p class="glass-description">
                             Kies je inlogmethode en open veilig je persoonlijke Mashal Studio-workspace.
                         </p>
+
+                        <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
+                            <a class="active" href="{{ route('login') }}" aria-current="page">
+                                Inloggen
+                            </a>
+                            <a href="{{ route('register') }}">
+                                Registreren
+                            </a>
+                        </nav>
 
                         @if (session()->has('pending_image'))
                             <div class="login-pending">
@@ -942,7 +991,7 @@
                             <form
                                 method="POST"
                                 action="{{ route('login.submit') }}"
-                                data-login-security-form
+                                data-login-security-form data-auth-transition-form
                             >
                                 @csrf
 
@@ -1046,7 +1095,7 @@
                                     class="login-passwordless-form"
                                     method="POST"
                                     action="{{ route('email-login.send') }}"
-                                    data-login-security-form
+                                    data-login-security-form data-auth-transition-form
                                 >
                                     @csrf
 
@@ -1081,7 +1130,7 @@
                                     class="login-passwordless-form"
                                     method="POST"
                                     action="{{ route('email-login.link.send') }}"
-                                    data-login-security-form
+                                    data-login-security-form data-auth-transition-form
                                 >
                                     @csrf
 
@@ -1111,7 +1160,7 @@
                             <div class="login-oauth-grid">
                                 <a
                                     class="login-oauth"
-                                    data-login-security-oauth
+                                    data-login-security-oauth data-auth-transition-link
                                     href="{{ route('google.redirect') }}"
                                     aria-label="Doorgaan met Google"
                                 >
@@ -1124,14 +1173,14 @@
                                         </svg>
                                     </span>
                                     <span class="login-oauth-copy">
-                                        <strong>Google</strong>
+                                        <strong>Google / Gmail</strong>
                                         <span>Doorgaan</span>
                                     </span>
                                 </a>
 
                                 <a
                                     class="login-oauth"
-                                    data-login-security-oauth
+                                    data-login-security-oauth data-auth-transition-link
                                     href="{{ route('github.redirect') }}"
                                     aria-label="Doorgaan met GitHub"
                                 >
@@ -1148,7 +1197,7 @@
 
                                 <a
                                     class="login-oauth"
-                                    data-login-security-oauth
+                                    data-login-security-oauth data-auth-transition-link
                                     href="{{ route('facebook.redirect') }}"
                                     aria-label="Doorgaan met Facebook"
                                 >
@@ -1165,7 +1214,7 @@
 
                                 <a
                                     class="login-oauth"
-                                    data-login-security-oauth
+                                    data-login-security-oauth data-auth-transition-link
                                     href="{{ route('tiktok.redirect') }}"
                                     aria-label="Doorgaan met TikTok"
                                 >
@@ -1237,6 +1286,39 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
+
+    const authTransitionKey =
+        'mashal_auth_success_pending';
+
+    function markAuthTransition(source) {
+        try {
+            window.localStorage.setItem(
+                authTransitionKey,
+                JSON.stringify({
+                    source:
+                        String(source || 'login'),
+                    createdAt:
+                        Date.now(),
+                })
+            );
+        } catch (error) {
+            // Login moet blijven werken als localStorage niet beschikbaar is.
+        }
+    }
+
+    function clearAuthTransition() {
+        try {
+            window.localStorage.removeItem(
+                authTransitionKey
+            );
+        } catch (error) {
+            // Geen blokkade voor authenticatie.
+        }
+    }
+
+    @if ($errors->any() || session('error'))
+        clearAuthTransition();
+    @endif
 
     document
         .querySelectorAll('[data-toggle-password]')
@@ -1565,7 +1647,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document
-        .querySelectorAll('form[data-login-security-form]')
+        .querySelectorAll('form[data-login-security-form data-auth-transition-form]')
         .forEach(function (form) {
             form.addEventListener(
                 'submit',
@@ -1577,6 +1659,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     event.preventDefault();
+
+                    markAuthTransition(
+                        form.getAttribute('action') || 'login-form'
+                    );
 
                     form.dataset.loginSecuritySubmitting = '1';
 
@@ -1604,7 +1690,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     document
-        .querySelectorAll('a[data-login-security-oauth]')
+        .querySelectorAll('a[data-login-security-oauth data-auth-transition-link]')
         .forEach(function (link) {
             link.addEventListener(
                 'click',
@@ -1644,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'pageshow',
         function () {
             document
-                .querySelectorAll('form[data-login-security-form]')
+                .querySelectorAll('form[data-login-security-form data-auth-transition-form]')
                 .forEach(function (form) {
                     delete form.dataset.loginSecuritySubmitting;
 
@@ -1664,7 +1750,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             document
-                .querySelectorAll('a[data-login-security-oauth]')
+                .querySelectorAll('a[data-login-security-oauth data-auth-transition-link]')
                 .forEach(function (link) {
                     delete link.dataset.loginSecurityOpening;
                     link.removeAttribute('aria-busy');
