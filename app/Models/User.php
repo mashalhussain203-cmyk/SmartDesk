@@ -88,6 +88,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
+        | LinkedIn OpenID Connect
+        |--------------------------------------------------------------------------
+        */
+
+        'linkedin_id',
+        'linkedin_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
         | Account
         |--------------------------------------------------------------------------
         */
@@ -465,6 +474,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Controleer of een LinkedIn-account gekoppeld is.
+     */
+    public function hasLinkedInAccount(): bool
+    {
+        return trim(
+            (string) $this->linkedin_id
+        ) !== '';
+    }
+    /**
      * Controleer of minimaal één OAuth-account gekoppeld is.
      */
     public function hasSocialAccount(): bool
@@ -472,6 +490,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasGoogleAccount()
             || $this->hasGitHubAccount()
             || $this->hasFacebookAccount()
+            || $this->hasLinkedInAccount()
             || $this->hasTikTokAccount();
     }
 
@@ -511,6 +530,14 @@ class User extends Authenticatable implements MustVerifyEmail
             return $facebookAvatar;
         }
 
+        $linkedinAvatar = trim(
+            (string) $this->linkedin_avatar
+        );
+
+        if ($linkedinAvatar !== '') {
+            return $linkedinAvatar;
+        }
+
         $tiktokAvatar = trim(
             (string) $this->tiktok_avatar
         );
@@ -539,6 +566,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return 'facebook';
         }
 
+        if ($this->hasLinkedInAccount()) {
+            return 'linkedin';
+        }
+
         if ($this->hasTikTokAccount()) {
             return 'tiktok';
         }
@@ -565,6 +596,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if ($this->hasFacebookAccount()) {
             $providers[] = 'facebook';
+        }
+
+        if ($this->hasLinkedInAccount()) {
+            $providers[] = 'linkedin';
         }
 
         if ($this->hasTikTokAccount()) {
@@ -598,6 +633,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google',
             'github',
             'facebook',
+            'linkedin',
             'tiktok',
         ];
 
@@ -629,6 +665,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return 'facebook';
         }
 
+        if ($this->hasLinkedInAccount()) {
+            return 'linkedin';
+        }
+
         if ($this->hasTikTokAccount()) {
             return 'tiktok';
         }
@@ -647,6 +687,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google' => 'Google',
             'github' => 'GitHub',
             'facebook' => 'Facebook',
+            'linkedin' => 'LinkedIn',
             'tiktok' => 'TikTok',
             'email_code' => 'E-mailcode',
             'magic_link' => 'Magic link',
@@ -666,6 +707,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'google' => 'google',
             'github' => 'github',
             'facebook' => 'facebook',
+            'linkedin' => 'linkedin',
             'tiktok' => 'tiktok',
             'email_code' => 'email',
             'magic_link' => 'link',
@@ -704,6 +746,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->loginProvider() === 'facebook';
     }
 
+    /**
+     * Laatste login via LinkedIn.
+     */
+    public function loggedInWithLinkedIn(): bool
+    {
+        return $this->loginProvider() === 'linkedin';
+    }
     /**
      * Laatste login via TikTok.
      */

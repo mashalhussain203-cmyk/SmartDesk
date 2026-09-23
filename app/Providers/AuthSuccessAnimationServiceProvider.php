@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -25,12 +26,18 @@ class AuthSuccessAnimationServiceProvider extends ServiceProvider
                 }
 
                 /*
-                 * De normale /verify-pagina toont zelf al exact dezelfde
-                 * groene succesanimatie voordat die doorstuurt. Daar willen
-                 * we geen tweede dubbele animatie bovenop zetten.
+                 * De normale verificatiepagina toont zelf al
+                 * de groene succesanimatie.
                  */
                 if ($request->routeIs('verification.verify')) {
                     return;
+                }
+
+                $provider = null;
+
+                if ($event->user instanceof User) {
+                    $provider =
+                        $event->user->loginProvider();
                 }
 
                 $request->session()->flash(
@@ -40,12 +47,7 @@ class AuthSuccessAnimationServiceProvider extends ServiceProvider
                             (int) $event->user->getAuthIdentifier(),
 
                         'provider' =>
-                            method_exists(
-                                $event->user,
-                                'loginProvider'
-                            )
-                                ? (string) $event->user->loginProvider()
-                                : null,
+                            $provider,
                     ]
                 );
             }

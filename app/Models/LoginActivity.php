@@ -231,6 +231,8 @@ class LoginActivity extends Model
 
             'facebook' => 'Facebook',
 
+            'linkedin' => 'LinkedIn',
+
             'tiktok' => 'TikTok',
 
             default => 'Onbekend',

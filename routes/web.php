@@ -322,6 +322,26 @@ Route::middleware('guest')->group(function () {
         ->name('facebook.callback');
 
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LinkedIn OpenID Connect
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/auth/linkedin',
+        [\App\Http\Controllers\LinkedInAuthController::class, 'redirect']
+    )
+        ->name('linkedin.redirect');
+
+
+    Route::get(
+        '/auth/linkedin/callback',
+        [\App\Http\Controllers\LinkedInAuthController::class, 'callback']
+    )
+        ->name('linkedin.callback');
+
     /*
     |--------------------------------------------------------------------------
     | TikTok OAuth

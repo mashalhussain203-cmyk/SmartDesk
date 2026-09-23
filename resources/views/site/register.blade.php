@@ -1698,6 +1698,12 @@
         }
     }
 
+
+    /* V7 LinkedIn social-grid polish */
+    .register-oauth-grid > .register-oauth:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
 </style>
 @endpush
 
@@ -2048,6 +2054,16 @@
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+
+                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('linkedin.redirect') }}" aria-label="Account maken met LinkedIn">
+                                    <span class="register-oauth-icon" aria-hidden="true">
+                                        <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
+                                    </span>
+                                    <span class="register-oauth-copy">
+                                        <strong>LinkedIn</strong>
+                                        <span>Account maken</span>
+                                    </span>
+                                </a>
                             </div>
                         </section>
 
@@ -2089,7 +2105,7 @@
   password: <span class="cyan">true</span>,
   emailCode: <span class="cyan">true</span>,
   magicLink: <span class="cyan">true</span>,
-  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>]
+  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>]
 };</div>
         </div>
 

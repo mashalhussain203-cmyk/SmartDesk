@@ -1446,6 +1446,12 @@
         }
     }
 
+
+    /* V7 LinkedIn social-grid polish */
+    .login-oauth-grid > .login-oauth:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
 </style>
 @endpush
 
@@ -1808,6 +1814,21 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>TikTok</strong>
+                                        <span>Doorgaan</span>
+                                    </span>
+                                </a>
+
+                                <a
+                                    class="login-oauth"
+                                    data-login-security-oauth data-auth-transition-link
+                                    href="{{ route('linkedin.redirect') }}"
+                                    aria-label="Doorgaan met LinkedIn"
+                                >
+                                    <span class="login-oauth-icon" aria-hidden="true">
+                                        <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
+                                    </span>
+                                    <span class="login-oauth-copy">
+                                        <strong>LinkedIn</strong>
                                         <span>Doorgaan</span>
                                     </span>
                                 </a>
