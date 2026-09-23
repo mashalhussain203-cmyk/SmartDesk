@@ -940,6 +940,261 @@
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | V4 Login <-> Register page transition
+    |--------------------------------------------------------------------------
+    */
+    .glass-auth-page {
+        --auth-shift: 34px;
+    }
+
+    .glass-stage {
+        will-change: transform, opacity;
+    }
+
+    .glass-auth-switch a {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-auth-switch a::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        background:
+            linear-gradient(
+                105deg,
+                transparent 15%,
+                rgba(255,244,112,.10) 40%,
+                rgba(255,225,50,.42) 50%,
+                rgba(255,244,112,.10) 60%,
+                transparent 85%
+            );
+        transform: translateX(-120%);
+    }
+
+    .glass-auth-switch a.is-switching::after {
+        opacity: 1;
+        animation: authTabShine .48s ease forwards;
+    }
+
+    .glass-auth-transition-flash {
+        position: fixed;
+        inset: 0;
+        z-index: 2147482500;
+        pointer-events: none;
+        opacity: 0;
+        background:
+            radial-gradient(
+                circle at 50% 46%,
+                rgba(255,219,68,.11),
+                transparent 22rem
+            ),
+            linear-gradient(
+                110deg,
+                transparent 0 38%,
+                rgba(255,175,0,.10) 46%,
+                rgba(255,230,121,.31) 50%,
+                rgba(255,145,0,.11) 54%,
+                transparent 62% 100%
+            );
+        transform: translateX(-28%);
+        will-change: opacity, transform;
+    }
+
+    .glass-auth-page.is-switching-out .glass-auth-transition-flash {
+        animation: authFlashAcross .54s cubic-bezier(.2,.75,.25,1) forwards;
+    }
+
+    .glass-auth-page.is-switching-out .glass-poster-title {
+        animation: authTitleOut .42s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    .glass-auth-page.is-switching-out .glass-card-shell {
+        animation:
+            authCardOutRight .48s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    .glass-auth-page.is-switching-out.is-to-login .glass-card-shell {
+        animation-name: authCardOutLeft;
+    }
+
+    .glass-auth-page.is-switching-out .glass-code-panel,
+    .glass-auth-page.is-switching-out .glass-footer {
+        animation: authBottomOut .36s ease forwards;
+    }
+
+    .glass-auth-page.is-switching-in .glass-poster-title {
+        animation: authTitleIn .46s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .glass-auth-page.is-switching-in .glass-card-shell {
+        animation:
+            authCardInRight .58s cubic-bezier(.16,.9,.24,1) both;
+    }
+
+    .glass-auth-page.is-switching-in.is-from-login .glass-card-shell {
+        animation-name: authCardInLeft;
+    }
+
+    .glass-auth-page.is-switching-in .glass-code-panel,
+    .glass-auth-page.is-switching-in .glass-footer {
+        animation: authBottomIn .5s .08s ease both;
+    }
+
+    @keyframes authTabShine {
+        0% {
+            opacity: 0;
+            transform: translateX(-120%);
+        }
+        20% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(120%);
+        }
+    }
+
+    @keyframes authFlashAcross {
+        0% {
+            opacity: 0;
+            transform: translateX(-30%) scale(1);
+        }
+        35% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(30%) scale(1.06);
+        }
+    }
+
+    @keyframes authTitleOut {
+        to {
+            opacity: 0;
+            transform: translateY(-10px) scale(.98);
+            filter: blur(5px);
+        }
+    }
+
+    @keyframes authTitleIn {
+        from {
+            opacity: 0;
+            transform: translateY(-12px) scale(.98);
+            filter: blur(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes authCardOutRight {
+        to {
+            opacity: 0;
+            transform:
+                translateX(var(--auth-shift))
+                scale(.965)
+                rotateY(-4deg);
+            filter: blur(6px);
+        }
+    }
+
+    @keyframes authCardOutLeft {
+        to {
+            opacity: 0;
+            transform:
+                translateX(calc(var(--auth-shift) * -1))
+                scale(.965)
+                rotateY(4deg);
+            filter: blur(6px);
+        }
+    }
+
+    @keyframes authCardInRight {
+        from {
+            opacity: 0;
+            transform:
+                translateX(var(--auth-shift))
+                scale(.965)
+                rotateY(-4deg);
+            filter: blur(6px);
+        }
+        to {
+            opacity: 1;
+            transform:
+                translateX(0)
+                scale(1)
+                rotateY(0);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes authCardInLeft {
+        from {
+            opacity: 0;
+            transform:
+                translateX(calc(var(--auth-shift) * -1))
+                scale(.965)
+                rotateY(4deg);
+            filter: blur(6px);
+        }
+        to {
+            opacity: 1;
+            transform:
+                translateX(0)
+                scale(1)
+                rotateY(0);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes authBottomOut {
+        to {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+    }
+
+    @keyframes authBottomIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 540px) {
+        .glass-auth-page {
+            --auth-shift: 22px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .glass-auth-page.is-switching-out .glass-poster-title,
+        .glass-auth-page.is-switching-out .glass-card-shell,
+        .glass-auth-page.is-switching-out .glass-code-panel,
+        .glass-auth-page.is-switching-out .glass-footer,
+        .glass-auth-page.is-switching-in .glass-poster-title,
+        .glass-auth-page.is-switching-in .glass-card-shell,
+        .glass-auth-page.is-switching-in .glass-code-panel,
+        .glass-auth-page.is-switching-in .glass-footer,
+        .glass-auth-page.is-switching-out .glass-auth-transition-flash,
+        .glass-auth-switch a.is-switching::after {
+            animation-duration: .01ms !important;
+            animation-delay: 0ms !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -949,6 +1204,12 @@
     <span class="glass-ribbon one" aria-hidden="true"></span>
     <span class="glass-ribbon two" aria-hidden="true"></span>
     <span class="glass-ribbon three" aria-hidden="true"></span>
+
+    <div
+        class="glass-auth-transition-flash"
+        aria-hidden="true"
+    ></div>
+
 
     <main class="glass-stage">
         <h1 class="glass-poster-title">
@@ -1353,6 +1614,225 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login <-> Register animated page switch
+    |--------------------------------------------------------------------------
+    */
+    const authSwitchStorageKey =
+        'mashal_auth_switch_direction';
+
+    const authPage =
+        document.querySelector('.glass-auth-page');
+
+    const authSwitchLinks =
+        Array.from(
+            document.querySelectorAll(
+                '.glass-auth-switch a'
+            )
+        );
+
+    function pageKindFromUrl(url) {
+        try {
+            const parsed =
+                new URL(
+                    url,
+                    window.location.origin
+                );
+
+            if (
+                parsed.pathname
+                    .replace(/\/+$/, '')
+                    .endsWith('/register')
+            ) {
+                return 'register';
+            }
+
+            if (
+                parsed.pathname
+                    .replace(/\/+$/, '')
+                    .endsWith('/login')
+            ) {
+                return 'login';
+            }
+        } catch (error) {
+            return null;
+        }
+
+        return null;
+    }
+
+    function currentAuthPageKind() {
+        return pageKindFromUrl(
+            window.location.href
+        );
+    }
+
+    function playAuthEntryAnimation() {
+        if (!authPage) {
+            return;
+        }
+
+        let from = null;
+
+        try {
+            from =
+                window.sessionStorage.getItem(
+                    authSwitchStorageKey
+                );
+
+            window.sessionStorage.removeItem(
+                authSwitchStorageKey
+            );
+        } catch (error) {
+            from = null;
+        }
+
+        if (
+            from !== 'login'
+            && from !== 'register'
+        ) {
+            return;
+        }
+
+        authPage.classList.add(
+            'is-switching-in',
+            from === 'login'
+                ? 'is-from-login'
+                : 'is-from-register'
+        );
+
+        window.setTimeout(
+            function () {
+                authPage.classList.remove(
+                    'is-switching-in',
+                    'is-from-login',
+                    'is-from-register'
+                );
+            },
+            700
+        );
+    }
+
+    function navigateWithAuthAnimation(
+        link,
+        destination
+    ) {
+        if (!authPage) {
+            window.location.assign(
+                destination
+            );
+
+            return;
+        }
+
+        const currentKind =
+            currentAuthPageKind();
+
+        const destinationKind =
+            pageKindFromUrl(
+                destination
+            );
+
+        if (
+            !currentKind
+            || !destinationKind
+            || currentKind === destinationKind
+        ) {
+            window.location.assign(
+                destination
+            );
+
+            return;
+        }
+
+        link.classList.add(
+            'is-switching'
+        );
+
+        authPage.classList.add(
+            'is-switching-out'
+        );
+
+        authPage.classList.toggle(
+            'is-to-register',
+            destinationKind === 'register'
+        );
+
+        authPage.classList.toggle(
+            'is-to-login',
+            destinationKind === 'login'
+        );
+
+        try {
+            window.sessionStorage.setItem(
+                authSwitchStorageKey,
+                currentKind
+            );
+        } catch (error) {
+            // Navigatie mag niet blokkeren.
+        }
+
+        window.setTimeout(
+            function () {
+                window.location.assign(
+                    destination
+                );
+            },
+            470
+        );
+    }
+
+    authSwitchLinks.forEach(
+        function (link) {
+            link.addEventListener(
+                'click',
+                function (event) {
+                    if (
+                        event.defaultPrevented
+                        || event.button !== 0
+                        || event.metaKey
+                        || event.ctrlKey
+                        || event.shiftKey
+                        || event.altKey
+                    ) {
+                        return;
+                    }
+
+                    const destination =
+                        link.getAttribute(
+                            'href'
+                        );
+
+                    if (!destination) {
+                        return;
+                    }
+
+                    const kind =
+                        pageKindFromUrl(
+                            destination
+                        );
+
+                    if (
+                        kind !== 'login'
+                        && kind !== 'register'
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    navigateWithAuthAnimation(
+                        link,
+                        destination
+                    );
+                }
+            );
+        }
+    );
+
+    playAuthEntryAnimation();
 
     /*
      * Voorkom dat autofocus/browser scroll-restoration de bovenkant van
