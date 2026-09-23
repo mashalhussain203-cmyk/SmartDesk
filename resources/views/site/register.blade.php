@@ -875,9 +875,10 @@
 
 
 
-   .register-glass-card {
-    min-height: 760px;
-}
+    .register-glass-card {
+        min-height: 622px;
+    }
+
     .register-tabs {
         margin-bottom: 13px;
         padding: 3px;
@@ -1117,11 +1118,80 @@
         line-height: 1.5;
     }
 
- @media (max-width: 540px) {
-    .register-glass-card {
-        min-height: 790px;
+    @media (max-width: 380px) {
+        .register-oauth-grid {
+            grid-template-columns: 1fr;
+        }
     }
-}
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | V3 layout fix
+    |--------------------------------------------------------------------------
+    | De kaart heeft GEEN vaste hoogte meer. Hierdoor groeien login/register
+    | automatisch mee met Wachtwoord, E-mail en Social zonder afsnijden.
+    */
+    .glass-card-shell {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible;
+    }
+
+    .glass-card-border {
+        position: relative !important;
+        inset: auto !important;
+        width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .glass-card {
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .login-glass-card,
+    .register-glass-card {
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .glass-inner {
+        min-height: 0;
+        padding-bottom: 40px;
+    }
+
+    .glass-stage {
+        min-height: 100dvh;
+        padding-top: clamp(44px, 6vh, 70px);
+        padding-bottom: 72px;
+    }
+
+    .glass-poster-title {
+        flex: 0 0 auto;
+    }
+
+    .glass-code-panel {
+        flex: 0 0 auto;
+        margin-top: 46px;
+    }
+
+    @media (max-width: 540px) {
+        .glass-stage {
+            padding-top: 38px;
+            padding-bottom: 54px;
+        }
+
+        .glass-inner {
+            padding-bottom: 34px;
+        }
+
+        .glass-code-panel {
+            margin-top: 38px;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1231,7 +1301,6 @@
                                         autocomplete="name"
                                         maxlength="255"
                                         required
-                                        autofocus
                                     >
                                 </div>
 
@@ -1520,6 +1589,22 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
+
+    /*
+     * Voorkom dat autofocus/browser scroll-restoration de bovenkant van
+     * de glassy authpagina onder de vaste header schuift.
+     */
+    try {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        if (!window.location.hash) {
+            window.scrollTo(0, 0);
+        }
+    } catch (error) {
+        // Geen blokkade voor authenticatie.
+    }
 
     const authTransitionKey =
         'mashal_auth_success_pending';
