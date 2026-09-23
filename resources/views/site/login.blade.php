@@ -1195,6 +1195,257 @@
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | V5 Glass fold transition
+    |--------------------------------------------------------------------------
+    | De twee glazen hoekstukken klappen naar het midden dicht.
+    | Op de volgende pagina klappen ze vanuit het midden weer open.
+    */
+    .glass-card-shell {
+        perspective: 1200px;
+    }
+
+    .glass-corner {
+        transform-origin: center;
+        will-change: transform, opacity, filter;
+        z-index: 30;
+    }
+
+    .glass-auth-page.is-folding-out .glass-card {
+        animation: authCardFoldDim .48s ease forwards;
+    }
+
+    .glass-auth-page.is-folding-out .glass-corner.top-left {
+        animation: authCornerCloseTop .58s cubic-bezier(.22,.9,.24,1) forwards;
+    }
+
+    .glass-auth-page.is-folding-out .glass-corner.bottom-right {
+        animation: authCornerCloseBottom .58s cubic-bezier(.22,.9,.24,1) forwards;
+    }
+
+    .glass-auth-page.is-folding-out .glass-poster-title,
+    .glass-auth-page.is-folding-out .glass-footer,
+    .glass-auth-page.is-folding-out .glass-code-panel {
+        animation: authFoldFadeOut .36s ease forwards;
+    }
+
+    .glass-auth-page.is-folding-in .glass-card {
+        animation: authCardFoldReveal .62s cubic-bezier(.18,.9,.22,1) both;
+    }
+
+    .glass-auth-page.is-folding-in .glass-corner.top-left {
+        animation: authCornerOpenTop .66s cubic-bezier(.18,.9,.22,1) both;
+    }
+
+    .glass-auth-page.is-folding-in .glass-corner.bottom-right {
+        animation: authCornerOpenBottom .66s cubic-bezier(.18,.9,.22,1) both;
+    }
+
+    .glass-auth-page.is-folding-in .glass-poster-title,
+    .glass-auth-page.is-folding-in .glass-footer,
+    .glass-auth-page.is-folding-in .glass-code-panel {
+        animation: authFoldFadeIn .5s .12s ease both;
+    }
+
+    .glass-fold-seal {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        z-index: 2147482600;
+        width: 92px;
+        height: 92px;
+        pointer-events: none;
+        opacity: 0;
+        transform:
+            translate(-50%,-50%)
+            scale(.55)
+            rotate(45deg);
+        border: 1px solid rgba(255,238,111,.46);
+        border-radius: 18px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,.10),
+                rgba(255,198,46,.08)
+            ),
+            rgba(13,13,16,.74);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,.04) inset,
+            0 0 35px rgba(255,189,0,.18);
+    }
+
+    .glass-auth-page.is-folding-out .glass-fold-seal {
+        animation: authSealClose .62s cubic-bezier(.2,.82,.2,1) forwards;
+    }
+
+    .glass-auth-page.is-folding-in .glass-fold-seal {
+        animation: authSealOpen .62s cubic-bezier(.18,.9,.22,1) both;
+    }
+
+    @keyframes authCornerCloseTop {
+        from {
+            transform: translate(0,0) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+        to {
+            transform:
+                translate(
+                    var(--fold-top-x, 150px),
+                    var(--fold-top-y, 150px)
+                )
+                scale(1.35)
+                rotate(45deg);
+            opacity: .96;
+            filter: drop-shadow(0 0 18px rgba(255,204,54,.24));
+        }
+    }
+
+    @keyframes authCornerCloseBottom {
+        from {
+            transform: translate(0,0) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+        to {
+            transform:
+                translate(
+                    var(--fold-bottom-x, -150px),
+                    var(--fold-bottom-y, -150px)
+                )
+                scale(1.35)
+                rotate(45deg);
+            opacity: .96;
+            filter: drop-shadow(0 0 18px rgba(255,204,54,.24));
+        }
+    }
+
+    @keyframes authCornerOpenTop {
+        from {
+            transform:
+                translate(
+                    var(--fold-top-x, 150px),
+                    var(--fold-top-y, 150px)
+                )
+                scale(1.35)
+                rotate(45deg);
+            opacity: .96;
+        }
+        to {
+            transform: translate(0,0) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+    }
+
+    @keyframes authCornerOpenBottom {
+        from {
+            transform:
+                translate(
+                    var(--fold-bottom-x, -150px),
+                    var(--fold-bottom-y, -150px)
+                )
+                scale(1.35)
+                rotate(45deg);
+            opacity: .96;
+        }
+        to {
+            transform: translate(0,0) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+    }
+
+    @keyframes authCardFoldDim {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0);
+        }
+        55% {
+            opacity: .50;
+            transform: scale(.985);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(.95);
+            filter: blur(7px);
+        }
+    }
+
+    @keyframes authCardFoldReveal {
+        from {
+            opacity: 0;
+            transform: scale(.95);
+            filter: blur(7px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes authSealClose {
+        0% {
+            opacity: 0;
+            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
+        }
+        62% {
+            opacity: 1;
+            transform: translate(-50%,-50%) scale(1) rotate(45deg);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
+        }
+    }
+
+    @keyframes authSealOpen {
+        0% {
+            opacity: 1;
+            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
+        }
+        38% {
+            opacity: 1;
+            transform: translate(-50%,-50%) scale(1) rotate(45deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
+        }
+    }
+
+    @keyframes authFoldFadeOut {
+        to {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+    }
+
+    @keyframes authFoldFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .glass-auth-page.is-folding-out .glass-card,
+        .glass-auth-page.is-folding-out .glass-corner,
+        .glass-auth-page.is-folding-out .glass-fold-seal,
+        .glass-auth-page.is-folding-in .glass-card,
+        .glass-auth-page.is-folding-in .glass-corner,
+        .glass-auth-page.is-folding-in .glass-fold-seal {
+            animation-duration: .01ms !important;
+            animation-delay: 0ms !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1204,6 +1455,9 @@
     <span class="glass-ribbon one" aria-hidden="true"></span>
     <span class="glass-ribbon two" aria-hidden="true"></span>
     <span class="glass-ribbon three" aria-hidden="true"></span>
+
+    <div class="glass-fold-seal" aria-hidden="true"></div>
+
 
     <div
         class="glass-auth-transition-flash"
@@ -1585,24 +1839,6 @@
             <span class="glass-corner bottom-right" aria-hidden="true"></span>
         </div>
 
-        <div class="glass-code-panel" aria-hidden="true">
-            <div class="glass-code-topbar">
-                <div class="glass-code-dots">
-                    <span class="glass-code-dot red"></span>
-                    <span class="glass-code-dot yellow"></span>
-                    <span class="glass-code-dot green"></span>
-                </div>
-                <div class="glass-code-tab">◻&nbsp; Login.jsx</div>
-                <div class="glass-code-badge">⚛&nbsp; Secure UI</div>
-            </div>
-            <div class="glass-code-body"><span class="pink">const</span> <span class="cyan">session</span> = {
-  provider: <span class="green">'Mashal'</span>,
-  protected: <span class="cyan">true</span>,
-  methods: [<span class="green">'password'</span>, <span class="green">'email'</span>, <span class="green">'oauth'</span>],
-  secure: <span class="yellow">1</span>
-};</div>
-        </div>
-
         <div class="glass-footer">
             Mashal Studio · Secure account access
         </div>
@@ -1833,6 +2069,242 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     playAuthEntryAnimation();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | V5 folding switch
+    |--------------------------------------------------------------------------
+    */
+    const authFoldStorageKey =
+        'mashal_auth_fold_from';
+
+    function setFoldVectors() {
+        const shell =
+            document.querySelector('.glass-card-shell');
+
+        const topCorner =
+            document.querySelector('.glass-corner.top-left');
+
+        const bottomCorner =
+            document.querySelector('.glass-corner.bottom-right');
+
+        if (
+            !shell
+            || !topCorner
+            || !bottomCorner
+        ) {
+            return;
+        }
+
+        const shellRect =
+            shell.getBoundingClientRect();
+
+        const topRect =
+            topCorner.getBoundingClientRect();
+
+        const bottomRect =
+            bottomCorner.getBoundingClientRect();
+
+        const centerX =
+            shellRect.left + (shellRect.width / 2);
+
+        const centerY =
+            shellRect.top + (shellRect.height / 2);
+
+        const topCenterX =
+            topRect.left + (topRect.width / 2);
+
+        const topCenterY =
+            topRect.top + (topRect.height / 2);
+
+        const bottomCenterX =
+            bottomRect.left + (bottomRect.width / 2);
+
+        const bottomCenterY =
+            bottomRect.top + (bottomRect.height / 2);
+
+        authPage?.style.setProperty(
+            '--fold-top-x',
+            (centerX - topCenterX) + 'px'
+        );
+
+        authPage?.style.setProperty(
+            '--fold-top-y',
+            (centerY - topCenterY) + 'px'
+        );
+
+        authPage?.style.setProperty(
+            '--fold-bottom-x',
+            (centerX - bottomCenterX) + 'px'
+        );
+
+        authPage?.style.setProperty(
+            '--fold-bottom-y',
+            (centerY - bottomCenterY) + 'px'
+        );
+    }
+
+    function playFoldEntry() {
+        if (!authPage) {
+            return;
+        }
+
+        let from = null;
+
+        try {
+            from =
+                window.sessionStorage.getItem(
+                    authFoldStorageKey
+                );
+
+            window.sessionStorage.removeItem(
+                authFoldStorageKey
+            );
+        } catch (error) {
+            from = null;
+        }
+
+        if (
+            from !== 'login'
+            && from !== 'register'
+        ) {
+            return;
+        }
+
+        setFoldVectors();
+
+        authPage.classList.add(
+            'is-folding-in'
+        );
+
+        window.setTimeout(
+            function () {
+                authPage.classList.remove(
+                    'is-folding-in'
+                );
+            },
+            760
+        );
+    }
+
+    function navigateWithFold(
+        link,
+        destination
+    ) {
+        const currentKind =
+            currentAuthPageKind();
+
+        const destinationKind =
+            pageKindFromUrl(
+                destination
+            );
+
+        if (
+            !authPage
+            || !currentKind
+            || !destinationKind
+            || currentKind === destinationKind
+        ) {
+            window.location.assign(
+                destination
+            );
+
+            return;
+        }
+
+        setFoldVectors();
+
+        try {
+            window.sessionStorage.setItem(
+                authFoldStorageKey,
+                currentKind
+            );
+        } catch (error) {
+            // Navigatie mag niet blokkeren.
+        }
+
+        link.classList.add(
+            'is-switching'
+        );
+
+        authPage.classList.add(
+            'is-folding-out'
+        );
+
+        window.setTimeout(
+            function () {
+                window.location.assign(
+                    destination
+                );
+            },
+            620
+        );
+    }
+
+    /*
+     * V4 clickhandler onderscheppen met capture=true zodat de nieuwe
+     * fold-animatie de oude schuifanimatie vervangt.
+     */
+    authSwitchLinks.forEach(
+        function (link) {
+            link.addEventListener(
+                'click',
+                function (event) {
+                    if (
+                        event.defaultPrevented
+                        || event.button !== 0
+                        || event.metaKey
+                        || event.ctrlKey
+                        || event.shiftKey
+                        || event.altKey
+                    ) {
+                        return;
+                    }
+
+                    const destination =
+                        link.getAttribute(
+                            'href'
+                        );
+
+                    const kind =
+                        destination
+                            ? pageKindFromUrl(
+                                destination
+                            )
+                            : null;
+
+                    if (
+                        kind !== 'login'
+                        && kind !== 'register'
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+
+                    navigateWithFold(
+                        link,
+                        destination
+                    );
+                },
+                true
+            );
+        }
+    );
+
+    window.addEventListener(
+        'resize',
+        setFoldVectors
+    );
+
+    window.requestAnimationFrame(
+        function () {
+            setFoldVectors();
+            playFoldEntry();
+        }
+    );
 
     /*
      * Voorkom dat autofocus/browser scroll-restoration de bovenkant van
