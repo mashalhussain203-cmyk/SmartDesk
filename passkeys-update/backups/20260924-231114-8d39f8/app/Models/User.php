@@ -114,8 +114,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
     ];
 
     /**
@@ -129,34 +127,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
-            'two_factor_secret' => 'encrypted',
-            'two_factor_recovery_codes' => 'encrypted:array',
-            'two_factor_confirmed_at' => 'datetime',
         ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Twee-factor-authenticatie
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Controleer of Authenticator/TOTP volledig is ingesteld.
-     */
-    public function hasTwoFactorAuthentication(): bool
-    {
-        return ! empty($this->two_factor_secret)
-            && $this->two_factor_confirmed_at !== null;
-    }
-
-    /**
-     * Controleer of er herstelcodes beschikbaar zijn.
-     */
-    public function hasTwoFactorRecoveryCodes(): bool
-    {
-        return is_array($this->two_factor_recovery_codes)
-            && count($this->two_factor_recovery_codes) > 0;
     }
 
     /*
@@ -656,7 +627,6 @@ class User extends Authenticatable implements MustVerifyEmail
         );
 
         $allowedProviders = [
-            'passkey',
             'password',
             'email_code',
             'magic_link',
@@ -721,7 +691,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'tiktok' => 'TikTok',
             'email_code' => 'E-mailcode',
             'magic_link' => 'Magic link',
-            'passkey' => 'Passkey',
             'password' => 'Wachtwoord',
             default => 'Onbekend',
         };
@@ -742,7 +711,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'tiktok' => 'tiktok',
             'email_code' => 'email',
             'magic_link' => 'link',
-            'passkey' => 'lock',
             'password' => 'lock',
             default => 'user',
         };

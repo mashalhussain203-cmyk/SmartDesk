@@ -1,0 +1,22 @@
+ app/Http/Controllers/PasskeyController.php         | 180 [32m+++++++++[m
+ app/Models/LoginActivity.php                       |   1 [32m+[m
+ app/Models/Passkey.php                             |  23 [32m++[m
+ app/Models/User.php                                |   3 [32m+[m
+ app/Providers/PasskeyServiceProvider.php           |  30 [32m++[m
+ app/Services/LoginSecurityService.php              |   1 [32m+[m
+ app/Services/PasskeyService.php                    | 124 [32m+++++++[m
+ bootstrap/providers.php                            |   3 [32m+[m[31m-[m
+ composer.json                                      |   2 [32m+[m
+ composer.lock                                      | 402 [32m++++++++++++++++++++[m[31m-[m
+ config/passkeys.php                                |  10 [32m+[m
+ .../2026_09_24_210000_create_passkeys_table.php    |  29 [32m++[m
+ public/js/mashal-passkeys.js                       | 150 [32m++++++++[m
+ resources/views/partials/passkeys.blade.php        |  51 [32m+++[m
+ resources/views/site/login.blade.php               |   2 [32m+[m
+ resources/views/site/security.blade.php            |   1 [32m+[m
+ routes/passkeys.php                                |  16 [32m+[m
+ routes/web.php                                     |   1 [32m+[m
+ tests/Feature/PasskeyTest.php                      | 217 [32m+++++++++++[m
+ tests/JavaScript/passkeys.test.cjs                 |  95 [32m+++++[m
+ tests/TestCase.php                                 |   1 [31m-[m
+ 21 files changed, 1339 insertions(+), 3 deletions(-)

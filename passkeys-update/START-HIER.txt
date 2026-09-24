@@ -1,0 +1,120 @@
+PASSKEYS / FACE ID — MASHAL STUDIO
+
+Dit is een los updatepakket voor je Laravel 12-project. De update voegt een
+passkeyknop toe aan de loginpagina en beheer aan Accountbeveiliging.
+Standaard verschijnt de inlog- en instelknop alleen op geschikte iPhones.
+De browser bepaalt Face ID, Touch ID of toestelcode. iPhone-detectie is alleen
+voor de weergave; de server gebruikt WebAuthn om een login te controleren.
+
+STATUS
+De code is voorbereid, maar nog niet op jouw website geïnstalleerd.
+Zes JavaScript-tests zijn geslaagd in een gesimuleerde browseromgeving.
+PHP/Composer, Laravel-tests, Pint, echte browsers en Face ID konden in de
+werkomgeving niet worden uitgevoerd. Voer de onderstaande controles lokaal uit
+voordat je dit online zet. De update staat standaard UIT.
+
+1. UITPAKKEN
+Pak de zip uit. Zet de map passkeys-update in jouw laravel-app-map.
+Je moet nu deze bestanden naast elkaar hebben:
+  laravel-app/artisan
+  laravel-app/passkeys-update/install-passkeys.php
+
+Open de VS Code-terminal in laravel-app.
+
+2. CONTROLE EN INSTALLATIE VAN DE CODE
+Voer één opdracht tegelijk uit. STOP bij een foutmelding en stuur die door.
+
+  php passkeys-update/install-passkeys.php --check
+  php passkeys-update/install-passkeys.php
+
+De controle schrijft niets. De installatie maakt eerst een backup in
+passkeys-update/backups. De installer voegt kleine delen aan je bestaande
+bestanden toe en kopieert de nieuwe bestanden. Als de indeling van je inmiddels
+gewijzigde loginpagina niet wordt herkend, stopt hij zonder te schrijven.
+Er wordt niets gepusht of gedeployd. Composer-bestanden en .env blijven hier
+ongewijzigd.
+
+3. WEBAUTHN-BIBLIOTHEEK INSTALLEREN
+De nieuwe code heeft lbuchs/webauthn 2.2 nodig voor cryptografische controle.
+Met de volgende opdracht voeg je deze dependency toe aan jouw Composer-project:
+
+  composer require "lbuchs/webauthn:~2.2.0"
+
+Deze opdracht werkt composer.json en composer.lock samen bij.
+PHP moet de extensies openssl en mbstring hebben. Controleer bij problemen
+met php -m. Gebruik geen --ignore-platform-reqs.
+
+4. CACHE, DATABASE EN TESTS
+
+  php artisan optimize:clear
+  php artisan migrate --path=database/migrations/2026_09_24_210000_create_passkeys_table.php
+  php artisan test --compact tests/Feature/PasskeyTest.php
+  node --test tests/JavaScript/passkeys.test.cjs
+  php vendor/bin/pint app/Http/Controllers/PasskeyController.php app/Services/PasskeyService.php app/Models/Passkey.php app/Providers/PasskeyServiceProvider.php config/passkeys.php routes/passkeys.php database/migrations/2026_09_24_210000_create_passkeys_table.php tests/Feature/PasskeyTest.php
+
+De migratie maakt alleen de nieuwe passkeys-tabel. Maak vóór een productie-
+migratie een databasebackup. De PHPUnit-tests gebruiken een aparte SQLite-
+database in het geheugen en hebben pdo_sqlite nodig. Bestaande projectmigraties
+buiten de noodzakelijke gebruikerstabellen worden niet uitgevoerd in deze test.
+Bij een fout: niet doorgaan met online activeren; stuur de melding.
+
+5. DOMEIN EN ACTIVERING
+Bewerk je bestaande .env (deel dit bestand niet). Voeg toe of werk bij:
+
+  PASSKEYS_ENABLED=true
+  PASSKEYS_ORIGIN=https://JOUW-ECHTE-DOMEIN
+  PASSKEYS_IPHONE_ONLY_UI=true
+
+Vervang de voorbeeldwaarde door het exacte adres van je website: schema en
+hostnaam, eventueel poort, zonder slash op het einde en zonder /login.
+Gebruik één vast domein: www en geen-www zijn verschillende adressen.
+APP_URL moet naar hetzelfde websiteadres verwijzen.
+Voor productie: HTTPS en SESSION_SECURE_COOKIE=true.
+Gebruik server-side sessies (bijvoorbeeld SESSION_DRIVER=database) en een
+gedeelde cache (bijvoorbeeld CACHE_STORE=database); niet cookie/array/null.
+In een cluster moeten alle servers dezelfde sessies en cache gebruiken.
+
+Daarna:
+  php artisan optimize:clear
+
+LOKAAL TESTEN OP JE COMPUTER
+Voor een lokale passkeytest kun je instellen:
+  APP_URL=http://localhost:8000
+  PASSKEYS_ORIGIN=http://localhost:8000
+  PASSKEYS_IPHONE_ONLY_UI=false
+
+Start vervolgens php artisan serve en open http://localhost:8000.
+Windows Hello kan worden gebruikt als het apparaat en de browser dit
+ondersteunen. Zet de iPhone-instelling terug op true als dat je voorkeur is.
+127.0.0.1:8000 op je iPhone verwijst naar de iPhone zelf, niet naar je pc.
+Een gewone http://192.168...-verbinding is niet geschikt voor Face ID/passkeys.
+Test Face ID op je iPhone met een bereikbaar HTTPS-testdomein. Passkeys van
+localhost werken niet op je echte domein; daar registreer je ze opnieuw.
+
+6. GEBRUIKEN OP JE IPHONE
+- Log eerst uit en opnieuw in met je huidige inlogmethode.
+- Open Accountbeveiliging (/account/security).
+- Tik op Passkey instellen en bevestig op je iPhone.
+- Log uit en probeer Inloggen met Face ID / passkey.
+- Controleer ook annuleren, een verkeerde passkey en het verwijderen van een
+  eigen passkey. Gewoon inloggen blijft beschikbaar.
+- Voor toevoegen/verwijderen is opnieuw inloggen binnen tien minuten nodig.
+  Dit werkt ook na inloggen met e-mailcode of een gekoppeld sociaal account.
+- Bij verwijderen verdwijnt de koppeling op de website; een bewaarde vermelding
+  in de Wachtwoorden-app kan de gebruiker daar zelf verwijderen.
+
+UITZETTEN
+Zet PASSKEYS_ENABLED=false en voer php artisan optimize:clear uit.
+Bestaande wachtwoord-, e-mail- en sociale login blijven beschikbaar.
+
+BESTANDEN DIE DE INSTALLER AANVULT
+routes/web.php, bootstrap/providers.php, resources/views/site/login.blade.php,
+resources/views/site/security.blade.php, app/Models/User.php,
+app/Models/LoginActivity.php en app/Services/LoginSecurityService.php.
+Nieuwe bestanden staan in de map files. Het pakket bevat geen .env,
+gebruikersdatabase, vendor-map of persoonlijke geheime sleutels.
+
+Bronnen voor de implementatie:
+https://github.com/lbuchs/WebAuthn
+https://packagist.org/packages/lbuchs/webauthn
+https://laravel.com/docs/12.x/authentication

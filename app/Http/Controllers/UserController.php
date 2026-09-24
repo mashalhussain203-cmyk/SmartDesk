@@ -254,6 +254,54 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Authenticator 2FA vereist?
+        |--------------------------------------------------------------------------
+        |
+        | Wanneer 2FA actief is, mag de gebruiker nog niet definitief door naar
+        | de applicatie. We bewaren de gewenste eindbestemming, loggen de
+        | tijdelijke Laravel-authenticatie weer uit en sturen de gebruiker naar
+        | de aparte 2FA-challenge.
+        |
+        | De TwoFactorChallengeController logt de gebruiker pas opnieuw in nadat
+        | een geldige TOTP-code of recovery code is ingevoerd.
+        |
+        */
+
+        if ($user->two_factor_confirmed_at !== null) {
+            if ($this->hasPendingImage($request)) {
+                $this->ensurePendingImageIntendedUrl($request);
+            } elseif ($user->is_admin) {
+                $request->session()->put(
+                    'url.intended',
+                    route('admin.dashboard')
+                );
+            } elseif (! $request->session()->has('url.intended')) {
+                $request->session()->put(
+                    'url.intended',
+                    route('home')
+                );
+            }
+
+            $request->session()->put([
+                'two_factor.login.user_id' => $user->id,
+                'two_factor.login.remember' => $remember,
+                'two_factor.login.provider' => 'password',
+            ]);
+
+            Auth::logout();
+
+            $request->session()->regenerate();
+
+            return redirect()
+                ->route('two-factor.challenge')
+                ->with(
+                    'success',
+                    'Voer de 6-cijferige code uit je Authenticator-app in om de login te voltooien.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | Pending upload heeft voorrang
         |--------------------------------------------------------------------------
         |

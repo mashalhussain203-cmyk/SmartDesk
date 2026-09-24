@@ -14,10 +14,12 @@
     "require": {
         "php": "^8.4",
         "ext-gd": "*",
+        "bacon/bacon-qr-code": "^3.1",
         "laravel/framework": "^12.0",
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^2.9",
         "lbuchs/webauthn": "~2.2.0",
+        "pragmarx/google2fa-laravel": "^3.0",
         "smalot/pdfparser": "^2.12",
         "socialiteproviders/microsoft": "^4.10",
         "socialiteproviders/tiktok": "^5.2"

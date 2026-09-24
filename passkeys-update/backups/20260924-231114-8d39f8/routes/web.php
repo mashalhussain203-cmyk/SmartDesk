@@ -10,8 +10,6 @@ use App\Http\Controllers\ImageEditorController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
-use App\Http\Controllers\TwoFactorAuthenticationController;
-use App\Http\Controllers\TwoFactorChallengeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -430,48 +428,6 @@ Route::middleware('guest')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Two-Factor Login Challenge
-|--------------------------------------------------------------------------
-|
-| Deze routes staan bewust buiten de auth-groep.
-| Tijdens deze stap is de gebruiker nog niet definitief ingelogd.
-|
-*/
-
-Route::get(
-    '/two-factor-challenge',
-    [TwoFactorChallengeController::class, 'show']
-)
-    ->middleware('throttle:30,1')
-    ->name('two-factor.challenge');
-
-
-Route::post(
-    '/two-factor-challenge',
-    [TwoFactorChallengeController::class, 'verify']
-)
-    ->middleware('throttle:10,1')
-    ->name('two-factor.challenge.verify');
-
-
-Route::post(
-    '/two-factor-challenge/recovery',
-    [TwoFactorChallengeController::class, 'verifyRecoveryCode']
-)
-    ->middleware('throttle:10,1')
-    ->name('two-factor.challenge.recovery');
-
-
-Route::post(
-    '/two-factor-challenge/cancel',
-    [TwoFactorChallengeController::class, 'cancel']
-)
-    ->middleware('throttle:10,1')
-    ->name('two-factor.challenge.cancel');
-
-
-/*
-|--------------------------------------------------------------------------
 | Uitloggen
 |--------------------------------------------------------------------------
 */
@@ -864,69 +820,6 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Authenticator / Two-Factor Authentication
-    |--------------------------------------------------------------------------
-    |
-    | Hiermee kan een ingelogde gebruiker:
-    |
-    | - Authenticator 2FA instellen;
-    | - de QR-code bekijken;
-    | - de eerste 6-cijferige code bevestigen;
-    | - een lopende setup annuleren;
-    | - nieuwe recovery codes genereren;
-    | - Authenticator 2FA uitschakelen.
-    |
-    */
-
-    Route::get(
-        '/account/security/authenticator',
-        [TwoFactorAuthenticationController::class, 'show']
-    )
-        ->name('two-factor.show');
-
-
-    Route::post(
-        '/account/security/authenticator/enable',
-        [TwoFactorAuthenticationController::class, 'enable']
-    )
-        ->middleware('throttle:10,1')
-        ->name('two-factor.enable');
-
-
-    Route::post(
-        '/account/security/authenticator/confirm',
-        [TwoFactorAuthenticationController::class, 'confirm']
-    )
-        ->middleware('throttle:10,1')
-        ->name('two-factor.confirm');
-
-
-    Route::post(
-        '/account/security/authenticator/cancel',
-        [TwoFactorAuthenticationController::class, 'cancel']
-    )
-        ->middleware('throttle:10,1')
-        ->name('two-factor.cancel');
-
-
-    Route::post(
-        '/account/security/authenticator/recovery-codes',
-        [TwoFactorAuthenticationController::class, 'regenerateRecoveryCodes']
-    )
-        ->middleware('throttle:5,1')
-        ->name('two-factor.recovery-codes');
-
-
-    Route::delete(
-        '/account/security/authenticator',
-        [TwoFactorAuthenticationController::class, 'disable']
-    )
-        ->middleware('throttle:5,1')
-        ->name('two-factor.disable');
-
-
-    /*
-    |--------------------------------------------------------------------------
     | Mijn account
     |--------------------------------------------------------------------------
     */
@@ -1082,7 +975,6 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-
 // Mashal AI Workspace V5
 require __DIR__.'/ai-workspace.php';
 
@@ -1090,4 +982,3 @@ require __DIR__.'/ai-workspace.php';
 // Mashal AI Studio V6
 require __DIR__.'/ai-studio.php';
 
-require __DIR__.'/passkeys.php';
