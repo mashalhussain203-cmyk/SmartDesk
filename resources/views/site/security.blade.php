@@ -105,6 +105,86 @@
         line-height: 1.55;
     }
 
+    .security-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .security-action-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, .075);
+        border-radius: 22px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, .038), rgba(255, 255, 255, .014));
+        box-shadow: 0 14px 36px rgba(0, 0, 0, .14);
+    }
+
+    .security-action-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .security-action-icon {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(215, 164, 95, .2);
+        border-radius: 16px;
+        background: rgba(215, 164, 95, .07);
+        color: #efc985;
+        font-size: 20px;
+    }
+
+    .security-action-copy h2 {
+        margin: 0;
+        color: #fff;
+        font-size: 17px;
+        letter-spacing: -.02em;
+    }
+
+    .security-action-copy p {
+        margin: 7px 0 0;
+        color: #777d84;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .security-action-btn {
+        flex: 0 0 auto;
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15px;
+        border: 1px solid rgba(215, 164, 95, .28);
+        border-radius: 999px;
+        background: rgba(215, 164, 95, .08);
+        color: #efc985;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            background .2s ease;
+    }
+
+    .security-action-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(215, 164, 95, .5);
+        background: rgba(215, 164, 95, .13);
+    }
+
     .security-stats {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -443,6 +523,10 @@
             width: fit-content;
         }
 
+        .security-actions {
+            grid-template-columns: 1fr;
+        }
+
         .login-card {
             grid-template-columns: 56px minmax(0, 1fr);
         }
@@ -474,6 +558,15 @@
             font-size: clamp(42px, 13vw, 60px);
         }
 
+        .security-action-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .security-action-btn {
+            width: 100%;
+        }
+
         .security-stats {
             grid-template-columns: 1fr 1fr;
         }
@@ -502,7 +595,9 @@
 @section('content')
 <section class="security-page">
     <div class="security-shell">
+
         @include('partials.passkeys', ['passkeyMode' => 'manage'])
+
         <header class="security-hero">
             <div>
                 <span class="security-kicker">Mashal Studio Security</span>
@@ -533,6 +628,56 @@
                 </em>
             </aside>
         </header>
+
+        <div class="security-actions">
+            <article class="security-action-card">
+                <div class="security-action-main">
+                    <div class="security-action-icon" aria-hidden="true">◆</div>
+
+                    <div class="security-action-copy">
+                        <h2>Authenticator-app</h2>
+
+                        <p>
+                            Beveilig je account met een 6-cijferige code uit Google Authenticator,
+                            Microsoft Authenticator of een andere TOTP-app.
+                        </p>
+                    </div>
+                </div>
+
+                <a
+                    href="{{ route('two-factor.show') }}"
+                    class="security-action-btn"
+                >
+                    @if (auth()->user()?->two_factor_confirmed_at)
+                        Authenticator beheren
+                    @else
+                        Authenticator instellen
+                    @endif
+                </a>
+            </article>
+
+            <article class="security-action-card">
+                <div class="security-action-main">
+                    <div class="security-action-icon" aria-hidden="true">◇</div>
+
+                    <div class="security-action-copy">
+                        <h2>Passkeys</h2>
+
+                        <p>
+                            Gebruik biometrie of je apparaatcode om zonder wachtwoord veilig
+                            in te loggen op ondersteunde apparaten.
+                        </p>
+                    </div>
+                </div>
+
+                <a
+                    href="{{ route('passkeys.index') }}"
+                    class="security-action-btn"
+                >
+                    Passkeys beheren
+                </a>
+            </article>
+        </div>
 
         <div class="security-stats">
             <div class="security-stat">
@@ -676,8 +821,10 @@
 
                                 <div class="login-detail">
                                     <small>Land</small>
+
                                     <strong>
                                         {{ $activity->country ?: 'Onbekend' }}
+
                                         @if ($activity->country_code)
                                             ({{ strtoupper($activity->country_code) }})
                                         @endif
@@ -691,6 +838,7 @@
 
                                 <div class="login-detail">
                                     <small>Locatietoestemming</small>
+
                                     <strong class="{{ strtolower((string) $activity->location_permission) === 'granted' ? 'is-success' : '' }}">
                                         {{ $permissionLabel }}
                                     </strong>
@@ -698,6 +846,7 @@
 
                                 <div class="login-detail login-detail-wide">
                                     <small>GPS-coördinaten</small>
+
                                     <strong class="{{ $hasPreciseLocation ? 'is-gold' : '' }}">
                                         {{ $coordinates ?: 'Niet beschikbaar' }}
                                     </strong>
@@ -730,6 +879,7 @@
 
                                 <div class="login-detail">
                                     <small>Apparaatstatus</small>
+
                                     <strong class="{{ $activity->is_new_device ? 'is-gold' : '' }}">
                                         {{ $activity->newDeviceLabel() }}
                                     </strong>
@@ -742,6 +892,7 @@
 
                                 <div class="login-detail login-detail-wide">
                                     <small>Beveiligingsmail</small>
+
                                     <strong class="{{ $mailClass }}">
                                         {{ $mailStatus }}
                                     </strong>
@@ -749,6 +900,7 @@
 
                                 <div class="login-detail">
                                     <small>Mail verzonden</small>
+
                                     <strong>
                                         @if ($activity->notification_sent_at)
                                             {{ $activity->notification_sent_at->copy()->timezone($effectiveTimezone)->format('d-m-Y H:i') }}
@@ -760,6 +912,7 @@
 
                                 <div class="login-detail">
                                     <small>Mailfout</small>
+
                                     <strong>
                                         @if ($activity->notification_failed_at)
                                             {{ $activity->notification_failed_at->copy()->timezone($effectiveTimezone)->format('d-m-Y H:i') }}
