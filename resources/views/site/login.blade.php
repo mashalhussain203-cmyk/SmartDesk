@@ -1541,6 +1541,8 @@
                             </div>
                         @endif
 
+                        @include('partials.passkeys', ['passkeyMode' => 'login'])
+
                         <div class="login-tabs" role="tablist" aria-label="Inlogmethode kiezen">
                             <button
                                 class="login-tab active"

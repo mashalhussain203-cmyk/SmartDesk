@@ -502,6 +502,7 @@
 @section('content')
 <section class="security-page">
     <div class="security-shell">
+        @include('partials.passkeys', ['passkeyMode' => 'manage'])
         <header class="security-hero">
             <div>
                 <span class="security-kicker">Mashal Studio Security</span>

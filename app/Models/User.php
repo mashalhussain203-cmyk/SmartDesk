@@ -627,6 +627,7 @@ class User extends Authenticatable implements MustVerifyEmail
         );
 
         $allowedProviders = [
+            'passkey',
             'password',
             'email_code',
             'magic_link',
@@ -691,6 +692,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'tiktok' => 'TikTok',
             'email_code' => 'E-mailcode',
             'magic_link' => 'Magic link',
+            'passkey' => 'Passkey',
             'password' => 'Wachtwoord',
             default => 'Onbekend',
         };
@@ -711,6 +713,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'tiktok' => 'tiktok',
             'email_code' => 'email',
             'magic_link' => 'link',
+            'passkey' => 'lock',
             'password' => 'lock',
             default => 'user',
         };

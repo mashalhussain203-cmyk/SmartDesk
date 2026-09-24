@@ -982,3 +982,4 @@ require __DIR__.'/ai-workspace.php';
 // Mashal AI Studio V6
 require __DIR__.'/ai-studio.php';
 
+require __DIR__.'/passkeys.php';

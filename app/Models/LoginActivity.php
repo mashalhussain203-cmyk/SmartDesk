@@ -219,6 +219,7 @@ class LoginActivity extends Model
                 )
             )
         ) {
+            'passkey' => 'Passkey',
             'password' => 'E-mail + wachtwoord',
 
             'email_code' => 'E-mailcode',

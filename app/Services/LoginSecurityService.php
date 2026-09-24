@@ -753,6 +753,7 @@ class LoginSecurityService
         );
 
         $allowedProviders = [
+            'passkey',
             'password',
             'email_code',
             'magic_link',
