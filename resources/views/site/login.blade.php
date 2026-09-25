@@ -941,207 +941,11 @@
             transition-duration: .01ms !important;
         }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Lightweight animated atmosphere
-    |--------------------------------------------------------------------------
-    |
-    | Beweging blijft zichtbaar, maar alleen via transform + opacity.
-    | Geen filter: blur(), backdrop-filter of clip-path animaties.
-    |
-    */
-
-    .motion-atmosphere {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        overflow: hidden;
-        pointer-events: none;
-    }
-
-    .motion-atmosphere::before,
-    .motion-atmosphere::after {
-        content: "";
-        position: absolute;
-        width: 72vw;
-        max-width: 980px;
-        aspect-ratio: 1.9 / 1;
-        border-radius: 999px;
-        opacity: .22;
-        will-change: transform, opacity;
-    }
-
-    .motion-atmosphere::before {
-        left: -24vw;
-        top: 10%;
-        background:
-            linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255,111,24,.08) 18%,
-                rgba(255,171,24,.38) 44%,
-                rgba(255,228,103,.28) 56%,
-                rgba(255,123,28,.09) 78%,
-                transparent 100%
-            );
-        transform: rotate(24deg) translate3d(0,0,0);
-        animation:
-            motion-ribbon-a 11s ease-in-out infinite alternate;
-    }
-
-    .motion-atmosphere::after {
-        right: -26vw;
-        top: 42%;
-        background:
-            linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(241,216,74,.06) 16%,
-                rgba(241,216,74,.30) 42%,
-                rgba(255,126,31,.24) 62%,
-                transparent 100%
-            );
-        transform: rotate(-25deg) translate3d(0,0,0);
-        animation:
-            motion-ribbon-b 14s ease-in-out infinite alternate;
-    }
-
-    .motion-streak {
-        position: absolute;
-        left: 50%;
-        bottom: 9%;
-        width: min(74vw, 820px);
-        height: 2px;
-        border-radius: 999px;
-        opacity: .26;
-        background:
-            linear-gradient(
-                90deg,
-                transparent,
-                rgba(255,122,36,.3),
-                rgba(241,216,74,.85),
-                rgba(255,122,36,.3),
-                transparent
-            );
-        transform:
-            translate3d(-50%,0,0)
-            rotate(-8deg);
-        transform-origin: center;
-        will-change: transform, opacity;
-        animation:
-            motion-streak 9s ease-in-out infinite alternate;
-    }
-
-    @keyframes motion-ribbon-a {
-        from {
-            transform:
-                rotate(24deg)
-                translate3d(-3%, -2%, 0)
-                scale(.98);
-            opacity: .15;
-        }
-
-        to {
-            transform:
-                rotate(20deg)
-                translate3d(10%, 7%, 0)
-                scale(1.04);
-            opacity: .25;
-        }
-    }
-
-    @keyframes motion-ribbon-b {
-        from {
-            transform:
-                rotate(-25deg)
-                translate3d(4%, 1%, 0)
-                scale(1);
-            opacity: .12;
-        }
-
-        to {
-            transform:
-                rotate(-20deg)
-                translate3d(-10%, -7%, 0)
-                scale(1.05);
-            opacity: .24;
-        }
-    }
-
-    @keyframes motion-streak {
-        from {
-            transform:
-                translate3d(-54%, 0, 0)
-                rotate(-8deg)
-                scaleX(.92);
-            opacity: .16;
-        }
-
-        to {
-            transform:
-                translate3d(-46%, -7px, 0)
-                rotate(-5deg)
-                scaleX(1.03);
-            opacity: .31;
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Login <-> Register micro transition
-    |--------------------------------------------------------------------------
-    */
-
-    .auth-nav-transition {
-        transition:
-            opacity .16s ease,
-            transform .16s ease;
-        will-change:
-            opacity,
-            transform;
-    }
-
-    .auth-nav-transition.is-leaving {
-        opacity: 0;
-        transform:
-            translate3d(0, 8px, 0)
-            scale(.994);
-    }
-
-    @media (max-width: 640px) {
-        .motion-atmosphere::before,
-        .motion-atmosphere::after {
-            width: 115vw;
-            opacity: .15;
-        }
-
-        .motion-streak {
-            width: 92vw;
-            opacity: .18;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .motion-atmosphere::before,
-        .motion-atmosphere::after,
-        .motion-streak {
-            animation: none !important;
-        }
-
-        .auth-nav-transition {
-            transition: none !important;
-        }
-    }
-
 </style>
 @endpush
 
 @section('content')
-<section class="auth-page auth-nav-transition" data-auth-page-root>
-    <div class="motion-atmosphere" aria-hidden="true">
-        <span class="motion-streak"></span>
-    </div>
+<section class="auth-page">
     <main class="auth-shell">
         <header class="auth-intro">
             <div class="auth-eyebrow">
@@ -1190,11 +994,11 @@
                             class="active"
                             href="{{ route('login') }}"
                             aria-current="page"
-                         data-auth-page-link>
+                        >
                             Inloggen
                         </a>
 
-                        <a href="{{ route('register') }}" data-auth-page-link>
+                        <a href="{{ route('register') }}">
                             Registreren
                         </a>
                     </nav>
@@ -1644,7 +1448,7 @@
                         <a
                             class="auth-small-link"
                             href="{{ route('register') }}"
-                         data-auth-page-link>
+                        >
                             Registreren
                         </a>
                     </div>
@@ -2063,70 +1867,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         }
     );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Login <-> Register lightweight page transition
-    |--------------------------------------------------------------------------
-    |
-    | Korte 150ms overgang. Geen blur/fold/3D-effecten.
-    |
-    */
-
-    document
-        .querySelectorAll('[data-auth-page-link]')
-        .forEach(function (link) {
-            link.addEventListener(
-                'click',
-                function (event) {
-                    if (
-                        event.defaultPrevented ||
-                        event.button !== 0 ||
-                        event.metaKey ||
-                        event.ctrlKey ||
-                        event.shiftKey ||
-                        event.altKey
-                    ) {
-                        return;
-                    }
-
-                    const destination =
-                        link.getAttribute('href');
-
-                    const page =
-                        document.querySelector(
-                            '[data-auth-page-root]'
-                        );
-
-                    if (
-                        !destination ||
-                        !page ||
-                        window.matchMedia(
-                            '(prefers-reduced-motion: reduce)'
-                        ).matches
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    page.classList.add(
-                        'is-leaving'
-                    );
-
-                    window.setTimeout(
-                        function () {
-                            window.location.assign(
-                                destination
-                            );
-                        },
-                        150
-                    );
-                }
-            );
-        });
-
 });
 </script>
 @endpush

@@ -988,193 +988,557 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Lightweight animated atmosphere
+    | RESTORED AUTH MOTION — smooth version
     |--------------------------------------------------------------------------
+    | - bewegende achtergrondstroken achter de form
+    | - bewegende glans binnen/achter de form
+    | - duidelijke kaartanimatie bij Login <-> Register
+    | - kleine fold-corners zoals het oorspronkelijke ontwerp
     |
-    | Beweging blijft zichtbaar, maar alleen via transform + opacity.
-    | Geen filter: blur(), backdrop-filter of clip-path animaties.
-    |
+    | Alleen transform + opacity voor grote lagen.
+    | Geen blur-animaties en geen getBoundingClientRect().
     */
 
-    .motion-atmosphere {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
+    .register-page {
         overflow: hidden;
+    }
+
+    .motion-atmosphere {
+        z-index: 0;
+    }
+
+    .motion-beam {
+        position: absolute;
+        width: min(92vw, 1050px);
+        height: 128px;
+        border-radius: 999px;
         pointer-events: none;
-    }
-
-    .motion-atmosphere::before,
-    .motion-atmosphere::after {
-        content: "";
-        position: absolute;
-        width: 72vw;
-        max-width: 980px;
-        aspect-ratio: 1.9 / 1;
-        border-radius: 999px;
-        opacity: .22;
         will-change: transform, opacity;
-    }
-
-    .motion-atmosphere::before {
-        left: -24vw;
-        top: 10%;
+        opacity: .34;
         background:
             linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255,111,24,.08) 18%,
-                rgba(255,171,24,.38) 44%,
-                rgba(255,228,103,.28) 56%,
-                rgba(255,123,28,.09) 78%,
-                transparent 100%
+                180deg,
+                transparent 0 24%,
+                rgba(255,115,18,.05) 35%,
+                rgba(255,178,30,.30) 46%,
+                rgba(255,231,118,.66) 50%,
+                rgba(255,130,25,.26) 56%,
+                transparent 72%
             );
-        transform: rotate(24deg) translate3d(0,0,0);
-        animation:
-            motion-ribbon-a 11s ease-in-out infinite alternate;
     }
 
-    .motion-atmosphere::after {
-        right: -26vw;
-        top: 42%;
-        background:
-            linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(241,216,74,.06) 16%,
-                rgba(241,216,74,.30) 42%,
-                rgba(255,126,31,.24) 62%,
-                transparent 100%
-            );
-        transform: rotate(-25deg) translate3d(0,0,0);
-        animation:
-            motion-ribbon-b 14s ease-in-out infinite alternate;
+    .motion-beam.one {
+        left: -31%;
+        top: 17%;
+        transform: rotate(30deg) translate3d(0,0,0);
+        animation: auth-beam-one 12s ease-in-out infinite alternate;
     }
 
-    .motion-streak {
-        position: absolute;
-        left: 50%;
-        bottom: 9%;
-        width: min(74vw, 820px);
-        height: 2px;
-        border-radius: 999px;
-        opacity: .26;
-        background:
-            linear-gradient(
-                90deg,
-                transparent,
-                rgba(255,122,36,.3),
-                rgba(241,216,74,.85),
-                rgba(255,122,36,.3),
-                transparent
-            );
-        transform:
-            translate3d(-50%,0,0)
-            rotate(-8deg);
-        transform-origin: center;
-        will-change: transform, opacity;
-        animation:
-            motion-streak 9s ease-in-out infinite alternate;
+    .motion-beam.two {
+        right: -34%;
+        top: 48%;
+        transform: rotate(-27deg) translate3d(0,0,0);
+        animation: auth-beam-two 15s ease-in-out infinite alternate;
     }
 
-    @keyframes motion-ribbon-a {
+    .motion-beam.three {
+        left: -28%;
+        bottom: 3%;
+        opacity: .20;
+        transform: rotate(-20deg) translate3d(0,0,0) scale(.92);
+        animation: auth-beam-three 17s ease-in-out infinite alternate;
+    }
+
+    @keyframes auth-beam-one {
         from {
             transform:
-                rotate(24deg)
-                translate3d(-3%, -2%, 0)
+                rotate(30deg)
+                translate3d(-4%, -4px, 0)
                 scale(.98);
-            opacity: .15;
-        }
-
-        to {
-            transform:
-                rotate(20deg)
-                translate3d(10%, 7%, 0)
-                scale(1.04);
-            opacity: .25;
-        }
-    }
-
-    @keyframes motion-ribbon-b {
-        from {
-            transform:
-                rotate(-25deg)
-                translate3d(4%, 1%, 0)
-                scale(1);
-            opacity: .12;
-        }
-
-        to {
-            transform:
-                rotate(-20deg)
-                translate3d(-10%, -7%, 0)
-                scale(1.05);
             opacity: .24;
         }
+
+        to {
+            transform:
+                rotate(25deg)
+                translate3d(13%, 18px, 0)
+                scale(1.04);
+            opacity: .40;
+        }
     }
 
-    @keyframes motion-streak {
+    @keyframes auth-beam-two {
         from {
             transform:
-                translate3d(-54%, 0, 0)
-                rotate(-8deg)
-                scaleX(.92);
-            opacity: .16;
+                rotate(-27deg)
+                translate3d(6%, 8px, 0)
+                scale(1);
+            opacity: .20;
         }
 
         to {
             transform:
-                translate3d(-46%, -7px, 0)
-                rotate(-5deg)
-                scaleX(1.03);
-            opacity: .31;
+                rotate(-22deg)
+                translate3d(-12%, -15px, 0)
+                scale(1.05);
+            opacity: .37;
+        }
+    }
+
+    @keyframes auth-beam-three {
+        from {
+            transform:
+                rotate(-20deg)
+                translate3d(-2%, 0, 0)
+                scale(.92);
+            opacity: .13;
+        }
+
+        to {
+            transform:
+                rotate(-16deg)
+                translate3d(16%, -8px, 0)
+                scale(1);
+            opacity: .25;
         }
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Login <-> Register micro transition
+    | Moving light BEHIND the form content
     |--------------------------------------------------------------------------
     */
 
-    .auth-nav-transition {
-        transition:
-            opacity .16s ease,
-            transform .16s ease;
-        will-change:
-            opacity,
-            transform;
+    .register-card-inner {
+        isolation: isolate;
+        overflow: hidden;
     }
 
-    .auth-nav-transition.is-leaving {
-        opacity: 0;
-        transform:
-            translate3d(0, 8px, 0)
-            scale(.994);
+    .register-card-inner > * {
+        position: relative;
+        z-index: 2;
     }
 
-    @media (max-width: 640px) {
-        .motion-atmosphere::before,
-        .motion-atmosphere::after {
-            width: 115vw;
-            opacity: .15;
+    .register-card-inner::before,
+    .register-card-inner::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        pointer-events: none;
+        will-change: transform, opacity;
+    }
+
+    .register-card-inner::before {
+        width: 140%;
+        height: 92px;
+        left: -58%;
+        top: 18%;
+        border-radius: 999px;
+        opacity: .18;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,122,36,.08),
+                rgba(255,211,67,.36),
+                rgba(255,244,158,.44),
+                rgba(255,144,31,.16),
+                transparent
+            );
+        transform: rotate(-19deg) translate3d(0,0,0);
+        animation:
+            auth-card-sweep-a 7.5s ease-in-out infinite alternate;
+    }
+
+    .register-card-inner::after {
+        width: 112%;
+        height: 72px;
+        right: -55%;
+        bottom: 16%;
+        border-radius: 999px;
+        opacity: .12;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(241,216,74,.08),
+                rgba(241,216,74,.30),
+                rgba(255,122,36,.13),
+                transparent
+            );
+        transform: rotate(24deg) translate3d(0,0,0);
+        animation:
+            auth-card-sweep-b 9.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes auth-card-sweep-a {
+        from {
+            transform:
+                rotate(-19deg)
+                translate3d(-10%, -4px, 0)
+                scaleX(.94);
+            opacity: .10;
         }
 
-        .motion-streak {
-            width: 92vw;
+        to {
+            transform:
+                rotate(-14deg)
+                translate3d(72%, 12px, 0)
+                scaleX(1.05);
+            opacity: .24;
+        }
+    }
+
+    @keyframes auth-card-sweep-b {
+        from {
+            transform:
+                rotate(24deg)
+                translate3d(8%, 7px, 0)
+                scaleX(.94);
+            opacity: .08;
+        }
+
+        to {
+            transform:
+                rotate(18deg)
+                translate3d(-68%, -9px, 0)
+                scaleX(1.04);
             opacity: .18;
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fold-corners on the form
+    |--------------------------------------------------------------------------
+    */
+
+    .register-fold-wing {
+        position: absolute;
+        z-index: 6;
+        width: 48px;
+        height: 48px;
+        pointer-events: none;
+        opacity: .58;
+        border: 1px solid rgba(255,236,118,.28);
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,.07),
+                rgba(241,216,74,.035)
+            );
+        will-change:
+            left,
+            top,
+            right,
+            bottom,
+            transform,
+            opacity;
+    }
+
+    .register-fold-wing.a {
+        left: -1px;
+        top: -1px;
+        border-radius: 22px 4px 12px 4px;
+        transform: rotate(0deg) scale(.96);
+    }
+
+    .register-fold-wing.b {
+        right: -1px;
+        bottom: -1px;
+        border-radius: 12px 4px 22px 4px;
+        transform: rotate(0deg) scale(.96);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Full form transition
+    |--------------------------------------------------------------------------
+    */
+
+    .register-page.is-switching-out.is-to-register .register-card-wrap {
+        animation:
+            auth-form-out-right .32s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    .register-page.is-switching-out.is-to-login .register-card-wrap {
+        animation:
+            auth-form-out-left .32s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    .register-page.is-switching-out .register-intro {
+        animation:
+            auth-intro-out .25s ease forwards;
+    }
+
+    .register-page.is-switching-out .register-fold-wing.a {
+        animation:
+            auth-wing-a-close .32s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+    .register-page.is-switching-out .register-fold-wing.b {
+        animation:
+            auth-wing-b-close .32s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+    .register-page.is-switching-in.is-from-register .register-card-wrap {
+        animation:
+            auth-form-in-left .38s cubic-bezier(.16,.9,.24,1) both;
+    }
+
+    .register-page.is-switching-in.is-from-login .register-card-wrap {
+        animation:
+            auth-form-in-right .38s cubic-bezier(.16,.9,.24,1) both;
+    }
+
+    .register-page.is-switching-in .register-intro {
+        animation:
+            auth-intro-in .34s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .register-page.is-switching-in .register-fold-wing.a {
+        animation:
+            auth-wing-a-open .38s cubic-bezier(.16,.9,.24,1) both;
+    }
+
+    .register-page.is-switching-in .register-fold-wing.b {
+        animation:
+            auth-wing-b-open .38s cubic-bezier(.16,.9,.24,1) both;
+    }
+
+    .register-motion-flash {
+        position: absolute;
+        z-index: 4;
+        left: -35%;
+        top: 8%;
+        width: 42%;
+        height: 84%;
+        pointer-events: none;
+        opacity: 0;
+        transform: skewX(-12deg) translate3d(-30%,0,0);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,185,44,.06),
+                rgba(255,235,127,.18),
+                rgba(255,129,31,.06),
+                transparent
+            );
+        will-change: transform, opacity;
+    }
+
+    .register-page.is-switching-out .register-motion-flash {
+        animation:
+            auth-flash-pass .32s ease-out forwards;
+    }
+
+    @keyframes auth-form-out-right {
+        to {
+            opacity: 0;
+            transform:
+                translate3d(32px, 5px, 0)
+                scale(.965)
+                rotateY(-3deg);
+        }
+    }
+
+    @keyframes auth-form-out-left {
+        to {
+            opacity: 0;
+            transform:
+                translate3d(-32px, 5px, 0)
+                scale(.965)
+                rotateY(3deg);
+        }
+    }
+
+    @keyframes auth-form-in-right {
+        from {
+            opacity: 0;
+            transform:
+                translate3d(32px, 6px, 0)
+                scale(.965)
+                rotateY(-3deg);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translate3d(0,0,0)
+                scale(1)
+                rotateY(0);
+        }
+    }
+
+    @keyframes auth-form-in-left {
+        from {
+            opacity: 0;
+            transform:
+                translate3d(-32px, 6px, 0)
+                scale(.965)
+                rotateY(3deg);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translate3d(0,0,0)
+                scale(1)
+                rotateY(0);
+        }
+    }
+
+    @keyframes auth-intro-out {
+        to {
+            opacity: 0;
+            transform:
+                translate3d(0,-8px,0)
+                scale(.985);
+        }
+    }
+
+    @keyframes auth-intro-in {
+        from {
+            opacity: 0;
+            transform:
+                translate3d(0,-8px,0)
+                scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translate3d(0,0,0)
+                scale(1);
+        }
+    }
+
+    @keyframes auth-wing-a-close {
+        from {
+            left: -1px;
+            top: -1px;
+            opacity: .58;
+            transform: rotate(0deg) scale(.96);
+        }
+
+        to {
+            left: calc(50% - 24px);
+            top: calc(50% - 24px);
+            opacity: .92;
+            transform: rotate(45deg) scale(1.12);
+        }
+    }
+
+    @keyframes auth-wing-b-close {
+        from {
+            right: -1px;
+            bottom: -1px;
+            opacity: .58;
+            transform: rotate(0deg) scale(.96);
+        }
+
+        to {
+            right: calc(50% - 24px);
+            bottom: calc(50% - 24px);
+            opacity: .92;
+            transform: rotate(45deg) scale(1.12);
+        }
+    }
+
+    @keyframes auth-wing-a-open {
+        from {
+            left: calc(50% - 24px);
+            top: calc(50% - 24px);
+            opacity: .92;
+            transform: rotate(45deg) scale(1.12);
+        }
+
+        to {
+            left: -1px;
+            top: -1px;
+            opacity: .58;
+            transform: rotate(0deg) scale(.96);
+        }
+    }
+
+    @keyframes auth-wing-b-open {
+        from {
+            right: calc(50% - 24px);
+            bottom: calc(50% - 24px);
+            opacity: .92;
+            transform: rotate(45deg) scale(1.12);
+        }
+
+        to {
+            right: -1px;
+            bottom: -1px;
+            opacity: .58;
+            transform: rotate(0deg) scale(.96);
+        }
+    }
+
+    @keyframes auth-flash-pass {
+        0% {
+            opacity: 0;
+            transform:
+                skewX(-12deg)
+                translate3d(-40%,0,0);
+        }
+
+        36% {
+            opacity: .75;
+        }
+
+        100% {
+            opacity: 0;
+            transform:
+                skewX(-12deg)
+                translate3d(360%,0,0);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .motion-beam {
+            width: 125vw;
+            height: 104px;
+        }
+
+        .motion-beam.one {
+            left: -52%;
+        }
+
+        .motion-beam.two {
+            right: -58%;
+        }
+
+        .motion-beam.three {
+            left: -48%;
+        }
+
+        .register-card-inner::before {
+            width: 155%;
+        }
+
+        .register-card-inner::after {
+            width: 130%;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-        .motion-atmosphere::before,
-        .motion-atmosphere::after,
-        .motion-streak {
+        .motion-beam,
+        .register-card-inner::before,
+        .register-card-inner::after,
+        .register-motion-flash,
+        .register-fold-wing {
             animation: none !important;
         }
 
-        .auth-nav-transition {
-            transition: none !important;
+        .register-page.is-switching-out .register-card-wrap,
+        .register-page.is-switching-in .register-card-wrap,
+        .register-page.is-switching-out .register-intro,
+        .register-page.is-switching-in .register-intro {
+            animation: none !important;
         }
     }
 
@@ -1182,10 +1546,14 @@
 @endpush
 
 @section('content')
-<section class="register-page auth-nav-transition" data-auth-page-root>
+<section class="register-page" data-auth-page-root>
     <div class="motion-atmosphere" aria-hidden="true">
         <span class="motion-streak"></span>
+        <span class="motion-beam one"></span>
+        <span class="motion-beam two"></span>
+        <span class="motion-beam three"></span>
     </div>
+    <span class="register-motion-flash" aria-hidden="true"></span>
     <main class="register-shell">
         <header class="register-intro">
             <div class="register-eyebrow">
@@ -1205,6 +1573,8 @@
 
         <div class="register-card-wrap">
             <section class="register-card" aria-labelledby="registerHeading">
+                <span class="register-fold-wing a" aria-hidden="true"></span>
+                <span class="register-fold-wing b" aria-hidden="true"></span>
                 <div class="register-card-inner">
                     <div class="register-icon" aria-hidden="true">
                         <svg
@@ -1234,7 +1604,7 @@
                         class="register-auth-switch"
                         aria-label="Inloggen of registreren"
                     >
-                        <a href="{{ route('login') }}" data-auth-page-link>
+                        <a href="{{ route('login') }}">
                             Inloggen
                         </a>
 
@@ -1242,7 +1612,7 @@
                             class="active"
                             href="{{ route('register') }}"
                             aria-current="page"
-                         data-auth-page-link>
+                        >
                             Registreren
                         </a>
                     </nav>
@@ -1767,7 +2137,7 @@
                         <a
                             class="register-small-link"
                             href="{{ route('login') }}"
-                         data-auth-page-link>
+                        >
                             Naar inloggen
                         </a>
                     </div>
@@ -2386,15 +2756,95 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Login <-> Register lightweight page transition
+    | Restored Login <-> Register form animation
     |--------------------------------------------------------------------------
-    |
-    | Korte 150ms overgang. Geen blur/fold/3D-effecten.
-    |
     */
 
+    const authMotionStorageKey =
+        'mashal_auth_motion_from';
+
+    const authMotionRoot =
+        document.querySelector(
+            '[data-auth-page-root]'
+        );
+
+    function authPageKind(url) {
+        try {
+            const parsed =
+                new URL(
+                    url,
+                    window.location.origin
+                );
+
+            const path =
+                parsed.pathname
+                    .replace(/\/+$/, '');
+
+            if (path.endsWith('/login')) {
+                return 'login';
+            }
+
+            if (path.endsWith('/register')) {
+                return 'register';
+            }
+        } catch (error) {
+            return null;
+        }
+
+        return null;
+    }
+
+    function playAuthEntryMotion() {
+        if (!authMotionRoot) {
+            return;
+        }
+
+        let from =
+            null;
+
+        try {
+            from =
+                window.sessionStorage.getItem(
+                    authMotionStorageKey
+                );
+
+            window.sessionStorage.removeItem(
+                authMotionStorageKey
+            );
+        } catch (error) {
+            from = null;
+        }
+
+        if (
+            from !== 'login' &&
+            from !== 'register'
+        ) {
+            return;
+        }
+
+        authMotionRoot.classList.add(
+            'is-switching-in',
+            from === 'login'
+                ? 'is-from-login'
+                : 'is-from-register'
+        );
+
+        window.setTimeout(
+            function () {
+                authMotionRoot.classList.remove(
+                    'is-switching-in',
+                    'is-from-login',
+                    'is-from-register'
+                );
+            },
+            430
+        );
+    }
+
     document
-        .querySelectorAll('[data-auth-page-link]')
+        .querySelectorAll(
+            '[data-auth-page-link]'
+        )
         .forEach(function (link) {
             link.addEventListener(
                 'click',
@@ -2411,16 +2861,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     const destination =
-                        link.getAttribute('href');
-
-                    const page =
-                        document.querySelector(
-                            '[data-auth-page-root]'
+                        link.getAttribute(
+                            'href'
                         );
 
                     if (
                         !destination ||
-                        !page ||
+                        !authMotionRoot
+                    ) {
+                        return;
+                    }
+
+                    const currentKind =
+                        authPageKind(
+                            window.location.href
+                        );
+
+                    const destinationKind =
+                        authPageKind(
+                            destination
+                        );
+
+                    if (
+                        !currentKind ||
+                        !destinationKind ||
+                        currentKind ===
+                            destinationKind
+                    ) {
+                        return;
+                    }
+
+                    if (
                         window.matchMedia(
                             '(prefers-reduced-motion: reduce)'
                         ).matches
@@ -2430,8 +2901,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     event.preventDefault();
 
-                    page.classList.add(
-                        'is-leaving'
+                    try {
+                        window.sessionStorage.setItem(
+                            authMotionStorageKey,
+                            currentKind
+                        );
+                    } catch (error) {
+                        //
+                    }
+
+                    authMotionRoot.classList.add(
+                        'is-switching-out',
+                        destinationKind ===
+                            'register'
+                            ? 'is-to-register'
+                            : 'is-to-login'
                     );
 
                     window.setTimeout(
@@ -2440,11 +2924,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                 destination
                             );
                         },
-                        150
+                        320
                     );
                 }
             );
         });
+
+    playAuthEntryMotion();
 
 });
 </script>
