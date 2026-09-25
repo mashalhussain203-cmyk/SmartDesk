@@ -716,6 +716,16 @@
         box-shadow: 0 20px 42px rgba(227,179,107,.20);
     }
 
+    #recovery .verification {
+        margin-bottom: 0;
+    }
+
+    #recovery .form-note strong {
+        color: #b8a27f;
+        font-weight: 900;
+        overflow-wrap: anywhere;
+    }
+
     .verification {
         padding: 18px;
         display: flex;
@@ -1210,6 +1220,24 @@
     $verifiedAt =
         optional($user->email_verified_at)->format('d-m-Y H:i');
 
+    $recoveryEmail = strtolower(
+        trim(
+            (string) ($user->recovery_email ?? '')
+        )
+    );
+
+    $hasRecoveryEmail =
+        $recoveryEmail !== '';
+
+    $hasVerifiedRecoveryEmail =
+        $hasRecoveryEmail
+        && $user->recovery_email_verified_at !== null;
+
+    $recoveryVerifiedAt =
+        optional(
+            $user->recovery_email_verified_at
+        )->format('d-m-Y H:i');
+
     $accountProvider =
         $user->login_provider
         ?? 'password';
@@ -1363,6 +1391,19 @@
                         </div>
 
                         <div class="profile-meta-row">
+                            <span>Recovery</span>
+                            <strong>
+                                @if ($hasVerifiedRecoveryEmail)
+                                    Verified
+                                @elseif ($hasRecoveryEmail)
+                                    Pending
+                                @else
+                                    Niet ingesteld
+                                @endif
+                            </strong>
+                        </div>
+
+                        <div class="profile-meta-row">
                             <span>Account ID</span>
                             <strong>#{{ $user->id }}</strong>
                         </div>
@@ -1382,6 +1423,11 @@
 
                         <a class="account-nav-link" href="#verification">
                             <span>E-mailverificatie</span>
+                            <span>→</span>
+                        </a>
+
+                        <a class="account-nav-link" href="#recovery">
+                            <span>Herstel-e-mailadres</span>
                             <span>→</span>
                         </a>
 
@@ -1669,12 +1715,162 @@
 
                 <section
                     class="account-panel studio-reveal"
+                    id="recovery"
+                >
+                    <div class="panel-head">
+                        <div>
+                            <span class="panel-index">
+                                03 / Account recovery
+                            </span>
+
+                            <h2 class="panel-title">
+                                Herstel-e-mailadres
+                            </h2>
+
+                            <p class="panel-copy">
+                                Een hersteladres wordt pas actief nadat je de
+                                6-cijferige verificatiecode hebt bevestigd.
+                                Zo kan alleen een e-mailadres waar jij toegang
+                                toe hebt worden gebruikt voor account recovery.
+                            </p>
+                        </div>
+
+                        <span class="panel-badge">
+                            {{ $hasVerifiedRecoveryEmail
+                                ? 'Verified'
+                                : 'Recovery' }}
+                        </span>
+                    </div>
+
+                    <div class="verification {{ $hasVerifiedRecoveryEmail ? 'verified' : 'pending' }}">
+                        <div class="verification-main">
+                            <span class="verification-icon">
+                                {{ $hasVerifiedRecoveryEmail ? '✓' : '!' }}
+                            </span>
+
+                            <div class="verification-copy">
+                                <strong>
+                                    @if ($hasVerifiedRecoveryEmail)
+                                        Herstel-e-mailadres geverifieerd
+                                    @elseif ($hasRecoveryEmail)
+                                        Bestaand hersteladres moet nog worden geverifieerd
+                                    @else
+                                        Nog geen geverifieerd herstel-e-mailadres
+                                    @endif
+                                </strong>
+
+                                <p>
+                                    @if ($hasVerifiedRecoveryEmail)
+                                        {{ $recoveryEmail }}
+                                        @if ($recoveryVerifiedAt)
+                                            · bevestigd op {{ $recoveryVerifiedAt }}
+                                        @endif
+                                    @elseif ($hasRecoveryEmail)
+                                        Voer hieronder {{ $recoveryEmail }} in en
+                                        verstuur een verificatiecode om het adres
+                                        veilig te activeren.
+                                    @else
+                                        Voeg hieronder een apart e-mailadres toe.
+                                        Het mag niet hetzelfde zijn als
+                                        {{ $user->email }}.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route('account.recovery-email.send') }}"
+                        style="margin-top: 18px;"
+                    >
+                        @csrf
+
+                        <div class="form-grid">
+                            <div class="field full">
+                                <div class="field-label">
+                                    <label for="recovery_email">
+                                        {{ $hasVerifiedRecoveryEmail
+                                            ? 'Nieuw herstel-e-mailadres'
+                                            : 'Herstel-e-mailadres' }}
+                                    </label>
+
+                                    @error('recovery_email')
+                                        <span class="field-error">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <input
+                                    class="account-input"
+                                    id="recovery_email"
+                                    type="email"
+                                    name="recovery_email"
+                                    value="{{ old('recovery_email', $recoveryEmail) }}"
+                                    placeholder="bijvoorbeeld: herstel@example.com"
+                                    autocomplete="email"
+                                    inputmode="email"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    maxlength="255"
+                                    required
+                                >
+                            </div>
+
+                            <div class="field full">
+                                <div class="form-note">
+                                    <span class="form-note-mark">i</span>
+
+                                    <span>
+                                        Na verzenden ontvang je op dit adres een
+                                        tijdelijke 6-cijferige code. Je huidige
+                                        geverifieerde hersteladres blijft actief
+                                        totdat een nieuw adres succesvol is bevestigd.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            class="account-submit"
+                            type="submit"
+                        >
+                            {{ $hasVerifiedRecoveryEmail
+                                ? 'Nieuw adres verifiëren'
+                                : 'Verificatiecode sturen' }}
+                            <span aria-hidden="true">→</span>
+                        </button>
+                    </form>
+
+                    @if ($hasVerifiedRecoveryEmail)
+                        <form
+                            method="POST"
+                            action="{{ route('account.recovery-email.destroy') }}"
+                            style="margin-top: 10px;"
+                            onsubmit="return confirm('Herstel-e-mailadres verwijderen?');"
+                        >
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                class="account-action"
+                                type="submit"
+                            >
+                                Herstel-e-mailadres verwijderen
+                            </button>
+                        </form>
+                    @endif
+                </section>
+
+                <section
+                    class="account-panel studio-reveal"
                     id="password"
                 >
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                03 / Password
+                                04 / Password
                             </span>
 
                             <h2 class="panel-title">
@@ -1824,7 +2020,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                04 / Overview
+                                05 / Overview
                             </span>
 
                             <h2 class="panel-title">
@@ -1859,6 +2055,21 @@
                         </div>
 
                         <div class="overview-card">
+                            <small>Recovery</small>
+                            <strong
+                                title="{{ $hasRecoveryEmail ? $recoveryEmail : 'Niet ingesteld' }}"
+                            >
+                                @if ($hasVerifiedRecoveryEmail)
+                                    Verified · {{ $recoveryEmail }}
+                                @elseif ($hasRecoveryEmail)
+                                    Pending verification
+                                @else
+                                    Niet ingesteld
+                                @endif
+                            </strong>
+                        </div>
+
+                        <div class="overview-card">
                             <small>Aangemaakt</small>
                             <strong>
                                 {{ optional($user->created_at)->format('d-m-Y H:i') ?? 'Onbekend' }}
@@ -1874,7 +2085,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                05 / Image library
+                                06 / Image library
                             </span>
 
                             <h2 class="panel-title">
@@ -2024,7 +2235,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                06 / Security
+                                07 / Security
                             </span>
 
                             <h2 class="panel-title">
@@ -2048,6 +2259,20 @@
                     </div>
 
                     <div class="security-grid">
+                        <article class="security-card">
+                            <small>Recovery</small>
+                            <strong>
+                                {{ $hasVerifiedRecoveryEmail
+                                    ? 'Hersteladres geverifieerd'
+                                    : 'Hersteladres niet geverifieerd' }}
+                            </strong>
+                            <p>
+                                {{ $hasVerifiedRecoveryEmail
+                                    ? 'Je kunt de account-recoveryflow gebruiken als je je login-e-mailadres vergeet.'
+                                    : 'Verifieer hierboven eerst een herstel-e-mailadres voordat account recovery beschikbaar wordt.' }}
+                            </p>
+                        </article>
+
                         <article class="security-card">
                             <small>Verification</small>
                             <strong>

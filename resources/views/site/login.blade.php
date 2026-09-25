@@ -659,6 +659,23 @@
         gap: 10px;
     }
 
+    .login-recovery-links {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 9px;
+        flex-wrap: wrap;
+        text-align: right;
+    }
+
+    .login-recovery-separator {
+        width: 3px;
+        height: 3px;
+        flex: 0 0 3px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.22);
+    }
+
     .login-remember {
         display: inline-flex;
         align-items: center;
@@ -830,6 +847,17 @@
     @media (max-width: 380px) {
         .login-oauth-grid {
             grid-template-columns: 1fr;
+        }
+
+        .login-options {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .login-recovery-links {
+            width: 100%;
+            justify-content: flex-start;
+            text-align: left;
         }
     }
 
@@ -1755,9 +1783,29 @@
                                         <span>Onthoud mij</span>
                                     </label>
 
-                                    <a class="glass-small-link" href="{{ route('password.request') }}">
-                                        Wachtwoord vergeten?
-                                    </a>
+                                    <div
+                                        class="login-recovery-links"
+                                        aria-label="Account herstellen"
+                                    >
+                                        <a
+                                            class="glass-small-link"
+                                            href="{{ route('password.request') }}"
+                                        >
+                                            Wachtwoord vergeten?
+                                        </a>
+
+                                        <span
+                                            class="login-recovery-separator"
+                                            aria-hidden="true"
+                                        ></span>
+
+                                        <a
+                                            class="glass-small-link"
+                                            href="{{ route('email.forgot') }}"
+                                        >
+                                            E-mailadres vergeten?
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <button

@@ -191,8 +191,46 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function login(): View
+    public function login(Request $request): View
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Optioneel e-mailadres voorinvullen
+        |--------------------------------------------------------------------------
+        |
+        | De forgot-email-resultaatpagina kan terugsturen naar:
+        |
+        | /login?email=naam@example.com
+        |
+        | De bestaande login-view gebruikt old('email'), daarom flashen we
+        | alleen een geldig e-mailadres naar de old-input sessie.
+        |
+        */
+
+        $prefillEmail = strtolower(
+            trim(
+                (string) $request->query(
+                    'email',
+                    ''
+                )
+            )
+        );
+
+        if (
+            $prefillEmail !== '' &&
+            filter_var(
+                $prefillEmail,
+                FILTER_VALIDATE_EMAIL
+            ) !== false
+        ) {
+            $request->session()->flash(
+                '_old_input',
+                [
+                    'email' => $prefillEmail,
+                ]
+            );
+        }
+
         return view('site.login');
     }
 
@@ -453,6 +491,35 @@ class UserController extends Controller
 
         $oldName = (string) $user->name;
         $oldEmail = (string) $user->email;
+
+        $oldRecoveryEmail = strtolower(
+            trim(
+                (string) ($user->recovery_email ?? '')
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hoofdadres mag niet gelijk worden aan het hersteladres
+        |--------------------------------------------------------------------------
+        |
+        | recovery_email zelf wordt uitsluitend gewijzigd via
+        | RecoveryEmailController nadat een 6-cijferige code is bevestigd.
+        |
+        */
+
+        if (
+            $oldRecoveryEmail !== ''
+            && $oldRecoveryEmail === $email
+            && strtolower($oldEmail) !== $email
+        ) {
+            return back()
+                ->withErrors([
+                    'email' =>
+                        'Je gewone e-mailadres mag niet hetzelfde zijn als je actieve herstel-e-mailadres.',
+                ])
+                ->withInput();
+        }
 
         $oldProfilePhoto = trim(
             (string) ($user->profile_photo ?? '')

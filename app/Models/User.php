@@ -25,6 +25,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /*
         |--------------------------------------------------------------------------
+        | Account recovery
+        |--------------------------------------------------------------------------
+        */
+
+        'recovery_email',
+        'recovery_email_verified_at',
+
+        /*
+        |--------------------------------------------------------------------------
         | Profielfoto
         |--------------------------------------------------------------------------
         */
@@ -127,6 +136,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'recovery_email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'two_factor_secret' => 'encrypted',
@@ -206,6 +216,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isEmailVerified(): bool
     {
         return $this->email_verified_at !== null;
+    }
+
+
+    /**
+     * Controleer of een geverifieerd herstel-e-mailadres actief is.
+     */
+    public function hasVerifiedRecoveryEmail(): bool
+    {
+        return trim(
+            (string) ($this->recovery_email ?? '')
+        ) !== ''
+            && $this->recovery_email_verified_at !== null;
     }
 
     /*

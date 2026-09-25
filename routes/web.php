@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\EmailLoginController;
+use App\Http\Controllers\ForgotEmailController;
 use App\Http\Controllers\FacebookAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ImageEditorController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\RecoveryEmailController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TwoFactorAuthenticationController;
@@ -417,6 +419,62 @@ Route::middleware('guest')->group(function () {
     )
         ->middleware('throttle:10,1')
         ->name('tiktok.complete.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | E-mailadres vergeten / Account recovery
+    |--------------------------------------------------------------------------
+    |
+    | Veilige Gmail-achtige recovery flow:
+    |
+    | 1. naam + herstel-e-mailadres controleren;
+    | 2. een 6-cijferige recoverycode versturen;
+    | 3. recoverycode controleren;
+    | 4. pas na succesvolle verificatie het gekoppelde account tonen.
+    |
+    */
+
+    Route::get(
+        '/forgot-email',
+        [ForgotEmailController::class, 'show']
+    )->name('email.forgot');
+
+
+    Route::post(
+        '/forgot-email',
+        [ForgotEmailController::class, 'identify']
+    )
+        ->middleware('throttle:5,1')
+        ->name('email.forgot.identify');
+
+
+    Route::get(
+        '/forgot-email/verify',
+        [ForgotEmailController::class, 'verifyForm']
+    )->name('email.forgot.verify');
+
+
+    Route::post(
+        '/forgot-email/verify',
+        [ForgotEmailController::class, 'verify']
+    )
+        ->middleware('throttle:10,1')
+        ->name('email.forgot.verify.submit');
+
+
+    Route::post(
+        '/forgot-email/resend',
+        [ForgotEmailController::class, 'resend']
+    )
+        ->middleware('throttle:5,1')
+        ->name('email.forgot.resend');
+
+
+    Route::get(
+        '/forgot-email/result',
+        [ForgotEmailController::class, 'result']
+    )->name('email.forgot.result');
 
 
     /*
@@ -977,6 +1035,55 @@ Route::middleware('auth')->group(function () {
         [UserController::class, 'updateAccount']
     )
         ->name('account.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Herstel-e-mailadres
+    |--------------------------------------------------------------------------
+    |
+    | Een nieuw hersteladres wordt pas actief nadat de gebruiker de
+    | 6-cijferige code heeft bevestigd.
+    |
+    */
+
+    Route::post(
+        '/account/recovery-email',
+        [RecoveryEmailController::class, 'send']
+    )
+        ->middleware('throttle:5,1')
+        ->name('account.recovery-email.send');
+
+
+    Route::get(
+        '/account/recovery-email/verify',
+        [RecoveryEmailController::class, 'verifyForm']
+    )
+        ->name('account.recovery-email.verify');
+
+
+    Route::post(
+        '/account/recovery-email/verify',
+        [RecoveryEmailController::class, 'verify']
+    )
+        ->middleware('throttle:10,1')
+        ->name('account.recovery-email.verify.submit');
+
+
+    Route::post(
+        '/account/recovery-email/resend',
+        [RecoveryEmailController::class, 'resend']
+    )
+        ->middleware('throttle:5,1')
+        ->name('account.recovery-email.resend');
+
+
+    Route::delete(
+        '/account/recovery-email',
+        [RecoveryEmailController::class, 'destroy']
+    )
+        ->middleware('throttle:5,1')
+        ->name('account.recovery-email.destroy');
 
 
     /*
