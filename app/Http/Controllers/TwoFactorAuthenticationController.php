@@ -8,22 +8,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use PragmaRX\Google2FAQRCode\Google2FA;
+use Throwable;
 
 class TwoFactorAuthenticationController extends Controller
 {
-    /**
-     * Naam die in Authenticator-apps wordt weergegeven.
-     */
     private const ISSUER = 'Mashal Studio';
-
-    /**
-     * Aantal recovery codes dat per set wordt aangemaakt.
-     */
     private const RECOVERY_CODE_COUNT = 8;
 
-    /**
-     * Toon de Authenticator-beveiligingspagina.
-     */
     public function show(Request $request): View
     {
         $user = $request->user();
@@ -39,20 +30,24 @@ class TwoFactorAuthenticationController extends Controller
             $pendingSecret !== '' &&
             $user->two_factor_confirmed_at === null
         ) {
-            $google2fa = new Google2FA();
+            try {
+                $google2fa = new Google2FA();
 
-            $qrCode = $google2fa->getQRCodeInline(
-                self::ISSUER,
-                (string) $user->email,
-                $pendingSecret
-            );
+                $generatedQrCode = $google2fa->getQRCodeInline(
+                    self::ISSUER,
+                    (string) $user->email,
+                    $pendingSecret
+                );
+
+                $qrCode = $this->normalizeQrCodeForBrowser(
+                    $generatedQrCode
+                );
+            } catch (Throwable $exception) {
+                report($exception);
+
+                $qrCode = null;
+            }
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Nieuwe recovery codes slechts één keer tonen
-        |--------------------------------------------------------------------------
-        */
 
         $newRecoveryCodes = $request->session()->pull(
             'two_factor_new_recovery_codes'
@@ -69,9 +64,6 @@ class TwoFactorAuthenticationController extends Controller
         );
     }
 
-    /**
-     * Start een nieuwe Authenticator-setup.
-     */
     public function enable(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -89,16 +81,6 @@ class TwoFactorAuthenticationController extends Controller
 
         $secret = $google2fa->generateSecretKey();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Secret tijdelijk in de sessie bewaren
-        |--------------------------------------------------------------------------
-        |
-        | Pas na een geldige 6-cijferige code wordt deze secret definitief
-        | versleuteld in de database opgeslagen.
-        |
-        */
-
         $request->session()->put(
             'two_factor_setup_secret',
             $secret
@@ -112,9 +94,6 @@ class TwoFactorAuthenticationController extends Controller
             );
     }
 
-    /**
-     * Bevestig de eerste 6-cijferige Authenticator-code.
-     */
     public function confirm(Request $request): RedirectResponse
     {
         $data = $request->validate(
@@ -127,6 +106,7 @@ class TwoFactorAuthenticationController extends Controller
             [
                 'code.required' =>
                     'Voer de 6-cijferige verificatiecode in.',
+
                 'code.digits' =>
                     'De verificatiecode moet uit precies 6 cijfers bestaan.',
             ]
@@ -170,15 +150,6 @@ class TwoFactorAuthenticationController extends Controller
 
         $recoveryCodes = $this->generateRecoveryCodes();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Authenticator activeren
-        |--------------------------------------------------------------------------
-        |
-        | User.php hoort deze velden als encrypted / encrypted:array te casten.
-        |
-        */
-
         $user->forceFill(
             [
                 'two_factor_secret' => $secret,
@@ -190,12 +161,6 @@ class TwoFactorAuthenticationController extends Controller
         $request->session()->forget(
             'two_factor_setup_secret'
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Recovery codes éénmalig laten zien
-        |--------------------------------------------------------------------------
-        */
 
         $request->session()->put(
             'two_factor_new_recovery_codes',
@@ -210,9 +175,6 @@ class TwoFactorAuthenticationController extends Controller
             );
     }
 
-    /**
-     * Annuleer een nog niet bevestigde Authenticator-setup.
-     */
     public function cancel(Request $request): RedirectResponse
     {
         $request->session()->forget(
@@ -227,9 +189,6 @@ class TwoFactorAuthenticationController extends Controller
             );
     }
 
-    /**
-     * Maak een nieuwe set recovery codes.
-     */
     public function regenerateRecoveryCodes(
         Request $request
     ): RedirectResponse {
@@ -298,9 +257,6 @@ class TwoFactorAuthenticationController extends Controller
             );
     }
 
-    /**
-     * Schakel Authenticator-verificatie uit.
-     */
     public function disable(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -358,9 +314,42 @@ class TwoFactorAuthenticationController extends Controller
             );
     }
 
-    /**
-     * Controleer of deze gebruiker een lokaal wachtwoord heeft.
-     */
+    private function normalizeQrCodeForBrowser(
+        mixed $qrCode
+    ): ?string {
+        if (! is_string($qrCode) || $qrCode === '') {
+            return null;
+        }
+
+        if (str_starts_with($qrCode, 'data:image/')) {
+            return $qrCode;
+        }
+
+        if (
+            preg_match(
+                '/^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i',
+                $qrCode
+            ) === 1
+        ) {
+            return 'data:image/svg+xml;base64,' .
+                base64_encode($qrCode);
+        }
+
+        if (str_starts_with($qrCode, "\x89PNG\r\n\x1a\n")) {
+            return 'data:image/png;base64,' .
+                base64_encode($qrCode);
+        }
+
+        if (
+            str_starts_with($qrCode, 'https://') ||
+            str_starts_with($qrCode, 'http://')
+        ) {
+            return $qrCode;
+        }
+
+        return null;
+    }
+
     private function userHasPassword(
         object $user
     ): bool {
@@ -368,12 +357,6 @@ class TwoFactorAuthenticationController extends Controller
             && trim($user->password) !== '';
     }
 
-    /**
-     * Genereer veilige recovery codes.
-     *
-     * Voorbeeld:
-     * ABCD1234-EFGH5678
-     */
     private function generateRecoveryCodes(): array
     {
         $codes = [];
