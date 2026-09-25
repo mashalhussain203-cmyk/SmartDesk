@@ -3615,6 +3615,99 @@
                     auto;
             }
         }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Ultra Smooth performance mode
+        |--------------------------------------------------------------------------
+        |
+        | Bewust minder GPU-compositing: semi-transparante achtergronden blijven,
+        | maar live backdrop blur, geanimeerde orbs en de scroll-progresslaag
+        | worden uitgeschakeld. Dit houdt het design donker/goud en maakt scrollen
+        | merkbaar lichter op mobiel én desktop.
+        |
+        */
+
+        .studio-progress {
+            display:
+                none !important;
+        }
+
+        .studio-orb {
+            display:
+                none !important;
+        }
+
+        .studio-atmosphere::after {
+            display:
+                none !important;
+        }
+
+        .studio-header {
+            background:
+                rgba(7, 8, 11, .97) !important;
+
+            backdrop-filter:
+                none !important;
+
+            -webkit-backdrop-filter:
+                none !important;
+
+            box-shadow:
+                none;
+        }
+
+        .studio-header.is-scrolled {
+            background:
+                rgba(7, 8, 11, .985) !important;
+
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, .18);
+        }
+
+        .studio-account-menu,
+        .studio-mobile-overlay,
+        .studio-mobile-drawer,
+        .studio-flash,
+        .studio-toast {
+            backdrop-filter:
+                none !important;
+
+            -webkit-backdrop-filter:
+                none !important;
+        }
+
+        @media (max-width: 900px) {
+            .studio-atmosphere::before {
+                opacity:
+                    .65;
+            }
+
+            .studio-header,
+            .studio-header.is-scrolled {
+                box-shadow:
+                    none !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior:
+                    auto !important;
+
+                animation-duration:
+                    .001ms !important;
+
+                animation-iteration-count:
+                    1 !important;
+
+                transition-duration:
+                    .001ms !important;
+            }
+        }
+
     </style>
 
     @stack('styles')
@@ -4655,6 +4748,10 @@
                 */
 
                 function updateProgress() {
+                    // Ultra Smooth: progressbar staat uit om layout-metingen
+                    // tijdens scrollen volledig te vermijden.
+                    return;
+
                     if (!progressBar) {
                         return;
                     }
@@ -5184,7 +5281,6 @@
                 */
 
                 updateHeader();
-                updateProgress();
 
                 let scrollFramePending =
                     false;
@@ -5200,7 +5296,6 @@
                     window.requestAnimationFrame(
                         function () {
                             updateHeader();
-                            updateProgress();
 
                             scrollFramePending =
                                 false;

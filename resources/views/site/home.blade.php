@@ -1613,6 +1613,75 @@
             scroll-behavior: auto !important;
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ultra Smooth performance mode
+    |--------------------------------------------------------------------------
+    */
+
+    .home-page::before,
+    .hero::after {
+        display:
+            none !important;
+    }
+
+    .upload-card,
+    .preview-badge,
+    .library-window,
+    .sticky-upload-inner {
+        backdrop-filter:
+            none !important;
+
+        -webkit-backdrop-filter:
+            none !important;
+    }
+
+    .feature-rail,
+    .home-section,
+    .final-cta {
+        content-visibility:
+            auto;
+
+        contain-intrinsic-size:
+            1px 800px;
+    }
+
+    @media (max-width: 900px) {
+        .upload-card,
+        .library-window,
+        .final-cta-card {
+            box-shadow:
+                0 16px 42px rgba(0, 0, 0, .22) !important;
+        }
+
+        .home-button,
+        .dropzone,
+        .feature-card,
+        .tool-card {
+            transition:
+                none !important;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            scroll-behavior:
+                auto !important;
+
+            animation-duration:
+                .001ms !important;
+
+            animation-iteration-count:
+                1 !important;
+
+            transition-duration:
+                .001ms !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -2789,24 +2858,20 @@ document.addEventListener('DOMContentLoaded', function () {
             'upload'
         );
 
+    let uploadSectionVisible =
+        true;
+
+    let stickyFramePending =
+        false;
+
     function updateStickyUpload() {
-        if (
-            !stickyUpload ||
-            !uploadSection
-        ) {
+        if (!stickyUpload) {
             return;
         }
 
-        const rect =
-            uploadSection.getBoundingClientRect();
-
-        const uploadVisible =
-            rect.bottom > 0 &&
-            rect.top < window.innerHeight;
-
         const shouldShow =
             window.scrollY > 760 &&
-            !uploadVisible;
+            !uploadSectionVisible;
 
         stickyUpload.classList.toggle(
             'visible',
@@ -2814,10 +2879,33 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    updateStickyUpload();
+    if (
+        uploadSection &&
+        'IntersectionObserver' in window
+    ) {
+        const uploadObserver =
+            new IntersectionObserver(
+                function (entries) {
+                    const entry =
+                        entries[0];
 
-    let stickyFramePending =
-        false;
+                    uploadSectionVisible =
+                        Boolean(
+                            entry &&
+                            entry.isIntersecting
+                        );
+
+                    updateStickyUpload();
+                },
+                {
+                    threshold: 0
+                }
+            );
+
+        uploadObserver.observe(
+            uploadSection
+        );
+    }
 
     function scheduleStickyUploadUpdate() {
         if (stickyFramePending) {
@@ -2837,16 +2925,10 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    window.addEventListener(
-        'scroll',
-        scheduleStickyUploadUpdate,
-        {
-            passive: true
-        }
-    );
+    updateStickyUpload();
 
     window.addEventListener(
-        'resize',
+        'scroll',
         scheduleStickyUploadUpdate,
         {
             passive: true
