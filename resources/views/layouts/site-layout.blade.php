@@ -25,7 +25,7 @@
 
     <meta
         name="description"
-        content="@yield('meta_description', 'Mashal Studio â€” upload, edit, resize and save images in your private image workspace.')"
+        content="@yield('meta_description', 'Mashal Studio — upload, edit, resize and save images in your private image workspace.')"
     >
 
     <title>
@@ -41,6 +41,11 @@
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
+
+        $hasAbout = \Illuminate\Support\Facades\Route::has('about');
+        $hasContact = \Illuminate\Support\Facades\Route::has('contact');
+        $hasPrivacy = \Illuminate\Support\Facades\Route::has('privacy');
+        $hasTerms = \Illuminate\Support\Facades\Route::has('terms');
 
         $layoutInitials = 'M';
 
@@ -2823,11 +2828,11 @@
                 grid;
 
             grid-template-columns:
-                minmax(0, 1.3fr)
-                repeat(3, minmax(140px, .7fr));
+                minmax(260px, 1.35fr)
+                repeat(4, minmax(120px, .62fr));
 
             gap:
-                50px;
+                36px;
         }
 
         .studio-footer-about {
@@ -3248,7 +3253,7 @@
 
             .studio-footer-column:last-child {
                 grid-column:
-                    2 / -1;
+                    auto;
             }
         }
 
@@ -3632,7 +3637,7 @@
                         href="{{ route('home') }}"
                     >
                         <span class="studio-nav-icon" aria-hidden="true">
-                            â—‡
+                            ◇
                         </span>
 
                         Studio
@@ -3645,7 +3650,7 @@
                                 href="{{ route('images.index') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    â–¦
+                                    ▦
                                 </span>
 
                                 Mijn afbeeldingen
@@ -3664,7 +3669,7 @@
                                 href="{{ route('ai.chat') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    âœ¦
+                                    ✦
                                 </span>
 
                                 Mashal AI
@@ -3681,7 +3686,7 @@
                                 href="{{ route('account') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    â—‹
+                                    ○
                                 </span>
 
                                 Account
@@ -3694,7 +3699,7 @@
                                 href="{{ route('security.index') }}"
                             >
                                 <span class="studio-nav-icon" aria-hidden="true">
-                                    â—ˆ
+                                    ◈
                                 </span>
 
                                 Beveiliging
@@ -3707,7 +3712,7 @@
                         href="{{ route('home') }}#upload"
                     >
                         <span class="studio-nav-icon" aria-hidden="true">
-                            â†‘
+                            ↑
                         </span>
 
                         Upload
@@ -3768,7 +3773,7 @@
                                     class="studio-account-chevron"
                                     aria-hidden="true"
                                 >
-                                    â–¾
+                                    ▾
                                 </span>
                             </button>
 
@@ -3814,7 +3819,7 @@
                                             </span>
 
                                             <span>
-                                                {{ $layoutImageCount ?? 'â€”' }}
+                                                {{ $layoutImageCount ?? '—' }}
                                             </span>
                                         </a>
                                     @endif
@@ -3829,7 +3834,7 @@
                                             </span>
 
                                             <span aria-hidden="true">
-                                                âœ¦
+                                                ✦
                                             </span>
                                         </a>
                                     @endif
@@ -3844,7 +3849,7 @@
                                             </span>
 
                                             <span>
-                                                â†’
+                                                →
                                             </span>
                                         </a>
                                     @endif
@@ -3859,7 +3864,7 @@
                                             </span>
 
                                             <span>
-                                                â†’
+                                                →
                                             </span>
                                         </a>
                                     @endif
@@ -3879,7 +3884,7 @@
                                             </span>
 
                                             <span>
-                                                â†’
+                                                →
                                             </span>
                                         </a>
                                     @endif
@@ -3902,7 +3907,7 @@
                                             </span>
 
                                             <span>
-                                                â†’
+                                                →
                                             </span>
                                         </button>
                                     </form>
@@ -3950,7 +3955,7 @@
                 type="button"
                 aria-label="Menu sluiten"
             >
-                Ã—
+                ×
             </button>
         </div>
 
@@ -3996,7 +4001,7 @@
                 </span>
 
                 <span>
-                    â—‡
+                    ◇
                 </span>
             </a>
 
@@ -4009,7 +4014,7 @@
                 </span>
 
                 <span>
-                    â†‘
+                    ↑
                 </span>
             </a>
 
@@ -4024,7 +4029,7 @@
                         </span>
 
                         <span>
-                            {{ $layoutImageCount ?? 'â–¦' }}
+                            {{ $layoutImageCount ?? '▦' }}
                         </span>
                     </a>
                 @endif
@@ -4039,7 +4044,7 @@
                         </span>
 
                         <span aria-hidden="true">
-                            âœ¦ AI
+                            ✦ AI
                         </span>
                     </a>
                 @endif
@@ -4058,7 +4063,7 @@
                         </span>
 
                         <span>
-                            â†’
+                            →
                         </span>
                     </a>
                 @endif
@@ -4073,7 +4078,7 @@
                         </span>
 
                         <span>
-                            â—ˆ
+                            ◈
                         </span>
                     </a>
                 @endif
@@ -4091,7 +4096,7 @@
                         </span>
 
                         <span>
-                            â†’
+                            →
                         </span>
                     </a>
                 @endif
@@ -4159,7 +4164,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        Ã—
+                        ×
                     </button>
                 </div>
             @endif
@@ -4179,7 +4184,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        Ã—
+                        ×
                     </button>
                 </div>
             @endif
@@ -4199,7 +4204,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        Ã—
+                        ×
                     </button>
                 </div>
             @endif
@@ -4219,7 +4224,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        Ã—
+                        ×
                     </button>
                 </div>
             @endif
@@ -4249,7 +4254,7 @@
                         aria-label="Melding sluiten"
                         data-flash-close
                     >
-                        Ã—
+                        ×
                     </button>
                 </div>
             @endif
@@ -4276,7 +4281,7 @@
                 class="studio-quick-upload-icon"
                 aria-hidden="true"
             >
-                â†‘
+                ↑
             </span>
 
             <span>
@@ -4295,7 +4300,10 @@
                         class="studio-footer-logo"
                         href="{{ route('home') }}"
                     >
-                        <span class="studio-brand-mark">
+                        <span
+                            class="studio-brand-mark"
+                            aria-hidden="true"
+                        >
                             M
                         </span>
 
@@ -4416,20 +4424,71 @@
                         @endauth
                     </div>
                 </div>
+
+                @if (
+                    $hasAbout ||
+                    $hasContact ||
+                    $hasPrivacy ||
+                    $hasTerms
+                )
+                    <div class="studio-footer-column">
+                        <h3>
+                            Informatie
+                        </h3>
+
+                        <div class="studio-footer-links">
+                            @if ($hasAbout)
+                                <a href="{{ route('about') }}">
+                                    Over ons
+                                </a>
+                            @endif
+
+                            @if ($hasContact)
+                                <a href="{{ route('contact') }}">
+                                    Contact
+                                </a>
+                            @endif
+
+                            @if ($hasPrivacy)
+                                <a href="{{ route('privacy') }}">
+                                    Privacy
+                                </a>
+                            @endif
+
+                            @if ($hasTerms)
+                                <a href="{{ route('terms') }}">
+                                    Voorwaarden
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="studio-footer-bottom">
                 <span>
-                    Â© {{ date('Y') }} Mashal Studio
+                    © {{ date('Y') }} Mashal Studio
                 </span>
 
                 <div class="studio-footer-bottom-links">
+                    @if ($hasPrivacy)
+                        <a href="{{ route('privacy') }}">
+                            Privacy
+                        </a>
+                    @endif
+
+                    @if ($hasTerms)
+                        <a href="{{ route('terms') }}">
+                            Voorwaarden
+                        </a>
+                    @endif
+
                     <span>
                         Private image & AI workspace
                     </span>
 
                     <span>
-                        JPG Â· PNG Â· WEBP
+                        JPG · PNG · WEBP
                     </span>
                 </div>
             </div>
