@@ -10,29 +10,51 @@
 @push('styles')
 <style>
     :root {
-        --reset-bg: #07080b;
-        --reset-panel: #0d1015;
-        --reset-panel-2: #12161d;
-        --reset-text: #f7f7f4;
-        --reset-muted: #808792;
-        --reset-muted-2: #5d6570;
-        --reset-line: rgba(255,255,255,.072);
-        --reset-gold: #e3b36b;
-        --reset-gold-light: #f3d69a;
-        --reset-success: #67d990;
-        --reset-warning: #f0c46d;
-        --reset-danger: #f47d7d;
+        --reset-bg: #050506;
+        --reset-panel: #0e0e11;
+        --reset-panel-2: #141418;
+        --reset-text: #f7f7f8;
+        --reset-muted: #96969e;
+        --reset-muted-2: #686870;
+        --reset-line: rgba(255,255,255,.09);
+        --reset-line-strong: rgba(255,255,255,.15);
+        --reset-gold: #f1d84a;
+        --reset-gold-2: #d8b91e;
+        --reset-orange: #ff7a24;
+        --reset-green: #45df8b;
+        --reset-danger: #ff8f8f;
+        --reset-radius: 24px;
+        --reset-shadow: 0 24px 70px rgba(0,0,0,.36);
+    }
+
+    .reset-page,
+    .reset-page * {
+        box-sizing: border-box;
     }
 
     .reset-page {
         position: relative;
-        min-height: calc(100vh - 76px);
-        overflow: hidden;
+        width: 100%;
+        min-height: calc(100dvh - var(--studio-header-height, 78px));
+        overflow-x: clip;
         color: var(--reset-text);
         background:
-            radial-gradient(circle at 12% 9%, rgba(227,179,107,.08), transparent 30rem),
-            radial-gradient(circle at 87% 8%, rgba(112,93,255,.055), transparent 31rem),
-            linear-gradient(180deg,#07080b,#090b0f);
+            radial-gradient(
+                circle at 14% 8%,
+                rgba(255,125,30,.11),
+                transparent 31rem
+            ),
+            radial-gradient(
+                circle at 88% 16%,
+                rgba(241,216,74,.06),
+                transparent 26rem
+            ),
+            linear-gradient(
+                180deg,
+                #050506 0%,
+                #080809 48%,
+                #050506 100%
+            );
     }
 
     .reset-page::before {
@@ -40,445 +62,221 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        opacity: .11;
+        opacity: .22;
         background-image:
-            linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-        background-size: 72px 72px;
-        mask-image: linear-gradient(to bottom,#000,transparent 84%);
-    }
-
-    .reset-layout {
-        position: relative;
-        z-index: 2;
-        width: min(calc(100% - 40px), 1420px);
-        min-height: calc(100vh - 76px);
-        margin-inline: auto;
-        padding: 42px 0 64px;
-        display: grid;
-        grid-template-columns: minmax(0,1.04fr) minmax(440px,.96fr);
-        gap: 24px;
-        align-items: stretch;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Left experience panel
-    |--------------------------------------------------------------------------
-    */
-
-    .reset-showcase {
-        position: relative;
-        min-height: 720px;
-        padding: clamp(34px,4.7vw,62px);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 30px;
-        background:
-            radial-gradient(circle at 78% 15%, rgba(227,179,107,.13), transparent 20rem),
-            radial-gradient(circle at 18% 82%, rgba(93,111,255,.09), transparent 24rem),
-            linear-gradient(145deg, rgba(255,255,255,.038), rgba(255,255,255,.007)),
-            #0b0e13;
-        box-shadow: 0 40px 110px rgba(0,0,0,.33);
-        isolation: isolate;
-    }
-
-    .reset-showcase::before {
-        content: "M";
-        position: absolute;
-        z-index: -1;
-        right: -42px;
-        bottom: -150px;
-        color: rgba(255,255,255,.017);
-        font-size: 455px;
-        font-weight: 950;
-        line-height: .8;
-        letter-spacing: -.09em;
-        pointer-events: none;
-    }
-
-    .reset-showcase::after {
-        content: "";
-        position: absolute;
-        z-index: -2;
-        width: 420px;
-        height: 420px;
-        right: -175px;
-        top: 18%;
-        border: 1px solid rgba(227,179,107,.065);
-        border-radius: 50%;
-        box-shadow:
-            0 0 0 75px rgba(227,179,107,.011),
-            0 0 0 150px rgba(227,179,107,.006);
-    }
-
-    .reset-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        color: #d9aa65;
-        font-size: 9px;
-        font-weight: 950;
-        letter-spacing: .19em;
-        text-transform: uppercase;
-    }
-
-    .reset-kicker::before {
-        content: "";
-        width: 31px;
-        height: 1px;
-        background: linear-gradient(90deg,#e2b36c,transparent);
-    }
-
-    .reset-headline {
-        max-width: 760px;
-        margin: 18px 0 0;
-        color: #f9f9f6;
-        font-size: clamp(56px,6.2vw,92px);
-        line-height: .91;
-        letter-spacing: -.072em;
-        font-weight: 950;
-        text-wrap: balance;
-    }
-
-    .reset-headline span {
-        display: block;
-        color: #f1cf91;
-    }
-
-    .reset-intro {
-        max-width: 625px;
-        margin: 24px 0 0;
-        color: #9198a2;
-        font-size: 13px;
-        line-height: 1.86;
-    }
-
-    .reset-badges {
-        margin-top: 28px;
-        display: grid;
-        grid-template-columns: repeat(3,minmax(0,1fr));
-        gap: 8px;
-        max-width: 700px;
-    }
-
-    .reset-badge {
-        padding: 13px;
-        border: 1px solid rgba(255,255,255,.06);
-        border-radius: 13px;
-        background: rgba(255,255,255,.012);
-    }
-
-    .reset-badge small {
-        display: block;
-        color: #705a3e;
-        font-size: 6px;
-        font-weight: 950;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-    }
-
-    .reset-badge strong {
-        display: block;
-        margin-top: 5px;
-        color: #b7bdc5;
-        font-size: 8px;
-        line-height: 1.5;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Visual flow
-    |--------------------------------------------------------------------------
-    */
-
-    .reset-flow {
-        margin-top: 42px;
-        padding: 14px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 21px;
-        background: rgba(7,9,12,.63);
-        box-shadow: 0 30px 85px rgba(0,0,0,.35);
-        backdrop-filter: blur(15px);
-    }
-
-    .reset-flow-top {
-        min-height: 44px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-
-    .reset-flow-dots {
-        display: flex;
-        gap: 5px;
-    }
-
-    .reset-flow-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.13);
-    }
-
-    .reset-flow-dot:first-child {
-        background: rgba(227,179,107,.63);
-    }
-
-    .reset-flow-title,
-    .reset-flow-secure {
-        color: #606873;
-        font-size: 6px;
-        font-weight: 950;
-        letter-spacing: .10em;
-        text-transform: uppercase;
-    }
-
-    .reset-flow-secure {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .reset-flow-secure::before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: var(--reset-success);
-    }
-
-    .reset-flow-body {
-        padding: 24px;
-        display: grid;
-        gap: 10px;
-        background:
-            linear-gradient(45deg, rgba(255,255,255,.01) 25%, transparent 25%),
-            linear-gradient(-45deg, rgba(255,255,255,.01) 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, rgba(255,255,255,.01) 75%),
-            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.01) 75%),
-            #0a0c10;
-        background-size: 20px 20px;
-        background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-    }
-
-    .reset-flow-step {
-        padding: 14px;
-        display: grid;
-        grid-template-columns: 38px minmax(0,1fr) auto;
-        gap: 11px;
-        align-items: center;
-        border: 1px solid rgba(255,255,255,.055);
-        border-radius: 13px;
-        background: rgba(255,255,255,.012);
-    }
-
-    .reset-flow-step.active {
-        border-color: rgba(227,179,107,.13);
-        background: rgba(227,179,107,.035);
-    }
-
-    .reset-flow-number {
-        width: 38px;
-        height: 38px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(227,179,107,.10);
-        border-radius: 11px;
-        color: #c69a5b;
-        background: rgba(227,179,107,.025);
-        font-size: 7px;
-        font-weight: 950;
-    }
-
-    .reset-flow-copy strong,
-    .reset-flow-copy span {
-        display: block;
-    }
-
-    .reset-flow-copy strong {
-        color: #cfd3d8;
-        font-size: 8px;
-    }
-
-    .reset-flow-copy span {
-        margin-top: 3px;
-        color: #5c646e;
-        font-size: 6px;
-    }
-
-    .reset-flow-status {
-        min-height: 23px;
-        padding: 0 7px;
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid rgba(103,217,144,.09);
-        border-radius: 999px;
-        color: #82ca99;
-        background: rgba(103,217,144,.025);
-        font-size: 6px;
-        font-weight: 950;
-        white-space: nowrap;
-    }
-
-    .reset-flow-status.current {
-        border-color: rgba(227,179,107,.11);
-        color: #d2a45f;
-        background: rgba(227,179,107,.03);
-    }
-
-    .reset-flow-footer {
-        min-height: 42px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        border-top: 1px solid rgba(255,255,255,.045);
-        color: #525a64;
-        font-size: 6px;
-        font-weight: 800;
-    }
-
-    .reset-flow-footer span:first-child {
-        color: #86c998;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Right panel
-    |--------------------------------------------------------------------------
-    */
-
-    .reset-panel {
-        min-width: 0;
-        padding: 30px;
-        display: flex;
-        align-items: stretch;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 30px;
-        background:
-            radial-gradient(circle at 84% 6%, rgba(227,179,107,.065), transparent 17rem),
-            linear-gradient(180deg, rgba(255,255,255,.023), rgba(255,255,255,.005)),
-            #0b0e13;
-        box-shadow: 0 40px 110px rgba(0,0,0,.27);
+            linear-gradient(
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
+            );
+        background-size: 64px 64px;
+        mask-image: linear-gradient(
+            to bottom,
+            #000,
+            transparent 74%
+        );
     }
 
     .reset-shell {
-        width: 100%;
-        max-width: 550px;
-        margin: auto;
+        position: relative;
+        z-index: 1;
+        width: min(calc(100% - 32px), 1080px);
+        margin-inline: auto;
+        padding: clamp(34px, 5vw, 72px) 0 70px;
     }
 
-    .reset-brand {
-        margin-bottom: 26px;
-        display: flex;
+    .reset-intro {
+        width: min(100%, 620px);
+        margin: 0 auto 26px;
+        text-align: center;
+        animation:
+            reset-enter .42s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .reset-eyebrow {
+        display: inline-flex;
         align-items: center;
-        gap: 11px;
-    }
-
-    .reset-brand-mark {
-        width: 44px;
-        height: 44px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(227,179,107,.17);
-        border-radius: 14px;
-        color: #171009;
-        background: linear-gradient(145deg,#f1d193,#c98e47);
-        box-shadow: 0 14px 34px rgba(227,179,107,.16);
-        font-size: 15px;
-        font-weight: 950;
-    }
-
-    .reset-brand-copy strong,
-    .reset-brand-copy span {
-        display: block;
-    }
-
-    .reset-brand-copy strong {
-        color: #f1f2f3;
-        font-size: 13px;
-    }
-
-    .reset-brand-copy span {
-        margin-top: 4px;
-        color: #5d6570;
-        font-size: 6px;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--reset-gold);
+        font-size: 9px;
         font-weight: 900;
-        letter-spacing: .16em;
+        letter-spacing: .15em;
         text-transform: uppercase;
     }
 
-    .reset-section-kicker {
-        display: block;
-        margin-bottom: 8px;
-        color: #a37c48;
-        font-size: 7px;
-        font-weight: 950;
-        letter-spacing: .16em;
-        text-transform: uppercase;
+    .reset-eyebrow::before,
+    .reset-eyebrow::after {
+        content: "";
+        width: 22px;
+        height: 1px;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(241,216,74,.68)
+            );
+    }
+
+    .reset-eyebrow::after {
+        transform: scaleX(-1);
     }
 
     .reset-title {
         margin: 0;
-        color: #f5f6f7;
-        font-size: clamp(38px,4vw,52px);
-        line-height: .98;
-        letter-spacing: -.057em;
-        font-weight: 950;
+        color: #fff;
+        font-size: clamp(36px, 6vw, 62px);
+        line-height: .96;
+        font-weight: 930;
+        letter-spacing: -.055em;
+        text-wrap: balance;
     }
 
-    .reset-subtitle {
-        max-width: 520px;
-        margin: 12px 0 22px;
-        color: #727984;
+    .reset-title span {
+        display: block;
+        margin-top: 5px;
+        color: var(--reset-orange);
+    }
+
+    .reset-lead {
+        max-width: 540px;
+        margin: 16px auto 0;
+        color: var(--reset-muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .reset-card-wrap {
+        width: min(100%, 500px);
+        margin-inline: auto;
+        animation:
+            reset-enter .46s .05s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .reset-card {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--reset-line-strong);
+        border-radius: var(--reset-radius);
+        background:
+            linear-gradient(
+                155deg,
+                rgba(255,255,255,.038),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20,20,24,.98),
+                rgba(9,9,11,.985)
+            );
+        box-shadow: var(--reset-shadow);
+    }
+
+    .reset-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(241,216,74,.11),
+                transparent 28%,
+                transparent 74%,
+                rgba(255,122,36,.055)
+            );
+    }
+
+    .reset-card::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 72px;
+        height: 72px;
+        pointer-events: none;
+        border-right: 2px solid rgba(241,216,74,.55);
+        border-bottom: 2px solid rgba(241,216,74,.55);
+        border-radius: 0 0 calc(var(--reset-radius) - 1px) 0;
+        opacity: .72;
+    }
+
+    .reset-card-inner {
+        position: relative;
+        z-index: 1;
+        padding: 28px;
+    }
+
+    .reset-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(241,216,74,.22);
+        border-radius: 14px;
+        color: var(--reset-gold);
+        background: rgba(241,216,74,.045);
+    }
+
+    .reset-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .reset-heading {
+        margin: 0;
+        text-align: center;
+        color: #fff;
+        font-size: 25px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -.035em;
+    }
+
+    .reset-heading strong {
+        color: var(--reset-gold);
+        font-weight: inherit;
+    }
+
+    .reset-description {
+        max-width: 390px;
+        margin: 8px auto 18px;
+        color: var(--reset-muted);
+        text-align: center;
         font-size: 10px;
-        line-height: 1.75;
+        line-height: 1.6;
     }
 
     .reset-message {
-        margin-bottom: 13px;
-        padding: 12px 13px;
-        border-radius: 11px;
-        font-size: 8px;
-        line-height: 1.65;
+        margin-bottom: 11px;
+        padding: 10px 11px;
+        border-radius: 10px;
+        font-size: 9px;
+        line-height: 1.55;
     }
 
     .reset-message.success {
-        border: 1px solid rgba(103,217,144,.12);
-        color: #a2d9b3;
-        background: rgba(103,217,144,.035);
+        border: 1px solid rgba(69,223,139,.18);
+        color: #adf4c9;
+        background: rgba(69,223,139,.055);
     }
 
     .reset-message.error {
-        border: 1px solid rgba(240,131,131,.12);
-        color: #dda2a2;
-        background: rgba(240,131,131,.035);
+        border: 1px solid rgba(255,143,143,.18);
+        color: #ffc2c2;
+        background: rgba(255,90,90,.055);
     }
 
     .reset-message ul {
-        margin: 6px 0 0 15px;
+        margin: 5px 0 0 16px;
         padding: 0;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Form
-    |--------------------------------------------------------------------------
-    */
-
-    .reset-form-card {
-        padding: 17px;
-        border: 1px solid rgba(255,255,255,.055);
-        border-radius: 16px;
-        background: rgba(255,255,255,.01);
     }
 
     .reset-field {
@@ -486,24 +284,25 @@
     }
 
     .reset-label-row {
-        margin-bottom: 7px;
+        min-height: 17px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
     }
 
     .reset-label-row label {
-        color: #959ca5;
-        font-size: 7px;
-        font-weight: 900;
-        letter-spacing: .06em;
+        color: #a8a8ae;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .035em;
     }
 
     .reset-field-error {
-        color: #dc9292;
-        font-size: 7px;
-        font-weight: 850;
+        color: #ffacac;
+        font-size: 7.5px;
+        font-weight: 800;
     }
 
     .reset-input-wrap {
@@ -512,115 +311,103 @@
 
     .reset-input {
         width: 100%;
-        min-height: 49px;
+        height: 44px;
         padding: 0 13px;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.115);
         border-radius: 11px;
         outline: none;
-        color: #e5e7ea;
-        background: rgba(255,255,255,.015);
-        font-size: 9px;
+        color: #f5f5f6;
+        background: rgba(0,0,0,.26);
+        font: inherit;
+        font-size: 10px;
         transition:
-            border-color .2s ease,
-            background .2s ease,
-            box-shadow .2s ease;
-    }
-
-    .reset-input.with-toggle {
-        padding-right: 72px;
-    }
-
-    .reset-input:focus {
-        border-color: rgba(227,179,107,.27);
-        background: rgba(227,179,107,.019);
-        box-shadow: 0 0 0 4px rgba(227,179,107,.035);
+            border-color .15s ease,
+            background .15s ease,
+            box-shadow .15s ease;
     }
 
     .reset-input::placeholder {
-        color: #4b535d;
+        color: #5c5c64;
     }
 
-    .password-toggle {
+    .reset-input:focus {
+        border-color: rgba(241,216,74,.48);
+        background: rgba(241,216,74,.02);
+        box-shadow: 0 0 0 3px rgba(241,216,74,.055);
+    }
+
+    .reset-input.with-toggle {
+        padding-right: 78px;
+    }
+
+    .reset-password-toggle {
         position: absolute;
         right: 6px;
         top: 50%;
-        min-height: 33px;
-        padding: 0 8px;
+        min-width: 64px;
+        height: 32px;
+        padding: 0 9px;
         transform: translateY(-50%);
-        border: 1px solid rgba(255,255,255,.045);
+        border: 1px solid rgba(255,255,255,.07);
         border-radius: 8px;
-        color: #626a74;
-        background: #101319;
-        font-size: 6px;
-        font-weight: 900;
+        color: #94949b;
+        background: #161619;
+        font: inherit;
+        font-size: 7px;
+        font-weight: 850;
         cursor: pointer;
     }
 
-    .password-toggle:hover {
-        border-color: rgba(227,179,107,.11);
-        color: #d1a35f;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Password strength
-    |--------------------------------------------------------------------------
-    */
-
-    .password-strength {
+    .reset-strength {
         margin-top: 8px;
     }
 
-    .strength-track {
+    .reset-strength-track {
         height: 5px;
         overflow: hidden;
         border-radius: 999px;
         background: rgba(255,255,255,.055);
     }
 
-    .strength-bar {
-        width: 0;
+    .reset-strength-bar {
+        width: 100%;
         height: 100%;
         border-radius: inherit;
         background: #707780;
+        transform: scaleX(0);
+        transform-origin: left center;
         transition:
-            width .2s ease,
-            background .2s ease;
+            transform .18s ease,
+            background-color .18s ease;
     }
 
-    .strength-copy {
-        margin-top: 5px;
+    .reset-strength-copy {
+        margin-top: 6px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        color: #515964;
-        font-size: 6px;
+        color: #65656d;
+        font-size: 7px;
     }
 
-    .password-match {
-        min-height: 16px;
+    .reset-match {
+        min-height: 18px;
         margin-top: 6px;
-        color: #555d67;
-        font-size: 6px;
+        color: #65656d;
+        font-size: 7px;
     }
 
-    .password-match.good {
-        color: #7fca97;
+    .reset-match.good {
+        color: #86d4a1;
     }
 
-    .password-match.bad {
-        color: #d68f8f;
+    .reset-match.bad {
+        color: #e29b9b;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Security info
-    |--------------------------------------------------------------------------
-    */
 
     .reset-info-grid {
-        margin: 3px 0 14px;
+        margin: 4px 0 14px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px;
@@ -628,19 +415,14 @@
 
     .reset-info {
         padding: 12px;
-        border: 1px solid rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.065);
         border-radius: 12px;
-        background: rgba(255,255,255,.01);
-    }
-
-    .reset-info.warning {
-        border-color: rgba(240,196,109,.09);
-        background: rgba(240,196,109,.02);
+        background: rgba(255,255,255,.012);
     }
 
     .reset-info small {
         display: block;
-        color: #705a3e;
+        color: #846a45;
         font-size: 6px;
         font-weight: 950;
         letter-spacing: .09em;
@@ -650,61 +432,65 @@
     .reset-info strong {
         display: block;
         margin-top: 5px;
-        color: #bfc4ca;
-        font-size: 7px;
-        line-height: 1.5;
+        color: #c5c8cd;
+        font-size: 8px;
+        line-height: 1.45;
     }
 
     .reset-info p {
         margin: 4px 0 0;
-        color: #59616b;
-        font-size: 6px;
+        color: #66666e;
+        font-size: 7px;
         line-height: 1.55;
     }
 
     .reset-submit {
         width: 100%;
-        min-height: 49px;
-        padding: 0 16px;
+        min-height: 44px;
         border: 0;
-        border-radius: 11px;
-        color: #171009;
-        background: linear-gradient(135deg,#f1d193,#d39a50);
-        box-shadow: 0 16px 36px rgba(227,179,107,.13);
-        font-size: 8px;
+        border-radius: 10px;
+        color: #171300;
+        background:
+            linear-gradient(
+                180deg,
+                #fff04b,
+                #d9b70d
+            );
+        box-shadow:
+            0 10px 26px rgba(216,183,13,.14),
+            inset 0 1px 0 rgba(255,255,255,.5);
+        font: inherit;
+        font-size: 9px;
         font-weight: 950;
         cursor: pointer;
         transition:
-            transform .2s ease,
-            box-shadow .2s ease;
+            transform .15s ease,
+            filter .15s ease;
     }
 
     .reset-submit:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 21px 46px rgba(227,179,107,.20);
+        transform: translateY(-1px);
+        filter: brightness(1.045);
+    }
+
+    .reset-submit:active:not(:disabled) {
+        transform: scale(.992);
     }
 
     .reset-submit:disabled {
-        opacity: .60;
+        opacity: .66;
         cursor: wait;
-        transform: none;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Return to login
-    |--------------------------------------------------------------------------
-    */
-
     .reset-divider {
-        margin: 18px 0;
+        margin: 16px 0;
         display: flex;
         align-items: center;
-        gap: 11px;
-        color: #4b535d;
-        font-size: 6px;
-        font-weight: 900;
-        letter-spacing: .11em;
+        gap: 10px;
+        color: #6d6d74;
+        font-size: 7px;
+        font-weight: 850;
+        letter-spacing: .08em;
         text-transform: uppercase;
     }
 
@@ -713,145 +499,184 @@
         content: "";
         flex: 1;
         height: 1px;
-        background:
-            linear-gradient(
-                90deg,
-                transparent,
-                rgba(255,255,255,.065),
-                transparent
-            );
+        background: rgba(255,255,255,.075);
     }
 
-    .login-return-card {
-        padding: 14px;
+    .reset-return {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 14px;
-        border: 1px solid rgba(255,255,255,.055);
-        border-radius: 13px;
-        background: rgba(255,255,255,.01);
+        gap: 12px;
+        padding: 10px 11px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 11px;
+        background: rgba(0,0,0,.14);
     }
 
-    .login-return-copy strong,
-    .login-return-copy span {
+    .reset-return-copy strong,
+    .reset-return-copy span {
         display: block;
     }
 
-    .login-return-copy strong {
-        color: #cbd0d5;
+    .reset-return-copy strong {
+        color: #d2d2d5;
         font-size: 8px;
     }
 
-    .login-return-copy span {
+    .reset-return-copy span {
         margin-top: 3px;
-        color: #5b636d;
-        font-size: 6px;
+        color: #75757d;
+        font-size: 7px;
         line-height: 1.5;
     }
 
-    .login-return-link {
-        min-height: 35px;
+    .reset-return-link {
+        min-height: 34px;
         padding: 0 11px;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         flex: 0 0 auto;
-        border: 1px solid rgba(227,179,107,.11);
+        border: 1px solid rgba(241,216,74,.18);
         border-radius: 9px;
-        color: #c29455;
-        background: rgba(227,179,107,.025);
+        color: var(--reset-gold);
+        background: rgba(241,216,74,.045);
         text-decoration: none;
-        font-size: 6px;
-        font-weight: 950;
+        font-size: 7px;
+        font-weight: 900;
+        transition:
+            transform .14s ease,
+            background .14s ease;
+    }
+
+    .reset-return-link:hover {
+        transform: translateY(-1px);
+        background: rgba(241,216,74,.07);
     }
 
     .reset-security-note {
-        margin-top: 13px;
+        margin-top: 12px;
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        color: #505862;
-        font-size: 6px;
+        color: #6c6c73;
+        font-size: 7px;
         line-height: 1.55;
     }
 
     .reset-security-mark {
-        width: 19px;
-        height: 19px;
-        flex: 0 0 19px;
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(103,217,144,.09);
+        border: 1px solid rgba(69,223,139,.12);
         border-radius: 50%;
-        color: #7cc393;
-        background: rgba(103,217,144,.02);
-        font-size: 6px;
-        font-weight: 950;
+        color: #83d09f;
+        background: rgba(69,223,139,.025);
+        font-size: 7px;
+        font-weight: 900;
     }
 
-    @media (max-width: 1100px) {
-        .reset-layout {
-            grid-template-columns: 1fr;
-            max-width: 900px;
+    .reset-footer {
+        margin-top: 18px;
+        color: #606067;
+        text-align: center;
+        font-size: 9px;
+        animation:
+            reset-enter .46s .09s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Smooth animation
+    |--------------------------------------------------------------------------
+    |
+    | Alleen opacity + transform. Geen blur, backdrop-filter, clip-path
+    | of continu bewegende elementen.
+    |
+    */
+
+    @keyframes reset-enter {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0) scale(.992);
         }
 
-        .reset-showcase {
-            min-height: auto;
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
         }
+    }
 
+    @media (max-width: 640px) {
         .reset-shell {
-            max-width: 620px;
-        }
-    }
-
-    @media (max-width: 720px) {
-        .reset-layout {
-            width: min(calc(100% - 22px),900px);
-            padding-top: 27px;
+            width: min(calc(100% - 20px), 1080px);
+            padding-top: 26px;
+            padding-bottom: 48px;
         }
 
-        .reset-showcase {
-            padding: 28px 20px;
-            border-radius: 22px;
+        .reset-intro {
+            margin-bottom: 20px;
         }
 
-        .reset-headline {
-            font-size: clamp(49px,15vw,68px);
+        .reset-title {
+            font-size: clamp(34px, 12vw, 46px);
         }
 
-        .reset-badges,
+        .reset-lead {
+            font-size: 11px;
+        }
+
+        .reset-card-wrap {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .reset-card-inner {
+            padding: 22px 18px 24px;
+        }
+
+        .reset-card::after {
+            width: 52px;
+            height: 52px;
+        }
+
         .reset-info-grid {
             grid-template-columns: 1fr;
         }
-
-        .reset-panel {
-            padding: 24px 17px;
-            border-radius: 22px;
-        }
     }
 
-    @media (max-width: 560px) {
-        .reset-flow {
-            display: none;
+    @media (max-width: 390px) {
+        .reset-shell {
+            width: min(calc(100% - 14px), 1080px);
         }
 
-        .login-return-card {
+        .reset-card-inner {
+            padding-inline: 14px;
+        }
+
+        .reset-return {
             align-items: flex-start;
             flex-direction: column;
         }
 
-        .login-return-link {
+        .reset-return-link {
             width: 100%;
-            justify-content: center;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-            animation-duration: .01ms !important;
-            animation-iteration-count: 1 !important;
+        .reset-intro,
+        .reset-card-wrap,
+        .reset-footer {
+            animation: none !important;
+        }
+
+        .reset-page *,
+        .reset-page *::before,
+        .reset-page *::after {
+            scroll-behavior: auto !important;
             transition-duration: .01ms !important;
         }
     }
@@ -860,243 +685,97 @@
 
 @section('content')
 <section class="reset-page">
-    <div class="reset-layout">
-
-        <aside class="reset-showcase">
-            <div>
-                <span class="reset-kicker">
-                    Mashal Studio security
-                </span>
-
-                <h2 class="reset-headline">
-                    Nieuwe sleutel.
-                    <span>Zelfde workspace.</span>
-                </h2>
-
-                <p class="reset-intro">
-                    Stel veilig een nieuw wachtwoord in voor je Mashal Studio-account.
-                    Je afbeeldingsprojecten, originelen en opgeslagen versies blijven
-                    gewoon aan hetzelfde account gekoppeld.
-                </p>
-
-                <div class="reset-badges">
-                    <div class="reset-badge">
-                        <small>
-                            Protected
-                        </small>
-
-                        <strong>
-                            Veilige resetflow voor je account
-                        </strong>
-                    </div>
-
-                    <div class="reset-badge">
-                        <small>
-                            Temporary
-                        </small>
-
-                        <strong>
-                            Resetlink is tijdelijk geldig
-                        </strong>
-                    </div>
-
-                    <div class="reset-badge">
-                        <small>
-                            Private
-                        </small>
-
-                        <strong>
-                            Je image workspace blijft behouden
-                        </strong>
-                    </div>
-                </div>
+    <main class="reset-shell">
+        <header class="reset-intro">
+            <div class="reset-eyebrow">
+                Secure recovery
             </div>
 
-            <div
-                class="reset-flow"
-                aria-hidden="true"
-            >
-                <div class="reset-flow-top">
-                    <div class="reset-flow-dots">
-                        <span class="reset-flow-dot"></span>
-                        <span class="reset-flow-dot"></span>
-                        <span class="reset-flow-dot"></span>
+            <h1 class="reset-title">
+                Nieuw wachtwoord
+                <span>Mashal Studio</span>
+            </h1>
+
+            <p class="reset-lead">
+                Stel een nieuw, sterk wachtwoord in. Je projecten,
+                afbeeldingen en opgeslagen versies blijven gewoon
+                gekoppeld aan hetzelfde account.
+            </p>
+        </header>
+
+        <div class="reset-card-wrap">
+            <section class="reset-card" aria-labelledby="resetHeading">
+                <div class="reset-card-inner">
+                    <div class="reset-icon" aria-hidden="true">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M7 10V7a5 5 0 0 1 10 0v3"></path>
+                            <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+                            <path d="M12 14v2"></path>
+                        </svg>
                     </div>
 
-                    <span class="reset-flow-title">
-                        Password recovery
-                    </span>
+                    <h2 class="reset-heading" id="resetHeading">
+                        Secure <strong>Reset</strong>
+                    </h2>
 
-                    <span class="reset-flow-secure">
-                        Secure
-                    </span>
-                </div>
+                    <p class="reset-description">
+                        Bevestig je e-mailadres en kies daarna een nieuw
+                        wachtwoord voor je Mashal Studio-account.
+                    </p>
 
-                <div class="reset-flow-body">
-                    <div class="reset-flow-step">
-                        <span class="reset-flow-number">
-                            01
-                        </span>
-
-                        <span class="reset-flow-copy">
-                            <strong>
-                                Resetlink aangevraagd
-                            </strong>
-
-                            <span>
-                                Recovery gestart via e-mail
-                            </span>
-                        </span>
-
-                        <span class="reset-flow-status">
-                            Done
-                        </span>
-                    </div>
-
-                    <div class="reset-flow-step active">
-                        <span class="reset-flow-number">
-                            02
-                        </span>
-
-                        <span class="reset-flow-copy">
-                            <strong>
-                                Nieuw wachtwoord kiezen
-                            </strong>
-
-                            <span>
-                                Sterk en uniek wachtwoord instellen
-                            </span>
-                        </span>
-
-                        <span class="reset-flow-status current">
-                            Current
-                        </span>
-                    </div>
-
-                    <div class="reset-flow-step">
-                        <span class="reset-flow-number">
-                            03
-                        </span>
-
-                        <span class="reset-flow-copy">
-                            <strong>
-                                Opnieuw inloggen
-                            </strong>
-
-                            <span>
-                                Toegang tot je workspace herstellen
-                            </span>
-                        </span>
-
-                        <span class="reset-flow-status">
-                            Next
-                        </span>
-                    </div>
-                </div>
-
-                <div class="reset-flow-footer">
-                    <span>
-                        Account recovery protected
-                    </span>
-
-                    <span>
-                        Mashal Studio
-                    </span>
-                </div>
-            </div>
-        </aside>
-
-        <main class="reset-panel">
-            <div class="reset-shell">
-
-                <div class="reset-brand">
-                    <div class="reset-brand-mark">
-                        M
-                    </div>
-
-                    <div class="reset-brand-copy">
-                        <strong>
-                            Mashal Studio
-                        </strong>
-
-                        <span>
-                            Secure account recovery
-                        </span>
-                    </div>
-                </div>
-
-                <span class="reset-section-kicker">
-                    Password reset
-                </span>
-
-                <h1 class="reset-title">
-                    Nieuw wachtwoord
-                </h1>
-
-                <p class="reset-subtitle">
-                    Bevestig het e-mailadres van je account en kies een nieuw,
-                    sterk wachtwoord. Daarna kun je weer normaal inloggen.
-                </p>
-
-                @if (session('success'))
-                    <div
-                        class="reset-message success"
-                        role="status"
-                    >
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div
-                        class="reset-message error"
-                        role="alert"
-                    >
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @if ($errors->any())
-                    <div
-                        class="reset-message error"
-                        role="alert"
-                    >
-                        <strong>
-                            Wachtwoord wijzigen is niet gelukt.
-                        </strong>
-
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>
-                                    {{ $error }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <form
-                    id="resetPasswordForm"
-                    class="reset-form-card"
-                    method="POST"
-                    action="{{ route('password.update', $token) }}"
-                >
-                    @csrf
-
-                    <div class="reset-field">
-                        <div class="reset-label-row">
-                            <label for="email">
-                                E-mailadres
-                            </label>
-
-                            @error('email')
-                                <span class="reset-field-error">
-                                    {{ $message }}
-                                </span>
-                            @enderror
+                    @if (session('success'))
+                        <div class="reset-message success" role="status">
+                            {{ session('success') }}
                         </div>
+                    @endif
 
-                        <div class="reset-input-wrap">
+                    @if (session('error'))
+                        <div class="reset-message error" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="reset-message error" role="alert">
+                            <strong>
+                                Wachtwoord wijzigen is niet gelukt.
+                            </strong>
+
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form
+                        id="resetPasswordForm"
+                        method="POST"
+                        action="{{ route('password.update', $token) }}"
+                    >
+                        @csrf
+
+                        <div class="reset-field">
+                            <div class="reset-label-row">
+                                <label for="email">
+                                    E-mailadres
+                                </label>
+
+                                @error('email')
+                                    <span class="reset-field-error">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+
                             <input
                                 class="reset-input"
                                 id="email"
@@ -1112,188 +791,198 @@
                                 autofocus
                             >
                         </div>
-                    </div>
 
-                    <div class="reset-field">
-                        <div class="reset-label-row">
-                            <label for="password">
-                                Nieuw wachtwoord
-                            </label>
+                        <div class="reset-field">
+                            <div class="reset-label-row">
+                                <label for="password">
+                                    Nieuw wachtwoord
+                                </label>
 
-                            @error('password')
-                                <span class="reset-field-error">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="reset-input-wrap">
-                            <input
-                                class="reset-input with-toggle"
-                                id="password"
-                                type="password"
-                                name="password"
-                                placeholder="Minimaal 8 tekens"
-                                autocomplete="new-password"
-                                minlength="8"
-                                required
-                            >
-
-                            <button
-                                class="password-toggle"
-                                type="button"
-                                data-toggle-password="password"
-                                aria-label="Nieuw wachtwoord tonen of verbergen"
-                            >
-                                Tonen
-                            </button>
-                        </div>
-
-                        <div class="password-strength">
-                            <div class="strength-track">
-                                <div
-                                    class="strength-bar"
-                                    id="passwordStrengthBar"
-                                ></div>
+                                @error('password')
+                                    <span class="reset-field-error">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
                             </div>
 
-                            <div class="strength-copy">
-                                <span>
-                                    Wachtwoordsterkte
-                                </span>
+                            <div class="reset-input-wrap">
+                                <input
+                                    class="reset-input with-toggle"
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    placeholder="Minimaal 8 tekens"
+                                    autocomplete="new-password"
+                                    minlength="8"
+                                    required
+                                >
 
-                                <span id="passwordStrengthLabel">
-                                    Nog niet ingevuld
-                                </span>
+                                <button
+                                    class="reset-password-toggle"
+                                    type="button"
+                                    data-toggle-password="password"
+                                    aria-label="Nieuw wachtwoord tonen of verbergen"
+                                    aria-pressed="false"
+                                >
+                                    Tonen
+                                </button>
+                            </div>
+
+                            <div class="reset-strength">
+                                <div class="reset-strength-track">
+                                    <div
+                                        class="reset-strength-bar"
+                                        id="passwordStrengthBar"
+                                    ></div>
+                                </div>
+
+                                <div class="reset-strength-copy">
+                                    <span>Wachtwoordsterkte</span>
+                                    <span id="passwordStrengthLabel">
+                                        Nog niet ingevuld
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="reset-field">
-                        <div class="reset-label-row">
-                            <label for="password_confirmation">
-                                Wachtwoord bevestigen
-                            </label>
+                        <div class="reset-field">
+                            <div class="reset-label-row">
+                                <label for="password_confirmation">
+                                    Wachtwoord bevestigen
+                                </label>
 
-                            @error('password_confirmation')
-                                <span class="reset-field-error">
-                                    {{ $message }}
-                                </span>
-                            @enderror
+                                @error('password_confirmation')
+                                    <span class="reset-field-error">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+
+                            <div class="reset-input-wrap">
+                                <input
+                                    class="reset-input with-toggle"
+                                    id="password_confirmation"
+                                    type="password"
+                                    name="password_confirmation"
+                                    placeholder="Herhaal je nieuwe wachtwoord"
+                                    autocomplete="new-password"
+                                    minlength="8"
+                                    required
+                                >
+
+                                <button
+                                    class="reset-password-toggle"
+                                    type="button"
+                                    data-toggle-password="password_confirmation"
+                                    aria-label="Wachtwoordbevestiging tonen of verbergen"
+                                    aria-pressed="false"
+                                >
+                                    Tonen
+                                </button>
+                            </div>
+
+                            <div
+                                class="reset-match"
+                                id="passwordMatchStatus"
+                                aria-live="polite"
+                            ></div>
                         </div>
 
-                        <div class="reset-input-wrap">
-                            <input
-                                class="reset-input with-toggle"
-                                id="password_confirmation"
-                                type="password"
-                                name="password_confirmation"
-                                placeholder="Herhaal je nieuwe wachtwoord"
-                                autocomplete="new-password"
-                                minlength="8"
-                                required
-                            >
+                        <div class="reset-info-grid">
+                            <div class="reset-info">
+                                <small>
+                                    Password security
+                                </small>
 
-                            <button
-                                class="password-toggle"
-                                type="button"
-                                data-toggle-password="password_confirmation"
-                                aria-label="Wachtwoordbevestiging tonen of verbergen"
-                            >
-                                Tonen
-                            </button>
+                                <strong>
+                                    Gebruik een uniek wachtwoord
+                                </strong>
+
+                                <p>
+                                    Kies bij voorkeur een lang wachtwoord dat
+                                    je nergens anders gebruikt.
+                                </p>
+                            </div>
+
+                            <div class="reset-info">
+                                <small>
+                                    Recovery link
+                                </small>
+
+                                <strong>
+                                    Tijdelijke resetlink
+                                </strong>
+
+                                <p>
+                                    Is je link verlopen? Vraag dan een nieuwe
+                                    resetlink aan.
+                                </p>
+                            </div>
                         </div>
 
-                        <div
-                            class="password-match"
-                            id="passwordMatchStatus"
-                            aria-live="polite"
-                        ></div>
+                        <button
+                            class="reset-submit"
+                            id="resetPasswordSubmit"
+                            type="submit"
+                        >
+                            Nieuw wachtwoord opslaan
+                        </button>
+                    </form>
+
+                    <div class="reset-divider">
+                        Klaar om terug te keren?
                     </div>
 
-                    <div class="reset-info-grid">
-                        <div class="reset-info">
-                            <small>
-                                Password security
-                            </small>
-
+                    <div class="reset-return">
+                        <div class="reset-return-copy">
                             <strong>
-                                Gebruik een uniek wachtwoord
+                                Terug naar inloggen
                             </strong>
 
-                            <p>
-                                Gebruik bij voorkeur een lang wachtwoord dat je
-                                nergens anders gebruikt.
-                            </p>
+                            <span>
+                                Na een succesvolle reset log je in met je
+                                nieuwe wachtwoord.
+                            </span>
                         </div>
 
-                        <div class="reset-info warning">
-                            <small>
-                                Recovery link
-                            </small>
-
-                            <strong>
-                                Tijdelijke resetlink
-                            </strong>
-
-                            <p>
-                                Is je link verlopen? Vraag dan vanaf de
-                                wachtwoord-vergetenpagina een nieuwe aan.
-                            </p>
-                        </div>
+                        <a
+                            class="reset-return-link"
+                            href="{{ route('login') }}"
+                        >
+                            Inloggen
+                        </a>
                     </div>
 
-                    <button
-                        class="reset-submit"
-                        id="resetPasswordSubmit"
-                        type="submit"
-                    >
-                        Nieuw wachtwoord opslaan
-                    </button>
-                </form>
-
-                <div class="reset-divider">
-                    Klaar om terug te keren?
-                </div>
-
-                <div class="login-return-card">
-                    <div class="login-return-copy">
-                        <strong>
-                            Terug naar inloggen
-                        </strong>
+                    <div class="reset-security-note">
+                        <span
+                            class="reset-security-mark"
+                            aria-hidden="true"
+                        >
+                            ✓
+                        </span>
 
                         <span>
-                            Na een succesvolle reset log je in met je nieuwe wachtwoord.
+                            Deel je resetlink of nieuwe wachtwoord nooit
+                            met anderen. Mashal Studio vraagt je nooit via
+                            chat of telefoon om je wachtwoord.
                         </span>
                     </div>
-
-                    <a
-                        class="login-return-link"
-                        href="{{ route('login') }}"
-                    >
-                        Inloggen
-                    </a>
                 </div>
+            </section>
 
-                <div class="reset-security-note">
-                    <span class="reset-security-mark">
-                        ✓
-                    </span>
-
-                    <span>
-                        Deel je resetlink of nieuwe wachtwoord nooit met anderen.
-                        Mashal Studio zal nooit via chat of telefoon om je wachtwoord vragen.
-                    </span>
-                </div>
+            <div class="reset-footer">
+                Mashal Studio · Secure account recovery
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 </section>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
     const form =
         document.getElementById(
             'resetPasswordForm'
@@ -1354,22 +1043,22 @@ document.addEventListener('DOMContentLoaded', function () {
                         return;
                     }
 
-                    const hidden =
+                    const showing =
                         input.type === 'password';
 
                     input.type =
-                        hidden
+                        showing
                             ? 'text'
                             : 'password';
 
                     button.textContent =
-                        hidden
+                        showing
                             ? 'Verbergen'
                             : 'Tonen';
 
                     button.setAttribute(
                         'aria-pressed',
-                        hidden
+                        showing
                             ? 'true'
                             : 'false'
                     );
@@ -1379,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Strength meter
+    | Password strength
     |--------------------------------------------------------------------------
     */
 
@@ -1438,10 +1127,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 password.value
             );
 
-        strengthBar.style.width =
-            result.percent + '%';
+        strengthBar.style.transform =
+            'scaleX(' +
+            (result.percent / 100) +
+            ')';
 
-        strengthBar.style.background =
+        strengthBar.style.backgroundColor =
             result.tone;
 
         strengthLabel.textContent =
@@ -1450,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Match status
+    | Confirmation match
     |--------------------------------------------------------------------------
     */
 
@@ -1469,9 +1160,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         if (!confirmation.value) {
-            matchStatus.textContent =
-                '';
-
+            matchStatus.textContent = '';
             return;
         }
 
@@ -1523,9 +1212,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            submit.disabled =
-                true;
-
+            submit.disabled = true;
             submit.textContent =
                 'Nieuw wachtwoord opslaan…';
         }
@@ -1538,9 +1225,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            submit.disabled =
-                false;
-
+            submit.disabled = false;
             submit.textContent =
                 'Nieuw wachtwoord opslaan';
         }

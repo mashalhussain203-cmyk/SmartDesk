@@ -1,952 +1,776 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal | E-mail verifiëren')
+@section('title', 'E-mail verifiëren | Mashal Studio')
+
+@section(
+    'meta_description',
+    'Verifieer veilig je e-mailadres met de 6-cijferige code van Mashal Studio.'
+)
 
 @push('styles')
 <style>
     :root {
-        --otp-bg: #030303;
-        --otp-panel: rgba(19, 18, 22, .70);
-        --otp-border: rgba(255, 255, 255, .22);
-        --otp-soft-border: rgba(255, 255, 255, .10);
-        --otp-white: #f7f7f8;
-        --otp-muted: #aaa9ad;
-        --otp-yellow: #f4ee1f;
-        --otp-yellow-2: #e8c614;
-        --otp-orange: #ff6b23;
-        --otp-green: #18ed7e;
-        --otp-green-2: #04d773;
-        --otp-danger: #ff8b8b;
+        --verify-bg: #050506;
+        --verify-panel: #0e0e11;
+        --verify-panel-2: #141418;
+        --verify-text: #f7f7f8;
+        --verify-muted: #96969e;
+        --verify-muted-2: #686870;
+        --verify-line: rgba(255,255,255,.09);
+        --verify-line-strong: rgba(255,255,255,.15);
+        --verify-gold: #f1d84a;
+        --verify-gold-2: #d8b91e;
+        --verify-orange: #ff7a24;
+        --verify-green: #45df8b;
+        --verify-danger: #ff8f8f;
+        --verify-radius: 24px;
+        --verify-shadow: 0 24px 70px rgba(0,0,0,.36);
     }
 
-    .mashal-otp-page,
-    .mashal-otp-page * {
+    .verify-page,
+    .verify-page * {
         box-sizing: border-box;
     }
 
-    .mashal-otp-page {
-        position: relative;
-        isolation: isolate;
-        min-height: calc(100dvh - 78px);
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        color: var(--otp-white);
-        background:
-            radial-gradient(circle at 50% 37%, rgba(255, 177, 0, .045), transparent 28rem),
-            #020202;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | TikTok-reference background
-    |--------------------------------------------------------------------------
-    | Metallic black/gold ribbons made entirely with CSS. No external image
-    | is required, so the verification screen remains self-contained.
-    */
-    .mashal-otp-bg,
-    .mashal-otp-bg::before,
-    .mashal-otp-bg::after {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-    }
-
-    .mashal-otp-bg {
-        z-index: -5;
-        overflow: hidden;
-    }
-
-    .mashal-otp-bg::before,
-    .mashal-otp-bg::after {
-        content: "";
-    }
-
-    .mashal-otp-bg::before {
-        inset: -26%;
-        background:
-            linear-gradient(
-                128deg,
-                transparent 0 25%,
-                rgba(255, 115, 0, .04) 29%,
-                rgba(255, 141, 0, .42) 31%,
-                rgba(255, 219, 108, .93) 32%,
-                rgba(255, 122, 0, .34) 33.3%,
-                transparent 36% 49%,
-                rgba(255, 126, 0, .03) 52%,
-                rgba(255, 141, 0, .46) 54%,
-                rgba(255, 226, 126, .88) 55%,
-                rgba(255, 123, 0, .31) 56.2%,
-                transparent 59% 74%,
-                rgba(255, 173, 0, .22) 77%,
-                rgba(255, 230, 145, .72) 78%,
-                transparent 81%
-            );
-        filter: blur(3px);
-        opacity: .95;
-        transform: rotate(-4deg) scale(1.12);
-        animation: otpBackgroundDrift 12s ease-in-out infinite alternate;
-    }
-
-    .mashal-otp-bg::after {
-        inset: -15%;
-        background:
-            linear-gradient(
-                60deg,
-                transparent 0 19%,
-                rgba(165, 170, 180, .11) 20%,
-                rgba(247, 247, 250, .44) 21%,
-                rgba(89, 91, 96, .12) 22%,
-                transparent 24% 62%,
-                rgba(255, 152, 0, .13) 64%,
-                rgba(255, 202, 81, .47) 65%,
-                rgba(255, 123, 0, .11) 66%,
-                transparent 68%
-            );
-        filter: blur(5px);
-        opacity: .58;
-        transform: rotate(3deg);
-        animation: otpBackgroundDriftB 15s ease-in-out infinite alternate;
-    }
-
-    .otp-ribbon {
-        position: absolute;
-        z-index: -4;
-        width: 1050px;
-        height: 110px;
-        border-radius: 50%;
-        pointer-events: none;
-        filter: blur(8px);
-        opacity: .46;
-        background:
-            linear-gradient(
-                180deg,
-                transparent 0 28%,
-                rgba(255, 128, 0, .10) 39%,
-                rgba(255, 211, 85, .82) 49%,
-                rgba(255, 127, 0, .36) 55%,
-                transparent 72%
-            );
-    }
-
-    .otp-ribbon.one {
-        left: -340px;
-        top: 180px;
-        transform: rotate(31deg);
-    }
-
-    .otp-ribbon.two {
-        right: -390px;
-        top: 410px;
-        transform: rotate(-28deg);
-    }
-
-    .otp-ribbon.three {
-        left: -420px;
-        bottom: 80px;
-        transform: rotate(-25deg);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Exact vertical composition
-    |--------------------------------------------------------------------------
-    */
-    .mashal-otp-stage {
-        width: min(100%, 512px);
-        min-height: 910px;
-        padding: 76px 22px 66px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .otp-poster-title {
-        margin: 0 0 53px;
-        text-align: center;
-        color: #f8f8f8;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: clamp(35px, 9vw, 48px);
-        font-weight: 400;
-        line-height: .91;
-        letter-spacing: -.055em;
-        text-shadow: 0 5px 20px rgba(0,0,0,.65);
-    }
-
-    .otp-poster-title span {
-        display: block;
-        margin-top: 8px;
-        color: var(--otp-orange);
-        font-weight: 400;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Main glass card
-    |--------------------------------------------------------------------------
-    */
-    .otp-card-shell {
-        position: relative;
-        width: min(100%, 435px);
-        height: 408px;
-        flex: 0 0 auto;
-        filter: drop-shadow(0 22px 36px rgba(0,0,0,.48));
-    }
-
-    .otp-card-border {
-        position: absolute;
-        inset: 0;
-        padding: 1px;
-        border-radius: 25px;
-        clip-path: polygon(
-            14% 0,
-            100% 0,
-            100% 83%,
-            87% 100%,
-            0 100%,
-            0 18%
-        );
-        background:
-            linear-gradient(
-                142deg,
-                rgba(255,255,255,.65),
-                rgba(255,218,132,.18) 28%,
-                rgba(255,255,255,.16) 59%,
-                rgba(255,196,63,.68)
-            );
-    }
-
-    .otp-card {
+    .verify-page {
         position: relative;
         width: 100%;
-        height: 100%;
-        overflow: hidden;
-        border-radius: 24px;
-        clip-path: polygon(
-            14% 0,
-            100% 0,
-            100% 83%,
-            87% 100%,
-            0 100%,
-            0 18%
-        );
+        min-height: calc(100dvh - var(--studio-header-height, 78px));
+        overflow-x: clip;
+        color: var(--verify-text);
         background:
-            linear-gradient(137deg, rgba(255,255,255,.045), transparent 36%),
-            linear-gradient(160deg, rgba(19,18,22,.78), rgba(8,8,10,.78));
-        backdrop-filter: blur(25px) saturate(125%);
-        -webkit-backdrop-filter: blur(25px) saturate(125%);
+            radial-gradient(
+                circle at 14% 8%,
+                rgba(255,125,30,.11),
+                transparent 31rem
+            ),
+            radial-gradient(
+                circle at 88% 16%,
+                rgba(241,216,74,.06),
+                transparent 26rem
+            ),
+            linear-gradient(
+                180deg,
+                #050506 0%,
+                #080809 48%,
+                #050506 100%
+            );
     }
 
-    .otp-card::before {
+    .verify-page::before {
         content: "";
         position: absolute;
-        inset: -55%;
-        z-index: 0;
-        opacity: .28;
+        inset: 0;
         pointer-events: none;
+        opacity: .22;
+        background-image:
+            linear-gradient(
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
+            );
+        background-size: 64px 64px;
+        mask-image: linear-gradient(
+            to bottom,
+            #000,
+            transparent 74%
+        );
+    }
+
+    .verify-shell {
+        position: relative;
+        z-index: 1;
+        width: min(calc(100% - 32px), 1080px);
+        margin-inline: auto;
+        padding: clamp(34px, 5vw, 72px) 0 70px;
+    }
+
+    .verify-intro {
+        width: min(100%, 620px);
+        margin: 0 auto 26px;
+        text-align: center;
+        animation:
+            verify-enter .42s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .verify-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--verify-gold);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    .verify-eyebrow::before,
+    .verify-eyebrow::after {
+        content: "";
+        width: 22px;
+        height: 1px;
         background:
             linear-gradient(
-                125deg,
-                transparent 33%,
-                rgba(255, 153, 0, .13) 43%,
-                rgba(255, 226, 133, .45) 47%,
-                rgba(255, 127, 0, .14) 51%,
-                transparent 58%
+                90deg,
+                transparent,
+                rgba(241,216,74,.68)
             );
-        animation: otpGlassSweep 8s ease-in-out infinite;
     }
 
-    .otp-card::after {
+    .verify-eyebrow::after {
+        transform: scaleX(-1);
+    }
+
+    .verify-title {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(36px, 6vw, 62px);
+        line-height: .96;
+        font-weight: 930;
+        letter-spacing: -.055em;
+        text-wrap: balance;
+    }
+
+    .verify-title span {
+        display: block;
+        margin-top: 5px;
+        color: var(--verify-orange);
+    }
+
+    .verify-lead {
+        max-width: 540px;
+        margin: 16px auto 0;
+        color: var(--verify-muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .verify-card-wrap {
+        width: min(100%, 500px);
+        margin-inline: auto;
+        animation:
+            verify-enter .46s .05s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .verify-card {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--verify-line-strong);
+        border-radius: var(--verify-radius);
+        background:
+            linear-gradient(
+                155deg,
+                rgba(255,255,255,.038),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20,20,24,.98),
+                rgba(9,9,11,.985)
+            );
+        box-shadow: var(--verify-shadow);
+    }
+
+    .verify-card::before {
         content: "";
         position: absolute;
         inset: 0;
-        z-index: 0;
-        opacity: 0;
+        pointer-events: none;
+        border-radius: inherit;
         background:
-            radial-gradient(circle at 50% 48%, rgba(0,255,137,.22), transparent 37%),
-            linear-gradient(145deg, rgba(0,126,68,.16), rgba(2,38,23,.33));
-        transition: opacity .55s ease;
-        pointer-events: none;
+            linear-gradient(
+                135deg,
+                rgba(241,216,74,.11),
+                transparent 28%,
+                transparent 74%,
+                rgba(255,122,36,.055)
+            );
     }
 
-    .mashal-otp-stage.is-success .otp-card::after {
-        opacity: 1;
-    }
-
-    .otp-corner {
+    .verify-card::after {
+        content: "";
         position: absolute;
-        z-index: 5;
-        border: 1px solid rgba(255,255,255,.45);
-        background: rgba(255,255,255,.07);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        box-shadow: inset 0 0 14px rgba(255,255,255,.05);
+        right: 0;
+        bottom: 0;
+        width: 72px;
+        height: 72px;
         pointer-events: none;
+        border-right: 2px solid rgba(241,216,74,.55);
+        border-bottom: 2px solid rgba(241,216,74,.55);
+        border-radius: 0 0 calc(var(--verify-radius) - 1px) 0;
+        opacity: .72;
     }
 
-    .otp-corner.top-left {
-        width: 70px;
-        height: 70px;
-        top: -2px;
-        left: -4px;
-        border-radius: 16px;
-        clip-path: polygon(0 0,100% 0,0 100%);
+    .verify-card-inner {
+        position: relative;
+        z-index: 1;
+        padding: 28px;
     }
 
-    .otp-corner.bottom-right {
-        width: 69px;
-        height: 69px;
-        right: -3px;
-        bottom: -4px;
-        border-radius: 16px;
-        clip-path: polygon(100% 0,100% 100%,0 100%);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Card states
-    |--------------------------------------------------------------------------
-    */
-    .otp-state {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 31px 30px 28px;
-        opacity: 1;
-        transform: scale(1);
-        transition:
-            opacity .24s ease,
-            transform .33s cubic-bezier(.2,.75,.2,1);
-    }
-
-    .otp-state[hidden] {
+    .verify-state[hidden] {
         display: none !important;
     }
 
-    .otp-key-icon,
-    .otp-shield-icon {
-        width: 46px;
-        height: 46px;
+    .verify-state.is-entering {
+        animation:
+            verify-state-in .18s ease-out both;
+    }
+
+    .verify-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
         display: grid;
         place-items: center;
-        flex: 0 0 auto;
-        border-radius: 13px;
-        margin-bottom: 13px;
+        border: 1px solid rgba(241,216,74,.22);
+        border-radius: 14px;
+        color: var(--verify-gold);
+        background: rgba(241,216,74,.045);
     }
 
-    .otp-key-icon {
-        border: 1px solid rgba(236, 224, 28, .35);
-        color: var(--otp-yellow);
-        background: rgba(240,232,31,.035);
-        box-shadow:
-            0 0 18px rgba(240,229,33,.08),
-            inset 0 0 12px rgba(240,229,33,.025);
+    .verify-icon.success {
+        border-color: rgba(69,223,139,.22);
+        color: var(--verify-green);
+        background: rgba(69,223,139,.045);
     }
 
-    .otp-shield-icon {
-        border: 1px solid rgba(24,237,126,.34);
-        color: var(--otp-green);
-        background: rgba(24,237,126,.05);
-        box-shadow: 0 0 20px rgba(24,237,126,.15);
-    }
-
-    .otp-key-icon svg,
-    .otp-shield-icon svg {
+    .verify-icon svg {
         width: 23px;
         height: 23px;
     }
 
-    .otp-heading {
+    .verify-heading {
         margin: 0;
-        font-size: 23px;
-        line-height: 1;
-        font-weight: 850;
+        text-align: center;
+        color: #fff;
+        font-size: 25px;
+        line-height: 1.1;
+        font-weight: 900;
         letter-spacing: -.035em;
     }
 
-    .otp-heading strong {
-        color: var(--otp-yellow);
+    .verify-heading strong {
+        color: var(--verify-gold);
+        font-weight: inherit;
+    }
+
+    .verify-heading.success strong {
+        color: var(--verify-green);
+    }
+
+    .verify-description {
+        max-width: 390px;
+        margin: 8px auto 18px;
+        color: var(--verify-muted);
+        text-align: center;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .verify-message {
+        margin-bottom: 11px;
+        padding: 10px 11px;
+        border-radius: 10px;
+        font-size: 9px;
+        line-height: 1.55;
+    }
+
+    .verify-message.success {
+        border: 1px solid rgba(69,223,139,.18);
+        color: #adf4c9;
+        background: rgba(69,223,139,.055);
+    }
+
+    .verify-message.error {
+        border: 1px solid rgba(255,143,143,.18);
+        color: #ffc2c2;
+        background: rgba(255,90,90,.055);
+    }
+
+    .verify-message ul {
+        margin: 5px 0 0 16px;
+        padding: 0;
+    }
+
+    .verify-email-row {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .verify-input {
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        padding: 0 13px;
+        border: 1px solid rgba(255,255,255,.115);
+        border-radius: 11px;
+        outline: none;
+        color: #f5f5f6;
+        background: rgba(0,0,0,.26);
+        font: inherit;
+        font-size: 10px;
+        transition:
+            border-color .15s ease,
+            background .15s ease,
+            box-shadow .15s ease;
+    }
+
+    .verify-input::placeholder {
+        color: #5c5c64;
+    }
+
+    .verify-input:focus {
+        border-color: rgba(241,216,74,.48);
+        background: rgba(241,216,74,.02);
+        box-shadow: 0 0 0 3px rgba(241,216,74,.055);
+    }
+
+    .verify-send-button {
+        min-height: 44px;
+        padding: 0 13px;
+        border: 1px solid rgba(241,216,74,.18);
+        border-radius: 10px;
+        color: var(--verify-gold);
+        background: rgba(241,216,74,.045);
+        font: inherit;
+        font-size: 8px;
         font-weight: 900;
+        cursor: pointer;
+        white-space: nowrap;
+        transition:
+            transform .14s ease,
+            background .14s ease;
     }
 
-    .otp-success .otp-heading strong {
-        color: var(--otp-green);
+    .verify-send-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        background: rgba(241,216,74,.07);
     }
 
-    .otp-description {
-        margin: 9px 0 0;
-        max-width: 340px;
-        color: #9a999d;
-        font-size: 10.5px;
+    .verify-send-button:disabled {
+        opacity: .58;
+        cursor: wait;
+    }
+
+    .verify-code-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #8c8c94;
+        font-size: 8px;
+        font-weight: 850;
+        text-align: center;
+        letter-spacing: .035em;
+    }
+
+    .verify-boxes {
+        width: min(100%, 390px);
+        margin-inline: auto;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0,1fr));
+        gap: 8px;
+    }
+
+    .verify-box {
+        width: 100%;
+        min-width: 0;
+        aspect-ratio: 1 / 1;
+        border: 1px solid rgba(241,216,74,.28);
+        border-radius: 11px;
+        outline: none;
+        color: #fff;
+        background: rgba(0,0,0,.28);
+        text-align: center;
+        font: inherit;
+        font-size: clamp(17px, 5vw, 21px);
+        font-weight: 900;
+        caret-color: var(--verify-gold);
+        transition:
+            transform .14s ease,
+            border-color .14s ease,
+            background .14s ease,
+            box-shadow .14s ease;
+    }
+
+    .verify-box:focus {
+        border-color: var(--verify-gold);
+        background: rgba(241,216,74,.035);
+        box-shadow: 0 0 0 2px rgba(241,216,74,.075);
+        transform: translateY(-1px);
+    }
+
+    .verify-actions {
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .verify-resend {
+        color: #85858d;
+        font-size: 8px;
         line-height: 1.5;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | E-mail strip - necessary for your existing backend
-    |--------------------------------------------------------------------------
-    | The original TikTok is only the OTP step. Your Laravel flow requires
-    | an email address too, so this is deliberately kept compact and inside
-    | the same glass card instead of making a separate second layout.
-    */
-    .otp-email-row {
-        width: min(100%, 345px);
-        margin-top: 16px;
-        display: grid;
-        grid-template-columns: 1fr 78px;
-        gap: 7px;
-    }
-
-    .otp-email-input {
-        min-width: 0;
-        height: 38px;
-        padding: 0 11px;
-        border: 1px solid rgba(255,255,255,.13);
-        border-radius: 10px;
-        outline: 0;
-        color: #f6f6f7;
-        background: rgba(0,0,0,.23);
-        font: inherit;
-        font-size: 10px;
-        transition:
-            border-color .18s ease,
-            box-shadow .18s ease;
-    }
-
-    .otp-email-input:focus {
-        border-color: rgba(244,238,31,.57);
-        box-shadow: 0 0 0 3px rgba(244,238,31,.06);
-    }
-
-    .otp-send-button {
-        height: 38px;
-        padding: 0 8px;
-        border: 1px solid rgba(244,238,31,.25);
-        border-radius: 10px;
-        color: var(--otp-yellow);
-        background: rgba(244,238,31,.055);
-        font: inherit;
-        font-size: 9px;
-        font-weight: 850;
-        cursor: pointer;
-    }
-
-    .otp-send-button:disabled {
-        opacity: .55;
-        cursor: wait;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | OTP boxes
-    |--------------------------------------------------------------------------
-    */
-    .otp-boxes {
-        width: min(100%, 360px);
-        margin-top: 18px;
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 7px;
-    }
-
-    .otp-box {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        min-width: 0;
-        border: 1px solid rgba(236, 213, 23, .42);
-        border-radius: 11px;
-        outline: 0;
-        color: #fff;
-        background: rgba(7,7,9,.63);
-        text-align: center;
-        font: inherit;
-        font-size: 20px;
-        font-weight: 850;
-        caret-color: var(--otp-yellow);
-        box-shadow: inset 0 0 10px rgba(255,255,255,.018);
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            box-shadow .18s ease,
-            background .18s ease;
-    }
-
-    .otp-box:focus,
-    .otp-box.is-active {
-        border-color: #fff32e;
-        background: rgba(244,238,31,.045);
-        box-shadow:
-            0 0 0 2px rgba(244,238,31,.11),
-            0 0 18px rgba(244,221,0,.35);
-        transform: translateY(-1px);
-    }
-
-    .otp-resend {
-        margin-top: 20px;
-        color: #969599;
-        font-size: 9.5px;
-        line-height: 1.4;
-    }
-
-    .otp-resend button {
+    .verify-resend button {
         padding: 0;
         border: 0;
-        color: var(--otp-yellow);
+        color: var(--verify-gold);
         background: transparent;
         font: inherit;
-        font-weight: 850;
+        font-weight: 900;
         cursor: pointer;
     }
 
-    .otp-resend button:disabled {
-        opacity: .58;
+    .verify-resend button:disabled {
+        opacity: .55;
         cursor: default;
     }
 
-    .otp-main-button {
-        width: 210px;
-        height: 37px;
-        margin-top: 17px;
+    .verify-main-button {
+        min-height: 42px;
+        padding: 0 18px;
         border: 0;
-        border-radius: 8px;
-        color: #171200;
+        border-radius: 10px;
+        color: #171300;
         background:
-            linear-gradient(180deg, #fbef39, #dbb90a);
+            linear-gradient(
+                180deg,
+                #fff04b,
+                #d9b70d
+            );
         box-shadow:
-            0 9px 24px rgba(242,197,0,.18),
-            inset 0 1px 0 rgba(255,255,255,.59);
+            0 10px 26px rgba(216,183,13,.14),
+            inset 0 1px 0 rgba(255,255,255,.5);
         font: inherit;
-        font-size: 10px;
-        font-weight: 900;
+        font-size: 8px;
+        font-weight: 950;
         cursor: pointer;
+        white-space: nowrap;
         transition:
-            transform .18s ease,
-            filter .18s ease;
+            transform .15s ease,
+            filter .15s ease;
     }
 
-    .otp-main-button:hover {
-        filter: brightness(1.06);
+    .verify-main-button:hover:not(:disabled) {
         transform: translateY(-1px);
+        filter: brightness(1.045);
     }
 
-    .otp-main-button:disabled {
+    .verify-main-button:active:not(:disabled) {
+        transform: scale(.992);
+    }
+
+    .verify-main-button:disabled {
+        opacity: .66;
         cursor: wait;
-        opacity: .74;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Error/status messages
-    |--------------------------------------------------------------------------
-    */
-    .otp-message {
-        width: min(100%, 345px);
-        margin-top: 10px;
-        padding: 8px 10px;
-        border-radius: 9px;
-        text-align: left;
-        font-size: 9px;
-        line-height: 1.45;
+    .verify-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 18px 0 8px;
+        text-align: center;
     }
 
-    .otp-message.error {
-        border: 1px solid rgba(255,112,112,.21);
-        color: #ffc0c0;
-        background: rgba(255,66,66,.065);
-    }
-
-    .otp-message.success {
-        border: 1px solid rgba(39,244,143,.19);
-        color: #a3ffd0;
-        background: rgba(0,220,118,.055);
-    }
-
-    .otp-message ul {
-        margin: 5px 0 0 15px;
-        padding: 0;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Verifying state - floating/rotating digits from the video
-    |--------------------------------------------------------------------------
-    */
-    .otp-verifying {
-        justify-content: flex-start;
-    }
-
-    .otp-verifying .otp-key-icon {
-        margin-top: 0;
-        animation: otpKeyPulse 1.1s ease-in-out infinite;
-    }
-
-    .otp-floating-zone {
-        position: relative;
-        width: 210px;
-        height: 183px;
-        margin-top: 12px;
-    }
-
-    .otp-float {
-        position: absolute;
-        display: grid;
-        place-items: center;
-        width: 50px;
-        height: 50px;
-        border: 1px solid rgba(238, 203, 20, .46);
-        border-radius: 11px;
-        color: #fff;
-        background: rgba(7,7,9,.70);
-        font-size: 19px;
-        font-weight: 900;
-        box-shadow:
-            0 0 15px rgba(255,151,0,.06),
-            inset 0 0 10px rgba(255,255,255,.02);
-    }
-
-    .otp-float:nth-child(1) {
-        left: 80px;
-        top: 0;
-        animation: otpFloatTop 1.1s ease-in-out infinite alternate;
-    }
-
-    .otp-float:nth-child(2) {
-        left: 18px;
-        top: 52px;
-        animation: otpFloatLeft 1.18s ease-in-out infinite alternate;
-    }
-
-    .otp-float:nth-child(3) {
-        right: 18px;
-        top: 52px;
-        animation: otpFloatRight 1.02s ease-in-out infinite alternate;
-    }
-
-    .otp-float:nth-child(4) {
-        left: 80px;
-        bottom: 0;
-        animation: otpFloatBottom 1.16s ease-in-out infinite alternate;
-    }
-
-    .otp-float:nth-child(5),
-    .otp-float:nth-child(6) {
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
-        opacity: .8;
-    }
-
-    .otp-float:nth-child(5) {
-        left: 34px;
-        top: 3px;
-        animation: otpFloatMiniA 1.23s ease-in-out infinite alternate;
-    }
-
-    .otp-float:nth-child(6) {
-        right: 31px;
-        bottom: 4px;
-        animation: otpFloatMiniB 1.07s ease-in-out infinite alternate;
-    }
-
-    .otp-verifying .otp-resend {
-        margin-top: 5px;
-    }
-
-    .otp-verifying .otp-main-button {
-        margin-top: 18px;
-    }
-
-    .otp-spinner {
-        display: inline-block;
-        width: 14px;
-        height: 14px;
-        margin-right: 7px;
-        vertical-align: -3px;
-        border: 1.8px solid rgba(0,0,0,.28);
-        border-top-color: #191500;
+    .verify-spinner {
+        width: 34px;
+        height: 34px;
+        margin: 9px auto 18px;
+        border: 3px solid rgba(241,216,74,.14);
+        border-top-color: var(--verify-gold);
         border-radius: 50%;
-        animation: otpSpin .7s linear infinite;
+        animation: verify-spin .7s linear infinite;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Success state
-    |--------------------------------------------------------------------------
-    */
-    .otp-success {
-        justify-content: flex-start;
+    .verify-loading-copy {
+        color: var(--verify-muted);
+        font-size: 10px;
+        line-height: 1.6;
     }
 
-    .otp-success .otp-shield-icon {
-        margin-top: 0;
+    .verify-success {
+        padding: 14px 0 8px;
+        text-align: center;
     }
 
-    .otp-check {
-        width: 58px;
-        height: 58px;
-        margin-top: 55px;
+    .verify-check {
+        width: 64px;
+        height: 64px;
+        margin: 18px auto;
         display: grid;
         place-items: center;
-        border: 3px solid var(--otp-green);
-        border-radius: 13px;
-        color: #fff;
-        background: rgba(7,10,9,.79);
-        box-shadow:
-            0 0 0 9px rgba(24,237,126,.025),
-            0 0 30px rgba(24,237,126,.25);
-        animation: otpSuccessPop .55s cubic-bezier(.2,.88,.24,1.3) both;
+        border: 2px solid rgba(69,223,139,.7);
+        border-radius: 18px;
+        color: var(--verify-green);
+        background: rgba(69,223,139,.045);
+        animation:
+            verify-success-in .3s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    .otp-check svg {
+    .verify-check svg {
         width: 31px;
         height: 31px;
     }
 
-    .otp-success .otp-resend {
-        margin-top: 24px;
+    .verify-success-copy {
+        color: var(--verify-muted);
+        font-size: 10px;
+        line-height: 1.6;
     }
 
-    .otp-success .otp-main-button {
-        width: 210px;
-        color: #fff;
-        background:
-            linear-gradient(180deg, #1cf79a, #06d877);
-        box-shadow:
-            0 9px 27px rgba(0,231,125,.22),
-            inset 0 1px 0 rgba(255,255,255,.50);
-        cursor: default;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Decorative lower code panel from the reference video
-    |--------------------------------------------------------------------------
-    | It is purely decorative and does not expose real application code.
-    */
-    .otp-code-panel {
-        width: min(100%, 433px);
-        height: 131px;
-        margin-top: 66px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 8px;
-        background: rgba(4,4,5,.87);
-        box-shadow: 0 18px 36px rgba(0,0,0,.46);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
-
-    .otp-code-topbar {
-        height: 29px;
+    .verify-divider {
+        margin: 16px 0;
         display: flex;
         align-items: center;
-        padding: 0 9px;
-        border-bottom: 1px solid rgba(255,255,255,.07);
+        gap: 10px;
+        color: #6d6d74;
+        font-size: 7px;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
     }
 
-    .otp-code-dots {
+    .verify-divider::before,
+    .verify-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,.075);
+    }
+
+    .verify-bottom {
         display: flex;
-        gap: 4px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 11px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 11px;
+        background: rgba(0,0,0,.14);
     }
 
-    .otp-code-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
+    .verify-bottom-copy strong,
+    .verify-bottom-copy span {
+        display: block;
     }
 
-    .otp-code-dot.red { background: #ff5e64; }
-    .otp-code-dot.yellow { background: #ffca3a; }
-    .otp-code-dot.green { background: #38d568; }
+    .verify-bottom-copy strong {
+        color: #d2d2d5;
+        font-size: 8px;
+    }
 
-    .otp-code-tab {
-        margin-left: 12px;
-        color: #e1e1e4;
+    .verify-bottom-copy span {
+        margin-top: 3px;
+        color: #75757d;
         font-size: 7px;
-    }
-
-    .otp-code-react {
-        margin-left: auto;
-        color: #2bd9f7;
-        font-size: 7px;
-    }
-
-    .otp-code-body {
-        padding: 8px 10px 10px;
-        color: #83848a;
-        font-size: 6px;
-        line-height: 1.55;
-        white-space: pre;
-        overflow: hidden;
-    }
-
-    .otp-code-body .pink { color: #ff56ba; }
-    .otp-code-body .cyan { color: #34d5f4; }
-    .otp-code-body .green { color: #73e282; }
-    .otp-code-body .yellow { color: #f4d65b; }
-
-    .otp-footer {
-        margin-top: 16px;
-        color: #63646a;
-        text-align: center;
-        font-size: 9px;
         line-height: 1.5;
     }
 
-    .otp-footer a {
-        color: #9b9ca1;
+    .verify-bottom-link {
+        min-height: 34px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border: 1px solid rgba(241,216,74,.18);
+        border-radius: 9px;
+        color: var(--verify-gold);
+        background: rgba(241,216,74,.045);
         text-decoration: none;
+        font-size: 7px;
+        font-weight: 900;
+        transition:
+            transform .14s ease,
+            background .14s ease;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Animations
-    |--------------------------------------------------------------------------
-    */
-    @keyframes otpBackgroundDrift {
-        from { transform: rotate(-4deg) scale(1.10) translate3d(-1%, -1%, 0); }
-        to   { transform: rotate(-1deg) scale(1.16) translate3d(2%, 1%, 0); }
+    .verify-bottom-link:hover {
+        transform: translateY(-1px);
+        background: rgba(241,216,74,.07);
     }
 
-    @keyframes otpBackgroundDriftB {
-        from { transform: rotate(3deg) scale(1.02); }
-        to   { transform: rotate(6deg) scale(1.08); }
+    .verify-security-note {
+        margin-top: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #6c6c73;
+        font-size: 7px;
+        line-height: 1.55;
     }
 
-    @keyframes otpGlassSweep {
-        0%,100% { transform: translateX(-38%) rotate(-2deg); }
-        50%     { transform: translateX(32%) rotate(1deg); }
+    .verify-security-mark {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(69,223,139,.12);
+        border-radius: 50%;
+        color: #83d09f;
+        background: rgba(69,223,139,.025);
+        font-size: 7px;
+        font-weight: 900;
     }
 
-    @keyframes otpKeyPulse {
-        0%,100% {
-            transform: scale(1);
-            box-shadow: 0 0 15px rgba(244,238,31,.07);
-        }
-        50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 28px rgba(244,238,31,.22);
-        }
+    .verify-footer {
+        margin-top: 18px;
+        color: #606067;
+        text-align: center;
+        font-size: 9px;
+        animation:
+            verify-enter .46s .09s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    @keyframes otpSpin {
-        to { transform: rotate(360deg); }
-    }
-
-    @keyframes otpFloatTop {
-        from { transform: translate(-2px, 2px) rotate(-4deg); }
-        to   { transform: translate(5px,-5px) rotate(8deg); }
-    }
-
-    @keyframes otpFloatLeft {
-        from { transform: translate(2px,-3px) rotate(-17deg); }
-        to   { transform: translate(-7px,5px) rotate(-27deg); }
-    }
-
-    @keyframes otpFloatRight {
-        from { transform: translate(-2px,4px) rotate(15deg); }
-        to   { transform: translate(8px,-4px) rotate(25deg); }
-    }
-
-    @keyframes otpFloatBottom {
-        from { transform: translate(4px,-2px) rotate(-8deg); }
-        to   { transform: translate(-4px,6px) rotate(7deg); }
-    }
-
-    @keyframes otpFloatMiniA {
-        from { transform: translate(0,0) rotate(8deg); }
-        to   { transform: translate(-7px,-4px) rotate(-8deg); }
-    }
-
-    @keyframes otpFloatMiniB {
-        from { transform: translate(0,0) rotate(-5deg); }
-        to   { transform: translate(7px,4px) rotate(10deg); }
-    }
-
-    @keyframes otpSuccessPop {
-        0% {
+    @keyframes verify-enter {
+        from {
             opacity: 0;
-            transform: scale(.55) rotate(-10deg);
+            transform: translate3d(0, 12px, 0) scale(.992);
         }
-        100% {
+
+        to {
             opacity: 1;
-            transform: scale(1) rotate(0);
+            transform: translate3d(0, 0, 0) scale(1);
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Responsive
-    |--------------------------------------------------------------------------
-    */
-    @media (max-width: 540px) {
-        .mashal-otp-stage {
+    @keyframes verify-state-in {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 5px, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @keyframes verify-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes verify-success-in {
+        from {
+            opacity: 0;
+            transform: scale(.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .verify-shell {
+            width: min(calc(100% - 20px), 1080px);
+            padding-top: 26px;
+            padding-bottom: 48px;
+        }
+
+        .verify-intro {
+            margin-bottom: 20px;
+        }
+
+        .verify-title {
+            font-size: clamp(34px, 12vw, 46px);
+        }
+
+        .verify-lead {
+            font-size: 11px;
+        }
+
+        .verify-card-wrap {
             width: 100%;
-            min-height: 100dvh;
-            padding-top: 58px;
+            max-width: 500px;
         }
 
-        .otp-poster-title {
-            margin-bottom: 48px;
-            font-size: clamp(34px, 10vw, 45px);
+        .verify-card-inner {
+            padding: 22px 18px 24px;
         }
 
-        .otp-card-shell {
-            width: min(100%, 435px);
-            height: 408px;
+        .verify-card::after {
+            width: 52px;
+            height: 52px;
         }
 
-        .otp-state {
-            padding-inline: 20px;
-        }
-
-        .otp-boxes {
-            width: min(100%, 338px);
+        .verify-boxes {
             gap: 6px;
         }
 
-        .otp-email-row {
-            width: min(100%, 338px);
+        .verify-actions {
+            align-items: stretch;
+            flex-direction: column;
         }
 
-        .otp-code-panel {
-            margin-top: 54px;
+        .verify-main-button {
+            width: 100%;
         }
     }
 
     @media (max-width: 390px) {
-        .mashal-otp-stage {
-            padding-inline: 12px;
+        .verify-shell {
+            width: min(calc(100% - 14px), 1080px);
         }
 
-        .otp-card-shell {
-            height: 422px;
-        }
-
-        .otp-state {
+        .verify-card-inner {
             padding-inline: 14px;
         }
 
-        .otp-boxes {
+        .verify-email-row {
+            grid-template-columns: 1fr;
+        }
+
+        .verify-send-button {
+            width: 100%;
+        }
+
+        .verify-boxes {
             gap: 5px;
         }
 
-        .otp-main-button {
-            width: 205px;
+        .verify-bottom {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .verify-bottom-link {
+            width: 100%;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .mashal-otp-page *,
-        .mashal-otp-page *::before,
-        .mashal-otp-page *::after {
-            animation-duration: .01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: .01ms !important;
+        .verify-intro,
+        .verify-card-wrap,
+        .verify-footer,
+        .verify-state.is-entering,
+        .verify-check {
+            animation: none !important;
+        }
+
+        .verify-page *,
+        .verify-page *::before,
+        .verify-page *::after {
             scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+        }
+
+        .verify-spinner {
+            animation-duration: 1.4s;
         }
     }
 </style>
@@ -958,38 +782,43 @@
         'email',
         auth()->check()
             ? auth()->user()->email
-            : request('email', '')
+            : session('email', request('email', ''))
     );
 @endphp
 
-<section class="mashal-otp-page">
-    <div class="mashal-otp-bg" aria-hidden="true"></div>
-    <span class="otp-ribbon one" aria-hidden="true"></span>
-    <span class="otp-ribbon two" aria-hidden="true"></span>
-    <span class="otp-ribbon three" aria-hidden="true"></span>
-
+<section class="verify-page">
     <main
-        class="mashal-otp-stage"
-        id="mashal-otp-stage"
+        class="verify-shell"
+        id="verifyStage"
         data-send-url="{{ route('verification.send') }}"
         data-verify-url="{{ route('verification.verify') }}"
         data-login-url="{{ route('login') }}"
     >
-        <h1 class="otp-poster-title">
-            Mashal OTP
-            <span>Verification</span>
-        </h1>
+        <header class="verify-intro">
+            <div class="verify-eyebrow">
+                Secure verification
+            </div>
 
-        <div class="otp-card-shell">
-            <div class="otp-card-border">
-                <div class="otp-card">
-                    {{-- ENTRY --}}
+            <h1 class="verify-title">
+                E-mail verifiëren
+                <span>Mashal Studio</span>
+            </h1>
+
+            <p class="verify-lead">
+                Vul de 6-cijferige beveiligingscode uit je e-mail in
+                om je account veilig te activeren.
+            </p>
+        </header>
+
+        <div class="verify-card-wrap">
+            <section class="verify-card" aria-labelledby="verifyHeading">
+                <div class="verify-card-inner">
                     <section
-                        class="otp-state otp-entry"
-                        id="otp-entry"
+                        class="verify-state is-entering"
+                        id="verifyEntry"
                         aria-live="polite"
                     >
-                        <div class="otp-key-icon" aria-hidden="true">
+                        <div class="verify-icon" aria-hidden="true">
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -998,131 +827,38 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <circle cx="7.5" cy="16.5" r="3.2"></circle>
-                                <path d="M10 14l7.1-7.1a2.6 2.6 0 1 1 3.7 3.7L13.7 17.7"></path>
-                                <path d="M16.9 7.2l2.4 2.4"></path>
-                                <path d="M5.3 18.7L3 21"></path>
+                                <rect x="4" y="5" width="16" height="14" rx="3"></rect>
+                                <path d="M4 8l8 5 8-5"></path>
                             </svg>
                         </div>
 
-                        <h2 class="otp-heading">
+                        <h2 class="verify-heading" id="verifyHeading">
                             Verify <strong>OTP</strong>
                         </h2>
 
-                        <p class="otp-description">
-                            Vul de 6-cijferige beveiligingscode in die naar je e-mailadres is gestuurd.
+                        <p class="verify-description">
+                            Controleer je e-mailadres en voer daarna de
+                            6-cijferige code in.
                         </p>
 
-                        <form
-                            id="otp-send-form"
-                            class="otp-email-row"
-                            method="POST"
-                            action="{{ route('verification.send') }}"
-                            novalidate
-                        >
-                            @csrf
-
-                            <input
-                                class="otp-email-input"
-                                id="otp-email"
-                                type="email"
-                                name="email"
-                                value="{{ $verifyEmail }}"
-                                autocomplete="email"
-                                inputmode="email"
-                                spellcheck="false"
-                                maxlength="255"
-                                placeholder="naam@example.com"
-                                aria-label="E-mailadres"
-                                required
-                            >
-
-                            <button
-                                class="otp-send-button"
-                                id="otp-send-button"
-                                type="submit"
-                            >
-                                Stuur code
-                            </button>
-                        </form>
-
-                        <form
-                            id="otp-verify-form"
-                            method="POST"
-                            action="{{ route('verification.verify') }}"
-                            novalidate
-                        >
-                            @csrf
-
-                            <input
-                                id="otp-email-hidden"
-                                type="hidden"
-                                name="email"
-                                value="{{ $verifyEmail }}"
-                            >
-
-                            <input
-                                id="otp-code-hidden"
-                                type="hidden"
-                                name="code"
-                                value="{{ old('code') }}"
-                            >
-
-                            <div
-                                class="otp-boxes"
-                                id="otp-boxes"
-                                role="group"
-                                aria-label="6-cijferige verificatiecode"
-                            >
-                                @for ($i = 0; $i < 6; $i++)
-                                    <input
-                                        class="otp-box"
-                                        type="text"
-                                        inputmode="numeric"
-                                        pattern="[0-9]*"
-                                        maxlength="1"
-                                        autocomplete="{{ $i === 0 ? 'one-time-code' : 'off' }}"
-                                        aria-label="Cijfer {{ $i + 1 }}"
-                                        data-otp-index="{{ $i }}"
-                                    >
-                                @endfor
-                            </div>
-
-                            <div class="otp-resend">
-                                Geen code ontvangen?
-                                <button
-                                    id="otp-resend-button"
-                                    type="button"
-                                >
-                                    Opnieuw sturen
-                                </button>
-                                <span id="otp-resend-timer"></span>
-                            </div>
-
-                            <button
-                                class="otp-main-button"
-                                id="otp-verify-button"
-                                type="submit"
-                            >
-                                Verifieer &amp; ga verder&nbsp;&nbsp;→
-                            </button>
-                        </form>
-
                         @if (session('success'))
-                            <div class="otp-message success">
+                            <div class="verify-message success" role="status">
                                 {{ session('success') }}
                             </div>
                         @endif
 
                         @if (session('error'))
-                            <div class="otp-message error">
+                            <div class="verify-message error" role="alert">
                                 {{ session('error') }}
                             </div>
                         @endif
 
                         @if ($errors->any())
-                            <div class="otp-message error">
-                                <strong>Verificatie is niet gelukt.</strong>
+                            <div class="verify-message error" role="alert">
+                                <strong>
+                                    Verificatie is niet gelukt.
+                                </strong>
+
                                 <ul>
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -1132,20 +868,123 @@
                         @endif
 
                         <div
-                            class="otp-message error"
-                            id="otp-client-error"
+                            class="verify-message error"
+                            id="verifyClientError"
+                            role="alert"
                             hidden
                         ></div>
+
+                        <form
+                            id="verifySendForm"
+                            method="POST"
+                            action="{{ route('verification.send') }}"
+                        >
+                            @csrf
+
+                            <div class="verify-email-row">
+                                <input
+                                    class="verify-input"
+                                    id="verifyEmail"
+                                    type="email"
+                                    name="email"
+                                    value="{{ $verifyEmail }}"
+                                    autocomplete="email"
+                                    inputmode="email"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    maxlength="255"
+                                    placeholder="naam@example.com"
+                                    aria-label="E-mailadres"
+                                    required
+                                >
+
+                                <button
+                                    class="verify-send-button"
+                                    id="verifySendButton"
+                                    type="submit"
+                                >
+                                    Stuur code
+                                </button>
+                            </div>
+                        </form>
+
+                        <form
+                            id="verifyCodeForm"
+                            method="POST"
+                            action="{{ route('verification.verify') }}"
+                        >
+                            @csrf
+
+                            <input
+                                id="verifyEmailHidden"
+                                type="hidden"
+                                name="email"
+                                value="{{ $verifyEmail }}"
+                            >
+
+                            <input
+                                id="verifyCodeHidden"
+                                type="hidden"
+                                name="code"
+                                value="{{ old('code') }}"
+                            >
+
+                            <span class="verify-code-label">
+                                6-cijferige verificatiecode
+                            </span>
+
+                            <div
+                                class="verify-boxes"
+                                id="verifyBoxes"
+                                role="group"
+                                aria-label="6-cijferige verificatiecode"
+                            >
+                                @for ($i = 0; $i < 6; $i++)
+                                    <input
+                                        class="verify-box"
+                                        type="text"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        maxlength="1"
+                                        autocomplete="{{ $i === 0 ? 'one-time-code' : 'off' }}"
+                                        aria-label="Cijfer {{ $i + 1 }}"
+                                        data-verify-index="{{ $i }}"
+                                    >
+                                @endfor
+                            </div>
+
+                            <div class="verify-actions">
+                                <div class="verify-resend">
+                                    Geen code ontvangen?
+
+                                    <button
+                                        id="verifyResendButton"
+                                        type="button"
+                                    >
+                                        Opnieuw sturen
+                                    </button>
+
+                                    <span id="verifyResendTimer"></span>
+                                </div>
+
+                                <button
+                                    class="verify-main-button"
+                                    id="verifySubmitButton"
+                                    type="submit"
+                                >
+                                    Verifieer &amp; ga verder →
+                                </button>
+                            </div>
+                        </form>
                     </section>
 
-                    {{-- VERIFYING --}}
                     <section
-                        class="otp-state otp-verifying"
-                        id="otp-verifying"
+                        class="verify-state verify-loading"
+                        id="verifyLoading"
                         hidden
                         aria-live="polite"
                     >
-                        <div class="otp-key-icon" aria-hidden="true">
+                        <div class="verify-icon" aria-hidden="true">
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -1154,57 +993,32 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <circle cx="7.5" cy="16.5" r="3.2"></circle>
-                                <path d="M10 14l7.1-7.1a2.6 2.6 0 1 1 3.7 3.7L13.7 17.7"></path>
-                                <path d="M16.9 7.2l2.4 2.4"></path>
+                                <rect x="4" y="5" width="16" height="14" rx="3"></rect>
+                                <path d="M4 8l8 5 8-5"></path>
                             </svg>
                         </div>
 
-                        <h2 class="otp-heading">
-                            Verify <strong>OTP</strong>
+                        <h2 class="verify-heading">
+                            Code <strong>controleren</strong>
                         </h2>
 
-                        <p class="otp-description">
-                            Je beveiligingscode wordt gecontroleerd.
-                        </p>
-
                         <div
-                            class="otp-floating-zone"
+                            class="verify-spinner"
                             aria-hidden="true"
-                        >
-                            <span class="otp-float">•</span>
-                            <span class="otp-float">•</span>
-                            <span class="otp-float">•</span>
-                            <span class="otp-float">•</span>
-                            <span class="otp-float">•</span>
-                            <span class="otp-float">•</span>
-                        </div>
+                        ></div>
 
-                        <div class="otp-resend">
-                            Geen code ontvangen?
-                            <span style="color:var(--otp-yellow)">
-                                Verificatie bezig
-                            </span>
-                        </div>
-
-                        <button
-                            class="otp-main-button"
-                            type="button"
-                            disabled
-                        >
-                            <span class="otp-spinner" aria-hidden="true"></span>
-                            Code controleren...
-                        </button>
+                        <p class="verify-loading-copy">
+                            Een moment. We controleren je beveiligingscode.
+                        </p>
                     </section>
 
-                    {{-- SUCCESS --}}
                     <section
-                        class="otp-state otp-success"
-                        id="otp-success"
+                        class="verify-state verify-success"
+                        id="verifySuccess"
                         hidden
                         aria-live="polite"
                     >
-                        <div class="otp-shield-icon" aria-hidden="true">
+                        <div class="verify-icon success" aria-hidden="true">
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -1218,15 +1032,11 @@
                             </svg>
                         </div>
 
-                        <h2 class="otp-heading">
+                        <h2 class="verify-heading success">
                             Verified <strong>Successfully</strong>
                         </h2>
 
-                        <p class="otp-description">
-                            Je beveiligingscode is bevestigd.
-                        </p>
-
-                        <div class="otp-check" aria-hidden="true">
+                        <div class="verify-check" aria-hidden="true">
                             <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -1239,53 +1049,55 @@
                             </svg>
                         </div>
 
-                        <div class="otp-resend">
-                            Je e-mailadres is nu veilig bevestigd.
+                        <p class="verify-success-copy">
+                            Je e-mailadres is veilig bevestigd.
+                            Je wordt direct doorgestuurd.
+                        </p>
+                    </section>
+
+                    <div class="verify-divider">
+                        Accountbeveiliging
+                    </div>
+
+                    <div class="verify-bottom">
+                        <div class="verify-bottom-copy">
+                            <strong>
+                                Terug naar inloggen
+                            </strong>
+
+                            <span>
+                                Gebruik alleen codes die je zelf van
+                                Mashal Studio hebt aangevraagd.
+                            </span>
                         </div>
 
-                        <button
-                            class="otp-main-button"
-                            type="button"
-                            disabled
+                        <a
+                            class="verify-bottom-link"
+                            href="{{ route('login') }}"
                         >
-                            ✓&nbsp;&nbsp;Verified &amp; Secured
-                        </button>
-                    </section>
+                            Inloggen
+                        </a>
+                    </div>
+
+                    <div class="verify-security-note">
+                        <span
+                            class="verify-security-mark"
+                            aria-hidden="true"
+                        >
+                            ✓
+                        </span>
+
+                        <span>
+                            Deel je verificatiecode nooit met anderen.
+                            Mashal Studio vraagt je code niet via chat of telefoon.
+                        </span>
+                    </div>
                 </div>
+            </section>
+
+            <div class="verify-footer">
+                Mashal Studio · Secure e-mail verification
             </div>
-
-            <span class="otp-corner top-left" aria-hidden="true"></span>
-            <span class="otp-corner bottom-right" aria-hidden="true"></span>
-        </div>
-
-        {{-- Decorative panel from the reference video --}}
-        <div class="otp-code-panel" aria-hidden="true">
-            <div class="otp-code-topbar">
-                <div class="otp-code-dots">
-                    <span class="otp-code-dot red"></span>
-                    <span class="otp-code-dot yellow"></span>
-                    <span class="otp-code-dot green"></span>
-                </div>
-                <div class="otp-code-tab">◻&nbsp; Verification.jsx</div>
-                <div class="otp-code-react">⚛&nbsp; Secure UI</div>
-            </div>
-            <div class="otp-code-body"><span class="pink">const</span> <span class="cyan">verification</span> = {
-  state: <span class="green">'secure'</span>,
-  digits: <span class="yellow">6</span>,
-  protected: <span class="cyan">true</span>,
-  provider: <span class="green">'Mashal'</span>
-};</div>
-        </div>
-
-        <div class="otp-footer">
-            Mashal · beveiligde e-mailverificatie
-            · <a href="{{ route('login') }}">Terug naar inloggen</a>
-
-            @auth
-                @if (\Illuminate\Support\Facades\Route::has('account'))
-                    · <a href="{{ route('account') }}">Mijn account</a>
-                @endif
-            @endauth
         </div>
     </main>
 </section>
@@ -1297,67 +1109,100 @@ document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
     const stage =
-        document.getElementById('mashal-otp-stage');
+        document.getElementById(
+            'verifyStage'
+        );
 
-    const entryState =
-        document.getElementById('otp-entry');
+    const entry =
+        document.getElementById(
+            'verifyEntry'
+        );
 
-    const verifyingState =
-        document.getElementById('otp-verifying');
+    const loading =
+        document.getElementById(
+            'verifyLoading'
+        );
 
-    const successState =
-        document.getElementById('otp-success');
+    const success =
+        document.getElementById(
+            'verifySuccess'
+        );
 
     const sendForm =
-        document.getElementById('otp-send-form');
+        document.getElementById(
+            'verifySendForm'
+        );
 
     const verifyForm =
-        document.getElementById('otp-verify-form');
+        document.getElementById(
+            'verifyCodeForm'
+        );
 
     const emailInput =
-        document.getElementById('otp-email');
+        document.getElementById(
+            'verifyEmail'
+        );
 
     const hiddenEmail =
-        document.getElementById('otp-email-hidden');
+        document.getElementById(
+            'verifyEmailHidden'
+        );
 
     const hiddenCode =
-        document.getElementById('otp-code-hidden');
+        document.getElementById(
+            'verifyCodeHidden'
+        );
 
     const sendButton =
-        document.getElementById('otp-send-button');
+        document.getElementById(
+            'verifySendButton'
+        );
 
-    const verifyButton =
-        document.getElementById('otp-verify-button');
+    const submitButton =
+        document.getElementById(
+            'verifySubmitButton'
+        );
 
     const resendButton =
-        document.getElementById('otp-resend-button');
+        document.getElementById(
+            'verifyResendButton'
+        );
 
     const resendTimer =
-        document.getElementById('otp-resend-timer');
+        document.getElementById(
+            'verifyResendTimer'
+        );
 
     const clientError =
-        document.getElementById('otp-client-error');
+        document.getElementById(
+            'verifyClientError'
+        );
 
     const otpInputs =
         Array.from(
-            document.querySelectorAll('.otp-box')
-        );
-
-    const floatingDigits =
-        Array.from(
-            document.querySelectorAll('.otp-float')
+            document.querySelectorAll(
+                '[data-verify-index]'
+            )
         );
 
     const csrfToken =
-        document.querySelector('meta[name="csrf-token"]')?.content
-        || verifyForm?.querySelector('input[name="_token"]')?.value
+        verifyForm
+            ?.querySelector(
+                'input[name="_token"]'
+            )
+            ?.value
         || '';
 
-    let countdownInterval = null;
-    let isVerifying = false;
+    let countdownInterval =
+        null;
+
+    let isVerifying =
+        false;
 
     function digitsOnly(value) {
-        return String(value || '')
+        return String(
+            value || ''
+        )
             .replace(/\D/g, '')
             .slice(0, 6);
     }
@@ -1372,8 +1217,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function syncEmail() {
         if (
-            hiddenEmail
-            && emailInput
+            hiddenEmail &&
+            emailInput
         ) {
             hiddenEmail.value =
                 emailInput.value.trim();
@@ -1385,16 +1230,6 @@ document.addEventListener('DOMContentLoaded', function () {
             hiddenCode.value =
                 currentCode();
         }
-
-        otpInputs.forEach(
-            function (input) {
-                input.classList.toggle(
-                    'is-active',
-                    document.activeElement
-                        === input
-                );
-            }
-        );
     }
 
     function clearClientError() {
@@ -1402,8 +1237,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        clientError.hidden = true;
-        clientError.textContent = '';
+        clientError.hidden =
+            true;
+
+        clientError.textContent =
+            '';
     }
 
     function showClientError(message) {
@@ -1413,47 +1251,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
         clientError.textContent =
             String(
-                message
-                || 'Er ging iets mis.'
+                message ||
+                'Er ging iets mis.'
             );
 
-        clientError.hidden = false;
+        clientError.hidden =
+            false;
     }
 
     function showState(name) {
-        entryState.hidden =
-            name !== 'entry';
+        if (
+            !entry ||
+            !loading ||
+            !success
+        ) {
+            return;
+        }
 
-        verifyingState.hidden =
-            name !== 'verifying';
+        const states = {
+            entry,
+            loading,
+            success,
+        };
 
-        successState.hidden =
-            name !== 'success';
+        Object
+            .entries(states)
+            .forEach(function ([key, element]) {
+                const active =
+                    key === name;
 
-        stage.classList.toggle(
-            'is-success',
-            name === 'success'
-        );
-    }
+                element.hidden =
+                    !active;
 
-    function putCodeIntoFloatingTiles(code) {
-        const digits =
-            digitsOnly(code)
-                .padEnd(6, '•')
-                .split('');
+                element.classList.remove(
+                    'is-entering'
+                );
 
-        floatingDigits.forEach(
-            function (tile, index) {
-                tile.textContent =
-                    digits[index] || '•';
-            }
-        );
+                if (active) {
+                    window.requestAnimationFrame(
+                        function () {
+                            element.classList.add(
+                                'is-entering'
+                            );
+                        }
+                    );
+                }
+            });
     }
 
     function startCountdown(seconds) {
         window.clearInterval(
             countdownInterval
         );
+
+        if (
+            !resendButton ||
+            !resendTimer
+        ) {
+            return;
+        }
 
         let remaining =
             Math.max(
@@ -1463,11 +1319,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function render() {
             if (remaining <= 0) {
-                resendButton.disabled = false;
+                resendButton.disabled =
+                    false;
+
                 resendButton.textContent =
                     'Opnieuw sturen';
 
-                resendTimer.textContent = '';
+                resendTimer.textContent =
+                    '';
 
                 window.clearInterval(
                     countdownInterval
@@ -1476,11 +1335,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            resendButton.disabled = true;
+            resendButton.disabled =
+                true;
 
             resendTimer.textContent =
-                ' in 00:'
-                + String(remaining)
+                ' in 00:' +
+                String(remaining)
                     .padStart(2, '0');
 
             remaining -= 1;
@@ -1496,26 +1356,71 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function hydrateOldCode() {
-        const oldCode =
+        const code =
             digitsOnly(
-                hiddenCode?.value
-                || ''
+                hiddenCode?.value || ''
             );
 
-        oldCode
+        code
             .split('')
             .forEach(
                 function (digit, index) {
                     if (otpInputs[index]) {
+                        otpInputs[index].value =
+                            digit;
+                    }
+                }
+            );
+
+        syncEmail();
+        syncCode();
+    }
+
+    function fillOtpFrom(
+        startIndex,
+        value
+    ) {
+        const digits =
+            digitsOnly(value);
+
+        if (!digits) {
+            return;
+        }
+
+        digits
+            .split('')
+            .forEach(
+                function (digit, offset) {
+                    const target =
                         otpInputs[
-                            index
-                        ].value = digit;
+                            startIndex + offset
+                        ];
+
+                    if (target) {
+                        target.value =
+                            digit;
                     }
                 }
             );
 
         syncCode();
-        syncEmail();
+
+        const nextIndex =
+            Math.min(
+                startIndex +
+                    digits.length,
+                otpInputs.length - 1
+            );
+
+        otpInputs[
+            nextIndex
+        ]?.focus();
+
+        if (
+            currentCode().length === 6
+        ) {
+            submitButton?.focus();
+        }
     }
 
     async function sendVerificationCode() {
@@ -1523,12 +1428,14 @@ document.addEventListener('DOMContentLoaded', function () {
         syncEmail();
 
         const email =
-            emailInput?.value.trim()
-            || '';
+            emailInput
+                ?.value
+                .trim()
+        || '';
 
         if (
-            !email
-            || !emailInput.checkValidity()
+            !email ||
+            !emailInput?.checkValidity()
         ) {
             showClientError(
                 'Vul eerst een geldig e-mailadres in.'
@@ -1539,9 +1446,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        sendButton.disabled = true;
-        sendButton.textContent =
-            'Bezig...';
+        if (sendButton) {
+            sendButton.disabled =
+                true;
+
+            sendButton.textContent =
+                'Bezig…';
+        }
 
         try {
             const body =
@@ -1605,10 +1516,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
             }
 
+            const finalUrl =
+                new URL(
+                    response.url ||
+                    window.location.href,
+                    window.location.origin
+                );
+
+            const currentPath =
+                window.location.pathname
+                    .replace(/\/+$/, '');
+
+            const finalPath =
+                finalUrl.pathname
+                    .replace(/\/+$/, '');
+
             /*
-             * TikTok-reference starts around 00:38 after receiving
-             * the code, so the visible timer deliberately starts there.
+             * Als de backend bijvoorbeeld aangeeft dat het e-mailadres
+             * al geverifieerd is en naar /login stuurt, volgen we dat
+             * meteen in plaats van onnodig op deze pagina te blijven.
              */
+            if (
+                finalPath &&
+                finalPath !== currentPath
+            ) {
+                window.location.assign(
+                    finalUrl.href
+                );
+
+                return true;
+            }
+
             startCountdown(38);
 
             otpInputs[0]?.focus();
@@ -1623,27 +1561,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
             return false;
         } finally {
-            sendButton.disabled = false;
-            sendButton.textContent =
-                'Stuur code';
+            if (sendButton) {
+                sendButton.disabled =
+                    false;
+
+                sendButton.textContent =
+                    'Stuur code';
+            }
         }
     }
 
     otpInputs.forEach(
         function (input, index) {
             input.addEventListener(
-                'focus',
-                syncCode
-            );
-
-            input.addEventListener(
-                'blur',
-                syncCode
-            );
-
-            input.addEventListener(
                 'input',
                 function () {
+                    clearClientError();
+
                     const raw =
                         String(
                             input.value || ''
@@ -1652,41 +1586,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     const clean =
                         digitsOnly(raw);
 
-                    /*
-                     * Browser/mobile OTP autofill may put all six
-                     * digits into the first visible field.
-                     */
                     if (clean.length > 1) {
-                        clean
-                            .split('')
-                            .forEach(
-                                function (
-                                    digit,
-                                    offset
-                                ) {
-                                    const target =
-                                        otpInputs[
-                                            index
-                                            + offset
-                                        ];
+                        fillOtpFrom(
+                            index,
+                            clean
+                        );
 
-                                    if (target) {
-                                        target.value =
-                                            digit;
-                                    }
-                                }
-                            );
-                    } else {
-                        input.value =
-                            clean;
+                        return;
                     }
 
+                    input.value =
+                        clean;
+
                     syncCode();
-                    clearClientError();
 
                     if (
-                        input.value !== ''
-                        && otpInputs[index + 1]
+                        clean &&
+                        otpInputs[index + 1]
                     ) {
                         otpInputs[
                             index + 1
@@ -1697,7 +1613,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         currentCode().length
                         === 6
                     ) {
-                        verifyButton.focus();
+                        submitButton?.focus();
                     }
                 }
             );
@@ -1706,32 +1622,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 'keydown',
                 function (event) {
                     if (
-                        event.key === 'Backspace'
-                        && input.value === ''
-                        && otpInputs[index - 1]
+                        event.key ===
+                            'Backspace' &&
+                        input.value === '' &&
+                        otpInputs[index - 1]
                     ) {
                         const previous =
-                            otpInputs[index - 1];
+                            otpInputs[
+                                index - 1
+                            ];
 
-                        previous.value = '';
+                        previous.value =
+                            '';
+
                         previous.focus();
+
                         syncCode();
+
+                        return;
                     }
 
                     if (
-                        event.key === 'ArrowLeft'
-                        && otpInputs[index - 1]
+                        event.key ===
+                            'ArrowLeft' &&
+                        otpInputs[index - 1]
                     ) {
                         event.preventDefault();
 
                         otpInputs[
                             index - 1
                         ].focus();
+
+                        return;
                     }
 
                     if (
-                        event.key === 'ArrowRight'
-                        && otpInputs[index + 1]
+                        event.key ===
+                            'ArrowRight' &&
+                        otpInputs[index + 1]
                     ) {
                         event.preventDefault();
 
@@ -1747,7 +1675,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 function (event) {
                     const pasted =
                         digitsOnly(
-                            event.clipboardData
+                            event
+                                .clipboardData
                                 ?.getData('text')
                             || ''
                         );
@@ -1758,37 +1687,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     event.preventDefault();
 
-                    pasted
-                        .split('')
-                        .forEach(
-                            function (
-                                digit,
-                                offset
-                            ) {
-                                const target =
-                                    otpInputs[
-                                        index + offset
-                                    ];
-
-                                if (target) {
-                                    target.value =
-                                        digit;
-                                }
-                            }
-                        );
-
-                    syncCode();
-
-                    const nextIndex =
-                        Math.min(
-                            index
-                            + pasted.length,
-                            otpInputs.length - 1
-                        );
-
-                    otpInputs[
-                        nextIndex
-                    ]?.focus();
+                    fillOtpFrom(
+                        index,
+                        pasted
+                    );
                 }
             );
         }
@@ -1796,7 +1698,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     emailInput?.addEventListener(
         'input',
-        syncEmail
+        function () {
+            syncEmail();
+            clearClientError();
+        }
     );
 
     sendForm?.addEventListener(
@@ -1829,20 +1734,23 @@ document.addEventListener('DOMContentLoaded', function () {
             syncCode();
 
             const email =
-                hiddenEmail.value.trim();
+                hiddenEmail
+                    ?.value
+                    .trim()
+            || '';
 
             const code =
                 currentCode();
 
             if (
-                !email
-                || !emailInput.checkValidity()
+                !email ||
+                !emailInput?.checkValidity()
             ) {
                 showClientError(
                     'Vul eerst een geldig e-mailadres in.'
                 );
 
-                emailInput.focus();
+                emailInput?.focus();
 
                 return;
             }
@@ -1866,34 +1774,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            isVerifying = true;
-            verifyButton.disabled = true;
+            isVerifying =
+                true;
 
-            putCodeIntoFloatingTiles(
-                code
+            if (submitButton) {
+                submitButton.disabled =
+                    true;
+            }
+
+            showState(
+                'loading'
             );
-
-            showState('verifying');
-
-            /*
-             * Keep the floating-number animation visible long enough
-             * to reproduce the reference interaction.
-             */
-            await new Promise(
-                function (resolve) {
-                    window.setTimeout(
-                        resolve,
-                        780
-                    );
-                }
-            );
-
-            const body =
-                new FormData(
-                    verifyForm
-                );
 
             try {
+                const body =
+                    new FormData(
+                        verifyForm
+                    );
+
                 const response =
                     await fetch(
                         stage.dataset.verifyUrl,
@@ -1945,8 +1843,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const finalUrl =
                     new URL(
-                        response.url
-                        || stage.dataset.loginUrl,
+                        response.url ||
+                        stage.dataset.loginUrl,
                         window.location.origin
                     );
 
@@ -1958,33 +1856,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     finalUrl.pathname
                         .replace(/\/+$/, '');
 
-                /*
-                 * The existing controller redirects invalid/expired codes
-                 * back to /verify with flash errors. fetch follows that
-                 * redirect, so ending on this same path means verification
-                 * did not succeed.
-                 */
                 if (
-                    finalPath
-                    === currentPath
+                    finalPath ===
+                    currentPath
                 ) {
                     throw new Error(
                         'De code is ongeldig of verlopen. Controleer de code of vraag een nieuwe aan.'
                     );
                 }
 
-                showState('success');
-
-                /*
-                 * Match the reference success frame before continuing.
-                 */
-                await new Promise(
-                    function (resolve) {
-                        window.setTimeout(
-                            resolve,
-                            1500
-                        );
-                    }
+                showState(
+                    'success'
                 );
 
                 try {
@@ -1992,14 +1874,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         'mashal_auth_success_pending'
                     );
                 } catch (error) {
-                    // Verify redirect mag niet blokkeren.
+                    //
                 }
 
-                window.location.assign(
-                    finalUrl.href
+                /*
+                 * Geen kunstmatige vertraging meer.
+                 * Eén paint-frame voor de successtate en direct door.
+                 */
+                window.requestAnimationFrame(
+                    function () {
+                        window.location.assign(
+                            finalUrl.href
+                        );
+                    }
                 );
             } catch (error) {
-                showState('entry');
+                showState(
+                    'entry'
+                );
 
                 showClientError(
                     error instanceof Error
@@ -2009,7 +1901,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 otpInputs.forEach(
                     function (input) {
-                        input.value = '';
+                        input.value =
+                            '';
                     }
                 );
 
@@ -2017,8 +1910,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 otpInputs[0]?.focus();
             } finally {
-                isVerifying = false;
-                verifyButton.disabled = false;
+                isVerifying =
+                    false;
+
+                if (submitButton) {
+                    submitButton.disabled =
+                        false;
+                }
             }
         }
     );

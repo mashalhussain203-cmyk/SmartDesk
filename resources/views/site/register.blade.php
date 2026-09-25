@@ -9,1002 +9,674 @@
 
 @push('styles')
 <style>
-
-
     :root {
-        --glass-bg: #020202;
-        --glass-card: rgba(18,18,22,.73);
-        --glass-line: rgba(255,255,255,.18);
-        --glass-soft: rgba(255,255,255,.08);
-        --glass-text: #f7f7f8;
-        --glass-muted: #9d9ca1;
-        --glass-yellow: #f4ee1f;
-        --glass-yellow-2: #d9b70b;
-        --glass-orange: #ff6b23;
-        --glass-green: #18ed7e;
-        --glass-danger: #ff8b8b;
+        --register-bg: #050506;
+        --register-panel: #0e0e11;
+        --register-panel-2: #141418;
+        --register-text: #f7f7f8;
+        --register-muted: #96969e;
+        --register-muted-2: #686870;
+        --register-line: rgba(255,255,255,.09);
+        --register-line-strong: rgba(255,255,255,.15);
+        --register-gold: #f1d84a;
+        --register-gold-2: #d8b91e;
+        --register-orange: #ff7a24;
+        --register-green: #45df8b;
+        --register-danger: #ff8f8f;
+        --register-radius: 24px;
+        --register-shadow: 0 24px 70px rgba(0,0,0,.36);
     }
 
-    .glass-auth-page,
-    .glass-auth-page * {
+    .register-page,
+    .register-page * {
         box-sizing: border-box;
     }
 
-    .glass-auth-page {
+    .register-page {
         position: relative;
-        isolation: isolate;
-        min-height: calc(100dvh - 76px);
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        color: var(--glass-text);
+        width: 100%;
+        min-height: calc(100dvh - var(--studio-header-height, 78px));
+        overflow-x: clip;
+        color: var(--register-text);
         background:
-            radial-gradient(circle at 50% 34%, rgba(255,177,0,.045), transparent 29rem),
-            #020202;
-    }
-
-    .glass-bg,
-    .glass-bg::before,
-    .glass-bg::after {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-    }
-
-    .glass-bg {
-        z-index: -5;
-        overflow: hidden;
-    }
-
-    .glass-bg::before,
-    .glass-bg::after {
-        content: "";
-    }
-
-    .glass-bg::before {
-        inset: -26%;
-        background:
-            linear-gradient(
-                128deg,
-                transparent 0 25%,
-                rgba(255,115,0,.04) 29%,
-                rgba(255,141,0,.42) 31%,
-                rgba(255,219,108,.94) 32%,
-                rgba(255,122,0,.34) 33.3%,
-                transparent 36% 49%,
-                rgba(255,126,0,.03) 52%,
-                rgba(255,141,0,.45) 54%,
-                rgba(255,226,126,.87) 55%,
-                rgba(255,123,0,.31) 56.2%,
-                transparent 59% 74%,
-                rgba(255,173,0,.21) 77%,
-                rgba(255,230,145,.72) 78%,
-                transparent 81%
-            );
-        filter: blur(3px);
-        opacity: .95;
-        transform: rotate(-4deg) scale(1.12);
-        animation: glassBgA 12s ease-in-out infinite alternate;
-    }
-
-    .glass-bg::after {
-        inset: -15%;
-        background:
-            linear-gradient(
-                60deg,
-                transparent 0 19%,
-                rgba(165,170,180,.11) 20%,
-                rgba(247,247,250,.42) 21%,
-                rgba(89,91,96,.12) 22%,
-                transparent 24% 62%,
-                rgba(255,152,0,.12) 64%,
-                rgba(255,202,81,.45) 65%,
-                rgba(255,123,0,.10) 66%,
-                transparent 68%
-            );
-        filter: blur(5px);
-        opacity: .56;
-        transform: rotate(3deg);
-        animation: glassBgB 15s ease-in-out infinite alternate;
-    }
-
-    .glass-ribbon {
-        position: absolute;
-        z-index: -4;
-        width: 1050px;
-        height: 110px;
-        border-radius: 50%;
-        pointer-events: none;
-        filter: blur(8px);
-        opacity: .45;
-        background:
+            radial-gradient(
+                circle at 14% 8%,
+                rgba(255,125,30,.11),
+                transparent 31rem
+            ),
+            radial-gradient(
+                circle at 88% 16%,
+                rgba(241,216,74,.06),
+                transparent 26rem
+            ),
             linear-gradient(
                 180deg,
-                transparent 0 28%,
-                rgba(255,128,0,.10) 39%,
-                rgba(255,211,85,.81) 49%,
-                rgba(255,127,0,.35) 55%,
-                transparent 72%
+                #050506 0%,
+                #080809 48%,
+                #050506 100%
             );
     }
 
-    .glass-ribbon.one {
-        left: -340px;
-        top: 180px;
-        transform: rotate(31deg);
-    }
-
-    .glass-ribbon.two {
-        right: -390px;
-        top: 460px;
-        transform: rotate(-28deg);
-    }
-
-    .glass-ribbon.three {
-        left: -420px;
-        bottom: 80px;
-        transform: rotate(-25deg);
-    }
-
-    .glass-stage {
-        width: min(100%, 512px);
-        min-height: 910px;
-        padding: 70px 22px 64px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .glass-poster-title {
-        margin: 0 0 48px;
-        text-align: center;
-        color: #f8f8f8;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: clamp(35px, 9vw, 48px);
-        font-weight: 400;
-        line-height: .91;
-        letter-spacing: -.055em;
-        text-shadow: 0 5px 20px rgba(0,0,0,.65);
-    }
-
-    .glass-poster-title span {
-        display: block;
-        margin-top: 8px;
-        color: var(--glass-orange);
-        font-weight: 400;
-    }
-
-    .glass-card-shell {
-        position: relative;
-        width: min(100%, 435px);
-        flex: 0 0 auto;
-        filter: drop-shadow(0 22px 36px rgba(0,0,0,.48));
-    }
-
-    .glass-card-border {
-        position: absolute;
-        inset: 0;
-        padding: 1px;
-        border-radius: 25px;
-        clip-path: polygon(14% 0,100% 0,100% 86%,88% 100%,0 100%,0 12%);
-        background:
-            linear-gradient(
-                142deg,
-                rgba(255,255,255,.65),
-                rgba(255,218,132,.18) 28%,
-                rgba(255,255,255,.16) 59%,
-                rgba(255,196,63,.68)
-            );
-    }
-
-    .glass-card {
-        position: relative;
-        width: 100%;
-        min-height: 100%;
-        overflow: hidden;
-        border-radius: 24px;
-        clip-path: polygon(14% 0,100% 0,100% 86%,88% 100%,0 100%,0 12%);
-        background:
-            linear-gradient(137deg, rgba(255,255,255,.045), transparent 36%),
-            linear-gradient(160deg, rgba(19,18,22,.78), rgba(8,8,10,.79));
-        backdrop-filter: blur(25px) saturate(125%);
-        -webkit-backdrop-filter: blur(25px) saturate(125%);
-    }
-
-    .glass-card::before {
+    .register-page::before {
         content: "";
         position: absolute;
-        inset: -55%;
-        z-index: 0;
-        opacity: .27;
+        inset: 0;
         pointer-events: none;
-        background:
+        opacity: .22;
+        background-image:
             linear-gradient(
-                125deg,
-                transparent 33%,
-                rgba(255,153,0,.13) 43%,
-                rgba(255,226,133,.44) 47%,
-                rgba(255,127,0,.14) 51%,
-                transparent 58%
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(255,255,255,.018) 1px,
+                transparent 1px
             );
-        animation: glassSweep 8s ease-in-out infinite;
+        background-size: 64px 64px;
+        mask-image:
+            linear-gradient(
+                to bottom,
+                #000,
+                transparent 74%
+            );
     }
 
-    .glass-corner {
-        position: absolute;
-        z-index: 5;
-        border: 1px solid rgba(255,255,255,.44);
-        background: rgba(255,255,255,.07);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        box-shadow: inset 0 0 14px rgba(255,255,255,.05);
-        pointer-events: none;
-    }
-
-    .glass-corner.top-left {
-        width: 70px;
-        height: 70px;
-        top: -2px;
-        left: -4px;
-        border-radius: 16px;
-        clip-path: polygon(0 0,100% 0,0 100%);
-    }
-
-    .glass-corner.bottom-right {
-        width: 69px;
-        height: 69px;
-        right: -3px;
-        bottom: -4px;
-        border-radius: 16px;
-        clip-path: polygon(100% 0,100% 100%,0 100%);
-    }
-
-    .glass-inner {
+    .register-shell {
         position: relative;
-        z-index: 2;
-        padding: 31px 30px 30px;
+        z-index: 1;
+        width: min(calc(100% - 32px), 1080px);
+        margin-inline: auto;
+        padding: clamp(34px, 5vw, 72px) 0 70px;
     }
 
-    .glass-icon {
-        width: 46px;
-        height: 46px;
-        margin: 0 auto 13px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(236,224,28,.35);
-        border-radius: 13px;
-        color: var(--glass-yellow);
-        background: rgba(240,232,31,.035);
-        box-shadow:
-            0 0 18px rgba(240,229,33,.08),
-            inset 0 0 12px rgba(240,229,33,.025);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Intro
+    |--------------------------------------------------------------------------
+    */
 
-    .glass-icon svg {
-        width: 23px;
-        height: 23px;
-    }
-
-    .glass-heading {
-        margin: 0;
+    .register-intro {
+        width: min(100%, 590px);
+        margin: 0 auto 26px;
         text-align: center;
-        font-size: 24px;
-        line-height: 1;
-        font-weight: 850;
-        letter-spacing: -.035em;
+        animation:
+            register-enter .42s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    .glass-heading strong {
-        color: var(--glass-yellow);
-        font-weight: 900;
-    }
-
-    .glass-description {
-        max-width: 345px;
-        margin: 9px auto 18px;
-        color: #9a999d;
-        text-align: center;
-        font-size: 10.5px;
-        line-height: 1.55;
-    }
-
-    .glass-message {
-        margin: 0 0 10px;
-        padding: 8px 10px;
-        border-radius: 9px;
-        font-size: 9px;
-        line-height: 1.45;
-    }
-
-    .glass-message.success {
-        border: 1px solid rgba(39,244,143,.19);
-        color: #a3ffd0;
-        background: rgba(0,220,118,.055);
-    }
-
-    .glass-message.error {
-        border: 1px solid rgba(255,112,112,.21);
-        color: #ffc0c0;
-        background: rgba(255,66,66,.065);
-    }
-
-    .glass-message.info {
-        border: 1px solid rgba(244,238,31,.17);
-        color: #e6df77;
-        background: rgba(244,238,31,.045);
-    }
-
-    .glass-message ul {
-        margin: 5px 0 0 15px;
-        padding: 0;
-    }
-
-    .glass-field {
-        margin-bottom: 11px;
-    }
-
-    .glass-label-row {
-        min-height: 16px;
-        margin-bottom: 5px;
-        display: flex;
+    .register-eyebrow {
+        display: inline-flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .glass-label-row label {
-        color: #a6a5a9;
-        font-size: 8px;
-        font-weight: 850;
-        letter-spacing: .04em;
-    }
-
-    .glass-field-error {
-        color: #ffaaa9;
-        font-size: 7.5px;
-        font-weight: 800;
-    }
-
-    .glass-input-wrap {
-        position: relative;
-    }
-
-    .glass-input {
-        width: 100%;
-        height: 43px;
-        padding: 0 12px;
-        border: 1px solid rgba(255,255,255,.13);
-        border-radius: 10px;
-        outline: 0;
-        color: #f4f4f5;
-        background: rgba(0,0,0,.23);
-        font: inherit;
-        font-size: 10px;
-        transition:
-            border-color .18s ease,
-            box-shadow .18s ease,
-            background .18s ease;
-    }
-
-    .glass-input.with-toggle {
-        padding-right: 72px;
-    }
-
-    .glass-input:focus {
-        border-color: rgba(244,238,31,.57);
-        background: rgba(244,238,31,.025);
-        box-shadow: 0 0 0 3px rgba(244,238,31,.06);
-    }
-
-    .glass-input::placeholder {
-        color: #606066;
-    }
-
-    .glass-password-toggle {
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        height: 31px;
-        padding: 0 8px;
-        transform: translateY(-50%);
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 8px;
-        color: #949399;
-        background: rgba(16,16,19,.92);
-        font: inherit;
-        font-size: 7px;
-        font-weight: 850;
-        cursor: pointer;
-    }
-
-    .glass-primary {
-        width: 100%;
-        min-height: 42px;
-        border: 0;
-        border-radius: 9px;
-        color: #171200;
-        background: linear-gradient(180deg,#fbef39,#dbb90a);
-        box-shadow:
-            0 9px 24px rgba(242,197,0,.18),
-            inset 0 1px 0 rgba(255,255,255,.59);
-        font: inherit;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--register-gold);
         font-size: 9px;
         font-weight: 900;
-        cursor: pointer;
-        transition:
-            transform .18s ease,
-            filter .18s ease;
-    }
-
-    .glass-primary:hover:not(:disabled) {
-        filter: brightness(1.06);
-        transform: translateY(-1px);
-    }
-
-    .glass-primary:disabled {
-        cursor: wait;
-        opacity: .62;
-    }
-
-    .glass-secondary {
-        min-height: 38px;
-        padding: 0 11px;
-        border: 1px solid rgba(244,238,31,.21);
-        border-radius: 9px;
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.05);
-        font: inherit;
-        font-size: 8px;
-        font-weight: 850;
-        cursor: pointer;
-    }
-
-    .glass-small-link {
-        color: #d8bd35;
-        text-decoration: none;
-        font-size: 8px;
-        font-weight: 850;
-    }
-
-    .glass-divider {
-        margin: 14px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #6e6e73;
-        font-size: 7px;
-        font-weight: 850;
-        letter-spacing: .08em;
+        letter-spacing: .15em;
         text-transform: uppercase;
     }
 
-    .glass-divider::before,
-    .glass-divider::after {
+    .register-eyebrow::before,
+    .register-eyebrow::after {
         content: "";
-        flex: 1;
+        width: 22px;
         height: 1px;
-        background: rgba(255,255,255,.08);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(241,216,74,.68)
+            );
     }
 
-    .glass-code-panel {
-        width: min(100%, 433px);
-        height: 131px;
-        margin-top: 56px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 8px;
-        background: rgba(4,4,5,.87);
-        box-shadow: 0 18px 36px rgba(0,0,0,.46);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    .register-eyebrow::after {
+        transform: scaleX(-1);
     }
 
-    .glass-code-topbar {
-        height: 29px;
-        display: flex;
-        align-items: center;
-        padding: 0 9px;
-        border-bottom: 1px solid rgba(255,255,255,.07);
+    .register-title {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(36px, 6vw, 62px);
+        line-height: .96;
+        font-weight: 930;
+        letter-spacing: -.055em;
+        text-wrap: balance;
     }
 
-    .glass-code-dots {
-        display: flex;
-        gap: 4px;
-    }
-
-    .glass-code-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-    }
-
-    .glass-code-dot.red { background: #ff5e64; }
-    .glass-code-dot.yellow { background: #ffca3a; }
-    .glass-code-dot.green { background: #38d568; }
-
-    .glass-code-tab {
-        margin-left: 12px;
-        color: #e1e1e4;
-        font-size: 7px;
-    }
-
-    .glass-code-badge {
-        margin-left: auto;
-        color: #2bd9f7;
-        font-size: 7px;
-    }
-
-    .glass-code-body {
-        padding: 8px 10px 10px;
-        color: #83848a;
-        font-size: 6px;
-        line-height: 1.55;
-        white-space: pre;
-        overflow: hidden;
-    }
-
-    .glass-code-body .pink { color: #ff56ba; }
-    .glass-code-body .cyan { color: #34d5f4; }
-    .glass-code-body .green { color: #73e282; }
-    .glass-code-body .yellow { color: #f4d65b; }
-
-    .glass-footer {
-        margin-top: 16px;
-        color: #63646a;
-        text-align: center;
-        font-size: 9px;
-        line-height: 1.5;
-    }
-
-    .glass-footer a {
-        color: #9b9ca1;
-        text-decoration: none;
-    }
-
-    @keyframes glassBgA {
-        from { transform: rotate(-4deg) scale(1.10) translate3d(-1%,-1%,0); }
-        to   { transform: rotate(-1deg) scale(1.16) translate3d(2%,1%,0); }
-    }
-
-    @keyframes glassBgB {
-        from { transform: rotate(3deg) scale(1.02); }
-        to   { transform: rotate(6deg) scale(1.08); }
-    }
-
-    @keyframes glassSweep {
-        0%,100% { transform: translateX(-38%) rotate(-2deg); }
-        50%     { transform: translateX(32%) rotate(1deg); }
-    }
-
-    @media (max-width: 540px) {
-        .glass-stage {
-            width: 100%;
-            min-height: 100dvh;
-            padding: 54px 12px 54px;
-        }
-
-        .glass-poster-title {
-            margin-bottom: 43px;
-            font-size: clamp(34px,10vw,45px);
-        }
-
-        .glass-card-shell,
-        .glass-code-panel {
-            width: min(100%,435px);
-        }
-
-        .glass-inner {
-            padding-inline: 19px;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page *,
-        .glass-auth-page *::before,
-        .glass-auth-page *::after {
-            animation-duration: .01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: .01ms !important;
-            scroll-behavior: auto !important;
-        }
-    }
-
-
-    .login-glass-card {
-        min-height: 482px;
-    }
-
-    .login-tabs {
-        margin-bottom: 13px;
-        padding: 3px;
-        display: grid;
-        grid-template-columns: repeat(3,1fr);
-        gap: 3px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 10px;
-        background: rgba(0,0,0,.18);
-    }
-
-    .login-tab {
-        min-height: 34px;
-        padding: 0 5px;
-        border: 1px solid transparent;
-        border-radius: 7px;
-        color: #77767c;
-        background: transparent;
-        font: inherit;
-        font-size: 7px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-    .login-tab.active {
-        border-color: rgba(244,238,31,.20);
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
-    }
-
-    .login-panel-section {
-        display: none;
-    }
-
-    .login-panel-section.active {
+    .register-title span {
         display: block;
+        margin-top: 5px;
+        color: var(--register-orange);
     }
 
-    .login-options {
-        margin: 3px 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
+    .register-lead {
+        max-width: 520px;
+        margin: 16px auto 0;
+        color: var(--register-muted);
+        font-size: 12px;
+        line-height: 1.7;
     }
 
-    .login-remember {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: #88878d;
-        font-size: 8px;
-        cursor: pointer;
+    /*
+    |--------------------------------------------------------------------------
+    | Card
+    |--------------------------------------------------------------------------
+    */
+
+    .register-card-wrap {
+        width: min(100%, 500px);
+        margin-inline: auto;
+        animation:
+            register-enter .46s .05s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    .login-remember input {
-        width: 13px;
-        height: 13px;
-        accent-color: #e5ca18;
+    .register-card {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--register-line-strong);
+        border-radius: var(--register-radius);
+        background:
+            linear-gradient(
+                155deg,
+                rgba(255,255,255,.038),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20,20,24,.98),
+                rgba(9,9,11,.985)
+            );
+        box-shadow: var(--register-shadow);
     }
 
-    .login-passwordless-card {
-        padding: 11px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 11px;
-        background: rgba(0,0,0,.16);
+    /*
+     * Geen clip-path, geen glazen driehoeken en geen backdrop-filter.
+     * Daardoor blijft de kaart ook rechts onder perfect rond en stabiel.
+     */
+    .register-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(241,216,74,.11),
+                transparent 28%,
+                transparent 74%,
+                rgba(255,122,36,.055)
+            );
     }
 
-    .login-passwordless-card + .login-passwordless-card {
-        margin-top: 8px;
+    .register-card::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 68px;
+        height: 68px;
+        pointer-events: none;
+        border-right: 2px solid rgba(241,216,74,.42);
+        border-bottom: 2px solid rgba(241,216,74,.42);
+        border-radius: 0 0 calc(var(--register-radius) - 1px) 0;
+        opacity: .7;
     }
 
-    .login-passwordless-head {
-        margin-bottom: 9px;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
+    .register-card-inner {
+        position: relative;
+        z-index: 1;
+        padding: 27px;
     }
 
-    .login-passwordless-icon {
-        width: 31px;
-        height: 31px;
-        flex: 0 0 31px;
+    .register-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(244,238,31,.17);
-        border-radius: 8px;
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.04);
-        font-size: 9px;
-        font-weight: 900;
+        border: 1px solid rgba(241,216,74,.22);
+        border-radius: 14px;
+        color: var(--register-gold);
+        background: rgba(241,216,74,.045);
     }
 
-    .login-passwordless-copy strong {
-        display: block;
-        color: #dedee1;
-        font-size: 8px;
-    }
-
-    .login-passwordless-copy span {
-        display: block;
-        margin-top: 3px;
-        color: #77767c;
-        font-size: 7px;
-        line-height: 1.45;
-    }
-
-    .login-passwordless-form {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 6px;
-    }
-
-    .login-passwordless-form .glass-input {
-        height: 38px;
-    }
-
-    .login-oauth-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 7px;
-    }
-
-    .login-oauth {
-        min-height: 54px;
-        padding: 0 9px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(255,255,255,.10);
-        border-radius: 10px;
-        color: #e1e1e3;
-        background: rgba(0,0,0,.19);
-        text-decoration: none;
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .login-oauth:hover {
-        transform: translateY(-1px);
-        border-color: rgba(244,238,31,.20);
-        background: rgba(244,238,31,.025);
-    }
-
-    .login-oauth-icon {
-        width: 27px;
-        height: 27px;
-        display: grid;
-        place-items: center;
-        flex: 0 0 27px;
-    }
-
-    .login-oauth-icon svg {
+    .register-icon svg {
         width: 23px;
         height: 23px;
     }
 
-    .login-oauth-copy strong,
-    .login-oauth-copy span {
-        display: block;
-    }
-
-    .login-oauth-copy strong {
-        font-size: 8px;
-    }
-
-    .login-oauth-copy span {
-        margin-top: 2px;
-        color: #717177;
-        font-size: 6px;
-    }
-
-    .login-pending {
-        margin-bottom: 10px;
-        padding: 8px 10px;
-        border: 1px solid rgba(24,237,126,.16);
-        border-radius: 9px;
-        color: #9bf5c7;
-        background: rgba(24,237,126,.045);
-        font-size: 8px;
-        line-height: 1.5;
-    }
-
-    .login-register-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 10px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 10px;
-        background: rgba(0,0,0,.14);
-    }
-
-    .login-register-row span {
-        color: #85848a;
-        font-size: 7px;
-        line-height: 1.45;
-    }
-
-    .login-register-row a {
-        flex: 0 0 auto;
-    }
-
-    .login-security-note {
-        margin-top: 10px;
-        color: #69686e;
-        font-size: 7px;
-        line-height: 1.5;
+    .register-heading {
+        margin: 0;
         text-align: center;
+        color: #fff;
+        font-size: 25px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -.035em;
     }
 
-    @media (max-width: 380px) {
-        .login-oauth-grid {
-            grid-template-columns: 1fr;
-        }
+    .register-heading strong {
+        color: var(--register-gold);
+        font-weight: inherit;
     }
 
+    .register-description {
+        max-width: 380px;
+        margin: 8px auto 18px;
+        color: var(--register-muted);
+        text-align: center;
+        font-size: 10px;
+        line-height: 1.6;
+    }
 
-    .glass-auth-switch {
-        width: min(100%, 270px);
-        margin: 0 auto 14px;
+    /*
+    |--------------------------------------------------------------------------
+    | Login / Register switch
+    |--------------------------------------------------------------------------
+    */
+
+    .register-auth-switch {
+        width: min(100%, 280px);
+        margin: 0 auto 16px;
         padding: 3px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 3px;
-        border: 1px solid rgba(255,255,255,.08);
+        border: 1px solid var(--register-line);
         border-radius: 11px;
-        background: rgba(0,0,0,.19);
+        background: rgba(0,0,0,.22);
     }
 
-    .glass-auth-switch a {
-        min-height: 34px;
+    .register-auth-switch a {
+        min-height: 35px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border: 1px solid transparent;
         border-radius: 8px;
-        color: #77767c;
+        color: #777780;
         text-decoration: none;
         font-size: 8px;
         font-weight: 900;
         transition:
-            color .18s ease,
-            border-color .18s ease,
-            background .18s ease;
+            color .15s ease,
+            background .15s ease,
+            border-color .15s ease,
+            transform .15s ease;
     }
 
-    .glass-auth-switch a.active {
-        border-color: rgba(244,238,31,.20);
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
+    .register-auth-switch a:hover {
+        color: #e3d96a;
+        transform: translateY(-1px);
     }
 
-    .glass-auth-switch a:hover {
-        color: var(--glass-yellow);
+    .register-auth-switch a.active {
+        border-color: rgba(241,216,74,.18);
+        color: var(--register-gold);
+        background: rgba(241,216,74,.055);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Messages
+    |--------------------------------------------------------------------------
+    */
 
-
-    .register-glass-card {
-        min-height: 622px;
+    .register-message {
+        margin-bottom: 11px;
+        padding: 10px 11px;
+        border-radius: 10px;
+        font-size: 9px;
+        line-height: 1.55;
     }
+
+    .register-message.success {
+        border: 1px solid rgba(69,223,139,.18);
+        color: #adf4c9;
+        background: rgba(69,223,139,.055);
+    }
+
+    .register-message.error {
+        border: 1px solid rgba(255,143,143,.18);
+        color: #ffc2c2;
+        background: rgba(255,90,90,.055);
+    }
+
+    .register-message.info {
+        border: 1px solid rgba(241,216,74,.17);
+        color: #e9dc7a;
+        background: rgba(241,216,74,.045);
+    }
+
+    .register-message ul {
+        margin: 5px 0 0 16px;
+        padding: 0;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Method tabs
+    |--------------------------------------------------------------------------
+    */
 
     .register-tabs {
-        margin-bottom: 13px;
+        margin: 12px 0 14px;
         padding: 3px;
         display: grid;
-        grid-template-columns: repeat(3,1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 3px;
         border: 1px solid rgba(255,255,255,.075);
-        border-radius: 10px;
+        border-radius: 11px;
         background: rgba(0,0,0,.18);
     }
 
     .register-tab {
-        min-height: 34px;
-        padding: 0 5px;
+        min-height: 36px;
+        padding: 0 7px;
         border: 1px solid transparent;
-        border-radius: 7px;
-        color: #77767c;
+        border-radius: 8px;
+        color: #74747c;
         background: transparent;
         font: inherit;
-        font-size: 7px;
+        font-size: 8px;
         font-weight: 900;
         cursor: pointer;
+        transition:
+            color .14s ease,
+            background .14s ease,
+            border-color .14s ease,
+            transform .14s ease;
+    }
+
+    .register-tab:hover {
+        color: #cfcfcf;
     }
 
     .register-tab.active {
-        border-color: rgba(244,238,31,.20);
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
+        border-color: rgba(241,216,74,.18);
+        color: var(--register-gold);
+        background: rgba(241,216,74,.055);
     }
 
-    .register-panel-section {
+    .register-tab:active {
+        transform: scale(.985);
+    }
+
+    .register-panel {
         display: none;
     }
 
-    .register-panel-section.active {
+    .register-panel.active {
         display: block;
+        animation:
+            register-panel-in .18s ease-out both;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fields
+    |--------------------------------------------------------------------------
+    */
+
+    .register-field {
+        margin-bottom: 12px;
+    }
+
+    .register-label-row {
+        min-height: 17px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .register-label-row label {
+        color: #a8a8ae;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .035em;
+    }
+
+    .register-field-error {
+        color: #ffacac;
+        font-size: 7.5px;
+        font-weight: 800;
+    }
+
+    .register-input-wrap {
+        position: relative;
+    }
+
+    .register-input {
+        width: 100%;
+        height: 44px;
+        padding: 0 13px;
+        border: 1px solid rgba(255,255,255,.115);
+        border-radius: 11px;
+        outline: none;
+        color: #f5f5f6;
+        background: rgba(0,0,0,.26);
+        font: inherit;
+        font-size: 10px;
+        transition:
+            border-color .15s ease,
+            background .15s ease,
+            box-shadow .15s ease;
+    }
+
+    .register-input::placeholder {
+        color: #5c5c64;
+    }
+
+    .register-input:focus {
+        border-color: rgba(241,216,74,.48);
+        background: rgba(241,216,74,.02);
+        box-shadow: 0 0 0 3px rgba(241,216,74,.055);
+    }
+
+    .register-input.with-toggle {
+        padding-right: 78px;
+    }
+
+    .register-password-toggle {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        min-width: 64px;
+        height: 32px;
+        padding: 0 9px;
+        transform: translateY(-50%);
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 8px;
+        color: #94949b;
+        background: #161619;
+        font: inherit;
+        font-size: 7px;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password strength
+    |--------------------------------------------------------------------------
+    */
+
     .register-strength {
-        margin-top: 7px;
+        margin-top: 8px;
     }
 
     .register-strength-track {
-        height: 4px;
+        height: 5px;
         overflow: hidden;
         border-radius: 999px;
-        background: rgba(255,255,255,.08);
+        background: rgba(255,255,255,.055);
     }
 
     .register-strength-bar {
-        width: 0;
+        width: 100%;
         height: 100%;
         border-radius: inherit;
-        background: var(--glass-yellow);
-        transition: width .2s ease;
+        background: #707780;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition:
+            transform .18s ease,
+            background-color .18s ease;
     }
 
     .register-strength-copy {
-        margin-top: 4px;
+        margin-top: 6px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
-        color: #6f6e74;
+        color: #65656d;
         font-size: 7px;
     }
 
+    .register-match {
+        min-height: 18px;
+        margin-top: 6px;
+        color: #65656d;
+        font-size: 7px;
+    }
+
+    .register-match.good {
+        color: #86d4a1;
+    }
+
+    .register-match.bad {
+        color: #e29b9b;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Terms
+    |--------------------------------------------------------------------------
+    */
+
     .register-terms {
-        margin: 4px 0 12px;
+        margin: 3px 0 13px;
         display: flex;
         align-items: flex-start;
-        gap: 7px;
-        color: #7e7d83;
-        font-size: 7px;
-        line-height: 1.5;
+        gap: 8px;
+        color: #85858d;
+        font-size: 8px;
+        line-height: 1.55;
         cursor: pointer;
     }
 
     .register-terms input {
-        width: 13px;
-        height: 13px;
-        flex: 0 0 13px;
+        width: 14px;
+        height: 14px;
+        flex: 0 0 14px;
         margin-top: 1px;
-        accent-color: #e5ca18;
+        accent-color: var(--register-gold);
     }
 
-    .register-status {
-        min-height: 16px;
-        margin-top: 7px;
-        color: #77767c;
-        text-align: center;
-        font-size: 7px;
-        line-height: 1.4;
+    .register-terms a {
+        color: #d8c64b;
+        text-decoration: none;
+        font-weight: 850;
     }
 
-    .register-status.is-active {
-        color: #dbc92c;
+    /*
+    |--------------------------------------------------------------------------
+    | Buttons
+    |--------------------------------------------------------------------------
+    */
+
+    .register-primary,
+    .register-secondary {
+        font: inherit;
+        cursor: pointer;
     }
+
+    .register-primary {
+        width: 100%;
+        min-height: 44px;
+        border: 0;
+        border-radius: 10px;
+        color: #171300;
+        background:
+            linear-gradient(
+                180deg,
+                #fff04b,
+                #d9b70d
+            );
+        box-shadow:
+            0 10px 26px rgba(216,183,13,.14),
+            inset 0 1px 0 rgba(255,255,255,.5);
+        font-size: 9px;
+        font-weight: 950;
+        transition:
+            transform .15s ease,
+            filter .15s ease;
+    }
+
+    .register-primary:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.045);
+    }
+
+    .register-primary:active:not(:disabled) {
+        transform: scale(.992);
+    }
+
+    .register-primary:disabled {
+        opacity: .66;
+        cursor: wait;
+    }
+
+    .register-secondary {
+        min-height: 39px;
+        padding: 0 12px;
+        border: 1px solid rgba(241,216,74,.18);
+        border-radius: 9px;
+        color: var(--register-gold);
+        background: rgba(241,216,74,.045);
+        font-size: 8px;
+        font-weight: 850;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Passwordless
+    |--------------------------------------------------------------------------
+    */
 
     .register-passwordless-card {
-        padding: 11px;
+        padding: 12px;
         border: 1px solid rgba(255,255,255,.075);
-        border-radius: 11px;
+        border-radius: 12px;
         background: rgba(0,0,0,.16);
     }
 
     .register-passwordless-card + .register-passwordless-card {
-        margin-top: 8px;
+        margin-top: 9px;
     }
 
     .register-passwordless-head {
-        margin-bottom: 9px;
+        margin-bottom: 10px;
         display: flex;
         align-items: flex-start;
-        gap: 8px;
+        gap: 9px;
     }
 
     .register-passwordless-icon {
-        width: 31px;
-        height: 31px;
-        flex: 0 0 31px;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(244,238,31,.17);
-        border-radius: 8px;
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.04);
+        border: 1px solid rgba(241,216,74,.16);
+        border-radius: 9px;
+        color: var(--register-gold);
+        background: rgba(241,216,74,.035);
         font-size: 9px;
         font-weight: 900;
     }
@@ -1015,67 +687,81 @@
     }
 
     .register-passwordless-copy strong {
-        color: #dedee1;
+        color: #e1e1e4;
         font-size: 8px;
     }
 
     .register-passwordless-copy span {
         margin-top: 3px;
-        color: #77767c;
+        color: #787880;
         font-size: 7px;
-        line-height: 1.45;
+        line-height: 1.5;
     }
 
     .register-passwordless-form {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 6px;
+        grid-template-columns: minmax(0,1fr) auto;
+        gap: 7px;
     }
 
-    .register-passwordless-form .glass-input {
-        height: 38px;
+    .register-passwordless-form .register-input {
+        height: 39px;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | OAuth
+    |--------------------------------------------------------------------------
+    */
 
     .register-oauth-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 7px;
+        gap: 8px;
     }
 
     .register-oauth {
-        min-height: 54px;
-        padding: 0 9px;
+        min-height: 56px;
+        padding: 0 10px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(255,255,255,.10);
-        border-radius: 10px;
-        color: #e1e1e3;
-        background: rgba(0,0,0,.19);
+        gap: 9px;
+        border: 1px solid rgba(255,255,255,.095);
+        border-radius: 11px;
+        color: #e5e5e7;
+        background: rgba(0,0,0,.18);
         text-decoration: none;
         transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
+            transform .14s ease,
+            border-color .14s ease,
+            background .14s ease;
     }
 
     .register-oauth:hover {
         transform: translateY(-1px);
-        border-color: rgba(244,238,31,.20);
-        background: rgba(244,238,31,.025);
+        border-color: rgba(241,216,74,.18);
+        background: rgba(241,216,74,.025);
+    }
+
+    .register-oauth:active {
+        transform: scale(.99);
     }
 
     .register-oauth-icon {
         width: 27px;
         height: 27px;
-        flex: 0 0 27px;
         display: grid;
         place-items: center;
+        flex: 0 0 27px;
     }
 
     .register-oauth-icon svg {
         width: 23px;
         height: 23px;
+    }
+
+    .register-oauth-copy {
+        min-width: 0;
     }
 
     .register-oauth-copy strong,
@@ -1084,13 +770,46 @@
     }
 
     .register-oauth-copy strong {
+        overflow: hidden;
         font-size: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .register-oauth-copy span {
         margin-top: 2px;
-        color: #717177;
+        color: #717179;
         font-size: 6px;
+    }
+
+    .register-oauth-grid > .register-oauth:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bottom
+    |--------------------------------------------------------------------------
+    */
+
+    .register-divider {
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #6d6d74;
+        font-size: 7px;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .register-divider::before,
+    .register-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,.075);
     }
 
     .register-login-row {
@@ -1098,912 +817,626 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 9px 10px;
+        padding: 10px 11px;
         border: 1px solid rgba(255,255,255,.07);
-        border-radius: 10px;
+        border-radius: 11px;
         background: rgba(0,0,0,.14);
     }
 
     .register-login-row span {
-        color: #85848a;
-        font-size: 7px;
-        line-height: 1.45;
-    }
-
-    .register-security-note {
-        margin-top: 10px;
-        color: #69686e;
-        text-align: center;
+        color: #85858d;
         font-size: 7px;
         line-height: 1.5;
     }
 
-    @media (max-width: 380px) {
+    .register-small-link {
+        color: #d8c64b;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 850;
+        flex: 0 0 auto;
+    }
+
+    .register-small-link:hover {
+        color: #fff074;
+    }
+
+    .register-security-note {
+        margin-top: 11px;
+        color: #6c6c73;
+        font-size: 7px;
+        line-height: 1.55;
+        text-align: center;
+    }
+
+    .register-footer {
+        margin-top: 18px;
+        color: #606067;
+        text-align: center;
+        font-size: 9px;
+        animation:
+            register-enter .46s .09s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Animations
+    |--------------------------------------------------------------------------
+    |
+    | Alleen opacity + transform. Geen blur, clip-path, fold of moving ribbons.
+    |
+    */
+
+    @keyframes register-enter {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0) scale(.992);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+    }
+
+    @keyframes register-panel-in {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 5px, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Responsive
+    |--------------------------------------------------------------------------
+    */
+
+    @media (max-width: 640px) {
+        .register-shell {
+            width: min(calc(100% - 20px), 1080px);
+            padding-top: 26px;
+            padding-bottom: 48px;
+        }
+
+        .register-intro {
+            margin-bottom: 20px;
+        }
+
+        .register-title {
+            font-size: clamp(34px, 12vw, 46px);
+        }
+
+        .register-lead {
+            font-size: 11px;
+        }
+
+        .register-card-wrap {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .register-card-inner {
+            padding: 22px 18px 24px;
+        }
+
+        .register-card::after {
+            width: 52px;
+            height: 52px;
+        }
+
+        .register-oauth-grid {
+            gap: 7px;
+        }
+    }
+
+    @media (max-width: 390px) {
+        .register-shell {
+            width: min(calc(100% - 14px), 1080px);
+        }
+
+        .register-card-inner {
+            padding-inline: 14px;
+        }
+
+        .register-tabs {
+            grid-template-columns: 1fr;
+        }
+
         .register-oauth-grid {
             grid-template-columns: 1fr;
         }
-    }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | V3 layout fix
-    |--------------------------------------------------------------------------
-    | De kaart heeft GEEN vaste hoogte meer. Hierdoor groeien login/register
-    | automatisch mee met Wachtwoord, E-mail en Social zonder afsnijden.
-    */
-    .glass-card-shell {
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible;
-    }
-
-    .glass-card-border {
-        position: relative !important;
-        inset: auto !important;
-        width: 100%;
-        height: auto !important;
-        min-height: 0 !important;
-    }
-
-    .glass-card {
-        height: auto !important;
-        min-height: 0 !important;
-    }
-
-    .login-glass-card,
-    .register-glass-card {
-        height: auto !important;
-        min-height: 0 !important;
-    }
-
-    .glass-inner {
-        min-height: 0;
-        padding-bottom: 40px;
-    }
-
-    .glass-stage {
-        min-height: 100dvh;
-        padding-top: clamp(44px, 6vh, 70px);
-        padding-bottom: 72px;
-    }
-
-    .glass-poster-title {
-        flex: 0 0 auto;
-    }
-
-    .glass-code-panel {
-        flex: 0 0 auto;
-        margin-top: 46px;
-    }
-
-    @media (max-width: 540px) {
-        .glass-stage {
-            padding-top: 38px;
-            padding-bottom: 54px;
+        .register-oauth-grid > .register-oauth:last-child:nth-child(odd) {
+            grid-column: auto;
         }
 
-        .glass-inner {
-            padding-bottom: 34px;
+        .register-passwordless-form {
+            grid-template-columns: 1fr;
         }
 
-        .glass-code-panel {
-            margin-top: 38px;
+        .register-secondary {
+            width: 100%;
         }
-    }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | V4 Login <-> Register page transition
-    |--------------------------------------------------------------------------
-    */
-    .glass-auth-page {
-        --auth-shift: 34px;
-    }
-
-    .glass-stage {
-        will-change: transform, opacity;
-    }
-
-    .glass-auth-switch a {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .glass-auth-switch a::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        opacity: 0;
-        background:
-            linear-gradient(
-                105deg,
-                transparent 15%,
-                rgba(255,244,112,.10) 40%,
-                rgba(255,225,50,.42) 50%,
-                rgba(255,244,112,.10) 60%,
-                transparent 85%
-            );
-        transform: translateX(-120%);
-    }
-
-    .glass-auth-switch a.is-switching::after {
-        opacity: 1;
-        animation: authTabShine .48s ease forwards;
-    }
-
-    .glass-auth-transition-flash {
-        position: fixed;
-        inset: 0;
-        z-index: 2147482500;
-        pointer-events: none;
-        opacity: 0;
-        background:
-            radial-gradient(
-                circle at 50% 46%,
-                rgba(255,219,68,.11),
-                transparent 22rem
-            ),
-            linear-gradient(
-                110deg,
-                transparent 0 38%,
-                rgba(255,175,0,.10) 46%,
-                rgba(255,230,121,.31) 50%,
-                rgba(255,145,0,.11) 54%,
-                transparent 62% 100%
-            );
-        transform: translateX(-28%);
-        will-change: opacity, transform;
-    }
-
-    .glass-auth-page.is-switching-out .glass-auth-transition-flash {
-        animation: authFlashAcross .54s cubic-bezier(.2,.75,.25,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out .glass-poster-title {
-        animation: authTitleOut .42s cubic-bezier(.4,0,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out .glass-card-shell {
-        animation:
-            authCardOutRight .48s cubic-bezier(.4,0,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out.is-to-login .glass-card-shell {
-        animation-name: authCardOutLeft;
-    }
-
-    .glass-auth-page.is-switching-out .glass-code-panel,
-    .glass-auth-page.is-switching-out .glass-footer {
-        animation: authBottomOut .36s ease forwards;
-    }
-
-    .glass-auth-page.is-switching-in .glass-poster-title {
-        animation: authTitleIn .46s cubic-bezier(.2,.8,.2,1) both;
-    }
-
-    .glass-auth-page.is-switching-in .glass-card-shell {
-        animation:
-            authCardInRight .58s cubic-bezier(.16,.9,.24,1) both;
-    }
-
-    .glass-auth-page.is-switching-in.is-from-login .glass-card-shell {
-        animation-name: authCardInLeft;
-    }
-
-    .glass-auth-page.is-switching-in .glass-code-panel,
-    .glass-auth-page.is-switching-in .glass-footer {
-        animation: authBottomIn .5s .08s ease both;
-    }
-
-    @keyframes authTabShine {
-        0% {
-            opacity: 0;
-            transform: translateX(-120%);
-        }
-        20% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-            transform: translateX(120%);
-        }
-    }
-
-    @keyframes authFlashAcross {
-        0% {
-            opacity: 0;
-            transform: translateX(-30%) scale(1);
-        }
-        35% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-            transform: translateX(30%) scale(1.06);
-        }
-    }
-
-    @keyframes authTitleOut {
-        to {
-            opacity: 0;
-            transform: translateY(-10px) scale(.98);
-            filter: blur(5px);
-        }
-    }
-
-    @keyframes authTitleIn {
-        from {
-            opacity: 0;
-            transform: translateY(-12px) scale(.98);
-            filter: blur(5px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes authCardOutRight {
-        to {
-            opacity: 0;
-            transform:
-                translateX(var(--auth-shift))
-                scale(.965)
-                rotateY(-4deg);
-            filter: blur(6px);
-        }
-    }
-
-    @keyframes authCardOutLeft {
-        to {
-            opacity: 0;
-            transform:
-                translateX(calc(var(--auth-shift) * -1))
-                scale(.965)
-                rotateY(4deg);
-            filter: blur(6px);
-        }
-    }
-
-    @keyframes authCardInRight {
-        from {
-            opacity: 0;
-            transform:
-                translateX(var(--auth-shift))
-                scale(.965)
-                rotateY(-4deg);
-            filter: blur(6px);
-        }
-        to {
-            opacity: 1;
-            transform:
-                translateX(0)
-                scale(1)
-                rotateY(0);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes authCardInLeft {
-        from {
-            opacity: 0;
-            transform:
-                translateX(calc(var(--auth-shift) * -1))
-                scale(.965)
-                rotateY(4deg);
-            filter: blur(6px);
-        }
-        to {
-            opacity: 1;
-            transform:
-                translateX(0)
-                scale(1)
-                rotateY(0);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes authBottomOut {
-        to {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-    }
-
-    @keyframes authBottomIn {
-        from {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 540px) {
-        .glass-auth-page {
-            --auth-shift: 22px;
+        .register-login-row {
+            align-items: flex-start;
+            flex-direction: column;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page.is-switching-out .glass-poster-title,
-        .glass-auth-page.is-switching-out .glass-card-shell,
-        .glass-auth-page.is-switching-out .glass-code-panel,
-        .glass-auth-page.is-switching-out .glass-footer,
-        .glass-auth-page.is-switching-in .glass-poster-title,
-        .glass-auth-page.is-switching-in .glass-card-shell,
-        .glass-auth-page.is-switching-in .glass-code-panel,
-        .glass-auth-page.is-switching-in .glass-footer,
-        .glass-auth-page.is-switching-out .glass-auth-transition-flash,
-        .glass-auth-switch a.is-switching::after {
-            animation-duration: .01ms !important;
-            animation-delay: 0ms !important;
+        .register-intro,
+        .register-card-wrap,
+        .register-footer,
+        .register-panel.active {
+            animation: none !important;
+        }
+
+        .register-page *,
+        .register-page *::before,
+        .register-page *::after {
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
         }
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | V5 Glass fold transition
-    |--------------------------------------------------------------------------
-    | De twee glazen hoekstukken klappen naar het midden dicht.
-    | Op de volgende pagina klappen ze vanuit het midden weer open.
-    */
-    .glass-card-shell {
-        perspective: 1200px;
-    }
-
-    .glass-corner {
-        transform-origin: center;
-        will-change: transform, opacity, filter;
-        z-index: 30;
-    }
-
-    .glass-auth-page.is-folding-out .glass-card {
-        animation: authCardFoldDim .48s ease forwards;
-    }
-
-    .glass-auth-page.is-folding-out .glass-corner.top-left {
-        animation: authCornerCloseTop .58s cubic-bezier(.22,.9,.24,1) forwards;
-    }
-
-    .glass-auth-page.is-folding-out .glass-corner.bottom-right {
-        animation: authCornerCloseBottom .58s cubic-bezier(.22,.9,.24,1) forwards;
-    }
-
-    .glass-auth-page.is-folding-out .glass-poster-title,
-    .glass-auth-page.is-folding-out .glass-footer,
-    .glass-auth-page.is-folding-out .glass-code-panel {
-        animation: authFoldFadeOut .36s ease forwards;
-    }
-
-    .glass-auth-page.is-folding-in .glass-card {
-        animation: authCardFoldReveal .62s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-corner.top-left {
-        animation: authCornerOpenTop .66s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-corner.bottom-right {
-        animation: authCornerOpenBottom .66s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-poster-title,
-    .glass-auth-page.is-folding-in .glass-footer,
-    .glass-auth-page.is-folding-in .glass-code-panel {
-        animation: authFoldFadeIn .5s .12s ease both;
-    }
-
-    .glass-fold-seal {
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        z-index: 2147482600;
-        width: 92px;
-        height: 92px;
-        pointer-events: none;
-        opacity: 0;
-        transform:
-            translate(-50%,-50%)
-            scale(.55)
-            rotate(45deg);
-        border: 1px solid rgba(255,238,111,.46);
-        border-radius: 18px;
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,.10),
-                rgba(255,198,46,.08)
-            ),
-            rgba(13,13,16,.74);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        box-shadow:
-            0 0 0 1px rgba(255,255,255,.04) inset,
-            0 0 35px rgba(255,189,0,.18);
-    }
-
-    .glass-auth-page.is-folding-out .glass-fold-seal {
-        animation: authSealClose .62s cubic-bezier(.2,.82,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-folding-in .glass-fold-seal {
-        animation: authSealOpen .62s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    @keyframes authCornerCloseTop {
-        from {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-        to {
-            transform:
-                translate(
-                    var(--fold-top-x, 150px),
-                    var(--fold-top-y, 150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-            filter: drop-shadow(0 0 18px rgba(255,204,54,.24));
-        }
-    }
-
-    @keyframes authCornerCloseBottom {
-        from {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-        to {
-            transform:
-                translate(
-                    var(--fold-bottom-x, -150px),
-                    var(--fold-bottom-y, -150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-            filter: drop-shadow(0 0 18px rgba(255,204,54,.24));
-        }
-    }
-
-    @keyframes authCornerOpenTop {
-        from {
-            transform:
-                translate(
-                    var(--fold-top-x, 150px),
-                    var(--fold-top-y, 150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-        }
-        to {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-    }
-
-    @keyframes authCornerOpenBottom {
-        from {
-            transform:
-                translate(
-                    var(--fold-bottom-x, -150px),
-                    var(--fold-bottom-y, -150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-        }
-        to {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-    }
-
-    @keyframes authCardFoldDim {
-        0% {
-            opacity: 1;
-            transform: scale(1);
-            filter: blur(0);
-        }
-        55% {
-            opacity: .50;
-            transform: scale(.985);
-        }
-        100% {
-            opacity: 0;
-            transform: scale(.95);
-            filter: blur(7px);
-        }
-    }
-
-    @keyframes authCardFoldReveal {
-        from {
-            opacity: 0;
-            transform: scale(.95);
-            filter: blur(7px);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-            filter: blur(0);
-        }
-    }
-
-    @keyframes authSealClose {
-        0% {
-            opacity: 0;
-            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
-        }
-        62% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(1) rotate(45deg);
-        }
-        100% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
-        }
-    }
-
-    @keyframes authSealOpen {
-        0% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
-        }
-        38% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(1) rotate(45deg);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
-        }
-    }
-
-    @keyframes authFoldFadeOut {
-        to {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-    }
-
-    @keyframes authFoldFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page.is-folding-out .glass-card,
-        .glass-auth-page.is-folding-out .glass-corner,
-        .glass-auth-page.is-folding-out .glass-fold-seal,
-        .glass-auth-page.is-folding-in .glass-card,
-        .glass-auth-page.is-folding-in .glass-corner,
-        .glass-auth-page.is-folding-in .glass-fold-seal {
-            animation-duration: .01ms !important;
-            animation-delay: 0ms !important;
-        }
-    }
-
-
-    /* V7 LinkedIn social-grid polish */
-    .register-oauth-grid > .register-oauth:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-    }
-
 </style>
 @endpush
 
 @section('content')
-<section class="glass-auth-page">
-    <div class="glass-bg" aria-hidden="true"></div>
-    <span class="glass-ribbon one" aria-hidden="true"></span>
-    <span class="glass-ribbon two" aria-hidden="true"></span>
-    <span class="glass-ribbon three" aria-hidden="true"></span>
+<section class="register-page">
+    <main class="register-shell">
+        <header class="register-intro">
+            <div class="register-eyebrow">
+                Secure workspace
+            </div>
 
-    <div class="glass-fold-seal" aria-hidden="true"></div>
+            <h1 class="register-title">
+                Glassy Sign Up
+                <span>Mashal Studio</span>
+            </h1>
 
+            <p class="register-lead">
+                Maak je persoonlijke Mashal Studio-account aan met
+                wachtwoord, e-mail of je favoriete social login.
+            </p>
+        </header>
 
-    <div
-        class="glass-auth-transition-flash"
-        aria-hidden="true"
-    ></div>
+        <div class="register-card-wrap">
+            <section class="register-card" aria-labelledby="registerHeading">
+                <div class="register-card-inner">
+                    <div class="register-icon" aria-hidden="true">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <circle cx="9" cy="8" r="3.2"></circle>
+                            <path d="M3.5 19c.7-3.4 2.6-5.1 5.5-5.1s4.8 1.7 5.5 5.1"></path>
+                            <path d="M17 8v6"></path>
+                            <path d="M14 11h6"></path>
+                        </svg>
+                    </div>
 
+                    <h2 class="register-heading" id="registerHeading">
+                        Create <strong>Account</strong>
+                    </h2>
 
-    <main class="glass-stage">
-        <h1 class="glass-poster-title">
-            Glassy Sign Up
-            <span>Mashal Studio</span>
-        </h1>
+                    <p class="register-description">
+                        Kies hoe je je nieuwe Mashal Studio-account wilt aanmaken.
+                    </p>
 
-        <div class="glass-card-shell register-glass-card">
-            <div class="glass-card-border">
-                <div class="glass-card">
-                    <div class="glass-inner">
-                        <div class="glass-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="9" cy="8" r="3.2"></circle>
-                                <path d="M3.5 19c.7-3.4 2.6-5.1 5.5-5.1s4.8 1.7 5.5 5.1"></path>
-                                <path d="M17 8v6"></path>
-                                <path d="M14 11h6"></path>
-                            </svg>
+                    <nav
+                        class="register-auth-switch"
+                        aria-label="Inloggen of registreren"
+                    >
+                        <a href="{{ route('login') }}">
+                            Inloggen
+                        </a>
+
+                        <a
+                            class="active"
+                            href="{{ route('register') }}"
+                            aria-current="page"
+                        >
+                            Registreren
+                        </a>
+                    </nav>
+
+                    @if (session('success'))
+                        <div class="register-message success" role="status">
+                            {{ session('success') }}
                         </div>
+                    @endif
 
-                        <h2 class="glass-heading">
-                            Create <strong>Account</strong>
-                        </h2>
-
-                        <p class="glass-description">
-                            Registreer met wachtwoord, e-mailcode, magic link of je bestaande social account.
-                        </p>
-
-                        <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
-                            <a href="{{ route('login') }}">
-                                Inloggen
-                            </a>
-                            <a class="active" href="{{ route('register') }}" aria-current="page">
-                                Registreren
-                            </a>
-                        </nav>
-
-                        @if (session('success'))
-                            <div class="glass-message success" role="status">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="glass-message error" role="alert">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="glass-message error" role="alert">
-                                <strong>Registreren is niet gelukt.</strong>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        <div class="register-tabs" role="tablist" aria-label="Registratiemethode kiezen">
-                            <button class="register-tab active" type="button" role="tab" aria-selected="true" data-register-tab="password">
-                                Wachtwoord
-                            </button>
-                            <button class="register-tab" type="button" role="tab" aria-selected="false" data-register-tab="email">
-                                E-mail
-                            </button>
-                            <button class="register-tab" type="button" role="tab" aria-selected="false" data-register-tab="social">
-                                Social
-                            </button>
+                    @if (session('error'))
+                        <div class="register-message error" role="alert">
+                            {{ session('error') }}
                         </div>
+                    @endif
 
-                        <section class="register-panel-section active" data-register-panel="password">
+                    @if ($errors->any())
+                        <div class="register-message error" role="alert">
+                            <strong>
+                                Registreren is niet gelukt.
+                            </strong>
+
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div
+                        class="register-tabs"
+                        role="tablist"
+                        aria-label="Registratiemethode kiezen"
+                    >
+                        <button
+                            class="register-tab active"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="register-panel-password"
+                            data-register-tab="password"
+                        >
+                            Wachtwoord
+                        </button>
+
+                        <button
+                            class="register-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="register-panel-email"
+                            data-register-tab="email"
+                        >
+                            E-mail
+                        </button>
+
+                        <button
+                            class="register-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="register-panel-social"
+                            data-register-tab="social"
+                        >
+                            Social
+                        </button>
+                    </div>
+
+                    <section
+                        class="register-panel active"
+                        id="register-panel-password"
+                        role="tabpanel"
+                        data-register-panel="password"
+                    >
+                        <form
+                            id="registerForm"
+                            method="POST"
+                            action="{{ route('register.submit') }}"
+                            data-register-security-form
+                            data-auth-transition-form
+                        >
+                            @csrf
+
+                            <div class="register-field">
+                                <div class="register-label-row">
+                                    <label for="name">
+                                        Naam
+                                    </label>
+
+                                    @error('name')
+                                        <span class="register-field-error">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <input
+                                    class="register-input"
+                                    id="name"
+                                    type="text"
+                                    name="name"
+                                    value="{{ old('name') }}"
+                                    placeholder="Jouw volledige naam"
+                                    autocomplete="name"
+                                    maxlength="255"
+                                    required
+                                >
+                            </div>
+
+                            <div class="register-field">
+                                <div class="register-label-row">
+                                    <label for="email">
+                                        E-mailadres
+                                    </label>
+
+                                    @error('email')
+                                        <span class="register-field-error">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <input
+                                    class="register-input"
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="naam@example.com"
+                                    autocomplete="email"
+                                    inputmode="email"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    maxlength="255"
+                                    required
+                                >
+                            </div>
+
+                            <div class="register-field">
+                                <div class="register-label-row">
+                                    <label for="password">
+                                        Wachtwoord
+                                    </label>
+
+                                    @error('password')
+                                        <span class="register-field-error">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <div class="register-input-wrap">
+                                    <input
+                                        class="register-input with-toggle"
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        placeholder="Minimaal 8 tekens"
+                                        autocomplete="new-password"
+                                        minlength="8"
+                                        required
+                                    >
+
+                                    <button
+                                        class="register-password-toggle"
+                                        type="button"
+                                        data-toggle-password="password"
+                                        aria-label="Wachtwoord tonen of verbergen"
+                                        aria-pressed="false"
+                                    >
+                                        Tonen
+                                    </button>
+                                </div>
+
+                                <div class="register-strength">
+                                    <div class="register-strength-track">
+                                        <div
+                                            class="register-strength-bar"
+                                            id="passwordStrengthBar"
+                                        ></div>
+                                    </div>
+
+                                    <div class="register-strength-copy">
+                                        <span>
+                                            Wachtwoordsterkte
+                                        </span>
+
+                                        <span id="passwordStrengthLabel">
+                                            Nog niet ingevuld
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="register-field">
+                                <div class="register-label-row">
+                                    <label for="password_confirmation">
+                                        Wachtwoord bevestigen
+                                    </label>
+                                </div>
+
+                                <div class="register-input-wrap">
+                                    <input
+                                        class="register-input with-toggle"
+                                        id="password_confirmation"
+                                        type="password"
+                                        name="password_confirmation"
+                                        placeholder="Herhaal je wachtwoord"
+                                        autocomplete="new-password"
+                                        minlength="8"
+                                        required
+                                    >
+
+                                    <button
+                                        class="register-password-toggle"
+                                        type="button"
+                                        data-toggle-password="password_confirmation"
+                                        aria-label="Wachtwoordbevestiging tonen of verbergen"
+                                        aria-pressed="false"
+                                    >
+                                        Tonen
+                                    </button>
+                                </div>
+
+                                <div
+                                    class="register-match"
+                                    id="passwordMatchStatus"
+                                    aria-live="polite"
+                                ></div>
+                            </div>
+
+                            <label class="register-terms">
+                                <input
+                                    type="checkbox"
+                                    name="terms"
+                                    value="1"
+                                    @checked(old('terms'))
+                                    required
+                                >
+
+                                <span>
+                                    Ik ga akkoord met de
+                                    @if (\Illuminate\Support\Facades\Route::has('terms'))
+                                        <a href="{{ route('terms') }}">
+                                            voorwaarden
+                                        </a>
+                                    @else
+                                        voorwaarden
+                                    @endif
+                                    en begrijp dat mijn account via e-mail
+                                    wordt geverifieerd.
+                                </span>
+                            </label>
+
+                            <button
+                                class="register-primary"
+                                id="registerSubmitButton"
+                                type="submit"
+                            >
+                                Account aanmaken →
+                            </button>
+                        </form>
+                    </section>
+
+                    <section
+                        class="register-panel"
+                        id="register-panel-email"
+                        role="tabpanel"
+                        data-register-panel="email"
+                        hidden
+                    >
+                        <div class="register-passwordless-card">
+                            <div class="register-passwordless-head">
+                                <span
+                                    class="register-passwordless-icon"
+                                    aria-hidden="true"
+                                >
+                                    6
+                                </span>
+
+                                <div class="register-passwordless-copy">
+                                    <strong>
+                                        Registreren met e-mailcode
+                                    </strong>
+
+                                    <span>
+                                        Ontvang een tijdelijke 6-cijferige code.
+                                        Als het adres nog niet bestaat, kan de
+                                        e-mailflow je account aanmaken.
+                                    </span>
+                                </div>
+                            </div>
+
                             <form
-                                id="registerForm"
+                                class="register-passwordless-form"
                                 method="POST"
-                                action="{{ route('register.submit') }}"
+                                action="{{ route('email-login.send') }}"
+                                data-register-security-form
                                 data-auth-transition-form
-                                data-login-security-form
                             >
                                 @csrf
 
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="name">Naam</label>
-                                        @error('name')
-                                            <span class="glass-field-error">{{ $message }}</span>
-                                        @enderror
-                                    </div>
+                                <input
+                                    class="register-input"
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="naam@example.com"
+                                    autocomplete="email"
+                                    inputmode="email"
+                                    required
+                                >
 
-                                    <input
-                                        class="glass-input"
-                                        id="name"
-                                        type="text"
-                                        name="name"
-                                        value="{{ old('name') }}"
-                                        placeholder="Jouw volledige naam"
-                                        autocomplete="name"
-                                        maxlength="255"
-                                        required
-                                    >
-                                </div>
-
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="email">E-mailadres</label>
-                                        @error('email')
-                                            <span class="glass-field-error">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <input
-                                        class="glass-input"
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                        maxlength="255"
-                                        required
-                                    >
-                                </div>
-
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="password">Wachtwoord</label>
-                                        @error('password')
-                                            <span class="glass-field-error">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="glass-input-wrap">
-                                        <input
-                                            class="glass-input with-toggle"
-                                            id="password"
-                                            type="password"
-                                            name="password"
-                                            placeholder="Minimaal 8 tekens"
-                                            autocomplete="new-password"
-                                            minlength="8"
-                                            required
-                                        >
-                                        <button
-                                            class="glass-password-toggle"
-                                            type="button"
-                                            data-password-toggle="password"
-                                        >
-                                            Tonen
-                                        </button>
-                                    </div>
-
-                                    <div class="register-strength">
-                                        <div class="register-strength-track">
-                                            <div class="register-strength-bar" id="passwordStrengthBar"></div>
-                                        </div>
-                                        <div class="register-strength-copy">
-                                            <span>Wachtwoordsterkte</span>
-                                            <span id="passwordStrengthLabel">Nog niet ingevuld</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="password_confirmation">Wachtwoord bevestigen</label>
-                                    </div>
-
-                                    <div class="glass-input-wrap">
-                                        <input
-                                            class="glass-input with-toggle"
-                                            id="password_confirmation"
-                                            type="password"
-                                            name="password_confirmation"
-                                            placeholder="Herhaal je wachtwoord"
-                                            autocomplete="new-password"
-                                            minlength="8"
-                                            required
-                                        >
-                                        <button
-                                            class="glass-password-toggle"
-                                            type="button"
-                                            data-password-toggle="password_confirmation"
-                                        >
-                                            Tonen
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <label class="register-terms">
-                                    <input type="checkbox" name="terms" value="1" @checked(old('terms')) required>
-                                    <span>
-                                        Ik ga akkoord met de voorwaarden en begrijp dat mijn account via e-mail wordt geverifieerd.
-                                    </span>
-                                </label>
-
-                                <button id="registerSubmitButton" class="glass-primary" type="submit">
-                                    Account aanmaken →
+                                <button
+                                    class="register-secondary"
+                                    type="submit"
+                                >
+                                    Stuur code
                                 </button>
-
-                                <div id="registerSecurityStatus" class="register-status" aria-live="polite"></div>
                             </form>
-                        </section>
+                        </div>
 
-                        <section class="register-panel-section" data-register-panel="email" hidden>
-                            <div class="register-passwordless-card">
-                                <div class="register-passwordless-head">
-                                    <span class="register-passwordless-icon">6</span>
-                                    <div class="register-passwordless-copy">
-                                        <strong>Registreren met e-mailcode</strong>
-                                        <span>
-                                            Voer je e-mailadres in. Na de juiste 6-cijferige code wordt automatisch een Mashal-account gemaakt als het adres nog niet bestaat.
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <form
-                                    class="register-passwordless-form"
-                                    method="POST"
-                                    action="{{ route('email-login.send') }}"
-                                    data-auth-transition-form
-                                    data-login-security-form
+                        <div class="register-passwordless-card">
+                            <div class="register-passwordless-head">
+                                <span
+                                    class="register-passwordless-icon"
+                                    aria-hidden="true"
                                 >
-                                    @csrf
-                                    <input
-                                        class="glass-input"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        required
-                                    >
-                                    <button class="glass-secondary" type="submit">
-                                        Stuur code
-                                    </button>
-                                </form>
+                                    ↗
+                                </span>
+
+                                <div class="register-passwordless-copy">
+                                    <strong>
+                                        Registreren met magic link
+                                    </strong>
+
+                                    <span>
+                                        Ontvang een veilige eenmalige link en
+                                        ga zonder wachtwoord verder.
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="register-passwordless-card">
-                                <div class="register-passwordless-head">
-                                    <span class="register-passwordless-icon">↗</span>
-                                    <div class="register-passwordless-copy">
-                                        <strong>Registreren met magic link</strong>
-                                        <span>
-                                            Ontvang een veilige eenmalige loginlink. Als je nog geen account hebt, wordt dat na bevestiging aangemaakt.
-                                        </span>
-                                    </div>
-                                </div>
+                            <form
+                                class="register-passwordless-form"
+                                method="POST"
+                                action="{{ route('email-login.link.send') }}"
+                                data-register-security-form
+                                data-auth-transition-form
+                            >
+                                @csrf
 
-                                <form
-                                    class="register-passwordless-form"
-                                    method="POST"
-                                    action="{{ route('email-login.link.send') }}"
-                                    data-auth-transition-form
-                                    data-login-security-form
+                                <input
+                                    class="register-input"
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="naam@example.com"
+                                    autocomplete="email"
+                                    inputmode="email"
+                                    required
                                 >
-                                    @csrf
-                                    <input
-                                        class="glass-input"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        required
-                                    >
-                                    <button class="glass-secondary" type="submit">
-                                        Stuur link
-                                    </button>
-                                </form>
-                            </div>
-                        </section>
 
-                        <section class="register-panel-section" data-register-panel="social" hidden>
-                            <div class="register-oauth-grid">
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('google.redirect') }}">
+                                <button
+                                    class="register-secondary"
+                                    type="submit"
+                                >
+                                    Stuur link
+                                </button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <section
+                        class="register-panel"
+                        id="register-panel-social"
+                        role="tabpanel"
+                        data-register-panel="social"
+                        hidden
+                    >
+                        <div class="register-oauth-grid">
+                            @if (\Illuminate\Support\Facades\Route::has('google.redirect'))
+                                <a
+                                    class="register-oauth"
+                                    data-register-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('google.redirect') }}"
+                                    aria-label="Account maken met Google"
+                                >
                                     <span class="register-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
                                             <path fill="#4285F4" d="M21.805 10.023h-9.18v3.955h5.28c-.228 1.273-.918 2.352-1.956 3.078v2.559h3.168c1.855-1.708 2.928-4.227 2.928-7.219 0-.8-.072-1.57-.24-2.373Z"/>
@@ -2012,105 +1445,147 @@
                                             <path fill="#EA4335" d="M12.625 6.004c1.44 0 2.733.495 3.75 1.468l2.813-2.813C17.493 3.076 15.27 2 12.625 2a9.812 9.812 0 0 0-8.76 5.405l3.274 2.639c.776-2.316 2.936-4.04 5.486-4.04Z"/>
                                         </svg>
                                     </span>
+
                                     <span class="register-oauth-copy">
                                         <strong>Google / Gmail</strong>
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+                            @endif
 
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('github.redirect') }}">
+                            @if (\Illuminate\Support\Facades\Route::has('github.redirect'))
+                                <a
+                                    class="register-oauth"
+                                    data-register-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('github.redirect') }}"
+                                    aria-label="Account maken met GitHub"
+                                >
                                     <span class="register-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
                                             <path fill="currentColor" d="M12 .7a11.5 11.5 0 0 0-3.636 22.41c.575.105.786-.25.786-.555 0-.274-.01-1-.016-1.962-3.198.695-3.874-1.541-3.874-1.541-.523-1.329-1.277-1.683-1.277-1.683-1.044-.714.08-.699.08-.699 1.154.081 1.761 1.185 1.761 1.185 1.026 1.758 2.692 1.25 3.348.956.104-.743.402-1.25.73-1.537-2.553-.29-5.237-1.276-5.237-5.68 0-1.255.449-2.281 1.184-3.085-.118-.291-.513-1.462.113-3.048 0 0 .965-.309 3.162 1.179A10.98 10.98 0 0 1 12 8.253c.977.004 1.961.132 2.88.387 2.195-1.488 3.158-1.179 3.158-1.179.628 1.586.233 2.757.115 3.048.737.804 1.182 1.83 1.182 3.085 0 4.415-2.688 5.387-5.249 5.671.413.356.78 1.057.78 2.13 0 1.538-.014 2.778-.014 3.155 0 .308.207.666.792.553A11.502 11.502 0 0 0 12 .7Z"/>
                                         </svg>
                                     </span>
+
                                     <span class="register-oauth-copy">
                                         <strong>GitHub</strong>
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+                            @endif
 
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('facebook.redirect') }}">
-                                    <span class="register-oauth-icon" style="color:#1877f2">
+                            @if (\Illuminate\Support\Facades\Route::has('facebook.redirect'))
+                                <a
+                                    class="register-oauth"
+                                    data-register-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('facebook.redirect') }}"
+                                    aria-label="Account maken met Facebook"
+                                >
+                                    <span
+                                        class="register-oauth-icon"
+                                        style="color:#1877f2"
+                                    >
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
                                             <path fill="currentColor" d="M13.6 22v-8h2.68l.4-3.12H13.6V8.89c0-.9.25-1.52 1.54-1.52h1.65V4.58a22.1 22.1 0 0 0-2.4-.12c-2.38 0-4.01 1.45-4.01 4.12v2.3H7.69V14h2.69v8h3.22Z"/>
                                         </svg>
                                     </span>
+
                                     <span class="register-oauth-copy">
                                         <strong>Facebook</strong>
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+                            @endif
 
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('tiktok.redirect') }}">
+                            @if (\Illuminate\Support\Facades\Route::has('tiktok.redirect'))
+                                <a
+                                    class="register-oauth"
+                                    data-register-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('tiktok.redirect') }}"
+                                    aria-label="Account maken met TikTok"
+                                >
                                     <span class="register-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
                                             <path fill="#25F4EE" d="M15.62 3.2c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V3.2h2.13Z"/>
                                             <path fill="#FE2C55" d="M16.32 2.6c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V2.6h2.13Z"/>
                                         </svg>
                                     </span>
+
                                     <span class="register-oauth-copy">
                                         <strong>TikTok</strong>
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+                            @endif
 
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('linkedin.redirect') }}" aria-label="Account maken met LinkedIn">
-                                    <span class="register-oauth-icon" aria-hidden="true">
-                                        <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
+                            @if (\Illuminate\Support\Facades\Route::has('linkedin.redirect'))
+                                <a
+                                    class="register-oauth"
+                                    data-register-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('linkedin.redirect') }}"
+                                    aria-label="Account maken met LinkedIn"
+                                >
+                                    <span
+                                        class="register-oauth-icon"
+                                        aria-hidden="true"
+                                    >
+                                        <span
+                                            style="
+                                                display:grid;
+                                                place-items:center;
+                                                width:22px;
+                                                height:22px;
+                                                border-radius:5px;
+                                                background:#0A66C2;
+                                                color:#fff;
+                                                font-size:12px;
+                                                font-weight:900;
+                                                letter-spacing:-.04em;
+                                            "
+                                        >
+                                            in
+                                        </span>
                                     </span>
+
                                     <span class="register-oauth-copy">
                                         <strong>LinkedIn</strong>
                                         <span>Account maken</span>
                                     </span>
                                 </a>
-                            </div>
-                        </section>
-
-                        <div class="glass-divider">
-                            Al een Mashal-account?
+                            @endif
                         </div>
+                    </section>
 
-                        <div class="register-login-row">
-                            <span>
-                                Je kunt dezelfde methodes ook gebruiken om in te loggen.
-                            </span>
-                            <a class="glass-small-link" href="{{ route('login') }}">
-                                Naar inloggen
-                            </a>
-                        </div>
+                    <div class="register-divider">
+                        Al een Mashal-account?
+                    </div>
 
-                        <div class="register-security-note">
-                            ✓ Na wachtwoordregistratie bevestig je eerst je e-mail. Daarna zie je dezelfde groene succescheck voordat je workspace opent.
-                        </div>
+                    <div class="register-login-row">
+                        <span>
+                            Gebruik dezelfde methodes om veilig in te loggen.
+                        </span>
+
+                        <a
+                            class="register-small-link"
+                            href="{{ route('login') }}"
+                        >
+                            Naar inloggen
+                        </a>
+                    </div>
+
+                    <div class="register-security-note">
+                        ✓ Na wachtwoordregistratie bevestig je eerst je
+                        e-mailadres voordat je account volledig actief is.
                     </div>
                 </div>
+            </section>
+
+            <div class="register-footer">
+                Mashal Studio · Secure registration
             </div>
-
-            <span class="glass-corner top-left" aria-hidden="true"></span>
-            <span class="glass-corner bottom-right" aria-hidden="true"></span>
-        </div>
-
-        <div class="glass-code-panel" aria-hidden="true">
-            <div class="glass-code-topbar">
-                <div class="glass-code-dots">
-                    <span class="glass-code-dot red"></span>
-                    <span class="glass-code-dot yellow"></span>
-                    <span class="glass-code-dot green"></span>
-                </div>
-                <div class="glass-code-tab">◻&nbsp; Register.jsx</div>
-                <div class="glass-code-badge">⚛&nbsp; Secure UI</div>
-            </div>
-            <div class="glass-code-body"><span class="pink">const</span> <span class="cyan">account</span> = {
-  password: <span class="cyan">true</span>,
-  emailCode: <span class="cyan">true</span>,
-  magicLink: <span class="cyan">true</span>,
-  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>]
-};</div>
-        </div>
-
-        <div class="glass-footer">
-            Mashal Studio · Secure registration
         </div>
     </main>
 </section>
@@ -2123,547 +1598,73 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Login <-> Register animated page switch
+    | Password visibility
     |--------------------------------------------------------------------------
     */
-    const authSwitchStorageKey =
-        'mashal_auth_switch_direction';
-
-    const authPage =
-        document.querySelector('.glass-auth-page');
-
-    const authSwitchLinks =
-        Array.from(
-            document.querySelectorAll(
-                '.glass-auth-switch a'
-            )
-        );
-
-    function pageKindFromUrl(url) {
-        try {
-            const parsed =
-                new URL(
-                    url,
-                    window.location.origin
-                );
-
-            if (
-                parsed.pathname
-                    .replace(/\/+$/, '')
-                    .endsWith('/register')
-            ) {
-                return 'register';
-            }
-
-            if (
-                parsed.pathname
-                    .replace(/\/+$/, '')
-                    .endsWith('/login')
-            ) {
-                return 'login';
-            }
-        } catch (error) {
-            return null;
-        }
-
-        return null;
-    }
-
-    function currentAuthPageKind() {
-        return pageKindFromUrl(
-            window.location.href
-        );
-    }
-
-    function playAuthEntryAnimation() {
-        if (!authPage) {
-            return;
-        }
-
-        let from = null;
-
-        try {
-            from =
-                window.sessionStorage.getItem(
-                    authSwitchStorageKey
-                );
-
-            window.sessionStorage.removeItem(
-                authSwitchStorageKey
-            );
-        } catch (error) {
-            from = null;
-        }
-
-        if (
-            from !== 'login'
-            && from !== 'register'
-        ) {
-            return;
-        }
-
-        authPage.classList.add(
-            'is-switching-in',
-            from === 'login'
-                ? 'is-from-login'
-                : 'is-from-register'
-        );
-
-        window.setTimeout(
-            function () {
-                authPage.classList.remove(
-                    'is-switching-in',
-                    'is-from-login',
-                    'is-from-register'
-                );
-            },
-            700
-        );
-    }
-
-    function navigateWithAuthAnimation(
-        link,
-        destination
-    ) {
-        if (!authPage) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        const currentKind =
-            currentAuthPageKind();
-
-        const destinationKind =
-            pageKindFromUrl(
-                destination
-            );
-
-        if (
-            !currentKind
-            || !destinationKind
-            || currentKind === destinationKind
-        ) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        link.classList.add(
-            'is-switching'
-        );
-
-        authPage.classList.add(
-            'is-switching-out'
-        );
-
-        authPage.classList.toggle(
-            'is-to-register',
-            destinationKind === 'register'
-        );
-
-        authPage.classList.toggle(
-            'is-to-login',
-            destinationKind === 'login'
-        );
-
-        try {
-            window.sessionStorage.setItem(
-                authSwitchStorageKey,
-                currentKind
-            );
-        } catch (error) {
-            // Navigatie mag niet blokkeren.
-        }
-
-        window.setTimeout(
-            function () {
-                window.location.assign(
-                    destination
-                );
-            },
-            470
-        );
-    }
-
-    authSwitchLinks.forEach(
-        function (link) {
-            link.addEventListener(
-                'click',
-                function (event) {
-                    if (
-                        event.defaultPrevented
-                        || event.button !== 0
-                        || event.metaKey
-                        || event.ctrlKey
-                        || event.shiftKey
-                        || event.altKey
-                    ) {
-                        return;
-                    }
-
-                    const destination =
-                        link.getAttribute(
-                            'href'
-                        );
-
-                    if (!destination) {
-                        return;
-                    }
-
-                    const kind =
-                        pageKindFromUrl(
-                            destination
-                        );
-
-                    if (
-                        kind !== 'login'
-                        && kind !== 'register'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    navigateWithAuthAnimation(
-                        link,
-                        destination
-                    );
-                }
-            );
-        }
-    );
-
-    playAuthEntryAnimation();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | V5 folding switch
-    |--------------------------------------------------------------------------
-    */
-    const authFoldStorageKey =
-        'mashal_auth_fold_from';
-
-    function setFoldVectors() {
-        const shell =
-            document.querySelector('.glass-card-shell');
-
-        const topCorner =
-            document.querySelector('.glass-corner.top-left');
-
-        const bottomCorner =
-            document.querySelector('.glass-corner.bottom-right');
-
-        if (
-            !shell
-            || !topCorner
-            || !bottomCorner
-        ) {
-            return;
-        }
-
-        const shellRect =
-            shell.getBoundingClientRect();
-
-        const topRect =
-            topCorner.getBoundingClientRect();
-
-        const bottomRect =
-            bottomCorner.getBoundingClientRect();
-
-        const centerX =
-            shellRect.left + (shellRect.width / 2);
-
-        const centerY =
-            shellRect.top + (shellRect.height / 2);
-
-        const topCenterX =
-            topRect.left + (topRect.width / 2);
-
-        const topCenterY =
-            topRect.top + (topRect.height / 2);
-
-        const bottomCenterX =
-            bottomRect.left + (bottomRect.width / 2);
-
-        const bottomCenterY =
-            bottomRect.top + (bottomRect.height / 2);
-
-        authPage?.style.setProperty(
-            '--fold-top-x',
-            (centerX - topCenterX) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-top-y',
-            (centerY - topCenterY) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-bottom-x',
-            (centerX - bottomCenterX) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-bottom-y',
-            (centerY - bottomCenterY) + 'px'
-        );
-    }
-
-    function playFoldEntry() {
-        if (!authPage) {
-            return;
-        }
-
-        let from = null;
-
-        try {
-            from =
-                window.sessionStorage.getItem(
-                    authFoldStorageKey
-                );
-
-            window.sessionStorage.removeItem(
-                authFoldStorageKey
-            );
-        } catch (error) {
-            from = null;
-        }
-
-        if (
-            from !== 'login'
-            && from !== 'register'
-        ) {
-            return;
-        }
-
-        setFoldVectors();
-
-        authPage.classList.add(
-            'is-folding-in'
-        );
-
-        window.setTimeout(
-            function () {
-                authPage.classList.remove(
-                    'is-folding-in'
-                );
-            },
-            760
-        );
-    }
-
-    function navigateWithFold(
-        link,
-        destination
-    ) {
-        const currentKind =
-            currentAuthPageKind();
-
-        const destinationKind =
-            pageKindFromUrl(
-                destination
-            );
-
-        if (
-            !authPage
-            || !currentKind
-            || !destinationKind
-            || currentKind === destinationKind
-        ) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        setFoldVectors();
-
-        try {
-            window.sessionStorage.setItem(
-                authFoldStorageKey,
-                currentKind
-            );
-        } catch (error) {
-            // Navigatie mag niet blokkeren.
-        }
-
-        link.classList.add(
-            'is-switching'
-        );
-
-        authPage.classList.add(
-            'is-folding-out'
-        );
-
-        window.setTimeout(
-            function () {
-                window.location.assign(
-                    destination
-                );
-            },
-            620
-        );
-    }
-
-    /*
-     * V4 clickhandler onderscheppen met capture=true zodat de nieuwe
-     * fold-animatie de oude schuifanimatie vervangt.
-     */
-    authSwitchLinks.forEach(
-        function (link) {
-            link.addEventListener(
-                'click',
-                function (event) {
-                    if (
-                        event.defaultPrevented
-                        || event.button !== 0
-                        || event.metaKey
-                        || event.ctrlKey
-                        || event.shiftKey
-                        || event.altKey
-                    ) {
-                        return;
-                    }
-
-                    const destination =
-                        link.getAttribute(
-                            'href'
-                        );
-
-                    const kind =
-                        destination
-                            ? pageKindFromUrl(
-                                destination
-                            )
-                            : null;
-
-                    if (
-                        kind !== 'login'
-                        && kind !== 'register'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-
-                    navigateWithFold(
-                        link,
-                        destination
-                    );
-                },
-                true
-            );
-        }
-    );
-
-    window.addEventListener(
-        'resize',
-        setFoldVectors
-    );
-
-    window.requestAnimationFrame(
-        function () {
-            setFoldVectors();
-            playFoldEntry();
-        }
-    );
-
-    /*
-     * Voorkom dat autofocus/browser scroll-restoration de bovenkant van
-     * de glassy authpagina onder de vaste header schuift.
-     */
-    try {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
-        if (!window.location.hash) {
-            window.scrollTo(0, 0);
-        }
-    } catch (error) {
-        // Geen blokkade voor authenticatie.
-    }
-
-    const authTransitionKey =
-        'mashal_auth_success_pending';
-
-    function markAuthTransition(source) {
-        try {
-            window.localStorage.setItem(
-                authTransitionKey,
-                JSON.stringify({
-                    source:
-                        String(source || 'register'),
-                    createdAt:
-                        Date.now(),
-                })
-            );
-        } catch (error) {
-            // Registratie moet blijven werken zonder localStorage.
-        }
-    }
-
-    function clearAuthTransition() {
-        try {
-            window.localStorage.removeItem(
-                authTransitionKey
-            );
-        } catch (error) {
-            // Geen blokkade.
-        }
-    }
-
-    @if ($errors->any() || session('error'))
-        clearAuthTransition();
-    @endif
 
     document
-        .querySelectorAll('[data-password-toggle]')
+        .querySelectorAll(
+            '[data-toggle-password]'
+        )
         .forEach(function (button) {
-            button.addEventListener('click', function () {
-                const input =
-                    document.getElementById(
-                        button.getAttribute('data-password-toggle')
+            button.addEventListener(
+                'click',
+                function () {
+                    const input =
+                        document.getElementById(
+                            button.getAttribute(
+                                'data-toggle-password'
+                            )
+                        );
+
+                    if (!input) {
+                        return;
+                    }
+
+                    const showing =
+                        input.type === 'password';
+
+                    input.type =
+                        showing
+                            ? 'text'
+                            : 'password';
+
+                    button.textContent =
+                        showing
+                            ? 'Verbergen'
+                            : 'Tonen';
+
+                    button.setAttribute(
+                        'aria-pressed',
+                        showing
+                            ? 'true'
+                            : 'false'
                     );
-
-                if (!input) {
-                    return;
                 }
-
-                const hidden =
-                    input.type === 'password';
-
-                input.type =
-                    hidden
-                        ? 'text'
-                        : 'password';
-
-                button.textContent =
-                    hidden
-                        ? 'Verbergen'
-                        : 'Tonen';
-            });
+            );
         });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Registration method tabs
+    |--------------------------------------------------------------------------
+    */
 
     const tabs =
         Array.from(
-            document.querySelectorAll('[data-register-tab]')
+            document.querySelectorAll(
+                '[data-register-tab]'
+            )
         );
 
     const panels =
         Array.from(
-            document.querySelectorAll('[data-register-panel]')
+            document.querySelectorAll(
+                '[data-register-panel]'
+            )
         );
 
-    function selectPanel(name) {
+    function selectRegisterMethod(name) {
         tabs.forEach(function (tab) {
             const active =
                 tab.dataset.registerTab === name;
@@ -2675,7 +1676,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tab.setAttribute(
                 'aria-selected',
-                active ? 'true' : 'false'
+                active
+                    ? 'true'
+                    : 'false'
             );
         });
 
@@ -2694,27 +1697,53 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-            selectPanel(
-                tab.dataset.registerTab
-            );
-        });
+        tab.addEventListener(
+            'click',
+            function () {
+                selectRegisterMethod(
+                    tab.dataset.registerTab
+                );
+            }
+        );
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Password strength + confirmation
+    |--------------------------------------------------------------------------
+    */
+
     const password =
-        document.getElementById('password');
+        document.getElementById(
+            'password'
+        );
+
+    const confirmation =
+        document.getElementById(
+            'password_confirmation'
+        );
 
     const strengthBar =
-        document.getElementById('passwordStrengthBar');
+        document.getElementById(
+            'passwordStrengthBar'
+        );
 
     const strengthLabel =
-        document.getElementById('passwordStrengthLabel');
+        document.getElementById(
+            'passwordStrengthLabel'
+        );
 
-    function calculatePasswordStrength(value) {
+    const matchStatus =
+        document.getElementById(
+            'passwordMatchStatus'
+        );
+
+    function calculateStrength(value) {
         if (!value) {
             return {
-                score: 0,
-                label: 'Nog niet ingevuld'
+                percent: 0,
+                label: 'Nog niet ingevuld',
+                tone: '#707780'
             };
         }
 
@@ -2728,32 +1757,214 @@ document.addEventListener('DOMContentLoaded', function () {
         if (/[^A-Za-z0-9]/.test(value)) score++;
 
         if (score <= 2) {
-            return { score: 30, label: 'Zwak' };
+            return {
+                percent: 30,
+                label: 'Zwak',
+                tone: '#d66f6f'
+            };
         }
 
         if (score <= 4) {
-            return { score: 65, label: 'Redelijk' };
+            return {
+                percent: 65,
+                label: 'Redelijk',
+                tone: '#d4a55d'
+            };
         }
 
-        return { score: 100, label: 'Sterk' };
+        return {
+            percent: 100,
+            label: 'Sterk',
+            tone: '#69c98f'
+        };
     }
 
-    password?.addEventListener('input', function () {
+    function updateStrength() {
+        if (
+            !password ||
+            !strengthBar ||
+            !strengthLabel
+        ) {
+            return;
+        }
+
         const result =
-            calculatePasswordStrength(
+            calculateStrength(
                 password.value
             );
 
-        if (strengthBar) {
-            strengthBar.style.width =
-                result.score + '%';
+        strengthBar.style.transform =
+            'scaleX(' +
+            (result.percent / 100) +
+            ')';
+
+        strengthBar.style.backgroundColor =
+            result.tone;
+
+        strengthLabel.textContent =
+            result.label;
+    }
+
+    function updateMatchStatus() {
+        if (
+            !password ||
+            !confirmation ||
+            !matchStatus
+        ) {
+            return;
         }
 
-        if (strengthLabel) {
-            strengthLabel.textContent =
-                result.label;
+        matchStatus.classList.remove(
+            'good',
+            'bad'
+        );
+
+        if (!confirmation.value) {
+            matchStatus.textContent = '';
+            return;
         }
-    });
+
+        if (
+            password.value ===
+            confirmation.value
+        ) {
+            matchStatus.textContent =
+                'Wachtwoorden komen overeen.';
+
+            matchStatus.classList.add(
+                'good'
+            );
+
+            return;
+        }
+
+        matchStatus.textContent =
+            'Wachtwoorden komen nog niet overeen.';
+
+        matchStatus.classList.add(
+            'bad'
+        );
+    }
+
+    password?.addEventListener(
+        'input',
+        function () {
+            updateStrength();
+            updateMatchStatus();
+        }
+    );
+
+    confirmation?.addEventListener(
+        'input',
+        updateMatchStatus
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication transition marker
+    |--------------------------------------------------------------------------
+    |
+    | Alleen opslagmarker. Geen kunstmatige animatievertraging vóór navigatie.
+    |
+    */
+
+    const authTransitionKey =
+        'mashal_auth_success_pending';
+
+    function markAuthTransition(source) {
+        try {
+            window.localStorage.setItem(
+                authTransitionKey,
+                JSON.stringify({
+                    source:
+                        String(
+                            source ||
+                            'register'
+                        ),
+                    createdAt:
+                        Date.now(),
+                })
+            );
+        } catch (error) {
+            // Registratie mag nooit blokkeren.
+        }
+    }
+
+    @if ($errors->any() || session('error'))
+        try {
+            window.localStorage.removeItem(
+                authTransitionKey
+            );
+        } catch (error) {
+            //
+        }
+    @endif
+
+    document
+        .querySelectorAll(
+            'form[data-auth-transition-form]'
+        )
+        .forEach(function (form) {
+            form.addEventListener(
+                'submit',
+                function () {
+                    markAuthTransition(
+                        form.getAttribute('action')
+                        || 'register-form'
+                    );
+
+                    const submit =
+                        form.querySelector(
+                            '[type="submit"]'
+                        );
+
+                    if (!submit) {
+                        return;
+                    }
+
+                    submit.disabled =
+                        true;
+
+                    if (
+                        !submit.dataset.originalText
+                    ) {
+                        submit.dataset.originalText =
+                            submit.textContent.trim();
+                    }
+
+                    submit.textContent =
+                        'Bezig…';
+                }
+            );
+        });
+
+    document
+        .querySelectorAll(
+            'a[data-auth-transition-link]'
+        )
+        .forEach(function (link) {
+            link.addEventListener(
+                'click',
+                function () {
+                    markAuthTransition(
+                        link.getAttribute('href')
+                        || 'social-register'
+                    );
+                }
+            );
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login security context - background only
+    |--------------------------------------------------------------------------
+    |
+    | De oude registratie wachtte op geolocation + een fetch voordat het
+    | formulier of OAuth mocht doorgaan. Nu gebeurt dit vooraf en alleen in de
+    | achtergrond. Er wordt nooit een locatie-popup geopend wanneer toestemming
+    | nog niet eerder is gegeven.
+    |
+    */
 
     const securityContextUrl =
         @json(route('login-security.context'));
@@ -2761,41 +1972,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const csrfToken =
         @json(csrf_token());
 
-    const preciseLocationEnabled =
-        @json(
-            (bool) config(
-                'login-security.precise_location.enabled',
-                true
-            )
-        );
-
-    const highAccuracy =
-        @json(
-            (bool) config(
-                'login-security.precise_location.high_accuracy',
-                true
-            )
-        );
-
-    const geolocationTimeout =
-        {{ max(
-            1000,
-            (int) config(
-                'login-security.precise_location.timeout_ms',
-                10000
-            )
-        ) }};
-
-    const geolocationMaximumAge =
-        {{ max(
-            0,
-            (int) config(
-                'login-security.precise_location.maximum_age_ms',
-                60000
-            )
-        ) }};
-
-    function getBrowserTimezone() {
+    function browserTimezone() {
         try {
             return (
                 Intl
@@ -2809,247 +1986,206 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    async function getLocationPermissionState() {
+    async function locationPermissionState() {
         if (
             !navigator.permissions
-            || typeof navigator.permissions.query !== 'function'
+            || typeof navigator.permissions.query
+                !== 'function'
         ) {
-            return 'prompt';
+            return 'unknown';
         }
 
         try {
-            const status =
+            const result =
                 await navigator.permissions.query({
                     name: 'geolocation'
                 });
 
-            return status?.state || 'prompt';
+            return result?.state
+                || 'unknown';
         } catch (error) {
-            return 'prompt';
+            return 'unknown';
         }
     }
 
-    async function getPreciseLocation() {
-        const base = {
-            latitude: null,
-            longitude: null,
-            location_accuracy: null,
-            location_permission: 'unknown',
-        };
-
-        if (!preciseLocationEnabled) {
-            return {
-                ...base,
-                location_permission: 'unavailable',
-            };
-        }
-
-        if (!navigator.geolocation) {
-            return {
-                ...base,
-                location_permission: 'unsupported',
-            };
-        }
-
-        const initialPermission =
-            await getLocationPermissionState();
-
-        if (initialPermission === 'denied') {
-            return {
-                ...base,
-                location_permission: 'denied',
-            };
-        }
-
-        return new Promise(function (resolve) {
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    resolve({
-                        latitude:
-                            Number(position.coords.latitude),
-                        longitude:
-                            Number(position.coords.longitude),
-                        location_accuracy:
-                            Number(position.coords.accuracy) || null,
-                        location_permission:
-                            'granted',
-                    });
-                },
-                function (error) {
-                    resolve({
-                        ...base,
-                        location_permission:
-                            error?.code === 1
-                                ? 'denied'
-                                : 'unavailable',
-                    });
-                },
-                {
-                    enableHighAccuracy:
-                        highAccuracy,
-                    timeout:
-                        geolocationTimeout,
-                    maximumAge:
-                        geolocationMaximumAge,
-                }
-            );
-        });
-    }
-
-    async function storeLoginSecurityContext() {
-        try {
-            const location =
-                await getPreciseLocation();
-
-            const response =
-                await fetch(
-                    securityContextUrl,
-                    {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                        body:
-                            JSON.stringify({
-                                browser_timezone:
-                                    getBrowserTimezone(),
-                                latitude:
-                                    location.latitude,
-                                longitude:
-                                    location.longitude,
-                                location_accuracy:
-                                    location.location_accuracy,
-                                location_permission:
-                                    location.location_permission,
-                            }),
-                    }
-                );
-
-            return response.ok;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    document
-        .querySelectorAll('form[data-login-security-form]')
-        .forEach(function (form) {
-            form.addEventListener(
-                'submit',
-                async function (event) {
-                    if (
-                        form.dataset.loginSecuritySubmitting === '1'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    markAuthTransition(
-                        form.getAttribute('action')
-                        || 'register-form'
-                    );
-
-                    form.dataset.loginSecuritySubmitting =
-                        '1';
-
-                    const submit =
-                        form.querySelector('[type="submit"]');
-
-                    if (submit) {
-                        submit.disabled = true;
-                        submit.dataset.originalText =
-                            submit.textContent.trim();
-                        submit.textContent =
-                            'Beveiliging controleren…';
-                    }
-
-                    try {
-                        await storeLoginSecurityContext();
-                    } finally {
-                        HTMLFormElement
-                            .prototype
-                            .submit
-                            .call(form);
-                    }
-                }
-            );
-        });
-
-    document
-        .querySelectorAll('a[data-login-security-oauth]')
-        .forEach(function (link) {
-            link.addEventListener(
-                'click',
-                async function (event) {
-                    const destination =
-                        link.getAttribute('href');
-
-                    if (!destination) {
-                        return;
-                    }
-
-                    if (
-                        link.dataset.loginSecurityOpening === '1'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    markAuthTransition(destination);
-
-                    link.dataset.loginSecurityOpening =
-                        '1';
-
-                    link.setAttribute(
-                        'aria-busy',
-                        'true'
-                    );
-
-                    try {
-                        await storeLoginSecurityContext();
-                    } finally {
-                        window.location.assign(
-                            destination
-                        );
-                    }
-                }
-            );
-        });
-
-    window.addEventListener('pageshow', function () {
-        document
-            .querySelectorAll('form[data-login-security-form]')
-            .forEach(function (form) {
-                delete form.dataset.loginSecuritySubmitting;
-
-                const submit =
-                    form.querySelector('[type="submit"]');
-
-                if (!submit) {
+    function grantedLocation() {
+        return new Promise(
+            function (resolve) {
+                if (
+                    !navigator.geolocation
+                    || typeof navigator
+                        .geolocation
+                        .getCurrentPosition
+                        !== 'function'
+                ) {
+                    resolve(null);
                     return;
                 }
 
-                submit.disabled = false;
+                navigator.geolocation
+                    .getCurrentPosition(
+                        function (position) {
+                            const coords =
+                                position?.coords;
 
-                if (submit.dataset.originalText) {
-                    submit.textContent =
-                        submit.dataset.originalText;
+                            if (!coords) {
+                                resolve(null);
+                                return;
+                            }
+
+                            resolve({
+                                latitude:
+                                    Number(
+                                        coords.latitude
+                                    ),
+                                longitude:
+                                    Number(
+                                        coords.longitude
+                                    ),
+                                location_accuracy:
+                                    Number.isFinite(
+                                        Number(
+                                            coords.accuracy
+                                        )
+                                    )
+                                        ? Number(
+                                            coords.accuracy
+                                        )
+                                        : null,
+                            });
+                        },
+                        function () {
+                            resolve(null);
+                        },
+                        {
+                            enableHighAccuracy:
+                                false,
+                            timeout:
+                                1400,
+                            maximumAge:
+                                120000,
+                        }
+                    );
+            }
+        );
+    }
+
+    async function storeSecurityContext() {
+        try {
+            const permission =
+                await locationPermissionState();
+
+            let location =
+                null;
+
+            if (
+                permission ===
+                'granted'
+            ) {
+                location =
+                    await grantedLocation();
+            }
+
+            await fetch(
+                securityContextUrl,
+                {
+                    method: 'POST',
+                    credentials:
+                        'same-origin',
+                    keepalive:
+                        true,
+                    headers: {
+                        'Accept':
+                            'application/json',
+                        'Content-Type':
+                            'application/json',
+                        'X-CSRF-TOKEN':
+                            csrfToken,
+                        'X-Requested-With':
+                            'XMLHttpRequest',
+                    },
+                    body:
+                        JSON.stringify({
+                            browser_timezone:
+                                browserTimezone(),
+                            latitude:
+                                location?.latitude
+                                ?? null,
+                            longitude:
+                                location?.longitude
+                                ?? null,
+                            location_accuracy:
+                                location?.location_accuracy
+                                ?? null,
+                            location_permission:
+                                permission,
+                        }),
                 }
-            });
+            );
+        } catch (error) {
+            // Registratie blijft altijd beschikbaar.
+        }
+    }
 
-        document
-            .querySelectorAll('a[data-login-security-oauth]')
-            .forEach(function (link) {
-                delete link.dataset.loginSecurityOpening;
-                link.removeAttribute('aria-busy');
-            });
-    });
+    if (
+        'requestIdleCallback'
+        in window
+    ) {
+        window.requestIdleCallback(
+            function () {
+                void storeSecurityContext();
+            },
+            {
+                timeout: 900
+            }
+        );
+    } else {
+        window.setTimeout(
+            function () {
+                void storeSecurityContext();
+            },
+            250
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Back-forward cache reset
+    |--------------------------------------------------------------------------
+    */
+
+    window.addEventListener(
+        'pageshow',
+        function () {
+            document
+                .querySelectorAll(
+                    'form[data-auth-transition-form]'
+                )
+                .forEach(function (form) {
+                    const submit =
+                        form.querySelector(
+                            '[type="submit"]'
+                        );
+
+                    if (!submit) {
+                        return;
+                    }
+
+                    submit.disabled =
+                        false;
+
+                    if (
+                        submit.dataset.originalText
+                    ) {
+                        submit.textContent =
+                            submit.dataset.originalText;
+                    }
+                });
+        }
+    );
+
+    updateStrength();
+    updateMatchStatus();
 });
 </script>
 @endpush
