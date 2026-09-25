@@ -41,6 +41,40 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
+| Publieke informatiepagina's
+|--------------------------------------------------------------------------
+|
+| Deze pagina's zijn voor iedere bezoeker toegankelijk en geven duidelijke
+| informatie over Mashal Studio, privacy, contact en gebruiksvoorwaarden.
+|
+*/
+
+Route::view(
+    '/privacy',
+    'site.privacy'
+)->name('privacy');
+
+
+Route::view(
+    '/contact',
+    'site.contact'
+)->name('contact');
+
+
+Route::view(
+    '/over-ons',
+    'site.about'
+)->name('about');
+
+
+Route::view(
+    '/voorwaarden',
+    'site.terms'
+)->name('terms');
+
+
+/*
+|--------------------------------------------------------------------------
 | Afbeelding uploaden vóór login
 |--------------------------------------------------------------------------
 |
