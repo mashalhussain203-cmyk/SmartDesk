@@ -70,20 +70,19 @@
 
         $layoutIsAdmin = (bool) ($layoutUser->is_admin ?? false);
 
-        $layoutImageCount = null;
+        /*
+        |--------------------------------------------------------------------------
+        | Performance: geen globale image count query
+        |--------------------------------------------------------------------------
+        |
+        | Deze layout wordt op bijna iedere pagina gerenderd. Een COUNT-query
+        | vanuit de layout voegt daardoor voor iedere ingelogde request een extra
+        | database-roundtrip toe. De navigatie blijft gewoon werken; alleen het
+        | live aantal wordt hier niet meer opgehaald.
+        |
+        */
 
-        if (
-            $layoutUser &&
-            class_exists(\App\Models\Image::class)
-        ) {
-            try {
-                $layoutImageCount = \App\Models\Image::query()
-                    ->where('user_id', $layoutUser->id)
-                    ->count();
-            } catch (\Throwable $exception) {
-                $layoutImageCount = null;
-            }
-        }
+        $layoutImageCount = null;
     @endphp
 
     <style>
@@ -507,13 +506,16 @@
                 50%;
 
             filter:
-                blur(95px);
+                blur(64px);
 
             opacity:
-                .16;
+                .12;
 
             animation:
-                studioOrbDrift 18s ease-in-out infinite alternate;
+                studioOrbDrift 28s ease-in-out infinite alternate;
+
+            will-change:
+                transform;
         }
 
         .studio-orb.one {
@@ -621,7 +623,7 @@
 
         .studio-progress-bar {
             width:
-                0;
+                100%;
 
             height:
                 100%;
@@ -638,10 +640,16 @@
                 );
 
             box-shadow:
-                0 0 22px rgba(227, 179, 107, .38);
+                0 0 18px rgba(227, 179, 107, .28);
 
-            transition:
-                width .06s linear;
+            transform:
+                scaleX(0);
+
+            transform-origin:
+                left center;
+
+            will-change:
+                transform;
         }
 
         /*
@@ -687,12 +695,12 @@
                 rgba(7, 8, 11, .72);
 
             backdrop-filter:
-                blur(24px)
-                saturate(135%);
+                blur(14px)
+                saturate(120%);
 
             -webkit-backdrop-filter:
-                blur(24px)
-                saturate(135%);
+                blur(14px)
+                saturate(120%);
 
             transition:
                 background .24s ease,
@@ -3325,7 +3333,47 @@
 
         @media (max-width: 620px) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Mobile performance
+            |--------------------------------------------------------------------------
+            |
+            | Grote blur-lagen en continu geanimeerde orbs zijn relatief duur op
+            | mobiele GPU's. De uitstraling blijft donker/goud, maar de zwaarste
+            | compositing-effecten worden op kleine schermen beperkt.
+            |
+            */
+
+            .studio-orb {
+                animation:
+                    none;
+
+                filter:
+                    blur(44px);
+
+                opacity:
+                    .07;
+
+                will-change:
+                    auto;
+            }
+
+            .studio-orb.two,
+            .studio-orb.three {
+                display:
+                    none;
+            }
+
             .studio-header {
+                backdrop-filter:
+                    none;
+
+                -webkit-backdrop-filter:
+                    none;
+
+                background:
+                    rgba(7, 8, 11, .96);
+
                 padding-top:
                     env(safe-area-inset-top);
             }
@@ -4633,8 +4681,8 @@
                             )
                             : 0;
 
-                    progressBar.style.width =
-                        progress + '%';
+                    progressBar.style.transform =
+                        'scaleX(' + (progress / 100) + ')';
                 }
 
                 /*
@@ -5138,12 +5186,31 @@
                 updateHeader();
                 updateProgress();
 
+                let scrollFramePending =
+                    false;
+
+                function scheduleScrollUpdate() {
+                    if (scrollFramePending) {
+                        return;
+                    }
+
+                    scrollFramePending =
+                        true;
+
+                    window.requestAnimationFrame(
+                        function () {
+                            updateHeader();
+                            updateProgress();
+
+                            scrollFramePending =
+                                false;
+                        }
+                    );
+                }
+
                 window.addEventListener(
                     'scroll',
-                    function () {
-                        updateHeader();
-                        updateProgress();
-                    },
+                    scheduleScrollUpdate,
                     {
                         passive:
                             true

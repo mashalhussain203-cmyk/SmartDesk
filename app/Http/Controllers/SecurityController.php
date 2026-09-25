@@ -16,6 +16,15 @@ use Throwable;
 class SecurityController extends Controller
 {
     /**
+     * Databasekolommen van login_activities.
+     *
+     * Eén keer per request ophalen voorkomt meerdere information_schema queries.
+     *
+     * @var array<int, string>|null
+     */
+    private ?array $loginActivityColumns = null;
+
+    /**
      * Toon de beveiligingspagina met recente loginactiviteiten
      * van uitsluitend de ingelogde gebruiker.
      */
@@ -528,9 +537,16 @@ class SecurityController extends Controller
         string $column
     ): bool {
         try {
-            return Schema::hasColumn(
-                'login_activities',
-                $column
+            if ($this->loginActivityColumns === null) {
+                $this->loginActivityColumns = Schema::getColumnListing(
+                    'login_activities'
+                );
+            }
+
+            return in_array(
+                $column,
+                $this->loginActivityColumns,
+                true
             );
         } catch (Throwable) {
             return false;

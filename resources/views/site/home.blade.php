@@ -98,7 +98,7 @@
         transform: translateX(-50%);
         border-radius: 50%;
         background: rgba(227,179,107,.06);
-        filter: blur(95px);
+        filter: blur(64px);
         pointer-events: none;
     }
 
@@ -263,7 +263,7 @@
         box-shadow:
             0 40px 110px rgba(0,0,0,.42),
             inset 0 1px 0 rgba(255,255,255,.035);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(12px);
     }
 
     .upload-card::before {
@@ -561,7 +561,7 @@
         border-radius: 999px;
         color: #d9dde3;
         background: rgba(8,10,14,.76);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(8px);
         font-size: 7px;
         font-weight: 950;
         letter-spacing: .08em;
@@ -1012,7 +1012,7 @@
         border-radius: 22px;
         background: rgba(8,10,14,.84);
         box-shadow: 0 28px 80px rgba(0,0,0,.38);
-        backdrop-filter: blur(18px);
+        backdrop-filter: blur(8px);
         transform: rotate(1.5deg);
     }
 
@@ -1347,7 +1347,7 @@
         border-radius: 999px;
         background: rgba(11,13,18,.91);
         box-shadow: 0 22px 70px rgba(0,0,0,.44);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(12px);
     }
 
     .sticky-upload-copy {
@@ -1454,6 +1454,39 @@
     }
 
     @media (max-width: 640px) {
+        /*
+        |--------------------------------------------------------------------------
+        | Mobile performance
+        |--------------------------------------------------------------------------
+        */
+
+        .home-page::before {
+            position:
+                absolute;
+
+            opacity:
+                .07;
+        }
+
+        .hero::after {
+            filter:
+                blur(42px);
+
+            opacity:
+                .55;
+        }
+
+        .upload-card,
+        .preview-badge,
+        .library-window,
+        .sticky-upload-inner {
+            backdrop-filter:
+                none;
+
+            -webkit-backdrop-filter:
+                none;
+        }
+
         .home-shell {
             width: min(calc(100% - 24px), 1360px);
         }
@@ -2783,9 +2816,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateStickyUpload();
 
+    let stickyFramePending =
+        false;
+
+    function scheduleStickyUploadUpdate() {
+        if (stickyFramePending) {
+            return;
+        }
+
+        stickyFramePending =
+            true;
+
+        window.requestAnimationFrame(
+            function () {
+                updateStickyUpload();
+
+                stickyFramePending =
+                    false;
+            }
+        );
+    }
+
     window.addEventListener(
         'scroll',
-        updateStickyUpload,
+        scheduleStickyUploadUpdate,
         {
             passive: true
         }
@@ -2793,7 +2847,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener(
         'resize',
-        updateStickyUpload
+        scheduleStickyUploadUpdate,
+        {
+            passive: true
+        }
     );
 
     document
