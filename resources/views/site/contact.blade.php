@@ -3,7 +3,6 @@
 @section('title', 'Mashal Studio | Contact')
 
 @push('styles')
-
 <style>
     .legal-page {
         min-height: 72vh;
@@ -68,7 +67,11 @@
         padding: 24px;
         border: 1px solid rgba(255,255,255,.075);
         border-radius: 22px;
-        background: linear-gradient(145deg, rgba(255,255,255,.038), rgba(255,255,255,.014));
+        background: linear-gradient(
+            145deg,
+            rgba(255,255,255,.038),
+            rgba(255,255,255,.014)
+        );
         box-shadow: 0 14px 36px rgba(0,0,0,.16);
     }
 
@@ -77,12 +80,6 @@
         color: #fff;
         font-size: 19px;
         letter-spacing: -.025em;
-    }
-
-    .legal-card h3 {
-        margin: 22px 0 8px;
-        color: #e7e7e3;
-        font-size: 15px;
     }
 
     .legal-card p,
@@ -109,32 +106,10 @@
         margin-top: 6px;
     }
 
-    .legal-highlight {
-        color: #efc985;
-        font-weight: 800;
-    }
-
-    .legal-link {
-        color: #efc985;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(239,201,133,.35);
-    }
-
-    .legal-link:hover {
-        border-color: rgba(239,201,133,.8);
-    }
-
     .legal-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
-    }
-
-    .legal-meta {
-        margin-top: 28px;
-        color: #666d74;
-        font-size: 10px;
-        line-height: 1.6;
     }
 
     .contact-box {
@@ -152,6 +127,7 @@
     }
 
     .contact-box span {
+        display: block;
         color: #8f949a;
         font-size: 11px;
         line-height: 1.6;
@@ -171,6 +147,16 @@
         text-decoration: none;
         font-size: 10px;
         font-weight: 900;
+        transition:
+            background .2s ease,
+            border-color .2s ease,
+            transform .2s ease;
+    }
+
+    .contact-button:hover {
+        background: rgba(215,164,95,.14);
+        border-color: rgba(215,164,95,.48);
+        transform: translateY(-1px);
     }
 
     @media (max-width: 720px) {
@@ -191,68 +177,107 @@
         }
     }
 </style>
-
 @endpush
 
 @section('content')
 <section class="legal-page">
     <div class="legal-shell">
+
         <header class="legal-hero">
             <span class="legal-kicker">Mashal Studio</span>
-            <h1 class="legal-title">Neem <span>contact op.</span></h1>
+
+            <h1 class="legal-title">
+                Neem <span>contact op.</span>
+            </h1>
+
             <p class="legal-intro">
-                Heb je een vraag over je account, beveiliging, privacy of de werking van Mashal Studio?
-                Neem gerust contact op.
+                Heb je een vraag over je account, beveiliging, privacy
+                of de werking van Mashal Studio? Neem gerust contact met ons op.
             </p>
         </header>
 
         <div class="legal-grid">
+
             <section class="legal-card">
-                <h2>Algemene vragen</h2>
+                <h2>Contact</h2>
 
                 <div class="contact-box">
                     <strong>E-mail</strong>
-                    <span>{ config('mail.from.address') ?: 'E-mailadres wordt binnenkort gepubliceerd.' }</span>
 
-                    @if (config('mail.from.address'))
-                        <a
-                            class="contact-button"
-                            href="mailto:{ config('mail.from.address') }"
-                        >
-                            E-mail sturen
-                        </a>
-                    @endif
+                    <span>
+                        mahsalhussain203@gmail.com
+                    </span>
+
+                    <a
+                        class="contact-button"
+                        href="mailto:mahsalhussain203@gmail.com"
+                    >
+                        E-mail sturen
+                    </a>
                 </div>
             </section>
 
             <section class="legal-card">
                 <h2>Waarmee kunnen we helpen?</h2>
+
                 <ul>
                     <li>problemen met inloggen of accounttoegang;</li>
                     <li>vragen over passkeys of Authenticator;</li>
-                    <li>privacy- of gegevensverzoeken;</li>
-                    <li>technische problemen met de website;</li>
+                    <li>privacy- en gegevensverzoeken;</li>
+                    <li>technische problemen met Mashal Studio;</li>
+                    <li>vragen over onze diensten;</li>
                     <li>algemene feedback en suggesties.</li>
                 </ul>
             </section>
+
         </div>
 
         <section class="legal-card">
             <h2>Beveiligingsmeldingen</h2>
+
             <p>
-                Denk je dat er sprake is van ongeautoriseerde toegang, misbruik of een beveiligingsprobleem?
-                Vermeld dan duidelijk dat het om een beveiligingsmelding gaat en deel geen wachtwoorden,
-                Authenticator-codes, recovery codes of andere geheime gegevens.
+                Denk je dat er sprake is van ongeautoriseerde toegang,
+                misbruik of een beveiligingsprobleem binnen Mashal Studio?
+                Neem dan zo snel mogelijk contact met ons op via
+                <strong style="color:#efc985;">
+                    mahsalhussain203@gmail.com
+                </strong>.
+            </p>
+
+            <p>
+                Vermeld duidelijk dat het om een beveiligingsmelding gaat.
+                Deel nooit wachtwoorden, Authenticator-codes, recoverycodes
+                of andere vertrouwelijke inloggegevens per e-mail.
+            </p>
+        </section>
+
+        <section class="legal-card">
+            <h2>Privacy- en gegevensverzoeken</h2>
+
+            <p>
+                Voor vragen over je persoonsgegevens, privacy,
+                verwijderingsverzoeken of andere privacygerelateerde zaken
+                kun je eveneens contact opnemen via
+                <a
+                    href="mailto:mahsalhussain203@gmail.com"
+                    style="color:#efc985;text-decoration:none;"
+                >
+                    mahsalhussain203@gmail.com
+                </a>.
             </p>
         </section>
 
         <section class="legal-card">
             <h2>Reactietijd</h2>
+
             <p>
-                We proberen berichten zo snel mogelijk te beoordelen. De reactietijd kan verschillen
-                afhankelijk van het onderwerp en de beschikbaarheid van ondersteuning.
+                We proberen berichten zo snel mogelijk te beoordelen
+                en te beantwoorden. De reactietijd kan verschillen
+                afhankelijk van het onderwerp en de beschikbaarheid
+                van ondersteuning.
             </p>
         </section>
+
     </div>
 </section>
 @endsection
