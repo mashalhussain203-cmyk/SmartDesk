@@ -1700,7 +1700,7 @@
     }
 
 
-    /* V7 LinkedIn social-grid polish */
+    /* V7 social-grid polish */
     .register-oauth-grid > .register-oauth:last-child:nth-child(odd) {
         grid-column: 1 / -1;
     }
@@ -2119,7 +2119,11 @@
                         </section>
 
                         <section class="register-panel-section" data-register-panel="social" hidden>
-                            <div class="register-oauth-grid">
+                                                        <div class="glass-message info" role="note">
+                                X-login werkt voor reeds gekoppelde accounts. Maak zo nodig eerst je Mashal-account aan en koppel X daarna via je accountinstellingen.
+                            </div>
+
+<div class="register-oauth-grid">
                                 <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('google.redirect') }}">
                                     <span class="register-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2179,6 +2183,28 @@
                                     <span class="register-oauth-copy">
                                         <strong>LinkedIn</strong>
                                         <span>Account maken</span>
+                                    </span>
+                                </a>
+
+                                <a
+                                    class="register-oauth"
+                                    data-login-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('x.redirect') }}"
+                                    aria-label="Doorgaan met X"
+                                >
+                                    <span class="register-oauth-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <path
+                                                fill="currentColor"
+                                                d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"
+                                            />
+                                        </svg>
+                                    </span>
+
+                                    <span class="register-oauth-copy">
+                                        <strong>X</strong>
+                                        <span>Doorgaan</span>
                                     </span>
                                 </a>
                             </div>
