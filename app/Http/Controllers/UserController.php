@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\BrevoMailService;
+use App\Services\LoginApprovalService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ use Throwable;
 class UserController extends Controller
 {
     public function __construct(
-        private readonly BrevoMailService $brevoMail
+        private readonly BrevoMailService $brevoMail,
+        private readonly LoginApprovalService $loginApproval
     ) {
     }
 
@@ -289,6 +291,105 @@ class UserController extends Controller
         $user->forceFill([
             'login_provider' => 'password',
         ])->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Device approval vanaf een bestaand ingelogd apparaat
+        |--------------------------------------------------------------------------
+        |
+        | Wanneer dezelfde gebruiker nog een andere actieve database-sessie
+        | heeft, wordt deze nieuwe login eerst pending gemaakt. De bestaande
+        | sessie krijgt op Mashal Studio drie nummers te zien. Alleen hetzelfde
+        | nummer als op dit nieuwe apparaat keurt de login goed.
+        |
+        | Is nergens anders meer een actieve sessie, dan blijft de bestaande
+        | login/TOTP-flow beschikbaar zodat de gebruiker zichzelf niet kan
+        | buitensluiten.
+        |
+        */
+
+        if (
+            $this->loginApproval
+                ->hasOtherActiveSession(
+                    $user,
+                    $request
+                )
+        ) {
+            /*
+             * Gewenste eindbestemming nu al bewaren. Na device approval kan de
+             * LoginApprovalController redirect()->intended() gebruiken.
+             */
+            if ($this->hasPendingImage($request)) {
+                $this->ensurePendingImageIntendedUrl(
+                    $request
+                );
+            } elseif (
+                $user->is_admin
+                && ! $request
+                    ->session()
+                    ->has(
+                        'url.intended'
+                    )
+            ) {
+                $request
+                    ->session()
+                    ->put(
+                        'url.intended',
+                        route(
+                            'admin.dashboard'
+                        )
+                    );
+            } elseif (
+                ! $request
+                    ->session()
+                    ->has(
+                        'url.intended'
+                    )
+            ) {
+                $request
+                    ->session()
+                    ->put(
+                        'url.intended',
+                        route('home')
+                    );
+            }
+
+            $challenge =
+                $this->loginApproval
+                    ->createChallenge(
+                        $user,
+                        $request,
+                        $remember,
+                        'password'
+                    );
+
+            /*
+             * De nieuwe browser mag nog niet authenticated blijven.
+             */
+            Auth::logout();
+
+            $request
+                ->session()
+                ->regenerate();
+
+            $request
+                ->session()
+                ->put([
+                    'login_approval.challenge_id' =>
+                        $challenge['id'],
+
+                    'login_approval.number' =>
+                        $challenge['number'],
+
+                    'login_approval.expires_at' =>
+                        $challenge['expires_at'],
+                ]);
+
+            return redirect()
+                ->route(
+                    'login.approval'
+                );
+        }
 
         /*
         |--------------------------------------------------------------------------

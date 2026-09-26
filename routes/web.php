@@ -9,6 +9,7 @@ use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ImageEditorController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\LoginApprovalController;
 use App\Http\Controllers\RecoveryEmailController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
@@ -183,6 +184,47 @@ Route::middleware('guest')->group(function () {
     )
         ->middleware('throttle:20,1')
         ->name('login.submit');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Device login approval
+    |--------------------------------------------------------------------------
+    |
+    | De nieuwe browser blijft gast totdat een reeds ingelogd apparaat het
+    | juiste nummer heeft gekozen.
+    |
+    */
+
+    Route::get(
+        '/login/approval',
+        [LoginApprovalController::class, 'show']
+    )
+        ->name('login.approval');
+
+
+    Route::get(
+        '/login/approval/status',
+        [LoginApprovalController::class, 'status']
+    )
+        ->middleware('throttle:60,1')
+        ->name('login.approval.status');
+
+
+    Route::post(
+        '/login/approval/complete',
+        [LoginApprovalController::class, 'complete']
+    )
+        ->middleware('throttle:10,1')
+        ->name('login.approval.complete');
+
+
+    Route::post(
+        '/login/approval/cancel',
+        [LoginApprovalController::class, 'cancel']
+    )
+        ->middleware('throttle:10,1')
+        ->name('login.approval.cancel');
 
 
     /*
@@ -658,6 +700,29 @@ Route::post(
 */
 
 Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Device login approvals op reeds ingelogde apparaten
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/account/login-approval/pending',
+        [LoginApprovalController::class, 'pending']
+    )
+        ->middleware('throttle:60,1')
+        ->name('login-approval.pending');
+
+
+    Route::post(
+        '/account/login-approval/{challenge}/respond',
+        [LoginApprovalController::class, 'respond']
+    )
+        ->whereUuid('challenge')
+        ->middleware('throttle:20,1')
+        ->name('login-approval.respond');
+
 
     /*
     |--------------------------------------------------------------------------

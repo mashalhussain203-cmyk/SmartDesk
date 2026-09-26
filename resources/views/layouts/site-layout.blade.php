@@ -5353,6 +5353,27 @@
 
     @stack('scripts')
 
+    {{-- 
+    |--------------------------------------------------------------------------
+    | Device login approval
+    |--------------------------------------------------------------------------
+    |
+    | Alleen tonen aan gebruikers die al zijn ingelogd op dit apparaat.
+    | De Route::has-controle voorkomt dat de hele layout crasht tijdens een
+    | gedeeltelijke deploy waarin de nieuwe approval-routes nog niet actief
+    | zijn.
+    |
+    --}}
+
+    @auth
+        @if (
+            \Illuminate\Support\Facades\Route::has('login-approval.pending')
+            && \Illuminate\Support\Facades\Route::has('login-approval.respond')
+        )
+            @include('site.partials.login-approval-prompt')
+        @endif
+    @endauth
+
     @include('partials.auth-success-overlay')
 </body>
 </html>
