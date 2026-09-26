@@ -333,7 +333,7 @@ class XAuthController extends Controller
                 ]);
         }
 
-        return view('auth.x-register', [
+        return view('site.register', [
             'xProfile' => [
                 'name' => $pending['name'] ?? '',
                 'username' => $pending['username'] ?? '',
