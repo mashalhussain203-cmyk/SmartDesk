@@ -9,7 +9,7 @@
         padding: 86px 0 110px;
         background:
             radial-gradient(circle at 12% 4%, rgba(215, 164, 95, .10), transparent 26rem),
-            radial-gradient(circle at 92% 16%, rgba(255,255,255,.025), transparent 28rem),
+            radial-gradient(circle at 92% 16%, rgba(255, 255, 255, .025), transparent 28rem),
             #08090b;
     }
 
@@ -62,17 +62,23 @@
         line-height: 1.85;
     }
 
+    .legal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
     .legal-card {
         margin-bottom: 18px;
         padding: 24px;
-        border: 1px solid rgba(255,255,255,.075);
+        border: 1px solid rgba(255, 255, 255, .075);
         border-radius: 22px;
         background: linear-gradient(
             145deg,
-            rgba(255,255,255,.038),
-            rgba(255,255,255,.014)
+            rgba(255, 255, 255, .038),
+            rgba(255, 255, 255, .014)
         );
-        box-shadow: 0 14px 36px rgba(0,0,0,.16);
+        box-shadow: 0 14px 36px rgba(0, 0, 0, .16);
     }
 
     .legal-card h2 {
@@ -106,24 +112,18 @@
         margin-top: 6px;
     }
 
-    .legal-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
     .contact-box {
         padding: 18px;
-        border: 1px solid rgba(215,164,95,.18);
+        border: 1px solid rgba(215, 164, 95, .18);
         border-radius: 16px;
-        background: rgba(215,164,95,.055);
+        background: rgba(215, 164, 95, .055);
     }
 
     .contact-box strong {
         display: block;
+        margin-bottom: 5px;
         color: #fff;
         font-size: 13px;
-        margin-bottom: 5px;
     }
 
     .contact-box span {
@@ -131,6 +131,7 @@
         color: #8f949a;
         font-size: 11px;
         line-height: 1.6;
+        word-break: break-word;
     }
 
     .contact-button {
@@ -140,9 +141,9 @@
         min-height: 42px;
         margin-top: 14px;
         padding: 0 16px;
-        border: 1px solid rgba(215,164,95,.28);
+        border: 1px solid rgba(215, 164, 95, .28);
         border-radius: 999px;
-        background: rgba(215,164,95,.08);
+        background: rgba(215, 164, 95, .08);
         color: #efc985;
         text-decoration: none;
         font-size: 10px;
@@ -154,9 +155,26 @@
     }
 
     .contact-button:hover {
-        background: rgba(215,164,95,.14);
-        border-color: rgba(215,164,95,.48);
+        background: rgba(215, 164, 95, .14);
+        border-color: rgba(215, 164, 95, .48);
         transform: translateY(-1px);
+    }
+
+    .legal-link {
+        color: #efc985;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(239, 201, 133, .35);
+        transition: border-color .2s ease;
+    }
+
+    .legal-link:hover {
+        border-color: rgba(239, 201, 133, .8);
+    }
+
+    .contact-note {
+        color: #666d74;
+        font-size: 10px;
+        line-height: 1.7;
     }
 
     @media (max-width: 720px) {
@@ -191,8 +209,9 @@
             </h1>
 
             <p class="legal-intro">
-                Heb je een vraag over je account, beveiliging, privacy
-                of de werking van Mashal Studio? Neem gerust contact met ons op.
+                Heb je een vraag over je account, privacy, beveiliging
+                of het gebruik van Mashal Studio? Neem gerust contact met ons op.
+                We helpen je graag verder.
             </p>
         </header>
 
@@ -202,7 +221,7 @@
                 <h2>Contact</h2>
 
                 <div class="contact-box">
-                    <strong>E-mail</strong>
+                    <strong>E-mailadres</strong>
 
                     <span>
                         mahsalhussain203@gmail.com
@@ -221,33 +240,30 @@
                 <h2>Waarmee kunnen we helpen?</h2>
 
                 <ul>
-                    <li>problemen met inloggen of accounttoegang;</li>
+                    <li>problemen met inloggen of toegang tot je account;</li>
+                    <li>vragen over TikTok-login of andere inlogmethoden;</li>
                     <li>vragen over passkeys of Authenticator;</li>
                     <li>privacy- en gegevensverzoeken;</li>
                     <li>technische problemen met Mashal Studio;</li>
-                    <li>vragen over onze diensten;</li>
-                    <li>algemene feedback en suggesties.</li>
+                    <li>beveiligingsmeldingen;</li>
+                    <li>algemene vragen, feedback en suggesties.</li>
                 </ul>
             </section>
 
         </div>
 
         <section class="legal-card">
-            <h2>Beveiligingsmeldingen</h2>
+            <h2>Account en inloggen</h2>
 
             <p>
-                Denk je dat er sprake is van ongeautoriseerde toegang,
-                misbruik of een beveiligingsprobleem binnen Mashal Studio?
-                Neem dan zo snel mogelijk contact met ons op via
-                <strong style="color:#efc985;">
-                    mahsalhussain203@gmail.com
-                </strong>.
+                Heb je problemen met inloggen, het aanmaken van een account
+                of het gebruiken van een externe inlogmethode zoals TikTok?
+                Stuur ons dan een e-mail met een korte omschrijving van het probleem.
             </p>
 
             <p>
-                Vermeld duidelijk dat het om een beveiligingsmelding gaat.
-                Deel nooit wachtwoorden, Authenticator-codes, recoverycodes
-                of andere vertrouwelijke inloggegevens per e-mail.
+                Deel daarbij nooit je wachtwoord, Authenticator-code,
+                recoverycode of andere geheime beveiligingsgegevens.
             </p>
         </section>
 
@@ -255,14 +271,63 @@
             <h2>Privacy- en gegevensverzoeken</h2>
 
             <p>
-                Voor vragen over je persoonsgegevens, privacy,
-                verwijderingsverzoeken of andere privacygerelateerde zaken
-                kun je eveneens contact opnemen via
+                Voor vragen over je persoonsgegevens, inzage, correctie,
+                verwijdering van gegevens of andere privacygerelateerde verzoeken
+                kun je contact opnemen via
                 <a
+                    class="legal-link"
                     href="mailto:mahsalhussain203@gmail.com"
-                    style="color:#efc985;text-decoration:none;"
                 >
                     mahsalhussain203@gmail.com
+                </a>.
+            </p>
+
+            <p>
+                Meer informatie over hoe Mashal Studio persoonsgegevens verwerkt,
+                vind je in ons
+                <a
+                    class="legal-link"
+                    href="{{ route('privacy') }}"
+                >
+                    Privacybeleid
+                </a>.
+            </p>
+        </section>
+
+        <section class="legal-card">
+            <h2>Beveiligingsmeldingen</h2>
+
+            <p>
+                Denk je dat er sprake is van ongeautoriseerde toegang,
+                misbruik, een kwetsbaarheid of een ander beveiligingsprobleem
+                binnen Mashal Studio? Neem dan zo snel mogelijk contact met ons op.
+            </p>
+
+            <p>
+                Vermeld in het onderwerp van je e-mail duidelijk dat het om
+                een beveiligingsmelding gaat en beschrijf wat je hebt waargenomen.
+                Deel geen wachtwoorden, verificatiecodes, recoverycodes
+                of andere vertrouwelijke inloggegevens.
+            </p>
+        </section>
+
+        <section class="legal-card">
+            <h2>Juridische informatie</h2>
+
+            <p>
+                Bekijk voor meer informatie ook ons
+                <a
+                    class="legal-link"
+                    href="{{ route('privacy') }}"
+                >
+                    Privacybeleid
+                </a>
+                en onze
+                <a
+                    class="legal-link"
+                    href="{{ route('terms') }}"
+                >
+                    Gebruiksvoorwaarden
                 </a>.
             </p>
         </section>
@@ -271,10 +336,15 @@
             <h2>Reactietijd</h2>
 
             <p>
-                We proberen berichten zo snel mogelijk te beoordelen
-                en te beantwoorden. De reactietijd kan verschillen
-                afhankelijk van het onderwerp en de beschikbaarheid
-                van ondersteuning.
+                We proberen vragen en verzoeken zo snel mogelijk te beoordelen
+                en te beantwoorden. De reactietijd kan verschillen afhankelijk
+                van het onderwerp, de complexiteit van het verzoek
+                en de beschikbaarheid van ondersteuning.
+            </p>
+
+            <p class="contact-note">
+                Voor dringende beveiligings- of privacykwesties kun je dit
+                duidelijk vermelden in het onderwerp van je e-mail.
             </p>
         </section>
 
