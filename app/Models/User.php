@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -47,13 +47,16 @@ class User extends Authenticatable implements MustVerifyEmail
         |
         | Mogelijke waarden:
         |
+        | - passkey
         | - password
         | - email_code
         | - magic_link
         | - google
         | - github
         | - facebook
+        | - linkedin
         | - tiktok
+        | - x
         |
         */
 
@@ -103,6 +106,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
         'linkedin_id',
         'linkedin_avatar',
+
+        /*
+        |--------------------------------------------------------------------------
+        | X OAuth
+        |--------------------------------------------------------------------------
+        |
+        | X gebruikt het numerieke gebruikers-ID als permanente
+        | externe identiteit.
+        |
+        */
+
+        'x_id',
 
         /*
         |--------------------------------------------------------------------------
@@ -195,7 +210,6 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Account helpers
@@ -217,7 +231,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->email_verified_at !== null;
     }
-
 
     /**
      * Controleer of een geverifieerd herstel-e-mailadres actief is.
@@ -377,8 +390,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * 2. Google-avatar
      * 3. GitHub-avatar
      * 4. Facebook-avatar
-     * 5. TikTok-avatar
-     * 6. Geen afbeelding
+     * 5. LinkedIn-avatar
+     * 6. TikTok-avatar
+     * 7. Geen afbeelding
+     *
+     * X heeft in de huidige implementatie geen avatar-kolom.
      */
     public function avatarUrl(): ?string
     {
@@ -423,8 +439,8 @@ class User extends Authenticatable implements MustVerifyEmail
         );
 
         if (
-            ! is_array($parts) ||
-            count($parts) === 0
+            ! is_array($parts)
+            || count($parts) === 0
         ) {
             return strtoupper(
                 mb_substr(
@@ -533,6 +549,17 @@ class User extends Authenticatable implements MustVerifyEmail
             (string) $this->linkedin_id
         ) !== '';
     }
+
+    /**
+     * Controleer of een X-account gekoppeld is.
+     */
+    public function hasXAccount(): bool
+    {
+        return trim(
+            (string) $this->x_id
+        ) !== '';
+    }
+
     /**
      * Controleer of minimaal één OAuth-account gekoppeld is.
      */
@@ -542,7 +569,8 @@ class User extends Authenticatable implements MustVerifyEmail
             || $this->hasGitHubAccount()
             || $this->hasFacebookAccount()
             || $this->hasLinkedInAccount()
-            || $this->hasTikTokAccount();
+            || $this->hasTikTokAccount()
+            || $this->hasXAccount();
     }
 
     /**
@@ -553,7 +581,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * 1. Google
      * 2. GitHub
      * 3. Facebook
-     * 4. TikTok
+     * 4. LinkedIn
+     * 5. TikTok
+     *
+     * X wordt hier niet gebruikt omdat we momenteel
+     * alleen x_id opslaan en geen x_avatar.
      */
     public function socialAvatar(): ?string
     {
@@ -625,6 +657,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return 'tiktok';
         }
 
+        if ($this->hasXAccount()) {
+            return 'x';
+        }
+
         return null;
     }
 
@@ -657,6 +693,10 @@ class User extends Authenticatable implements MustVerifyEmail
             $providers[] = 'tiktok';
         }
 
+        if ($this->hasXAccount()) {
+            $providers[] = 'x';
+        }
+
         return $providers;
     }
 
@@ -687,6 +727,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'facebook',
             'linkedin',
             'tiktok',
+            'x',
         ];
 
         if (
@@ -725,6 +766,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return 'tiktok';
         }
 
+        if ($this->hasXAccount()) {
+            return 'x';
+        }
+
         return 'password';
     }
 
@@ -741,6 +786,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'facebook' => 'Facebook',
             'linkedin' => 'LinkedIn',
             'tiktok' => 'TikTok',
+            'x' => 'X',
             'email_code' => 'E-mailcode',
             'magic_link' => 'Magic link',
             'passkey' => 'Passkey',
@@ -762,6 +808,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'facebook' => 'facebook',
             'linkedin' => 'linkedin',
             'tiktok' => 'tiktok',
+            'x' => 'x',
             'email_code' => 'email',
             'magic_link' => 'link',
             'passkey' => 'lock',
@@ -807,12 +854,21 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->loginProvider() === 'linkedin';
     }
+
     /**
      * Laatste login via TikTok.
      */
     public function loggedInWithTikTok(): bool
     {
         return $this->loginProvider() === 'tiktok';
+    }
+
+    /**
+     * Laatste login via X.
+     */
+    public function loggedInWithX(): bool
+    {
+        return $this->loginProvider() === 'x';
     }
 
     /**

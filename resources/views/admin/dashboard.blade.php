@@ -97,6 +97,7 @@
     .md-provider.facebook .md-provider-icon { background: #1877f2; color: #ffffff; }
     .md-provider.linkedin .md-provider-icon { background: #0a66c2; color: #ffffff; }
     .md-provider.tiktok .md-provider-icon { background: #010101; color: #ffffff; }
+    .md-provider.x .md-provider-icon { background: #000000; color: #ffffff; }
     .md-provider.passkey { border-color: rgba(101,213,154,.16); background: rgba(101,213,154,.055); color: #9ce7bc; }
     .md-provider.passkey .md-provider-icon { border: 1px solid rgba(101,213,154,.20); background: rgba(101,213,154,.09); color: #9ce7bc; }
     .md-provider.email_code { border-color: rgba(215,164,95,.18); background: rgba(215,164,95,.055); color: var(--m-gold-light); }
@@ -284,6 +285,7 @@
             <symbol id="md-icon-3" viewBox="0 0 24 24" fill="currentColor"> <path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/> </symbol>
             <symbol id="md-icon-4" viewBox="0 0 24 24" fill="currentColor"> <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.32 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.1 20.45H3.54V9H7.1v11.45Z"/> </symbol>
             <symbol id="md-icon-5" viewBox="0 0 24 24"> <path fill="#25F4EE" d="M14.1 4.2v9.1a4.2 4.2 0 1 1-3.6-4.15v2.25a2.05 2.05 0 1 0 1.45 1.96V2h2.15c.2 1.85 1.25 3.35 3.15 4.15v2.2a7.25 7.25 0 0 1-3.15-1.45Z"/> <path fill="#FE2C55" d="M15.45 3.95c.45 1.25 1.25 2.2 2.55 2.85v2.15a7.4 7.4 0 0 1-3.9-1.55v5.95a4.2 4.2 0 0 1-6.15 3.7 4.2 4.2 0 0 0 5.05-4.1V3.95h2.45Z" opacity=".9"/> </symbol>
+            <symbol id="md-icon-x" viewBox="0 0 24 24" fill="currentColor"> <path d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"/> </symbol>
             <symbol id="md-icon-6" viewBox="0 0 24 24" fill="none"> <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/> <path d="M13 14a5 5 0 0 0-10 0v2h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/> <path d="M14 15h7m-2-2 2 2-2 2m-5-2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </symbol>
             <symbol id="md-icon-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
             <symbol id="md-icon-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10 13 4-4m-6 7-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2 3a4 4 0 0 1 6 0l-4 4a4 4 0 0 1-6 0M18 2v4m-2-2h4"/></symbol>
@@ -369,6 +371,9 @@
                                     @break
                                 @case('tiktok')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-5"></use></svg>
+                                    @break
+                                @case('x')
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg>
                                     @break
                                 @case('passkey')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-6"></use></svg>
@@ -537,6 +542,10 @@
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-5"></use></svg></span>
                         TikTok
                     </button>
+                    <button class="md-filter" type="button" data-filter="x">
+                        <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg></span>
+                        X
+                    </button>
                     <button class="md-filter" type="button" data-filter="passkey">
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-6"></use></svg></span>
                         Passkey
@@ -641,6 +650,9 @@
                                     @break
                                 @case('tiktok')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-5"></use></svg>
+                                    @break
+                                @case('x')
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg>
                                     @break
                                 @case('passkey')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-6"></use></svg>
@@ -804,7 +816,7 @@
                     matchesFilter = isAdmin;
                 }
                 if (
-                    ['google', 'github', 'facebook', 'linkedin', 'tiktok', 'passkey', 'email_code', 'magic_link', 'password']
+                    ['google', 'github', 'facebook', 'linkedin', 'tiktok', 'x', 'passkey', 'email_code', 'magic_link', 'password']
                         .includes(activeFilter)
                 ) {
                     matchesFilter = provider === activeFilter;

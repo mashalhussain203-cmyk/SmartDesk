@@ -382,6 +382,91 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | X OAuth
+    |--------------------------------------------------------------------------
+    |
+    | X OAuth wordt gebruikt voor authenticatie via X.
+    |
+    | Onder andere voor:
+    |
+    | - Inloggen met X
+    | - Bestaande Mashal-accounts koppelen aan X
+    | - X User ID ophalen
+    | - X-identiteit veilig koppelen aan een bestaande gebruiker
+    |
+    | Voor de huidige implementatie wordt OAuth 2.0 Authorization Code
+    | Flow met PKCE gebruikt.
+    |
+    | De gebruikte scopes worden ingesteld in XAuthController.
+    |
+    | Momenteel worden minimaal gebruikt:
+    |
+    | - tweet.read
+    | - users.read
+    |
+    | De X_REDIRECT_URI moet exact overeenkomen met de Callback URI /
+    | Redirect URI die in het X Developer Portal is ingesteld.
+    |
+    | Productie:
+    |
+    | https://mashalhussain.up.railway.app/auth/x/callback
+    |
+    | Het Client Secret hoort uitsluitend in .env of Railway Variables.
+    |
+    | Plaats het nooit rechtstreeks in dit bestand en commit het nooit
+    | naar GitHub.
+    |
+    */
+
+    'x' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | X Client ID
+        |--------------------------------------------------------------------------
+        |
+        | Dit is de OAuth 2.0 Client ID van de X Developer App.
+        |
+        */
+
+        'client_id' => env(
+            'X_CLIENT_ID'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | X Client Secret
+        |--------------------------------------------------------------------------
+        |
+        | Dit is het OAuth 2.0 Client Secret van de X Developer App.
+        |
+        */
+
+        'client_secret' => env(
+            'X_CLIENT_SECRET'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | X Redirect URI
+        |--------------------------------------------------------------------------
+        |
+        | Deze URI moet exact overeenkomen met de Redirect URI die in
+        | het X Developer Portal is geregistreerd.
+        |
+        */
+
+        'redirect' => env(
+            'X_REDIRECT_URI'
+        ),
+
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Brevo
     |--------------------------------------------------------------------------
     |
@@ -471,12 +556,31 @@ return [
     ],
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | LinkedIn OpenID Connect
+    |--------------------------------------------------------------------------
+    |
+    | LinkedIn OpenID Connect wordt gebruikt voor authenticatie
+    | en accountkoppeling via LinkedIn.
+    |
+    */
+
     'linkedin-openid' => [
-        'client_id' => env('LINKEDIN_CLIENT_ID'),
-        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+
+        'client_id' => env(
+            'LINKEDIN_CLIENT_ID'
+        ),
+
+        'client_secret' => env(
+            'LINKEDIN_CLIENT_SECRET'
+        ),
+
         'redirect' => env(
             'LINKEDIN_REDIRECT_URI',
             '/auth/linkedin/callback'
         ),
+
     ],
+
 ];

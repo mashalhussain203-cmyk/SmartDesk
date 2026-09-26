@@ -1476,7 +1476,7 @@
     }
 
 
-    /* V7 LinkedIn social-grid polish */
+    /* V7 social-grid polish */
     .login-oauth-grid > .login-oauth:last-child:nth-child(odd) {
         grid-column: 1 / -1;
     }
@@ -1983,6 +1983,27 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>LinkedIn</strong>
+                                        <span>Doorgaan</span>
+                                    </span>
+                                </a>
+
+                                <a
+                                    class="login-oauth"
+                                    data-login-security-oauth data-auth-transition-link
+                                    href="{{ route('x.redirect') }}"
+                                    aria-label="Doorgaan met X"
+                                >
+                                    <span class="login-oauth-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <path
+                                                fill="currentColor"
+                                                d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"
+                                            />
+                                        </svg>
+                                    </span>
+
+                                    <span class="login-oauth-copy">
+                                        <strong>X</strong>
                                         <span>Doorgaan</span>
                                     </span>
                                 </a>
