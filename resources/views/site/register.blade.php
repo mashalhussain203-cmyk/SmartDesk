@@ -1821,10 +1821,123 @@
         }
     }
 
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | X registration completion
+    |--------------------------------------------------------------------------
+    | Deze stijlen worden alleen gebruikt wanneer deze view via x.registration
+    | wordt geopend. De volledige bestaande registratie-UI blijft behouden.
+    */
+
+    .x-complete-panel {
+        margin-bottom: 14px;
+        padding: 14px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 12px;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.025), transparent 45%),
+            rgba(0,0,0,.18);
+    }
+
+    .x-complete-head {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .x-complete-logo {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        color: #fff;
+        background: #000;
+        border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .x-complete-logo svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .x-complete-copy {
+        min-width: 0;
+    }
+
+    .x-complete-copy strong,
+    .x-complete-copy span {
+        display: block;
+    }
+
+    .x-complete-copy strong {
+        color: #f1f1f3;
+        font-size: 9px;
+    }
+
+    .x-complete-copy span {
+        margin-top: 3px;
+        color: #77767c;
+        font-size: 7px;
+        line-height: 1.45;
+    }
+
+    .x-complete-profile {
+        margin-bottom: 12px;
+        padding: 9px 10px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 9px;
+        background: rgba(0,0,0,.15);
+        color: #a9a8ad;
+        font-size: 8px;
+        line-height: 1.45;
+    }
+
+    .x-complete-profile strong {
+        color: #ececef;
+    }
+
+    .x-complete-profile span {
+        color: #8a898f;
+    }
+
+    .x-complete-form .glass-field:last-of-type {
+        margin-bottom: 12px;
+    }
+
+    .x-complete-actions {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .x-complete-actions a {
+        color: #d8bd35;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 850;
+    }
+
 </style>
 @endpush
 
 @section('content')
+
+    @if (isset($xProfile))
+        <style>
+            .register-tabs,
+            .register-panel-section,
+            .glass-divider,
+            .register-login-row,
+            .register-security-note {
+                display: none !important;
+            }
+        </style>
+    @endif
+
 <section class="glass-auth-page">
     <div class="glass-bg" aria-hidden="true"></div>
     <span class="glass-ribbon one" aria-hidden="true"></span>
@@ -1897,6 +2010,170 @@
                                     @endforeach
                                 </ul>
                             </div>
+                        @endif
+
+                        
+                        @if (isset($xProfile))
+                            <section class="x-complete-panel" aria-labelledby="x-complete-title">
+                                <div class="x-complete-head">
+                                    <span class="x-complete-logo" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <path
+                                                fill="currentColor"
+                                                d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"
+                                            />
+                                        </svg>
+                                    </span>
+
+                                    <div class="x-complete-copy">
+                                        <strong id="x-complete-title">X-account bevestigd</strong>
+                                        <span>
+                                            Maak je Mashal-account af met je e-mailadres en wachtwoord.
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="x-complete-profile">
+                                    <strong>
+                                        {{ filled($xProfile['name'] ?? null) ? $xProfile['name'] : 'X-gebruiker' }}
+                                    </strong>
+
+                                    @if (filled($xProfile['username'] ?? null))
+                                        <span>{{ '@'.$xProfile['username'] }}</span>
+                                    @else
+                                        <span>X-account succesvol bevestigd</span>
+                                    @endif
+                                </div>
+
+                                <form
+                                    class="x-complete-form"
+                                    method="POST"
+                                    action="{{ route('x.registration.complete') }}"
+                                    data-login-security-form
+                                >
+                                    @csrf
+
+                                    <div class="glass-field">
+                                        <div class="glass-label-row">
+                                            <label for="x_complete_name">Naam</label>
+
+                                            @error('name')
+                                                <span class="glass-field-error">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <input
+                                            class="glass-input"
+                                            id="x_complete_name"
+                                            type="text"
+                                            name="name"
+                                            value="{{ old('name', $xProfile['name'] ?? '') }}"
+                                            placeholder="Je volledige naam"
+                                            autocomplete="name"
+                                            maxlength="255"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="glass-field">
+                                        <div class="glass-label-row">
+                                            <label for="x_complete_email">E-mailadres</label>
+
+                                            @error('email')
+                                                <span class="glass-field-error">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <input
+                                            class="glass-input"
+                                            id="x_complete_email"
+                                            type="email"
+                                            name="email"
+                                            value="{{ old('email') }}"
+                                            placeholder="naam@example.com"
+                                            autocomplete="email"
+                                            inputmode="email"
+                                            autocapitalize="none"
+                                            spellcheck="false"
+                                            maxlength="255"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="glass-field">
+                                        <div class="glass-label-row">
+                                            <label for="x_complete_password">Wachtwoord</label>
+
+                                            @error('password')
+                                                <span class="glass-field-error">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="glass-input-wrap">
+                                            <input
+                                                class="glass-input with-toggle"
+                                                id="x_complete_password"
+                                                type="password"
+                                                name="password"
+                                                placeholder="Minimaal 8 tekens"
+                                                autocomplete="new-password"
+                                                minlength="8"
+                                                required
+                                            >
+
+                                            <button
+                                                class="glass-password-toggle"
+                                                type="button"
+                                                data-password-target="x_complete_password"
+                                            >
+                                                Tonen
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="glass-field">
+                                        <div class="glass-label-row">
+                                            <label for="x_complete_password_confirmation">
+                                                Wachtwoord bevestigen
+                                            </label>
+                                        </div>
+
+                                        <div class="glass-input-wrap">
+                                            <input
+                                                class="glass-input with-toggle"
+                                                id="x_complete_password_confirmation"
+                                                type="password"
+                                                name="password_confirmation"
+                                                placeholder="Herhaal je wachtwoord"
+                                                autocomplete="new-password"
+                                                minlength="8"
+                                                required
+                                            >
+
+                                            <button
+                                                class="glass-password-toggle"
+                                                type="button"
+                                                data-password-target="x_complete_password_confirmation"
+                                            >
+                                                Tonen
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        class="glass-primary"
+                                        type="submit"
+                                    >
+                                        X-registratie afronden →
+                                    </button>
+                                </form>
+
+                                <div class="x-complete-actions">
+                                    <a href="{{ route('login') }}">
+                                        Annuleren en terug naar inloggen
+                                    </a>
+                                </div>
+                            </section>
                         @endif
 
                         <div class="register-tabs" role="tablist" aria-label="Registratiemethode kiezen">
@@ -2248,7 +2525,7 @@
   password: <span class="cyan">true</span>,
   emailCode: <span class="cyan">true</span>,
   magicLink: <span class="cyan">true</span>,
-  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>]
+  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>, <span class="green">'x'</span>]
 };</div>
         </div>
 
@@ -2262,6 +2539,28 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    document
+        .querySelectorAll('[data-password-target]')
+        .forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = button.getAttribute('data-password-target');
+                const input = targetId
+                    ? document.getElementById(targetId)
+                    : null;
+
+                if (!input) {
+                    return;
+                }
+
+                const reveal = input.type === 'password';
+
+                input.type = reveal ? 'text' : 'password';
+                button.textContent = reveal ? 'Verbergen' : 'Tonen';
+            });
+        });
+
+
     'use strict';
 
     /*
