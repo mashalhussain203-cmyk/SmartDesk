@@ -18,2313 +18,2313 @@
 
 
 
-    .mashal-dashboard {
+    .mashal-dashboard {
 
 
 
-        --m-bg: #08090b;
+        --m-bg: #08090b;
 
 
 
-        --m-panel: #101318;
+        --m-panel: #101318;
 
 
 
-        --m-panel-soft: #15191f;
+        --m-panel-soft: #15191f;
 
 
 
-        --m-panel-hover: #191e25;
+        --m-panel-hover: #191e25;
 
 
 
-        --m-text: #f6f4ef;
+        --m-text: #f6f4ef;
 
 
 
-        --m-muted: #8b9199;
+        --m-muted: #8b9199;
 
 
 
-        --m-muted-2: #686e76;
+        --m-muted-2: #686e76;
 
 
 
-        --m-line: rgba(255, 255, 255, .075);
+        --m-line: rgba(255, 255, 255, .075);
 
 
 
-        --m-line-strong: rgba(215, 164, 95, .22);
+        --m-line-strong: rgba(215, 164, 95, .22);
 
 
 
-        --m-gold: #d7a45f;
+        --m-gold: #d7a45f;
 
 
 
-        --m-gold-light: #f1c983;
+        --m-gold-light: #f1c983;
 
 
 
-        --m-gold-dark: #9c6d34;
+        --m-gold-dark: #9c6d34;
 
 
 
-        --m-green: #65d59a;
+        --m-green: #65d59a;
 
 
 
-        --m-red: #ef8f8f;
+        --m-red: #ef8f8f;
 
 
 
-        --m-blue: #8fb6ec;
+        --m-blue: #8fb6ec;
 
 
 
-        --m-shadow: 0 28px 80px rgba(0, 0, 0, .24);
+        --m-shadow: 0 28px 80px rgba(0, 0, 0, .24);
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-        min-height: 100%;
+        min-height: 100%;
 
 
 
-        color: var(--m-text);
+        color: var(--m-text);
 
 
 
-    }
+    }
 
 
 
-    .mashal-dashboard,
+    .mashal-dashboard,
 
 
 
-    .mashal-dashboard \* {
+    .mashal-dashboard \* {
 
 
 
-        box-sizing: border-box;
+        box-sizing: border-box;
 
 
 
-    }
+    }
 
 
 
-    .mashal-dashboard a {
+    .mashal-dashboard a {
 
 
 
-        color: inherit;
+        color: inherit;
 
 
 
-    }
+    }
 
 
 
-    .mashal-dashboard button,
+    .mashal-dashboard button,
 
 
 
-    .mashal-dashboard input {
+    .mashal-dashboard input {
 
 
 
-        font: inherit;
+        font: inherit;
 
 
 
-    }
+    }
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* HERO                                                       \*/
+    /\* HERO                                                       \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-hero {
+    .md-hero {
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-        overflow: hidden;
+        overflow: hidden;
 
 
 
-        margin-bottom: 22px;
+        margin-bottom: 22px;
 
 
 
-        padding: 34px;
+        padding: 34px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 28px;
+        border-radius: 28px;
 
 
 
-        background:
+        background:
 
 
 
-            radial-gradient(circle at 90% 15%, rgba(215, 164, 95, .14), transparent 18rem),
+            radial-gradient(circle at 90% 15%, rgba(215, 164, 95, .14), transparent 18rem),
 
 
 
-            linear-gradient(145deg, #11151a, #0c0f13);
+            linear-gradient(145deg, #11151a, #0c0f13);
 
 
 
-        box-shadow: var(--m-shadow);
+        box-shadow: var(--m-shadow);
 
 
 
-    }
+    }
 
 
 
-    .md-hero::after {
+    .md-hero::after {
 
 
 
-        content: "M";
+        content: "M";
 
 
 
-        position: absolute;
+        position: absolute;
 
 
 
-        right: -18px;
+        right: -18px;
 
 
 
-        bottom: -70px;
+        bottom: -70px;
 
 
 
-        color: rgba(255, 255, 255, .025);
+        color: rgba(255, 255, 255, .025);
 
 
 
-        font-size: clamp(180px, 28vw, 360px);
+        font-size: clamp(180px, 28vw, 360px);
 
 
 
-        line-height: .8;
+        line-height: .8;
 
 
 
-        font-weight: 950;
+        font-weight: 950;
 
 
 
-        letter-spacing: -.1em;
+        letter-spacing: -.1em;
 
 
 
-        pointer-events: none;
+        pointer-events: none;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-grid {
+    .md-hero-grid {
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-        z-index: 1;
+        z-index: 1;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
 
 
 
-        gap: 34px;
+        gap: 34px;
 
 
 
-        align-items: end;
+        align-items: end;
 
 
 
-    }
+    }
 
 
 
-    .md-eyebrow {
+    .md-eyebrow {
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 9px;
+        gap: 9px;
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-        font-size: 9px;
+        font-size: 9px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .18em;
+        letter-spacing: .18em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-eyebrow::before {
+    .md-eyebrow::before {
 
 
 
-        content: "";
+        content: "";
 
 
 
-        width: 28px;
+        width: 28px;
 
 
 
-        height: 1px;
+        height: 1px;
 
 
 
-        background: var(--m-gold);
+        background: var(--m-gold);
 
 
 
-    }
+    }
 
 
 
-    .md-hero h1 {
+    .md-hero h1 {
 
 
 
-        max-width: 760px;
+        max-width: 760px;
 
 
 
-        margin: 13px 0 0;
+        margin: 13px 0 0;
 
 
 
-        font-size: clamp(38px, 5.3vw, 72px);
+        font-size: clamp(38px, 5.3vw, 72px);
 
 
 
-        line-height: .98;
+        line-height: .98;
 
 
 
-        font-weight: 950;
+        font-weight: 950;
 
 
 
-        letter-spacing: -.06em;
+        letter-spacing: -.06em;
 
 
 
-    }
+    }
 
 
 
-    .md-hero h1 span {
+    .md-hero h1 span {
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-    }
+    }
 
 
 
-    .md-hero-copy {
+    .md-hero-copy {
 
 
 
-        max-width: 720px;
+        max-width: 720px;
 
 
 
-        margin: 16px 0 0;
+        margin: 16px 0 0;
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 13px;
+        font-size: 13px;
 
 
 
-        line-height: 1.8;
+        line-height: 1.8;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-actions {
+    .md-hero-actions {
 
 
 
-        margin-top: 24px;
+        margin-top: 24px;
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        gap: 10px;
+        gap: 10px;
 
 
 
-        flex-wrap: wrap;
+        flex-wrap: wrap;
 
 
 
-    }
+    }
 
 
 
-    .md-btn {
+    .md-btn {
 
 
 
-        min-height: 44px;
+        min-height: 44px;
 
 
 
-        padding: 0 16px;
+        padding: 0 16px;
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        justify-content: center;
+        justify-content: center;
 
 
 
-        gap: 8px;
+        gap: 8px;
 
 
 
-        border: 1px solid transparent;
+        border: 1px solid transparent;
 
 
 
-        border-radius: 999px;
+        border-radius: 999px;
 
 
 
-        background: linear-gradient(135deg, var(--m-gold-light), var(--m-gold));
+        background: linear-gradient(135deg, var(--m-gold-light), var(--m-gold));
 
 
 
-        color: #17110b !important;
+        color: #17110b !important;
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .02em;
+        letter-spacing: .02em;
 
 
 
-        text-decoration: none;
+        text-decoration: none;
 
 
 
-        cursor: pointer;
+        cursor: pointer;
 
 
 
-        transition:
+        transition:
 
 
 
-            transform .2s ease,
+            transform .2s ease,
 
 
 
-            box-shadow .2s ease,
+            box-shadow .2s ease,
 
 
 
-            border-color .2s ease,
+            border-color .2s ease,
 
 
 
-            *background* .2s ease;
+            *background* .2s ease;
 
 
 
-    }
+    }
 
 
 
-    .md-btn:hover {
+    .md-btn:hover {
 
 
 
-        transform: translateY(-2px);
+        transform: translateY(-2px);
 
 
 
-        box-shadow: 0 16px 34px rgba(215, 164, 95, .2);
+        box-shadow: 0 16px 34px rgba(215, 164, 95, .2);
 
 
 
-    }
+    }
 
 
 
-    .md-btn.secondary {
+    .md-btn.secondary {
 
 
 
-        border-color: var(--m-line);
+        border-color: var(--m-line);
 
 
 
-        background: rgba(255, 255, 255, .035);
+        background: rgba(255, 255, 255, .035);
 
 
 
-        color: #ddd9d1 !important;
+        color: #ddd9d1 !important;
 
 
 
-    }
+    }
 
 
 
-    .md-btn.secondary:hover {
+    .md-btn.secondary:hover {
 
 
 
-        border-color: var(--m-line-strong);
+        border-color: var(--m-line-strong);
 
 
 
-        background: rgba(215, 164, 95, .07);
+        background: rgba(215, 164, 95, .07);
 
 
 
-    }
+    }
 
 
 
-    .md-btn.danger {
+    .md-btn.danger {
 
 
 
-        border-color: rgba(239, 143, 143, .18);
+        border-color: rgba(239, 143, 143, .18);
 
 
 
-        background: rgba(239, 143, 143, .08);
+        background: rgba(239, 143, 143, .08);
 
 
 
-        color: #efaaaa !important;
+        color: #efaaaa !important;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin {
+    .md-hero-admin {
 
 
 
-        padding: 20px;
+        padding: 20px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 20px;
+        border-radius: 20px;
 
 
 
-        background: rgba(255, 255, 255, .025);
+        background: rgba(255, 255, 255, .025);
 
 
 
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-label {
+    .md-hero-admin-label {
 
 
 
-        color: var(--m-gold-dark);
+        color: var(--m-gold-dark);
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .14em;
+        letter-spacing: .14em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-name {
+    .md-hero-admin-name {
 
 
 
-        margin-top: 7px;
+        margin-top: 7px;
 
 
 
-        color: #fff;
+        color: #fff;
 
 
 
-        font-size: 22px;
+        font-size: 22px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: -.035em;
+        letter-spacing: -.035em;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-email {
+    .md-hero-admin-email {
 
 
 
-        margin-top: 5px;
+        margin-top: 5px;
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        line-height: 1.6;
+        line-height: 1.6;
 
 
 
-        word-break: break-word;
+        word-break: break-word;
 
 
 
-    }
+    }
 
 
 
-    .md-admin-badge {
+    .md-admin-badge {
 
 
 
-        margin-top: 15px;
+        margin-top: 15px;
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 7px;
+        gap: 7px;
 
 
 
-        padding: 8px 10px;
+        padding: 8px 10px;
 
 
 
-        border: 1px solid rgba(101, 213, 154, .15);
+        border: 1px solid rgba(101, 213, 154, .15);
 
 
 
-        border-radius: 999px;
+        border-radius: 999px;
 
 
 
-        background: rgba(101, 213, 154, .055);
+        background: rgba(101, 213, 154, .055);
 
 
 
-        color: #9ce7bc;
+        color: #9ce7bc;
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .05em;
+        letter-spacing: .05em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-admin-badge::before {
+    .md-admin-badge::before {
 
 
 
-        content: "";
+        content: "";
 
 
 
-        width: 6px;
+        width: 6px;
 
 
 
-        height: 6px;
+        height: 6px;
 
 
 
-        border-radius: 50%;
+        border-radius: 50%;
 
 
 
-        background: currentColor;
+        background: currentColor;
 
 
 
-        box-shadow: 0 0 14px currentColor;
+        box-shadow: 0 0 14px currentColor;
 
 
 
-    }
+    }
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* STATS                                                      \*/
+    /\* STATS                                                      \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-stats {
+    .md-stats {
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
 
 
 
-        gap: 14px;
+        gap: 14px;
 
 
 
-        margin-bottom: 22px;
+        margin-bottom: 22px;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-card {
+    .md-stat-card {
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-        overflow: hidden;
+        overflow: hidden;
 
 
 
-        min-height: 166px;
+        min-height: 166px;
 
 
 
-        padding: 20px;
+        padding: 20px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 20px;
+        border-radius: 20px;
 
 
 
-        background: linear-gradient(145deg, var(--m-panel), #0d1014);
+        background: linear-gradient(145deg, var(--m-panel), #0d1014);
 
 
 
-        transition:
+        transition:
 
 
 
-            transform .22s ease,
+            transform .22s ease,
 
 
 
-            border-color .22s ease,
+            border-color .22s ease,
 
 
 
-            *background* .22s ease;
+            *background* .22s ease;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-card:hover {
+    .md-stat-card:hover {
 
 
 
-        transform: translateY(-4px);
+        transform: translateY(-4px);
 
 
 
-        border-color: var(--m-line-strong);
+        border-color: var(--m-line-strong);
 
 
 
-        background: linear-gradient(145deg, #14181e, #0f1216);
+        background: linear-gradient(145deg, #14181e, #0f1216);
 
 
 
-    }
+    }
 
 
 
-    .md-stat-card::after {
+    .md-stat-card::after {
 
 
 
-        content: "";
+        content: "";
 
 
 
-        position: absolute;
+        position: absolute;
 
 
 
-        right: -28px;
+        right: -28px;
 
 
 
-        bottom: -42px;
+        bottom: -42px;
 
 
 
-        width: 110px;
+        width: 110px;
 
 
 
-        height: 110px;
+        height: 110px;
 
 
 
-        border-radius: 50%;
+        border-radius: 50%;
 
 
 
-        background: radial-gradient(circle, rgba(215,164,95,.08), transparent 68%);
+        background: radial-gradient(circle, rgba(215,164,95,.08), transparent 68%);
 
 
 
-    }
+    }
 
 
 
-    .md-stat-top {
+    .md-stat-top {
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        justify-content: space-between;
+        justify-content: space-between;
 
 
 
-        gap: 12px;
+        gap: 12px;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-label {
+    .md-stat-label {
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 9px;
+        font-size: 9px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .12em;
+        letter-spacing: .12em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-icon {
+    .md-stat-icon {
 
 
 
-        width: 34px;
+        width: 34px;
 
 
 
-        height: 34px;
+        height: 34px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        place-items: center;
+        place-items: center;
 
 
 
-        border: 1px solid rgba(215,164,95,.16);
+        border: 1px solid rgba(215,164,95,.16);
 
 
 
-        border-radius: 11px;
+        border-radius: 11px;
 
 
 
-        background: rgba(215,164,95,.06);
+        background: rgba(215,164,95,.06);
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-number {
+    .md-stat-number {
 
 
 
-        margin-top: 18px;
+        margin-top: 18px;
 
 
 
-        color: #fff;
+        color: #fff;
 
 
 
-        font-size: 38px;
+        font-size: 38px;
 
 
 
-        line-height: 1;
+        line-height: 1;
 
 
 
-        font-weight: 950;
+        font-weight: 950;
 
 
 
-        letter-spacing: -.05em;
+        letter-spacing: -.05em;
 
 
 
-    }
+    }
 
 
 
-    .md-stat-foot {
+    .md-stat-foot {
 
 
 
-        margin-top: 9px;
+        margin-top: 9px;
 
 
 
-        color: var(--m-muted-2);
+        color: var(--m-muted-2);
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        line-height: 1.55;
+        line-height: 1.55;
 
 
 
-    }
+    }
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* GENERIC PANEL                                              \*/
+    /\* GENERIC PANEL                                              \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-panel {
+    .md-panel {
 
 
 
-        margin-bottom: 22px;
+        margin-bottom: 22px;
 
 
 
-        padding: 26px;
+        padding: 26px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 24px;
+        border-radius: 24px;
 
 
 
-        background: linear-gradient(145deg, rgba(17,20,25,.97), rgba(12,15,19,.97));
+        background: linear-gradient(145deg, rgba(17,20,25,.97), rgba(12,15,19,.97));
 
 
 
-        box-shadow: 0 22px 60px rgba(0, 0, 0, .14);
+        box-shadow: 0 22px 60px rgba(0, 0, 0, .14);
 
 
 
-    }
+    }
 
 
 
-    .md-section-head {
+    .md-section-head {
 
 
 
-        margin-bottom: 22px;
+        margin-bottom: 22px;
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        align-items: flex-end;
+        align-items: flex-end;
 
 
 
-        justify-content: space-between;
+        justify-content: space-between;
 
 
 
-        gap: 22px;
+        gap: 22px;
 
 
 
-    }
+    }
 
 
 
-    .md-section-kicker {
+    .md-section-kicker {
 
 
 
-        color: var(--m-gold-dark);
+        color: var(--m-gold-dark);
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .15em;
+        letter-spacing: .15em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-section-head h2 {
+    .md-section-head h2 {
 
 
 
-        margin: 7px 0 0;
+        margin: 7px 0 0;
 
 
 
-        color: #fff;
+        color: #fff;
 
 
 
-        font-size: 25px;
+        font-size: 25px;
 
 
 
-        line-height: 1.1;
+        line-height: 1.1;
 
 
 
-        letter-spacing: -.04em;
+        letter-spacing: -.04em;
 
 
 
-    }
+    }
 
 
 
-    .md-section-head p {
+    .md-section-head p {
 
 
 
-        max-width: 580px;
+        max-width: 580px;
 
 
 
-        margin: 7px 0 0;
+        margin: 7px 0 0;
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 11px;
+        font-size: 11px;
 
 
 
-        line-height: 1.7;
+        line-height: 1.7;
 
 
 
-    }
+    }
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* QUICK ACTIONS                                              \*/
+    /\* QUICK ACTIONS                                              \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-actions-grid {
+    .md-actions-grid {
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
 
 
 
-        gap: 14px;
+        gap: 14px;
 
 
 
-    }
+    }
 
 
 
-    .md-action-card {
+    .md-action-card {
 
 
 
-        min-height: 220px;
+        min-height: 220px;
 
 
 
-        padding: 19px;
+        padding: 19px;
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        flex-direction: column;
+        flex-direction: column;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 18px;
+        border-radius: 18px;
 
 
 
-        background: rgba(255,255,255,.022);
+        background: rgba(255,255,255,.022);
 
 
 
-        transition:
+        transition:
 
 
 
-            transform .22s ease,
+            transform .22s ease,
 
 
 
-            border-color .22s ease,
+            border-color .22s ease,
 
 
 
-            *background* .22s ease;
+            *background* .22s ease;
 
 
 
-    }
+    }
 
 
 
-    .md-action-card:hover {
+    .md-action-card:hover {
 
 
 
-        transform: translateY(-4px);
+        transform: translateY(-4px);
 
 
 
-        border-color: var(--m-line-strong);
+        border-color: var(--m-line-strong);
 
 
 
-        background: rgba(215,164,95,.045);
+        background: rgba(215,164,95,.045);
 
 
 
-    }
+    }
 
 
 
-    .md-action-icon {
+    .md-action-icon {
 
 
 
-        width: 38px;
+        width: 38px;
 
 
 
-        height: 38px;
+        height: 38px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        place-items: center;
+        place-items: center;
 
 
 
-        border: 1px solid rgba(215,164,95,.15);
+        border: 1px solid rgba(215,164,95,.15);
 
 
 
-        border-radius: 12px;
+        border-radius: 12px;
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-        background: rgba(215,164,95,.055);
+        background: rgba(215,164,95,.055);
 
 
 
-        font-size: 11px;
+        font-size: 11px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-    }
+    }
 
 
 
-    .md-action-card h3 {
+    .md-action-card h3 {
 
 
 
-        margin: 18px 0 0;
+        margin: 18px 0 0;
 
 
 
-        color: #f3f1ec;
+        color: #f3f1ec;
 
 
 
-        font-size: 16px;
+        font-size: 16px;
 
 
 
-        letter-spacing: -.025em;
+        letter-spacing: -.025em;
 
 
 
-    }
+    }
 
 
 
-    .md-action-card p {
+    .md-action-card p {
 
 
 
-        margin: 8px 0 18px;
+        margin: 8px 0 18px;
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        line-height: 1.7;
+        line-height: 1.7;
 
 
 
-    }
+    }
 
 
 
-    .md-action-card .md-btn {
+    .md-action-card .md-btn {
 
 
 
-        margin-top: auto;
+        margin-top: auto;
 
 
 
-        align-self: flex-start;
+        align-self: flex-start;
 
 
 
-    }
+    }
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* USER TABLE                                                 \*/
+    /\* USER TABLE                                                 \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-table-tools {
+    .md-table-tools {
 
 
 
-        margin-bottom: 16px;
+        margin-bottom: 16px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        grid-template-columns: minmax(220px, 1fr) auto;
+        grid-template-columns: minmax(220px, 1fr) auto;
 
 
 
-        gap: 12px;
+        gap: 12px;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-    }
+    }
 
 
 
-    .md-search {
+    .md-search {
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-    }
+    }
 
 
 
-    .md-search input {
+    .md-search input {
 
 
 
-        width: 100%;
+        width: 100%;
 
 
 
-        min-height: 44px;
+        min-height: 44px;
 
 
 
-        padding: 0 15px 0 39px;
+        padding: 0 15px 0 39px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 13px;
+        border-radius: 13px;
 
 
 
-        outline: none;
+        outline: none;
 
 
 
-        background: rgba(255,255,255,.025);
+        background: rgba(255,255,255,.025);
 
 
 
-        color: #eeeae3;
+        color: #eeeae3;
 
 
 
-        font-size: 11px;
+        font-size: 11px;
 
 
 
-    }
+    }
 
 
 
-    .md-search input::placeholder {
+    .md-search input::placeholder {
 
 
 
-        color: #626870;
+        color: #626870;
 
 
 
-    }
+    }
 
 
 
-    .md-search input:focus {
+    .md-search input:focus {
 
 
 
-        border-color: rgba(215,164,95,.32);
+        border-color: rgba(215,164,95,.32);
 
 
 
-        box-shadow: 0 0 0 3px rgba(215,164,95,.07);
+        box-shadow: 0 0 0 3px rgba(215,164,95,.07);
 
 
 
-    }
+    }
 
 
 
-    .md-search::before {
+    .md-search::before {
 
 
 
-        content: "⌕";
+        content: "⌕";
 
 
 
-        position: absolute;
+        position: absolute;
 
 
 
-        left: 14px;
+        left: 14px;
 
 
 
-        top: 50%;
+        top: 50%;
 
 
 
-        transform: translateY(-50%);
+        transform: translateY(-50%);
 
 
 
-        color: var(--m-gold);
+        color: var(--m-gold);
 
 
 
-        font-size: 17px;
+        font-size: 17px;
 
 
 
-        pointer-events: none;
+        pointer-events: none;
 
 
 
-    }
+    }
 
 
 
-    .md-filter-bar {
+    .md-filter-bar {
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        gap: 7px;
+        gap: 7px;
 
 
 
-        flex-wrap: wrap;
+        flex-wrap: wrap;
 
 
 
-    }
+    }
 
 
 
-    .md-filter {
+    .md-filter {
 
 
 
-        min-height: 36px;
+        min-height: 36px;
 
 
 
-        padding: 0 12px;
+        padding: 0 12px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 999px;
+        border-radius: 999px;
 
 
 
-        background: rgba(255,255,255,.02);
+        background: rgba(255,255,255,.02);
 
 
 
-        color: var(--m-muted);
+        color: var(--m-muted);
 
 
 
-        font-size: 9px;
+        font-size: 9px;
 
 
 
-        font-weight: 800;
+        font-weight: 800;
 
 
 
-        cursor: pointer;
+        cursor: pointer;
 
 
 
-    }
+    }
 
 
 
-    .md-filter.active,
+    .md-filter.active,
 
 
 
-    .md-filter:hover {
+    .md-filter:hover {
 
 
 
-        border-color: rgba(215,164,95,.24);
+        border-color: rgba(215,164,95,.24);
 
 
 
-        background: rgba(215,164,95,.08);
+        background: rgba(215,164,95,.08);
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-    }
+    }
 
 
 
-    .md-table-wrap {
+    .md-table-wrap {
 
 
 
-        overflow-x: auto;
+        overflow-x: auto;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 18px;
+        border-radius: 18px;
 
 
 
-        background: rgba(0,0,0,.09);
+        background: rgba(0,0,0,.09);
 
 
 
-    }
+    }
 
 
 
-    .md-table {
+    .md-table {
 
 
 
-        width: 100%;
+        width: 100%;
 
 
 
-        min-width: 1180px;
+        min-width: 1180px;
 
 
 
-        border-collapse: collapse;
+        border-collapse: collapse;
 
 
 
-    }
+    }
 
 
 
-    .md-table th {
+    .md-table th {
 
 
 
-        padding: 13px 14px;
+        padding: 13px 14px;
 
 
 
-        border-bottom: 1px solid var(--m-line);
+        border-bottom: 1px solid var(--m-line);
 
 
 
-        background: rgba(255,255,255,.025);
+        background: rgba(255,255,255,.025);
 
 
 
-        color: #737a83;
+        color: #737a83;
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        letter-spacing: .12em;
+        letter-spacing: .12em;
 
 
 
-        text-align: left;
+        text-align: left;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-table td {
+    .md-table td {
 
 
 
-        padding: 14px;
+        padding: 14px;
 
 
 
-        border-bottom: 1px solid rgba(255,255,255,.045);
+        border-bottom: 1px solid rgba(255,255,255,.045);
 
 
 
-        color: #c9c7c1;
+        color: #c9c7c1;
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        vertical-align: middle;
+        vertical-align: middle;
 
 
 
-    }
+    }
 
 
 
-    .md-table tbody tr {
+    .md-table tbody tr {
 
 
 
-        transition: *background* .18s ease;
+        transition: *background* .18s ease;
 
 
 
-    }
+    }
 
 
 
-    .md-table tbody tr:hover {
+    .md-table tbody tr:hover {
 
 
 
-        background: rgba(215,164,95,.025);
+        background: rgba(215,164,95,.025);
 
 
 
-    }
+    }
 
 
 
-    .md-table tbody tr:last-child td {
+    .md-table tbody tr:last-child td {
 
 
 
-        border-bottom: 0;
+        border-bottom: 0;
 
 
 
-    }
+    }
 
 
 
-    .md-user {
+    .md-user {
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 11px;
+        gap: 11px;
 
 
 
-        min-width: 190px;
+        min-width: 190px;
 
 
 
-    }
+    }
 
 
 
-    .md-avatar {
+    .md-avatar {
 
 
 
-        flex: 0 0 auto;
+        flex: 0 0 auto;
 
 
 
-        width: 38px;
+        width: 38px;
 
 
 
-        height: 38px;
+        height: 38px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        place-items: center;
+        place-items: center;
 
 
 
-        border: 1px solid rgba(215,164,95,.16);
+        border: 1px solid rgba(215,164,95,.16);
 
 
 
-        border-radius: 12px;
+        border-radius: 12px;
 
 
 
-        background: linear-gradient(145deg, rgba(215,164,95,.12), rgba(215,164,95,.035));
+        background: linear-gradient(145deg, rgba(215,164,95,.12), rgba(215,164,95,.035));
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-        font-size: 13px;
+        font-size: 13px;
 
 
 
-        font-weight: 950;
+        font-weight: 950;
 
 
 
-    }
+    }
 
 
 
-    .md-avatar {
+    .md-avatar {
 
 
 
-        position: relative;
+        position: relative;
 
 
 
-        overflow: hidden;
+        overflow: hidden;
 
 
 
-        box-shadow:
+        box-shadow:
 
 
 
-            inset 0 0 0 1px rgba(255,255,255,.025),
+            inset 0 0 0 1px rgba(255,255,255,.025),
 
 
 
-            0 10px 26px rgba(0,0,0,.18);
+            0 10px 26px rgba(0,0,0,.18);
 
 
 
-    }
+    }
 
 
 
-    .md-avatar img {
+    .md-avatar img {
 
 
 
-        width: 100%;
+        width: 100%;
 
 
 
-        height: 100%;
+        height: 100%;
 
 
 
-        display: block;
+        display: block;
 
 
 
-        object-fit: cover;
+        object-fit: cover;
 
 
 
-        border-radius: inherit;
+        border-radius: inherit;
 
 
 
-    }
+    }
 
 
 
-    .md-avatar.has-image {
+    .md-avatar.has-image {
 
 
 
-        background: #111419;
+        background: #111419;
 
 
 
-        color: transparent;
+        color: transparent;
 
 
 
-    }
+    }
 
 
 
-    .md-user-meta {
+    .md-user-meta {
 
 
 
-        min-width: 0;
+        min-width: 0;
 
 
 
-    }
+    }
 
 
 
-    .md-photo-source {
+    .md-photo-source {
 
 
 
-        margin-top: 5px;
+        margin-top: 5px;
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 5px;
+        gap: 5px;
 
 
 
-        color: #6f757d;
+        color: #6f757d;
 
 
 
-        font-size: 7px;
+        font-size: 7px;
 
 
 
-        font-weight: 800;
+        font-weight: 800;
 
 
 
-        letter-spacing: .04em;
+        letter-spacing: .04em;
 
 
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
 
 
-    }
+    }
 
 
 
-    .md-photo-source::before {
+    .md-photo-source::before {
 
 
 
-        content: "";
+        content: "";
 
 
 
-        width: 5px;
+        width: 5px;
 
 
 
-        height: 5px;
+        height: 5px;
 
 
 
-        border-radius: 50%;
+        border-radius: 50%;
 
 
 
-        background: var(--m-gold);
+        background: var(--m-gold);
 
 
 
-        box-shadow: 0 0 10px rgba(215,164,95,.35);
+        box-shadow: 0 0 10px rgba(215,164,95,.35);
 
 
 
-    }
+    }
 
 
 
-    .md-photo-source.custom {
+    .md-photo-source.custom {
 
 
 
-        color: #d4a861;
+        color: #d4a861;
 
 
 
-    }
+    }
 
 
 
-    .md-photo-source.social {
+    .md-photo-source.social {
 
 
 
-        color: #8fb6ec;
+        color: #8fb6ec;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-profile {
+    .md-hero-admin-profile {
 
 
 
-        margin-bottom: 16px;
+        margin-bottom: 16px;
 
 
 
-        display: flex;
+        display: flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 13px;
+        gap: 13px;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-avatar {
+    .md-hero-admin-avatar {
 
 
 
-        width: 54px;
+        width: 54px;
 
 
 
-        height: 54px;
+        height: 54px;
 
 
 
-        flex: 0 0 54px;
+        flex: 0 0 54px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        place-items: center;
+        place-items: center;
 
 
 
-        overflow: hidden;
+        overflow: hidden;
 
 
 
-        border: 1px solid rgba(215,164,95,.22);
+        border: 1px solid rgba(215,164,95,.22);
 
 
 
-        border-radius: 16px;
+        border-radius: 16px;
 
 
 
-        background: linear-gradient(
+        background: linear-gradient(
 
 
 
-            145deg,
+            145deg,
 
 
 
-            rgba(215,164,95,.16),
+            rgba(215,164,95,.16),
 
 
 
-            rgba(215,164,95,.045)
+            rgba(215,164,95,.045)
 
 
 
-        );
+        );
 
 
 
-        color: var(--m-gold-light);
+        color: var(--m-gold-light);
 
 
 
-        font-size: 17px;
+        font-size: 17px;
 
 
 
-        font-weight: 950;
+        font-weight: 950;
 
 
 
-        box-shadow: 0 14px 34px rgba(0,0,0,.18);
+        box-shadow: 0 14px 34px rgba(0,0,0,.18);
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-avatar img {
+    .md-hero-admin-avatar img {
 
 
 
-        width: 100%;
+        width: 100%;
 
 
 
-        height: 100%;
+        height: 100%;
 
 
 
-        display: block;
+        display: block;
 
 
 
-        object-fit: cover;
+        object-fit: cover;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-identity {
+    .md-hero-admin-identity {
 
 
 
-        min-width: 0;
+        min-width: 0;
 
 
 
-    }
+    }
 
 
 
-    .md-hero-admin-photo-source {
+    .md-hero-admin-photo-source {
 
-        margin-top: 8px;
+        margin-top: 8px;
 
-        display: inline-flex;
+        display: inline-flex;
 
-        align-items: center;
+        align-items: center;
 
-        gap: 6px;
+        gap: 6px;
 
-        color: var(--m-muted-2);
+        color: var(--m-muted-2);
 
-        font-size: 8px;
+        font-size: 8px;
 
-        font-weight: 850;
+        font-weight: 850;
 
-        letter-spacing: .06em;
+        letter-spacing: .06em;
 
-        text-transform: uppercase;
+        text-transform: uppercase;
 
-    }
+    }
 
 
 
-    .md-hero-admin-photo-source::before {
+    .md-hero-admin-photo-source::before {
 
-        content: "";
+        content: "";
 
-        width: 6px;
+        width: 6px;
 
-        height: 6px;
+        height: 6px;
 
-        border-radius: 50%;
+        border-radius: 50%;
 
-        background: var(--m-gold);
+        background: var(--m-gold);
 
-        box-shadow: 0 0 12px rgba(215,164,95,.35);
+        box-shadow: 0 0 12px rgba(215,164,95,.35);
 
-    }
+    }
 
 
 
@@ -2332,179 +2332,179 @@
 
 
 
-    .md-user strong {
+    .md-user strong {
 
 
 
-        display: block;
+        display: block;
 
 
 
-        color: #f3f1ec;
+        color: #f3f1ec;
 
 
 
-        font-size: 11px;
+        font-size: 11px;
 
 
 
-    }
+    }
 
 
 
-    .md-user small {
+    .md-user small {
 
 
 
-        display: block;
+        display: block;
 
 
 
-        margin-top: 3px;
+        margin-top: 3px;
 
 
 
-        color: var(--m-muted-2);
+        color: var(--m-muted-2);
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-    }
+    }
 
 
 
-    .md-self {
+    .md-self {
 
 
 
-        margin-top: 4px !important;
+        margin-top: 4px !important;
 
 
 
-        color: var(--m-green) !important;
+        color: var(--m-green) !important;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-    }
+    }
 
 
 
-    .md-badge {
+    .md-badge {
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 6px;
+        gap: 6px;
 
 
 
-        padding: 7px 9px;
+        padding: 7px 9px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 999px;
+        border-radius: 999px;
 
 
 
-        background: rgba(255,255,255,.025);
+        background: rgba(255,255,255,.025);
 
 
 
-        color: #b9bdc2;
+        color: #b9bdc2;
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        white-space: nowrap;
+        white-space: nowrap;
 
 
 
-    }
+    }
 
 
 
-    .md-badge.admin {
+    .md-badge.admin {
 
 
 
-        border-color: rgba(143,182,236,.16);
+        border-color: rgba(143,182,236,.16);
 
 
 
-        background: rgba(143,182,236,.07);
+        background: rgba(143,182,236,.07);
 
 
 
-        color: var(--m-blue);
+        color: var(--m-blue);
 
 
 
-    }
+    }
 
 
 
-    .md-badge.verified {
+    .md-badge.verified {
 
 
 
-        border-color: rgba(101,213,154,.16);
+        border-color: rgba(101,213,154,.16);
 
 
 
-        background: rgba(101,213,154,.06);
+        background: rgba(101,213,154,.06);
 
 
 
-        color: #99e7ba;
+        color: #99e7ba;
 
 
 
-    }
+    }
 
 
 
-    .md-badge.pending {
+    .md-badge.pending {
 
 
 
-        border-color: rgba(241,201,131,.16);
+        border-color: rgba(241,201,131,.16);
 
 
 
-        background: rgba(241,201,131,.06);
+        background: rgba(241,201,131,.06);
 
 
 
-        color: #edc47d;
+        color: #edc47d;
 
 
 
-    }
+    }
 
 
 
@@ -2516,187 +2516,171 @@
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    /\* LOGIN PROVIDER                                            \*/
+    /\* LOGIN PROVIDER                                            \*/
 
 
 
-    /\* ========================================================= \*/
+    /\* ========================================================= \*/
 
 
 
-    .md-provider {
+    .md-provider {
 
 
 
-        display: inline-flex;
+        display: inline-flex;
 
 
 
-        align-items: center;
+        align-items: center;
 
 
 
-        gap: 8px;
+        gap: 8px;
 
 
 
-        min-height: 34px;
+        min-height: 34px;
 
 
 
-        padding: 6px 10px;
+        padding: 6px 10px;
 
 
 
-        border: 1px solid var(--m-line);
+        border: 1px solid var(--m-line);
 
 
 
-        border-radius: 999px;
+        border-radius: 999px;
 
 
 
-        background: rgba(255,255,255,.025);
+        background: rgba(255,255,255,.025);
 
 
 
-        color: #c9c7c1;
+        color: #c9c7c1;
 
 
 
-        font-size: 8px;
+        font-size: 8px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-        white-space: nowrap;
+        white-space: nowrap;
 
 
 
-    }
+    }
 
 
 
-    .md-provider-icon {
+    .md-provider-icon {
 
 
 
-        width: 20px;
+        width: 20px;
 
 
 
-        height: 20px;
+        height: 20px;
 
 
 
-        flex: 0 0 20px;
+        flex: 0 0 20px;
 
 
 
-        display: grid;
+        display: grid;
 
 
 
-        place-items: center;
+        place-items: center;
 
 
 
-        border-radius: 50%;
+        border-radius: 50%;
 
 
 
-        overflow: hidden;
+        overflow: hidden;
 
 
 
-        font-size: 10px;
+        font-size: 10px;
 
 
 
-        font-weight: 900;
+        font-weight: 900;
 
 
 
-    }
+    }
 
 
 
-    .md-provider-icon svg {
+    .md-provider-icon svg {
 
 
 
-        width: 14px;
+        width: 14px;
 
 
 
-        height: 14px;
+        height: 14px;
 
 
 
-        display: block;
+        display: block;
 
 
 
-    }
+    }
 
 
 
-    .md-provider.google .md-provider-icon {
+    .md-provider.google .md-provider-icon {
 
 
 
-        background: #ffffff;
+        background: #ffffff;
 
 
 
-    }
+    }
 
 
 
-    .md-provider.github .md-provider-icon {
+    .md-provider.github .md-provider-icon {
 
 
 
-        background: #f4f4f4;
+        background: #f4f4f4;
 
 
 
-        color: #111111;
+        color: #111111;
 
 
 
-    }
+    }
 
 
 
-    .md-provider.facebook .md-provider-icon {
+    .md-provider.facebook .md-provider-icon {
 
 
 
-        background: #1877f2;
-
-
-
-        color: #ffffff;
-
-
-
-    }
-
-
-
-    .md-provider.linkedin .md-provider-icon {
-
-
-
-        background: #0A66C2;
+        background: #1877f2;
 
 
 
@@ -2708,751 +2692,773 @@
 
 
 
-    .md-provider.email_code {
+    .md-provider.linkedin .md-provider-icon {
+        background: #0a66c2;
+        color: #ffffff;
+    }
 
+    .md-provider.tiktok .md-provider-icon {
+        background: #010101;
+        color: #ffffff;
+    }
 
+    .md-provider.passkey {
+        border-color: rgba(101,213,154,.16);
+        background: rgba(101,213,154,.055);
+        color: #9ce7bc;
+    }
 
-        border-color: rgba(215,164,95,.18);
+    .md-provider.passkey .md-provider-icon {
+        border: 1px solid rgba(101,213,154,.20);
+        background: rgba(101,213,154,.09);
+        color: #9ce7bc;
+    }
 
+    .md-provider.email_code {
 
 
-        background: rgba(215,164,95,.055);
 
+        border-color: rgba(215,164,95,.18);
 
 
-        color: var(--m-gold-light);
 
+        background: rgba(215,164,95,.055);
 
 
-    }
 
+        color: var(--m-gold-light);
 
 
-    .md-provider.email_code .md-provider-icon {
 
+    }
 
 
-        border: 1px solid rgba(215,164,95,.22);
 
+    .md-provider.email_code .md-provider-icon {
 
 
-        background: rgba(215,164,95,.09);
 
+        border: 1px solid rgba(215,164,95,.22);
 
 
-        color: var(--m-gold-light);
 
+        background: rgba(215,164,95,.09);
 
 
-    }
 
+        color: var(--m-gold-light);
 
 
-    .md-provider.magic_link {
 
+    }
 
 
-        border-color: rgba(177,132,255,.18);
 
+    .md-provider.magic_link {
 
 
-        background: rgba(177,132,255,.06);
 
+        border-color: rgba(177,132,255,.18);
 
 
-        color: #c9adff;
 
+        background: rgba(177,132,255,.06);
 
 
-    }
 
+        color: #c9adff;
 
 
-    .md-provider.magic_link .md-provider-icon {
 
+    }
 
 
-        border: 1px solid rgba(177,132,255,.20);
 
+    .md-provider.magic_link .md-provider-icon {
 
 
-        background: rgba(177,132,255,.09);
 
+        border: 1px solid rgba(177,132,255,.20);
 
 
-        color: #c9adff;
 
+        background: rgba(177,132,255,.09);
 
 
-    }
 
+        color: #c9adff;
 
 
-    .md-provider.password {
 
+    }
 
 
-        border-color: rgba(143,182,236,.15);
 
+    .md-provider.password {
 
 
-        background: rgba(143,182,236,.055);
 
+        border-color: rgba(143,182,236,.15);
 
 
-        color: var(--m-blue);
 
+        background: rgba(143,182,236,.055);
 
 
-    }
 
+        color: var(--m-blue);
 
 
-    .md-provider.password .md-provider-icon {
 
+    }
 
 
-        border: 1px solid rgba(143,182,236,.18);
 
+    .md-provider.password .md-provider-icon {
 
 
-        background: rgba(143,182,236,.08);
 
+        border: 1px solid rgba(143,182,236,.18);
 
 
-        color: var(--m-blue);
 
+        background: rgba(143,182,236,.08);
 
 
-    }
 
+        color: var(--m-blue);
 
 
-    .md-current-provider {
 
+    }
 
 
-        margin-top: 12px;
 
+    .md-current-provider {
 
 
-    }
 
+        margin-top: 12px;
 
 
-    .md-row-actions {
 
+    }
 
 
-        display: flex;
 
+    .md-row-actions {
 
 
-        gap: 7px;
 
+        display: flex;
 
 
-        flex-wrap: wrap;
 
+        gap: 7px;
 
 
-    }
 
+        flex-wrap: wrap;
 
 
-    .md-row-actions .md-btn {
 
+    }
 
 
-        min-height: 34px;
 
+    .md-row-actions .md-btn {
 
 
-        padding: 0 11px;
 
+        min-height: 34px;
 
 
-        font-size: 8px;
 
+        padding: 0 11px;
 
 
-    }
 
+        font-size: 8px;
 
 
-    .md-self-lock {
 
+    }
 
 
-        display: inline-flex;
 
+    .md-self-lock {
 
 
-        align-items: center;
 
+        display: inline-flex;
 
 
-        min-height: 34px;
 
+        align-items: center;
 
 
-        padding: 0 10px;
 
+        min-height: 34px;
 
 
-        border: 1px solid var(--m-line);
 
+        padding: 0 10px;
 
 
-        border-radius: 999px;
 
+        border: 1px solid var(--m-line);
 
 
-        color: var(--m-muted);
 
+        border-radius: 999px;
 
 
-        background: rgba(255,255,255,.018);
 
+        color: var(--m-muted);
 
 
-        font-size: 8px;
 
+        background: rgba(255,255,255,.018);
 
 
-        font-weight: 800;
 
+        font-size: 8px;
 
 
-    }
 
+        font-weight: 800;
 
 
-    .md-empty {
 
+    }
 
 
-        padding: 48px 20px;
 
+    .md-empty {
 
 
-        text-align: center;
 
+        padding: 48px 20px;
 
 
-    }
 
+        text-align: center;
 
 
-    .md-empty-mark {
 
+    }
 
 
-        width: 50px;
 
+    .md-empty-mark {
 
 
-        height: 50px;
 
+        width: 50px;
 
 
-        margin: 0 auto 14px;
 
+        height: 50px;
 
 
-        display: grid;
 
+        margin: 0 auto 14px;
 
 
-        place-items: center;
 
+        display: grid;
 
 
-        border: 1px solid rgba(215,164,95,.16);
 
+        place-items: center;
 
 
-        border-radius: 16px;
 
+        border: 1px solid rgba(215,164,95,.16);
 
 
-        background: rgba(215,164,95,.05);
 
+        border-radius: 16px;
 
 
-        color: var(--m-gold-light);
 
+        background: rgba(215,164,95,.05);
 
 
-        font-weight: 900;
 
+        color: var(--m-gold-light);
 
 
-    }
 
+        font-weight: 900;
 
 
-    .md-empty h3 {
 
+    }
 
 
-        margin: 0;
 
+    .md-empty h3 {
 
 
-        color: #eeeae3;
 
+        margin: 0;
 
 
-        font-size: 18px;
 
+        color: #eeeae3;
 
 
-    }
 
+        font-size: 18px;
 
 
-    .md-empty p {
 
+    }
 
 
-        max-width: 430px;
 
+    .md-empty p {
 
 
-        margin: 7px auto 18px;
 
+        max-width: 430px;
 
 
-        color: var(--m-muted);
 
+        margin: 7px auto 18px;
 
 
-        font-size: 10px;
 
+        color: var(--m-muted);
 
 
-        line-height: 1.7;
 
+        font-size: 10px;
 
 
-    }
 
+        line-height: 1.7;
 
 
-    .md-table-footer {
 
+    }
 
 
-        margin-top: 16px;
 
+    .md-table-footer {
 
 
-        display: flex;
 
+        margin-top: 16px;
 
 
-        justify-content: space-between;
 
+        display: flex;
 
 
-        gap: 12px;
 
+        justify-content: space-between;
 
 
-        align-items: center;
 
+        gap: 12px;
 
 
-        flex-wrap: wrap;
 
+        align-items: center;
 
 
-    }
 
+        flex-wrap: wrap;
 
 
-    .md-visible-count {
 
+    }
 
 
-        color: var(--m-muted-2);
 
+    .md-visible-count {
 
 
-        font-size: 9px;
 
+        color: var(--m-muted-2);
 
 
-    }
 
+        font-size: 9px;
 
 
-    /\* ========================================================= \*/
 
+    }
 
 
-    /\* ADMIN INFO                                                 \*/
 
+    /\* ========================================================= \*/
 
 
-    /\* ========================================================= \*/
 
+    /\* ADMIN INFO                                                 \*/
 
 
-    .md-admin-grid {
 
+    /\* ========================================================= \*/
 
 
-        display: grid;
 
+    .md-admin-grid {
 
 
-        grid-template-columns: repeat(4, minmax(0, 1fr));
 
+        display: grid;
 
 
-        gap: 14px;
 
+        grid-template-columns: repeat(4, minmax(0, 1fr));
 
 
-    }
 
+        gap: 14px;
 
 
-    .md-info-card {
 
+    }
 
 
-        padding: 18px;
 
+    .md-info-card {
 
 
-        border: 1px solid var(--m-line);
 
+        padding: 18px;
 
 
-        border-radius: 17px;
 
+        border: 1px solid var(--m-line);
 
 
-        background: rgba(255,255,255,.02);
 
+        border-radius: 17px;
 
 
-    }
 
+        background: rgba(255,255,255,.02);
 
 
-    .md-info-card small {
 
+    }
 
 
-        display: block;
 
+    .md-info-card small {
 
 
-        color: var(--m-gold-dark);
 
+        display: block;
 
 
-        font-size: 8px;
 
+        color: var(--m-gold-dark);
 
 
-        font-weight: 900;
 
+        font-size: 8px;
 
 
-        letter-spacing: .12em;
 
+        font-weight: 900;
 
 
-        text-transform: uppercase;
 
+        letter-spacing: .12em;
 
 
-    }
 
+        text-transform: uppercase;
 
 
-    .md-info-card strong {
 
+    }
 
 
-        display: block;
 
+    .md-info-card strong {
 
 
-        margin-top: 8px;
 
+        display: block;
 
 
-        color: #f0eee9;
 
+        margin-top: 8px;
 
 
-        font-size: 13px;
 
+        color: #f0eee9;
 
 
-        line-height: 1.5;
 
+        font-size: 13px;
 
 
-        word-break: break-word;
 
+        line-height: 1.5;
 
 
-    }
 
+        word-break: break-word;
 
 
-    .md-info-card p {
 
+    }
 
 
-        margin: 6px 0 0;
 
+    .md-info-card p {
 
 
-        color: var(--m-muted);
 
+        margin: 6px 0 0;
 
 
-        font-size: 10px;
 
+        color: var(--m-muted);
 
 
-        line-height: 1.65;
 
+        font-size: 10px;
 
 
-    }
 
+        line-height: 1.65;
 
 
-    /\* ========================================================= \*/
 
+    }
 
 
-    /\* NO SEARCH RESULTS                                          \*/
 
+    /\* ========================================================= \*/
 
 
-    /\* ========================================================= \*/
 
+    /\* NO SEARCH RESULTS                                          \*/
 
 
-    .md-no-results {
 
+    /\* ========================================================= \*/
 
 
-        display: none;
 
+    .md-no-results {
 
 
-        margin-top: 14px;
 
+        display: none;
 
 
-        padding: 20px;
 
+        margin-top: 14px;
 
 
-        border: 1px dashed var(--m-line-strong);
 
+        padding: 20px;
 
 
-        border-radius: 14px;
 
+        border: 1px dashed var(--m-line-strong);
 
 
-        color: var(--m-muted);
 
+        border-radius: 14px;
 
 
-        background: rgba(215,164,95,.025);
 
+        color: var(--m-muted);
 
 
-        font-size: 10px;
 
+        background: rgba(215,164,95,.025);
 
 
-        line-height: 1.7;
 
+        font-size: 10px;
 
 
-        text-align: center;
 
+        line-height: 1.7;
 
 
-    }
 
+        text-align: center;
 
 
-    /\* ========================================================= \*/
 
+    }
 
 
-    /\* RESPONSIVE                                                 \*/
 
+    /\* ========================================================= \*/
 
 
-    /\* ========================================================= \*/
 
+    /\* RESPONSIVE                                                 \*/
 
 
-    @media (max-width: 1180px) {
 
+    /\* ========================================================= \*/
 
 
-        .md-stats,
 
+    @media (max-width: 1180px) {
 
 
-        .md-actions-grid {
 
+        .md-stats,
 
 
-            grid-template-columns: repeat(2, minmax(0, 1fr));
 
+        .md-actions-grid {
 
 
-        }
 
+            grid-template-columns: repeat(2, minmax(0, 1fr));
 
 
-    }
 
+        }
 
 
-    @media (max-width: 900px) {
 
+    }
 
 
-        .md-hero-grid,
 
+    @media (max-width: 900px) {
 
 
-        .md-admin-grid {
 
+        .md-hero-grid,
 
 
-            grid-template-columns: 1fr;
 
+        .md-admin-grid {
 
 
-        }
 
+            grid-template-columns: 1fr;
 
 
-        .md-table-tools {
 
+        }
 
 
-            grid-template-columns: 1fr;
 
+        .md-table-tools {
 
 
-        }
 
+            grid-template-columns: 1fr;
 
 
-    }
 
+        }
 
 
-    @media (max-width: 680px) {
 
+    }
 
 
-        .md-hero,
 
+    @media (max-width: 680px) {
 
 
-        .md-panel {
 
+        .md-hero,
 
 
-            padding: 20px;
 
+        .md-panel {
 
 
-            border-radius: 20px;
 
+            padding: 20px;
 
 
-        }
 
+            border-radius: 20px;
 
 
-        .md-stats,
 
+        }
 
 
-        .md-actions-grid {
 
+        .md-stats,
 
 
-            grid-template-columns: 1fr;
 
+        .md-actions-grid {
 
 
-        }
 
+            grid-template-columns: 1fr;
 
 
-        .md-section-head,
 
+        }
 
 
-        .md-table-footer {
 
+        .md-section-head,
 
 
-            align-items: stretch;
 
+        .md-table-footer {
 
 
-            flex-direction: column;
 
+            align-items: stretch;
 
 
-        }
 
+            flex-direction: column;
 
 
-        .md-hero-actions {
 
+        }
 
 
-            flex-direction: column;
 
+        .md-hero-actions {
 
 
-        }
 
+            flex-direction: column;
 
 
-        .md-hero-actions .md-btn,
 
+        }
 
 
-        .md-section-head > .md-btn {
 
+        .md-hero-actions .md-btn,
 
 
-            width: 100%;
 
+        .md-section-head > .md-btn {
 
 
-        }
 
+            width: 100%;
 
 
-    }
+
+        }
+
+
+
+    }
 
 
 
@@ -3480,15 +3486,15 @@
 
 
 
-    $profilePhotoUsers = $users
+    $profilePhotoUsers = $users
 
 
 
-        ->filter(fn ($dashboardUser) => $dashboardUser->hasProfilePhoto())
+        ->filter(fn ($dashboardUser) => $dashboardUser->hasProfilePhoto())
 
 
 
-        ->count();
+        ->count();
 
 
 
@@ -3500,155 +3506,155 @@
 
 
 
-    {{-- ========================================================= --}}
+    {{-- ========================================================= --}}
 
 
 
-    {{-- HERO                                                       --}}
+    {{-- HERO                                                       --}}
 
 
 
-    {{-- ========================================================= --}}
+    {{-- ========================================================= --}}
 
 
 
-    \<section class="md-hero">
+    \<section class="md-hero">
 
 
 
-        \<div class="md-hero-grid">
+        \<div class="md-hero-grid">
 
 
 
-            \<div>
+            \<div>
 
 
 
-                \<span class="md-eyebrow">
+                \<span class="md-eyebrow">
 
 
 
-                    Mashal Control Center
+                    Mashal Control Center
 
 
 
-                \</span>
+                \</span>
 
 
 
-                \<h1>
+                \<h1>
 
 
 
-                    Automotive beheer,
+                    Automotive beheer,
 
 
 
-                    \<span>professioneel geregeld.\</span>
+                    \<span>professioneel geregeld.\</span>
 
 
 
-                \</h1>
+                \</h1>
 
 
 
-                \<p class="md-hero-copy">
+                \<p class="md-hero-copy">
 
 
 
-                    Beheer gebruikers, verificaties en administratorrechten vanuit één centraal dashboard.
+                    Beheer gebruikers, verificaties en administratorrechten vanuit één centraal dashboard.
 
 
 
-                    De bestaande Mashal-catalogus en website zijn direct bereikbaar vanuit deze omgeving.
+                    De bestaande Mashal-catalogus en website zijn direct bereikbaar vanuit deze omgeving.
 
 
 
-                \</p>
+                \</p>
 
 
 
-                \<div class="md-hero-actions">
+                \<div class="md-hero-actions">
 
 
 
-                    \<a
+                    \<a
 
 
 
-                        href="{{ route('users.create') }}"
+                        href="{{ route('users.create') }}"
 
 
 
-                        class="md-btn"
+                        class="md-btn"
 
 
 
-                    >
+                    >
 
 
 
-                        + Nieuwe gebruiker
+                        + Nieuwe gebruiker
 
 
 
-                    \</a>
+                    \</a>
 
 
 
-                    \<a
+                    \<a
 
 
 
-                        href="{{ route('users.index') }}"
+                        href="{{ route('users.index') }}"
 
 
 
-                        class="md-btn secondary"
+                        class="md-btn secondary"
 
 
 
-                    >
+                    >
 
 
 
-                        Gebruikersbeheer
+                        Gebruikersbeheer
 
 
 
-                    \</a>
+                    \</a>
 
 
 
-                    \<a
+                    \<a
 
 
 
-                        href="{{ route('home') }}"
+                        href="{{ route('home') }}"
 
 
 
-                        class="md-btn secondary"
+                        class="md-btn secondary"
 
 
 
-                    >
+                    >
 
 
 
-                        Website bekijken
+                        Website bekijken
 
 
 
-                    \</a>
+                    \</a>
 
 
 
-                \</div>
+                \</div>
 
 
 
-            \</div>
+            \</div>
 
 
 
@@ -3668,250 +3674,191 @@
 
 
 
-            \<aside class="md-hero-admin">
+            \<aside class="md-hero-admin">
 
 
 
-                \<div class="md-hero-admin-profile">
+                \<div class="md-hero-admin-profile">
 
 
 
-                    \<div class="md-hero-admin-avatar">
+                    \<div class="md-hero-admin-avatar">
 
 
 
-                        @if (auth()->user()->avatarUrl())
+                        @if (auth()->user()->avatarUrl())
 
 
 
-                            \<img
+                            \<img
 
 
 
-                                src="{{ auth()->user()->avatarUrl() }}"
+                                src="{{ auth()->user()->avatarUrl() }}"
 
 
 
-                                alt="Profielfoto van {{ auth()->user()->name }}"
+                                alt="Profielfoto van {{ auth()->user()->name }}"
 
 
 
-                            >
+                            >
 
 
 
-                        @else
+                        @else
 
 
 
-                            {{ auth()->user()->initials() }}
+                            {{ auth()->user()->initials() }}
 
 
 
-                        @endif
+                        @endif
 
 
 
-                    \</div>
+                    \</div>
 
 
 
-                    \<div class="md-hero-admin-identity">
+                    \<div class="md-hero-admin-identity">
 
 
 
-                        \<div class="md-hero-admin-label">
+                        \<div class="md-hero-admin-label">
 
 
 
-                            Huidige administrator
+                            Huidige administrator
 
 
 
-                        \</div>
+                        \</div>
 
 
 
-                        \<div class="md-hero-admin-name">
+                        \<div class="md-hero-admin-name">
 
 
 
-                            {{ auth()->user()->name }}
+                            {{ auth()->user()->name }}
 
 
 
-                        \</div>
+                        \</div>
 
 
 
-                        \<div class="md-hero-admin-email">
+                        \<div class="md-hero-admin-email">
 
 
 
-                            {{ auth()->user()->email }}
+                            {{ auth()->user()->email }}
 
 
 
-                        \</div>
+                        \</div>
 
 
 
-                        @if (auth()->user()->hasProfilePhoto())
+                        @if (auth()->user()->hasProfilePhoto())
 
-                            \<span class="md-hero-admin-photo-source">
+                            \<span class="md-hero-admin-photo-source">
 
-                                Eigen profielfoto
+                                Eigen profielfoto
 
-                            \</span>
+                            \</span>
 
-                        @elseif (auth()->user()->socialAvatar())
+                        @elseif (auth()->user()->socialAvatar())
 
-                            \<span class="md-hero-admin-photo-source">
+                            \<span class="md-hero-admin-photo-source">
 
-                                Social avatar
+                                Social avatar
 
-                            \</span>
+                            \</span>
 
-                        @else
+                        @else
 
-                            \<span class="md-hero-admin-photo-source">
+                            \<span class="md-hero-admin-photo-source">
 
-                                Initialen
+                                Initialen
 
-                            \</span>
+                            \</span>
 
-                        @endif
+                        @endif
 
 
 
-                    \</div>
+                    \</div>
 
 
 
-                \</div>
+                \</div>
 
 
 
-                \<span class="md-admin-badge">
+                \<span class="md-admin-badge">
 
 
 
-                    Administrator actief
+                    Administrator actief
 
 
 
-                \</span>
+                \</span>
 
 
 
-                \<div class="md-current-provider">
+                \<div class="md-current-provider">
 
 
 
-                    @php
+                    @php
 
 
 
-                        $currentProvider = auth()->user()->loginProvider();
+                        $currentProvider = auth()->user()->loginProvider();
 
 
 
-                    @endphp
+                    @endphp
 
 
 
-                    \<span class="md-provider {{ $currentProvider }}">
+                    \<span class="md-provider {{ $currentProvider }}">
 
 
 
-                        \<span class="md-provider-icon" aria-hidden="true">
+                        \<span class="md-provider-icon" aria-hidden="true">
 
 
 
-                            @switch($currentProvider)
+                            @switch($currentProvider)
 
 
 
-                                @case('google')
+                                @case('google')
 
 
 
-                                    \<svg viewBox="0 0 18 18" xmlns="http\://www\.w3.org/2000/svg">
+                                    \<svg viewBox="0 0 18 18" xmlns="http\://www\.w3.org/2000/svg">
 
 
 
-                                        \<path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+                                        \<path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
 
 
 
-                                        \<path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+                                        \<path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
 
 
 
-                                        \<path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+                                        \<path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
 
 
 
-                                        \<path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
-
-
-
-                                    \</svg>
-
-
-
-                                    @break
-
-
-
-                                @case('github')
-
-
-
-                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
-
-
-
-                                        \<path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
-
-
-
-                                    \</svg>
-
-
-
-                                    @break
-
-
-
-                                @case('facebook')
-
-
-
-                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
-
-
-
-                                        \<path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
-
-
-
-                                    \</svg>
-
-
-
-                                    @break
-
-
-                                @case('linkedin')
-
-
-
-                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
-
-
-
-                                        \<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.1 20.45H3.54V8.99H7.1v11.46Z"/>
+                                        \<path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
 
 
 
@@ -3923,1048 +3870,1069 @@
 
 
 
+                                @case('github')
 
-                                @case('email_code')
 
 
+                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
 
-                                    ✉
 
 
+                                        \<path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
 
-                                    @break
 
 
+                                    \</svg>
 
-                                @case('magic_link')
 
 
+                                    @break
 
-                                    ↗
 
 
+                                @case('facebook')
 
-                                    @break
 
 
+                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
 
-                                @default
 
 
+                                        \<path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
 
-                                    🔒
 
 
+                                    \</svg>
 
-                            @endswitch
 
 
+                                    @break
 
-                        \</span>
 
 
+                                @case('linkedin')
 
-                        {{ auth()->user()->loginProviderLabel() }}
+                                    \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
+                                        \<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.32 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.1 20.45H3.54V9H7.1v11.45Z"/>
+                                    \</svg>
+                                    @break
 
+                                @case('tiktok')
 
+                                    \<svg viewBox="0 0 24 24" xmlns="http\://www\.w3.org/2000/svg">
+                                        \<path fill="#25F4EE" d="M14.1 4.2v9.1a4.2 4.2 0 1 1-3.6-4.15v2.25a2.05 2.05 0 1 0 1.45 1.96V2h2.15c.2 1.85 1.25 3.35 3.15 4.15v2.2a7.25 7.25 0 0 1-3.15-1.45Z"/>
+                                        \<path fill="#FE2C55" d="M15.45 3.95c.45 1.25 1.25 2.2 2.55 2.85v2.15a7.4 7.4 0 0 1-3.9-1.55v5.95a4.2 4.2 0 0 1-6.15 3.7 4.2 4.2 0 0 0 5.05-4.1V3.95h2.45Z" opacity=".9"/>
+                                    \</svg>
+                                    @break
 
-                    \</span>
+                                @case('passkey')
 
+                                    \<svg viewBox="0 0 24 24" fill="none" xmlns="http\://www\.w3.org/2000/svg">
+                                        \<circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                                        \<path d="M13 14a5 5 0 0 0-10 0v2h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        \<path d="M14 15h7m-2-2 2 2-2 2m-5-2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    \</svg>
+                                    @break
 
+                                @case('email_code')
 
-                \</div>
 
 
+                                    ✉
 
-            \</aside>
 
 
+                                    @break
 
-        \</div>
 
 
+                                @case('magic_link')
 
-    \</section>
 
 
+                                    ↗
 
 
 
+                                    @break
 
 
 
+                                @default
 
 
 
+                                    🔒
 
 
 
+                            @endswitch
 
 
 
+                        \</span>
 
 
-    {{-- ========================================================= --}}
 
+                        {{ auth()->user()->loginProviderLabel() }}
 
 
-    {{-- STATISTICS                                                 --}}
 
+                    \</span>
 
 
-    {{-- ========================================================= --}}
 
+                \</div>
 
 
-    \<section class="md-stats">
 
+            \</aside>
 
 
-        \<article class="md-stat-card">
 
+        \</div>
 
 
-            \<div class="md-stat-top">
 
+    \</section>
 
 
-                \<span class="md-stat-label">
 
 
 
-                    Gebruikers
 
 
 
-                \</span>
 
 
 
-                \<span class="md-stat-icon">
 
 
 
-                    U
 
 
 
-                \</span>
 
 
+    {{-- ========================================================= --}}
 
-            \</div>
 
 
+    {{-- STATISTICS                                                 --}}
 
-            \<div class="md-stat-number">
 
 
+    {{-- ========================================================= --}}
 
-                {{ $totalUsers ?? $users->count() }}
 
 
+    \<section class="md-stats">
 
-            \</div>
 
 
+        \<article class="md-stat-card">
 
-            \<div class="md-stat-foot">
 
 
+            \<div class="md-stat-top">
 
-                Totaal geregistreerde accounts
 
 
+                \<span class="md-stat-label">
 
-            \</div>
 
 
+                    Gebruikers
 
-        \</article>
 
 
+                \</span>
 
 
 
+                \<span class="md-stat-icon">
 
 
 
+                    U
 
 
 
+                \</span>
 
 
 
+            \</div>
 
 
 
+            \<div class="md-stat-number">
 
 
-        \<article class="md-stat-card">
 
+                {{ $totalUsers ?? $users->count() }}
 
 
-            \<div class="md-stat-top">
 
+            \</div>
 
 
-                \<span class="md-stat-label">
 
+            \<div class="md-stat-foot">
 
 
-                    Geverifieerd
 
+                Totaal geregistreerde accounts
 
 
-                \</span>
 
+            \</div>
 
 
-                \<span class="md-stat-icon">
 
+        \</article>
 
 
-                    ✓
 
 
 
-                \</span>
 
 
 
-            \</div>
 
 
 
-            \<div class="md-stat-number">
 
 
 
-                {{ $verifiedUsers ?? $users->whereNotNull('email_verified_at')->count() }}
 
 
 
-            \</div>
 
 
+        \<article class="md-stat-card">
 
-            \<div class="md-stat-foot">
 
 
+            \<div class="md-stat-top">
 
-                Accounts met bevestigd e-mailadres
 
 
+                \<span class="md-stat-label">
 
-            \</div>
 
 
+                    Geverifieerd
 
-        \</article>
 
 
+                \</span>
 
 
 
+                \<span class="md-stat-icon">
 
 
 
+                    ✓
 
 
 
+                \</span>
 
 
 
+            \</div>
 
 
 
+            \<div class="md-stat-number">
 
 
-        \<article class="md-stat-card">
 
+                {{ $verifiedUsers ?? $users->whereNotNull('email_verified_at')->count() }}
 
 
-            \<div class="md-stat-top">
 
+            \</div>
 
 
-                \<span class="md-stat-label">
 
+            \<div class="md-stat-foot">
 
 
-                    Administrators
 
+                Accounts met bevestigd e-mailadres
 
 
-                \</span>
 
+            \</div>
 
 
-                \<span class="md-stat-icon">
 
+        \</article>
 
 
-                    A
 
 
 
-                \</span>
 
 
 
-            \</div>
 
 
 
-            \<div class="md-stat-number">
 
 
 
-                {{ $adminUsers ?? $users->where('is_admin', true)->count() }}
 
 
 
-            \</div>
 
 
+        \<article class="md-stat-card">
 
-            \<div class="md-stat-foot">
 
 
+            \<div class="md-stat-top">
 
-                Accounts met beheerrechten
 
 
+                \<span class="md-stat-label">
 
-            \</div>
 
 
+                    Administrators
 
-        \</article>
 
 
+                \</span>
 
 
 
+                \<span class="md-stat-icon">
 
 
 
+                    A
 
 
 
+                \</span>
 
 
 
+            \</div>
 
 
 
+            \<div class="md-stat-number">
 
 
-        \<article class="md-stat-card">
 
+                {{ $adminUsers ?? $users->where('is_admin', true)->count() }}
 
 
-            \<div class="md-stat-top">
 
+            \</div>
 
 
-                \<span class="md-stat-label">
 
+            \<div class="md-stat-foot">
 
 
-                    Bestellingen
 
+                Accounts met beheerrechten
 
 
-                \</span>
 
+            \</div>
 
 
-                \<span class="md-stat-icon">
 
+        \</article>
 
 
-                    O
 
 
 
-                \</span>
 
 
 
-            \</div>
 
 
 
-            \<div class="md-stat-number">
 
 
 
-                {{ $totalOrders ?? 0 }}
 
 
 
-            \</div>
 
 
+        \<article class="md-stat-card">
 
-            \<div class="md-stat-foot">
 
 
+            \<div class="md-stat-top">
 
-                Totaal geplaatste bestellingen
 
 
+                \<span class="md-stat-label">
 
-            \</div>
 
 
+                    Bestellingen
 
-        \</article>
 
 
+                \</span>
 
-        \<article class="md-stat-card">
 
 
+                \<span class="md-stat-icon">
 
-            \<div class="md-stat-top">
 
 
+                    O
 
-                \<span class="md-stat-label">
 
 
+                \</span>
 
-                    Profielfoto's
 
 
+            \</div>
 
-                \</span>
 
 
+            \<div class="md-stat-number">
 
-                \<span class="md-stat-icon">
 
 
+                {{ $totalOrders ?? 0 }}
 
-                    P
 
 
+            \</div>
 
-                \</span>
 
 
+            \<div class="md-stat-foot">
 
-            \</div>
 
 
+                Totaal geplaatste bestellingen
 
-            \<div class="md-stat-number">
 
 
+            \</div>
 
-                {{ $profilePhotoUsers }}
 
 
+        \</article>
 
-            \</div>
 
 
+        \<article class="md-stat-card">
 
-            \<div class="md-stat-foot">
 
 
+            \<div class="md-stat-top">
 
-                Accounts met een eigen geüploade profielfoto
 
 
+                \<span class="md-stat-label">
 
-            \</div>
 
 
+                    Profielfoto's
 
-        \</article>
 
 
+                \</span>
 
-    \</section>
 
 
+                \<span class="md-stat-icon">
 
 
 
+                    P
 
 
 
+                \</span>
 
 
 
+            \</div>
 
 
 
+            \<div class="md-stat-number">
 
 
 
+                {{ $profilePhotoUsers }}
 
 
-    {{-- ========================================================= --}}
 
+            \</div>
 
 
-    {{-- QUICK ACTIONS                                               --}}
 
+            \<div class="md-stat-foot">
 
 
-    {{-- ========================================================= --}}
 
+                Accounts met een eigen geüploade profielfoto
 
 
-    \<section class="md-panel">
 
+            \</div>
 
 
-        \<div class="md-section-head">
 
+        \</article>
 
 
-            \<div>
 
+    \</section>
 
 
-                \<span class="md-section-kicker">
 
 
 
-                    Quick actions
 
 
 
-                \</span>
 
 
 
-                \<h2>
 
 
 
-                    Snel beheren
 
 
 
-                \</h2>
 
 
+    {{-- ========================================================= --}}
 
-                \<p>
 
 
+    {{-- QUICK ACTIONS                                               --}}
 
-                    Open direct de onderdelen die je het vaakst nodig hebt binnen Mashal.
 
 
+    {{-- ========================================================= --}}
 
-                \</p>
 
 
+    \<section class="md-panel">
 
-            \</div>
 
 
+        \<div class="md-section-head">
 
-        \</div>
 
 
+            \<div>
 
 
 
+                \<span class="md-section-kicker">
 
 
 
+                    Quick actions
 
 
 
+                \</span>
 
 
 
+                \<h2>
 
 
 
+                    Snel beheren
 
 
-        \<div class="md-actions-grid">
 
+                \</h2>
 
 
-            \<article class="md-action-card">
 
+                \<p>
 
 
-                \<span class="md-action-icon">
 
+                    Open direct de onderdelen die je het vaakst nodig hebt binnen Mashal.
 
 
-                    U
 
+                \</p>
 
 
-                \</span>
 
+            \</div>
 
 
-                \<h3>
 
+        \</div>
 
 
-                    Gebruikers beheren
 
 
 
-                \</h3>
 
 
 
-                \<p>
 
 
 
-                    Bekijk bestaande accounts, wijzig accountgegevens
 
 
 
-                    en beheer verificatie- en administratorstatussen.
 
 
 
-                \</p>
 
 
+        \<div class="md-actions-grid">
 
-                \<a
 
 
+            \<article class="md-action-card">
 
-                    class="md-btn secondary"
 
 
+                \<span class="md-action-icon">
 
-                    href="{{ route('users.index') }}"
 
 
+                    U
 
-                >
 
 
+                \</span>
 
-                    Naar gebruikers
 
 
+                \<h3>
 
-                \</a>
 
 
+                    Gebruikers beheren
 
-            \</article>
 
 
+                \</h3>
 
 
 
+                \<p>
 
 
 
+                    Bekijk bestaande accounts, wijzig accountgegevens
 
 
 
+                    en beheer verificatie- en administratorstatussen.
 
 
 
+                \</p>
 
 
 
+                \<a
 
 
-            \<article class="md-action-card">
 
+                    class="md-btn secondary"
 
 
-                \<span class="md-action-icon">
 
+                    href="{{ route('users.index') }}"
 
 
-                    +
 
+                >
 
 
-                \</span>
 
+                    Naar gebruikers
 
 
-                \<h3>
 
+                \</a>
 
 
-                    Nieuwe gebruiker
 
+            \</article>
 
 
-                \</h3>
 
 
 
-                \<p>
 
 
 
-                    Maak handmatig een nieuw gebruikers-
 
 
 
-                    of administratoraccount aan.
 
 
 
-                \</p>
 
 
 
-                \<a
 
 
+            \<article class="md-action-card">
 
-                    class="md-btn"
 
 
+                \<span class="md-action-icon">
 
-                    href="{{ route('users.create') }}"
 
 
+                    +
 
-                >
 
 
+                \</span>
 
-                    Gebruiker toevoegen
 
 
+                \<h3>
 
-                \</a>
 
 
+                    Nieuwe gebruiker
 
-            \</article>
 
 
+                \</h3>
 
 
 
+                \<p>
 
 
 
+                    Maak handmatig een nieuw gebruikers-
 
 
 
+                    of administratoraccount aan.
 
 
 
+                \</p>
 
 
 
+                \<a
 
 
-            \<article class="md-action-card">
 
+                    class="md-btn"
 
 
-                \<span class="md-action-icon">
 
+                    href="{{ route('users.create') }}"
 
 
-                    C
 
+                >
 
 
-                \</span>
 
+                    Gebruiker toevoegen
 
 
-                \<h3>
 
+                \</a>
 
 
-                    Catalogus bekijken
 
+            \</article>
 
 
-                \</h3>
 
 
 
-                \<p>
 
 
 
-                    Open de actuele Mashal Automotive-collectie
 
 
 
-                    zoals deze op de website beschikbaar is.
 
 
 
-                \</p>
 
 
 
-                \<a
 
 
+            \<article class="md-action-card">
 
-                    class="md-btn secondary"
 
 
+                \<span class="md-action-icon">
 
-                    href="{{ route('catalog') }}"
 
 
+                    C
 
-                >
 
 
+                \</span>
 
-                    Naar catalogus
 
 
+                \<h3>
 
-                \</a>
 
 
+                    Catalogus bekijken
 
-            \</article>
 
 
+                \</h3>
 
 
 
+                \<p>
 
 
 
+                    Open de actuele Mashal Automotive-collectie
 
 
 
+                    zoals deze op de website beschikbaar is.
 
 
 
+                \</p>
 
 
 
+                \<a
 
 
-            \<article class="md-action-card">
 
+                    class="md-btn secondary"
 
 
-                \<span class="md-action-icon">
 
+                    href="{{ route('catalog') }}"
 
 
-                    ↗
 
+                >
 
 
-                \</span>
 
+                    Naar catalogus
 
 
-                \<h3>
 
+                \</a>
 
 
-                    Website openen
 
+            \</article>
 
 
-                \</h3>
 
 
 
-                \<p>
 
 
 
-                    Bekijk de publieke Mashal-website
 
 
 
-                    zoals bezoekers en klanten die ervaren.
 
 
 
-                \</p>
 
 
 
-                \<a
 
 
+            \<article class="md-action-card">
 
-                    class="md-btn secondary"
 
 
+                \<span class="md-action-icon">
 
-                    href="{{ route('home') }}"
 
 
+                    ↗
 
-                >
 
 
+                \</span>
 
-                    Naar website
 
 
+                \<h3>
 
-                \</a>
 
 
+                    Website openen
 
-            \</article>
 
 
+                \</h3>
 
-        \</div>
 
 
+                \<p>
 
-    \</section>
 
 
+                    Bekijk de publieke Mashal-website
 
 
 
+                    zoals bezoekers en klanten die ervaren.
 
 
 
+                \</p>
 
 
 
+                \<a
 
 
 
+                    class="md-btn secondary"
 
 
 
+                    href="{{ route('home') }}"
 
 
-    {{-- ========================================================= --}}
 
+                >
 
 
-    {{-- USERS OVERVIEW                                              --}}
 
+                    Naar website
 
 
-    {{-- ========================================================= --}}
 
+                \</a>
 
 
-    \<section class="md-panel">
 
+            \</article>
 
 
-        \<div class="md-section-head">
 
+        \</div>
 
 
-            \<div>
 
+    \</section>
 
 
-                \<span class="md-section-kicker">
 
 
 
-                    User management
 
 
 
-                \</span>
 
 
 
-                \<h2>
 
 
 
-                    Gebruikersoverzicht
 
 
 
-                \</h2>
 
 
+    {{-- ========================================================= --}}
 
-                \<p>
 
 
+    {{-- USERS OVERVIEW                                              --}}
 
-                    Controleer accounts, rollen, verificatiestatus
 
 
+    {{-- ========================================================= --}}
 
-                    en registratiedatum vanuit één overzicht.
 
 
+    \<section class="md-panel">
 
-                \</p>
 
 
+        \<div class="md-section-head">
 
-            \</div>
 
 
+            \<div>
 
 
 
+                \<span class="md-section-kicker">
 
 
 
+                    User management
 
 
 
+                \</span>
 
 
 
+                \<h2>
 
 
 
+                    Gebruikersoverzicht
 
 
-            \<a
 
+                \</h2>
 
 
-                class="md-btn"
 
+                \<p>
 
 
-                href="{{ route('users.create') }}"
 
+                    Controleer accounts, rollen, verificatiestatus
 
 
-            >
 
+                    en registratiedatum vanuit één overzicht.
 
 
-                + Gebruiker toevoegen
 
+                \</p>
 
 
-            \</a>
 
+            \</div>
 
 
-        \</div>
 
 
 
@@ -4982,45 +4950,42 @@
 
 
 
+            \<a
 
 
-        @if ($users->isNotEmpty())
 
+                class="md-btn"
 
 
-            \<div class="md-table-tools">
 
+                href="{{ route('users.create') }}"
 
 
-                \<div class="md-search">
 
+            >
 
 
-                    \<input
 
+                + Gebruiker toevoegen
 
 
-                        id="dashboardUserSearch"
 
+            \</a>
 
 
-                        type="search"
 
+        \</div>
 
 
-                        placeholder="Zoek op naam, e-mailadres, ID of loginmethode..."
 
 
 
-                        autocomplete="off"
 
 
 
-                    >
 
 
 
-                \</div>
 
 
 
@@ -5029,174 +4994,87 @@
 
 
 
+        @if ($users->isNotEmpty())
 
 
 
+            \<div class="md-table-tools">
 
 
 
+                \<div class="md-search">
 
 
 
+                    \<input
 
 
-                \<div class="md-filter-bar">
 
+                        id="dashboardUserSearch"
 
 
-                    \<button
 
+                        type="search"
 
 
-                        class="md-filter active"
 
+                        placeholder="Zoek op naam, e-mailadres, ID of loginmethode..."
 
 
-                        type="button"
 
+                        autocomplete="off"
 
 
-                        data-filter="all"
 
+                    >
 
 
-                    >
 
+                \</div>
 
 
-                        Alle
 
 
 
-                    \</button>
 
 
 
-                    \<button
 
 
 
-                        class="md-filter"
 
 
 
-                        type="button"
 
 
 
-                        data-filter="verified"
 
 
+                \<div class="md-filter-bar">
 
-                    >
 
 
+                    \<button
 
-                        Geverifieerd
 
 
+                        class="md-filter active"
 
-                    \</button>
 
 
+                        type="button"
 
-                    \<button
 
 
+                        data-filter="all"
 
-                        class="md-filter"
 
 
+                    >
 
-                        type="button"
 
 
-
-                        data-filter="pending"
-
-
-
-                    >
-
-
-
-                        Niet geverifieerd
-
-
-
-                    \</button>
-
-
-
-                    \<button
-
-
-
-                        class="md-filter"
-
-
-
-                        type="button"
-
-
-
-                        data-filter="admin"
-
-
-
-                    >
-
-
-
-                        Administrators
-
-
-
-                    \</button>
-
-
-
-                    \<button class="md-filter" type="button" data-filter="google">
-
-
-
-                        Google
-
-
-
-                    \</button>
-
-
-
-                    \<button class="md-filter" type="button" data-filter="github">
-
-
-
-                        GitHub
-
-
-
-                    \</button>
-
-
-
-                    \<button class="md-filter" type="button" data-filter="facebook">
-
-
-
-                        Facebook
-
-
-
-                    \</button>
-
-
-
-                    \<button class="md-filter" type="button" data-filter="linkedin">
-
-
-
-                        LinkedIn
+                        Alle
 
 
 
@@ -5204,638 +5082,773 @@
 
 
 
-                    \<button class="md-filter" type="button" data-filter="email_code">
+                    \<button
 
 
 
-                        E-mailcode
+                        class="md-filter"
 
 
 
-                    \</button>
+                        type="button"
 
 
 
-                    \<button class="md-filter" type="button" data-filter="magic_link">
+                        data-filter="verified"
 
 
 
-                        Magic link
+                    >
 
 
 
-                    \</button>
+                        Geverifieerd
 
 
 
-                    \<button class="md-filter" type="button" data-filter="password">
+                    \</button>
 
 
 
-                        Wachtwoord
+                    \<button
 
 
 
-                    \</button>
+                        class="md-filter"
 
 
 
-                    \<button class="md-filter" type="button" data-filter="photo">
+                        type="button"
 
 
 
-                        Met profielfoto
+                        data-filter="pending"
 
 
 
-                    \</button>
+                    >
 
 
 
-                    \<button class="md-filter" type="button" data-filter="social_avatar">
+                        Niet geverifieerd
 
 
 
-                        Social avatar
+                    \</button>
 
 
 
-                    \</button>
+                    \<button
 
 
 
-                \</div>
+                        class="md-filter"
 
 
 
-            \</div>
+                        type="button"
 
 
 
-        @endif
+                        data-filter="admin"
 
 
 
+                    >
 
 
 
+                        Administrators
 
 
 
+                    \</button>
 
 
 
+                    \<button class="md-filter" type="button" data-filter="google">
 
 
 
+                        Google
 
 
 
+                    \</button>
 
-        \<div class="md-table-wrap">
 
 
+                    \<button class="md-filter" type="button" data-filter="github">
 
-            \<table class="md-table">
 
 
+                        GitHub
 
-                \<thead>
 
 
+                    \</button>
 
-                    \<tr>
 
 
+                    \<button class="md-filter" type="button" data-filter="facebook">
 
-                        \<th>Gebruiker\</th>
 
 
+                        Facebook
 
-                        \<th>E-mailadres\</th>
 
 
+                    \</button>
 
-                        \<th>Login via\</th>
 
 
+                    \<button class="md-filter" type="button" data-filter="linkedin">
+                        LinkedIn
+                    \</button>
 
-                        \<th>Rol\</th>
+                    \<button class="md-filter" type="button" data-filter="tiktok">
+                        TikTok
+                    \</button>
 
+                    \<button class="md-filter" type="button" data-filter="passkey">
+                        Passkey
+                    \</button>
 
+                    \<button class="md-filter" type="button" data-filter="email_code">
 
-                        \<th>Verificatie\</th>
 
 
+                        E-mailcode
 
-                        \<th>Toegevoegd\</th>
 
 
+                    \</button>
 
-                        \<th>Acties\</th>
 
 
+                    \<button class="md-filter" type="button" data-filter="magic_link">
 
-                    \</tr>
 
 
+                        Magic link
 
-                \</thead>
 
 
+                    \</button>
 
 
 
+                    \<button class="md-filter" type="button" data-filter="password">
 
 
 
+                        Wachtwoord
 
 
 
+                    \</button>
 
 
 
+                    \<button class="md-filter" type="button" data-filter="photo">
 
 
 
+                        Met profielfoto
 
 
-                \<tbody id="dashboardUsersBody">
 
+                    \</button>
 
 
-                    @forelse ($users as $user)
 
+                    \<button class="md-filter" type="button" data-filter="social_avatar">
 
 
-                        \<tr
 
+                        Social avatar
 
 
-                            class="dashboard-user-row"
 
+                    \</button>
 
 
-                            data-name="{{ strtolower($user->name) }}"
 
+                \</div>
 
 
-                            data-email="{{ strtolower($user->email) }}"
 
+            \</div>
 
 
-                            data-id="{{ $user->id }}"
 
+        @endif
 
 
-                            data-admin="{{ $user->is_admin ? '1' : '0' }}"
 
 
 
-                            data-verified="{{ $user->email_verified_at ? '1' : '0' }}"
 
 
 
-                            data-provider="{{ $user->loginProvider() }}"
 
 
 
-                            data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}
 
-                            data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}*"*
 
 
 
-                        >
 
 
 
-                            {{-- USER --}}
 
+        \<div class="md-table-wrap">
 
 
-                            \<td>
 
+            \<table class="md-table">
 
 
-                                \<div class="md-user">
 
+                \<thead>
 
 
-                                    @if ($user->avatarUrl())
 
+                    \<tr>
 
 
-                                        \<span class="md-avatar has-image">
 
+                        \<th>Gebruiker\</th>
 
 
-                                            \<img
 
+                        \<th>E-mailadres\</th>
 
 
-                                                src="{{ $user->avatarUrl() }}"
 
+                        \<th>Login via\</th>
 
 
-                                                alt="Profielfoto van {{ $user->name }}"
 
+                        \<th>Rol\</th>
 
 
-                                                loading="lazy"
 
+                        \<th>Verificatie\</th>
 
 
-                                            >
 
+                        \<th>Toegevoegd\</th>
 
 
-                                        \</span>
 
+                        \<th>Acties\</th>
 
 
-                                    @else
 
+                    \</tr>
 
 
-                                        \<span class="md-avatar">
 
+                \</thead>
 
 
-                                            {{ $user->initials() }}
 
 
 
-                                        \</span>
 
 
 
-                                    @endif
 
 
 
-                                    \<div class="md-user-meta">
 
 
 
-                                        \<strong>
 
 
 
-                                            {{ $user->name }}
 
 
+                \<tbody id="dashboardUsersBody">
 
-                                        \</strong>
 
 
+                    @forelse ($users as $user)
 
-                                        \<small>
 
 
+                        \<tr
 
-                                            ID #{{ $user->id }}
 
 
+                            class="dashboard-user-row"
 
-                                        \</small>
 
 
+                            data-name="{{ strtolower($user->name) }}"
 
-                                        @if ($user->hasProfilePhoto())
 
 
+                            data-email="{{ strtolower($user->email) }}"
 
-                                            \<span class="md-photo-source custom">
 
 
+                            data-id="{{ $user->id }}"
 
-                                                Eigen profielfoto
 
 
+                            data-admin="{{ $user->is_admin ? '1' : '0' }}"
 
-                                            \</span>
 
 
+                            data-verified="{{ $user->email_verified_at ? '1' : '0' }}"
 
-                                        @elseif ($user->socialAvatar())
 
 
+                            data-provider="{{ $user->loginProvider() }}"
 
-                                            \<span class="md-photo-source social">
 
 
+                            data-photo="{{ $user->hasProfilePhoto() ? '1' : '0' }}
 
-                                                Social avatar
+                            data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}*"*
 
 
 
-                                            \</span>
+                        >
 
 
 
-                                        @else
+                            {{-- USER --}}
 
 
 
-                                            \<span class="md-photo-source">
+                            \<td>
 
 
 
-                                                Initialen
+                                \<div class="md-user">
 
 
 
-                                            \</span>
+                                    @if ($user->avatarUrl())
 
 
 
-                                        @endif
+                                        \<span class="md-avatar has-image">
 
 
 
+                                            \<img
 
 
 
+                                                src="{{ $user->avatarUrl() }}"
 
 
 
+                                                alt="Profielfoto van {{ $user->name }}"
 
 
 
+                                                loading="lazy"
 
 
 
+                                            >
 
 
 
+                                        \</span>
 
-                                        @if (auth()->id() === $user->id)
 
 
+                                    @else
 
-                                            \<small class="md-self">
 
 
+                                        \<span class="md-avatar">
 
-                                                Dit ben jij
 
 
+                                            {{ $user->initials() }}
 
-                                            \</small>
 
 
+                                        \</span>
 
-                                        @endif
 
 
+                                    @endif
 
-                                    \</div>
 
 
+                                    \<div class="md-user-meta">
 
-                                \</div>
 
 
+                                        \<strong>
 
-                            \</td>
 
 
+                                            {{ $user->name }}
 
 
 
+                                        \</strong>
 
 
 
+                                        \<small>
 
 
 
+                                            ID #{{ $user->id }}
 
 
 
+                                        \</small>
 
 
 
+                                        @if ($user->hasProfilePhoto())
 
 
-                            {{-- EMAIL --}}
 
+                                            \<span class="md-photo-source custom">
 
 
-                            \<td
 
+                                                Eigen profielfoto
 
 
-                                style="
 
+                                            \</span>
 
 
-                                    word-break: break-word;
 
+                                        @elseif ($user->socialAvatar())
 
 
-                                "
 
+                                            \<span class="md-photo-source social">
 
 
-                            >
 
+                                                Social avatar
 
 
-                                {{ $user->email }}
 
+                                            \</span>
 
 
-                            \</td>
 
+                                        @else
 
 
-                            {{-- LOGIN PROVIDER --}}
 
+                                            \<span class="md-photo-source">
 
 
-                            \<td>
 
+                                                Initialen
 
 
-                                @php
 
+                                            \</span>
 
 
-                                    $provider = $user->loginProvider();
 
+                                        @endif
 
 
-                                @endphp
 
 
 
-                                \<span
 
 
 
-                                    class="md-provider {{ $provider }}"
 
 
 
-                                    title="Laatste login via {{ $user->loginProviderLabel() }}"
 
 
 
-                                >
 
 
 
-                                    \<span class="md-provider-icon" aria-hidden="true">
 
 
+                                        @if (auth()->id() === $user->id)
 
-                                        @switch($provider)
 
 
+                                            \<small class="md-self">
 
-                                            @case('google')
 
 
+                                                Dit ben jij
 
-                                                \<svg viewBox="0 0 18 18" xmlns="http\://www\.w3.org/2000/svg">
 
 
+                                            \</small>
 
-                                                    \<path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
 
 
+                                        @endif
 
-                                                    \<path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
 
 
+                                    \</div>
 
-                                                    \<path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
 
 
+                                \</div>
 
-                                                    \<path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
 
 
+                            \</td>
 
-                                                \</svg>
 
 
 
-                                                @break
 
 
 
-                                            @case('github')
 
 
 
-                                                \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
 
 
 
-                                                    \<path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
 
 
 
-                                                \</svg>
 
 
 
-                                                @break
+                            {{-- EMAIL --}}
 
 
 
-                                            @case('facebook')
+                            \<td
 
 
 
-                                                \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
+                                style="
 
 
 
-                                                    \<path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+                                    word-break: break-word;
 
 
 
-                                                \</svg>
+                                "
 
 
 
-                                                @break
+                            >
 
 
-                                @case('linkedin')
 
+                                {{ $user->email }}
 
+
+
+                            \</td>
+
+
+
+                            {{-- LOGIN PROVIDER --}}
+
+
+
+                            \<td>
+
+
+
+                                @php
+
+
+
+                                    $provider = $user->loginProvider();
+
+
+
+                                @endphp
+
+
+
+                                \<span
+
+
+
+                                    class="md-provider {{ $provider }}"
+
+
+
+                                    title="Laatste login via {{ $user->loginProviderLabel() }}"
+
+
+
+                                >
+
+
+
+                                    \<span class="md-provider-icon" aria-hidden="true">
+
+
+
+                                        @switch($provider)
+
+
+
+                                            @case('google')
+
+
+
+                                                \<svg viewBox="0 0 18 18" xmlns="http\://www\.w3.org/2000/svg">
+
+
+
+                                                    \<path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.483h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.703-1.568 2.684-3.878 2.684-6.615z"/>
+
+
+
+                                                    \<path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.715H.955v2.332A9 9 0 0 0 9 18z"/>
+
+
+
+                                                    \<path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.955A9 9 0 0 0 0 9c0 1.453.347 2.828.955 4.038l3.008-2.332z"/>
+
+
+
+                                                    \<path fill="#EA4335" d="M9 3.579c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A9 9 0 0 0 .955 4.962l3.008 2.332C4.672 5.164 6.656 3.579 9 3.579z"/>
+
+
+
+                                                \</svg>
+
+
+
+                                                @break
+
+
+
+                                            @case('github')
+
+
+
+                                                \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
+
+
+
+                                                    \<path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.2c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.97 10.97 0 0 1 12 6.17c.98 0 1.96.13 2.87.39 2.19-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.21c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
+
+
+
+                                                \</svg>
+
+
+
+                                                @break
+
+
+
+                                            @case('facebook')
+
+
+
+                                                \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
+
+
+
+                                                    \<path d="M13.6 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.3H7v3.5h2.8v9h3.8Z"/>
+
+
+
+                                                \</svg>
+
+
+
+                                                @break
+
+
+
+                                            @case('linkedin')
 
                                     \<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http\://www\.w3.org/2000/svg">
-
-
-
-                                        \<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.1 20.45H3.54V8.99H7.1v11.46Z"/>
-
-
-
+                                        \<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.32 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.1 20.45H3.54V9H7.1v11.45Z"/>
                                     \</svg>
-
-
-
                                     @break
 
+                                @case('tiktok')
 
+                                    \<svg viewBox="0 0 24 24" xmlns="http\://www\.w3.org/2000/svg">
+                                        \<path fill="#25F4EE" d="M14.1 4.2v9.1a4.2 4.2 0 1 1-3.6-4.15v2.25a2.05 2.05 0 1 0 1.45 1.96V2h2.15c.2 1.85 1.25 3.35 3.15 4.15v2.2a7.25 7.25 0 0 1-3.15-1.45Z"/>
+                                        \<path fill="#FE2C55" d="M15.45 3.95c.45 1.25 1.25 2.2 2.55 2.85v2.15a7.4 7.4 0 0 1-3.9-1.55v5.95a4.2 4.2 0 0 1-6.15 3.7 4.2 4.2 0 0 0 5.05-4.1V3.95h2.45Z" opacity=".9"/>
+                                    \</svg>
+                                    @break
 
+                                @case('passkey')
 
-                                            @case('email_code')
+                                    \<svg viewBox="0 0 24 24" fill="none" xmlns="http\://www\.w3.org/2000/svg">
+                                        \<circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                                        \<path d="M13 14a5 5 0 0 0-10 0v2h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        \<path d="M14 15h7m-2-2 2 2-2 2m-5-2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    \</svg>
+                                    @break
 
+                                @case('email_code')
 
 
-                                                ✉
 
+                                                ✉
 
 
-                                                @break
 
+                                                @break
 
 
-                                            @case('magic_link')
 
+                                            @case('magic_link')
 
 
-                                                ↗
 
+                                                ↗
 
 
-                                                @break
 
+                                                @break
 
 
-                                            @default
 
+                                            @default
 
 
-                                                🔒
 
+                                                🔒
 
 
-                                        @endswitch
 
+                                        @endswitch
 
 
-                                    \</span>
 
+                                    \</span>
 
 
-                                    {{ $user->loginProviderLabel() }}
 
+                                    {{ $user->loginProviderLabel() }}
 
 
-                                \</span>
 
+                                \</span>
 
 
-                            \</td>
 
+                            \</td>
 
 
 
@@ -5854,52 +5867,52 @@
 
 
 
-                            {{-- ROLE --}}
 
+                            {{-- ROLE --}}
 
 
-                            \<td>
 
+                            \<td>
 
 
-                                @if ($user->is_admin)
 
+                                @if ($user->is_admin)
 
 
-                                    \<span class="md-badge admin">
 
+                                    \<span class="md-badge admin">
 
 
-                                        Administrator
 
+                                        Administrator
 
 
-                                    \</span>
 
+                                    \</span>
 
 
-                                @else
 
+                                @else
 
 
-                                    \<span class="md-badge">
 
+                                    \<span class="md-badge">
 
 
-                                        Gebruiker
 
+                                        Gebruiker
 
 
-                                    \</span>
 
+                                    \</span>
 
 
-                                @endif
 
+                                @endif
 
 
-                            \</td>
 
+                            \</td>
 
 
 
@@ -5918,52 +5931,52 @@
 
 
 
-                            {{-- VERIFICATION --}}
 
+                            {{-- VERIFICATION --}}
 
 
-                            \<td>
 
+                            \<td>
 
 
-                                @if ($user->email_verified_at)
 
+                                @if ($user->email_verified_at)
 
 
-                                    \<span class="md-badge verified">
 
+                                    \<span class="md-badge verified">
 
 
-                                        ✓ Geverifieerd
 
+                                        ✓ Geverifieerd
 
 
-                                    \</span>
 
+                                    \</span>
 
 
-                                @else
 
+                                @else
 
 
-                                    \<span class="md-badge pending">
 
+                                    \<span class="md-badge pending">
 
 
-                                        Niet geverifieerd
 
+                                        Niet geverifieerd
 
 
-                                    \</span>
 
+                                    \</span>
 
 
-                                @endif
 
+                                @endif
 
 
-                            \</td>
 
+                            \</td>
 
 
 
@@ -5982,92 +5995,92 @@
 
 
 
-                            {{-- CREATED --}}
 
+                            {{-- CREATED --}}
 
 
-                            \<td>
 
+                            \<td>
 
 
-                                \<strong
 
+                                \<strong
 
 
-                                    style="
 
+                                    style="
 
 
-                                        display: block;
 
+                                        display: block;
 
 
-                                        color: #e5e2dc;
 
+                                        color: #e5e2dc;
 
 
-                                        font-size: 10px;
 
+                                        font-size: 10px;
 
 
-                                    "
 
+                                    "
 
 
-                                >
 
+                                >
 
 
-                                    {{ $user->created_at->format('d-m-Y') }}
 
+                                    {{ $user->created_at->format('d-m-Y') }}
 
 
-                                \</strong>
 
+                                \</strong>
 
 
-                                \<small
 
+                                \<small
 
 
-                                    style="
 
+                                    style="
 
 
-                                        display: block;
 
+                                        display: block;
 
 
-                                        margin-top: 4px;
 
+                                        margin-top: 4px;
 
 
-                                        color: var(--m-muted-2);
 
+                                        color: var(--m-muted-2);
 
 
-                                        font-size: 8px;
 
+                                        font-size: 8px;
 
 
-                                    "
 
+                                    "
 
 
-                                >
 
+                                >
 
 
-                                    {{ $user->created_at->format('H:i') }}
 
+                                    {{ $user->created_at->format('H:i') }}
 
 
-                                \</small>
 
+                                \</small>
 
 
-                            \</td>
 
+                            \</td>
 
 
 
@@ -6086,40 +6099,40 @@
 
 
 
-                            {{-- ACTIONS --}}
 
+                            {{-- ACTIONS --}}
 
 
-                            \<td>
 
+                            \<td>
 
 
-                                \<div class="md-row-actions">
 
+                                \<div class="md-row-actions">
 
 
-                                    \<a
 
+                                    \<a
 
 
-                                        class="md-btn secondary"
 
+                                        class="md-btn secondary"
 
 
-                                        href="{{ route('users.edit', $user) }}"
 
+                                        href="{{ route('users.edit', $user) }}"
 
 
-                                    >
 
+                                    >
 
 
-                                        Wijzigen
 
+                                        Wijzigen
 
 
-                                    \</a>
 
+                                    \</a>
 
 
 
@@ -6138,208 +6151,208 @@
 
 
 
-                                    @if (auth()->id() !== $user->id)
 
+                                    @if (auth()->id() !== $user->id)
 
 
-                                        \<form
 
+                                        \<form
 
 
-                                            method="POST"
 
+                                            method="POST"
 
 
-                                            action="{{ route('users.destroy', $user) }}"
 
+                                            action="{{ route('users.destroy', $user) }}"
 
 
-                                            style="margin: 0;"
 
+                                            style="margin: 0;"
 
 
-                                            onsubmit="return confirm('Weet je zeker dat je {{ $user->name }} definitief wilt verwijderen?');"
 
+                                            onsubmit="return confirm('Weet je zeker dat je {{ $user->name }} definitief wilt verwijderen?');"
 
 
-                                        >
 
+                                        >
 
 
-                                            @csrf
 
+                                            @csrf
 
 
-                                            @method('DELETE')
 
+                                            @method('DELETE')
 
 
-                                            \<button
 
+                                            \<button
 
 
-                                                class="md-btn danger"
 
+                                                class="md-btn danger"
 
 
-                                                type="submit"
 
+                                                type="submit"
 
 
-                                            >
 
+                                            >
 
 
-                                                Verwijderen
 
+                                                Verwijderen
 
 
-                                            \</button>
 
+                                            \</button>
 
 
-                                        \</form>
 
+                                        \</form>
 
 
-                                    @else
 
+                                    @else
 
 
-                                        \<span class="md-self-lock">
 
+                                        \<span class="md-self-lock">
 
 
-                                            Eigen account
 
+                                            Eigen account
 
 
-                                        \</span>
 
+                                        \</span>
 
 
-                                    @endif
 
+                                    @endif
 
 
-                                \</div>
 
+                                \</div>
 
 
-                            \</td>
 
+                            \</td>
 
 
-                        \</tr>
 
+                        \</tr>
 
 
-                    @empty
 
+                    @empty
 
 
-                        \<tr>
 
+                        \<tr>
 
 
-                            \<td colspan="7">
 
+                            \<td colspan="7">
 
 
-                                \<div class="md-empty">
 
+                                \<div class="md-empty">
 
 
-                                    \<div class="md-empty-mark">
 
+                                    \<div class="md-empty-mark">
 
 
-                                        U
 
+                                        U
 
 
-                                    \</div>
 
+                                    \</div>
 
 
-                                    \<h3>
 
+                                    \<h3>
 
 
-                                        Nog geen gebruikers
 
+                                        Nog geen gebruikers
 
 
-                                    \</h3>
 
+                                    \</h3>
 
 
-                                    \<p>
 
+                                    \<p>
 
 
-                                        Er zijn momenteel nog geen gebruikers geregistreerd.
 
+                                        Er zijn momenteel nog geen gebruikers geregistreerd.
 
 
-                                        Maak het eerste account aan om te beginnen.
 
+                                        Maak het eerste account aan om te beginnen.
 
 
-                                    \</p>
 
+                                    \</p>
 
 
-                                    \<a
 
+                                    \<a
 
 
-                                        class="md-btn"
 
+                                        class="md-btn"
 
 
-                                        href="{{ route('users.create') }}"
 
+                                        href="{{ route('users.create') }}"
 
 
-                                    >
 
+                                    >
 
 
-                                        + Eerste gebruiker aanmaken
 
+                                        + Eerste gebruiker aanmaken
 
 
-                                    \</a>
 
+                                    \</a>
 
 
-                                \</div>
 
+                                \</div>
 
 
-                            \</td>
 
+                            \</td>
 
 
-                        \</tr>
 
+                        \</tr>
 
 
-                    @endforelse
 
+                    @endforelse
 
 
-                \</tbody>
 
+                \</tbody>
 
 
-            \</table>
 
+            \</table>
 
 
-        \</div>
 
+        \</div>
 
 
 
@@ -6358,32 +6371,32 @@
 
 
 
-        @if ($users->isNotEmpty())
 
+        @if ($users->isNotEmpty())
 
 
-            \<div
 
+            \<div
 
 
-                id="dashboardNoResults"
 
+                id="dashboardNoResults"
 
 
-                class="md-no-results"
 
+                class="md-no-results"
 
 
-            >
 
+            >
 
 
-                Geen gebruikers gevonden voor deze zoekopdracht of filter.
 
+                Geen gebruikers gevonden voor deze zoekopdracht of filter.
 
 
-            \</div>
 
+            \</div>
 
 
 
@@ -6402,32 +6415,32 @@
 
 
 
-            \<div class="md-table-footer">
 
+            \<div class="md-table-footer">
 
 
-                \<span
 
+                \<span
 
 
-                    id="dashboardVisibleCount"
 
+                    id="dashboardVisibleCount"
 
 
-                    class="md-visible-count"
 
+                    class="md-visible-count"
 
 
-                >
 
+                >
 
 
-                    {{ $users->count() }} gebruikers zichtbaar
 
+                    {{ $users->count() }} gebruikers zichtbaar
 
 
-                \</span>
 
+                \</span>
 
 
 
@@ -6446,40 +6459,40 @@
 
 
 
-                \<a
 
+                \<a
 
 
-                    class="md-btn secondary"
 
+                    class="md-btn secondary"
 
 
-                    href="{{ route('users.index') }}"
 
+                    href="{{ route('users.index') }}"
 
 
-                >
 
+                >
 
 
-                    Volledig gebruikersbeheer
 
+                    Volledig gebruikersbeheer
 
 
-                \</a>
 
+                \</a>
 
 
-            \</div>
 
+            \</div>
 
 
-        @endif
 
+        @endif
 
 
-    \</section>
 
+    \</section>
 
 
 
@@ -6498,76 +6511,76 @@
 
 
 
-    {{-- ========================================================= --}}
 
+    {{-- ========================================================= --}}
 
 
-    {{-- ADMINISTRATOR INFORMATION                                  --}}
 
+    {{-- ADMINISTRATOR INFORMATION                                  --}}
 
 
-    {{-- ========================================================= --}}
 
+    {{-- ========================================================= --}}
 
 
-    \<section class="md-panel">
 
+    \<section class="md-panel">
 
 
-        \<div class="md-section-head">
 
+        \<div class="md-section-head">
 
 
-            \<div>
 
+            \<div>
 
 
-                \<span class="md-section-kicker">
 
+                \<span class="md-section-kicker">
 
 
-                    Administrator profile
 
+                    Administrator profile
 
 
-                \</span>
 
+                \</span>
 
 
-                \<h2>
 
+                \<h2>
 
 
-                    Jouw beheerderssessie
 
+                    Jouw beheerderssessie
 
 
-                \</h2>
 
+                \</h2>
 
 
-                \<p>
 
+                \<p>
 
 
-                    Controleer met welk account je bent ingelogd
 
+                    Controleer met welk account je bent ingelogd
 
 
-                    voordat je gevoelige gebruikerswijzigingen uitvoert.
 
+                    voordat je gevoelige gebruikerswijzigingen uitvoert.
 
 
-                \</p>
 
+                \</p>
 
 
-            \</div>
 
+            \</div>
 
 
-        \</div>
 
+        \</div>
 
 
 
@@ -6586,52 +6599,52 @@
 
 
 
-        \<div class="md-admin-grid">
 
+        \<div class="md-admin-grid">
 
 
-            \<article class="md-info-card">
 
+            \<article class="md-info-card">
 
 
-                \<small>
 
+                \<small>
 
 
-                    Ingelogd als
 
+                    Ingelogd als
 
 
-                \</small>
 
+                \</small>
 
 
-                \<strong>
 
+                \<strong>
 
 
-                    {{ auth()->user()->name }}
 
+                    {{ auth()->user()->name }}
 
 
-                \</strong>
 
+                \</strong>
 
 
-                \<p>
 
+                \<p>
 
 
-                    Actieve beheerder van deze sessie.
 
+                    Actieve beheerder van deze sessie.
 
 
-                \</p>
 
+                \</p>
 
 
-            \</article>
 
+            \</article>
 
 
 
@@ -6650,48 +6663,48 @@
 
 
 
-            \<article class="md-info-card">
 
+            \<article class="md-info-card">
 
 
-                \<small>
 
+                \<small>
 
 
-                    E-mailadres
 
+                    E-mailadres
 
 
-                \</small>
 
+                \</small>
 
 
-                \<strong>
 
+                \<strong>
 
 
-                    {{ auth()->user()->email }}
 
+                    {{ auth()->user()->email }}
 
 
-                \</strong>
 
+                \</strong>
 
 
-                \<p>
 
+                \<p>
 
 
-                    Gekoppeld aan je administratoraccount.
 
+                    Gekoppeld aan je administratoraccount.
 
 
-                \</p>
 
+                \</p>
 
 
-            \</article>
 
+            \</article>
 
 
 
@@ -6710,99 +6723,100 @@
 
 
 
-            \<article class="md-info-card">
 
+            \<article class="md-info-card">
 
 
-                \<small>
 
+                \<small>
 
 
-                    Rechten
 
+                    Rechten
 
 
-                \</small>
 
+                \</small>
 
 
-                \<strong>
 
+                \<strong>
 
 
-                    Volledige administratorrechten
 
+                    Volledige administratorrechten
 
 
-                \</strong>
 
+                \</strong>
 
 
-                \<p>
 
+                \<p>
 
 
-                    Je kunt gebruikers bekijken, wijzigen, aanmaken en verwijderen.
 
+                    Je kunt gebruikers bekijken, wijzigen, aanmaken en verwijderen.
 
 
-                \</p>
 
+                \</p>
 
 
-            \</article>
 
+            \</article>
 
 
-            \<article class="md-info-card">
 
+            \<article class="md-info-card">
 
 
-                \<small>
 
+                \<small>
 
 
-                    Ingelogd via
 
+                    Ingelogd via
 
 
-                \</small>
 
+                \</small>
 
 
-                \<strong>
 
+                \<strong>
 
 
-                    {{ auth()->user()->loginProviderLabel() }}
 
+                    {{ auth()->user()->loginProviderLabel() }}
 
 
-                \</strong>
 
+                \</strong>
 
 
-                \<p>
 
+                \<p>
 
 
-                    Laatst gebruikte authenticatiemethode voor deze beheerder.
 
+                    Laatst gebruikte authenticatiemethode voor deze beheerder.
 
 
-                \</p>
 
+                \</p>
 
 
-            \</article>
 
+            \</article>
 
 
-        \</div>
 
+        \</div>
 
 
-    \</section>
+
+    \</section>
 
 
 
@@ -6830,309 +6844,309 @@
 
 
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
 
 
-        const searchInput = document.getElementById('dashboardUserSearch');
+        const searchInput = document.getElementById('dashboardUserSearch');
 
 
 
-        const rows = Array.from(document.querySelectorAll('.dashboard-user-row'));
+        const rows = Array.from(document.querySelectorAll('.dashboard-user-row'));
 
 
 
-        const filters = Array.from(document.querySelectorAll('.md-filter'));
+        const filters = Array.from(document.querySelectorAll('.md-filter'));
 
 
 
-        const noResults = document.getElementById('dashboardNoResults');
+        const noResults = document.getElementById('dashboardNoResults');
 
 
 
-        const visibleCount = document.getElementById('dashboardVisibleCount');
+        const visibleCount = document.getElementById('dashboardVisibleCount');
 
 
 
-        if (!rows.length) {
+        if (!rows.length) {
 
 
 
-            return;
+            return;
 
 
 
-        }
+        }
 
 
 
-        let activeFilter = 'all';
+        let activeFilter = 'all';
 
 
 
-        function applyDashboardUserFilters() {
+        function applyDashboardUserFilters() {
 
 
 
-            const query = (searchInput?.value || '').trim().toLowerCase();
+            const query = (searchInput?.value || '').trim().toLowerCase();
 
 
 
-            let visible = 0;
+            let visible = 0;
 
 
 
-            rows.forEach(function (row) {
+            rows.forEach(function (row) {
 
 
 
-                const name = row\.dataset.name || '';
+                const name = row\.dataset.name || '';
 
 
 
-                const email = row\.dataset.email || '';
+                const email = row\.dataset.email || '';
 
 
 
-                const id = row\.dataset.id || '';
+                const id = row\.dataset.id || '';
 
 
 
-                const isAdmin = row\.dataset.admin === '1';
+                const isAdmin = row\.dataset.admin === '1';
 
 
 
-                const isVerified = row\.dataset.verified === '1';
+                const isVerified = row\.dataset.verified === '1';
 
 
 
-                const provider = row\.dataset.provider || 'password';
+                const provider = row\.dataset.provider || 'password';
 
 
 
-                const hasPhoto = row\.dataset.photo === '1';
+                const hasPhoto = row\.dataset.photo === '1';
 
 
 
-                const matchesSearch =
+                const matchesSearch =
 
 
 
-                    !query ||
+                    !query ||
 
 
 
-                    name.includes(query) ||
+                    name.includes(query) ||
 
 
 
-                    email.includes(query) ||
+                    email.includes(query) ||
 
 
 
-                    id.includes(query) ||
+                    id.includes(query) ||
 
 
 
-                    provider.includes(query);
+                    provider.includes(query);
 
 
 
-                let matchesFilter = true;
+                let matchesFilter = true;
 
 
 
-                if (activeFilter === 'verified') {
+                if (activeFilter === 'verified') {
 
 
 
-                    matchesFilter = isVerified;
+                    matchesFilter = isVerified;
 
 
 
-                }
+                }
 
 
 
-                if (activeFilter === 'pending') {
+                if (activeFilter === 'pending') {
 
 
 
-                    matchesFilter = !isVerified;
+                    matchesFilter = !isVerified;
 
 
 
-                }
+                }
 
 
 
-                if (activeFilter === 'admin') {
+                if (activeFilter === 'admin') {
 
 
 
-                    matchesFilter = isAdmin;
+                    matchesFilter = isAdmin;
 
 
 
-                }
+                }
 
 
 
-                if (
+                if (
 
 
 
-                    ['google', 'github', 'facebook', 'linkedin', 'email_code', 'magic_link', 'password']
+                    ['google', 'github', 'facebook', 'linkedin', 'tiktok', 'passkey', 'email_code', 'magic_link', 'password']
 
 
 
-                        .includes(activeFilter)
+                        .includes(activeFilter)
 
 
 
-                ) {
+                ) {
 
 
 
-                    matchesFilter = provider === activeFilter;
+                    matchesFilter = provider === activeFilter;
 
 
 
-                }
+                }
 
 
 
-                if (activeFilter === 'photo') {
+                if (activeFilter === 'photo') {
 
 
 
-                    matchesFilter = hasPhoto;
+                    matchesFilter = hasPhoto;
 
 
 
-                }
+                }
 
 
 
-                if (activeFilter === 'social_avatar') {
+                if (activeFilter === 'social_avatar') {
 
 
 
-                    matchesFilter =
+                    matchesFilter =
 
-                        row\.dataset.socialAvatar === '1';
+                        row\.dataset.socialAvatar === '1';
 
 
 
-                }
+                }
 
 
 
-                const shouldShow = matchesSearch && matchesFilter;
+                const shouldShow = matchesSearch && matchesFilter;
 
 
 
-                row\.style.display = shouldShow ? '' : 'none';
+                row\.style.display = shouldShow ? '' : 'none';
 
 
 
-                if (shouldShow) {
+                if (shouldShow) {
 
 
 
-                    visible++;
+                    visible++;
 
 
 
-                }
+                }
 
 
 
-            });
+            });
 
 
 
-            if (visibleCount) {
+            if (visibleCount) {
 
 
 
-                visibleCount.textContent =
+                visibleCount.textContent =
 
 
 
-                    visible + (visible === 1 ? ' gebruiker zichtbaar' : ' gebruikers zichtbaar');
+                    visible + (visible === 1 ? ' gebruiker zichtbaar' : ' gebruikers zichtbaar');
 
 
 
-            }
+            }
 
 
 
-            if (noResults) {
+            if (noResults) {
 
 
 
-                noResults.style.display = visible === 0 ? 'block' : 'none';
+                noResults.style.display = visible === 0 ? 'block' : 'none';
 
 
 
-            }
+            }
 
 
 
-        }
+        }
 
 
 
-        if (searchInput) {
+        if (searchInput) {
 
 
 
-            searchInput.addEventListener('input', applyDashboardUserFilters);
+            searchInput.addEventListener('input', applyDashboardUserFilters);
 
 
 
-        }
+        }
 
 
 
-        filters.forEach(function (button) {
+        filters.forEach(function (button) {
 
 
 
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function () {
 
 
 
-                activeFilter = button.dataset.filter || 'all';
+                activeFilter = button.dataset.filter || 'all';
 
 
 
-                filters.forEach(function (item) {
+                filters.forEach(function (item) {
 
 
 
-                    item.classList.toggle('active', item === button);
+                    item.classList.toggle('active', item === button);
 
 
 
-                });
+                });
 
 
 
-                applyDashboardUserFilters();
+                applyDashboardUserFilters();
 
 
 
-            });
+            });
 
 
 
-        });
+        });
 
 
 
-    });
+    });
 
 
 
