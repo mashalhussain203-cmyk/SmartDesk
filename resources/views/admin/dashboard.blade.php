@@ -121,14 +121,14 @@
     .md-info-card strong { display: block; margin-top: 8px; color: #f0eee9; font-size: 13px; line-height: 1.5; word-break: break-word; }
     .md-info-card p { margin: 6px 0 0; color: var(--m-muted); font-size: 10px; line-height: 1.65; }
     .md-no-results { display: none; margin-top: 14px; padding: 20px; border: 1px dashed var(--m-line-strong); border-radius: 14px; color: var(--m-muted); background: rgba(215,164,95,.025); font-size: 10px; line-height: 1.7; text-align: center; }
-    
+
     @media (max-width: 1180px) { .md-stats, .md-actions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    
+
     @media (max-width: 900px) { .md-hero-grid, .md-admin-grid { grid-template-columns: 1fr; }
     .md-table-tools { grid-template-columns: 1fr; }
     }
-    
+
     @media (max-width: 680px) { .md-hero, .md-panel { padding: 20px; border-radius: 20px; }
     .md-stats, .md-actions-grid { grid-template-columns: 1fr; }
     .md-section-head, .md-table-footer { align-items: stretch; flex-direction: column; }
@@ -137,6 +137,139 @@
     }
     .md-stat-icon svg, .md-action-icon svg { width: 20px; height: 20px; display: block; }
     .md-empty-mark svg { width: 26px; height: 26px; display: block; }
+
+    /* Keep grid children within the available dashboard width. */
+    .mashal-dashboard { width: 100%; max-width: 100%; min-width: 0; }
+    .md-hero-grid > *, .md-stats > *, .md-actions-grid > *,
+    .md-admin-grid > *, .md-table-tools > * { min-width: 0; }
+    .md-table-wrap { max-width: 100%; }
+    .md-cell-label { display: none; }
+
+    /* Mobile: one column, including filters, actions and user details. */
+    @media (max-width: 900px) {
+        .mashal-dashboard .md-hero-grid,
+        .mashal-dashboard .md-stats,
+        .mashal-dashboard .md-actions-grid,
+        .mashal-dashboard .md-admin-grid,
+        .mashal-dashboard .md-table-tools {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 14px;
+        }
+        .md-hero, .md-panel {
+            padding: 18px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            min-width: 0;
+        }
+        .md-hero h1 {
+            font-size: clamp(30px, 8vw, 46px);
+            line-height: 1.08;
+            overflow-wrap: anywhere;
+        }
+        .md-hero-copy, .md-section-head p, .md-action-card p,
+        .md-info-card p { font-size: 13px; }
+        .md-hero-actions, .md-section-head, .md-table-footer,
+        .md-filter-bar, .md-row-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+            gap: 10px;
+        }
+        .md-hero-actions .md-btn, .md-section-head > .md-btn,
+        .md-table-footer .md-btn, .md-action-card .md-btn,
+        .md-row-actions > *, .md-row-actions form .md-btn {
+            width: 100%;
+            max-width: 100%;
+            align-self: stretch;
+        }
+        .mashal-dashboard .md-btn, .mashal-dashboard .md-filter {
+            min-height: 44px;
+            padding: 10px 14px;
+            font-size: 13px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .md-filter {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            width: 100%;
+            text-align: left;
+        }
+        .md-filter-icon { flex: 0 0 18px; width: 18px; height: 18px; margin: 0; }
+        .md-search input { min-height: 48px; font-size: 16px; }
+        .md-stat-card, .md-action-card { min-height: 0; padding: 18px; }
+        .md-stat-label, .md-stat-foot { font-size: 12px; }
+        .md-hero-admin { padding: 16px; min-width: 0; }
+        .md-hero-admin-profile { flex-direction: column; align-items: flex-start; }
+        .md-hero-admin-avatar { flex: 0 0 54px; }
+        .md-hero-admin-name { font-size: 20px; overflow-wrap: anywhere; }
+        .md-hero-admin-email { font-size: 13px; overflow-wrap: anywhere; }
+        .md-hero-admin-identity { width: 100%; }
+        .md-current-provider { max-width: 100%; }
+        .md-provider, .md-badge { max-width: 100%; white-space: normal; font-size: 12px; }
+        .md-info-card strong, .md-user strong { overflow-wrap: anywhere; }
+
+        /* Replace the wide table layout with a vertical card for each user. */
+        .md-table-wrap { overflow: visible; border: 0; background: transparent; }
+        .md-table, .md-table tbody {
+            display: block;
+            width: 100%;
+            min-width: 0;
+        }
+        .md-table thead {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+        .md-table tbody tr {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            margin-bottom: 14px;
+            padding: 6px 14px;
+            border: 1px solid var(--m-line);
+            border-radius: 16px;
+            background: var(--m-panel);
+        }
+        .md-table tbody tr:last-child { margin-bottom: 0; }
+        .md-table tbody tr td,
+        .md-table tbody tr:last-child td {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--m-line);
+            font-size: 13px;
+            text-align: left;
+            overflow-wrap: anywhere;
+        }
+        .md-table tbody tr td:last-child { border-bottom: 0; }
+        .md-cell-label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--m-muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .md-user { min-width: 0; align-items: flex-start; }
+        .md-user strong { font-size: 14px; }
+        .md-user small, .md-photo-source { font-size: 10px; }
+        .md-self-lock { justify-content: center; min-height: 44px; font-size: 12px; }
+        .md-empty { padding: 24px 0; }
+        .md-empty p, .md-no-results, .md-visible-count { font-size: 12px; }
+    }
+
 </style>
 @php
     $profilePhotoUsers = $users
@@ -426,21 +559,21 @@
             </div>
         @endif
         <div class="md-table-wrap">
-            <table class="md-table">
-                <thead>
-                    <tr>
-                        <th>Gebruiker</th>
-                        <th>E-mailadres</th>
-                        <th>Login via</th>
-                        <th>Rol</th>
-                        <th>Verificatie</th>
-                        <th>Toegevoegd</th>
-                        <th>Acties</th>
+            <table class="md-table" role="table">
+                <thead role="rowgroup">
+                    <tr role="row">
+                        <th scope="col" role="columnheader">Gebruiker</th>
+                        <th scope="col" role="columnheader">E-mailadres</th>
+                        <th scope="col" role="columnheader">Login via</th>
+                        <th scope="col" role="columnheader">Rol</th>
+                        <th scope="col" role="columnheader">Verificatie</th>
+                        <th scope="col" role="columnheader">Toegevoegd</th>
+                        <th scope="col" role="columnheader">Acties</th>
                     </tr>
                 </thead>
-                <tbody id="dashboardUsersBody">
+                <tbody id="dashboardUsersBody" role="rowgroup">
                     @forelse ($users as $user)
-                        <tr class="dashboard-user-row" data-name="{{ strtolower($user->name) }}"
+                        <tr role="row" class="dashboard-user-row" data-name="{{ strtolower($user->name) }}"
                             data-email="{{ strtolower($user->email) }}"
                             data-id="{{ $user->id }}"
                             data-admin="{{ $user->is_admin ? '1' : '0' }}"
@@ -450,7 +583,8 @@
                             data-social-avatar="{{ (! $user->hasProfilePhoto() && $user->socialAvatar()) ? '1' : '0' }}"
                         >
                             {{-- USER --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Gebruiker</span>
                                 <div class="md-user">
                                     @if ($user->avatarUrl())
                                         <span class="md-avatar has-image">
@@ -479,11 +613,13 @@
                                 </div>
                             </td>
                             {{-- EMAIL --}}
-                            <td style=" word-break: break-word; " >
+                            <td role="cell" style=" word-break: break-word; " >
+                                <span class="md-cell-label" aria-hidden="true">E-mailadres</span>
                                 {{ $user->email }}
                             </td>
                             {{-- LOGIN PROVIDER --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Login via</span>
                                 @php
                                     $provider = $user->loginProvider();
                                 @endphp
@@ -526,7 +662,8 @@
                                 </span>
                             </td>
                             {{-- ROLE --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Rol</span>
                                 @if ($user->is_admin)
                                     <span class="md-badge admin">Administrator</span>
                                 @else
@@ -534,7 +671,8 @@
                                 @endif
                             </td>
                             {{-- VERIFICATION --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Verificatie</span>
                                 @if ($user->email_verified_at)
                                     <span class="md-badge verified">✓ Geverifieerd</span>
                                 @else
@@ -542,12 +680,14 @@
                                 @endif
                             </td>
                             {{-- CREATED --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Toegevoegd</span>
                                 <strong style=" display: block; color: #e5e2dc; font-size: 10px; " >{{ optional($user->created_at)->format('d-m-Y') }}</strong>
                                 <small style=" display: block; margin-top: 4px; color: var(--m-muted-2); font-size: 8px; " >{{ optional($user->created_at)->format('H:i') }}</small>
                             </td>
                             {{-- ACTIONS --}}
-                            <td>
+                            <td role="cell">
+                                <span class="md-cell-label" aria-hidden="true">Acties</span>
                                 <div class="md-row-actions">
                                     <a class="md-btn secondary" href="{{ route('users.edit', $user) }}" >Wijzigen</a>
                                     @if (auth()->id() !== $user->id)
@@ -565,8 +705,8 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7">
+                        <tr role="row">
+                            <td role="cell" colspan="7">
                                 <div class="md-empty">
                                     <div class="md-empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-11"></use></svg></div>
                                     <h3>Nog geen gebruikers</h3>
