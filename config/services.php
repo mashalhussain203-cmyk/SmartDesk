@@ -7,14 +7,12 @@ return [
     | Third Party Services
     |--------------------------------------------------------------------------
     |
-    | Hier worden alle externe diensten geconfigureerd die binnen
-    | Mashal Automotive worden gebruikt.
+    | Centrale configuratie voor externe diensten binnen Mashal Automotive.
     |
-    | Gevoelige gegevens zoals API keys, OAuth-secrets en tokens
+    | Gevoelige gegevens zoals API keys, OAuth client secrets en tokens
     | worden uitsluitend via environment variables ingeladen.
     |
-    | Plaats echte secrets nooit rechtstreeks in dit bestand
-    | en commit ze nooit naar GitHub.
+    | Plaats nooit echte secrets rechtstreeks in dit bestand.
     |
     */
 
@@ -26,9 +24,7 @@ return [
     */
 
     'postmark' => [
-        'key' => env(
-            'POSTMARK_API_KEY'
-        ),
+        'key' => env('POSTMARK_API_KEY'),
     ],
 
 
@@ -39,9 +35,7 @@ return [
     */
 
     'resend' => [
-        'key' => env(
-            'RESEND_API_KEY'
-        ),
+        'key' => env('RESEND_API_KEY'),
     ],
 
 
@@ -53,13 +47,9 @@ return [
 
     'ses' => [
 
-        'key' => env(
-            'AWS_ACCESS_KEY_ID'
-        ),
+        'key' => env('AWS_ACCESS_KEY_ID'),
 
-        'secret' => env(
-            'AWS_SECRET_ACCESS_KEY'
-        ),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
 
         'region' => env(
             'AWS_DEFAULT_REGION',
@@ -94,21 +84,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Google OAuth
+    | Google
     |--------------------------------------------------------------------------
     |
-    | Google OAuth wordt gebruikt voor authenticatie via Google.
+    | Google wordt binnen Mashal Automotive voor twee verschillende
+    | functies gebruikt:
     |
-    | Onder andere voor:
+    | 1. Authenticatie
+    |    - Inloggen met Google
+    |    - Registreren met Google
+    |    - Google-profiel ophalen via Laravel Socialite
     |
-    | - Inloggen met Google
-    | - Registreren met Google
-    | - Bestaande Mashal-accounts koppelen aan Google
-    | - Nieuwe gebruikers automatisch registreren
-    | - Google-profielinformatie ophalen via Laravel Socialite
+    | 2. Gmail API
+    |    - Gmail-account koppelen
+    |    - Inbox bekijken
+    |    - E-mails openen
+    |    - E-mails versturen
     |
-    | De GOOGLE_REDIRECT_URI moet exact overeenkomen met de
-    | Authorized redirect URI in Google Cloud Console.
+    | Voor Google login en Gmail gebruiken we bewust aparte redirect URI's.
+    | Hierdoor kunnen beide OAuth-flows naast elkaar blijven werken.
     |
     */
 
@@ -138,12 +132,41 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Google Redirect URI
+        | Google Authentication Redirect URI
         |--------------------------------------------------------------------------
+        |
+        | Deze callback wordt gebruikt voor normaal:
+        |
+        | - Inloggen met Google
+        | - Registreren met Google
+        |
+        | Bijvoorbeeld:
+        |
+        | https://mashalhussain.up.railway.app/auth/google/callback
+        |
         */
 
         'redirect' => env(
             'GOOGLE_REDIRECT_URI'
+        ),
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Gmail OAuth Redirect URI
+        |--------------------------------------------------------------------------
+        |
+        | Deze callback wordt uitsluitend gebruikt voor het koppelen
+        | van Gmail aan een reeds ingelogde Mashal Automotive gebruiker.
+        |
+        | Productie:
+        |
+        | https://mashalhussain.up.railway.app/gmail/callback
+        |
+        */
+
+        'gmail_redirect' => env(
+            'GOOGLE_GMAIL_REDIRECT_URI'
         ),
 
     ],
@@ -153,54 +176,17 @@ return [
     |--------------------------------------------------------------------------
     | GitHub OAuth
     |--------------------------------------------------------------------------
-    |
-    | GitHub OAuth wordt gebruikt voor authenticatie via GitHub.
-    |
-    | Onder andere voor:
-    |
-    | - Inloggen met GitHub
-    | - Registreren met GitHub
-    | - Bestaande Mashal-accounts koppelen aan GitHub
-    | - Nieuwe gebruikers automatisch registreren
-    | - GitHub-profielinformatie ophalen via Laravel Socialite
-    |
-    | De GITHUB_REDIRECT_URI moet exact overeenkomen met de
-    | Authorization callback URL van de GitHub OAuth App.
-    |
-    | Eventuele GitHub OAuth-scopes worden in GitHubAuthController
-    | ingesteld en niet in dit configuratiebestand.
-    |
     */
 
     'github' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | GitHub Client ID
-        |--------------------------------------------------------------------------
-        */
 
         'client_id' => env(
             'GITHUB_CLIENT_ID'
         ),
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | GitHub Client Secret
-        |--------------------------------------------------------------------------
-        */
-
         'client_secret' => env(
             'GITHUB_CLIENT_SECRET'
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | GitHub Redirect URI
-        |--------------------------------------------------------------------------
-        */
 
         'redirect' => env(
             'GITHUB_REDIRECT_URI'
@@ -213,65 +199,17 @@ return [
     |--------------------------------------------------------------------------
     | Facebook OAuth
     |--------------------------------------------------------------------------
-    |
-    | Facebook OAuth wordt gebruikt voor authenticatie via Facebook.
-    |
-    | Onder andere voor:
-    |
-    | - Inloggen met Facebook
-    | - Registreren met Facebook
-    | - Bestaande Mashal-accounts koppelen aan Facebook
-    | - Nieuwe gebruikers automatisch registreren
-    | - Facebook-profielinformatie ophalen via Laravel Socialite
-    |
-    | De FACEBOOK_REDIRECT_URI moet exact overeenkomen met de
-    | Valid OAuth Redirect URI in Meta for Developers.
-    |
-    | Productie:
-    |
-    | https://mashalhussain.up.railway.app/auth/facebook/callback
-    |
-    | Eventuele Facebook OAuth-scopes worden in
-    | FacebookAuthController ingesteld.
-    |
     */
 
     'facebook' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Facebook App ID
-        |--------------------------------------------------------------------------
-        |
-        | Dit is de App ID van je Mashal Automotive-app in
-        | Meta for Developers.
-        |
-        */
 
         'client_id' => env(
             'FACEBOOK_CLIENT_ID'
         ),
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Facebook App Secret
-        |--------------------------------------------------------------------------
-        |
-        | Het App Secret hoort uitsluitend in .env of Railway Variables.
-        |
-        */
-
         'client_secret' => env(
             'FACEBOOK_CLIENT_SECRET'
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Facebook Redirect URI
-        |--------------------------------------------------------------------------
-        */
 
         'redirect' => env(
             'FACEBOOK_REDIRECT_URI'
@@ -284,94 +222,17 @@ return [
     |--------------------------------------------------------------------------
     | TikTok OAuth
     |--------------------------------------------------------------------------
-    |
-    | TikTok OAuth wordt gebruikt voor authenticatie via TikTok Login Kit.
-    |
-    | Onder andere voor:
-    |
-    | - Inloggen met TikTok
-    | - Registreren met TikTok
-    | - Nieuwe gebruikers automatisch registreren
-    | - TikTok-profielinformatie ophalen
-    | - TikTok Open ID opslaan
-    | - TikTok display name ophalen
-    | - TikTok profielfoto ophalen
-    |
-    | Voor TikTok wordt minimaal de scope user.info.basic gebruikt.
-    |
-    | Deze scope kan onder andere toegang geven tot:
-    |
-    | - Open ID
-    | - Display name
-    | - Avatar
-    |
-    | TikTok levert via de standaard Login Kit basic profile-flow
-    | niet altijd een e-mailadres mee. Daarom moet de applicatie
-    | daar in de callback-flow rekening mee houden.
-    |
-    | De TIKTOK_REDIRECT_URI moet exact overeenkomen met de
-    | Redirect URI die in TikTok for Developers onder Login Kit
-    | is geregistreerd.
-    |
-    | Productie:
-    |
-    | https://mashalhussain.up.railway.app/auth/tiktok/callback
-    |
-    | De daadwerkelijke OAuth-scopes en callbacklogica worden
-    | in de TikTok-authenticatiecontroller ingesteld.
-    |
     */
 
     'tiktok' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | TikTok Client Key
-        |--------------------------------------------------------------------------
-        |
-        | TikTok noemt dit in het Developer Portal de "Client key".
-        |
-        | In Mashal Automotive gebruiken we hiervoor de environment variable:
-        |
-        | TIKTOK_CLIENT_ID
-        |
-        */
 
         'client_id' => env(
             'TIKTOK_CLIENT_ID'
         ),
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | TikTok Client Secret
-        |--------------------------------------------------------------------------
-        |
-        | Het Client Secret hoort uitsluitend in .env of Railway Variables.
-        |
-        | Plaats het nooit rechtstreeks in dit bestand en commit het nooit
-        | naar GitHub.
-        |
-        */
-
         'client_secret' => env(
             'TIKTOK_CLIENT_SECRET'
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TikTok Redirect URI
-        |--------------------------------------------------------------------------
-        |
-        | Deze URI moet exact overeenkomen met de Redirect URI die je bij
-        | TikTok Login Kit hebt ingesteld.
-        |
-        | Productie:
-        |
-        | https://mashalhussain.up.railway.app/auth/tiktok/callback
-        |
-        */
 
         'redirect' => env(
             'TIKTOK_REDIRECT_URI'
@@ -385,78 +246,19 @@ return [
     | X OAuth
     |--------------------------------------------------------------------------
     |
-    | X OAuth wordt gebruikt voor authenticatie via X.
-    |
-    | Onder andere voor:
-    |
-    | - Inloggen met X
-    | - Bestaande Mashal-accounts koppelen aan X
-    | - X User ID ophalen
-    | - X-identiteit veilig koppelen aan een bestaande gebruiker
-    |
-    | Voor de huidige implementatie wordt OAuth 2.0 Authorization Code
-    | Flow met PKCE gebruikt.
-    |
-    | De gebruikte scopes worden ingesteld in XAuthController.
-    |
-    | Momenteel worden minimaal gebruikt:
-    |
-    | - tweet.read
-    | - users.read
-    |
-    | De X_REDIRECT_URI moet exact overeenkomen met de Callback URI /
-    | Redirect URI die in het X Developer Portal is ingesteld.
-    |
-    | Productie:
-    |
-    | https://mashalhussain.up.railway.app/auth/x/callback
-    |
-    | Het Client Secret hoort uitsluitend in .env of Railway Variables.
-    |
-    | Plaats het nooit rechtstreeks in dit bestand en commit het nooit
-    | naar GitHub.
+    | OAuth 2.0 Authorization Code Flow met PKCE.
     |
     */
 
     'x' => [
 
-        /*
-        |--------------------------------------------------------------------------
-        | X Client ID
-        |--------------------------------------------------------------------------
-        |
-        | Dit is de OAuth 2.0 Client ID van de X Developer App.
-        |
-        */
-
         'client_id' => env(
             'X_CLIENT_ID'
         ),
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | X Client Secret
-        |--------------------------------------------------------------------------
-        |
-        | Dit is het OAuth 2.0 Client Secret van de X Developer App.
-        |
-        */
-
         'client_secret' => env(
             'X_CLIENT_SECRET'
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | X Redirect URI
-        |--------------------------------------------------------------------------
-        |
-        | Deze URI moet exact overeenkomen met de Redirect URI die in
-        | het X Developer Portal is geregistreerd.
-        |
-        */
 
         'redirect' => env(
             'X_REDIRECT_URI'
@@ -470,9 +272,9 @@ return [
     | Brevo
     |--------------------------------------------------------------------------
     |
-    | Mashal Automotive gebruikt Brevo voor transactionele e-mail.
+    | Brevo wordt gebruikt voor transactionele e-mail.
     |
-    | Bijvoorbeeld voor:
+    | Bijvoorbeeld:
     |
     | - Welkomstmails
     | - Accountmeldingen
@@ -480,58 +282,18 @@ return [
     | - Bestelbevestigingen
     | - Beveiligingsmeldingen
     |
-    | E-mails worden via de Brevo HTTPS API verzonden.
-    |
     */
 
     'brevo' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Brevo API Key
-        |--------------------------------------------------------------------------
-        |
-        | Deze waarde mag uitsluitend via BREVO_API_KEY worden geladen.
-        |
-        */
 
         'api_key' => env(
             'BREVO_API_KEY'
         ),
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sender E-mail Address
-        |--------------------------------------------------------------------------
-        |
-        | Voorkeursvolgorde:
-        |
-        | 1. BREVO_FROM_EMAIL
-        | 2. MAIL_FROM_ADDRESS
-        |
-        */
-
         'from_email' => env(
             'BREVO_FROM_EMAIL',
-            env(
-                'MAIL_FROM_ADDRESS'
-            )
+            env('MAIL_FROM_ADDRESS')
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sender Name
-        |--------------------------------------------------------------------------
-        |
-        | Voorkeursvolgorde:
-        |
-        | 1. BREVO_FROM_NAME
-        | 2. MAIL_FROM_NAME
-        | 3. Mashal Automotive
-        |
-        */
 
         'from_name' => env(
             'BREVO_FROM_NAME',
@@ -540,13 +302,6 @@ return [
                 'Mashal Automotive'
             )
         ),
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Brevo API Base URL
-        |--------------------------------------------------------------------------
-        */
 
         'base_url' => env(
             'BREVO_BASE_URL',
@@ -560,10 +315,6 @@ return [
     |--------------------------------------------------------------------------
     | LinkedIn OpenID Connect
     |--------------------------------------------------------------------------
-    |
-    | LinkedIn OpenID Connect wordt gebruikt voor authenticatie
-    | en accountkoppeling via LinkedIn.
-    |
     */
 
     'linkedin-openid' => [
