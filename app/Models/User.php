@@ -2,896 +2,1810 @@
 
 namespace App\Models;
 
+use App\Models\Image;
+use App\Models\ImageVersion;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
 use Illuminate\Notifications\Notifiable;
+
 use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
+
 {
+
     use HasFactory, Notifiable;
 
     /**
+
      * Velden die via mass assignment mogen worden opgeslagen.
+
      *
+
      * @var array<int, string>
+
      */
+
     protected $fillable = [
+
         'name',
+
         'email',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Account recovery
+
         |--------------------------------------------------------------------------
+
         */
 
         'recovery_email',
+
         'recovery_email_verified_at',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Profielfoto
+
         |--------------------------------------------------------------------------
+
         */
 
         'profile_photo',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Laatste loginmethode
+
         |--------------------------------------------------------------------------
+
         |
+
         | Mogelijke waarden:
+
         |
+
         | - passkey
+
         | - password
+
         | - email_code
+
         | - magic_link
+
         | - google
+
         | - github
+
         | - facebook
+
         | - linkedin
+
         | - tiktok
+
         | - x
+
         |
+
         */
 
         'login_provider',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Google OAuth
+
         |--------------------------------------------------------------------------
+
         */
 
         'google_id',
+
         'google_avatar',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | GitHub OAuth
+
         |--------------------------------------------------------------------------
+
         */
 
         'github_id',
+
         'github_avatar',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Facebook OAuth
+
         |--------------------------------------------------------------------------
+
         */
 
         'facebook_id',
+
         'facebook_avatar',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | TikTok OAuth
+
         |--------------------------------------------------------------------------
+
         */
 
         'tiktok_id',
+
         'tiktok_avatar',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | LinkedIn OpenID Connect
+
         |--------------------------------------------------------------------------
+
         */
 
         'linkedin_id',
+
         'linkedin_avatar',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | X OAuth
+
         |--------------------------------------------------------------------------
+
         |
+
         | X gebruikt het numerieke gebruikers-ID als permanente
+
         | externe identiteit.
+
         |
+
         */
 
         'x_id',
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Account
+
         |--------------------------------------------------------------------------
+
         */
 
         'password',
+
         'is_admin',
+
         'email_verified_at',
+
     ];
 
     /**
+
      * Velden die verborgen blijven bij arrays en JSON.
+
      *
+
      * @var array<int, string>
+
      */
+
     protected $hidden = [
+
         'password',
+
         'remember_token',
+
         'two_factor_secret',
+
         'two_factor_recovery_codes',
+
+        /*
+
+        |--------------------------------------------------------------------------
+
+        | Gmail API tokens
+
+        |--------------------------------------------------------------------------
+
+        |
+
+        | Deze gevoelige waarden mogen nooit per ongeluk terechtkomen in
+
+        | arrays, JSON-responses, API-responses of frontend-data.
+
+        |
+
+        */
+
+        'google_access_token',
+
+        'google_refresh_token',
+
     ];
 
     /**
+
      * Type casting voor databasevelden.
+
      *
+
      * @return array<string, string>
+
      */
+
     protected function casts(): array
+
     {
+
         return [
+
             'email_verified_at' => 'datetime',
+
             'recovery_email_verified_at' => 'datetime',
+
             'password' => 'hashed',
+
             'is_admin' => 'boolean',
+
             'two_factor_secret' => 'encrypted',
+
             'two_factor_recovery_codes' => 'encrypted:array',
+
             'two_factor_confirmed_at' => 'datetime',
+
+            /*
+
+            |--------------------------------------------------------------------------
+
+            | Gmail
+
+            |--------------------------------------------------------------------------
+
+            */
+
+            'google_token_expires_at' => 'datetime',
+
+            'gmail_connected_at' => 'datetime',
+
         ];
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Twee-factor-authenticatie
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Controleer of Authenticator/TOTP volledig is ingesteld.
+
      */
+
     public function hasTwoFactorAuthentication(): bool
+
     {
+
         return ! empty($this->two_factor_secret)
+
             && $this->two_factor_confirmed_at !== null;
+
     }
 
     /**
+
      * Controleer of er herstelcodes beschikbaar zijn.
+
      */
+
     public function hasTwoFactorRecoveryCodes(): bool
+
     {
+
         return is_array($this->two_factor_recovery_codes)
+
             && count($this->two_factor_recovery_codes) > 0;
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Mashal Studio afbeeldingen
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Alle originele afbeeldingsprojecten van deze gebruiker.
+
      */
+
     public function images(): HasMany
+
     {
+
         return $this->hasMany(
+
             Image::class
+
         );
+
     }
 
     /**
+
      * Alle gegenereerde afbeeldingsversies van deze gebruiker.
+
      */
+
     public function imageVersions(): HasMany
+
     {
+
         return $this->hasMany(
+
             ImageVersion::class
+
         );
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Account helpers
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Controleer of deze gebruiker administrator is.
+
      */
+
     public function isAdmin(): bool
+
     {
+
         return (bool) $this->is_admin;
+
     }
 
     /**
+
      * Controleer of het e-mailadres is geverifieerd.
+
      */
+
     public function isEmailVerified(): bool
+
     {
+
         return $this->email_verified_at !== null;
+
     }
 
     /**
+
      * Controleer of een geverifieerd herstel-e-mailadres actief is.
+
      */
+
     public function hasVerifiedRecoveryEmail(): bool
+
     {
+
         return trim(
+
             (string) ($this->recovery_email ?? '')
+
         ) !== ''
+
             && $this->recovery_email_verified_at !== null;
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Profielfoto helpers
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Controleer of de gebruiker zelf een profielfoto heeft geüpload.
+
      */
+
     public function hasProfilePhoto(): bool
+
     {
+
         $photo = trim(
+
             (string) $this->profile_photo
+
         );
 
         if ($photo === '') {
+
             return false;
+
         }
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Externe profielfoto
+
         |--------------------------------------------------------------------------
+
         */
 
         if (
+
             Str::startsWith(
+
                 $photo,
+
                 [
+
                     'http://',
+
                     'https://',
+
                 ]
+
             )
+
         ) {
+
             return true;
+
         }
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Lokale profielfoto
+
         |--------------------------------------------------------------------------
+
         |
+
         | Alleen true teruggeven als het bestand daadwerkelijk nog bestaat.
+
         | Hierdoor wordt een oud databasepad nooit meer als geldige foto
+
         | weergegeven wanneer Railway het bestand niet meer heeft.
+
         |
+
         */
 
         $photo = ltrim(
+
             $photo,
+
             '/'
+
         );
 
         return Storage::disk('public')->exists(
+
             $photo
+
         );
+
     }
 
     /**
+
      * Geef de URL van de zelf geüploade profielfoto terug.
+
      */
+
     public function profilePhotoUrl(): ?string
+
     {
+
         $photo = trim(
+
             (string) $this->profile_photo
+
         );
 
         if ($photo === '') {
+
             return null;
+
         }
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Externe URL
+
         |--------------------------------------------------------------------------
+
         |
+
         | Als profile_photo ooit een volledige externe URL bevat,
+
         | geven we die direct terug.
+
         |
+
         */
 
         if (
+
             Str::startsWith(
+
                 $photo,
+
                 [
+
                     'http://',
+
                     'https://',
+
                 ]
+
             )
+
         ) {
+
             return $photo;
+
         }
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Lokale publieke storage
+
         |--------------------------------------------------------------------------
+
         |
+
         | Database:
+
         |
+
         | profile-photos/abc123.jpg
+
         |
+
         | Browser:
+
         |
+
         | /storage/profile-photos/abc123.jpg
+
         |
+
         */
 
         $photo = ltrim(
+
             $photo,
+
             '/'
+
         );
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Bestand moet echt bestaan
+
         |--------------------------------------------------------------------------
+
         |
+
         | Op Railway kan een lokaal bestand verdwijnen wanneer geen persistent
+
         | Volume is gekoppeld. In dat geval geven we null terug zodat de site
+
         | automatisch terugvalt op een social avatar of initialen in plaats
+
         | van een kapotte afbeelding te tonen.
+
         |
+
         */
 
         if (
+
             ! Storage::disk('public')->exists(
+
                 $photo
+
             )
+
         ) {
+
             return null;
+
         }
 
         return asset(
+
             'storage/' . $photo
+
         );
+
     }
 
     /**
+
      * Geef de beste beschikbare profielfoto terug.
+
      *
+
      * Voorkeursvolgorde:
+
      *
+
      * 1. Zelf geüploade profielfoto
+
      * 2. Google-avatar
+
      * 3. GitHub-avatar
+
      * 4. Facebook-avatar
+
      * 5. LinkedIn-avatar
+
      * 6. TikTok-avatar
+
      * 7. Geen afbeelding
+
      *
+
      * X heeft in de huidige implementatie geen avatar-kolom.
+
      */
+
     public function avatarUrl(): ?string
+
     {
+
         $profilePhoto = $this->profilePhotoUrl();
 
         if ($profilePhoto !== null) {
+
             return $profilePhoto;
+
         }
 
         return $this->socialAvatar();
+
     }
 
     /**
+
      * Alias voor gebruik in Blade.
+
      */
+
     public function displayAvatar(): ?string
+
     {
+
         return $this->avatarUrl();
+
     }
 
     /**
+
      * Initialen gebruiken als er geen afbeelding beschikbaar is.
+
      *
+
      * Voorbeelden:
+
      *
+
      * Mashal Hussain -> MH
+
      * Mashal -> M
+
      */
+
     public function initials(): string
+
     {
+
         $name = trim(
+
             (string) $this->name
+
         );
 
         if ($name === '') {
+
             return 'U';
+
         }
 
         $parts = preg_split(
+
             '/\s+/',
+
             $name
+
         );
 
         if (
+
             ! is_array($parts)
+
             || count($parts) === 0
+
         ) {
+
             return strtoupper(
+
                 mb_substr(
+
                     $name,
+
                     0,
+
                     1
+
                 )
+
             );
+
         }
 
         $first = trim(
+
             (string) ($parts[0] ?? '')
+
         );
 
         $last = '';
 
         if (count($parts) > 1) {
+
             $last = trim(
+
                 (string) $parts[
+
                     count($parts) - 1
+
                 ]
+
             );
+
         }
 
         $initials = '';
 
         if ($first !== '') {
+
             $initials .= mb_substr(
+
                 $first,
+
                 0,
+
                 1
+
             );
+
         }
 
         if ($last !== '') {
+
             $initials .= mb_substr(
+
                 $last,
+
                 0,
+
                 1
+
             );
+
         }
 
         $initials = strtoupper(
+
             $initials
+
         );
 
         if ($initials === '') {
+
             return 'U';
+
         }
 
         return $initials;
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
-    | OAuth helpers
+
+    | Gmail helpers
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
+     * Controleer of dit Mashal-account Gmail mag gebruiken.
+
+     *
+
+     * Mashal Mail is bewust alleen beschikbaar voor accounts waarvan
+
+     * het primaire website-e-mailadres eindigt op @gmail.com.
+
+     */
+
+    public function isGmailEligible(): bool
+
+    {
+
+        $email = strtolower(
+
+            trim(
+
+                (string) $this->email
+
+            )
+
+        );
+
+        return $email !== ''
+
+            && Str::endsWith(
+
+                $email,
+
+                '@gmail.com'
+
+            );
+
+    }
+
+    /**
+
+     * Geef het Gmail-adres terug dat via Mashal Mail gekoppeld is.
+
+     */
+
+    public function gmailEmail(): ?string
+
+    {
+
+        $email = strtolower(
+
+            trim(
+
+                (string) $this->google_gmail_email
+
+            )
+
+        );
+
+        return $email !== ''
+
+            ? $email
+
+            : null;
+
+    }
+
+    /**
+
+     * Controleer of Gmail daadwerkelijk aan dit gebruikersaccount gekoppeld is.
+
+     *
+
+     * We controleren bewust meer dan alleen of er ergens een token staat:
+
+     *
+
+     * - het website-account is een @gmail.com account;
+
+     * - er is een gekoppeld Gmail-adres;
+
+     * - het gekoppelde adres is exact hetzelfde als het website-adres;
+
+     * - er is een versleuteld access token opgeslagen.
+
+     */
+
+    public function hasGmailConnection(): bool
+
+    {
+
+        if (! $this->isGmailEligible()) {
+
+            return false;
+
+        }
+
+        $gmailEmail = $this->gmailEmail();
+
+        $websiteEmail = strtolower(
+
+            trim(
+
+                (string) $this->email
+
+            )
+
+        );
+
+        if (
+
+            $gmailEmail === null
+
+            || $gmailEmail !== $websiteEmail
+
+        ) {
+
+            return false;
+
+        }
+
+        return trim(
+
+            (string) $this->google_access_token
+
+        ) !== '';
+
+    }
+
+    /**
+
+     * Controleer of er een Gmail refresh token aanwezig is.
+
+     *
+
+     * De tokenwaarde zelf wordt bewust niet door deze helper teruggegeven.
+
+     */
+
+    public function hasGmailRefreshToken(): bool
+
+    {
+
+        return trim(
+
+            (string) $this->google_refresh_token
+
+        ) !== '';
+
+    }
+
+    /**
+
+     * Controleer volgens de opgeslagen vervaldatum of het huidige
+
+     * Google access token verlopen is.
+
+     *
+
+     * GmailController controleert daarnaast GoogleClient zelf voordat
+
+     * er een Gmail API-request wordt uitgevoerd.
+
+     */
+
+    public function isGmailTokenExpired(): bool
+
+    {
+
+        if ($this->google_token_expires_at === null) {
+
+            return true;
+
+        }
+
+        return $this->google_token_expires_at->isPast();
+
+    }
+
+    /**
+
+     * Veilige Gmail-status voor gebruik in controllers en Blade.
+
+     *
+
+     * Mogelijke waarden:
+
+     *
+
+     * - not_eligible
+
+     * - not_connected
+
+     * - reconnect_required
+
+     * - connected
+
+     */
+
+    public function gmailConnectionStatus(): string
+
+    {
+
+        if (! $this->isGmailEligible()) {
+
+            return 'not_eligible';
+
+        }
+
+        if (! $this->hasGmailConnection()) {
+
+            return 'not_connected';
+
+        }
+
+        if (
+
+            $this->isGmailTokenExpired()
+
+            && ! $this->hasGmailRefreshToken()
+
+        ) {
+
+            return 'reconnect_required';
+
+        }
+
+        return 'connected';
+
+    }
+
+    /*
+
+    |--------------------------------------------------------------------------
+
+    | OAuth helpers
+
+    |--------------------------------------------------------------------------
+
+    */
+
+    /**
+
      * Controleer of een Google-account gekoppeld is.
+
      */
+
     public function hasGoogleAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->google_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of een GitHub-account gekoppeld is.
+
      */
+
     public function hasGitHubAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->github_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of een Facebook-account gekoppeld is.
+
      */
+
     public function hasFacebookAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->facebook_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of een TikTok-account gekoppeld is.
+
      */
+
     public function hasTikTokAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->tiktok_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of een LinkedIn-account gekoppeld is.
+
      */
+
     public function hasLinkedInAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->linkedin_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of een X-account gekoppeld is.
+
      */
+
     public function hasXAccount(): bool
+
     {
+
         return trim(
+
             (string) $this->x_id
+
         ) !== '';
+
     }
 
     /**
+
      * Controleer of minimaal één OAuth-account gekoppeld is.
+
      */
+
     public function hasSocialAccount(): bool
+
     {
+
         return $this->hasGoogleAccount()
+
             || $this->hasGitHubAccount()
+
             || $this->hasFacebookAccount()
+
             || $this->hasLinkedInAccount()
+
             || $this->hasTikTokAccount()
+
             || $this->hasXAccount();
+
     }
 
     /**
+
      * Geef de beste beschikbare OAuth-avatar terug.
+
      *
+
      * Voorkeursvolgorde:
+
      *
+
      * 1. Google
+
      * 2. GitHub
+
      * 3. Facebook
+
      * 4. LinkedIn
+
      * 5. TikTok
+
      *
+
      * X wordt hier niet gebruikt omdat we momenteel
+
      * alleen x_id opslaan en geen x_avatar.
+
      */
+
     public function socialAvatar(): ?string
+
     {
+
         $googleAvatar = trim(
+
             (string) $this->google_avatar
+
         );
 
         if ($googleAvatar !== '') {
+
             return $googleAvatar;
+
         }
 
         $githubAvatar = trim(
+
             (string) $this->github_avatar
+
         );
 
         if ($githubAvatar !== '') {
+
             return $githubAvatar;
+
         }
 
         $facebookAvatar = trim(
+
             (string) $this->facebook_avatar
+
         );
 
         if ($facebookAvatar !== '') {
+
             return $facebookAvatar;
+
         }
 
         $linkedinAvatar = trim(
+
             (string) $this->linkedin_avatar
+
         );
 
         if ($linkedinAvatar !== '') {
+
             return $linkedinAvatar;
+
         }
 
         $tiktokAvatar = trim(
+
             (string) $this->tiktok_avatar
+
         );
 
         if ($tiktokAvatar !== '') {
+
             return $tiktokAvatar;
+
         }
 
         return null;
+
     }
 
     /**
+
      * Geef de eerste gekoppelde OAuth-provider terug.
+
      */
+
     public function socialProvider(): ?string
+
     {
+
         if ($this->hasGoogleAccount()) {
+
             return 'google';
+
         }
 
         if ($this->hasGitHubAccount()) {
+
             return 'github';
+
         }
 
         if ($this->hasFacebookAccount()) {
+
             return 'facebook';
+
         }
 
         if ($this->hasLinkedInAccount()) {
+
             return 'linkedin';
+
         }
 
         if ($this->hasTikTokAccount()) {
+
             return 'tiktok';
+
         }
 
         if ($this->hasXAccount()) {
+
             return 'x';
+
         }
 
         return null;
+
     }
 
     /**
+
      * Geef alle gekoppelde OAuth-providers terug.
+
      *
+
      * @return array<int, string>
+
      */
+
     public function socialProviders(): array
+
     {
+
         $providers = [];
 
         if ($this->hasGoogleAccount()) {
+
             $providers[] = 'google';
+
         }
 
         if ($this->hasGitHubAccount()) {
+
             $providers[] = 'github';
+
         }
 
         if ($this->hasFacebookAccount()) {
+
             $providers[] = 'facebook';
+
         }
 
         if ($this->hasLinkedInAccount()) {
+
             $providers[] = 'linkedin';
+
         }
 
         if ($this->hasTikTokAccount()) {
+
             $providers[] = 'tiktok';
+
         }
 
         if ($this->hasXAccount()) {
+
             $providers[] = 'x';
+
         }
 
         return $providers;
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Login provider helpers
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Laatste gebruikte loginmethode.
+
      */
+
     public function loginProvider(): string
+
     {
+
         $provider = strtolower(
+
             trim(
+
                 (string) $this->login_provider
+
             )
+
         );
 
         $allowedProviders = [
+
             'passkey',
+
             'password',
+
             'email_code',
+
             'magic_link',
+
             'google',
+
             'github',
+
             'facebook',
+
             'linkedin',
+
             'tiktok',
+
             'x',
+
         ];
 
         if (
+
             in_array(
+
                 $provider,
+
                 $allowedProviders,
+
                 true
+
             )
+
         ) {
+
             return $provider;
+
         }
 
         /*
+
         |--------------------------------------------------------------------------
+
         | Fallback voor oudere gebruikers
+
         |--------------------------------------------------------------------------
+
         */
 
         if ($this->hasGoogleAccount()) {
+
             return 'google';
+
         }
 
         if ($this->hasGitHubAccount()) {
+
             return 'github';
+
         }
 
         if ($this->hasFacebookAccount()) {
+
             return 'facebook';
+
         }
 
         if ($this->hasLinkedInAccount()) {
+
             return 'linkedin';
+
         }
 
         if ($this->hasTikTokAccount()) {
+
             return 'tiktok';
+
         }
 
         if ($this->hasXAccount()) {
+
             return 'x';
+
         }
 
         return 'password';
+
     }
 
     /**
+
      * Menselijke naam van de laatste loginmethode.
+
      */
+
     public function loginProviderLabel(): string
+
     {
+
         $provider = $this->loginProvider();
 
         return match ($provider) {
+
             'google' => 'Google',
+
             'github' => 'GitHub',
+
             'facebook' => 'Facebook',
+
             'linkedin' => 'LinkedIn',
+
             'tiktok' => 'TikTok',
+
             'x' => 'X',
+
             'email_code' => 'E-mailcode',
+
             'magic_link' => 'Magic link',
+
             'passkey' => 'Passkey',
+
             'password' => 'Wachtwoord',
+
             default => 'Onbekend',
+
         };
+
     }
 
     /**
+
      * Korte icon-code voor dashboard/Blade.
+
      */
+
     public function loginProviderIcon(): string
+
     {
+
         $provider = $this->loginProvider();
 
         return match ($provider) {
+
             'google' => 'google',
+
             'github' => 'github',
+
             'facebook' => 'facebook',
+
             'linkedin' => 'linkedin',
+
             'tiktok' => 'tiktok',
+
             'x' => 'x',
+
             'email_code' => 'email',
+
             'magic_link' => 'link',
+
             'passkey' => 'lock',
+
             'password' => 'lock',
+
             default => 'user',
+
         };
+
     }
 
     /*
+
     |--------------------------------------------------------------------------
+
     | Login provider controles
+
     |--------------------------------------------------------------------------
+
     */
 
     /**
+
      * Laatste login via Google.
+
      */
+
     public function loggedInWithGoogle(): bool
+
     {
+
         return $this->loginProvider() === 'google';
+
     }
 
     /**
+
      * Laatste login via GitHub.
+
      */
+
     public function loggedInWithGitHub(): bool
+
     {
+
         return $this->loginProvider() === 'github';
+
     }
 
     /**
+
      * Laatste login via Facebook.
+
      */
+
     public function loggedInWithFacebook(): bool
+
     {
+
         return $this->loginProvider() === 'facebook';
+
     }
 
     /**
+
      * Laatste login via LinkedIn.
+
      */
+
     public function loggedInWithLinkedIn(): bool
+
     {
+
         return $this->loginProvider() === 'linkedin';
+
     }
 
     /**
+
      * Laatste login via TikTok.
+
      */
+
     public function loggedInWithTikTok(): bool
+
     {
+
         return $this->loginProvider() === 'tiktok';
+
     }
 
     /**
+
      * Laatste login via X.
+
      */
+
     public function loggedInWithX(): bool
+
     {
+
         return $this->loginProvider() === 'x';
+
     }
 
     /**
+
      * Laatste login via e-mailcode.
+
      */
+
     public function loggedInWithEmailCode(): bool
+
     {
+
         return $this->loginProvider() === 'email_code';
+
     }
 
     /**
+
      * Laatste login via magic link.
+
      */
+
     public function loggedInWithMagicLink(): bool
+
     {
+
         return $this->loginProvider() === 'magic_link';
+
     }
 
     /**
+
      * Laatste login via wachtwoord.
+
      */
+
     public function loggedInWithPassword(): bool
+
     {
+
         return $this->loginProvider() === 'password';
+
     }
+
 }
