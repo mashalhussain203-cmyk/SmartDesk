@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -111,6 +112,7 @@ class MicrosoftAuthController extends Controller
 
                         $existingUser->forceFill([
                             'microsoft_id' => $microsoftId,
+                            'login_provider' => 'microsoft',
                         ]);
 
                         $existingUser->save();
@@ -156,6 +158,20 @@ class MicrosoftAuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Microsoft als laatste loginmethode opslaan
+        |--------------------------------------------------------------------------
+        |
+        | Dit zorgt ervoor dat accountpagina's en het admin-dashboard correct
+        | tonen dat de gebruiker via Microsoft heeft ingelogd.
+        |
+        */
+
+        $user->forceFill([
+            'login_provider' => 'microsoft',
+        ])->save();
+
+        /*
+        |--------------------------------------------------------------------------
         | Laravel-login voltooien
         |--------------------------------------------------------------------------
         */
@@ -197,6 +213,7 @@ class MicrosoftAuthController extends Controller
             ),
 
             'microsoft_id' => $microsoftId,
+            'login_provider' => 'microsoft',
         ];
 
         /*
