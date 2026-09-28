@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Microsoft\Provider as MicrosoftProvider;
 use SocialiteProviders\TikTok\TikTokExtendSocialite;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,15 +29,22 @@ class AppServiceProvider extends ServiceProvider
         | SocialiteProviders registreren
         |--------------------------------------------------------------------------
         |
-        | Laravel Socialite ondersteunt standaard onder andere Google,
-        | GitHub en Facebook.
+        | Laravel Socialite ondersteunt standaard verschillende OAuth-providers.
+        | Extra providers worden via SocialiteProviders geregistreerd.
         |
-        | TikTok wordt via SocialiteProviders toegevoegd.
+        | In Mashal Studio gebruiken we hier:
         |
-        | Wanneer SocialiteWasCalled wordt uitgevoerd, registreert
-        | TikTokExtendSocialite de "tiktok" driver binnen Socialite.
+        | - TikTok
+        | - Microsoft / Hotmail / Outlook / Live / Entra ID
         |
-        | Hierdoor kunnen we later gebruiken:
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok Socialite-provider
+        |--------------------------------------------------------------------------
+        |
+        | Hierdoor kan de applicatie gebruiken:
         |
         | Socialite::driver('tiktok')
         |
@@ -47,18 +55,45 @@ class AppServiceProvider extends ServiceProvider
             TikTokExtendSocialite::class
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Microsoft Socialite-provider
+        |--------------------------------------------------------------------------
+        |
+        | De Microsoft-provider komt uit:
+        |
+        | socialiteproviders/microsoft
+        |
+        | Hierdoor kan de applicatie gebruiken:
+        |
+        | Socialite::driver('microsoft')
+        |
+        | De client ID, client secret, redirect URI en tenant worden geladen uit
+        | config/services.php en Railway/.env.
+        |
+        */
+
+        Event::listen(
+            SocialiteWasCalled::class,
+            function (SocialiteWasCalled $event): void {
+                $event->extendSocialite(
+                    'microsoft',
+                    MicrosoftProvider::class
+                );
+            }
+        );
 
         /*
         |--------------------------------------------------------------------------
         | HTTPS forceren in productie
         |--------------------------------------------------------------------------
         |
-        | Railway draait achter een proxy/load balancer. Hierdoor kan Laravel
+        | Railway draait achter een proxy/load balancer. Laravel kan daardoor
         | soms denken dat een request via HTTP binnenkomt terwijl de bezoeker
-        | HTTPS gebruikt.
+        | daadwerkelijk HTTPS gebruikt.
         |
-        | In productie forceren we daarom HTTPS voor alle gegenereerde URLs,
-        | routes, formulieren, redirects en links.
+        | In productie forceren we daarom HTTPS voor gegenereerde URLs,
+        | routes, formulieren, redirects en OAuth callback-links.
         |
         */
 

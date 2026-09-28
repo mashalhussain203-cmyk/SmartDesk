@@ -2484,6 +2484,28 @@
                                         <span>Doorgaan</span>
                                     </span>
                                 </a>
+
+                                <a
+                                    class="register-oauth"
+                                    data-login-security-oauth
+                                    data-auth-transition-link
+                                    href="{{ route('auth.microsoft.redirect') }}"
+                                    aria-label="Account maken met Microsoft"
+                                >
+                                    <span class="register-oauth-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <rect x="2.5" y="2.5" width="8.7" height="8.7" fill="#F25022"/>
+                                            <rect x="12.8" y="2.5" width="8.7" height="8.7" fill="#7FBA00"/>
+                                            <rect x="2.5" y="12.8" width="8.7" height="8.7" fill="#00A4EF"/>
+                                            <rect x="12.8" y="12.8" width="8.7" height="8.7" fill="#FFB900"/>
+                                        </svg>
+                                    </span>
+
+                                    <span class="register-oauth-copy">
+                                        <strong>Microsoft / Hotmail</strong>
+                                        <span>Account maken</span>
+                                    </span>
+                                </a>
                             </div>
                         </section>
 
