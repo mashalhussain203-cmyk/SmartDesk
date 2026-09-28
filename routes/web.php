@@ -110,6 +110,37 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
+| Telegram Main Mini App
+|--------------------------------------------------------------------------
+|
+| Deze routes staan bewust buiten de guest-groep.
+| De Mini App draait in Telegram en maakt daarna een eenmalige browser-handoff.
+|
+*/
+Route::get(
+    '/auth/telegram/mini-app',
+    [TelegramAuthController::class, 'miniApp']
+)
+    ->middleware('throttle:60,1')
+    ->name('auth.telegram.mini-app');
+
+Route::post(
+    '/auth/telegram/mini-app/auth',
+    [TelegramAuthController::class, 'miniAppAuthenticate']
+)
+    ->middleware('throttle:30,1')
+    ->name('auth.telegram.mini-app.auth');
+
+Route::get(
+    '/auth/telegram/handoff/{token}',
+    [TelegramAuthController::class, 'handoff']
+)
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->middleware('throttle:30,1')
+    ->name('auth.telegram.handoff');
+
+/*
+|--------------------------------------------------------------------------
 | Gast-routes
 |--------------------------------------------------------------------------
 */

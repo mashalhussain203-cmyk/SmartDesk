@@ -7,36 +7,46 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Voeg Telegram-loginvelden toe aan de users-tabel.
+     * Maak tijdelijke, eenmalige Telegram-login handoffs.
+     *
+     * De Telegram Mini App draait in Telegram zelf. Deze tabel maakt het
+     * mogelijk om na succesvolle Telegram-validatie veilig terug te keren
+     * naar de normale browser en daar de Laravel-sessie te starten.
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->string('telegram_id', 128)
+        Schema::create('telegram_login_handoffs', function (Blueprint $table): void {
+            $table->id();
+
+            $table->char('token_hash', 64)
+                ->unique();
+
+            $table->foreignId('user_id')
                 ->nullable()
-                ->unique('users_telegram_id_unique');
+                ->constrained('users')
+                ->nullOnDelete();
 
-            $table->string('telegram_username', 64)
+            $table->json('telegram_data')
                 ->nullable();
 
-            $table->text('telegram_avatar')
+            $table->string('intended_url', 2048)
                 ->nullable();
+
+            $table->timestamp('expires_at')
+                ->index();
+
+            $table->timestamp('used_at')
+                ->nullable();
+
+            $table->timestamps();
         });
     }
 
     /**
-     * Draai de Telegram-loginvelden terug.
+     * Verwijder de tijdelijke Telegram-login handoffs.
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->dropUnique('users_telegram_id_unique');
-
-            $table->dropColumn([
-                'telegram_id',
-                'telegram_username',
-                'telegram_avatar',
-            ]);
-        });
+        Schema::dropIfExists('telegram_login_handoffs');
     }
 };

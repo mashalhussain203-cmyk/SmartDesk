@@ -1096,32 +1096,118 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Telegram Login Widget
+    | Telegram Mini App button
     |--------------------------------------------------------------------------
-    | De officiële Telegram-widget draait in een Telegram-iframe.
-    | De buitenste kaart volgt dezelfde glass-stijl als de andere providers.
+    | Mobiel probeert rechtstreeks de Telegram-app te openen.
+    | Als dat niet lukt, gebruiken we automatisch de officiële t.me-link.
     */
-    .register-telegram-widget {
-        min-height: 54px;
-        padding: 6px;
-        justify-content: center;
+    .register-telegram-modern {
+        position: relative;
+        isolation: isolate;
         overflow: hidden;
+        border-color: rgba(34,158,217,.28);
+        background:
+            linear-gradient(
+                135deg,
+                rgba(34,158,217,.12),
+                rgba(0,0,0,.19) 58%
+            );
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.045),
+            0 10px 26px rgba(34,158,217,.07);
     }
 
-    .register-telegram-widget-inner {
-        width: 100%;
+    .register-telegram-modern::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: .55;
+        background:
+            radial-gradient(
+                circle at 18% 50%,
+                rgba(78,190,239,.16),
+                transparent 42%
+            );
+        transition: opacity .18s ease;
+    }
+
+    .register-telegram-modern:hover {
+        border-color: rgba(72,183,231,.48);
+        background:
+            linear-gradient(
+                135deg,
+                rgba(34,158,217,.17),
+                rgba(0,0,0,.18) 60%
+            );
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.055),
+            0 12px 30px rgba(34,158,217,.10);
+    }
+
+    .register-telegram-modern:hover::before {
+        opacity: .9;
+    }
+
+    .register-telegram-logo-shell {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(120,211,249,.30);
+        border-radius: 50%;
+        background:
+            radial-gradient(
+                circle at 35% 25%,
+                #6fd5ff,
+                #229ed9 56%,
+                #1686c3
+            );
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.34),
+            0 7px 18px rgba(34,158,217,.22);
+    }
+
+    .register-telegram-logo {
+        width: 34px;
+        height: 34px;
+        display: block;
+        object-fit: contain;
+        border-radius: 50%;
+    }
+
+    .register-telegram-modern .register-oauth-copy {
         min-width: 0;
-        display: flex;
+    }
+
+    .register-telegram-modern .register-oauth-copy strong {
+        color: #eefaff;
+        font-size: 8.5px;
+    }
+
+    .register-telegram-modern .register-oauth-copy span {
+        color: #75bddd;
+    }
+
+    .register-telegram-launch {
+        margin-left: auto;
+        flex: 0 0 auto;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
-        line-height: 0;
-    }
-
-    .register-telegram-widget-inner iframe {
-        display: block !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        border: 1px solid rgba(91,194,238,.19);
+        border-radius: 999px;
+        color: #71c9ef;
+        background: rgba(34,158,217,.07);
+        font-size: 9px;
+        font-weight: 900;
+        line-height: 1;
     }
 
     .register-telegram-unavailable {
@@ -1134,12 +1220,27 @@
         line-height: 1.35;
     }
 
-    .register-telegram-unavailable svg {
-        width: 22px;
-        height: 22px;
-        flex: 0 0 22px;
-        color: #229ed9;
-        fill: currentColor;
+    .register-telegram-unavailable-logo {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        display: block;
+        object-fit: contain;
+        border-radius: 50%;
+        opacity: .72;
+    }
+
+    @media (max-width: 380px) {
+        .register-telegram-logo-shell {
+            width: 38px;
+            height: 38px;
+            flex-basis: 38px;
+        }
+
+        .register-telegram-logo {
+            width: 36px;
+            height: 36px;
+        }
     }
 
     .register-login-row {
@@ -2562,37 +2663,62 @@
                                         trim((string) config('services.telegram.bot_username')),
                                         '@'
                                     );
+
+                                    $telegramMiniAppUrl = $telegramBotUsername !== ''
+                                        ? 'https://t.me/'
+                                            . rawurlencode($telegramBotUsername)
+                                            . '?startapp=register'
+                                        : null;
                                 @endphp
 
-                                @if ($telegramBotUsername !== '')
-                                    <div
-                                        class="register-oauth register-telegram-widget"
+                                @if ($telegramMiniAppUrl)
+                                    <a
+                                        class="register-oauth register-telegram-modern"
+                                        data-register-security-oauth
+                                        data-auth-transition-link
+                                        data-telegram-mini-app
+                                        data-telegram-bot="{{ $telegramBotUsername }}"
+                                        href="{{ $telegramMiniAppUrl }}"
                                         aria-label="Account maken met Telegram"
                                     >
-                                        <div class="register-telegram-widget-inner">
-                                            <script
-                                                async
-                                                src="https://telegram.org/js/telegram-widget.js?22"
-                                                data-telegram-login="{{ $telegramBotUsername }}"
-                                                data-size="medium"
-                                                data-radius="10"
-                                                data-userpic="false"
-                                                data-auth-url="{{ route('auth.telegram.callback') }}"
-                                            ></script>
-                                        </div>
-                                    </div>
+                                        <span
+                                            class="register-telegram-logo-shell"
+                                            aria-hidden="true"
+                                        >
+                                            <img
+                                                class="register-telegram-logo"
+                                                src="{{ asset('images/social/telegram-logo.png') }}"
+                                                alt=""
+                                                loading="lazy"
+                                                decoding="async"
+                                            >
+                                        </span>
+
+                                        <span class="register-oauth-copy">
+                                            <strong>Telegram</strong>
+                                            <span>Open Telegram-app</span>
+                                        </span>
+
+                                        <span
+                                            class="register-telegram-launch"
+                                            aria-hidden="true"
+                                        >
+                                            ↗
+                                        </span>
+                                    </a>
                                 @else
                                     <div
-                                        class="register-oauth register-telegram-widget"
+                                        class="register-oauth register-telegram-modern"
                                         aria-label="Telegram-registratie is nog niet geconfigureerd"
                                     >
                                         <div class="register-telegram-unavailable">
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                aria-hidden="true"
+                                            <img
+                                                class="register-telegram-unavailable-logo"
+                                                src="{{ asset('images/social/telegram-logo.png') }}"
+                                                alt=""
+                                                loading="lazy"
+                                                decoding="async"
                                             >
-                                                <path d="M21.944 2.506c.281-.107.574.046.477.416l-3.566 16.827c-.084.398-.319.495-.647.309l-5.433-4.005-2.621 2.522c-.29.29-.533.532-1.093.532l.39-5.536L19.53 4.466c.438-.39-.095-.607-.68-.217L6.394 12.09l-5.363-1.676c-.585-.183-.596-.585.122-.866L21.944 2.506Z"/>
-                                            </svg>
 
                                             <span>
                                                 Telegram-registratie is nog niet geconfigureerd.
@@ -3601,4 +3727,138 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Telegram Mini App launcher
+    |--------------------------------------------------------------------------
+    | Op telefoon proberen we eerst rechtstreeks de Telegram-app te openen.
+    | Lukt dat niet, dan openen we de officiële t.me Mini App-link.
+    */
+    const telegramLinks =
+        Array.from(
+            document.querySelectorAll(
+                '[data-telegram-mini-app]'
+            )
+        );
+
+    if (telegramLinks.length === 0) {
+        return;
+    }
+
+    const looksLikeMobile =
+        /Android|iPhone|iPad|iPod|Mobile/i.test(
+            window.navigator.userAgent || ''
+        )
+        || (
+            window.matchMedia
+            && window.matchMedia('(pointer: coarse)').matches
+        );
+
+    telegramLinks.forEach(function (link) {
+        link.addEventListener(
+            'click',
+            function (event) {
+                if (!looksLikeMobile) {
+                    return;
+                }
+
+                const username =
+                    (link.dataset.telegramBot || '')
+                        .trim()
+                        .replace(/^@+/, '');
+
+                const fallbackUrl =
+                    link.getAttribute('href');
+
+                if (
+                    !username
+                    || !fallbackUrl
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const deepLink =
+                    'tg://resolve?domain='
+                    + encodeURIComponent(username)
+                    + '&startapp=register';
+
+                let fallbackTimer = null;
+                let pageHidden = false;
+
+                const handleVisibility = function () {
+                    if (!document.hidden) {
+                        return;
+                    }
+
+                    pageHidden = true;
+
+                    if (fallbackTimer !== null) {
+                        window.clearTimeout(
+                            fallbackTimer
+                        );
+
+                        fallbackTimer = null;
+                    }
+
+                    document.removeEventListener(
+                        'visibilitychange',
+                        handleVisibility
+                    );
+                };
+
+                document.addEventListener(
+                    'visibilitychange',
+                    handleVisibility
+                );
+
+                fallbackTimer =
+                    window.setTimeout(
+                        function () {
+                            document.removeEventListener(
+                                'visibilitychange',
+                                handleVisibility
+                            );
+
+                            if (!pageHidden) {
+                                window.location.assign(
+                                    fallbackUrl
+                                );
+                            }
+                        },
+                        1200
+                    );
+
+                try {
+                    window.location.assign(
+                        deepLink
+                    );
+                } catch (error) {
+                    if (fallbackTimer !== null) {
+                        window.clearTimeout(
+                            fallbackTimer
+                        );
+                    }
+
+                    document.removeEventListener(
+                        'visibilitychange',
+                        handleVisibility
+                    );
+
+                    window.location.assign(
+                        fallbackUrl
+                    );
+                }
+            }
+        );
+    });
+});
+</script>
+
 @endpush
