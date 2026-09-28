@@ -98,6 +98,7 @@
     .md-provider.linkedin .md-provider-icon { background: #0a66c2; color: #ffffff; }
     .md-provider.tiktok .md-provider-icon { background: #010101; color: #ffffff; }
     .md-provider.microsoft .md-provider-icon { background: #ffffff; }
+    .md-provider.telegram .md-provider-icon { background: #229ed9; color: #ffffff; }
     .md-provider.x .md-provider-icon { background: #000000; color: #ffffff; }
     .md-provider.passkey { border-color: rgba(101,213,154,.16); background: rgba(101,213,154,.055); color: #9ce7bc; }
     .md-provider.passkey .md-provider-icon { border: 1px solid rgba(101,213,154,.20); background: rgba(101,213,154,.09); color: #9ce7bc; }
@@ -292,6 +293,10 @@
                 <rect x="2.5" y="12.8" width="8.7" height="8.7" fill="#00A4EF"/>
                 <rect x="12.8" y="12.8" width="8.7" height="8.7" fill="#FFB900"/>
             </symbol>
+            <symbol id="md-icon-telegram" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="12" fill="#229ED9"/>
+                <path fill="#ffffff" d="M18.72 6.43c.24-.09.49.04.41.35l-2.96 13.08c-.07.31-.26.38-.53.24l-4.51-3.12-2.18 1.96c-.24.23-.44.41-.91.41l.32-4.31 8.38-7.08c.36-.3-.08-.47-.57-.17L5.82 13.9l-4.45-1.31c-.49-.14-.5-.46.1-.67L18.72 6.43Z"/>
+            </symbol>
             <symbol id="md-icon-x" viewBox="0 0 24 24" fill="currentColor"> <path d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"/> </symbol>
             <symbol id="md-icon-6" viewBox="0 0 24 24" fill="none"> <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/> <path d="M13 14a5 5 0 0 0-10 0v2h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/> <path d="M14 15h7m-2-2 2 2-2 2m-5-2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </symbol>
             <symbol id="md-icon-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
@@ -381,6 +386,9 @@
                                     @break
                                 @case('microsoft')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-microsoft"></use></svg>
+                                    @break
+                                @case('telegram')
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-telegram"></use></svg>
                                     @break
                                 @case('x')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg>
@@ -556,6 +564,10 @@
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-microsoft"></use></svg></span>
                         Microsoft
                     </button>
+                    <button class="md-filter" type="button" data-filter="telegram">
+                        <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-telegram"></use></svg></span>
+                        Telegram
+                    </button>
                     <button class="md-filter" type="button" data-filter="x">
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg></span>
                         X
@@ -667,6 +679,9 @@
                                     @break
                                 @case('microsoft')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-microsoft"></use></svg>
+                                    @break
+                                @case('telegram')
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-telegram"></use></svg>
                                     @break
                                 @case('x')
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-x"></use></svg>
@@ -837,6 +852,9 @@
                         .includes(activeFilter)
                 ) {
                     matchesFilter = provider === activeFilter;
+                }
+                if (activeFilter === 'telegram') {
+                    matchesFilter = provider === 'telegram';
                 }
                 if (activeFilter === 'photo') {
                     matchesFilter = hasPhoto;

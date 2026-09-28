@@ -4,7 +4,7 @@
 
 @section(
     'meta_description',
-    'Log veilig in bij Mashal Studio met wachtwoord, e-mailcode, magic link of je favoriete social login.'
+    'Log veilig in bij Mashal Studio met wachtwoord, e-mailcode, magic link, Telegram of je favoriete social login.'
 )
 
 @push('styles')
@@ -608,7 +608,6 @@
         }
     }
 
-
     .login-glass-card {
         min-height: 482px;
     }
@@ -804,6 +803,54 @@
         font-size: 6px;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Telegram Login Widget
+    |--------------------------------------------------------------------------
+    | De Telegram-widget zelf draait in een officiële Telegram-iframe.
+    | De buitenste kaart volgt dezelfde glass-stijl als de andere providers.
+    */
+    .login-telegram-widget {
+        min-height: 54px;
+        padding: 6px;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .login-telegram-widget-inner {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        line-height: 0;
+    }
+
+    .login-telegram-widget-inner iframe {
+        display: block !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    .login-telegram-unavailable {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #8b8a90;
+        font-size: 7px;
+        line-height: 1.35;
+    }
+
+    .login-telegram-unavailable svg {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        color: #229ed9;
+        fill: currentColor;
+    }
+
     .login-pending {
         margin-bottom: 10px;
         padding: 8px 10px;
@@ -861,7 +908,6 @@
         }
     }
 
-
     .glass-auth-switch {
         width: min(100%, 270px);
         margin: 0 auto 14px;
@@ -900,7 +946,6 @@
     .glass-auth-switch a:hover {
         color: var(--glass-yellow);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -968,7 +1013,6 @@
             margin-top: 38px;
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1224,7 +1268,6 @@
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | V5 Glass fold transition
@@ -1475,12 +1518,10 @@
         }
     }
 
-
     /* V7 social-grid polish */
     .login-oauth-grid > .login-oauth:last-child:nth-child(odd) {
         grid-column: 1 / -1;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1596,12 +1637,10 @@
 
     <div class="glass-fold-seal" aria-hidden="true"></div>
 
-
     <div
         class="glass-auth-transition-flash"
         aria-hidden="true"
     ></div>
-
 
     <main class="glass-stage">
         <h1 class="glass-poster-title">
@@ -2028,6 +2067,50 @@
                                         <span>Doorgaan</span>
                                     </span>
                                 </a>
+
+                                @php
+                                    $telegramBotUsername = ltrim(
+                                        trim((string) config('services.telegram.bot_username')),
+                                        '@'
+                                    );
+                                @endphp
+
+                                @if ($telegramBotUsername !== '')
+                                    <div
+                                        class="login-oauth login-telegram-widget"
+                                        aria-label="Doorgaan met Telegram"
+                                    >
+                                        <div class="login-telegram-widget-inner">
+                                            <script
+                                                async
+                                                src="https://telegram.org/js/telegram-widget.js?22"
+                                                data-telegram-login="{{ $telegramBotUsername }}"
+                                                data-size="medium"
+                                                data-radius="10"
+                                                data-userpic="false"
+                                                data-auth-url="{{ route('auth.telegram.callback') }}"
+                                            ></script>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div
+                                        class="login-oauth login-telegram-widget"
+                                        aria-label="Telegram-login is nog niet geconfigureerd"
+                                    >
+                                        <div class="login-telegram-unavailable">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path d="M21.944 2.506c.281-.107.574.046.477.416l-3.566 16.827c-.084.398-.319.495-.647.309l-5.433-4.005-2.621 2.522c-.29.29-.533.532-1.093.532l.39-5.536L19.53 4.466c.438-.39-.095-.607-.68-.217L6.394 12.09l-5.363-1.676c-.585-.183-.596-.585.122-.866L21.944 2.506Z"/>
+                                            </svg>
+
+                                            <span>
+                                                Telegram-login is nog niet geconfigureerd.
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </section>
 
@@ -2286,7 +2369,6 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     playAuthEntryAnimation();
-
 
     /*
     |--------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 
 @section(
     'meta_description',
-    'Maak een Mashal Studio-account aan met wachtwoord, e-mailcode, magic link of social login.'
+    'Maak een Mashal Studio-account aan met wachtwoord, e-mailcode, magic link, Telegram of je favoriete social login.'
 )
 
 @push('styles')
@@ -1092,6 +1092,54 @@
         margin-top: 2px;
         color: #717177;
         font-size: 6px;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Telegram Login Widget
+    |--------------------------------------------------------------------------
+    | De officiële Telegram-widget draait in een Telegram-iframe.
+    | De buitenste kaart volgt dezelfde glass-stijl als de andere providers.
+    */
+    .register-telegram-widget {
+        min-height: 54px;
+        padding: 6px;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .register-telegram-widget-inner {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        line-height: 0;
+    }
+
+    .register-telegram-widget-inner iframe {
+        display: block !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    .register-telegram-unavailable {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #8b8a90;
+        font-size: 7px;
+        line-height: 1.35;
+    }
+
+    .register-telegram-unavailable svg {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        color: #229ed9;
+        fill: currentColor;
     }
 
     .register-login-row {
@@ -2398,6 +2446,7 @@
                         <section class="register-panel-section" data-register-panel="social" hidden>
                                                         <div class="glass-message info" role="note">
                                 X-login werkt voor reeds gekoppelde accounts. Maak zo nodig eerst je Mashal-account aan en koppel X daarna via je accountinstellingen.
+                                Telegram geeft bij deze login geen e-mailadres door. Nieuwe Telegram-gebruikers vullen daarom na de Telegram-controle nog hun e-mailadres in.
                             </div>
 
 <div class="register-oauth-grid">
@@ -2506,6 +2555,51 @@
                                         <span>Account maken</span>
                                     </span>
                                 </a>
+
+
+                                @php
+                                    $telegramBotUsername = ltrim(
+                                        trim((string) config('services.telegram.bot_username')),
+                                        '@'
+                                    );
+                                @endphp
+
+                                @if ($telegramBotUsername !== '')
+                                    <div
+                                        class="register-oauth register-telegram-widget"
+                                        aria-label="Account maken met Telegram"
+                                    >
+                                        <div class="register-telegram-widget-inner">
+                                            <script
+                                                async
+                                                src="https://telegram.org/js/telegram-widget.js?22"
+                                                data-telegram-login="{{ $telegramBotUsername }}"
+                                                data-size="medium"
+                                                data-radius="10"
+                                                data-userpic="false"
+                                                data-auth-url="{{ route('auth.telegram.callback') }}"
+                                            ></script>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div
+                                        class="register-oauth register-telegram-widget"
+                                        aria-label="Telegram-registratie is nog niet geconfigureerd"
+                                    >
+                                        <div class="register-telegram-unavailable">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path d="M21.944 2.506c.281-.107.574.046.477.416l-3.566 16.827c-.084.398-.319.495-.647.309l-5.433-4.005-2.621 2.522c-.29.29-.533.532-1.093.532l.39-5.536L19.53 4.466c.438-.39-.095-.607-.68-.217L6.394 12.09l-5.363-1.676c-.585-.183-.596-.585.122-.866L21.944 2.506Z"/>
+                                            </svg>
+
+                                            <span>
+                                                Telegram-registratie is nog niet geconfigureerd.
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </section>
 
@@ -2547,7 +2641,7 @@
   password: <span class="cyan">true</span>,
   emailCode: <span class="cyan">true</span>,
   magicLink: <span class="cyan">true</span>,
-  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>, <span class="green">'x'</span>]
+  social: [<span class="green">'google'</span>, <span class="green">'github'</span>, <span class="green">'facebook'</span>, <span class="green">'tiktok'</span>, <span class="green">'linkedin'</span>, <span class="green">'x'</span>, <span class="green">'microsoft'</span>, <span class="green">'telegram'</span>]
 };</div>
         </div>
 
