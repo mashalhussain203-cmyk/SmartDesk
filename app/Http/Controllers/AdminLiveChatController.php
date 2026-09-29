@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use stdClass;
 
 class AdminLiveChatController extends Controller
@@ -23,7 +24,7 @@ class AdminLiveChatController extends Controller
         return view('admin.live-chat');
     }
 
-    public function conversations(Request $request): JsonResponse
+    public function conversations(Request $request, LiveChatService $chat): JsonResponse
     {
         $this->authorizeAdmin($request);
         $data = $request->validate(['page' => ['sometimes', 'integer', 'min:1'], 'filter' => ['sometimes', 'in:active,closed']]);
@@ -33,19 +34,28 @@ class AdminLiveChatController extends Controller
                 $query->from('live_chat_messages as m')->selectRaw('COUNT(*)')->whereColumn('m.conversation_id', 'c.id')
                     ->where('m.sender', 'visitor')->whereColumn('m.id', '>', 'c.admin_last_read_id');
             }, 'unread');
+
         if (($data['filter'] ?? 'active') === 'closed') {
             $query->where('c.status', 'closed');
         } else {
             $query->where('c.status', '!=', 'closed');
         }
+
         $page = $query->orderByDesc('c.last_message_at')->orderByDesc('c.id')->paginate(30);
-        $items = $page->getCollection()->map(fn (stdClass $conversation): array => [
-            'id' => $conversation->id, 'status' => $conversation->status,
-            'name' => $conversation->user_id ? $conversation->name : 'Gast #'.$conversation->id,
-            'email' => $conversation->user_id ? $conversation->email : null,
-            'kind' => $conversation->user_id ? 'account' : 'guest',
-            'unread' => (int) $conversation->unread, 'last_message_at' => $conversation->last_message_at,
-        ])->all();
+        $items = $page->getCollection()->map(function (stdClass $conversation) use ($chat): array {
+            $identity = $chat->userIdentity($conversation->user_id ? (int) $conversation->user_id : null);
+
+            return [
+                'id' => $conversation->id,
+                'status' => $conversation->status,
+                'name' => $conversation->user_id ? $conversation->name : 'Gast #'.$conversation->id,
+                'email' => $conversation->user_id ? $conversation->email : null,
+                'avatar' => $identity['avatar'],
+                'kind' => $conversation->user_id ? 'account' : 'guest',
+                'unread' => (int) $conversation->unread,
+                'last_message_at' => $conversation->last_message_at,
+            ];
+        })->all();
 
         return response()->json(['items' => $items, 'page' => $page->currentPage(), 'last_page' => $page->lastPage()])
             ->header('Cache-Control', 'no-store');
@@ -70,8 +80,30 @@ class AdminLiveChatController extends Controller
     public function store(Request $request, LiveChatService $chat, int $conversation): JsonResponse
     {
         $this->authorizeAdmin($request);
-        $data = $request->validate(['body' => ['required', 'string', 'max:4000'], 'client_id' => ['required', 'uuid']]);
-        $chat->sendAdmin($conversation, $data);
+        $type = (string) $request->input('type', 'text');
+        $request->merge(['type' => $type]);
+
+        $rules = [
+            'type' => ['required', Rule::in(['text', 'file', 'voice'])],
+            'client_id' => ['required', 'uuid'],
+            'body' => [$type === 'text' ? 'required' : 'nullable', 'string', 'max:4000'],
+        ];
+        if ($type === 'file') {
+            $rules['attachment'] = ['required', 'file', 'max:20480', 'mimes:jpg,jpeg,png,webp,gif,pdf,txt,doc,docx,xls,xlsx'];
+        } elseif ($type === 'voice') {
+            $rules['attachment'] = ['required', 'file', 'max:15360', 'mimetypes:audio/webm,audio/ogg,audio/mpeg,audio/mp4,audio/wav,video/webm,application/octet-stream'];
+        }
+
+        $data = $request->validate($rules);
+        $chat->sendAdmin($conversation, (int) $request->user()->id, $data, $request->file('attachment'));
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function destroy(Request $request, LiveChatService $chat, int $conversation, int $message): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+        $chat->deleteAdminMessage($conversation, $message);
 
         return response()->json(['ok' => true]);
     }

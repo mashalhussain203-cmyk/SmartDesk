@@ -74,6 +74,18 @@
 #guest-chat .lc-msg p { margin:0; }
 #guest-chat .lc-error { padding:0 16px; color:#f6aeae; font-size:12px; }
 #guest-chat .lc-reopen { min-height:44px; margin:8px 16px; border:1px solid #e7c28a55; border-radius:10px; background:#211d16; color:#e7c28a; }
+
+#guest-chat .lc-msg-head { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+#guest-chat .lc-avatar { width:28px; height:28px; border-radius:50%; overflow:hidden; flex:0 0 28px; display:grid; place-items:center; background:#343843; color:#fff; font-size:11px; font-weight:700; }
+#guest-chat .lc-avatar img { width:100%; height:100%; object-fit:cover; }
+#guest-chat .lc-msg-head small { margin:0; }
+#guest-chat .lc-media-image { display:block; max-width:min(260px,100%); max-height:260px; border-radius:10px; object-fit:cover; }
+#guest-chat .lc-file-link { color:inherit; text-decoration:underline; overflow-wrap:anywhere; }
+#guest-chat .lc-msg audio { width:min(260px,100%); }
+#guest-chat .lc-delete { margin-top:7px; padding:2px 0; border:0; background:transparent; color:inherit; opacity:.65; font-size:10px; }
+#guest-chat .lc-delete:hover { opacity:1; text-decoration:underline; }
+#guest-chat .lc-tool { display:grid; place-items:center; width:38px; height:42px; flex:0 0 38px; border:0; border-radius:9px; background:#20232a; color:#e8c792; cursor:pointer; }
+#guest-chat .lc-tool[aria-pressed="true"] { background:#7f3030; color:#fff; }
 </style>
 
 <aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" hidden data-mode="ai" data-endpoint="{{ route('guest-chat.message') }}">
@@ -87,12 +99,6 @@
                 <button type="button" class="gc-action guest-chat__close" aria-label="Chat sluiten" title="Chat sluiten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
         </header>
-        @if (\Illuminate\Support\Facades\Route::has('live-chat.show'))
-            <div class="lc-modes" aria-label="Kies met wie je praat">
-                <button type="button" data-chat-mode="ai" aria-pressed="true">Mashal AI</button>
-                <button type="button" data-chat-mode="human" aria-pressed="false">Praat met een medewerker</button>
-            </div>
-        @endif
         <div class="gc-reset-confirm" hidden><span>Dit gesprek wissen?</span><button type="button" data-reset-confirm>Wissen</button><button type="button" data-reset-cancel>Annuleren</button></div>
         <div class="gc-body">
             <div class="gc-welcome">
@@ -124,6 +130,8 @@
                 <p class="lc-error" role="status" hidden></p>
                 <button type="button" class="lc-reopen" hidden>Gesprek opnieuw openen</button>
                 <form class="guest-chat__form lc-form">
+                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">📎<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
+                    <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">🎤</button>
                     <textarea class="lc-input" rows="1" maxlength="4000" aria-label="Bericht aan medewerker" placeholder="Schrijf je bericht…" required></textarea>
                     <button class="guest-chat__send" type="submit" aria-label="Bericht aan medewerker versturen">↑</button>
                 </form>
@@ -140,4 +148,4 @@
 </aside>
 <script src="{{ asset('js/guest-chat.js') }}?v=7" defer></script>
 
-<script src="{{ asset('js/live-chat.js') }}?v=1" defer></script>
+<script src="{{ asset('js/live-chat.js') }}?v=2" defer></script>

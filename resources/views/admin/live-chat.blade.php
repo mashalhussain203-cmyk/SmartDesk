@@ -31,6 +31,16 @@
 .lca-message[data-sender="admin"] { margin-left:auto; background:#e6c18a; color:#221b11; }
 .lca-message small { opacity:.7; font-size:10px; }
 .lca-message p { margin:4px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.lca-msg-head { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.lca-avatar { width:30px; height:30px; flex:0 0 30px; border-radius:50%; overflow:hidden; display:grid; place-items:center; background:#363a45; color:#fff; font-size:11px; font-weight:800; }
+.lca-avatar img { width:100%; height:100%; object-fit:cover; }
+.lca-media-image { display:block; max-width:min(320px,100%); max-height:320px; border-radius:10px; object-fit:cover; }
+.lca-message audio { width:min(320px,100%); }
+.lca-file-link { color:inherit; text-decoration:underline; }
+.lca-delete { margin-top:7px!important; padding:2px 0!important; border:0!important; background:transparent!important; color:inherit!important; opacity:.65; font-size:10px!important; }
+.lca-delete:hover { opacity:1; text-decoration:underline; }
+.lca-tool { display:grid; place-items:center; width:42px; height:42px; flex:0 0 42px; padding:0!important; }
+.lca-tool[aria-pressed="true"] { background:#7c3030!important; color:#fff!important; }
 .lca-form { display:flex; gap:10px; align-items:flex-end; padding:14px; border-top:1px solid #ffffff14; }
 .lca textarea { flex:1; min-width:0; min-height:80px; max-height:180px; resize:vertical; background:#080a0d; color:#eee; border:1px solid #ffffff25; border-radius:10px; padding:10px; font-size:16px; }
 .lca-error { color:#ffb6b6; }
@@ -48,9 +58,9 @@
         <section class="lca-detail" aria-label="Geselecteerd gesprek">
             <header class="lca-heading"><div><strong data-name>Kies een gesprek</strong><p data-email>Hier verschijnen naam en e-mailadres van ingelogde bezoekers.</p><p data-status></p></div><button type="button" data-close hidden>Afsluiten</button></header>
             <div class="lca-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Berichten"></div>
-            <form class="lca-form"><textarea aria-label="Antwoord aan bezoeker" placeholder="Typ je antwoord…" maxlength="4000" required disabled></textarea><button type="submit" disabled>Verstuur</button></form>
+            <form class="lca-form"><label class="lca-tool" title="Bestand versturen" aria-label="Bestand versturen">📎<input class="lca-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label><button type="button" class="lca-tool lca-voice" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">🎤</button><textarea aria-label="Antwoord aan bezoeker" placeholder="Typ je antwoord…" maxlength="4000" required disabled></textarea><button type="submit" disabled>Verstuur</button></form>
         </section>
     </div>
 </div>
-<script src="{{ asset('js/admin-live-chat.js') }}?v=1" defer></script>
+<script src="{{ asset('js/admin-live-chat.js') }}?v=2" defer></script>
 @endsection

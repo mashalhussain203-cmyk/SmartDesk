@@ -83,12 +83,27 @@
         input.disabled = value;
         reset.disabled = value;
         suggestions.forEach(button => { button.disabled = value; });
-        chat.querySelectorAll('[data-chat-mode]').forEach(button => { button.disabled = value; });
+    }
+
+    function wantsHumanSupport(text) {
+        const normalized = text.toLocaleLowerCase('nl-NL').replace(/\s+/g, ' ').trim();
+        const phrases = [
+            'medewerker', 'live support', 'live chat', 'klantenservice', 'klantendienst',
+            'iemand spreken', 'persoon spreken', 'mens spreken', 'echte persoon',
+            'echt persoon', 'verbind mij', 'doorverbinden', 'helpdesk', 'support agent'
+        ];
+        return phrases.some(phrase => normalized.includes(phrase));
     }
 
     async function ask(question) {
         const text = question.trim().slice(0, 2000);
         if (!text || busy || chat.dataset.mode === 'human') return;
+        if (wantsHumanSupport(text)) {
+            input.value = '';
+            resizeInput();
+            chat.dispatchEvent(new CustomEvent('live-chat:handoff', { detail: { body: text } }));
+            return;
+        }
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         if (!csrf || !chat.dataset.endpoint) {
             appendMessage('De chat kon niet starten. Vernieuw de pagina en probeer opnieuw.');

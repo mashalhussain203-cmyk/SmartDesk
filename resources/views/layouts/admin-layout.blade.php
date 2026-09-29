@@ -3088,6 +3088,13 @@
                     {{-- ================================================= --}}
 
                     <nav class="admin-nav">
+                        @if (\Illuminate\Support\Facades\Route::has('admin.live-chat.index'))
+                            <a class="admin-nav-link {{ request()->routeIs('admin.live-chat.*') ? 'active' : '' }}" href="{{ route('admin.live-chat.index') }}" data-admin-menu-item data-search="live chat gesprekken bezoekers gasten">
+                                <span class="admin-nav-icon" aria-hidden="true">✉</span>
+                                <span>Live chat</span>
+                            </a>
+                        @endif
+
 
                         <div class="admin-nav-label">
                             Overzicht
@@ -3163,37 +3170,6 @@
 
                             </a>
 
-                        @endif
-
-
-                        @if (\Illuminate\Support\Facades\Route::has('admin.live-chat.index'))
-                            <a
-                                class="admin-nav-link {{ request()->routeIs('admin.live-chat.*') ? 'active' : '' }}"
-                                href="{{ route('admin.live-chat.index') }}"
-                                @if (request()->routeIs('admin.live-chat.*')) aria-current="page" @endif
-                                data-admin-menu-item
-                                data-search="live chat gesprekken berichten bezoekers gasten ondersteuning support"
-                                title="Live chat"
-                            >
-                                <span class="admin-nav-icon">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/>
-                                        <path d="M8 10h8M8 14h5"/>
-                                    </svg>
-                                </span>
-                                <span class="admin-nav-copy">
-                                    <strong>Live chat</strong>
-                                    <span>Gasten en accountgebruikers</span>
-                                </span>
-                            </a>
                         @endif
 
 
