@@ -1,440 +1,106 @@
 <style>
-    #guest-chat {
-        --chat-gold: #e6bd7b;
-        --chat-text: #f6f3ed;
-        --chat-muted: #a5a7ae;
-        position: fixed;
-        right: 24px;
-        bottom: max(24px, env(safe-area-inset-bottom));
-        z-index: 1000;
-        color: var(--chat-text);
-        font: 14px/1.6 system-ui, -apple-system, sans-serif;
-        text-align: left;
-        color-scheme: dark;
-    }
-
-    #guest-chat,
-    #guest-chat * {
-        box-sizing: border-box;
-    }
-
-    #guest-chat[hidden],
-    #guest-chat [hidden] {
-        display: none !important;
-    }
-
-    #guest-chat button,
-    #guest-chat input {
-        font: inherit;
-    }
-
-    #guest-chat button {
-        cursor: pointer;
-    }
-
-    #guest-chat button:disabled {
-        cursor: wait;
-        opacity: .5;
-    }
-
-    #guest-chat button:focus-visible,
-    #guest-chat input:focus-visible,
-    #guest-chat a:focus-visible {
-        outline: 2px solid var(--chat-gold);
-        outline-offset: 3px;
-    }
-
-    #guest-chat svg {
-        display: block;
-        width: 22px;
-        height: 22px;
-        flex-shrink: 0;
-    }
-
-    /* Zwevende chatknop */
-    #guest-chat .guest-chat__toggle {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-height: 64px;
-        margin-left: auto;
-        padding: 10px 19px 10px 10px;
-        border: 1px solid #e6bd7b55;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #29241c, #111317);
-        color: var(--chat-text);
-        box-shadow: 0 12px 40px #0008, inset 0 1px #ffffff0d;
-        text-align: left;
-        transition: transform .2s, border-color .2s;
-    }
-
-    #guest-chat .guest-chat__toggle:hover {
-        transform: translateY(-3px);
-        border-color: var(--chat-gold);
-    }
-
-    #guest-chat .guest-chat__icon {
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #f7dfae, #ce9b50);
-        color: #241a0c;
-    }
-
-    #guest-chat .guest-chat__toggle-copy {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-    }
-
-    #guest-chat .guest-chat__toggle-copy strong {
-        font-size: 14px;
-        font-weight: 650;
-    }
-
-    #guest-chat .guest-chat__toggle-copy small {
-        color: #b9b4aa;
-        font-size: 11px;
-    }
-
-    /* Chatvenster */
-    #guest-chat .guest-chat__panel {
-        display: flex;
-        flex-direction: column;
-        width: min(390px, calc(100vw - 32px));
-        height: 560px;
-        max-height: calc(100dvh - 120px);
-        margin-bottom: 14px;
-        overflow: hidden;
-        border: 1px solid #e6bd7b33;
-        border-radius: 24px;
-        background: #111318;
-        box-shadow: 0 24px 80px #0009;
-    }
-
-    #guest-chat .guest-chat__header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-shrink: 0;
-        padding: 18px;
-        border-bottom: 1px solid #ffffff0d;
-        background: linear-gradient(120deg, #252119, #14161b);
-    }
-
-    #guest-chat .guest-chat__header h2 {
-        margin: 0;
-        color: var(--chat-text);
-        font: 650 16px/1.4 system-ui, sans-serif;
-        letter-spacing: -.3px;
-    }
-
-    #guest-chat .guest-chat__header p {
-        margin: 3px 0 0;
-        color: #b9b5ae;
-        font-size: 12px;
-    }
-
-    #guest-chat .guest-chat__close {
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        margin-left: auto;
-        padding: 0;
-        border: 1px solid #ffffff12;
-        border-radius: 50%;
-        background: #ffffff05;
-        color: #d4d0c8;
-    }
-
-    #guest-chat .guest-chat__close:hover {
-        background: #ffffff12;
-    }
-
-    /* Berichten */
-    #guest-chat .guest-chat__messages {
-        flex: 1;
-        min-height: 70px;
-        padding: 20px 18px 8px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        scrollbar-width: thin;
-        scrollbar-color: #49443a transparent;
-    }
-
-    #guest-chat .guest-chat__message {
-        width: fit-content;
-        max-width: 94%;
-        margin: 0 0 14px;
-        padding: 12px 15px;
-        border: 1px solid #ffffff0b;
-        border-radius: 4px 17px 17px;
-        background: #1c1f26;
-        color: #e8e6e2;
-        font-size: 14px;
-        line-height: 1.7;
-        overflow-wrap: anywhere;
-        white-space: pre-wrap;
-    }
-
-    #guest-chat .guest-chat__message--user {
-        margin-left: auto;
-        border: 0;
-        border-radius: 17px 4px 17px 17px;
-        background: #e6bd7b;
-        color: #241b0f;
-    }
-
-    #guest-chat .guest-chat__message a {
-        display: block;
-        margin-top: 8px;
-        color: #f0cd93;
-        text-decoration: underline;
-    }
-
-    /* Voorbeeldvragen */
-    #guest-chat .guest-chat__suggestions {
-        display: flex;
-        flex-wrap: wrap;
-        flex-shrink: 0;
-        gap: 7px;
-        padding: 8px 18px 14px;
-    }
-
-    #guest-chat .guest-chat__suggestions button {
-        padding: 8px 11px;
-        border: 1px solid #ffffff18;
-        border-radius: 10px;
-        background: #ffffff03;
-        color: #decba9;
-        font-size: 12px;
-    }
-
-    #guest-chat .guest-chat__suggestions button:hover {
-        border-color: #e6bd7b66;
-        background: #e6bd7b12;
-    }
-
-    /* Bericht invoeren */
-    #guest-chat .guest-chat__form {
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        gap: 8px;
-        margin: 0 14px;
-        padding: 6px;
-        border: 1px solid #ffffff24;
-        border-radius: 16px;
-        background: #090b0e;
-    }
-
-    #guest-chat .guest-chat__form:focus-within {
-        border-color: #e6bd7b88;
-    }
-
-    #guest-chat .guest-chat__form input {
-        width: 100%;
-        min-width: 0;
-        padding: 10px;
-        border: 0;
-        border-radius: 10px;
-        background: transparent;
-        color: var(--chat-text);
-        font-size: 16px;
-    }
-
-    #guest-chat .guest-chat__form input::placeholder {
-        color: #92969e;
-    }
-
-    #guest-chat .guest-chat__send {
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        padding: 0;
-        border: 0;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #f1d39b, #d2a15b);
-        color: #21180b;
-    }
-
-    #guest-chat .guest-chat__notice {
-        flex-shrink: 0;
-        margin: 0;
-        padding: 12px 18px 15px;
-        color: var(--chat-muted);
-        font-size: 10px;
-        line-height: 1.5;
-        text-align: center;
-    }
-
-    @media (max-width: 480px) {
-        #guest-chat {
-            right: 16px;
-            bottom: max(16px, env(safe-area-inset-bottom));
-        }
-
-        #guest-chat .guest-chat__panel {
-            max-height: calc(100dvh - 112px);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        #guest-chat .guest-chat__toggle {
-            transition: none;
-        }
-    }
+#guest-chat { --gold:#e7c28a; --ink:#f4f1eb; --muted:#a0a3ad; position:fixed; right:24px; bottom:max(24px,env(safe-area-inset-bottom)); z-index:1000; font:14px/1.6 system-ui,-apple-system,sans-serif; color:var(--ink); color-scheme:dark; text-align:left; }
+#guest-chat, #guest-chat * { box-sizing:border-box; }
+#guest-chat[hidden], #guest-chat [hidden] { display:none!important; }
+#guest-chat button, #guest-chat textarea { font:inherit; }
+#guest-chat button { cursor:pointer; }
+#guest-chat button:disabled { opacity:.45; cursor:wait; }
+#guest-chat :is(button,a,textarea):focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+#guest-chat svg { width:20px; height:20px; display:block; flex-shrink:0; }
+#guest-chat .gc-icon { display:grid; place-items:center; width:42px; height:42px; flex-shrink:0; border:1px solid #ffe5b44d; border-radius:14px; color:#251b0e; background:linear-gradient(135deg,#f5deaf,#cf9d54); box-shadow:inset 0 1px #fff5; }
+#guest-chat .guest-chat__toggle { display:flex; align-items:center; gap:12px; min-height:64px; margin-left:auto; padding:10px 20px 10px 10px; border:1px solid #d8b77b55; border-radius:22px; color:var(--ink); background:linear-gradient(125deg,#24221e,#111318); box-shadow:0 12px 40px #0008; text-align:left; transition:transform .2s; }
+#guest-chat .guest-chat__toggle:hover { transform:translateY(-3px); }
+#guest-chat .gc-launch-copy { display:flex; flex-direction:column; }
+#guest-chat .gc-launch-copy strong { font-size:14px; font-weight:650; }
+#guest-chat .gc-launch-copy small { color:#b8b0a2; font-size:11px; }
+#guest-chat .guest-chat__panel { display:flex; flex-direction:column; width:min(410px,calc(100vw - 32px)); height:650px; max-height:calc(100dvh - 118px); overflow:hidden; margin-bottom:14px; border:1px solid #e7c28a38; border-radius:24px; background:#101216; box-shadow:0 28px 90px #000a,inset 0 1px #ffffff0a; }
+#guest-chat .guest-chat__header { display:flex; align-items:center; gap:11px; flex-shrink:0; padding:17px 16px; border-bottom:1px solid #ffffff0c; background:linear-gradient(120deg,#242119,#15171c); }
+#guest-chat .guest-chat__header h2 { margin:0; color:var(--ink); font:650 16px/1.4 system-ui,sans-serif; letter-spacing:-.35px; }
+#guest-chat .gc-subtitle { margin:3px 0 0; color:#b6b2a9; font-size:11px; }
+#guest-chat .gc-actions { display:flex; gap:4px; margin-left:auto; }
+#guest-chat .gc-action { display:grid; place-items:center; width:40px; height:44px; padding:0; border:0; border-radius:11px; color:#bbbcbf; background:transparent; }
+#guest-chat .gc-action:hover { color:#fff; background:#ffffff0b; }
+#guest-chat .gc-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#484239 transparent; }
+#guest-chat .gc-welcome { padding:25px 22px 12px; background:radial-gradient(ellipse at 20% 0%,#dfba7610,transparent 75%); }
+#guest-chat .gc-eyebrow { margin:0 0 10px; color:var(--gold); font-size:10px; font-weight:600; letter-spacing:1.6px; text-transform:uppercase; }
+#guest-chat .gc-welcome h3 { margin:0 0 10px; color:#f6f2e9; font:550 28px/1.2 system-ui,sans-serif; letter-spacing:-1px; }
+#guest-chat .gc-welcome > p:last-of-type { margin:0; max-width:310px; font-size:13px; color:var(--muted); line-height:1.7; }
+#guest-chat .guest-chat__suggestions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:21px; }
+#guest-chat .guest-chat__suggestions button { min-height:78px; padding:12px; border:1px solid #ffffff12; border-radius:13px; background:#ffffff03; color:#e2dfd8; text-align:left; font-size:12px; transition:background .15s,border-color .15s; }
+#guest-chat .guest-chat__suggestions button:hover { border-color:#e7c28a66; background:#e7c28a0a; }
+#guest-chat .gc-topic { display:block; margin-bottom:4px; color:#e7c28a; font-size:10px; letter-spacing:.2px; }
+#guest-chat .guest-chat__messages { padding:12px 18px 4px; }
+#guest-chat .gc-turn { margin-bottom:20px; }
+#guest-chat .gc-speaker { display:block; margin:0 0 5px 2px; color:#9a9da6; font-size:10px; letter-spacing:.4px; }
+#guest-chat .guest-chat__message { width:fit-content; max-width:96%; margin:0; padding:12px 14px; border:1px solid #ffffff0b; border-radius:4px 16px 16px; background:#1b1e25; color:#e6e5e1; white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.75; }
+#guest-chat .gc-turn--user { display:flex; flex-direction:column; align-items:flex-end; }
+#guest-chat .guest-chat__message--user { border:0; border-radius:16px 4px 16px 16px; background:#e5c18a; color:#261c0e; }
+#guest-chat .gc-copy { margin-top:6px; padding:5px 7px; border:0; border-radius:6px; color:#a2a5af; background:transparent; font-size:11px; }
+#guest-chat .gc-copy:hover { color:var(--gold); background:#ffffff08; }
+#guest-chat .gc-pending { margin:0 0 14px; padding:10px 0; color:var(--gold); font-size:12px; }
+#guest-chat .gc-bottom { flex-shrink:0; padding-top:9px; border-top:1px solid #ffffff09; background:#111318; }
+#guest-chat .gc-links { display:flex; justify-content:space-between; gap:8px; padding:0 19px 10px; }
+#guest-chat .gc-links a { color:#aaa7a0; font-size:11px; text-decoration:none; }
+#guest-chat .gc-links a:hover { color:var(--gold); text-decoration:underline; }
+#guest-chat .guest-chat__form { display:flex; align-items:flex-end; gap:7px; margin:0 14px; padding:7px; border:1px solid #ffffff24; border-radius:16px; background:#090b0e; }
+#guest-chat .guest-chat__form:focus-within { border-color:#e7c28a88; }
+#guest-chat textarea { display:block; resize:none; width:100%; min-width:0; height:44px; max-height:110px; padding:10px 8px; border:0; border-radius:8px; background:transparent; color:var(--ink); font-size:16px; line-height:24px; }
+#guest-chat textarea::placeholder { color:#898d97; }
+#guest-chat .guest-chat__send { display:grid; place-items:center; width:44px; height:44px; padding:0; flex-shrink:0; border:0; border-radius:11px; background:linear-gradient(135deg,#f2d6a1,#d3a359); color:#261b0b; }
+#guest-chat .guest-chat__notice { margin:0; padding:9px 14px 12px; text-align:center; color:#8f939c; font-size:10px; }
+#guest-chat .gc-reset-confirm { display:flex; align-items:center; gap:8px; padding:10px 16px; background:#252119; font-size:12px; }
+#guest-chat .gc-reset-confirm button { padding:7px 10px; border:1px solid #ffffff20; border-radius:8px; background:#111318; color:#edcf9a; }
+@media(min-width:700px) { #guest-chat .guest-chat__panel[data-expanded="true"] { width:min(640px,calc(100vw - 48px)); height:760px; } }
+@media(max-width:699px) {
+ #guest-chat { right:16px; bottom:max(16px,env(safe-area-inset-bottom)); }
+ #guest-chat .gc-expand { display:none; }
+ #guest-chat[data-open="true"] { bottom:var(--gc-keyboard-bottom,16px); }
+ #guest-chat[data-open="true"] .guest-chat__toggle { display:none; }
+ #guest-chat .guest-chat__panel { width:calc(100vw - 32px); height:640px; max-height:calc(var(--gc-viewport-height,100dvh) - 32px); margin-bottom:0; }
+ #guest-chat .guest-chat__header { padding:12px 14px; }
+ #guest-chat .gc-welcome { padding:20px 18px 10px; }
+}
+@media(prefers-reduced-motion:reduce) { #guest-chat * { transition:none!important; } }
 </style>
 
-<aside
-    class="guest-chat"
-    id="guest-chat"
-    aria-label="Mashal AI-chat"
-    hidden
-    data-endpoint="{{ route('guest-chat.message') }}"
->
-    <section
-        class="guest-chat__panel"
-        id="guest-chat-panel"
-        aria-labelledby="guest-chat-title"
-        hidden
-    >
+<aside id="guest-chat" class="guest-chat" aria-label="Mashal AI-chat" hidden data-endpoint="{{ route('guest-chat.message') }}">
+    <section id="guest-chat-panel" class="guest-chat__panel" aria-labelledby="guest-chat-title" hidden>
         <header class="guest-chat__header">
-            <span class="guest-chat__icon" aria-hidden="true">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/>
-                </svg>
-            </span>
-
-            <div>
-                <h2 id="guest-chat-title">Mashal AI</h2>
-                <p>Je AI-assistent · zonder inloggen</p>
+            <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
+            <div><h2 id="guest-chat-title">Mashal AI</h2><p class="gc-subtitle">Je assistent voor ideeën & antwoorden</p></div>
+            <div class="gc-actions">
+                <button type="button" class="gc-action gc-reset" aria-label="Nieuw gesprek" title="Nieuw gesprek"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                <button type="button" class="gc-action gc-expand" aria-label="Chat vergroten" aria-pressed="false" title="Chat vergroten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6m0 6 7-7"/></svg></button>
+                <button type="button" class="gc-action guest-chat__close" aria-label="Chat sluiten" title="Chat sluiten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
-
-            <button
-                type="button"
-                class="guest-chat__close"
-                aria-label="Chat sluiten"
-            >
-                <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                >
-                    <path d="m6 6 12 12M18 6 6 18"/>
-                </svg>
-            </button>
         </header>
-
-        <div
-            class="guest-chat__messages"
-            role="log"
-            aria-live="polite"
-            aria-relevant="additions"
-            aria-label="Chatberichten"
-        >
-            <p class="guest-chat__message">Hoi, ik ben Mashal AI.
-
-Waar kan ik je mee helpen? Stel een vraag, laat me meedenken of vraag hulp bij Mashal Studio.</p>
+        <div class="gc-reset-confirm" hidden><span>Dit gesprek wissen?</span><button type="button" data-reset-confirm>Wissen</button><button type="button" data-reset-cancel>Annuleren</button></div>
+        <div class="gc-body">
+            <div class="gc-welcome">
+                <p class="gc-eyebrow">Een vraag. Een goed begin.</p>
+                <h3>Waar kan ik je<br>mee helpen?</h3>
+                <p>Van een eerste idee tot hulp bij Mashal Studio. Stel je vraag, dan denken we samen verder.</p>
+                <div class="guest-chat__suggestions" aria-label="Voorbeeldvragen">
+                    <button type="button" data-question="Hoe kan ik een afbeelding uploaden en bewerken op Mashal Studio?"><span class="gc-topic">AFBEELDINGEN</span>Maak meer van je foto</button>
+                    <button type="button" data-question="Help mij een professionele e-mail schrijven."><span class="gc-topic">SCHRIJVEN</span>Vind de juiste woorden</button>
+                    <button type="button" data-question="Ik heb hulp nodig bij het inloggen op Mashal Studio."><span class="gc-topic">ACCOUNT</span>Hulp bij het inloggen</button>
+                    <button type="button" data-question="Wat kan ik allemaal doen met Mashal Studio?"><span class="gc-topic">ONTDEKKEN</span>Leer de website kennen</button>
+                </div>
+            </div>
+            <div class="guest-chat__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Chatberichten"></div>
         </div>
-
-        <div
-            class="guest-chat__suggestions"
-            aria-label="Voorbeeldvragen"
-        >
-            <button
-                type="button"
-                data-question="Wat kun je allemaal voor mij doen?"
-            >Ontdek wat ik kan</button>
-
-            <button
-                type="button"
-                data-question="Help mij een professionele e-mail schrijven."
-            >Help met schrijven</button>
-
-            <button
-                type="button"
-                data-question="Hoe kan ik afbeeldingen bewerken op Mashal Studio?"
-            >Hulp bij de website</button>
+        <div class="gc-bottom">
+            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen ↗</a><a href="{{ route('privacy') }}">Privacy</a></nav>
+            <form class="guest-chat__form">
+                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AI…" maxlength="2000" required></textarea>
+                <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
+            </form>
+            <p class="guest-chat__notice">AI kan fouten maken. Controleer belangrijke informatie.</p>
         </div>
-
-        <form class="guest-chat__form">
-            <input
-                type="text"
-                aria-label="Je bericht aan Mashal AI"
-                placeholder="Vraag het Mashal AI…"
-                maxlength="2000"
-                autocomplete="off"
-                required
-            >
-
-            <button
-                class="guest-chat__send"
-                type="submit"
-                aria-label="Bericht versturen"
-            >
-                <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M12 19V5m-6 6 6-6 6 6"/>
-                </svg>
-            </button>
-        </form>
-
-        <p class="guest-chat__notice">
-            AI kan fouten maken. Controleer belangrijke informatie.
-        </p>
     </section>
-
-    <button
-        type="button"
-        class="guest-chat__toggle"
-        aria-expanded="false"
-        aria-controls="guest-chat-panel"
-        aria-label="Chatten met Mashal AI"
-    >
-        <span class="guest-chat__icon" aria-hidden="true">
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/>
-                <path d="m12.5 7 .9 2.6L16 10.5l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6Z"/>
-            </svg>
-        </span>
-
-        <span class="guest-chat__toggle-copy">
-            <strong>Chat met Mashal AI</strong>
-            <small>Stel gerust je vraag</small>
-        </span>
+    <button type="button" class="guest-chat__toggle" aria-expanded="false" aria-controls="guest-chat-panel" aria-label="Chat met Mashal AI">
+        <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.5 7.2L3 21l1.8-5.7A8 8 0 1 1 20 11.5Z"/><path d="m12 7 1 2.5 2.5 1L13 11.5 12 14l-1-2.5-2.5-1 2.5-1L12 7Z"/></svg></span>
+        <span class="gc-launch-copy"><strong>Chat met Mashal AI</strong><small>Een slimme hulp, dichtbij</small></span>
     </button>
 </aside>
-
-<script src="{{ asset('js/guest-chat.js') }}?v=5" defer></script>
+<script src="{{ asset('js/guest-chat.js') }}?v=6" defer></script>
