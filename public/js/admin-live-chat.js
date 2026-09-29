@@ -1630,6 +1630,8 @@
 
                 || 'Gast · geen accountgegevens';
 
+            syncVisitorTyping(data);
+
 
 
             controls();
@@ -3294,6 +3296,8 @@
 
 
 
+                stopAdminTyping();
+
                 await sendPayload({
 
                     body,
@@ -3317,6 +3321,8 @@
             autoResizeInput();
 
             controls();
+
+            queueAdminTyping();
 
         }
 
@@ -3721,6 +3727,9 @@
         () => {
 
             clearRecordingTimeout();
+
+            stopAdminTyping();
+            hideVisitorTyping();
 
 
 

@@ -1652,6 +1652,8 @@
 
                 === 'closed';
 
+            syncAdminTyping(data);
+
 
 
             reopenButton.hidden =
@@ -3160,6 +3162,8 @@
 
 
 
+            stopVisitorTyping();
+
             await sendPayload({
 
                 body,
@@ -3183,6 +3187,8 @@
             autoResizeTextarea();
 
             updateControls();
+
+            queueVisitorTyping();
 
         }
 
@@ -3627,6 +3633,9 @@
         () => {
 
             clearRecordingTimers();
+
+            stopVisitorTyping();
+            hideAdminTyping();
 
 
 
