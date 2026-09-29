@@ -5374,6 +5374,10 @@
         @endif
     @endauth
 
+    @guest
+        @include('site.partials.guest-chat')
+    @endguest
+
     @include('partials.auth-success-overlay')
 </body>
 </html>
