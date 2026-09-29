@@ -4136,7 +4136,7 @@
 
 <script
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=31"
+    src="{{ asset('js/admin-live-chat.js') }}?v=40"
 
     defer
 

@@ -123,6 +123,8 @@
     const MAX_VOICE_SIZE = 15 * 1024 * 1024;
 
     const MAX_RECORDING_TIME = 5 * 60 * 1000;
+    const TYPING_PING_MS = 1000;
+    const TYPING_IDLE_MS = 2600;
 
 
 
@@ -183,6 +185,11 @@
     let recordingTimer = null;
 
     let recordingTimeout = null;
+
+    let lastTypingPingAt = 0;
+    let typingStopTimer = null;
+    let adminTypingHideTimer = null;
+    let adminTypingIndicator = null;
 
 
 
@@ -419,6 +426,241 @@
 
 
     // =========================================================================
+
+    // =========================================================================
+    // LIVE TYPING INDICATOR
+    // =========================================================================
+
+    function typingEndpoint() {
+        if (live.dataset.typing) {
+            return live.dataset.typing;
+        }
+
+        const url = new URL(
+            live.dataset.store,
+            window.location.origin
+        );
+
+        url.pathname = url.pathname.replace(
+            /\/messages\/?$/,
+            '/typing'
+        );
+
+        return url.toString();
+    }
+
+    function ensureAdminTypingIndicator() {
+        if (adminTypingIndicator) {
+            return adminTypingIndicator;
+        }
+
+        const styleId = 'lc-live-typing-style';
+
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+                .lc-live-typing {
+                    display:flex;
+                    align-items:flex-end;
+                    gap:8px;
+                    padding:6px 10px 8px;
+                }
+                .lc-live-typing[hidden] { display:none !important; }
+                .lc-live-typing__avatar {
+                    width:28px;
+                    height:28px;
+                    flex:0 0 28px;
+                    display:grid;
+                    place-items:center;
+                    overflow:hidden;
+                    border-radius:50%;
+                    background:#343d49;
+                    color:#fff;
+                    font-size:10px;
+                    font-weight:800;
+                }
+                .lc-live-typing__avatar img {
+                    width:100%;
+                    height:100%;
+                    object-fit:cover;
+                }
+                .lc-live-typing__bubble {
+                    display:flex;
+                    align-items:center;
+                    gap:4px;
+                    min-height:36px;
+                    padding:10px 13px;
+                    border-radius:15px 15px 15px 5px;
+                    background:#e8e8ea;
+                    color:#45484d;
+                    box-shadow:0 5px 18px rgba(0,0,0,.10);
+                }
+                .lc-live-typing__dot {
+                    width:6px;
+                    height:6px;
+                    border-radius:50%;
+                    background:#878b92;
+                    animation:lcLiveTypingDot 1.15s infinite ease-in-out;
+                }
+                .lc-live-typing__dot:nth-child(2) { animation-delay:.15s; }
+                .lc-live-typing__dot:nth-child(3) { animation-delay:.30s; }
+                .lc-live-typing__label {
+                    align-self:center;
+                    color:#858a93;
+                    font-size:10px;
+                }
+                @keyframes lcLiveTypingDot {
+                    0%, 60%, 100% { opacity:.35; transform:translateY(0); }
+                    30% { opacity:1; transform:translateY(-4px); }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .lc-live-typing__dot { animation:none; opacity:.75; }
+                }
+            `;
+            document.head.append(style);
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'lc-live-typing';
+        wrapper.hidden = true;
+        wrapper.setAttribute('aria-live', 'polite');
+        wrapper.innerHTML = `
+            <span class="lc-live-typing__avatar" data-live-typing-avatar>M</span>
+            <span class="lc-live-typing__bubble" aria-hidden="true">
+                <span class="lc-live-typing__dot"></span>
+                <span class="lc-live-typing__dot"></span>
+                <span class="lc-live-typing__dot"></span>
+            </span>
+            <span class="lc-live-typing__label" data-live-typing-label>Medewerker typt…</span>
+        `;
+
+        form.parentNode?.insertBefore(wrapper, form);
+        adminTypingIndicator = wrapper;
+        return wrapper;
+    }
+
+    function hideAdminTyping() {
+        if (adminTypingHideTimer) {
+            window.clearTimeout(adminTypingHideTimer);
+            adminTypingHideTimer = null;
+        }
+
+        if (adminTypingIndicator) {
+            adminTypingIndicator.hidden = true;
+        }
+    }
+
+    function syncAdminTyping(data) {
+        const info = data?.typing?.admin || {};
+        const active = Boolean(
+            data?.admin_typing === true ||
+            info?.active === true
+        );
+
+        if (!active || closed) {
+            hideAdminTyping();
+            return;
+        }
+
+        const indicator = ensureAdminTypingIndicator();
+        const name = String(info?.name || 'Medewerker').trim();
+        const avatar = indicator.querySelector('[data-live-typing-avatar]');
+        const label = indicator.querySelector('[data-live-typing-label]');
+
+        if (label) {
+            label.textContent = `${name} typt…`;
+        }
+
+        if (avatar) {
+            avatar.replaceChildren();
+
+            if (info?.avatar) {
+                const image = document.createElement('img');
+                image.src = info.avatar;
+                image.alt = '';
+                image.loading = 'lazy';
+                avatar.append(image);
+            } else {
+                avatar.textContent = name.charAt(0).toUpperCase() || 'M';
+            }
+        }
+
+        indicator.hidden = false;
+
+        if (adminTypingHideTimer) {
+            window.clearTimeout(adminTypingHideTimer);
+        }
+
+        adminTypingHideTimer = window.setTimeout(
+            hideAdminTyping,
+            6500
+        );
+    }
+
+    async function sendVisitorTyping(active) {
+        if (
+            stopped ||
+            closed ||
+            chat.dataset.mode !== 'human'
+        ) {
+            return;
+        }
+
+        try {
+            await api(
+                typingEndpoint(),
+                'POST',
+                { typing: Boolean(active) }
+            );
+        } catch (exception) {
+            console.debug('[LiveChat] typing heartbeat mislukt', exception);
+        }
+    }
+
+    function stopVisitorTyping() {
+        if (typingStopTimer) {
+            window.clearTimeout(typingStopTimer);
+            typingStopTimer = null;
+        }
+
+        lastTypingPingAt = 0;
+        void sendVisitorTyping(false);
+    }
+
+    function queueVisitorTyping() {
+        if (
+            stopped ||
+            closed ||
+            sending ||
+            chat.dataset.mode !== 'human'
+        ) {
+            return;
+        }
+
+        const hasText = input.value.trim() !== '';
+
+        if (!hasText) {
+            stopVisitorTyping();
+            return;
+        }
+
+        const now = Date.now();
+
+        if (now - lastTypingPingAt >= TYPING_PING_MS) {
+            lastTypingPingAt = now;
+            void sendVisitorTyping(true);
+        }
+
+        if (typingStopTimer) {
+            window.clearTimeout(typingStopTimer);
+        }
+
+        typingStopTimer = window.setTimeout(
+            stopVisitorTyping,
+            TYPING_IDLE_MS
+        );
+    }
 
     // API
 

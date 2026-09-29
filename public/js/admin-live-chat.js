@@ -58,6 +58,10 @@
 
     const nextButton = root.querySelector('[data-next]');
 
+    const typingIndicator = root.querySelector('[data-typing-indicator]');
+    const typingAvatar = root.querySelector('[data-typing-avatar]');
+    const typingText = root.querySelector('[data-typing-text]');
+
 
 
     if (
@@ -131,6 +135,8 @@
         maxRecordingMs: 5 * 60 * 1000,
 
         scrollThreshold: 120,
+        typingPingMs: 1000,
+        typingIdleMs: 2600,
 
     });
 
@@ -743,6 +749,136 @@
 
 
     // =========================================================================
+
+    // =========================================================================
+    // TYPING STATUS
+    // =========================================================================
+
+    function hideVisitorTyping() {
+        if (visitorTypingHideTimer) {
+            window.clearTimeout(visitorTypingHideTimer);
+            visitorTypingHideTimer = null;
+        }
+
+        if (typingIndicator) {
+            typingIndicator.hidden = true;
+        }
+    }
+
+    function syncVisitorTyping(data) {
+        if (!typingIndicator) {
+            return;
+        }
+
+        const info = data?.typing?.visitor || {};
+        const active = Boolean(
+            data?.visitor_typing === true ||
+            info?.active === true
+        );
+
+        if (!active || !selected || selected.status === 'closed') {
+            hideVisitorTyping();
+            return;
+        }
+
+        const name = String(
+            info?.name || selected?.name || 'Bezoeker'
+        ).trim();
+
+        if (typingText) {
+            typingText.textContent = `${name} typt…`;
+        }
+
+        if (typingAvatar) {
+            typingAvatar.replaceChildren();
+
+            if (info?.avatar) {
+                const image = document.createElement('img');
+                image.src = info.avatar;
+                image.alt = '';
+                image.loading = 'lazy';
+                typingAvatar.append(image);
+            } else {
+                typingAvatar.textContent = name.charAt(0).toUpperCase() || 'B';
+            }
+        }
+
+        typingIndicator.hidden = false;
+
+        if (visitorTypingHideTimer) {
+            window.clearTimeout(visitorTypingHideTimer);
+        }
+
+        visitorTypingHideTimer = window.setTimeout(
+            hideVisitorTyping,
+            6500
+        );
+    }
+
+    async function sendAdminTyping(active, conversationId = selected?.id) {
+        if (!conversationId || stopped) {
+            return;
+        }
+
+        try {
+            await api(
+                `${root.dataset.base}/${conversationId}/typing`,
+                'POST',
+                { typing: Boolean(active) }
+            );
+        } catch (error) {
+            // Typing is ondersteunende UI. Een mislukte heartbeat mag
+            // het normale chatten niet blokkeren.
+            console.debug('[AdminLiveChat] typing heartbeat mislukt', error);
+        }
+    }
+
+    function stopAdminTyping(conversationId = selected?.id) {
+        if (typingStopTimer) {
+            window.clearTimeout(typingStopTimer);
+            typingStopTimer = null;
+        }
+
+        lastTypingPingAt = 0;
+
+        if (conversationId) {
+            void sendAdminTyping(false, conversationId);
+        }
+    }
+
+    function queueAdminTyping() {
+        if (
+            !selected ||
+            selected.status === 'closed' ||
+            stopped ||
+            busy
+        ) {
+            return;
+        }
+
+        const hasText = input.value.trim() !== '';
+
+        if (!hasText) {
+            stopAdminTyping();
+            return;
+        }
+
+        const now = Date.now();
+
+        if (now - lastTypingPingAt >= CONFIG.typingPingMs) {
+            lastTypingPingAt = now;
+            void sendAdminTyping(true);
+        }
+
+        if (typingStopTimer) {
+            window.clearTimeout(typingStopTimer);
+        }
+
+        typingStopTimer = window.setTimeout(
+            () => stopAdminTyping(),
+            CONFIG.typingIdleMs
+        );
+    }
 
     // CONTROLS
 
