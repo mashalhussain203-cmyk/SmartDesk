@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AdminLiveChatController;
 use App\Http\Controllers\LiveChatController;
+use App\Http\Controllers\MailgunLiveChatWebhookController;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
@@ -29,6 +32,18 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->block(10, 10)
         ->name('reopen');
 });
+
+
+Route::post(
+    '/webhooks/live-chat/mailgun/{secret}',
+    MailgunLiveChatWebhookController::class
+)
+    ->withoutMiddleware([
+        ValidateCsrfToken::class,
+        VerifyCsrfToken::class,
+    ])
+    ->middleware('throttle:120,1')
+    ->name('webhooks.live-chat.mailgun');
 
 Route::middleware('auth')
     ->prefix('admin/live-chat')
@@ -59,6 +74,11 @@ Route::middleware('auth')
             ->whereNumber('conversation')
             ->middleware('throttle:120,1')
             ->name('typing');
+
+        Route::post('/conversations/{conversation}/email-handoff', [AdminLiveChatController::class, 'emailHandoff'])
+            ->whereNumber('conversation')
+            ->middleware('throttle:20,1')
+            ->name('email-handoff');
 
         Route::delete('/conversations/{conversation}/messages/{message}', [AdminLiveChatController::class, 'destroy'])
             ->whereNumber('conversation')

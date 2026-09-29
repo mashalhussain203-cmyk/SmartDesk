@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 
 
+use App\Services\LiveChatEmailService;
 use App\Services\LiveChatService;
 
 use Illuminate\Contracts\View\View;
@@ -119,6 +120,12 @@ class AdminLiveChatController extends Controller
                 'c.status',
 
                 'c.last_message_at',
+
+                'c.delivery_channel',
+
+                'c.contact_email',
+
+                'c.email_handoff_at',
 
                 'u.name',
 
@@ -272,11 +279,35 @@ class AdminLiveChatController extends Controller
 
 
 
-                        'email' => $userId
+                        'email' =>
 
-                            ? $conversation->email
+                            $conversation->contact_email
 
-                            : null,
+                            ?: (
+
+                                $userId
+
+                                    ? $conversation->email
+
+                                    : null
+
+                            ),
+
+
+
+                        'delivery_channel' =>
+
+                            $conversation->delivery_channel
+
+                            ?? 'live',
+
+
+
+                        'email_handoff_at' =>
+
+                            $conversation->email_handoff_at
+
+                            ?? null,
 
 
 
@@ -378,15 +409,37 @@ class AdminLiveChatController extends Controller
 
         $record = DB::table(
 
-            'live_chat_conversations'
+            'live_chat_conversations as c'
 
         )
 
+            ->leftJoin(
+
+                'users as u',
+
+                'u.id',
+
+                '=',
+
+                'c.user_id'
+
+            )
+
             ->where(
 
-                'id',
+                'c.id',
 
                 $conversation
+
+            )
+
+            ->select(
+
+                'c.*',
+
+                'u.name as user_name',
+
+                'u.email as user_email'
 
             )
 
@@ -409,6 +462,40 @@ class AdminLiveChatController extends Controller
             $record,
 
             (int) ($data['after'] ?? 0)
+
+        );
+
+
+
+        $payload['conversation'] = array_merge(
+
+            $payload['conversation'] ?? [],
+
+            [
+
+                'name' => $record->user_id
+
+                    ? ($record->user_name ?: 'Gebruiker')
+
+                    : 'Gast #'.$record->id,
+
+                'email' => $record->contact_email
+
+                    ?: $record->user_email,
+
+                'delivery_channel' =>
+
+                    $record->delivery_channel
+
+                    ?? 'live',
+
+                'email_handoff_at' =>
+
+                    $record->email_handoff_at
+
+                    ?? null,
+
+            ]
 
         );
 
@@ -485,6 +572,8 @@ class AdminLiveChatController extends Controller
         Request $request,
 
         LiveChatService $chat,
+
+        LiveChatEmailService $email,
 
         int $conversation
 
@@ -794,6 +883,14 @@ class AdminLiveChatController extends Controller
 
         );
 
+        $emailDelivery = $email->deliverAdminMessage(
+
+            $conversation,
+
+            (string) $data['client_id']
+
+        );
+
         $chat->setAdminTyping(
             $conversation,
             (int) $request->user()->id,
@@ -808,6 +905,18 @@ class AdminLiveChatController extends Controller
 
                 'ok' => true,
 
+                'email_sent' =>
+
+                    $emailDelivery['sent'],
+
+                'email_skipped' =>
+
+                    $emailDelivery['skipped'],
+
+                'email_error' =>
+
+                    $emailDelivery['error'],
+
             ])
 
             ->header(
@@ -818,6 +927,96 @@ class AdminLiveChatController extends Controller
 
             );
 
+    }
+
+
+
+    public function emailHandoff(
+        Request $request,
+        LiveChatEmailService $email,
+        int $conversation
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+
+        $data = $request->validate([
+            'enabled' => [
+                'required',
+                'boolean',
+            ],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+            ],
+        ]);
+
+        if ((bool) $data['enabled']) {
+            $record = DB::table(
+                'live_chat_conversations as c'
+            )
+                ->leftJoin(
+                    'users as u',
+                    'u.id',
+                    '=',
+                    'c.user_id'
+                )
+                ->where(
+                    'c.id',
+                    $conversation
+                )
+                ->select(
+                    'c.contact_email',
+                    'u.email as user_email'
+                )
+                ->first();
+
+            abort_unless($record, 404);
+
+            $targetEmail = trim(
+                (string) (
+                    $data['email']
+                    ?: $record->contact_email
+                    ?: $record->user_email
+                    ?: ''
+                )
+            );
+
+            if ($targetEmail === '') {
+                return response()->json(
+                    [
+                        'message' =>
+                            'Vul eerst het e-mailadres van de klant in.',
+                        'errors' => [
+                            'email' => [
+                                'Een e-mailadres is nodig om het gesprek via e-mail voort te zetten.',
+                            ],
+                        ],
+                    ],
+                    422
+                );
+            }
+
+            $result = $email->enable(
+                $conversation,
+                $targetEmail,
+                (int) $request->user()->id
+            );
+        } else {
+            $result = $email->disable(
+                $conversation
+            );
+        }
+
+        return response()
+            ->json(
+                [
+                    'ok' => true,
+                ] + $result
+            )
+            ->header(
+                'Cache-Control',
+                'no-store'
+            );
     }
 
 

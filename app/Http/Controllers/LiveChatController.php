@@ -37,6 +37,26 @@ class LiveChatController extends Controller
         Request $request,
         LiveChatService $chat
     ): JsonResponse {
+        $existingConversation = $chat->visitorConversation(
+            $request
+        );
+
+        if (
+            $existingConversation
+            && (
+                $existingConversation->delivery_channel
+                ?? 'live'
+            ) === 'email'
+        ) {
+            return response()->json(
+                [
+                    'message' =>
+                        'Dit gesprek gaat verder via e-mail. Antwoord op de e-mail van Mashal Support om verder te chatten.',
+                ],
+                409
+            );
+        }
+
         $type = strtolower(
             trim((string) $request->input('type', 'text'))
         );
@@ -112,6 +132,9 @@ class LiveChatController extends Controller
                 'conversation' => [
                     'id' => $conversation->id,
                     'status' => $conversation->status,
+                    'delivery_channel' =>
+                        $conversation->delivery_channel
+                        ?? 'live',
                 ],
             ])
             ->header('Cache-Control', 'no-store');

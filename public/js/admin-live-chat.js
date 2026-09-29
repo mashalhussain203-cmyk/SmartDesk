@@ -70,6 +70,10 @@
 
 
 
+    const emailHandoffButton = root.querySelector('[data-email-handoff]');
+
+
+
     const filter = root.querySelector('select');
 
 
@@ -151,6 +155,10 @@
 
 
         !closeButton ||
+
+
+
+        !emailHandoffButton ||
 
 
 
@@ -1935,6 +1943,86 @@
 
 
 
+        emailHandoffButton.disabled =
+
+
+
+            !selected
+
+
+
+            || busy
+
+
+
+            || stopped;
+
+
+
+
+
+
+
+        emailHandoffButton.hidden =
+
+
+
+            !selected;
+
+
+
+
+
+
+
+        const emailMode =
+
+
+
+            selected?.delivery_channel
+
+
+
+            === 'email';
+
+
+
+
+
+
+
+        emailHandoffButton.dataset.active =
+
+
+
+            String(Boolean(emailMode));
+
+
+
+
+
+
+
+        emailHandoffButton.textContent =
+
+
+
+            emailMode
+
+
+
+                ? '↩ Terug naar live chat'
+
+
+
+                : '✉ Verder via e-mail';
+
+
+
+
+
+
+
         statusNode.textContent =
 
 
@@ -1944,6 +2032,10 @@
 
 
                 ? formatStatus(selected.status)
+
+
+
+                    + (emailMode ? ' · E-mail' : '')
 
 
 
@@ -2815,27 +2907,63 @@
 
 
 
-            message.sender_name
+            (
 
 
 
-            || (
+                message.sender_name
 
 
 
-                message.sender === 'admin'
+                || (
 
 
 
-                    ? 'MEDEWERKER'
+                    message.sender === 'admin'
 
 
 
-                    : selected?.name
+                        ? 'MEDEWERKER'
 
 
 
-                        || 'BEZOEKER'
+                        : selected?.name
+
+
+
+                            || 'BEZOEKER'
+
+
+
+                )
+
+
+
+            )
+
+
+
+            + (
+
+
+
+                message.source === 'email'
+
+
+
+                    ? ' · VIA E-MAIL'
+
+
+
+                    : message.email_sent_at
+
+
+
+                        ? ' · PER E-MAIL VERSTUURD'
+
+
+
+                        : ''
 
 
 
@@ -3203,6 +3331,42 @@
 
 
 
+            selected.delivery_channel =
+
+
+
+                data.conversation.delivery_channel
+
+
+
+                || selected.delivery_channel
+
+
+
+                || 'live';
+
+
+
+
+
+
+
+            selected.email_handoff_at =
+
+
+
+                data.conversation.email_handoff_at
+
+
+
+                || null;
+
+
+
+
+
+
+
             const messages =
 
 
@@ -3263,7 +3427,31 @@
 
 
 
-                || 'Gast · geen accountgegevens';
+                    ? selected.email
+
+
+
+                        + (
+
+
+
+                            selected.delivery_channel === 'email'
+
+
+
+                                ? ' · gesprek via e-mail'
+
+
+
+                                : ''
+
+
+
+                        )
+
+
+
+                    : 'Gast · geen accountgegevens';
 
 
 
@@ -3775,7 +3963,27 @@
 
 
 
-            formatStatus(item.status);
+            formatStatus(item.status)
+
+
+
+            + (
+
+
+
+                item.delivery_channel === 'email'
+
+
+
+                    ? ' · E-mail'
+
+
+
+                    : ''
+
+
+
+            );
 
 
 
@@ -4851,7 +5059,7 @@
 
 
 
-            await api(
+            const result = await api(
 
 
 
@@ -4900,6 +5108,50 @@
 
 
             await inbox();
+
+
+
+
+
+
+
+            if (
+
+
+
+                result?.email_sent === false
+
+
+
+                && result?.email_skipped !== true
+
+
+
+                && result?.email_error
+
+
+
+            ) {
+
+
+
+                fail(
+
+
+
+                    'Bericht is opgeslagen, maar de e-mail kon niet worden verstuurd: '
+
+
+
+                    + result.email_error
+
+
+
+                );
+
+
+
+            }
 
 
 
@@ -6966,6 +7218,180 @@
         }
 
 
+
+    );
+
+
+
+
+
+
+
+    emailHandoffButton.addEventListener(
+
+        'click',
+
+        async () => {
+
+            if (
+
+                !selected
+
+                || busy
+
+                || stopped
+
+            ) {
+
+                return;
+
+            }
+
+            const enabling =
+
+                selected.delivery_channel !== 'email';
+
+            let email =
+
+                String(selected.email || '').trim();
+
+            if (enabling && !email) {
+
+                email = String(
+
+                    window.prompt(
+
+                        'Op welk e-mailadres wil je dit gesprek voortzetten?',
+
+                        ''
+
+                    ) || ''
+
+                ).trim();
+
+                if (!email) {
+
+                    return;
+
+                }
+
+            }
+
+            if (
+
+                !window.confirm(
+
+                    enabling
+
+                        ? `Gesprek voortzetten via e-mail naar ${email}?`
+
+                        : 'Dit gesprek terugzetten naar normale live-chat?'
+
+                )
+
+            ) {
+
+                return;
+
+            }
+
+            busy = true;
+
+            controls();
+
+            fail('');
+
+            try {
+
+                const result = await api(
+
+                    `${root.dataset.base}/${selected.id}/email-handoff`,
+
+                    'POST',
+
+                    {
+
+                        enabled: enabling,
+
+                        email: enabling ? email : null,
+
+                    }
+
+                );
+
+                if (result?.conversation) {
+
+                    selected = {
+
+                        ...selected,
+
+                        ...result.conversation,
+
+                        id: Number(
+
+                            result.conversation.id
+
+                            || selected.id
+
+                        ),
+
+                    };
+
+                } else {
+
+                    selected.delivery_channel =
+
+                        enabling
+
+                            ? 'email'
+
+                            : 'live';
+
+                    if (enabling) {
+
+                        selected.email = email;
+
+                    }
+
+                }
+
+                await detail();
+
+                await inbox();
+
+                if (
+
+                    enabling
+
+                    && result?.email_sent === false
+
+                    && result?.email_error
+
+                ) {
+
+                    fail(
+
+                        'E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: '
+
+                        + result.email_error
+
+                    );
+
+                }
+
+            } catch (error) {
+
+                fail(error.message);
+
+            } finally {
+
+                busy = false;
+
+                controls();
+
+            }
+
+        }
 
     );
 

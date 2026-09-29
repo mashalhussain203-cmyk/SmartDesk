@@ -1772,6 +1772,38 @@
 
 
 
+    .lca-email-handoff {
+
+        color: #f8d49a !important;
+
+        border-color:
+
+            rgba(232, 190, 126, 0.30) !important;
+
+        background:
+
+            rgba(232, 190, 126, 0.09) !important;
+
+    }
+
+
+
+    .lca-email-handoff[data-active="true"] {
+
+        color: #b9f6ce !important;
+
+        border-color:
+
+            rgba(83, 196, 125, 0.30) !important;
+
+        background:
+
+            rgba(83, 196, 125, 0.10) !important;
+
+    }
+
+
+
     /* Message log */
 
 
@@ -3808,6 +3840,26 @@
 
                             type="button"
 
+                            class="lca-email-handoff"
+
+                            data-email-handoff
+
+                            data-active="false"
+
+                            hidden
+
+                        >
+
+                            ✉ Verder via e-mail
+
+                        </button>
+
+
+
+                        <button
+
+                            type="button"
+
                             class="lca-close"
 
                             data-close
@@ -4136,7 +4188,7 @@
 
 <script
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=40"
+    src="{{ asset('js/admin-live-chat.js') }}?v=50"
 
     defer
 

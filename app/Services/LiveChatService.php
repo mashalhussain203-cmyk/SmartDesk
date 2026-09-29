@@ -355,6 +355,24 @@ class LiveChatService
 
                     'status' => $conversation->status,
 
+                    'delivery_channel' =>
+
+                        $conversation->delivery_channel
+
+                        ?? 'live',
+
+                    'contact_email' =>
+
+                        $conversation->contact_email
+
+                        ?? null,
+
+                    'email_handoff_at' =>
+
+                        $conversation->email_handoff_at
+
+                        ?? null,
+
                 ]
 
                 : null,
@@ -560,6 +578,30 @@ class LiveChatService
 
 
 
+                            'source' =>
+
+                                $message->source
+
+                                ?? 'live',
+
+
+
+                            'email_sent_at' =>
+
+                                $message->email_sent_at
+
+                                ?? null,
+
+
+
+                            'email_delivery_error' =>
+
+                                $message->email_delivery_error
+
+                                ?? null,
+
+
+
                             'created_at' =>
 
                                 $message->created_at,
@@ -594,7 +636,14 @@ class LiveChatService
             return null;
         }
 
-        if (! $typing || $conversation->status === 'closed') {
+        if (
+            ! $typing
+            || $conversation->status === 'closed'
+            || (
+                $conversation->delivery_channel
+                ?? 'live'
+            ) === 'email'
+        ) {
             Cache::forget(
                 $this->typingKey((int) $conversation->id, 'visitor')
             );
@@ -667,7 +716,14 @@ class LiveChatService
         ?stdClass $conversation,
         string $sender
     ): array {
-        if (! $conversation || $conversation->status === 'closed') {
+        if (
+            ! $conversation
+            || $conversation->status === 'closed'
+            || (
+                $conversation->delivery_channel
+                ?? 'live'
+            ) === 'email'
+        ) {
             return [
                 'active' => false,
                 'name' => null,
