@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AiChatController;
 
+use App\Http\Controllers\GuestChatController;
+
 use App\Http\Controllers\EmailLoginController;
 
 use App\Http\Controllers\FacebookAuthController;
@@ -43,6 +45,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\XAuthController;
 
 use Illuminate\Support\Facades\Route;
+
+Route::post('/guest-chat/message', [GuestChatController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('guest-chat.message');
 
 /*
 
