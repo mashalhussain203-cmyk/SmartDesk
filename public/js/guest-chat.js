@@ -41,7 +41,7 @@
             viewport();
             // Focus the close control on mobile so opening the chat does not open the keyboard.
             if (window.matchMedia('(max-width: 699px)').matches) chat.querySelector('.guest-chat__close').focus();
-            else input.focus();
+            else (chat.dataset.mode === 'human' ? chat.querySelector('.lc-input') : input).focus();
         } else toggle.focus();
     }
 
@@ -83,11 +83,12 @@
         input.disabled = value;
         reset.disabled = value;
         suggestions.forEach(button => { button.disabled = value; });
+        chat.querySelectorAll('[data-chat-mode]').forEach(button => { button.disabled = value; });
     }
 
     async function ask(question) {
         const text = question.trim().slice(0, 2000);
-        if (!text || busy) return;
+        if (!text || busy || chat.dataset.mode === 'human') return;
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         if (!csrf || !chat.dataset.endpoint) {
             appendMessage('De chat kon niet starten. Vernieuw de pagina en probeer opnieuw.');

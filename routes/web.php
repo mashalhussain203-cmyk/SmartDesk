@@ -1955,3 +1955,5 @@ require __DIR__ . '/ai-studio.php';
 */
 
 require __DIR__ . '/passkeys.php';
+
+require __DIR__ . '/live-chat.php';

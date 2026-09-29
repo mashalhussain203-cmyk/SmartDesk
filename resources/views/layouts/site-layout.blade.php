@@ -5374,9 +5374,7 @@
         @endif
     @endauth
 
-    @guest
-        @include('site.partials.guest-chat')
-    @endguest
+    @include('site.partials.guest-chat')
 
     @include('partials.auth-success-overlay')
 </body>
