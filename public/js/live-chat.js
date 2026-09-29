@@ -1,93 +1,68 @@
 (() => {
     'use strict';
 
-    const root = document.getElementById('admin-live-chat');
+    const chat = document.getElementById('guest-chat');
 
-    if (!root) {
+    if (!chat) {
+        return;
+    }
+
+    const live = chat.querySelector('.lc-panel');
+
+    if (!live) {
         return;
     }
 
     // =========================================================================
-    // DOM
+    // ELEMENTEN
     // =========================================================================
 
-    const el = {
-        online: root.querySelector('#lca-online'),
-        error: root.querySelector('.lca-error'),
-        list: root.querySelector('.lca-list'),
-        filter: root.querySelector('[data-filter]'),
-        search: root.querySelector('[data-search]'),
-        refresh: root.querySelector('[data-refresh]'),
-        inboxCount: root.querySelector('[data-inbox-count]'),
-        prev: root.querySelector('[data-prev]'),
-        next: root.querySelector('[data-next]'),
-        page: root.querySelector('[data-page]'),
+    const aiBody = chat.querySelector('.gc-body');
+    const aiBottom = chat.querySelector('.gc-bottom');
+    const reset = chat.querySelector('.gc-reset');
+    const resetConfirm = chat.querySelector('.gc-reset-confirm');
+    const header = chat.querySelector('#guest-chat-title');
+    const subtitle = chat.querySelector('.gc-subtitle');
 
-        name: root.querySelector('[data-name]'),
-        email: root.querySelector('[data-email]'),
-        status: root.querySelector('[data-status]'),
-        close: root.querySelector('[data-close]'),
-
-        log: root.querySelector('.lca-log'),
-        emptyChat: root.querySelector('[data-empty-chat]'),
-        scrollDown: root.querySelector('[data-scroll-down]'),
-
-        typingIndicator: root.querySelector('[data-typing-indicator]'),
-        typingText: root.querySelector('[data-typing-text]'),
-        typingAvatar: root.querySelector('[data-typing-avatar]'),
-
-        form: root.querySelector('.lca-form'),
-        textarea: root.querySelector('.lca-form textarea'),
-        submit: root.querySelector('.lca-form [type="submit"]'),
-        file: root.querySelector('.lca-file'),
-        voice: root.querySelector('.lca-voice'),
-        composerState: root.querySelector('[data-composer-state]'),
-        recorderState: root.querySelector('[data-recorder-state]'),
-
-        toasts: root.querySelector('[data-toasts]'),
-    };
+    const status = live.querySelector('.lc-status');
+    const log = live.querySelector('.lc-log');
+    const errorBox = live.querySelector('.lc-error');
+    const form = live.querySelector('form');
+    const input = live.querySelector('.lc-input');
+    const sendButton = live.querySelector('[type="submit"]');
+    const reopenButton = live.querySelector('.lc-reopen');
+    const fileInput = live.querySelector('.lc-file');
+    const voiceButton = live.querySelector('.lc-voice');
+    const toggleButton = chat.querySelector('.guest-chat__toggle');
+    const guestPanel = chat.querySelector('.guest-chat__panel');
 
     if (
-        !el.online ||
-        !el.error ||
-        !el.list ||
-        !el.filter ||
-        !el.prev ||
-        !el.next ||
-        !el.page ||
-        !el.name ||
-        !el.email ||
-        !el.status ||
-        !el.close ||
-        !el.log ||
-        !el.form ||
-        !el.textarea ||
-        !el.submit ||
-        !el.file ||
-        !el.voice
+        !status ||
+        !log ||
+        !errorBox ||
+        !form ||
+        !input ||
+        !sendButton ||
+        !reopenButton ||
+        !fileInput ||
+        !voiceButton
     ) {
-        console.error('[AdminLiveChat] Vereiste HTML-elementen ontbreken.');
+        console.error('[LiveChat] Vereiste HTML-elementen ontbreken.');
         return;
     }
 
     // =========================================================================
-    // CONFIG
+    // INSTELLINGEN
     // =========================================================================
 
-    const CONFIG = Object.freeze({
-        inboxInterval: 5000,
-        conversationInterval: 3000,
-        presenceInterval: 25000,
-        requestTimeout: 30000,
-        maxTextLength: 4000,
-        maxFileSize: 20 * 1024 * 1024,
-        maxVoiceSize: 15 * 1024 * 1024,
-        maxRecordingTime: 5 * 60 * 1000,
-        recorderSlice: 250,
-        nearBottomThreshold: 140,
-    });
+    const POLL_INTERVAL = 3000;
+    const REQUEST_TIMEOUT = 30000;
+    const MAX_TEXT_LENGTH = 4000;
+    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+    const MAX_VOICE_SIZE = 15 * 1024 * 1024;
+    const MAX_RECORDING_TIME = 5 * 60 * 1000;
 
-    const recorderTypes = [
+    const supportedRecorderTypes = [
         'audio/webm;codecs=opus',
         'audio/webm',
         'audio/ogg;codecs=opus',
@@ -96,245 +71,148 @@
     ];
 
     // =========================================================================
-    // STATE
+    // STATUS
     // =========================================================================
 
-    const state = {
-        page: 1,
-        lastPage: 1,
-        filter: 'active',
-        search: '',
-        selectedId: null,
-        selected: null,
+    let loaded = false;
+    let fetching = false;
+    let sending = false;
+    let closed = false;
+    let stopped = false;
+    let lastMessageId = 0;
+    let identity = null;
 
-        inboxLoading: false,
-        conversationLoading: false,
-        sending: false,
-        closing: false,
-        stopped: false,
+    const seen = new Set();
 
-        lastMessageId: 0,
-        seen: new Set(),
-        cachedItems: [],
-
-        typing: false,
-        typingName: '',
-        typingAvatar: '',
-        typingHideTimer: null,
-
-        inboxTimer: null,
-        conversationTimer: null,
-        presenceTimer: null,
-        searchTimer: null,
-
-        recorder: null,
-        stream: null,
-        chunks: [],
-        recorderMime: '',
-        recordingStartedAt: 0,
-        recordingTimer: null,
-        recordingTimeout: null,
-    };
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let audioChunks = [];
+    let recorderMimeType = '';
+    let recordingStartedAt = 0;
+    let recordingTimer = null;
+    let recordingTimeout = null;
 
     // =========================================================================
-    // UTILS
+    // ALGEMENE HULPFUNCTIES
     // =========================================================================
 
-    function csrf() {
+    function makeUuid() {
+        if (window.crypto?.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+            /[xy]/g,
+            character => {
+                const random = Math.random() * 16 | 0;
+                const value = character === 'x'
+                    ? random
+                    : (random & 0x3 | 0x8);
+
+                return value.toString(16);
+            }
+        );
+    }
+
+    function csrfToken() {
         return document
             .querySelector('meta[name="csrf-token"]')
             ?.getAttribute('content') || '';
     }
 
-    function uuid() {
-        if (crypto?.randomUUID) {
-            return crypto.randomUUID();
-        }
-
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const random = Math.random() * 16 | 0;
-            const value = c === 'x'
-                ? random
-                : (random & 0x3 | 0x8);
-
-            return value.toString(16);
-        });
-    }
-
-    function normalizeMime(value) {
-        return String(value || '')
+    function normalizeMime(mime) {
+        return String(mime || '')
             .trim()
             .toLowerCase()
             .split(';')[0];
     }
 
-    function formatBytes(value) {
-        const bytes = Number(value || 0);
+    function formatBytes(bytes) {
+        const value = Number(bytes || 0);
 
-        if (bytes <= 0) return '0 B';
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    }
-
-    function formatDate(value) {
-        if (!value) {
-            return '';
+        if (value <= 0) {
+            return '0 B';
         }
 
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return '';
+        if (value < 1024) {
+            return `${value} B`;
         }
 
-        const now = new Date();
-        const sameDay =
-            date.getFullYear() === now.getFullYear()
-            && date.getMonth() === now.getMonth()
-            && date.getDate() === now.getDate();
-
-        if (sameDay) {
-            return new Intl.DateTimeFormat('nl-NL', {
-                hour: '2-digit',
-                minute: '2-digit',
-            }).format(date);
+        if (value < 1024 * 1024) {
+            return `${(value / 1024).toFixed(1)} KB`;
         }
 
-        return new Intl.DateTimeFormat('nl-NL', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(date);
+        return `${(value / (1024 * 1024)).toFixed(1)} MB`;
     }
-
-    function escapeSelector(value) {
-        if (window.CSS?.escape) {
-            return CSS.escape(String(value));
-        }
-
-        return String(value).replace(/["\\]/g, '\\$&');
-    }
-
-    function isNearBottom() {
-        return (
-            el.log.scrollHeight
-            - el.log.scrollTop
-            - el.log.clientHeight
-        ) < CONFIG.nearBottomThreshold;
-    }
-
-    function scrollBottom(smooth = false) {
-        el.log.scrollTo({
-            top: el.log.scrollHeight,
-            behavior: smooth ? 'smooth' : 'auto',
-        });
-    }
-
-    function autoResize() {
-        el.textarea.style.height = 'auto';
-
-        const height = Math.min(
-            Math.max(el.textarea.scrollHeight, 44),
-            150
-        );
-
-        el.textarea.style.height = `${height}px`;
-    }
-
-    // =========================================================================
-    // UI FEEDBACK
-    // =========================================================================
 
     function showError(message = '') {
         const text = String(message || '').trim();
 
-        el.error.textContent = text;
-        el.error.hidden = text === '';
+        errorBox.textContent = text;
+        errorBox.hidden = text === '';
     }
 
-    function toast(message, kind = 'info', ttl = 3200) {
-        if (!el.toasts) {
+    function setStatus(message = '') {
+        status.textContent = String(message || '');
+    }
+
+    function scrollToBottom(smooth = false) {
+        if (typeof log.scrollTo === 'function') {
+            log.scrollTo({
+                top: log.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto',
+            });
+
             return;
         }
 
-        const item = document.createElement('div');
-
-        item.className = 'lca-toast';
-        item.dataset.kind = kind;
-        item.textContent = String(message || '');
-
-        el.toasts.append(item);
-
-        window.setTimeout(() => {
-            item.remove();
-        }, ttl);
+        log.scrollTop = log.scrollHeight;
     }
 
-    function setComposerState(text) {
-        if (el.composerState) {
-            el.composerState.textContent = text;
-        }
+    function nearBottom() {
+        return (
+            log.scrollHeight
+            - log.scrollTop
+            - log.clientHeight
+        ) < 120;
     }
 
-    function setRecorderState(text = '') {
-        if (el.recorderState) {
-            el.recorderState.textContent = text;
-        }
+    function autoResizeTextarea() {
+        input.style.height = 'auto';
+
+        const height = Math.min(
+            Math.max(input.scrollHeight, 44),
+            160
+        );
+
+        input.style.height = `${height}px`;
     }
 
     function updateControls() {
-        const selected = Boolean(state.selectedId);
-        const closed = state.selected?.status === 'closed';
-
-        el.textarea.disabled =
-            !selected ||
+        const unavailable =
+            stopped ||
             closed ||
-            state.sending ||
-            state.stopped;
+            sending ||
+            !loaded;
 
-        el.file.disabled =
-            !selected ||
+        input.disabled =
+            stopped ||
             closed ||
-            state.sending ||
-            state.stopped;
+            sending;
 
-        el.voice.disabled =
-            !selected ||
-            closed ||
-            state.sending ||
-            state.stopped;
+        fileInput.disabled = unavailable;
+        voiceButton.disabled = unavailable;
 
-        el.submit.disabled =
-            !selected ||
-            closed ||
-            state.sending ||
-            state.stopped ||
-            el.textarea.value.trim() === '';
-
-        el.close.hidden = !selected;
-        el.close.disabled =
-            !selected ||
-            state.closing;
-
-        if (!selected) {
-            setComposerState('Selecteer een gesprek om te antwoorden.');
-        } else if (closed) {
-            setComposerState('Dit gesprek is afgesloten.');
-        } else if (state.sending) {
-            setComposerState('Bericht wordt verstuurd…');
-        } else {
-            setComposerState('Enter = verzenden · Shift+Enter = nieuwe regel');
-        }
+        sendButton.disabled =
+            unavailable ||
+            input.value.trim() === '';
     }
 
     // =========================================================================
     // API
     // =========================================================================
 
-    async function readJson(response) {
+    async function responseJson(response) {
         try {
             return await response.json();
         } catch {
@@ -342,36 +220,47 @@
         }
     }
 
-    function validationMessage(payload) {
+    function firstValidationError(payload) {
         const errors = payload?.errors;
 
         if (errors && typeof errors === 'object') {
-            const preferred = ['attachment', 'body', 'client_id', 'status', 'online'];
+            const preferredFields = [
+                'attachment',
+                'body',
+                'client_id',
+                'type',
+            ];
 
-            for (const field of preferred) {
+            for (const field of preferredFields) {
                 const messages = errors[field];
 
-                if (Array.isArray(messages) && messages[0]) {
+                if (Array.isArray(messages) && messages.length > 0) {
                     return String(messages[0]);
                 }
             }
 
             for (const messages of Object.values(errors)) {
-                if (Array.isArray(messages) && messages[0]) {
+                if (Array.isArray(messages) && messages.length > 0) {
                     return String(messages[0]);
                 }
             }
         }
 
-        return payload?.message || 'De invoer is ongeldig.';
+        return payload?.message
+            ? String(payload.message)
+            : 'De invoer is ongeldig.';
     }
 
-    async function api(url, method = 'GET', data = undefined) {
+    async function api(
+        url,
+        method = 'GET',
+        data = undefined
+    ) {
         const isForm = data instanceof FormData;
 
         const headers = {
             Accept: 'application/json',
-            'X-CSRF-TOKEN': csrf(),
+            'X-CSRF-TOKEN': csrfToken(),
         };
 
         if (!isForm && data !== undefined) {
@@ -379,9 +268,10 @@
         }
 
         const controller = new AbortController();
-        const timeout = window.setTimeout(
+
+        const timeoutId = window.setTimeout(
             () => controller.abort(),
-            CONFIG.requestTimeout
+            REQUEST_TIMEOUT
         );
 
         let response;
@@ -394,1532 +284,1448 @@
                 headers,
                 body: data === undefined
                     ? undefined
-                    : isForm
-                        ? data
-                        : JSON.stringify(data),
+                    : (
+                        isForm
+                            ? data
+                            : JSON.stringify(data)
+                    ),
                 signal: controller.signal,
             });
-        } catch (error) {
-            if (error?.name === 'AbortError') {
-                throw new Error('De server reageert te langzaam. Probeer opnieuw.');
+        } catch (exception) {
+            if (exception?.name === 'AbortError') {
+                const timeoutError = new Error(
+                    'De verbinding duurt te lang. Probeer opnieuw.'
+                );
+
+                timeoutError.name = 'TimeoutError';
+
+                throw timeoutError;
             }
 
             if (!navigator.onLine) {
-                throw new Error('Je internetverbinding is weggevallen.');
+                throw new Error(
+                    'Je internetverbinding is weggevallen.'
+                );
             }
 
-            throw new Error('De server kon niet worden bereikt.');
+            throw new Error(
+                'Live chat kon geen verbinding maken met de server.'
+            );
         } finally {
-            window.clearTimeout(timeout);
+            window.clearTimeout(timeoutId);
         }
 
-        const payload = await readJson(response);
+        const payload = await responseJson(response);
 
         if (response.ok) {
             return payload || {};
         }
 
-        if (response.status === 401 || response.status === 419) {
-            state.stopped = true;
-            updateControls();
+        if (
+            response.status === 401 ||
+            response.status === 419
+        ) {
+            stopped = true;
+            loaded = false;
+
+            input.disabled = true;
+            sendButton.disabled = true;
+            fileInput.disabled = true;
+            voiceButton.disabled = true;
 
             throw new Error(
-                'Je adminsessie is verlopen. Vernieuw de pagina.'
+                'Je sessie is verlopen. Vernieuw de pagina voordat je verdergaat.'
             );
         }
 
-        if (response.status === 403) {
-            throw new Error('Je hebt geen toegang tot deze live chat.');
-        }
-
-        if (response.status === 404) {
-            throw new Error(payload?.message || 'Het gesprek bestaat niet meer.');
+        if (response.status === 422) {
+            throw new Error(
+                firstValidationError(payload)
+            );
         }
 
         if (response.status === 409) {
-            throw new Error(payload?.message || 'Het gesprek is ondertussen gewijzigd.');
-        }
-
-        if (response.status === 422) {
-            throw new Error(validationMessage(payload));
+            throw new Error(
+                payload?.message ||
+                'Dit gesprek is gesloten of gewijzigd.'
+            );
         }
 
         if (response.status === 429) {
-            throw new Error('Te veel verzoeken. Wacht even en probeer opnieuw.');
+            throw new Error(
+                'Te veel verzoeken. Wacht even en probeer opnieuw.'
+            );
         }
 
-        throw new Error(payload?.message || 'Er ging iets mis in de live chat.');
+        if (response.status === 404) {
+            throw new Error(
+                payload?.message ||
+                'Dit gesprek of bericht bestaat niet meer.'
+            );
+        }
+
+        throw new Error(
+            payload?.message ||
+            'Live chat is tijdelijk niet bereikbaar. Probeer opnieuw.'
+        );
     }
 
     // =========================================================================
-    // AVATAR
+    // PROFIELFOTO
     // =========================================================================
 
-    function avatarElement(url, name, className = 'lca-avatar') {
+    function avatarNode(message) {
         const avatar = document.createElement('span');
 
-        avatar.className = className;
+        avatar.className = 'lc-avatar';
 
-        const fallback = String(name || '?')
+        const name =
+            message.sender_name ||
+            (
+                message.sender === 'visitor'
+                    ? 'Gast'
+                    : 'Medewerker'
+            );
+
+        if (message.sender_avatar) {
+            const image = document.createElement('img');
+
+            image.src = message.sender_avatar;
+            image.alt = '';
+            image.loading = 'lazy';
+
+            image.addEventListener(
+                'error',
+                () => {
+                    image.remove();
+
+                    avatar.textContent = name
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase();
+                },
+                { once: true }
+            );
+
+            avatar.append(image);
+
+            return avatar;
+        }
+
+        avatar.textContent = name
             .trim()
             .charAt(0)
-            .toUpperCase() || '?';
-
-        if (url) {
-            const img = document.createElement('img');
-
-            img.src = url;
-            img.alt = '';
-            img.loading = 'lazy';
-
-            img.addEventListener('error', () => {
-                img.remove();
-                avatar.textContent = fallback;
-            }, { once: true });
-
-            avatar.append(img);
-        } else {
-            avatar.textContent = fallback;
-        }
+            .toUpperCase();
 
         return avatar;
     }
 
     // =========================================================================
-    // INBOX
+    // BERICHT-INHOUD
     // =========================================================================
 
-    function filteredInboxItems() {
-        const query = state.search.trim().toLowerCase();
-
-        if (!query) {
-            return state.cachedItems;
-        }
-
-        return state.cachedItems.filter(item => {
-            const haystack = [
-                item.name,
-                item.email,
-                item.kind,
-                item.status,
-            ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase();
-
-            return haystack.includes(query);
-        });
-    }
-
-    function inboxItem(item) {
-        const button = document.createElement('button');
-
-        button.type = 'button';
-        button.className = 'lca-item';
-        button.dataset.conversationId = String(item.id);
-        button.setAttribute(
-            'aria-pressed',
-            String(Number(item.id) === Number(state.selectedId))
-        );
-
-        const avatar = avatarElement(
-            item.avatar,
-            item.name,
-            'lca-item__avatar'
-        );
-
-        const body = document.createElement('span');
-        body.className = 'lca-item__body';
-
-        const nameRow = document.createElement('span');
-        nameRow.className = 'lca-item__name-row';
-
-        const name = document.createElement('strong');
-        name.textContent = item.name || `Gesprek #${item.id}`;
-
-        const kind = document.createElement('span');
-        kind.className = 'lca-kind';
-        kind.textContent = item.kind === 'account' ? 'account' : 'gast';
-
-        nameRow.append(name, kind);
-
-        const meta = document.createElement('span');
-        meta.className = 'lca-item__meta';
-        meta.textContent = item.email || (
-            item.status === 'closed'
-                ? 'Afgesloten gesprek'
-                : 'Live supportgesprek'
-        );
-
-        body.append(nameRow, meta);
-
-        const time = document.createElement('span');
-        time.className = 'lca-item__time';
-        time.textContent = formatDate(item.last_message_at);
-
-        button.append(avatar, body, time);
-
-        const unread = Number(item.unread || 0);
-
-        if (unread > 0) {
-            const badge = document.createElement('span');
-            badge.className = 'lca-unread';
-            badge.textContent = unread > 99 ? '99+' : String(unread);
-            button.append(badge);
-        }
-
-        button.addEventListener('click', () => {
-            void selectConversation(Number(item.id));
-        });
-
-        return button;
-    }
-
-    function renderInbox() {
-        el.list.replaceChildren();
-
-        const items = filteredInboxItems();
-
-        el.inboxCount.textContent =
-            `${items.length} gesprek${items.length === 1 ? '' : 'ken'}`;
-
-        if (items.length === 0) {
-            const empty = document.createElement('p');
-            empty.className = 'lca-list-empty';
-            empty.textContent = state.search
-                ? 'Geen gesprekken gevonden in deze pagina.'
-                : 'Geen gesprekken gevonden.';
-
-            el.list.append(empty);
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-
-        items.forEach(item => {
-            fragment.append(inboxItem(item));
-        });
-
-        el.list.append(fragment);
-    }
-
-    function updatePagination() {
-        el.page.textContent =
-            `Pagina ${state.page} van ${Math.max(1, state.lastPage)}`;
-
-        el.prev.disabled =
-            state.page <= 1 ||
-            state.inboxLoading;
-
-        el.next.disabled =
-            state.page >= state.lastPage ||
-            state.inboxLoading;
-    }
-
-    async function loadInbox({ quiet = false } = {}) {
-        if (state.inboxLoading || state.stopped) {
-            return;
-        }
-
-        state.inboxLoading = true;
-        updatePagination();
-
-        if (!quiet && state.cachedItems.length === 0) {
-            el.list.innerHTML =
-                '<p class="lca-list-empty">Gesprekken laden…</p>';
-        }
-
-        try {
-            const url = new URL(
-                root.dataset.inbox,
-                window.location.origin
-            );
-
-            url.searchParams.set('page', String(state.page));
-            url.searchParams.set('filter', state.filter);
-
-            const data = await api(url.toString());
-
-            state.cachedItems =
-                Array.isArray(data.items)
-                    ? data.items
-                    : [];
-
-            state.page = Number(data.page || 1);
-            state.lastPage = Math.max(
-                1,
-                Number(data.last_page || 1)
-            );
-
-            renderInbox();
-            showError('');
-        } catch (error) {
-            if (!quiet) {
-                showError(error.message);
-            }
-        } finally {
-            state.inboxLoading = false;
-            updatePagination();
-        }
-    }
-
-    // =========================================================================
-    // TYPING INDICATOR
-    // =========================================================================
-
-    function clearTypingHideTimer() {
-        if (state.typingHideTimer) {
-            window.clearTimeout(state.typingHideTimer);
-            state.typingHideTimer = null;
-        }
-    }
-
-    function typingPayload(data) {
-        const explicitTyping =
-            data?.typing === true
-            || data?.visitor_typing === true
-            || data?.is_typing === true
-            || data?.typing?.active === true;
-
-        let name =
-            data?.typing_name
-            || data?.typing_user?.name
-            || data?.typing?.name
-            || state.selected?.name
-            || 'Bezoeker';
-
-        let avatar =
-            data?.typing_avatar
-            || data?.typing_user?.avatar
-            || data?.typing?.avatar
-            || state.selected?.avatar
-            || '';
-
-        return {
-            active: Boolean(explicitTyping),
-            name: String(name || 'Bezoeker'),
-            avatar: String(avatar || ''),
-        };
-    }
-
-    function setTypingAvatar(name, avatarUrl = '') {
-        if (!el.typingAvatar) {
-            return;
-        }
-
-        el.typingAvatar.replaceChildren();
-
-        const fallback =
-            String(name || 'B')
-                .trim()
-                .charAt(0)
-                .toUpperCase()
-            || 'B';
-
-        if (!avatarUrl) {
-            el.typingAvatar.textContent = fallback;
-            return;
-        }
-
-        const image = document.createElement('img');
-
-        image.src = avatarUrl;
-        image.alt = '';
-
-        image.addEventListener(
-            'error',
-            () => {
-                image.remove();
-                el.typingAvatar.textContent = fallback;
-            },
-            { once: true }
-        );
-
-        el.typingAvatar.append(image);
-    }
-
-    function showTypingIndicator(
-        name = 'Bezoeker',
-        avatar = ''
-    ) {
-        if (!el.typingIndicator) {
-            return;
-        }
-
-        clearTypingHideTimer();
-
-        state.typing = true;
-        state.typingName = String(name || 'Bezoeker');
-        state.typingAvatar = String(avatar || '');
-
-        if (el.typingText) {
-            el.typingText.textContent =
-                `${state.typingName} typt…`;
-        }
-
-        setTypingAvatar(
-            state.typingName,
-            state.typingAvatar
-        );
-
-        el.typingIndicator.hidden = false;
-
-        /*
-         * Safety timeout:
-         * als een volgende poll geen "typing=false" bereikt,
-         * blijft de indicator nooit eindeloos zichtbaar.
-         */
-        state.typingHideTimer = window.setTimeout(
-            () => {
-                hideTypingIndicator();
-            },
-            5000
-        );
-    }
-
-    function hideTypingIndicator() {
-        clearTypingHideTimer();
-
-        state.typing = false;
-        state.typingName = '';
-        state.typingAvatar = '';
-
-        if (el.typingIndicator) {
-            el.typingIndicator.hidden = true;
-        }
-    }
-
-    function syncTypingIndicator(data) {
-        if (!state.selectedId) {
-            hideTypingIndicator();
-            return;
-        }
-
-        const typing = typingPayload(data);
-
-        if (typing.active) {
-            showTypingIndicator(
-                typing.name,
-                typing.avatar
-            );
-            return;
-        }
-
-        hideTypingIndicator();
-    }
-
-    // =========================================================================
-    // CONVERSATION HEADER
-    // =========================================================================
-
-    function updateConversationHeader() {
-        if (!state.selected) {
-            el.name.textContent = 'Kies een gesprek';
-            el.email.textContent =
-                'Selecteer links een gesprek om de berichten te openen.';
-            el.status.textContent = 'Geen gesprek geselecteerd';
-            updateControls();
-            return;
-        }
-
-        el.name.textContent =
-            state.selected.name
-            || `Gesprek #${state.selected.id}`;
-
-        el.email.textContent =
-            state.selected.email
-            || (
-                state.selected.kind === 'guest'
-                    ? 'Gast zonder account'
-                    : 'Geen e-mailadres beschikbaar'
-            );
-
-        el.status.textContent =
-            state.selected.status === 'closed'
-                ? 'Afgesloten'
-                : 'Actief';
-
-        el.close.textContent =
-            state.selected.status === 'closed'
-                ? 'Heropenen'
-                : 'Afsluiten';
-
-        updateControls();
-    }
-
-    // =========================================================================
-    // MESSAGE RENDERING
-    // =========================================================================
-
-    function attachmentImage(message, container) {
+    function renderImage(message, item) {
         const link = document.createElement('a');
+
         link.href = message.attachment_url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
 
-        const img = document.createElement('img');
-        img.className = 'lca-media-image';
-        img.src = message.attachment_url;
-        img.alt = message.attachment_name || 'Afbeelding';
-        img.loading = 'lazy';
+        const image = document.createElement('img');
 
-        link.append(img);
-        container.append(link);
+        image.className = 'lc-media-image';
+        image.src = message.attachment_url;
+        image.alt =
+            message.attachment_name ||
+            'Afbeelding';
+
+        image.loading = 'lazy';
+
+        link.append(image);
+        item.append(link);
     }
 
-    function attachmentAudio(message, container) {
+    function renderVoice(message, item) {
         const audio = document.createElement('audio');
+
         audio.controls = true;
         audio.preload = 'metadata';
         audio.src = message.attachment_url;
 
-        container.append(audio);
+        item.append(audio);
     }
 
-    function attachmentFile(message, container) {
+    function renderFile(message, item) {
         const link = document.createElement('a');
-        link.className = 'lca-file-link';
+
+        link.className = 'lc-file-link';
         link.href = message.attachment_url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
 
-        const name = message.attachment_name || 'Bestand openen';
+        const name =
+            message.attachment_name ||
+            'Bestand openen';
 
-        link.textContent = message.attachment_size
-            ? `📎 ${name} · ${formatBytes(message.attachment_size)}`
-            : `📎 ${name}`;
+        if (message.attachment_size) {
+            link.textContent =
+                `📎 ${name} · ${formatBytes(message.attachment_size)}`;
+        } else {
+            link.textContent =
+                `📎 ${name}`;
+        }
 
-        container.append(link);
+        item.append(link);
     }
 
-    function renderAttachment(message, container) {
+    function messageContent(message, item) {
+        if (message.body) {
+            const paragraph =
+                document.createElement('p');
+
+            paragraph.textContent =
+                message.body;
+
+            item.append(paragraph);
+        }
+
         if (!message.attachment_url) {
             return;
         }
 
-        const mime = normalizeMime(message.attachment_mime);
+        const mime =
+            normalizeMime(
+                message.attachment_mime
+            );
 
         if (mime.startsWith('image/')) {
-            attachmentImage(message, container);
+            renderImage(message, item);
             return;
         }
 
         if (
-            message.type === 'voice'
-            || mime.startsWith('audio/')
-            || mime === 'video/webm'
-            || mime === 'application/ogg'
+            message.type === 'voice' ||
+            mime.startsWith('audio/') ||
+            mime === 'video/webm' ||
+            mime === 'application/ogg'
         ) {
-            attachmentAudio(message, container);
+            renderVoice(message, item);
             return;
         }
 
-        attachmentFile(message, container);
+        renderFile(message, item);
     }
 
-    function messageElement(message) {
-        const article = document.createElement('article');
+    // =========================================================================
+    // BERICHT TOEVOEGEN
+    // =========================================================================
 
-        article.className = 'lca-message';
-        article.dataset.sender = String(message.sender || '');
-        article.dataset.messageId = String(message.id);
+    function appendMessage(message) {
+        const id = Number(message.id);
 
-        const head = document.createElement('div');
-        head.className = 'lca-msg-head';
+        if (!Number.isFinite(id)) {
+            return;
+        }
+
+        if (seen.has(id)) {
+            return;
+        }
+
+        const shouldScroll =
+            nearBottom() ||
+            message.sender === 'visitor';
+
+        seen.add(id);
+
+        lastMessageId = Math.max(
+            lastMessageId,
+            id
+        );
+
+        const item =
+            document.createElement('article');
+
+        item.className =
+            `lc-msg${
+                message.sender === 'visitor'
+                    ? ' lc-msg--visitor'
+                    : ''
+            }`;
+
+        item.dataset.messageId =
+            String(id);
+
+        item.dataset.sender =
+            String(message.sender || '');
+
+        const head =
+            document.createElement('div');
+
+        head.className =
+            'lc-msg-head';
 
         const label =
-            message.sender_name
-            || (
-                message.sender === 'admin'
-                    ? 'MEDEWERKER'
-                    : 'BEZOEKER'
+            document.createElement('small');
+
+        label.textContent =
+            message.sender_name ||
+            (
+                message.sender === 'visitor'
+                    ? 'JIJ'
+                    : 'MEDEWERKER'
             );
 
         head.append(
-            avatarElement(message.sender_avatar, label),
-            Object.assign(document.createElement('small'), {
-                textContent: label,
-            })
+            avatarNode(message),
+            label
         );
 
-        article.append(head);
+        item.append(head);
 
-        if (message.body) {
-            const body = document.createElement('p');
-            body.textContent = message.body;
-            article.append(body);
-        }
+        messageContent(
+            message,
+            item
+        );
 
-        renderAttachment(message, article);
+        if (message.sender === 'visitor') {
+            const remove =
+                document.createElement('button');
 
-        if (message.sender === 'admin') {
-            const remove = document.createElement('button');
             remove.type = 'button';
-            remove.className = 'lca-delete';
-            remove.textContent = 'Verwijderen';
+            remove.className =
+                'lc-delete';
 
-            remove.addEventListener('click', async () => {
-                if (remove.disabled || !state.selectedId) {
-                    return;
+            remove.textContent =
+                'Verwijderen';
+
+            remove.addEventListener(
+                'click',
+                async () => {
+                    if (remove.disabled) {
+                        return;
+                    }
+
+                    remove.disabled = true;
+
+                    try {
+                        await api(
+                            `${live.dataset.store}/${id}`,
+                            'DELETE'
+                        );
+
+                        item.remove();
+                        seen.delete(id);
+
+                        showError('');
+                    } catch (exception) {
+                        remove.disabled = false;
+
+                        showError(
+                            exception.message
+                        );
+                    }
                 }
+            );
 
-                remove.disabled = true;
-
-                try {
-                    await api(
-                        `${root.dataset.base}/${state.selectedId}/messages/${message.id}`,
-                        'DELETE'
-                    );
-
-                    article.remove();
-                    state.seen.delete(Number(message.id));
-
-                    toast('Bericht verwijderd.', 'success');
-                } catch (error) {
-                    remove.disabled = false;
-                    showError(error.message);
-                }
-            });
-
-            article.append(remove);
+            item.append(remove);
         }
 
-        return article;
-    }
+        log.append(item);
 
-    function appendMessages(messages, { initial = false } = {}) {
-        if (!Array.isArray(messages)) {
-            return;
+        if (shouldScroll) {
+            scrollToBottom(true);
         }
-
-        const shouldFollow =
-            initial ||
-            isNearBottom();
-
-        const fragment = document.createDocumentFragment();
-
-        for (const message of messages) {
-            const id = Number(message.id);
-
-            if (!Number.isFinite(id) || state.seen.has(id)) {
-                continue;
-            }
-
-            state.seen.add(id);
-            state.lastMessageId = Math.max(state.lastMessageId, id);
-
-            fragment.append(messageElement(message));
-        }
-
-        if (fragment.childNodes.length > 0) {
-            el.emptyChat?.remove();
-            el.log.append(fragment);
-        }
-
-        if (shouldFollow) {
-            scrollBottom(initial ? false : true);
-        }
-
-        updateScrollDown();
-    }
-
-    function resetMessages() {
-        hideTypingIndicator();
-
-        state.seen.clear();
-        state.lastMessageId = 0;
-
-        el.log.replaceChildren();
-
-        const empty = document.createElement('div');
-        empty.className = 'lca-empty-chat';
-        empty.dataset.emptyChat = '';
-
-        const inner = document.createElement('div');
-
-        const title = document.createElement('strong');
-        title.textContent = 'Gesprek laden…';
-
-        const text = document.createElement('p');
-        text.textContent = 'De berichten worden opgehaald.';
-
-        inner.append(title, text);
-        empty.append(inner);
-        el.log.append(empty);
-
-        el.emptyChat = empty;
-    }
-
-    function updateScrollDown() {
-        if (!el.scrollDown) {
-            return;
-        }
-
-        el.scrollDown.hidden =
-            !state.selectedId ||
-            isNearBottom();
     }
 
     // =========================================================================
-    // SELECT / POLL CONVERSATION
+    // POLLING
     // =========================================================================
 
-    function selectedFromInbox(id) {
-        return state.cachedItems.find(
-            item => Number(item.id) === Number(id)
-        ) || null;
-    }
-
-    async function selectConversation(id) {
-        if (!Number.isFinite(Number(id))) {
-            return;
-        }
-
-        if (state.selectedId === Number(id)) {
-            await loadConversation({ reset: false });
-            return;
-        }
-
-        state.selectedId = Number(id);
-        state.selected = selectedFromInbox(id);
-
-        resetMessages();
-        updateConversationHeader();
-        renderInbox();
-
-        await loadConversation({ reset: true });
-
-        el.textarea.focus();
-    }
-
-    async function loadConversation({ reset = false, quiet = false } = {}) {
+    async function poll(force = false) {
         if (
-            !state.selectedId ||
-            state.conversationLoading ||
-            state.stopped
+            fetching ||
+            stopped ||
+            (!force && document.hidden) ||
+            chat.dataset.mode !== 'human' ||
+            (!force && guestPanel?.hidden)
         ) {
             return;
         }
 
-        state.conversationLoading = true;
+        fetching = true;
 
         try {
-            const after = reset ? 0 : state.lastMessageId;
-
-            const data = await api(
-                `${root.dataset.base}/${state.selectedId}?after=${after}`
+            let data = await api(
+                `${live.dataset.show}?after=${lastMessageId}`
             );
 
-            if (reset) {
-                state.seen.clear();
-                state.lastMessageId = 0;
-                el.log.replaceChildren();
+            /*
+             * Als de server een andere conversation identity teruggeeft,
+             * laden we DIRECT opnieuw vanaf after=0. Voorheen stopte poll()
+             * hier, waardoor loaded=false bleef en het formulier daarna
+             * ieder bericht stil blokkeerde.
+             */
+            if (
+                identity &&
+                data.identity &&
+                identity !== data.identity
+            ) {
+                log.replaceChildren();
+                seen.clear();
+                lastMessageId = 0;
+                loaded = false;
+                identity = data.identity;
+
+                setStatus(
+                    'Je huidige gesprek wordt geladen…'
+                );
+
+                data = await api(
+                    `${live.dataset.show}?after=0`
+                );
             }
 
-            syncTypingIndicator(data);
-
-            if (data.conversation) {
-                state.selected = {
-                    ...(state.selected || {}),
-                    ...data.conversation,
-                    id: Number(data.conversation.id || state.selectedId),
-                };
+            if (data.identity) {
+                identity = data.identity;
             }
 
-            appendMessages(
+            const firstLoad =
+                !loaded;
+
+            const messages =
                 Array.isArray(data.messages)
                     ? data.messages
-                    : [],
-                { initial: reset }
+                    : [];
+
+            messages.forEach(
+                appendMessage
             );
 
-            if (
-                reset
-                && (!Array.isArray(data.messages) || data.messages.length === 0)
-            ) {
-                const empty = document.createElement('div');
-                empty.className = 'lca-empty-chat';
+            closed =
+                data.conversation?.status
+                === 'closed';
 
-                empty.innerHTML =
-                    '<div><strong>Nog geen berichten</strong><p>Het gesprek is leeg.</p></div>';
+            reopenButton.hidden =
+                !closed;
 
-                el.log.append(empty);
+            loaded = true;
+
+            if (closed) {
+                setStatus(
+                    'Dit gesprek is afgesloten. Je kunt het opnieuw openen.'
+                );
+            } else if (data.online) {
+                setStatus(
+                    'Er is een medewerker beschikbaar. Stuur gerust je bericht.'
+                );
+            } else {
+                setStatus(
+                    'Er is nu geen medewerker beschikbaar. Laat een bericht achter en kom later terug in deze chat.'
+                );
             }
 
-            updateConversationHeader();
-
-            // The show endpoint marks admin unread state as read.
-            const inboxItem = state.cachedItems.find(
-                item => Number(item.id) === Number(state.selectedId)
-            );
-
-            if (inboxItem) {
-                inboxItem.unread = 0;
+            if (!data.conversation) {
+                status.textContent +=
+                    ' Je gesprek start zodra je een bericht stuurt.';
             }
 
-            renderInbox();
+            if (firstLoad) {
+                scrollToBottom(false);
+            }
 
-            if (!quiet) {
+            if (!sending) {
                 showError('');
             }
-        } catch (error) {
-            if (!quiet) {
-                showError(error.message);
-            }
+
+            updateControls();
+        } catch (exception) {
+            showError(
+                exception?.message ||
+                'Live chat kon niet worden bijgewerkt.'
+            );
         } finally {
-            state.conversationLoading = false;
+            fetching = false;
         }
     }
 
     // =========================================================================
-    // SEND MESSAGE
+    // BERICHT VERSTUREN
     // =========================================================================
 
-    async function sendMessage({
+    async function sendPayload({
         body = null,
         type = 'text',
         file = null,
     }) {
         if (
-            !state.selectedId ||
-            state.sending ||
-            state.stopped ||
-            state.selected?.status === 'closed'
+            sending ||
+            stopped ||
+            closed
         ) {
             return false;
         }
 
-        state.sending = true;
-        hideTypingIndicator();
+        sending = true;
         updateControls();
+
         showError('');
 
         try {
             let payload;
 
             if (file) {
-                payload = new FormData();
-                payload.append('client_id', uuid());
-                payload.append('type', type);
+                payload =
+                    new FormData();
+
+                payload.append(
+                    'client_id',
+                    makeUuid()
+                );
+
+                payload.append(
+                    'type',
+                    type
+                );
 
                 if (body) {
-                    payload.append('body', body);
+                    payload.append(
+                        'body',
+                        body
+                    );
                 }
 
                 payload.append(
                     'attachment',
                     file,
-                    file.name || `${type}-${Date.now()}`
+                    file.name ||
+                    `${type}-${Date.now()}`
                 );
             } else {
                 payload = {
-                    client_id: uuid(),
-                    type,
                     body,
+                    type,
+                    client_id:
+                        makeUuid(),
                 };
             }
 
             await api(
-                `${root.dataset.base}/${state.selectedId}/messages`,
+                live.dataset.store,
                 'POST',
                 payload
             );
 
             if (type === 'text') {
-                el.textarea.value = '';
-                autoResize();
+                input.value = '';
+                autoResizeTextarea();
             }
 
-            await loadConversation({ reset: false });
-            await loadInbox({ quiet: true });
+            await poll(true);
 
             return true;
-        } catch (error) {
-            showError(error.message);
+        } catch (exception) {
+            showError(
+                exception?.name === 'TimeoutError'
+                    ? 'Geen bevestiging ontvangen. Probeer opnieuw.'
+                    : exception?.message ||
+                      'Het bericht kon niet worden verstuurd.'
+            );
+
             return false;
         } finally {
-            state.sending = false;
+            sending = false;
             updateControls();
         }
     }
 
     // =========================================================================
-    // CLOSE / REOPEN
+    // HUMAN HANDOFF
     // =========================================================================
 
-    async function changeConversationStatus() {
-        if (!state.selectedId || state.closing) {
-            return;
+    async function activateHuman(
+        initialBody = ''
+    ) {
+        chat.dataset.mode =
+            'human';
+
+        if (aiBody) {
+            aiBody.hidden = true;
         }
 
-        state.closing = true;
-        hideTypingIndicator();
-        updateControls();
+        if (aiBottom) {
+            aiBottom.hidden = true;
+        }
 
-        const target =
-            state.selected?.status === 'closed'
-                ? 'open'
-                : 'closed';
+        if (reset) {
+            reset.hidden = true;
+        }
 
-        try {
-            await api(
-                `${root.dataset.base}/${state.selectedId}`,
-                'PATCH',
-                { status: target }
+        if (resetConfirm) {
+            resetConfirm.hidden = true;
+        }
+
+        live.hidden = false;
+
+        /*
+         * Op mobiel kan de buitenste guest panel nog hidden zijn.
+         * De gewone poll() weigerde dan te laden, waardoor loaded=false bleef.
+         */
+        if (guestPanel) {
+            guestPanel.hidden = false;
+        }
+
+        if (header) {
+            header.textContent =
+                'Mashal support';
+        }
+
+        if (subtitle) {
+            subtitle.textContent =
+                'Live contact met een medewerker';
+        }
+
+        await poll(true);
+
+        const message =
+            String(initialBody || '')
+                .trim();
+
+        if (message) {
+            await sendPayload({
+                body: message,
+                type: 'text',
+            });
+        }
+
+        if (
+            !window.matchMedia(
+                '(max-width: 699px)'
+            ).matches
+        ) {
+            input.focus();
+        }
+    }
+
+    // =========================================================================
+    // BESTANDEN
+    // =========================================================================
+
+    function validateFile(file) {
+        if (!(file instanceof File)) {
+            throw new Error(
+                'Het gekozen bestand is ongeldig.'
             );
+        }
 
-            if (state.selected) {
-                state.selected.status =
-                    target === 'closed'
-                        ? 'closed'
-                        : 'open';
-            }
-
-            toast(
-                target === 'closed'
-                    ? 'Gesprek afgesloten.'
-                    : 'Gesprek heropend.',
-                'success'
+        if (file.size <= 0) {
+            throw new Error(
+                'Het gekozen bestand is leeg.'
             );
+        }
 
-            await loadInbox({ quiet: true });
-
-            // With "active" filter, closing can remove it from inbox,
-            // but keep selected conversation usable in the current detail.
-            updateConversationHeader();
-        } catch (error) {
-            showError(error.message);
-        } finally {
-            state.closing = false;
-            updateControls();
+        if (file.size > MAX_FILE_SIZE) {
+            throw new Error(
+                'Het bestand is te groot. Maximaal 20 MB toegestaan.'
+            );
         }
     }
 
     // =========================================================================
-    // PRESENCE
+    // SPRAAKBERICHTEN
     // =========================================================================
 
-    async function sendPresence(online = el.online.checked) {
-        if (state.stopped) {
-            return;
-        }
-
-        try {
-            await api(
-                root.dataset.presence,
-                'POST',
-                { online: Boolean(online) }
-            );
-        } catch (error) {
-            showError(error.message);
-        }
-    }
-
-    function restartPresenceTimer() {
-        if (state.presenceTimer) {
-            window.clearInterval(state.presenceTimer);
-        }
-
-        state.presenceTimer = window.setInterval(() => {
-            if (
-                !document.hidden
-                && el.online.checked
-            ) {
-                void sendPresence(true);
-            }
-        }, CONFIG.presenceInterval);
-    }
-
-    // =========================================================================
-    // VOICE RECORDER
-    // =========================================================================
-
-    function chooseRecorderMime() {
+    function chooseRecorderMimeType() {
         if (!window.MediaRecorder) {
             return '';
         }
 
-        for (const type of recorderTypes) {
+        for (
+            const mimeType
+            of supportedRecorderTypes
+        ) {
             try {
-                if (MediaRecorder.isTypeSupported(type)) {
-                    return type;
+                if (
+                    MediaRecorder
+                        .isTypeSupported(
+                            mimeType
+                        )
+                ) {
+                    return mimeType;
                 }
             } catch {
-                // Try next type.
+                // Volgende type proberen.
             }
         }
 
         return '';
     }
 
-    function voiceMime(value) {
-        const mime = String(value || '')
-            .trim()
-            .toLowerCase();
+    function normalizedVoiceMime(
+        mimeType
+    ) {
+        const value =
+            String(mimeType || '')
+                .trim()
+                .toLowerCase();
 
-        if (mime.startsWith('audio/webm')) return 'audio/webm';
-        if (mime.startsWith('audio/ogg')) return 'audio/ogg';
-        if (mime.startsWith('audio/mp4')) return 'audio/mp4';
-        if (mime.startsWith('audio/mpeg')) return 'audio/mpeg';
-        if (mime.startsWith('audio/wav')) return 'audio/wav';
-        if (mime.startsWith('video/webm')) return 'video/webm';
+        if (
+            value.startsWith(
+                'audio/webm'
+            )
+        ) {
+            return 'audio/webm';
+        }
 
-        return normalizeMime(mime) || 'audio/webm';
+        if (
+            value.startsWith(
+                'audio/ogg'
+            )
+        ) {
+            return 'audio/ogg';
+        }
+
+        if (
+            value.startsWith(
+                'audio/mp4'
+            )
+        ) {
+            return 'audio/mp4';
+        }
+
+        if (
+            value.startsWith(
+                'video/webm'
+            )
+        ) {
+            return 'video/webm';
+        }
+
+        return normalizeMime(value)
+            || 'audio/webm';
     }
 
-    function voiceExtension(mime) {
-        const value = normalizeMime(mime);
+    function voiceExtension(
+        mimeType
+    ) {
+        const mime =
+            normalizeMime(mimeType);
 
-        if (value.includes('ogg')) return 'ogg';
-        if (value.includes('mp4') || value.includes('m4a')) return 'm4a';
-        if (value.includes('wav')) return 'wav';
-        if (value.includes('mpeg') || value.includes('mp3')) return 'mp3';
+        if (mime.includes('ogg')) {
+            return 'ogg';
+        }
+
+        if (mime.includes('mp4')) {
+            return 'm4a';
+        }
+
+        if (mime.includes('wav')) {
+            return 'wav';
+        }
+
+        if (
+            mime.includes('mpeg') ||
+            mime.includes('mp3')
+        ) {
+            return 'mp3';
+        }
 
         return 'webm';
     }
 
-    function clearRecorderTimers() {
-        if (state.recordingTimer) {
-            window.clearInterval(state.recordingTimer);
-            state.recordingTimer = null;
+    function clearRecordingTimers() {
+        if (recordingTimer) {
+            window.clearInterval(
+                recordingTimer
+            );
+
+            recordingTimer = null;
         }
 
-        if (state.recordingTimeout) {
-            window.clearTimeout(state.recordingTimeout);
-            state.recordingTimeout = null;
+        if (recordingTimeout) {
+            window.clearTimeout(
+                recordingTimeout
+            );
+
+            recordingTimeout = null;
         }
     }
 
-    function stopStream() {
-        state.stream?.getTracks().forEach(track => {
-            try {
-                track.stop();
-            } catch {
-                // already stopped
-            }
-        });
+    function stopMediaStream() {
+        if (!mediaStream) {
+            return;
+        }
 
-        state.stream = null;
+        mediaStream
+            .getTracks()
+            .forEach(track => {
+                try {
+                    track.stop();
+                } catch {
+                    // Geen probleem.
+                }
+            });
+
+        mediaStream = null;
     }
 
-    function resetRecorderUi() {
-        clearRecorderTimers();
+    function resetVoiceUi() {
+        clearRecordingTimers();
 
-        state.recordingStartedAt = 0;
+        voiceButton.setAttribute(
+            'aria-pressed',
+            'false'
+        );
 
-        el.voice.setAttribute('aria-pressed', 'false');
-        el.voice.textContent = '🎤';
-        el.voice.title = 'Spraakbericht opnemen';
+        voiceButton.textContent =
+            '🎤';
 
-        setRecorderState('');
+        voiceButton.title =
+            'Spraakbericht opnemen';
+
+        recordingStartedAt = 0;
+
         updateControls();
     }
 
     function cleanupRecorder() {
-        clearRecorderTimers();
-        stopStream();
+        stopMediaStream();
+        clearRecordingTimers();
 
-        state.recorder = null;
-        state.chunks = [];
-        state.recorderMime = '';
+        mediaRecorder = null;
+        audioChunks = [];
+        recorderMimeType = '';
 
-        resetRecorderUi();
+        resetVoiceUi();
     }
 
-    function recordingTick() {
-        if (!state.recordingStartedAt) {
+    function updateRecordingStatus() {
+        if (!recordingStartedAt) {
             return;
         }
 
-        const seconds = Math.floor(
-            (Date.now() - state.recordingStartedAt) / 1000
+        const elapsed =
+            Math.floor(
+                (
+                    Date.now()
+                    - recordingStartedAt
+                ) / 1000
+            );
+
+        const minutes =
+            Math.floor(elapsed / 60);
+
+        const seconds =
+            String(
+                elapsed % 60
+            ).padStart(2, '0');
+
+        setStatus(
+            `Opname ${minutes}:${seconds} — klik opnieuw om te stoppen en te versturen.`
         );
-
-        const minutes = Math.floor(seconds / 60);
-        const rest = String(seconds % 60).padStart(2, '0');
-
-        setRecorderState(`● Opname ${minutes}:${rest}`);
     }
 
-    async function finishRecording() {
-        const recorder = state.recorder;
-        const chunks = [...state.chunks];
+    async function handleRecordingStopped() {
+        const recorder =
+            mediaRecorder;
 
-        const mime = voiceMime(
-            recorder?.mimeType
-            || state.recorderMime
-            || 'audio/webm'
-        );
+        const chunks =
+            [...audioChunks];
 
-        stopStream();
-        clearRecorderTimers();
+        const originalMime =
+            recorder?.mimeType ||
+            recorderMimeType ||
+            'audio/webm';
 
-        state.recorder = null;
-        state.chunks = [];
-        state.recorderMime = '';
+        const mime =
+            normalizedVoiceMime(
+                originalMime
+            );
 
-        resetRecorderUi();
+        stopMediaStream();
+        clearRecordingTimers();
 
-        const size = chunks.reduce(
-            (sum, chunk) => sum + Number(chunk?.size || 0),
-            0
-        );
+        mediaRecorder = null;
+        audioChunks = [];
+        recorderMimeType = '';
 
-        if (size <= 0) {
-            showError('De opname is leeg. Probeer opnieuw.');
+        resetVoiceUi();
+
+        const totalBytes =
+            chunks.reduce(
+                (total, chunk) =>
+                    total
+                    + Number(
+                        chunk?.size || 0
+                    ),
+                0
+            );
+
+        if (totalBytes <= 0) {
+            showError(
+                'De opname bevat geen gegevens. Probeer opnieuw.'
+            );
+
             return;
         }
 
-        const blob = new Blob(chunks, { type: mime });
+        const blob =
+            new Blob(
+                chunks,
+                {
+                    type: mime,
+                }
+            );
 
-        if (blob.size > CONFIG.maxVoiceSize) {
-            showError('Het spraakbericht is te groot. Maximaal 15 MB toegestaan.');
+        if (blob.size <= 0) {
+            showError(
+                'Het spraakbericht is leeg. Probeer opnieuw.'
+            );
+
             return;
         }
 
-        const file = new File(
-            [blob],
-            `spraakbericht-${Date.now()}.${voiceExtension(mime)}`,
-            {
-                type: mime,
-                lastModified: Date.now(),
-            }
-        );
+        if (
+            blob.size >
+            MAX_VOICE_SIZE
+        ) {
+            showError(
+                'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.'
+            );
 
-        setComposerState(
+            return;
+        }
+
+        const extension =
+            voiceExtension(mime);
+
+        const file =
+            new File(
+                [blob],
+                `spraakbericht-${Date.now()}.${extension}`,
+                {
+                    type: mime,
+                    lastModified:
+                        Date.now(),
+                }
+            );
+
+        setStatus(
             `Spraakbericht wordt verstuurd (${formatBytes(file.size)})…`
         );
 
-        const success = await sendMessage({
-            type: 'voice',
-            file,
-        });
+        const success =
+            await sendPayload({
+                type: 'voice',
+                file,
+            });
 
-        if (success) {
-            toast('Spraakbericht verstuurd.', 'success');
+        if (!success) {
+            console.error(
+                '[LiveChat] Spraakbericht kon niet worden verstuurd.',
+                {
+                    name:
+                        file.name,
+                    type:
+                        file.type,
+                    size:
+                        file.size,
+                }
+            );
         }
     }
 
     async function startRecording() {
         if (
-            !navigator.mediaDevices?.getUserMedia
-            || !window.MediaRecorder
+            !navigator.mediaDevices
+                ?.getUserMedia ||
+            !window.MediaRecorder
         ) {
-            showError('Spraakopname wordt niet ondersteund in deze browser.');
+            showError(
+                'Spraakopname wordt niet ondersteund in deze browser.'
+            );
+
             return;
         }
 
         if (
-            !state.selectedId
-            || state.selected?.status === 'closed'
-            || state.sending
+            closed ||
+            stopped ||
+            sending ||
+            !loaded
         ) {
             return;
         }
 
+        showError('');
+
         try {
-            state.stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
+            mediaStream =
+                await navigator
+                    .mediaDevices
+                    .getUserMedia({
+                        audio: {
+                            echoCancellation:
+                                true,
+                            noiseSuppression:
+                                true,
+                            autoGainControl:
+                                true,
+                        },
+                    });
+
+            audioChunks = [];
+
+            recorderMimeType =
+                chooseRecorderMimeType();
+
+            const options =
+                recorderMimeType
+                    ? {
+                        mimeType:
+                            recorderMimeType,
+                    }
+                    : undefined;
+
+            mediaRecorder =
+                new MediaRecorder(
+                    mediaStream,
+                    options
+                );
+
+            mediaRecorder.addEventListener(
+                'dataavailable',
+                event => {
+                    if (
+                        event.data &&
+                        event.data.size > 0
+                    ) {
+                        audioChunks.push(
+                            event.data
+                        );
+                    }
+                }
+            );
+
+            mediaRecorder.addEventListener(
+                'error',
+                event => {
+                    console.error(
+                        '[LiveChat] MediaRecorder fout:',
+                        event
+                    );
+
+                    showError(
+                        'Er ging iets mis tijdens de spraakopname.'
+                    );
+
+                    cleanupRecorder();
+                }
+            );
+
+            mediaRecorder.addEventListener(
+                'stop',
+                () => {
+                    void handleRecordingStopped();
                 },
-            });
-
-            state.chunks = [];
-            state.recorderMime = chooseRecorderMime();
-
-            state.recorder = new MediaRecorder(
-                state.stream,
-                state.recorderMime
-                    ? { mimeType: state.recorderMime }
-                    : undefined
+                {
+                    once: true,
+                }
             );
 
-            const recorder = state.recorder;
+            mediaRecorder.start(250);
 
-            recorder.addEventListener('dataavailable', event => {
-                if (event.data && event.data.size > 0) {
-                    state.chunks.push(event.data);
-                }
-            });
+            recordingStartedAt =
+                Date.now();
 
-            recorder.addEventListener('error', event => {
-                console.error('[AdminLiveChat] recorder error', event);
-                showError('Er ging iets mis tijdens de spraakopname.');
-                cleanupRecorder();
-            });
-
-            recorder.addEventListener('stop', () => {
-                void finishRecording();
-            }, { once: true });
-
-            recorder.start(CONFIG.recorderSlice);
-
-            state.recordingStartedAt = Date.now();
-
-            el.voice.setAttribute('aria-pressed', 'true');
-            el.voice.textContent = '■';
-            el.voice.title = 'Opname stoppen en versturen';
-
-            recordingTick();
-
-            state.recordingTimer = window.setInterval(
-                recordingTick,
-                1000
+            voiceButton.setAttribute(
+                'aria-pressed',
+                'true'
             );
 
-            state.recordingTimeout = window.setTimeout(() => {
-                if (state.recorder?.state === 'recording') {
-                    state.recorder.stop();
-                }
-            }, CONFIG.maxRecordingTime);
-        } catch (error) {
-            console.error('[AdminLiveChat] microphone error', error);
+            voiceButton.textContent =
+                '■';
+
+            voiceButton.title =
+                'Opname stoppen en versturen';
+
+            updateRecordingStatus();
+
+            recordingTimer =
+                window.setInterval(
+                    updateRecordingStatus,
+                    1000
+                );
+
+            recordingTimeout =
+                window.setTimeout(
+                    () => {
+                        if (
+                            mediaRecorder?.state
+                            === 'recording'
+                        ) {
+                            mediaRecorder.stop();
+                        }
+                    },
+                    MAX_RECORDING_TIME
+                );
+        } catch (exception) {
+            console.error(
+                '[LiveChat] Microfoonfout:',
+                exception
+            );
 
             cleanupRecorder();
 
-            if (error?.name === 'NotAllowedError') {
+            if (
+                exception?.name
+                === 'NotAllowedError'
+            ) {
                 showError(
-                    'Microfoontoegang is geweigerd. Sta microfoontoegang toe in de browser.'
+                    'Microfoontoegang is geweigerd. Sta microfoontoegang toe in je browser.'
                 );
+
                 return;
             }
 
-            if (error?.name === 'NotFoundError') {
-                showError('Er is geen microfoon gevonden.');
+            if (
+                exception?.name
+                === 'NotFoundError'
+            ) {
+                showError(
+                    'Er is geen microfoon gevonden.'
+                );
+
                 return;
             }
 
-            if (error?.name === 'NotReadableError') {
-                showError('De microfoon kan momenteel niet worden gebruikt.');
+            if (
+                exception?.name
+                === 'NotReadableError'
+            ) {
+                showError(
+                    'De microfoon kan momenteel niet worden gebruikt.'
+                );
+
                 return;
             }
 
-            showError('Microfoontoegang is niet beschikbaar.');
+            showError(
+                'Microfoontoegang is niet beschikbaar.'
+            );
         }
     }
 
     function stopRecording() {
-        if (state.recorder?.state !== 'recording') {
+        if (
+            !mediaRecorder ||
+            mediaRecorder.state
+                !== 'recording'
+        ) {
             return;
         }
 
-        el.voice.disabled = true;
+        voiceButton.disabled =
+            true;
 
         try {
-            state.recorder.requestData();
+            mediaRecorder.requestData();
         } catch {
-            // optional
+            // Niet iedere browser vereist dit.
         }
 
-        state.recorder.stop();
+        mediaRecorder.stop();
     }
 
     // =========================================================================
-    // FILES
+    // FORMULIER
     // =========================================================================
 
-    function validateFile(file) {
-        if (!(file instanceof File)) {
-            throw new Error('Selecteer een geldig bestand.');
-        }
+    form.addEventListener(
+        'submit',
+        async event => {
+            event.preventDefault();
 
-        if (file.size <= 0) {
-            throw new Error('Het bestand is leeg.');
-        }
+            const body =
+                input.value.trim();
 
-        if (file.size > CONFIG.maxFileSize) {
-            throw new Error('Het bestand is te groot. Maximaal 20 MB toegestaan.');
-        }
-    }
-
-    // =========================================================================
-    // POLL TIMERS
-    // =========================================================================
-
-    function restartInboxTimer() {
-        if (state.inboxTimer) {
-            window.clearInterval(state.inboxTimer);
-        }
-
-        state.inboxTimer = window.setInterval(() => {
-            if (!document.hidden) {
-                void loadInbox({ quiet: true });
+            if (
+                body === '' ||
+                body.length >
+                    MAX_TEXT_LENGTH ||
+                closed ||
+                stopped
+            ) {
+                return;
             }
-        }, CONFIG.inboxInterval);
-    }
 
-    function restartConversationTimer() {
-        if (state.conversationTimer) {
-            window.clearInterval(state.conversationTimer);
+            await sendPayload({
+                body,
+                type: 'text',
+            });
         }
+    );
 
-        state.conversationTimer = window.setInterval(() => {
-            if (!document.hidden && state.selectedId) {
-                void loadConversation({ reset: false, quiet: true });
+    input.addEventListener(
+        'input',
+        () => {
+            autoResizeTextarea();
+            updateControls();
+        }
+    );
+
+    input.addEventListener(
+        'keydown',
+        event => {
+            if (
+                event.key !== 'Enter' ||
+                event.shiftKey ||
+                event.isComposing
+            ) {
+                return;
             }
-        }, CONFIG.conversationInterval);
-    }
+
+            event.preventDefault();
+
+            if (
+                !sendButton.disabled
+            ) {
+                form.requestSubmit();
+            }
+        }
+    );
 
     // =========================================================================
-    // EVENTS
+    // BESTANDSKNOP
     // =========================================================================
 
-    el.filter.addEventListener('change', () => {
-        state.filter = el.filter.value === 'closed'
-            ? 'closed'
-            : 'active';
+    fileInput.addEventListener(
+        'change',
+        async () => {
+            const file =
+                fileInput.files?.[0];
 
-        state.page = 1;
+            fileInput.value = '';
 
-        void loadInbox();
-    });
+            if (!file) {
+                return;
+            }
 
-    el.search?.addEventListener('input', () => {
-        if (state.searchTimer) {
-            window.clearTimeout(state.searchTimer);
+            try {
+                validateFile(file);
+
+                setStatus(
+                    `Bestand wordt verstuurd (${formatBytes(file.size)})…`
+                );
+
+                await sendPayload({
+                    type: 'file',
+                    file,
+                });
+            } catch (exception) {
+                showError(
+                    exception.message
+                );
+            }
         }
+    );
 
-        state.searchTimer = window.setTimeout(() => {
-            state.search = el.search.value || '';
-            renderInbox();
-        }, 120);
-    });
+    // =========================================================================
+    // MICROFOONKNOP
+    // =========================================================================
 
-    el.refresh?.addEventListener('click', async () => {
-        await loadInbox();
+    voiceButton.addEventListener(
+        'click',
+        () => {
+            if (
+                mediaRecorder?.state
+                === 'recording'
+            ) {
+                stopRecording();
+                return;
+            }
 
-        if (state.selectedId) {
-            await loadConversation({ reset: false });
+            void startRecording();
         }
-    });
+    );
 
-    el.prev.addEventListener('click', () => {
-        if (state.page <= 1) {
-            return;
+    // =========================================================================
+    // GESPREK HEROPENEN
+    // =========================================================================
+
+    reopenButton.addEventListener(
+        'click',
+        async () => {
+            if (
+                reopenButton.disabled
+            ) {
+                return;
+            }
+
+            reopenButton.disabled =
+                true;
+
+            try {
+                await api(
+                    live.dataset.reopen,
+                    'POST',
+                    {}
+                );
+
+                closed = false;
+
+                await poll();
+
+                input.focus();
+            } catch (exception) {
+                showError(
+                    exception.message
+                );
+            } finally {
+                reopenButton.disabled =
+                    false;
+            }
         }
+    );
 
-        state.page -= 1;
-        void loadInbox();
-    });
+    // =========================================================================
+    // AI -> MEDEWERKER HANDOFF
+    // =========================================================================
 
-    el.next.addEventListener('click', () => {
-        if (state.page >= state.lastPage) {
-            return;
+    chat.addEventListener(
+        'live-chat:handoff',
+        event => {
+            const body =
+                String(
+                    event.detail?.body ||
+                    ''
+                ).trim();
+
+            void activateHuman(body).catch(exception => {
+                showError(
+                    exception?.message ||
+                    'Live medewerker kon niet worden geopend.'
+                );
+            });
         }
+    );
 
-        state.page += 1;
-        void loadInbox();
-    });
+    // =========================================================================
+    // CHAT OPENEN
+    // =========================================================================
 
-    el.form.addEventListener('submit', async event => {
-        event.preventDefault();
-
-        const body = el.textarea.value.trim();
-
-        if (
-            body === ''
-            || body.length > CONFIG.maxTextLength
-            || !state.selectedId
-        ) {
-            return;
+    toggleButton?.addEventListener(
+        'click',
+        () => {
+            if (
+                chat.dataset.mode
+                === 'human'
+            ) {
+                void poll();
+            }
         }
+    );
 
-        await sendMessage({
-            body,
-            type: 'text',
-        });
-    });
+    // =========================================================================
+    // TABBLAD
+    // =========================================================================
 
-    el.textarea.addEventListener('input', () => {
-        autoResize();
-        updateControls();
-    });
-
-    el.textarea.addEventListener('keydown', event => {
-        if (
-            event.key !== 'Enter'
-            || event.shiftKey
-            || event.isComposing
-        ) {
-            return;
+    document.addEventListener(
+        'visibilitychange',
+        () => {
+            if (
+                !document.hidden &&
+                chat.dataset.mode
+                    === 'human'
+            ) {
+                void poll();
+            }
         }
+    );
 
-        event.preventDefault();
+    // =========================================================================
+    // INTERNETSTATUS
+    // =========================================================================
 
-        if (!el.submit.disabled) {
-            el.form.requestSubmit();
+    window.addEventListener(
+        'online',
+        () => {
+            showError('');
+
+            if (
+                chat.dataset.mode
+                === 'human'
+            ) {
+                setStatus(
+                    'Verbinding hersteld. Gesprek wordt bijgewerkt…'
+                );
+
+                void poll();
+            }
+
+            updateControls();
         }
-    });
+    );
 
-    el.file.addEventListener('change', async () => {
-        const file = el.file.files?.[0];
-        el.file.value = '';
-
-        if (!file) {
-            return;
-        }
-
-        try {
-            validateFile(file);
-
-            setComposerState(
-                `Bestand wordt verstuurd (${formatBytes(file.size)})…`
+    window.addEventListener(
+        'offline',
+        () => {
+            setStatus(
+                'Je bent offline. Controleer je internetverbinding.'
             );
 
-            const success = await sendMessage({
-                type: 'file',
-                file,
-            });
+            sendButton.disabled =
+                true;
 
-            if (success) {
-                toast('Bestand verstuurd.', 'success');
-            }
-        } catch (error) {
-            showError(error.message);
+            fileInput.disabled =
+                true;
+
+            voiceButton.disabled =
+                true;
         }
-    });
-
-    el.voice.addEventListener('click', () => {
-        if (state.recorder?.state === 'recording') {
-            stopRecording();
-            return;
-        }
-
-        void startRecording();
-    });
-
-    el.close.addEventListener('click', () => {
-        void changeConversationStatus();
-    });
-
-    el.online.addEventListener('change', () => {
-        void sendPresence(el.online.checked);
-    });
-
-    el.scrollDown?.addEventListener('click', () => {
-        scrollBottom(true);
-    });
-
-    el.log.addEventListener('scroll', updateScrollDown, {
-        passive: true,
-    });
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            if (el.online.checked) {
-                void sendPresence(false);
-            }
-
-            return;
-        }
-
-        if (el.online.checked) {
-            void sendPresence(true);
-        }
-
-        void loadInbox({ quiet: true });
-
-        if (state.selectedId) {
-            void loadConversation({ reset: false, quiet: true });
-        }
-    });
-
-    window.addEventListener('online', () => {
-        showError('');
-        void loadInbox({ quiet: true });
-
-        if (state.selectedId) {
-            void loadConversation({ reset: false, quiet: true });
-        }
-    });
-
-    window.addEventListener('offline', () => {
-        hideTypingIndicator();
-        showError('Je internetverbinding is weggevallen.');
-    });
-
-    window.addEventListener('beforeunload', () => {
-        clearTypingHideTimer();
-        clearRecorderTimers();
-        stopStream();
-
-        if (state.recorder?.state === 'recording') {
-            try {
-                state.recorder.stop();
-            } catch {
-                // shutting down
-            }
-        }
-
-        if (state.inboxTimer) {
-            window.clearInterval(state.inboxTimer);
-        }
-
-        if (state.conversationTimer) {
-            window.clearInterval(state.conversationTimer);
-        }
-
-        if (state.presenceTimer) {
-            window.clearInterval(state.presenceTimer);
-        }
-
-        if (el.online.checked) {
-            // Keepalive fetch: do not await during unload.
-            try {
-                fetch(root.dataset.presence, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    keepalive: true,
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf(),
-                    },
-                    body: JSON.stringify({ online: false }),
-                });
-            } catch {
-                // no-op
-            }
-        }
-    });
+    );
 
     // =========================================================================
-    // INIT
+    // OPRUIMEN
     // =========================================================================
 
-    // Alleen voor snelle handmatige test in DevTools.
-    // window.AdminLiveChatTyping.show('Naam') / .hide()
-    window.AdminLiveChatTyping = {
-        show(name = 'Bezoeker', avatar = '') {
-            showTypingIndicator(name, avatar);
-        },
+    window.addEventListener(
+        'beforeunload',
+        () => {
+            clearRecordingTimers();
 
-        hide() {
-            hideTypingIndicator();
-        },
-    };
+            if (
+                mediaRecorder?.state
+                === 'recording'
+            ) {
+                try {
+                    mediaRecorder.stop();
+                } catch {
+                    // Pagina sluit al.
+                }
+            }
 
-    function init() {
-        state.filter = el.filter.value === 'closed'
-            ? 'closed'
-            : 'active';
-
-        autoResize();
-        updateControls();
-        updatePagination();
-
-        void loadInbox();
-
-        if (el.online.checked) {
-            void sendPresence(true);
+            stopMediaStream();
         }
+    );
 
-        restartInboxTimer();
-        restartConversationTimer();
-        restartPresenceTimer();
-    }
+    // =========================================================================
+    // START
+    // =========================================================================
 
-    init();
+    sendButton.disabled = true;
+
+    voiceButton.setAttribute(
+        'aria-pressed',
+        'false'
+    );
+
+    autoResizeTextarea();
+    updateControls();
+
+    window.setInterval(
+        () => {
+            void poll();
+        },
+        POLL_INTERVAL
+    );
 })();
