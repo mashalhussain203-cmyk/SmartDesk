@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminLiveChatController;
+use App\Http\Controllers\GmailLiveChatOAuthController;
 use App\Http\Controllers\LiveChatController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,14 @@ Route::middleware('auth')
         Route::post('/email-sync', [AdminLiveChatController::class, 'emailSync'])
             ->middleware('throttle:10,1,admin-live-chat-email-sync')
             ->name('email-sync');
+
+        Route::get('/gmail/connect', [GmailLiveChatOAuthController::class, 'connect'])
+            ->middleware('throttle:10,1,admin-live-chat-gmail-connect')
+            ->name('gmail.connect');
+
+        Route::get('/gmail/callback', [GmailLiveChatOAuthController::class, 'callback'])
+            ->middleware('throttle:20,1,admin-live-chat-gmail-callback')
+            ->name('gmail.callback');
 
         Route::get('/conversations/{conversation}', [AdminLiveChatController::class, 'show'])
             ->whereNumber('conversation')

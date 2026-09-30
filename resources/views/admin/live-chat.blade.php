@@ -3860,6 +3860,26 @@
 
                             type="button"
 
+                            class="lca-email-handoff"
+
+                            data-email-settings
+
+                            hidden
+
+                            title="E-mailadres, onderwerp en titel beheren"
+
+                        >
+
+                            ✎ E-mail / titel
+
+                        </button>
+
+
+
+                        <button
+
+                            type="button"
+
                             class="lca-close"
 
                             data-close
@@ -4188,7 +4208,7 @@
 
 <script
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=50"
+    src="{{ asset('js/admin-live-chat.js') }}?v=60"
 
     defer
 

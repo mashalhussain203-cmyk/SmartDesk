@@ -38,7 +38,7 @@
 
 
 
-    <title>Mashal Support</title>
+    <title>{{ $emailSubject ?? 'Mashal Support' }}</title>
 
 
 
@@ -246,7 +246,7 @@
 
     >
 
-        U heeft een nieuw bericht van Mashal Support ontvangen.
+        {{ $emailTitle ?? 'Mashal Support' }} — nieuw bericht in gesprek #{{ $conversationId }}.
 
         Antwoord rechtstreeks op deze e-mail om het gesprek voort te zetten.
 
@@ -1240,7 +1240,7 @@
 
                                                     >
 
-                                                        Nieuw bericht
+                                                        {{ $emailTitle ?? 'Nieuw bericht' }}
 
                                                     </div>
 
@@ -1926,6 +1926,23 @@
 
                                                             </td>
 
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td
+                                                                colspan="2"
+                                                                style="
+                                                                    padding-top:8px;
+                                                                    font-size:12px;
+                                                                    line-height:1.5;
+                                                                    color:#64748b;
+                                                                "
+                                                            >
+                                                                Onderwerp:
+                                                                <strong style="color:#334155;">
+                                                                    {{ $emailSubject ?? ('Mashal Support · gesprek #'.$conversationId) }}
+                                                                </strong>
+                                                            </td>
                                                         </tr>
 
 

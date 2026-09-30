@@ -72,6 +72,8 @@
 
     const emailHandoffButton = root.querySelector('[data-email-handoff]');
 
+    const emailSettingsButton = root.querySelector('[data-email-settings]');
+
 
 
     const filter = root.querySelector('select');
@@ -159,6 +161,8 @@
 
 
         !emailHandoffButton ||
+
+        !emailSettingsButton ||
 
 
 
@@ -2104,6 +2108,46 @@
 
 
                 : '✉ Verder via e-mail';
+
+
+
+
+
+
+
+        emailSettingsButton.hidden =
+
+
+
+            !selected
+
+
+
+            || !emailMode;
+
+
+
+
+
+
+
+        emailSettingsButton.disabled =
+
+
+
+            !selected
+
+
+
+            || !emailMode
+
+
+
+            || busy
+
+
+
+            || stopped;
 
 
 
@@ -7315,177 +7359,218 @@
 
 
 
-    emailHandoffButton.addEventListener(
+    function defaultEmailSubject(conversation) {
+        const id = Number(conversation?.id || 0);
 
-        'click',
+        return String(
+            conversation?.email_subject
+            || `Mashal Support · gesprek #${id}`
+        ).trim();
+    }
 
-        async () => {
+    function defaultEmailTitle(conversation) {
+        return String(
+            conversation?.email_title
+            || 'Mashal Support'
+        ).trim();
+    }
+
+    async function saveEmailSettings({
+        firstHandoff = false,
+    } = {}) {
+        if (
+            !selected
+            || busy
+            || stopped
+        ) {
+            return;
+        }
+
+        let email = String(
+            selected.email || ''
+        ).trim();
+
+        email = String(
+            window.prompt(
+                'E-mailadres van de klant:',
+                email
+            ) || ''
+        ).trim();
+
+        if (!email) {
+            return;
+        }
+
+        let subject = defaultEmailSubject(selected);
+
+        const subjectLocked = Boolean(
+            selected.email_subject_locked
+            || selected.gmail_thread_id
+        );
+
+        if (!subjectLocked) {
+            subject = String(
+                window.prompt(
+                    'E-mailonderwerp voor deze thread:',
+                    subject
+                ) || ''
+            ).trim();
+
+            if (!subject) {
+                return;
+            }
+        }
+
+        let title = String(
+            window.prompt(
+                subjectLocked
+                    ? 'Titel in de e-mail. Deze mag je blijven wijzigen; het echte onderwerp blijft vast zodat Gmail dezelfde thread behoudt:'
+                    : 'Titel boven het bericht in de e-mail:',
+                defaultEmailTitle(selected)
+            ) || ''
+        ).trim();
+
+        if (!title) {
+            title = 'Mashal Support';
+        }
+
+        const confirmation = subjectLocked
+            ? `Instellingen opslaan?\n\nE-mail: ${email}\nOnderwerp (vast voor dezelfde Gmail-thread): ${subject}\nTitel in de mail: ${title}`
+            : `Gesprek via e-mail starten?\n\nE-mail: ${email}\nOnderwerp: ${subject}\nTitel in de mail: ${title}`;
+
+        if (!window.confirm(confirmation)) {
+            return;
+        }
+
+        busy = true;
+        controls();
+        fail('');
+
+        try {
+            const result = await api(
+                `${root.dataset.base}/${selected.id}/email-handoff`,
+                'POST',
+                {
+                    enabled: true,
+                    email,
+                    subject,
+                    title,
+                }
+            );
+
+            if (result?.conversation) {
+                selected = {
+                    ...selected,
+                    ...result.conversation,
+                    id: Number(
+                        result.conversation.id
+                        || selected.id
+                    ),
+                };
+            } else {
+                selected.delivery_channel = 'email';
+                selected.email = email;
+                selected.email_subject = subject;
+                selected.email_title = title;
+            }
+
+            await detail();
+            await inbox();
 
             if (
-
-                !selected
-
-                || busy
-
-                || stopped
-
+                firstHandoff
+                && result?.email_sent === false
+                && result?.email_error
             ) {
+                fail(
+                    'E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: '
+                    + result.email_error
+                );
+            }
+        } catch (error) {
+            fail(error.message);
+        } finally {
+            busy = false;
+            controls();
+        }
+    }
 
+    emailHandoffButton.addEventListener(
+        'click',
+        async () => {
+            if (
+                !selected
+                || busy
+                || stopped
+            ) {
                 return;
-
             }
 
             const enabling =
-
                 selected.delivery_channel !== 'email';
 
-            let email =
+            if (enabling) {
+                await saveEmailSettings({
+                    firstHandoff: true,
+                });
 
-                String(selected.email || '').trim();
-
-            if (enabling && !email) {
-
-                email = String(
-
-                    window.prompt(
-
-                        'Op welk e-mailadres wil je dit gesprek voortzetten?',
-
-                        ''
-
-                    ) || ''
-
-                ).trim();
-
-                if (!email) {
-
-                    return;
-
-                }
-
+                return;
             }
 
             if (
-
                 !window.confirm(
-
-                    enabling
-
-                        ? `Gesprek voortzetten via e-mail naar ${email}?`
-
-                        : 'Dit gesprek terugzetten naar normale live-chat?'
-
+                    'Dit gesprek terugzetten naar normale live-chat? De Gmail-thread blijft bewaard, zodat je later in dezelfde e-mailthread verder kunt gaan.'
                 )
-
             ) {
-
                 return;
-
             }
 
             busy = true;
-
             controls();
-
             fail('');
 
             try {
-
                 const result = await api(
-
                     `${root.dataset.base}/${selected.id}/email-handoff`,
-
                     'POST',
-
                     {
-
-                        enabled: enabling,
-
-                        email: enabling ? email : null,
-
+                        enabled: false,
+                        email: null,
                     }
-
                 );
 
                 if (result?.conversation) {
-
                     selected = {
-
                         ...selected,
-
                         ...result.conversation,
-
                         id: Number(
-
                             result.conversation.id
-
                             || selected.id
-
                         ),
-
                     };
-
                 } else {
-
-                    selected.delivery_channel =
-
-                        enabling
-
-                            ? 'email'
-
-                            : 'live';
-
-                    if (enabling) {
-
-                        selected.email = email;
-
-                    }
-
+                    selected.delivery_channel = 'live';
                 }
 
                 await detail();
-
                 await inbox();
-
-                if (
-
-                    enabling
-
-                    && result?.email_sent === false
-
-                    && result?.email_error
-
-                ) {
-
-                    fail(
-
-                        'E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: '
-
-                        + result.email_error
-
-                    );
-
-                }
-
             } catch (error) {
-
                 fail(error.message);
-
             } finally {
-
                 busy = false;
-
                 controls();
-
             }
-
         }
-
     );
 
-
-
-
+    emailSettingsButton.addEventListener(
+        'click',
+        async () => {
+            await saveEmailSettings({
+                firstHandoff: false,
+            });
+        }
+    );
 
 
 

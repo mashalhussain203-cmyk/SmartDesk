@@ -57,6 +57,8 @@ class LiveChatTest extends TestCase
                 'database/migrations/2026_09_29_230958_add_media_and_sender_fields_to_live_chat_messages_table.php',
 
                 'database/migrations/2026_09_30_000001_add_email_handoff_to_live_chat.php',
+                'database/migrations/2026_09_30_000002_add_gmail_threading_to_live_chat.php',
+                'database/migrations/2026_09_30_000003_add_email_title_to_live_chat.php',
 
             ],
 

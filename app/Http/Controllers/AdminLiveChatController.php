@@ -128,6 +128,12 @@ class AdminLiveChatController extends Controller
 
                 'c.email_handoff_at',
 
+                'c.email_subject',
+
+                'c.email_title',
+
+                'c.gmail_thread_id',
+
                 'u.name',
 
                 'u.email'
@@ -309,6 +315,36 @@ class AdminLiveChatController extends Controller
                             $conversation->email_handoff_at
 
                             ?? null,
+
+
+
+                        'email_subject' =>
+
+                            $conversation->email_subject
+
+                            ?? null,
+
+
+
+                        'email_title' =>
+
+                            $conversation->email_title
+
+                            ?? 'Mashal Support',
+
+
+
+                        'gmail_thread_id' =>
+
+                            $conversation->gmail_thread_id
+
+                            ?? null,
+
+
+
+                        'email_subject_locked' =>
+
+                            ! empty($conversation->gmail_thread_id),
 
 
 
@@ -495,6 +531,28 @@ class AdminLiveChatController extends Controller
                     $record->email_handoff_at
 
                     ?? null,
+
+                'email_subject' =>
+
+                    $record->email_subject
+
+                    ?? null,
+
+                'email_title' =>
+
+                    $record->email_title
+
+                    ?? 'Mashal Support',
+
+                'gmail_thread_id' =>
+
+                    $record->gmail_thread_id
+
+                    ?? null,
+
+                'email_subject_locked' =>
+
+                    ! empty($record->gmail_thread_id),
 
             ]
 
@@ -949,6 +1007,16 @@ class AdminLiveChatController extends Controller
                 'email',
                 'max:255',
             ],
+            'subject' => [
+                'nullable',
+                'string',
+                'max:180',
+            ],
+            'title' => [
+                'nullable',
+                'string',
+                'max:120',
+            ],
         ]);
 
         if ((bool) $data['enabled']) {
@@ -967,6 +1035,9 @@ class AdminLiveChatController extends Controller
                 )
                 ->select(
                     'c.contact_email',
+                    'c.email_subject',
+                    'c.email_title',
+                    'c.gmail_thread_id',
                     'u.email as user_email'
                 )
                 ->first();
@@ -1000,7 +1071,13 @@ class AdminLiveChatController extends Controller
             $result = $email->enable(
                 $conversation,
                 $targetEmail,
-                (int) $request->user()->id
+                (int) $request->user()->id,
+                isset($data['subject'])
+                    ? (string) $data['subject']
+                    : null,
+                isset($data['title'])
+                    ? (string) $data['title']
+                    : null
             );
         } else {
             $result = $email->disable(
@@ -1040,7 +1117,7 @@ class AdminLiveChatController extends Controller
                 'inserted' => 0,
                 'duplicates' => 0,
                 'errors' => 1,
-                'message' => 'Gmail kon niet worden gesynchroniseerd. Controleer het Gmail app-wachtwoord in Railway.',
+                'message' => 'Gmail kon niet worden gesynchroniseerd. Controleer de Gmail API-koppeling via /admin/live-chat/gmail/connect.',
             ];
         }
 
