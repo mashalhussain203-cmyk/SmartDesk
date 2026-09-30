@@ -176,8 +176,15 @@ class GmailLiveChatInboxService
                     $duplicates++;
                 }
 
-                $this->gmail->markRead(
-                    $gmailMessageId
+                // Pas NA succesvolle import/duplicate-detectie aanpassen.
+                // Zo verdwijnt nooit een klantmail uit Inbox voordat SmartDesk
+                // hem veilig heeft verwerkt.
+                $this->gmail->markProcessed(
+                    $gmailMessageId,
+                    (bool) config(
+                        'live-chat-email.gmail_archive_imported',
+                        true
+                    )
                 );
             } catch (Throwable $exception) {
                 $errors++;

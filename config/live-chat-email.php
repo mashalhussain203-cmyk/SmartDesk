@@ -71,6 +71,16 @@ return [
         25
     ),
 
+    /*
+     * Na succesvolle import uit Gmail: UNREAD verwijderen en standaard ook
+     * INBOX verwijderen. Daardoor werkt Gmail alleen als technische mailbox
+     * en beheert de admin klantreacties uitsluitend in SmartDesk.
+     */
+    'gmail_archive_imported' => filter_var(
+        env('LIVE_CHAT_GMAIL_ARCHIVE_IMPORTED', true),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+
     'from_name' => env(
         'BREVO_FROM_NAME',
         env(

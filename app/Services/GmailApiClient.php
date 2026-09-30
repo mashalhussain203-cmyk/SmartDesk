@@ -229,11 +229,30 @@ class GmailApiClient
 
     public function markRead(string $messageId): void
     {
+        $this->markProcessed($messageId, false);
+    }
+
+    /**
+     * Markeert een succesvol door SmartDesk verwerkt klantbericht als gelezen.
+     * Als $archive true is, wordt ook het INBOX-label verwijderd zodat de
+     * technische Gmail-mailbox schoon blijft. Het bericht blijft in Gmail
+     * onder Alle e-mail beschikbaar en de threadId blijft intact.
+     */
+    public function markProcessed(
+        string $messageId,
+        bool $archive = true
+    ): void {
+        $removeLabelIds = ['UNREAD'];
+
+        if ($archive) {
+            $removeLabelIds[] = 'INBOX';
+        }
+
         $this->request(
             'POST',
             '/users/me/messages/'.rawurlencode($messageId).'/modify',
             [],
-            ['removeLabelIds' => ['UNREAD']]
+            ['removeLabelIds' => $removeLabelIds]
         );
     }
 
