@@ -15,7 +15,7 @@
 
     <meta
         name="theme-color"
-        content="#07080b"
+        content="#050609"
     >
 
     <meta
@@ -3710,6 +3710,1460 @@
 
     </style>
 
+
+    <style id="mashal-signature-layout-match">
+        /*
+        |--------------------------------------------------------------------------
+        | Mashal Signature Layout Match
+        |--------------------------------------------------------------------------
+        | Matches the cinematic purple/blue home experience while preserving
+        | the existing Blade structure, route checks, auth state and mobile logic.
+        */
+
+        :root {
+            --studio-bg: #050609;
+            --studio-bg-deep: #040507;
+            --studio-bg-soft: #090b10;
+
+            --studio-surface: #0d1016;
+            --studio-surface-2: #121620;
+            --studio-surface-3: #171c27;
+            --studio-surface-glass: rgba(10, 13, 19, .82);
+
+            --studio-text: #f6f8fb;
+            --studio-text-soft: #d9dfe8;
+            --studio-muted: #858f9e;
+            --studio-muted-2: #626c79;
+            --studio-muted-3: #48515e;
+
+            --studio-line: rgba(255, 255, 255, .075);
+            --studio-line-strong: rgba(255, 255, 255, .135);
+
+            /*
+             * Existing components use the "gold" tokens.
+             * Remap them to the new Mashal signature palette so every
+             * existing page automatically follows the new design language.
+             */
+            --studio-gold: #7a6cff;
+            --studio-gold-light: #b9b2ff;
+            --studio-gold-deep: #5546d8;
+            --studio-gold-soft: rgba(122, 108, 255, .09);
+
+            --studio-cyan: #42a5ff;
+            --studio-purple: #9b8fff;
+
+            --studio-success: #74dfa7;
+            --studio-success-soft: rgba(116, 223, 167, .08);
+
+            --studio-warning: #ffbd78;
+            --studio-warning-soft: rgba(255, 189, 120, .08);
+
+            --studio-danger: #ff7c91;
+            --studio-danger-soft: rgba(255, 124, 145, .08);
+
+            --studio-shadow:
+                0 42px 120px rgba(0, 0, 0, .46);
+
+            --studio-shadow-soft:
+                0 20px 60px rgba(0, 0, 0, .28);
+
+            --studio-header-height: 76px;
+        }
+
+        html,
+        body {
+            background:
+                #050609;
+        }
+
+        body::selection {
+            color:
+                #ffffff;
+
+            background:
+                rgba(122, 108, 255, .72);
+        }
+
+        :focus-visible {
+            outline:
+                2px solid rgba(153, 142, 255, .88);
+
+            outline-offset:
+                3px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Global atmosphere
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-atmosphere {
+            background:
+                radial-gradient(
+                    circle at 78% -8%,
+                    rgba(122, 108, 255, .13),
+                    transparent 31rem
+                ),
+                radial-gradient(
+                    circle at 10% 28%,
+                    rgba(66, 165, 255, .05),
+                    transparent 28rem
+                ),
+                linear-gradient(
+                    180deg,
+                    #050609 0%,
+                    #07090d 52%,
+                    #050609 100%
+                );
+        }
+
+        .studio-atmosphere::before {
+            background:
+                radial-gradient(
+                    circle at 78% 4%,
+                    rgba(122, 108, 255, .14),
+                    transparent 29rem
+                ),
+                radial-gradient(
+                    circle at 12% 20%,
+                    rgba(66, 165, 255, .055),
+                    transparent 31rem
+                ),
+                radial-gradient(
+                    circle at 72% 82%,
+                    rgba(141, 240, 208, .035),
+                    transparent 32rem
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Signature header
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-header {
+            position:
+                sticky;
+
+            top:
+                0;
+
+            z-index:
+                1000;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, .06);
+
+            background:
+                rgba(5, 6, 9, .82) !important;
+
+            backdrop-filter:
+                blur(20px)
+                saturate(135%) !important;
+
+            -webkit-backdrop-filter:
+                blur(20px)
+                saturate(135%) !important;
+
+            box-shadow:
+                none;
+
+            transition:
+                background .28s ease,
+                border-color .28s ease,
+                box-shadow .28s ease,
+                transform .28s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .studio-header::before {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                auto 0 -1px;
+
+            height:
+                1px;
+
+            pointer-events:
+                none;
+
+            opacity:
+                .5;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(122, 108, 255, .25),
+                    rgba(66, 165, 255, .20),
+                    transparent
+                );
+        }
+
+        .studio-header.is-scrolled {
+            border-color:
+                rgba(122, 108, 255, .13);
+
+            background:
+                rgba(5, 6, 9, .94) !important;
+
+            box-shadow:
+                0 18px 55px rgba(0, 0, 0, .30);
+        }
+
+        .studio-nav {
+            min-height:
+                var(--studio-header-height);
+
+            gap:
+                24px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Brand
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-brand {
+            gap:
+                11px;
+
+            transition:
+                transform .25s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .studio-brand:hover {
+            transform:
+                translateY(-1px);
+        }
+
+        .studio-brand-mark {
+            width:
+                42px;
+
+            height:
+                42px;
+
+            flex-basis:
+                42px;
+
+            border:
+                1px solid rgba(122, 108, 255, .28);
+
+            border-radius:
+                12px;
+
+            color:
+                #ffffff;
+
+            background:
+                radial-gradient(
+                    circle at 25% 18%,
+                    rgba(255, 255, 255, .20),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    145deg,
+                    #806fff,
+                    #566cf5 52%,
+                    #3f8be8
+                );
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .22),
+                0 14px 36px rgba(72, 64, 204, .24);
+
+            font-size:
+                14px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                -.08em;
+        }
+
+        .studio-brand-mark::before {
+            width:
+                30px;
+
+            height:
+                30px;
+
+            left:
+                -15px;
+
+            top:
+                -15px;
+
+            background:
+                rgba(255, 255, 255, .24);
+
+            filter:
+                blur(8px);
+        }
+
+        .studio-brand-mark::after {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            right:
+                5px;
+
+            bottom:
+                5px;
+
+            width:
+                5px;
+
+            height:
+                5px;
+
+            border-radius:
+                50%;
+
+            background:
+                #8df0d0;
+
+            box-shadow:
+                0 0 12px rgba(141, 240, 208, .8);
+        }
+
+        .studio-brand-copy strong {
+            color:
+                #f7f9fc;
+
+            font-size:
+                13px;
+
+            font-weight:
+                790;
+
+            letter-spacing:
+                -.035em;
+        }
+
+        .studio-brand-copy small {
+            margin-top:
+                5px;
+
+            color:
+                #646e7c;
+
+            font-size:
+                7px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                .17em;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Desktop navigation
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-nav-center {
+            gap:
+                3px;
+
+            padding:
+                4px;
+
+            border:
+                1px solid rgba(255, 255, 255, .045);
+
+            border-radius:
+                14px;
+
+            background:
+                rgba(255, 255, 255, .012);
+        }
+
+        .studio-nav-link {
+            min-height:
+                40px;
+
+            padding:
+                0 12px;
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                10px;
+
+            color:
+                #7c8694;
+
+            background:
+                transparent;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+
+            transition:
+                color .2s ease,
+                background .2s ease,
+                border-color .2s ease,
+                transform .2s cubic-bezier(.16, 1, .3, 1),
+                box-shadow .2s ease;
+        }
+
+        .studio-nav-link::before {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                12px;
+
+            right:
+                12px;
+
+            top:
+                0;
+
+            height:
+                1px;
+
+            opacity:
+                0;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, .48),
+                    transparent
+                );
+
+            transition:
+                opacity .2s ease;
+        }
+
+        .studio-nav-link:hover {
+            transform:
+                translateY(-1px);
+
+            color:
+                #d9dee7;
+
+            border-color:
+                rgba(255, 255, 255, .065);
+
+            background:
+                rgba(255, 255, 255, .035);
+        }
+
+        .studio-nav-link:hover::before {
+            opacity:
+                .55;
+        }
+
+        .studio-nav-link.active {
+            border-color:
+                rgba(122, 108, 255, .18);
+
+            color:
+                #f3f4ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .14),
+                    rgba(66, 165, 255, .05)
+                );
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .035);
+        }
+
+        .studio-nav-link.active::after {
+            left:
+                14px;
+
+            right:
+                14px;
+
+            bottom:
+                3px;
+
+            height:
+                1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    #8176ff,
+                    #5ca7ff,
+                    transparent
+                );
+        }
+
+        .studio-nav-link.ai-link,
+        .studio-nav-link.ai-link.active {
+            border-color:
+                rgba(122, 108, 255, .16);
+
+            color:
+                #bbb5ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .09),
+                    rgba(66, 165, 255, .035)
+                );
+        }
+
+        .studio-nav-link.ai-link:hover {
+            color:
+                #eeeaff;
+
+            border-color:
+                rgba(122, 108, 255, .27);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .15),
+                    rgba(66, 165, 255, .055)
+                );
+        }
+
+        .studio-ai-badge {
+            min-width:
+                23px;
+
+            height:
+                19px;
+
+            border:
+                1px solid rgba(143, 132, 255, .24);
+
+            color:
+                #c9c4ff;
+
+            background:
+                rgba(122, 108, 255, .10);
+
+            font-size:
+                6px;
+        }
+
+        .studio-nav-icon {
+            color:
+                #9a93ff;
+
+            opacity:
+                .95;
+        }
+
+        .studio-nav-count {
+            border-color:
+                rgba(122, 108, 255, .18);
+
+            color:
+                #aaa3ff;
+
+            background:
+                rgba(122, 108, 255, .075);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guest actions
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-action-link,
+        .studio-action-button {
+            min-height:
+                42px;
+
+            padding:
+                0 14px;
+
+            border:
+                1px solid rgba(255, 255, 255, .075);
+
+            border-radius:
+                10px;
+
+            color:
+                #aab2be;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            font-size:
+                9px;
+
+            font-weight:
+                780;
+
+            transition:
+                transform .22s cubic-bezier(.16, 1, .3, 1),
+                color .2s ease,
+                border-color .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .studio-action-link:hover,
+        .studio-action-button:hover {
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            color:
+                #eef1f6;
+
+            background:
+                rgba(122, 108, 255, .055);
+        }
+
+        .studio-action-link.primary,
+        .studio-action-button.primary {
+            border-color:
+                rgba(122, 108, 255, .34);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7b69ff,
+                    #4e8fff
+                );
+
+            box-shadow:
+                0 15px 38px rgba(75, 67, 208, .22),
+                inset 0 1px 0 rgba(255, 255, 255, .18);
+        }
+
+        .studio-action-link.primary:hover,
+        .studio-action-button.primary:hover {
+            color:
+                #ffffff;
+
+            border-color:
+                rgba(140, 127, 255, .48);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8978ff,
+                    #5b99ff
+                );
+
+            box-shadow:
+                0 18px 48px rgba(75, 67, 208, .29);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Account pill
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-account-trigger {
+            min-height:
+                44px;
+
+            max-width:
+                230px;
+
+            padding:
+                5px 9px 5px 5px;
+
+            border:
+                1px solid rgba(255, 255, 255, .075);
+
+            border-radius:
+                12px;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .018);
+
+            transition:
+                transform .22s cubic-bezier(.16, 1, .3, 1),
+                border-color .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .studio-account-trigger:hover,
+        .studio-account-trigger[aria-expanded="true"] {
+            transform:
+                translateY(-1px);
+
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .08),
+                    rgba(66, 165, 255, .025)
+                );
+
+            box-shadow:
+                0 12px 34px rgba(0, 0, 0, .20);
+        }
+
+        .studio-account-avatar {
+            width:
+                32px;
+
+            height:
+                32px;
+
+            flex-basis:
+                32px;
+
+            border:
+                1px solid rgba(122, 108, 255, .20);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #7767ff,
+                    #506fe8
+                );
+
+            font-weight:
+                850;
+        }
+
+        .studio-account-trigger-copy strong {
+            color:
+                #e2e7ee;
+
+            font-size:
+                9px;
+
+            font-weight:
+                780;
+        }
+
+        .studio-account-trigger-copy small {
+            color:
+                #596473;
+
+            font-size:
+                6px;
+
+            letter-spacing:
+                .1em;
+        }
+
+        .studio-account-chevron {
+            color:
+                #737d8b;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Account popover
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-account-menu {
+            top:
+                calc(100% + 11px);
+
+            width:
+                min(340px, calc(100vw - 28px));
+
+            border:
+                1px solid rgba(122, 108, 255, .13);
+
+            border-radius:
+                17px;
+
+            background:
+                rgba(10, 12, 17, .975);
+
+            box-shadow:
+                0 36px 110px rgba(0, 0, 0, .50);
+
+            backdrop-filter:
+                blur(24px)
+                saturate(135%);
+
+            -webkit-backdrop-filter:
+                blur(24px)
+                saturate(135%);
+
+            transform:
+                translateY(-7px)
+                scale(.985);
+        }
+
+        .studio-account-menu.is-open {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+        .studio-account-menu::before {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            right:
+                26px;
+
+            top:
+                -5px;
+
+            width:
+                9px;
+
+            height:
+                9px;
+
+            border-left:
+                1px solid rgba(122, 108, 255, .13);
+
+            border-top:
+                1px solid rgba(122, 108, 255, .13);
+
+            background:
+                #0a0c11;
+
+            transform:
+                rotate(45deg);
+        }
+
+        .studio-account-menu-head {
+            padding:
+                18px;
+
+            border-bottom:
+                1px solid var(--studio-line);
+
+            background:
+                radial-gradient(
+                    circle at 90% 0%,
+                    rgba(122, 108, 255, .13),
+                    transparent 11rem
+                );
+        }
+
+        .studio-account-menu-avatar {
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #7868ff,
+                    #4f7eeb
+                );
+        }
+
+        .studio-account-menu-user strong {
+            color:
+                #f0f3f7;
+
+            font-weight:
+                760;
+        }
+
+        .studio-account-menu-user span {
+            color:
+                #66717f;
+        }
+
+        .studio-account-menu-body {
+            padding:
+                8px;
+        }
+
+        .studio-account-menu-link {
+            min-height:
+                45px;
+
+            padding:
+                0 11px;
+
+            border-radius:
+                9px;
+
+            color:
+                #929ca9;
+
+            font-weight:
+                700;
+        }
+
+        .studio-account-menu-link:hover {
+            border-color:
+                rgba(122, 108, 255, .10);
+
+            color:
+                #e0e5ec;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .08),
+                    rgba(66, 165, 255, .02)
+                );
+        }
+
+        .studio-account-menu-link span:last-child {
+            color:
+                #737d8a;
+        }
+
+        .studio-account-menu-divider {
+            background:
+                var(--studio-line);
+        }
+
+        .studio-account-menu-logout {
+            border-radius:
+                9px;
+
+            color:
+                #df8c9b;
+
+            font-weight:
+                760;
+        }
+
+        .studio-account-menu-logout:hover {
+            border-color:
+                rgba(255, 124, 145, .12);
+
+            background:
+                rgba(255, 124, 145, .055);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Menu trigger
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-menu-toggle {
+            width:
+                43px;
+
+            height:
+                43px;
+
+            border:
+                1px solid rgba(255, 255, 255, .08);
+
+            border-radius:
+                10px;
+
+            color:
+                #e2e6ed;
+
+            background:
+                rgba(255, 255, 255, .022);
+        }
+
+        .studio-menu-toggle:hover {
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            background:
+                rgba(122, 108, 255, .055);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mobile overlay + drawer
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-mobile-overlay {
+            background:
+                rgba(2, 3, 6, .68);
+
+            backdrop-filter:
+                blur(8px);
+
+            -webkit-backdrop-filter:
+                blur(8px);
+        }
+
+        .studio-mobile-drawer {
+            width:
+                min(410px, 92vw);
+
+            border-left:
+                1px solid rgba(122, 108, 255, .12);
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .13),
+                    transparent 18rem
+                ),
+                rgba(7, 9, 13, .985);
+
+            box-shadow:
+                -35px 0 110px rgba(0, 0, 0, .52);
+
+            backdrop-filter:
+                blur(28px);
+
+            -webkit-backdrop-filter:
+                blur(28px);
+        }
+
+        .studio-mobile-head {
+            border-bottom:
+                1px solid var(--studio-line);
+        }
+
+        .studio-mobile-head strong {
+            color:
+                #f0f3f7;
+
+            font-size:
+                12px;
+
+            font-weight:
+                780;
+        }
+
+        .studio-mobile-close {
+            border:
+                1px solid var(--studio-line);
+
+            border-radius:
+                10px;
+
+            color:
+                #9ca5b1;
+
+            background:
+                rgba(255, 255, 255, .02);
+        }
+
+        .studio-mobile-user {
+            border:
+                1px solid rgba(122, 108, 255, .10);
+
+            border-radius:
+                14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .07),
+                    rgba(66, 165, 255, .02)
+                );
+        }
+
+        .studio-mobile-nav-label {
+            color:
+                #566170;
+        }
+
+        .studio-mobile-link {
+            min-height:
+                50px;
+
+            padding:
+                0 13px;
+
+            border-radius:
+                10px;
+
+            color:
+                #88929f;
+
+            font-weight:
+                720;
+        }
+
+        .studio-mobile-link:hover,
+        .studio-mobile-link.active {
+            border-color:
+                rgba(122, 108, 255, .12);
+
+            color:
+                #ecefff;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .10),
+                    rgba(66, 165, 255, .025)
+                );
+        }
+
+        .studio-mobile-link span:last-child {
+            color:
+                #8d85ff;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Progress bar
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-progress {
+            display:
+                block !important;
+
+            height:
+                2px;
+
+            background:
+                transparent;
+        }
+
+        .studio-progress-bar {
+            background:
+                linear-gradient(
+                    90deg,
+                    #7465ff,
+                    #4b9cff,
+                    #8df0d0
+                );
+
+            box-shadow:
+                0 0 18px rgba(122, 108, 255, .38);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Quick upload
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-quick-upload {
+            min-height:
+                50px;
+
+            padding:
+                0 17px 0 10px;
+
+            border:
+                1px solid rgba(122, 108, 255, .28);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7766ff,
+                    #4f8fff
+                );
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, .38),
+                0 12px 34px rgba(79, 70, 211, .20);
+
+            font-weight:
+                780;
+        }
+
+        .studio-quick-upload:hover {
+            box-shadow:
+                0 26px 72px rgba(0, 0, 0, .42),
+                0 16px 42px rgba(79, 70, 211, .28);
+        }
+
+        .studio-quick-upload-icon {
+            border:
+                1px solid rgba(255, 255, 255, .16);
+
+            background:
+                rgba(255, 255, 255, .14);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Flash states
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-flash {
+            border:
+                1px solid rgba(255, 255, 255, .075);
+
+            background:
+                rgba(12, 15, 21, .96);
+
+            box-shadow:
+                0 17px 48px rgba(0, 0, 0, .25);
+        }
+
+        .studio-flash.success {
+            border-color:
+                rgba(116, 223, 167, .15);
+
+            color:
+                #aee8c5;
+
+            background:
+                rgba(116, 223, 167, .055);
+        }
+
+        .studio-flash.warning {
+            border-color:
+                rgba(255, 189, 120, .16);
+
+            color:
+                #e4c39d;
+
+            background:
+                rgba(255, 189, 120, .055);
+        }
+
+        .studio-flash.error {
+            border-color:
+                rgba(255, 124, 145, .16);
+
+            color:
+                #efa8b5;
+
+            background:
+                rgba(255, 124, 145, .055);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Footer match
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-footer {
+            border-top:
+                1px solid rgba(255, 255, 255, .055);
+
+            background:
+                radial-gradient(
+                    circle at 80% 0%,
+                    rgba(122, 108, 255, .055),
+                    transparent 24rem
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(9, 11, 16, .98),
+                    #050609
+                );
+        }
+
+        .studio-footer-trust::before {
+            background:
+                var(--studio-success);
+        }
+
+        .studio-footer-links a:hover,
+        .studio-footer-bottom-links a:hover {
+            color:
+                #b7b0ff;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Page helpers match
+        |--------------------------------------------------------------------------
+        */
+
+        .studio-page-kicker {
+            color:
+                #958cff;
+        }
+
+        .studio-page-kicker::before {
+            background:
+                linear-gradient(
+                    90deg,
+                    #7a6cff,
+                    transparent
+                );
+        }
+
+        .studio-panel {
+            border:
+                1px solid var(--studio-line);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, .025),
+                    rgba(255, 255, 255, .006)
+                ),
+                var(--studio-surface);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Desktop micro motion
+        |--------------------------------------------------------------------------
+        */
+
+        @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+            .studio-nav-link,
+            .studio-action-link,
+            .studio-account-trigger,
+            .studio-menu-toggle,
+            .studio-brand {
+                will-change:
+                    transform;
+            }
+
+            .studio-brand-mark {
+                transition:
+                    transform .45s cubic-bezier(.16, 1, .3, 1),
+                    box-shadow .35s ease;
+            }
+
+            .studio-brand:hover .studio-brand-mark {
+                transform:
+                    rotate(-4deg)
+                    scale(1.04);
+
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, .22),
+                    0 18px 45px rgba(72, 64, 204, .32);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Responsive
+        |--------------------------------------------------------------------------
+        */
+
+        @media (max-width: 1120px) {
+            .studio-nav-center {
+                padding:
+                    0;
+
+                border:
+                    0;
+
+                background:
+                    transparent;
+            }
+        }
+
+        @media (max-width: 820px) {
+            :root {
+                --studio-header-height:
+                    70px;
+            }
+
+            .studio-header,
+            .studio-header.is-scrolled {
+                background:
+                    rgba(5, 6, 9, .965) !important;
+
+                backdrop-filter:
+                    none !important;
+
+                -webkit-backdrop-filter:
+                    none !important;
+            }
+
+            .studio-brand-mark {
+                width:
+                    39px;
+
+                height:
+                    39px;
+
+                flex-basis:
+                    39px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .studio-shell {
+                width:
+                    min(
+                        calc(100% - 22px),
+                        var(--studio-shell)
+                    );
+            }
+
+            .studio-brand-copy strong {
+                font-size:
+                    12px;
+            }
+
+            .studio-mobile-drawer {
+                width:
+                    min(420px, 94vw);
+            }
+
+            .studio-quick-upload {
+                right:
+                    12px;
+
+                bottom:
+                    12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .studio-header,
+            .studio-brand,
+            .studio-brand-mark,
+            .studio-nav-link,
+            .studio-action-link,
+            .studio-action-button,
+            .studio-account-trigger {
+                transform:
+                    none !important;
+            }
+        }
+    </style>
+
+
     @stack('styles')
 </head>
 
@@ -5350,6 +6804,256 @@
             }
         );
     </script>
+
+
+    <script id="mashal-signature-layout-motion">
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+                const header =
+                    document.getElementById(
+                        'studioHeader'
+                    );
+
+                const progressBar =
+                    document.getElementById(
+                        'studioProgressBar'
+                    );
+
+                const reducedMotion =
+                    window.matchMedia(
+                        '(prefers-reduced-motion: reduce)'
+                    ).matches;
+
+                const finePointer =
+                    window.matchMedia(
+                        '(pointer: fine)'
+                    ).matches;
+
+                let scrollFrame =
+                    false;
+
+                function updateSignatureScroll() {
+                    if (header) {
+                        header.classList.toggle(
+                            'is-scrolled',
+                            window.scrollY > 10
+                        );
+                    }
+
+                    if (progressBar) {
+                        const documentElement =
+                            document.documentElement;
+
+                        const scrollable =
+                            documentElement.scrollHeight -
+                            window.innerHeight;
+
+                        const ratio =
+                            scrollable > 0
+                                ? Math.min(
+                                    1,
+                                    Math.max(
+                                        0,
+                                        window.scrollY /
+                                        scrollable
+                                    )
+                                )
+                                : 0;
+
+                        progressBar.style.transform =
+                            'scaleX(' +
+                            ratio +
+                            ')';
+                    }
+                }
+
+                function scheduleSignatureScroll() {
+                    if (scrollFrame) {
+                        return;
+                    }
+
+                    scrollFrame =
+                        true;
+
+                    window.requestAnimationFrame(
+                        function () {
+                            updateSignatureScroll();
+
+                            scrollFrame =
+                                false;
+                        }
+                    );
+                }
+
+                updateSignatureScroll();
+
+                window.addEventListener(
+                    'scroll',
+                    scheduleSignatureScroll,
+                    {
+                        passive: true
+                    }
+                );
+
+                /*
+                 * Subtle magnetic movement.
+                 * Only enabled for fine pointers to keep touch interaction stable.
+                 */
+                if (
+                    !reducedMotion &&
+                    finePointer
+                ) {
+                    document
+                        .querySelectorAll(
+                            '.studio-nav-link, ' +
+                            '.studio-action-link, ' +
+                            '.studio-account-trigger, ' +
+                            '.studio-menu-toggle'
+                        )
+                        .forEach(
+                            function (element) {
+                                let currentX = 0;
+                                let currentY = 0;
+                                let targetX = 0;
+                                let targetY = 0;
+                                let frameId = null;
+
+                                function animate() {
+                                    currentX +=
+                                        (
+                                            targetX -
+                                            currentX
+                                        ) *
+                                        .14;
+
+                                    currentY +=
+                                        (
+                                            targetY -
+                                            currentY
+                                        ) *
+                                        .14;
+
+                                    element.style.transform =
+                                        'translate3d(' +
+                                        currentX +
+                                        'px,' +
+                                        currentY +
+                                        'px,0)';
+
+                                    if (
+                                        Math.abs(
+                                            targetX -
+                                            currentX
+                                        ) > .05 ||
+                                        Math.abs(
+                                            targetY -
+                                            currentY
+                                        ) > .05
+                                    ) {
+                                        frameId =
+                                            window.requestAnimationFrame(
+                                                animate
+                                            );
+                                    } else {
+                                        frameId =
+                                            null;
+                                    }
+                                }
+
+                                function startAnimation() {
+                                    if (frameId) {
+                                        return;
+                                    }
+
+                                    frameId =
+                                        window.requestAnimationFrame(
+                                            animate
+                                        );
+                                }
+
+                                element.addEventListener(
+                                    'pointermove',
+                                    function (event) {
+                                        const rect =
+                                            element.getBoundingClientRect();
+
+                                        targetX =
+                                            (
+                                                event.clientX -
+                                                (
+                                                    rect.left +
+                                                    rect.width /
+                                                    2
+                                                )
+                                            ) *
+                                            .055;
+
+                                        targetY =
+                                            (
+                                                event.clientY -
+                                                (
+                                                    rect.top +
+                                                    rect.height /
+                                                    2
+                                                )
+                                            ) *
+                                            .055;
+
+                                        startAnimation();
+                                    }
+                                );
+
+                                element.addEventListener(
+                                    'pointerleave',
+                                    function () {
+                                        targetX =
+                                            0;
+
+                                        targetY =
+                                            0;
+
+                                        startAnimation();
+                                    }
+                                );
+                            }
+                        );
+                }
+
+                /*
+                 * Add a tiny animated indicator to the active desktop link.
+                 * This is progressive enhancement only.
+                 */
+                const activeDesktopLink =
+                    document.querySelector(
+                        '.studio-nav-center .studio-nav-link.active'
+                    );
+
+                if (
+                    activeDesktopLink &&
+                    !reducedMotion
+                ) {
+                    activeDesktopLink.animate(
+                        [
+                            {
+                                opacity: .7,
+                                transform: 'translateY(-2px)'
+                            },
+                            {
+                                opacity: 1,
+                                transform: 'translateY(0)'
+                            }
+                        ],
+                        {
+                            duration: 420,
+                            easing: 'cubic-bezier(.16,1,.3,1)'
+                        }
+                    );
+                }
+            }
+        );
+    </script>
+
 
     @stack('scripts')
 
