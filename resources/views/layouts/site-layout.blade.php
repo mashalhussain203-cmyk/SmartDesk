@@ -3711,90 +3711,606 @@
     </style>
 
 
-    <style id="mashal-signature-navigation-css">
-        :root {
-            --mashal-nav-bg:
-                rgba(5, 6, 9, .72);
-
-            --mashal-nav-solid:
-                rgba(5, 6, 9, .94);
-
-            --mashal-nav-panel:
-                #0b0e14;
-
-            --mashal-nav-panel-2:
-                #111620;
-
-            --mashal-nav-line:
-                rgba(255, 255, 255, .075);
-
-            --mashal-nav-line-strong:
-                rgba(255, 255, 255, .135);
-
-            --mashal-nav-text:
-                #f5f7fb;
-
-            --mashal-nav-muted:
-                #727d8b;
-
-            --mashal-nav-accent:
-                #7a6cff;
-
-            --mashal-nav-accent-2:
-                #4b9cff;
-
-            --mashal-nav-green:
-                #86efbd;
-
-            --mashal-nav-danger:
-                #ff8499;
-        }
-
-        body.mashal-sheet-open {
-            overflow:
-                hidden;
-        }
-
+    <style id="mashal-expert-navbar-system">
         /*
         |--------------------------------------------------------------------------
-        | Minimal top chrome
+        | Expert navigation system
         |--------------------------------------------------------------------------
         */
 
-        .mashal-chrome {
+        :root {
+            --nav-bg:
+                rgba(6, 7, 11, .82);
+
+            --nav-bg-solid:
+                rgba(6, 7, 11, .96);
+
+            --nav-panel:
+                #0d1017;
+
+            --nav-panel-2:
+                #121722;
+
+            --nav-line:
+                rgba(255, 255, 255, .075);
+
+            --nav-line-strong:
+                rgba(255, 255, 255, .135);
+
+            --nav-text:
+                #f6f8fb;
+
+            --nav-muted:
+                #7d8795;
+
+            --nav-accent:
+                #7a6cff;
+
+            --nav-accent-2:
+                #4b9cff;
+
+            --nav-green:
+                #82efbd;
+
+            --nav-danger:
+                #ff879b;
+        }
+
+        /*
+        | Header shell
+        */
+
+        .studio-header-expert {
             position:
                 sticky;
 
-            z-index:
-                1000;
-
             top:
                 0;
+
+            z-index:
+                1000;
 
             width:
                 100%;
 
             border-bottom:
-                1px solid rgba(255, 255, 255, .045);
+                1px solid rgba(255, 255, 255, .055);
 
             background:
-                var(--mashal-nav-bg) !important;
+                var(--nav-bg) !important;
 
             backdrop-filter:
-                blur(18px)
-                saturate(130%) !important;
+                blur(22px)
+                saturate(140%) !important;
 
             -webkit-backdrop-filter:
-                blur(18px)
-                saturate(130%) !important;
+                blur(22px)
+                saturate(140%) !important;
 
             transition:
-                background .25s ease,
-                border-color .25s ease,
-                box-shadow .25s ease;
+                background .26s ease,
+                border-color .26s ease,
+                box-shadow .26s ease;
         }
 
-        .mashal-chrome::after {
+        .studio-header-expert::before {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                auto 0 -1px;
+
+            height:
+                1px;
+
+            opacity:
+                .55;
+
+            pointer-events:
+                none;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent 5%,
+                    rgba(122, 108, 255, .16),
+                    rgba(75, 156, 255, .14),
+                    transparent 95%
+                );
+        }
+
+        .studio-header-expert.is-scrolled {
+            border-color:
+                rgba(122, 108, 255, .12);
+
+            background:
+                var(--nav-bg-solid) !important;
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, .28);
+        }
+
+        .expert-nav {
+            min-height:
+                76px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                minmax(330px, auto)
+                minmax(0, 1fr)
+                auto;
+
+            align-items:
+                center;
+
+            gap:
+                24px;
+        }
+
+        /*
+        | Left cluster
+        */
+
+        .expert-nav-left {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                14px;
+        }
+
+        .expert-brand {
+            min-width:
+                max-content;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                11px;
+
+            color:
+                inherit;
+
+            text-decoration:
+                none;
+        }
+
+        .expert-brand-mark {
+            position:
+                relative;
+
+            width:
+                42px;
+
+            height:
+                42px;
+
+            flex:
+                0 0 42px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid rgba(122, 108, 255, .28);
+
+            border-radius:
+                12px;
+
+            color:
+                #ffffff;
+
+            background:
+                radial-gradient(
+                    circle at 25% 20%,
+                    rgba(255, 255, 255, .20),
+                    transparent 28%
+                ),
+                linear-gradient(
+                    145deg,
+                    #806eff,
+                    #5b66ef 50%,
+                    #3e91e8
+                );
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .22),
+                0 14px 38px rgba(72, 64, 204, .24);
+        }
+
+        .expert-brand-glyph {
+            font-size:
+                14px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                -.08em;
+        }
+
+        .expert-brand-status {
+            position:
+                absolute;
+
+            right:
+                5px;
+
+            bottom:
+                5px;
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border:
+                1px solid rgba(6, 7, 11, .9);
+
+            border-radius:
+                50%;
+
+            background:
+                var(--nav-green);
+
+            box-shadow:
+                0 0 12px rgba(130, 239, 189, .75);
+        }
+
+        .expert-brand-copy {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            line-height:
+                1;
+        }
+
+        .expert-brand-copy strong {
+            color:
+                #f6f8fb;
+
+            font-size:
+                13px;
+
+            font-weight:
+                820;
+
+            letter-spacing:
+                -.04em;
+        }
+
+        .expert-brand-copy small {
+            margin-top:
+                5px;
+
+            color:
+                #687382;
+
+            font-size:
+                7px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                .16em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-brand-divider {
+            width:
+                1px;
+
+            height:
+                30px;
+
+            background:
+                var(--nav-line);
+        }
+
+        /*
+        | Command trigger
+        */
+
+        .expert-command-trigger {
+            min-width:
+                178px;
+
+            min-height:
+                43px;
+
+            padding:
+                0 9px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                28px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                11px;
+
+            color:
+                #aeb6c2;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            cursor:
+                pointer;
+
+            text-align:
+                left;
+
+            transition:
+                border-color .2s ease,
+                background .2s ease,
+                transform .2s ease;
+        }
+
+        .expert-command-trigger:hover,
+        .expert-command-trigger[aria-expanded="true"] {
+            transform:
+                translateY(-1px);
+
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .025)
+                );
+        }
+
+        .expert-command-icon {
+            width:
+                28px;
+
+            height:
+                28px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                8px;
+
+            color:
+                #9c94ff;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            font-size:
+                10px;
+        }
+
+        .expert-command-copy {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-command-copy strong {
+            color:
+                #cfd5de;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-command-copy small {
+            margin-top:
+                2px;
+
+            overflow:
+                hidden;
+
+            color:
+                #596371;
+
+            font-size:
+                6px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-command-key {
+            min-width:
+                23px;
+
+            height:
+                23px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-bottom-color:
+                rgba(255, 255, 255, .15);
+
+            border-radius:
+                6px;
+
+            color:
+                #697482;
+
+            background:
+                #0c0f15;
+
+            font-size:
+                7px;
+
+            font-weight:
+                800;
+        }
+
+        /*
+        | Main nav
+        */
+
+        .expert-nav-center {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                4px;
+        }
+
+        .expert-nav-link {
+            position:
+                relative;
+
+            min-height:
+                42px;
+
+            padding:
+                0 13px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                8px;
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                10px;
+
+            color:
+                #7d8795;
+
+            background:
+                transparent;
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+
+            transition:
+                transform .2s ease,
+                color .2s ease,
+                border-color .2s ease,
+                background .2s ease;
+        }
+
+        .expert-nav-link:hover {
+            transform:
+                translateY(-1px);
+
+            border-color:
+                rgba(255, 255, 255, .065);
+
+            color:
+                #e0e5ec;
+
+            background:
+                rgba(255, 255, 255, .028);
+        }
+
+        .expert-nav-link.active {
+            border-color:
+                rgba(122, 108, 255, .17);
+
+            color:
+                #f1f2ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .13),
+                    rgba(75, 156, 255, .04)
+                );
+        }
+
+        .expert-nav-link.active::after {
             content:
                 "";
 
@@ -3802,47 +4318,416 @@
                 absolute;
 
             left:
-                0;
+                15px;
 
             right:
-                0;
+                15px;
 
             bottom:
-                -1px;
+                3px;
 
             height:
                 1px;
 
-            pointer-events:
-                none;
-
-            opacity:
-                .5;
-
             background:
                 linear-gradient(
                     90deg,
-                    transparent 7%,
-                    rgba(122, 108, 255, .13),
-                    rgba(75, 156, 255, .10),
-                    transparent 93%
+                    transparent,
+                    #8378ff,
+                    #62adff,
+                    transparent
                 );
         }
 
-        .mashal-chrome.is-scrolled {
-            border-color:
-                rgba(122, 108, 255, .10);
+        .expert-nav-link-icon {
+            color:
+                #9991ff;
 
-            background:
-                var(--mashal-nav-solid) !important;
-
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, .25);
+            font-size:
+                9px;
         }
 
-        .mashal-chrome-shell {
+        .expert-nav-badge,
+        .expert-nav-ai-badge {
+            min-width:
+                20px;
+
+            height:
+                19px;
+
+            padding:
+                0 6px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid rgba(122, 108, 255, .17);
+
+            border-radius:
+                999px;
+
+            color:
+                #aca5ff;
+
+            background:
+                rgba(122, 108, 255, .07);
+
+            font-size:
+                6px;
+
+            font-weight:
+                850;
+        }
+
+        .expert-nav-link-ai {
+            color:
+                #a29cff;
+        }
+
+        /*
+        | Right cluster
+        */
+
+        .expert-nav-right {
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                flex-end;
+
+            gap:
+                8px;
+        }
+
+        .expert-new-project {
             min-height:
-                72px;
+                43px;
+
+            padding:
+                0 14px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                8px;
+
+            border:
+                1px solid rgba(122, 108, 255, .28);
+
+            border-radius:
+                10px;
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7766ff,
+                    #4d91ff
+                );
+
+            box-shadow:
+                0 12px 34px rgba(75, 67, 208, .20),
+                inset 0 1px 0 rgba(255, 255, 255, .18);
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                800;
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .expert-new-project:hover {
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 17px 43px rgba(75, 67, 208, .29);
+        }
+
+        .expert-auth-link {
+            min-height:
+                42px;
+
+            padding:
+                0 13px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                10px;
+
+            color:
+                #a9b1bd;
+
+            background:
+                rgba(255, 255, 255, .016);
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-auth-link-primary {
+            border-color:
+                rgba(122, 108, 255, .24);
+
+            color:
+                #ffffff;
+
+            background:
+                rgba(122, 108, 255, .09);
+        }
+
+        /*
+        | Account trigger
+        */
+
+        .expert-account-trigger {
+            min-height:
+                44px;
+
+            max-width:
+                230px;
+
+            padding:
+                5px 8px 5px 5px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(255, 255, 255, .018);
+        }
+
+        .expert-account-trigger:hover,
+        .expert-account-trigger[aria-expanded="true"] {
+            border-color:
+                rgba(122, 108, 255, .21);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .022)
+                );
+        }
+
+        .expert-account-avatar,
+        .expert-account-menu-avatar {
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid rgba(122, 108, 255, .20);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #7968ff,
+                    #4f83ea
+                );
+
+            font-weight:
+                850;
+        }
+
+        .expert-account-avatar {
+            width:
+                32px;
+
+            height:
+                32px;
+
+            flex:
+                0 0 32px;
+
+            border-radius:
+                9px;
+
+            font-size:
+                9px;
+        }
+
+        .expert-account-avatar img,
+        .expert-account-menu-avatar img {
+            width:
+                100%;
+
+            height:
+                100%;
+
+            object-fit:
+                cover;
+        }
+
+        .expert-account-copy {
+            min-width:
+                0;
+
+            flex:
+                1;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            text-align:
+                left;
+        }
+
+        .expert-account-copy strong {
+            overflow:
+                hidden;
+
+            color:
+                #dfe4eb;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-account-copy small {
+            margin-top:
+                2px;
+
+            color:
+                #596472;
+
+            font-size:
+                6px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .09em;
+        }
+
+        .expert-account-chevron {
+            color:
+                #6d7784;
+
+            font-size:
+                8px;
+
+            transition:
+                transform .2s ease;
+        }
+
+        .expert-account-trigger[aria-expanded="true"]
+        .expert-account-chevron {
+            transform:
+                rotate(180deg);
+        }
+
+        /*
+        | Rich account menu
+        */
+
+        .expert-account-menu {
+            width:
+                min(390px, calc(100vw - 28px));
+
+            overflow:
+                hidden;
+
+            border:
+                1px solid rgba(122, 108, 255, .13);
+
+            border-radius:
+                18px;
+
+            background:
+                rgba(8, 10, 15, .985);
+
+            box-shadow:
+                0 36px 110px rgba(0, 0, 0, .52);
+
+            backdrop-filter:
+                blur(26px)
+                saturate(135%);
+
+            -webkit-backdrop-filter:
+                blur(26px)
+                saturate(135%);
+        }
+
+        .expert-account-hero {
+            padding:
+                18px;
 
             display:
                 flex;
@@ -3854,235 +4739,224 @@
                 space-between;
 
             gap:
-                24px;
+                16px;
+
+            border-bottom:
+                1px solid var(--nav-line);
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .13),
+                    transparent 12rem
+                );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Brand
-        |--------------------------------------------------------------------------
-        */
-
-        .mashal-mark {
-            position:
-                relative;
+        .expert-account-identity {
+            min-width:
+                0;
 
             display:
-                inline-flex;
+                flex;
 
             align-items:
                 center;
 
             gap:
-                10px;
-
-            color:
-                inherit;
-
-            text-decoration:
-                none;
+                12px;
         }
 
-        .mashal-mark-glyph {
+        .expert-account-menu-avatar {
             width:
-                36px;
+                45px;
 
             height:
-                36px;
+                45px;
 
-            display:
-                grid;
-
-            place-items:
-                center;
-
-            border:
-                1px solid rgba(122, 108, 255, .24);
+            flex:
+                0 0 45px;
 
             border-radius:
-                10px;
-
-            color:
-                #ffffff;
-
-            background:
-                radial-gradient(
-                    circle at 30% 20%,
-                    rgba(255, 255, 255, .20),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    145deg,
-                    #7e6dff,
-                    #5c67ed 50%,
-                    #428fdf
-                );
-
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, .18),
-                0 12px 32px rgba(70, 63, 190, .19);
+                12px;
 
             font-size:
                 12px;
-
-            font-weight:
-                900;
-
-            letter-spacing:
-                -.08em;
         }
 
-        .mashal-mark-copy {
+        .expert-account-identity > span:last-child {
+            min-width:
+                0;
+
             display:
                 flex;
 
             flex-direction:
                 column;
-
-            line-height:
-                1;
         }
 
-        .mashal-mark-copy strong {
+        .expert-account-identity strong {
+            overflow:
+                hidden;
+
             color:
-                #f3f6fa;
+                #eef2f7;
 
             font-size:
-                12px;
+                11px;
 
             font-weight:
-                800;
+                780;
 
-            letter-spacing:
-                -.04em;
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
         }
 
-        .mashal-mark-copy small {
+        .expert-account-identity small {
             margin-top:
-                4px;
+                3px;
+
+            overflow:
+                hidden;
 
             color:
-                #596472;
+                #67717f;
+
+            font-size:
+                8px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-plan-chip {
+            min-height:
+                25px;
+
+            padding:
+                0 8px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            border:
+                1px solid rgba(122, 108, 255, .15);
+
+            border-radius:
+                999px;
+
+            color:
+                #aba4ff;
+
+            background:
+                rgba(122, 108, 255, .06);
 
             font-size:
                 6px;
 
             font-weight:
-                800;
+                850;
+
+            text-transform:
+                uppercase;
 
             letter-spacing:
-                .14em;
+                .08em;
+        }
+
+        .expert-account-section {
+            padding:
+                9px;
+        }
+
+        .expert-account-section + .expert-account-section {
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-account-section-label {
+            padding:
+                7px 9px 8px;
+
+            color:
+                #535e6c;
+
+            font-size:
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .12em;
 
             text-transform:
                 uppercase;
         }
 
-        .mashal-mark-live {
-            width:
-                5px;
-
-            height:
-                5px;
-
-            margin-left:
-                1px;
-
-            border-radius:
-                50%;
-
-            background:
-                var(--mashal-nav-green);
-
-            box-shadow:
-                0 0 11px rgba(134, 239, 189, .62);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sparse right actions
-        |--------------------------------------------------------------------------
-        */
-
-        .mashal-chrome-actions {
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            gap:
-                8px;
-        }
-
-        .mashal-chrome-link,
-        .mashal-login-link {
+        .expert-account-item {
             min-height:
-                38px;
+                57px;
 
             padding:
-                0 11px;
+                8px 9px;
 
             display:
-                inline-flex;
+                grid;
+
+            grid-template-columns:
+                34px minmax(0, 1fr) auto;
 
             align-items:
                 center;
 
             gap:
-                7px;
+                10px;
 
             border:
                 1px solid transparent;
 
             border-radius:
-                9px;
-
-            color:
-                #7d8794;
+                10px;
 
             text-decoration:
                 none;
 
-            font-size:
-                8px;
-
-            font-weight:
-                750;
-
             transition:
-                color .18s ease,
                 border-color .18s ease,
                 background .18s ease,
                 transform .18s ease;
         }
 
-        .mashal-chrome-link:hover,
-        .mashal-login-link:hover {
+        .expert-account-item:hover {
             transform:
-                translateY(-1px);
+                translateX(2px);
 
             border-color:
-                rgba(255, 255, 255, .06);
-
-            color:
-                #dbe0e8;
+                rgba(122, 108, 255, .10);
 
             background:
-                rgba(255, 255, 255, .025);
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .015)
+                );
         }
 
-        .mashal-chrome-link-ai {
-            color:
-                #9c94ff;
-        }
-
-        .mashal-create-trigger,
-        .mashal-profile-trigger {
+        .expert-account-item-icon {
             width:
-                38px;
+                34px;
 
             height:
-                38px;
+                34px;
 
             display:
                 grid;
@@ -4091,123 +4965,87 @@
                 center;
 
             border:
-                1px solid var(--mashal-nav-line);
+                1px solid var(--nav-line);
 
             border-radius:
-                10px;
+                9px;
 
             color:
-                #cbd1da;
+                #978fff;
 
             background:
-                rgba(255, 255, 255, .02);
+                rgba(255, 255, 255, .018);
 
-            cursor:
-                pointer;
-
-            transition:
-                transform .18s ease,
-                border-color .18s ease,
-                background .18s ease;
+            font-size:
+                9px;
         }
 
-        .mashal-create-trigger {
-            border-color:
-                rgba(122, 108, 255, .23);
-
-            color:
-                #ffffff;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #7564ff,
-                    #4c91ff
-                );
-
-            box-shadow:
-                0 12px 30px rgba(71, 62, 195, .20);
-        }
-
-        .mashal-create-trigger:hover,
-        .mashal-profile-trigger:hover,
-        .mashal-create-trigger[aria-expanded="true"],
-        .mashal-profile-trigger[aria-expanded="true"] {
-            transform:
-                translateY(-2px);
-        }
-
-        .mashal-profile-avatar {
-            width:
-                28px;
-
-            height:
-                28px;
+        .expert-account-item-copy {
+            min-width:
+                0;
 
             display:
-                grid;
+                flex;
 
-            place-items:
-                center;
+            flex-direction:
+                column;
+        }
 
-            overflow:
-                hidden;
+        .expert-account-item-copy strong {
+            color:
+                #d7dce4;
 
-            border-radius:
-                8px;
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-account-item-copy small {
+            margin-top:
+                3px;
 
             color:
-                #ffffff;
+                #5e6876;
 
-            background:
-                linear-gradient(
-                    145deg,
-                    #7564ff,
-                    #5579df
-                );
+            font-size:
+                7px;
+        }
+
+        .expert-account-item-meta {
+            color:
+                #707b89;
 
             font-size:
                 8px;
 
             font-weight:
-                850;
+                800;
         }
 
-        .mashal-profile-avatar img {
+        .expert-account-footer {
+            padding:
+                9px;
+
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-account-footer form {
+            margin:
+                0;
+        }
+
+        .expert-logout-button {
             width:
                 100%;
 
-            height:
-                100%;
-
-            object-fit:
-                cover;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Floating adaptive dock
-        |--------------------------------------------------------------------------
-        */
-
-        .mashal-dock {
-            position:
-                fixed;
-
-            z-index:
-                900;
-
-            left:
-                50%;
-
-            top:
-                14px;
-
             min-height:
-                48px;
+                44px;
 
             padding:
-                5px;
+                0 11px;
 
             display:
                 flex;
@@ -4215,71 +5053,8 @@
             align-items:
                 center;
 
-            gap:
-                3px;
-
-            border:
-                1px solid rgba(255, 255, 255, .08);
-
-            border-radius:
-                14px;
-
-            background:
-                rgba(10, 12, 17, .90);
-
-            box-shadow:
-                0 18px 55px rgba(0, 0, 0, .32);
-
-            backdrop-filter:
-                blur(18px)
-                saturate(135%);
-
-            -webkit-backdrop-filter:
-                blur(18px)
-                saturate(135%);
-
-            opacity:
-                0;
-
-            pointer-events:
-                none;
-
-            transform:
-                translate(-50%, -14px)
-                scale(.97);
-
-            transition:
-                opacity .23s ease,
-                transform .23s cubic-bezier(.16, 1, .3, 1);
-        }
-
-        .mashal-dock.is-visible {
-            opacity:
-                1;
-
-            pointer-events:
-                auto;
-
-            transform:
-                translate(-50%, 0)
-                scale(1);
-        }
-
-        .mashal-dock-link {
-            min-height:
-                38px;
-
-            padding:
-                0 11px;
-
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            gap:
-                7px;
+            justify-content:
+                space-between;
 
             border:
                 1px solid transparent;
@@ -4288,104 +5063,42 @@
                 9px;
 
             color:
-                #747e8b;
+                #db8b99;
 
             background:
                 transparent;
 
-            text-decoration:
-                none;
-
             font-size:
-                8px;
+                9px;
 
             font-weight:
                 760;
 
             cursor:
                 pointer;
-
-            white-space:
-                nowrap;
         }
 
-        .mashal-dock-link:hover {
-            color:
-                #d8dde5;
-
-            background:
-                rgba(255, 255, 255, .025);
-        }
-
-        .mashal-dock-link.active {
+        .expert-logout-button:hover {
             border-color:
-                rgba(122, 108, 255, .15);
-
-            color:
-                #f0f1ff;
+                rgba(255, 135, 155, .11);
 
             background:
-                linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .12),
-                    rgba(75, 156, 255, .035)
-                );
-        }
-
-        .mashal-dock-button {
-            font:
-                inherit;
-        }
-
-        .mashal-dock-icon {
-            color:
-                #948cff;
-
-            font-size:
-                8px;
+                rgba(255, 135, 155, .045);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Create menu
-        |--------------------------------------------------------------------------
+        | Command palette
         */
 
-        .mashal-create-menu {
+        .expert-command-overlay {
             position:
                 fixed;
 
             z-index:
-                1220;
+                1500;
 
-            right:
-                max(18px, calc((100vw - var(--studio-shell)) / 2));
-
-            top:
-                66px;
-
-            width:
-                min(330px, calc(100vw - 24px));
-
-            padding:
-                10px;
-
-            border:
-                1px solid rgba(122, 108, 255, .13);
-
-            border-radius:
-                16px;
-
-            background:
-                radial-gradient(
-                    circle at 100% 0%,
-                    rgba(122, 108, 255, .11),
-                    transparent 13rem
-                ),
-                rgba(8, 10, 15, .985);
-
-            box-shadow:
-                0 35px 100px rgba(0, 0, 0, .48);
+            inset:
+                0;
 
             opacity:
                 0;
@@ -4396,20 +5109,21 @@
             pointer-events:
                 none;
 
-            transform:
-                translateY(-8px)
-                scale(.98);
+            background:
+                rgba(2, 3, 6, .72);
 
-            transform-origin:
-                top right;
+            backdrop-filter:
+                blur(8px);
+
+            -webkit-backdrop-filter:
+                blur(8px);
 
             transition:
-                opacity .19s ease,
-                visibility .19s ease,
-                transform .19s cubic-bezier(.16, 1, .3, 1);
+                opacity .2s ease,
+                visibility .2s ease;
         }
 
-        .mashal-create-menu.is-open {
+        .expert-command-overlay.is-open {
             opacity:
                 1;
 
@@ -4418,16 +5132,98 @@
 
             pointer-events:
                 auto;
-
-            transform:
-                translateY(0)
-                scale(1);
         }
 
-        .mashal-create-menu-head {
-            padding:
-                8px 9px 12px;
+        .expert-command-palette {
+            position:
+                fixed;
 
+            z-index:
+                1510;
+
+            left:
+                50%;
+
+            top:
+                min(15vh, 130px);
+
+            width:
+                min(calc(100% - 28px), 650px);
+
+            transform:
+                translate(-50%, -18px)
+                scale(.98);
+
+            opacity:
+                0;
+
+            visibility:
+                hidden;
+
+            pointer-events:
+                none;
+
+            transition:
+                opacity .22s ease,
+                visibility .22s ease,
+                transform .22s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .expert-command-palette.is-open {
+            transform:
+                translate(-50%, 0)
+                scale(1);
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+            pointer-events:
+                auto;
+        }
+
+        .expert-command-shell {
+            overflow:
+                hidden;
+
+            border:
+                1px solid rgba(122, 108, 255, .16);
+
+            border-radius:
+                20px;
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .12),
+                    transparent 16rem
+                ),
+                rgba(8, 10, 15, .985);
+
+            box-shadow:
+                0 50px 140px rgba(0, 0, 0, .58);
+        }
+
+        .expert-command-head {
+            padding:
+                18px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                20px;
+        }
+
+        .expert-command-head > div {
             display:
                 flex;
 
@@ -4435,29 +5231,211 @@
                 column;
         }
 
-        .mashal-create-menu-head span {
+        .expert-command-kicker {
             color:
-                #e7ebf1;
+                #746cff;
 
             font-size:
-                11px;
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .14em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-command-head strong {
+            margin-top:
+                5px;
+
+            color:
+                #f0f3f7;
+
+            font-size:
+                14px;
 
             font-weight:
                 780;
         }
 
-        .mashal-create-menu-head small {
-            margin-top:
-                3px;
+        .expert-command-close {
+            width:
+                34px;
+
+            height:
+                34px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                9px;
 
             color:
-                #5d6875;
+                #8f99a6;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            cursor:
+                pointer;
+        }
+
+        .expert-command-search {
+            min-height:
+                54px;
+
+            margin:
+                0 12px;
+
+            padding:
+                0 11px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                auto minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                12px;
+
+            background:
+                #0b0e14;
+
+            color:
+                #7c8795;
+        }
+
+        .expert-command-search input {
+            width:
+                100%;
+
+            border:
+                0;
+
+            outline:
+                0;
+
+            color:
+                #e6eaf0;
+
+            background:
+                transparent;
+
+            font-size:
+                11px;
+        }
+
+        .expert-command-search input::placeholder {
+            color:
+                #4f5a68;
+        }
+
+        .expert-command-search kbd,
+        .expert-command-foot kbd {
+            min-width:
+                27px;
+
+            height:
+                24px;
+
+            padding:
+                0 7px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-bottom-color:
+                rgba(255, 255, 255, .15);
+
+            border-radius:
+                6px;
+
+            color:
+                #697482;
+
+            background:
+                #11151c;
+
+            font-family:
+                inherit;
 
             font-size:
                 7px;
         }
 
-        .mashal-create-action {
+        .expert-command-groups {
+            max-height:
+                min(57vh, 490px);
+
+            overflow-y:
+                auto;
+
+            padding:
+                12px;
+        }
+
+        .expert-command-group + .expert-command-group {
+            margin-top:
+                8px;
+
+            padding-top:
+                8px;
+
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-command-group-label {
+            padding:
+                5px 8px 8px;
+
+            color:
+                #505b69;
+
+            font-size:
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .12em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-command-item {
             min-height:
                 58px;
 
@@ -4484,29 +5462,31 @@
 
             text-decoration:
                 none;
+
+            transition:
+                border-color .16s ease,
+                background .16s ease;
         }
 
-        .mashal-create-action:hover {
+        .expert-command-item:hover,
+        .expert-command-item.is-selected {
             border-color:
                 rgba(122, 108, 255, .10);
 
             background:
-                rgba(122, 108, 255, .055);
-        }
-
-        .mashal-create-action-primary {
-            border-color:
-                rgba(122, 108, 255, .11);
-
-            background:
                 linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .10),
-                    rgba(75, 156, 255, .025)
+                    90deg,
+                    rgba(122, 108, 255, .085),
+                    rgba(75, 156, 255, .02)
                 );
         }
 
-        .mashal-create-action-icon {
+        .expert-command-item[hidden] {
+            display:
+                none !important;
+        }
+
+        .expert-command-item-icon {
             width:
                 36px;
 
@@ -4520,7 +5500,7 @@
                 center;
 
             border:
-                1px solid var(--mashal-nav-line);
+                1px solid var(--nav-line);
 
             border-radius:
                 9px;
@@ -4532,336 +5512,7 @@
                 rgba(255, 255, 255, .018);
         }
 
-        .mashal-create-action > span:nth-child(2) {
-            display:
-                flex;
-
-            flex-direction:
-                column;
-        }
-
-        .mashal-create-action strong {
-            color:
-                #dce1e8;
-
-            font-size:
-                9px;
-
-            font-weight:
-                760;
-        }
-
-        .mashal-create-action small {
-            margin-top:
-                3px;
-
-            color:
-                #5d6876;
-
-            font-size:
-                7px;
-        }
-
-        .mashal-create-action > span:last-child {
-            color:
-                #67717e;
-
-            font-size:
-                8px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Profile side sheet
-        |--------------------------------------------------------------------------
-        */
-
-        .mashal-sheet-overlay {
-            position:
-                fixed;
-
-            z-index:
-                1300;
-
-            inset:
-                0;
-
-            opacity:
-                0;
-
-            visibility:
-                hidden;
-
-            pointer-events:
-                none;
-
-            background:
-                rgba(2, 3, 6, .64);
-
-            backdrop-filter:
-                blur(7px);
-
-            -webkit-backdrop-filter:
-                blur(7px);
-
-            transition:
-                opacity .22s ease,
-                visibility .22s ease;
-        }
-
-        .mashal-sheet-overlay.is-open {
-            opacity:
-                1;
-
-            visibility:
-                visible;
-
-            pointer-events:
-                auto;
-        }
-
-        .mashal-profile-sheet {
-            position:
-                fixed;
-
-            z-index:
-                1310;
-
-            right:
-                0;
-
-            top:
-                0;
-
-            bottom:
-                0;
-
-            width:
-                min(430px, 94vw);
-
-            padding:
-                18px;
-
-            display:
-                flex;
-
-            flex-direction:
-                column;
-
-            overflow-y:
-                auto;
-
-            border-left:
-                1px solid rgba(122, 108, 255, .13);
-
-            background:
-                radial-gradient(
-                    circle at 100% 0%,
-                    rgba(122, 108, 255, .12),
-                    transparent 20rem
-                ),
-                rgba(7, 9, 14, .99);
-
-            box-shadow:
-                -40px 0 120px rgba(0, 0, 0, .55);
-
-            transform:
-                translate3d(105%, 0, 0);
-
-            visibility:
-                hidden;
-
-            pointer-events:
-                none;
-
-            transition:
-                transform .28s cubic-bezier(.16, 1, .3, 1),
-                visibility .28s ease;
-        }
-
-        .mashal-profile-sheet.is-open {
-            transform:
-                translate3d(0, 0, 0);
-
-            visibility:
-                visible;
-
-            pointer-events:
-                auto;
-        }
-
-        .mashal-profile-sheet-head {
-            min-height:
-                56px;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                space-between;
-
-            gap:
-                20px;
-
-            padding-bottom:
-                14px;
-
-            border-bottom:
-                1px solid var(--mashal-nav-line);
-        }
-
-        .mashal-profile-sheet-head > div {
-            display:
-                flex;
-
-            flex-direction:
-                column;
-        }
-
-        .mashal-profile-kicker {
-            color:
-                #8177ff;
-
-            font-size:
-                6px;
-
-            font-weight:
-                850;
-
-            letter-spacing:
-                .14em;
-
-            text-transform:
-                uppercase;
-        }
-
-        .mashal-profile-sheet-head strong {
-            margin-top:
-                4px;
-
-            color:
-                #f1f4f8;
-
-            font-size:
-                13px;
-
-            font-weight:
-                780;
-        }
-
-        .mashal-sheet-close {
-            width:
-                36px;
-
-            height:
-                36px;
-
-            display:
-                grid;
-
-            place-items:
-                center;
-
-            border:
-                1px solid var(--mashal-nav-line);
-
-            border-radius:
-                9px;
-
-            color:
-                #8d97a4;
-
-            background:
-                rgba(255, 255, 255, .02);
-
-            cursor:
-                pointer;
-        }
-
-        .mashal-profile-card {
-            margin-top:
-                16px;
-
-            padding:
-                14px;
-
-            display:
-                grid;
-
-            grid-template-columns:
-                48px minmax(0, 1fr) auto;
-
-            align-items:
-                center;
-
-            gap:
-                12px;
-
-            border:
-                1px solid rgba(122, 108, 255, .11);
-
-            border-radius:
-                14px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .07),
-                    rgba(75, 156, 255, .018)
-                );
-        }
-
-        .mashal-profile-card-avatar {
-            width:
-                48px;
-
-            height:
-                48px;
-
-            display:
-                grid;
-
-            place-items:
-                center;
-
-            overflow:
-                hidden;
-
-            border-radius:
-                12px;
-
-            color:
-                #ffffff;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #7564ff,
-                    #4f84e5
-                );
-
-            font-size:
-                12px;
-
-            font-weight:
-                850;
-        }
-
-        .mashal-profile-card-avatar img {
-            width:
-                100%;
-
-            height:
-                100%;
-
-            object-fit:
-                cover;
-        }
-
-        .mashal-profile-card-copy {
+        .expert-command-item > span:nth-child(2) {
             min-width:
                 0;
 
@@ -4872,92 +5523,305 @@
                 column;
         }
 
-        .mashal-profile-card-copy strong {
-            overflow:
-                hidden;
-
+        .expert-command-item strong {
             color:
-                #e7ebf1;
+                #dce1e8;
 
             font-size:
                 10px;
 
-            text-overflow:
-                ellipsis;
-
-            white-space:
-                nowrap;
+            font-weight:
+                760;
         }
 
-        .mashal-profile-card-copy small {
+        .expert-command-item small {
             margin-top:
                 3px;
 
-            overflow:
-                hidden;
-
             color:
-                #626d7a;
+                #5f6976;
 
             font-size:
                 7px;
-
-            text-overflow:
-                ellipsis;
-
-            white-space:
-                nowrap;
         }
 
-        .mashal-profile-card-state {
+        .expert-command-item-arrow {
+            color:
+                #65707e;
+
+            font-size:
+                8px;
+        }
+
+        .expert-command-foot {
             min-height:
-                22px;
+                46px;
 
             padding:
-                0 7px;
+                0 14px;
 
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                16px;
+
+            border-top:
+                1px solid var(--nav-line);
+
+            color:
+                #596472;
+
+            font-size:
+                7px;
+        }
+
+        .expert-command-foot span {
             display:
                 inline-flex;
 
             align-items:
                 center;
 
-            border:
-                1px solid rgba(134, 239, 189, .12);
+            gap:
+                5px;
+        }
 
-            border-radius:
-                999px;
+        /*
+        | Mobile drawer
+        */
 
-            color:
-                #95e7bd;
+        .expert-mobile-drawer {
+            width:
+                min(430px, 94vw);
+
+            padding:
+                calc(15px + env(safe-area-inset-top))
+                calc(15px + env(safe-area-inset-right))
+                calc(15px + env(safe-area-inset-bottom))
+                15px;
+
+            border-left:
+                1px solid rgba(122, 108, 255, .13);
 
             background:
-                rgba(134, 239, 189, .045);
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .13),
+                    transparent 20rem
+                ),
+                rgba(7, 9, 14, .988);
+
+            box-shadow:
+                -40px 0 120px rgba(0, 0, 0, .55);
+        }
+
+        .expert-mobile-head {
+            min-height:
+                58px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                16px;
+
+            padding-bottom:
+                13px;
+
+            border-bottom:
+                1px solid var(--nav-line);
+        }
+
+        .expert-mobile-brand {
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            text-decoration:
+                none;
+        }
+
+        .expert-mobile-brand > span:last-child {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-brand strong {
+            color:
+                #f1f4f8;
 
             font-size:
-                6px;
+                11px;
 
             font-weight:
                 800;
         }
 
-        .mashal-profile-stats {
+        .expert-mobile-brand small {
             margin-top:
+                3px;
+
+            color:
+                #5d6876;
+
+            font-size:
+                7px;
+        }
+
+        .expert-mobile-close {
+            width:
+                38px;
+
+            height:
+                38px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
                 10px;
+
+            color:
+                #98a2af;
+
+            background:
+                rgba(255, 255, 255, .02);
+
+            cursor:
+                pointer;
+        }
+
+        .expert-mobile-upload {
+            min-height:
+                66px;
+
+            margin-top:
+                14px;
+
+            padding:
+                10px 12px;
 
             display:
                 grid;
 
             grid-template-columns:
-                1fr 1fr;
+                38px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
 
             gap:
-                8px;
+                10px;
+
+            border:
+                1px solid rgba(122, 108, 255, .20);
+
+            border-radius:
+                13px;
+
+            color:
+                inherit;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .12),
+                    rgba(75, 156, 255, .04)
+                );
+
+            text-decoration:
+                none;
         }
 
-        .mashal-profile-stats > div {
-            min-height:
-                76px;
+        .expert-mobile-upload-icon {
+            width:
+                38px;
+
+            height:
+                38px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                10px;
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7766ff,
+                    #4f91ff
+                );
+        }
+
+        .expert-mobile-upload > span:nth-child(2) {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-upload strong {
+            color:
+                #eef2f7;
+
+            font-size:
+                10px;
+        }
+
+        .expert-mobile-upload small {
+            margin-top:
+                3px;
+
+            color:
+                #697482;
+
+            font-size:
+                7px;
+        }
+
+        .expert-mobile-upload > span:last-child {
+            color:
+                #8e86ff;
+
+            font-size:
+                9px;
+        }
+
+        .expert-mobile-user {
+            margin-top:
+                12px;
 
             padding:
                 12px;
@@ -4965,70 +5829,90 @@
             display:
                 flex;
 
-            flex-direction:
-                column;
+            align-items:
+                center;
 
-            justify-content:
-                space-between;
+            gap:
+                11px;
 
             border:
-                1px solid var(--mashal-nav-line);
+                1px solid var(--nav-line);
 
             border-radius:
                 12px;
 
             background:
-                rgba(255, 255, 255, .012);
+                rgba(255, 255, 255, .015);
         }
 
-        .mashal-profile-stats span {
+        .expert-mobile-user-copy {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-user-copy strong {
+            overflow:
+                hidden;
+
             color:
-                #596472;
+                #dfe4ea;
+
+            font-size:
+                9px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-mobile-user-copy small {
+            margin-top:
+                3px;
+
+            overflow:
+                hidden;
+
+            color:
+                #606b79;
 
             font-size:
                 7px;
 
-            text-transform:
-                uppercase;
+            text-overflow:
+                ellipsis;
 
-            letter-spacing:
-                .09em;
+            white-space:
+                nowrap;
         }
 
-        .mashal-profile-stats strong {
-            color:
-                #d7dce4;
-
-            font-size:
-                12px;
-        }
-
-        .mashal-profile-section {
+        .expert-mobile-nav {
             margin-top:
-                10px;
+                13px;
 
-            padding:
-                8px;
+            display:
+                grid;
 
-            border:
-                1px solid var(--mashal-nav-line);
-
-            border-radius:
-                12px;
-
-            background:
-                rgba(255, 255, 255, .01);
+            gap:
+                4px;
         }
 
-        .mashal-profile-label {
-            padding:
-                6px 7px 7px;
+        .expert-mobile-label {
+            margin:
+                12px 7px 5px;
 
             color:
-                #505b69;
+                #4e5967;
 
             font-size:
-                6px;
+                7px;
 
             font-weight:
                 850;
@@ -5040,18 +5924,18 @@
                 uppercase;
         }
 
-        .mashal-profile-item {
+        .expert-mobile-link {
             min-height:
-                56px;
+                58px;
 
             padding:
-                8px;
+                7px 9px;
 
             display:
                 grid;
 
             grid-template-columns:
-                34px minmax(0, 1fr) auto;
+                36px minmax(0, 1fr) auto;
 
             align-items:
                 center;
@@ -5063,26 +5947,34 @@
                 1px solid transparent;
 
             border-radius:
-                9px;
+                10px;
+
+            color:
+                inherit;
 
             text-decoration:
                 none;
         }
 
-        .mashal-profile-item:hover {
+        .expert-mobile-link:hover,
+        .expert-mobile-link.active {
             border-color:
                 rgba(122, 108, 255, .10);
 
             background:
-                rgba(122, 108, 255, .05);
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .08),
+                    rgba(75, 156, 255, .015)
+                );
         }
 
-        .mashal-profile-item-icon {
+        .expert-mobile-link-icon {
             width:
-                34px;
+                36px;
 
             height:
-                34px;
+                36px;
 
             display:
                 grid;
@@ -5091,19 +5983,22 @@
                 center;
 
             border:
-                1px solid var(--mashal-nav-line);
+                1px solid var(--nav-line);
 
             border-radius:
-                8px;
+                9px;
 
             color:
-                #938aff;
+                #978fff;
 
             background:
                 rgba(255, 255, 255, .018);
         }
 
-        .mashal-profile-item > span:nth-child(2) {
+        .expert-mobile-link > span:nth-child(2) {
+            min-width:
+                0;
+
             display:
                 flex;
 
@@ -5111,26 +6006,26 @@
                 column;
         }
 
-        .mashal-profile-item strong {
+        .expert-mobile-link strong {
             color:
-                #d7dce4;
+                #d8dde4;
 
             font-size:
                 9px;
         }
 
-        .mashal-profile-item small {
+        .expert-mobile-link small {
             margin-top:
                 3px;
 
             color:
-                #5c6774;
+                #5e6977;
 
             font-size:
                 7px;
         }
 
-        .mashal-profile-item > span:last-child {
+        .expert-mobile-link > span:last-child {
             color:
                 #697482;
 
@@ -5138,28 +6033,59 @@
                 8px;
         }
 
-        .mashal-profile-sheet-foot {
+        .expert-mobile-ai {
+            min-height:
+                20px;
+
+            padding:
+                0 6px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            border:
+                1px solid rgba(122, 108, 255, .16);
+
+            border-radius:
+                999px;
+
+            color:
+                #aaa3ff !important;
+
+            background:
+                rgba(122, 108, 255, .06);
+        }
+
+        .expert-mobile-footer {
             margin-top:
                 auto;
 
             padding-top:
                 15px;
+
+            display:
+                grid;
+
+            gap:
+                8px;
+
+            border-top:
+                1px solid var(--nav-line);
         }
 
-        .mashal-profile-sheet-foot form {
-            margin:
-                0;
-        }
-
-        .mashal-profile-logout {
+        .expert-mobile-auth,
+        .expert-mobile-logout {
             width:
                 100%;
 
             min-height:
-                46px;
+                48px;
 
             padding:
-                0 12px;
+                0 14px;
 
             display:
                 flex;
@@ -5168,241 +6094,184 @@
                 center;
 
             justify-content:
-                space-between;
+                center;
 
             border:
-                1px solid rgba(255, 132, 153, .10);
+                1px solid var(--nav-line);
 
             border-radius:
                 10px;
 
             color:
-                #dc8a99;
+                #c9d0da;
 
             background:
-                rgba(255, 132, 153, .025);
+                rgba(255, 255, 255, .018);
+
+            text-decoration:
+                none;
 
             font-size:
-                8px;
+                9px;
 
             font-weight:
                 760;
+        }
+
+        .expert-mobile-auth-primary {
+            border-color:
+                rgba(122, 108, 255, .24);
+
+            color:
+                #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7766ff,
+                    #4f91ff
+                );
+        }
+
+        .expert-mobile-logout {
+            justify-content:
+                space-between;
+
+            color:
+                #dd8f9d;
 
             cursor:
                 pointer;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Mobile native bar
-        |--------------------------------------------------------------------------
+        | Responsive
         */
 
-        .mashal-mobile-bar {
+        .expert-menu-toggle {
             display:
                 none;
         }
 
-        @media (max-width: 760px) {
-            body {
-                padding-bottom:
-                    calc(76px + env(safe-area-inset-bottom));
-            }
+        @media (max-width: 1250px) {
+            .expert-command-trigger {
+                min-width:
+                    43px;
 
-            .mashal-chrome-shell {
-                min-height:
-                    64px;
-            }
-
-            .mashal-mark-copy small,
-            .mashal-chrome-link,
-            .mashal-login-link {
-                display:
-                    none;
-            }
-
-            .mashal-dock {
-                display:
-                    none;
-            }
-
-            .mashal-mobile-bar {
-                position:
-                    fixed;
-
-                z-index:
-                    1050;
-
-                left:
-                    10px;
-
-                right:
-                    10px;
-
-                bottom:
-                    calc(10px + env(safe-area-inset-bottom));
-
-                min-height:
-                    62px;
-
-                padding:
-                    5px 7px;
-
-                display:
-                    grid;
+                width:
+                    43px;
 
                 grid-template-columns:
-                    repeat(5, 1fr);
+                    1fr;
 
-                align-items:
-                    center;
-
-                gap:
-                    3px;
-
-                border:
-                    1px solid rgba(255, 255, 255, .09);
-
-                border-radius:
-                    18px;
-
-                background:
-                    rgba(9, 11, 16, .94);
-
-                box-shadow:
-                    0 20px 70px rgba(0, 0, 0, .45);
-
-                backdrop-filter:
-                    blur(20px)
-                    saturate(135%);
-
-                -webkit-backdrop-filter:
-                    blur(20px)
-                    saturate(135%);
+                padding:
+                    0;
             }
 
-            .mashal-mobile-bar-link {
-                min-height:
-                    49px;
-
+            .expert-command-copy,
+            .expert-command-key {
                 display:
-                    flex;
+                    none;
+            }
 
-                flex-direction:
-                    column;
-
-                align-items:
-                    center;
-
-                justify-content:
-                    center;
-
-                gap:
-                    4px;
+            .expert-command-icon {
+                margin:
+                    auto;
 
                 border:
                     0;
 
-                border-radius:
-                    12px;
-
-                color:
-                    #687381;
-
                 background:
                     transparent;
+            }
+        }
 
-                text-decoration:
+        @media (max-width: 1120px) {
+            .expert-nav {
+                grid-template-columns:
+                    auto 1fr auto;
+
+                gap:
+                    14px;
+            }
+
+            .expert-nav-center {
+                display:
                     none;
-
-                font-size:
-                    12px;
-
-                cursor:
-                    pointer;
             }
 
-            .mashal-mobile-bar-link small {
-                font-size:
-                    6px;
-
-                font-weight:
-                    750;
+            .expert-new-project {
+                display:
+                    none;
             }
 
-            .mashal-mobile-bar-link.active {
-                color:
-                    #a79fff;
-
-                background:
-                    rgba(122, 108, 255, .07);
-            }
-
-            .mashal-mobile-create {
-                width:
-                    50px;
-
-                height:
-                    50px;
-
-                margin:
-                    -18px auto 0;
-
+            .expert-menu-toggle {
                 display:
                     grid;
-
-                place-items:
-                    center;
-
-                border:
-                    4px solid #090b10;
-
-                border-radius:
-                    16px;
-
-                color:
-                    #ffffff;
-
-                background:
-                    linear-gradient(
-                        145deg,
-                        #7867ff,
-                        #4e92ff
-                    );
-
-                box-shadow:
-                    0 16px 38px rgba(72, 64, 200, .28);
-
-                font-size:
-                    18px;
-
-                cursor:
-                    pointer;
             }
 
-            .mashal-create-menu {
-                left:
-                    10px;
+            .studio-mobile-overlay,
+            .studio-mobile-drawer {
+                display:
+                    flex;
+            }
+        }
 
-                right:
-                    10px;
-
-                top:
-                    auto;
-
-                bottom:
-                    calc(84px + env(safe-area-inset-bottom));
-
-                width:
-                    auto;
-
-                transform-origin:
-                    bottom center;
+        @media (max-width: 760px) {
+            .expert-brand-divider,
+            .expert-command-trigger {
+                display:
+                    none;
             }
 
-            .mashal-profile-sheet {
+            .expert-nav {
+                min-height:
+                    70px;
+
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    auto;
+            }
+
+            .expert-account-copy,
+            .expert-account-chevron {
+                display:
+                    none;
+            }
+
+            .expert-account-trigger {
+                max-width:
+                    43px;
+
+                padding:
+                    5px;
+            }
+
+            .expert-auth-link {
+                display:
+                    none;
+            }
+
+            .expert-auth-link-primary {
+                display:
+                    inline-flex;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .expert-brand-copy small {
+                display:
+                    none;
+            }
+
+            .expert-auth-link-primary {
+                display:
+                    none;
+            }
+
+            .expert-mobile-drawer {
                 width:
-                    100%;
+                    100vw;
 
                 max-width:
                     100%;
@@ -5410,25 +6279,28 @@
                 border-left:
                     0;
             }
-        }
 
-        @media (max-width: 420px) {
-            .mashal-mark-copy {
-                display:
-                    none;
+            .expert-command-palette {
+                top:
+                    72px;
+
+                width:
+                    calc(100% - 20px);
             }
 
-            .mashal-chrome-actions {
-                gap:
-                    6px;
+            .expert-command-foot {
+                display:
+                    none;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .mashal-dock,
-            .mashal-create-menu,
-            .mashal-profile-sheet,
-            .mashal-sheet-overlay {
+            .expert-command-palette,
+            .expert-command-overlay,
+            .expert-nav-link,
+            .expert-new-project,
+            .expert-account-item,
+            .expert-command-trigger {
                 transition:
                     none !important;
             }
@@ -5466,252 +6338,567 @@
         <span class="studio-orb three"></span>
     </div>
 
-
-    
-    {{-- ======================================================================
-         SIGNATURE NAVIGATION SYSTEM
-         Minimal top chrome + adaptive dock + create orb + account side sheet
-         ====================================================================== --}}
-
     <header
-        class="mashal-chrome"
+        class="studio-header studio-header-expert"
         id="studioHeader"
     >
-        <div class="studio-shell mashal-chrome-shell">
+        <div class="studio-shell">
+            <div class="expert-nav">
+                <div class="expert-nav-left">
+                    <a
+                        class="expert-brand"
+                        href="{{ route('home') }}"
+                        aria-label="Mashal Studio home"
+                    >
+                        <span class="expert-brand-mark" aria-hidden="true">
+                            <span class="expert-brand-glyph">M</span>
+                            <span class="expert-brand-status"></span>
+                        </span>
 
-            {{-- Left: brand only --}}
-            <a
-                class="mashal-mark"
-                href="{{ route('home') }}"
-                aria-label="Mashal Studio home"
-            >
-                <span class="mashal-mark-glyph" aria-hidden="true">
-                    M
-                </span>
+                        <span class="expert-brand-copy">
+                            <strong>Mashal</strong>
+                            <small>Studio</small>
+                        </span>
+                    </a>
 
-                <span class="mashal-mark-copy">
-                    <strong>Mashal</strong>
-                    <small>Studio</small>
-                </span>
+                    <span class="expert-brand-divider" aria-hidden="true"></span>
 
-                <span
-                    class="mashal-mark-live"
-                    aria-hidden="true"
-                ></span>
-            </a>
+                    <button
+                        class="expert-command-trigger"
+                        id="studioCommandTrigger"
+                        type="button"
+                        aria-haspopup="dialog"
+                        aria-controls="studioCommandPalette"
+                        aria-expanded="false"
+                    >
+                        <span class="expert-command-icon" aria-hidden="true">
+                            ⌘
+                        </span>
 
-            {{-- Right: intentionally sparse --}}
-            <div class="mashal-chrome-actions">
+                        <span class="expert-command-copy">
+                            <strong>Ga naar…</strong>
+                            <small>Projecten, AI, account</small>
+                        </span>
 
-                @auth
-                    @if ($hasImagesIndex)
-                        <a
-                            class="mashal-chrome-link"
-                            href="{{ route('images.index') }}"
-                        >
-                            Library
-                        </a>
-                    @endif
+                        <span class="expert-command-key" aria-hidden="true">
+                            K
+                        </span>
+                    </button>
+                </div>
 
-                    @if ($hasAiChat)
-                        <a
-                            class="mashal-chrome-link mashal-chrome-link-ai"
-                            href="{{ route('ai.chat') }}"
-                        >
-                            <span aria-hidden="true">✦</span>
-                            AI
-                        </a>
-                    @endif
-                @endauth
-
-                <button
-                    class="mashal-create-trigger"
-                    id="mashalCreateTrigger"
-                    type="button"
-                    aria-expanded="false"
-                    aria-controls="mashalCreateMenu"
-                    aria-label="Nieuw"
+                <nav
+                    class="expert-nav-center"
+                    aria-label="Hoofdnavigatie"
                 >
-                    <span aria-hidden="true">＋</span>
-                </button>
+                    <a
+                        class="expert-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                        href="{{ route('home') }}"
+                    >
+                        <span class="expert-nav-link-icon" aria-hidden="true">
+                            ◇
+                        </span>
 
-                @guest
-                    @if (\Illuminate\Support\Facades\Route::has('login'))
+                        <span>Studio</span>
+                    </a>
+
+                    @auth
+                        @if ($hasImagesIndex)
+                            <a
+                                class="expert-nav-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
+                                href="{{ route('images.index') }}"
+                            >
+                                <span class="expert-nav-link-icon" aria-hidden="true">
+                                    ▦
+                                </span>
+
+                                <span>Library</span>
+
+                                @if ($layoutImageCount !== null)
+                                    <span class="expert-nav-badge">
+                                        {{ min($layoutImageCount, 999) }}
+                                    </span>
+                                @endif
+                            </a>
+                        @endif
+
+                        @if ($hasAiChat)
+                            <a
+                                class="expert-nav-link expert-nav-link-ai {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
+                                href="{{ route('ai.chat') }}"
+                            >
+                                <span class="expert-nav-link-icon" aria-hidden="true">
+                                    ✦
+                                </span>
+
+                                <span>Mashal AI</span>
+
+                                <span class="expert-nav-ai-badge">
+                                    AI
+                                </span>
+                            </a>
+                        @endif
+                    @endauth
+                </nav>
+
+                <div class="expert-nav-right">
+                    <a
+                        class="expert-new-project"
+                        href="{{ route('home') }}#upload"
+                    >
+                        <span aria-hidden="true">＋</span>
+                        <span>New image</span>
+                    </a>
+
+                    @guest
                         <a
-                            class="mashal-login-link"
+                            class="expert-auth-link"
                             href="{{ route('login') }}"
                         >
                             Inloggen
                         </a>
-                    @endif
-                @else
-                    <button
-                        class="mashal-profile-trigger"
-                        id="mashalProfileTrigger"
-                        type="button"
-                        aria-expanded="false"
-                        aria-controls="mashalProfileSheet"
-                        aria-label="Account openen"
-                    >
-                        <span class="mashal-profile-avatar">
-                            @if (
-                                method_exists($layoutUser, 'avatarUrl') &&
-                                $layoutUser->avatarUrl()
-                            )
-                                <img
-                                    src="{{ $layoutUser->avatarUrl() }}"
-                                    alt=""
-                                >
-                            @else
-                                {{ $layoutInitials }}
-                            @endif
-                        </span>
-                    </button>
-                @endguest
 
+                        <a
+                            class="expert-auth-link expert-auth-link-primary"
+                            href="{{ route('register') }}"
+                        >
+                            Start gratis
+                        </a>
+                    @else
+                        <div class="studio-account-wrap expert-account-wrap">
+                            <button
+                                class="studio-account-trigger expert-account-trigger"
+                                id="studioAccountTrigger"
+                                type="button"
+                                aria-expanded="false"
+                                aria-controls="studioAccountMenu"
+                            >
+                                <span class="expert-account-avatar">
+                                    @if (
+                                        method_exists($layoutUser, 'avatarUrl') &&
+                                        $layoutUser->avatarUrl()
+                                    )
+                                        <img
+                                            src="{{ $layoutUser->avatarUrl() }}"
+                                            alt="Profielfoto van {{ $layoutUser->name }}"
+                                            loading="eager"
+                                        >
+                                    @else
+                                        {{ $layoutInitials }}
+                                    @endif
+                                </span>
+
+                                <span class="expert-account-copy">
+                                    <strong>
+                                        {{ $layoutUser->name }}
+                                    </strong>
+
+                                    <small>
+                                        Workspace
+                                    </small>
+                                </span>
+
+                                <span
+                                    class="expert-account-chevron"
+                                    aria-hidden="true"
+                                >
+                                    ▾
+                                </span>
+                            </button>
+
+                            <div
+                                class="studio-account-menu expert-account-menu"
+                                id="studioAccountMenu"
+                                aria-hidden="true"
+                            >
+                                <div class="expert-account-hero">
+                                    <div class="expert-account-identity">
+                                        <span class="expert-account-menu-avatar">
+                                            @if (
+                                                method_exists($layoutUser, 'avatarUrl') &&
+                                                $layoutUser->avatarUrl()
+                                            )
+                                                <img
+                                                    src="{{ $layoutUser->avatarUrl() }}"
+                                                    alt=""
+                                                >
+                                            @else
+                                                {{ $layoutInitials }}
+                                            @endif
+                                        </span>
+
+                                        <span>
+                                            <strong>{{ $layoutUser->name }}</strong>
+                                            <small>{{ $layoutUser->email }}</small>
+                                        </span>
+                                    </div>
+
+                                    <span class="expert-plan-chip">
+                                        Workspace
+                                    </span>
+                                </div>
+
+                                <div class="expert-account-section">
+                                    <div class="expert-account-section-label">
+                                        Workspace
+                                    </div>
+
+                                    @if ($hasImagesIndex)
+                                        <a
+                                            class="expert-account-item"
+                                            href="{{ route('images.index') }}"
+                                        >
+                                            <span class="expert-account-item-icon">▦</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Mijn afbeeldingen</strong>
+                                                <small>Beheer projecten en versies</small>
+                                            </span>
+
+                                            <span class="expert-account-item-meta">
+                                                {{ $layoutImageCount ?? '→' }}
+                                            </span>
+                                        </a>
+                                    @endif
+
+                                    @if ($hasAiChat)
+                                        <a
+                                            class="expert-account-item"
+                                            href="{{ route('ai.chat') }}"
+                                        >
+                                            <span class="expert-account-item-icon">✦</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Mashal AI</strong>
+                                                <small>Open je AI workspace</small>
+                                            </span>
+
+                                            <span class="expert-account-item-meta">
+                                                AI
+                                            </span>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <div class="expert-account-section">
+                                    <div class="expert-account-section-label">
+                                        Account
+                                    </div>
+
+                                    @if ($hasAccount)
+                                        <a
+                                            class="expert-account-item"
+                                            href="{{ route('account') }}"
+                                        >
+                                            <span class="expert-account-item-icon">○</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Accountinstellingen</strong>
+                                                <small>Profiel en voorkeuren</small>
+                                            </span>
+
+                                            <span class="expert-account-item-meta">→</span>
+                                        </a>
+                                    @endif
+
+                                    @if ($hasSecurity)
+                                        <a
+                                            class="expert-account-item"
+                                            href="{{ route('security.index') }}"
+                                        >
+                                            <span class="expert-account-item-icon">◈</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Beveiliging</strong>
+                                                <small>Login en apparaten</small>
+                                            </span>
+
+                                            <span class="expert-account-item-meta">→</span>
+                                        </a>
+                                    @endif
+
+                                    @if (
+                                        $layoutIsAdmin &&
+                                        $hasAdmin
+                                    )
+                                        <a
+                                            class="expert-account-item"
+                                            href="{{ route('admin.dashboard') }}"
+                                        >
+                                            <span class="expert-account-item-icon">⌁</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Admin</strong>
+                                                <small>Beheer de applicatie</small>
+                                            </span>
+
+                                            <span class="expert-account-item-meta">→</span>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <div class="expert-account-footer">
+                                    <form
+                                        method="POST"
+                                        action="{{ route('logout') }}"
+                                    >
+                                        @csrf
+
+                                        <button
+                                            class="expert-logout-button"
+                                            type="submit"
+                                        >
+                                            <span>Uitloggen</span>
+                                            <span aria-hidden="true">↗</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endguest
+
+                    <button
+                        class="studio-menu-toggle expert-menu-toggle"
+                        id="studioMenuToggle"
+                        type="button"
+                        aria-label="Menu openen"
+                        aria-expanded="false"
+                        aria-controls="studioMobileDrawer"
+                    >
+                        <span class="studio-menu-lines"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    {{-- Adaptive floating dock --}}
-    <nav
-        class="mashal-dock"
-        id="mashalDock"
-        aria-label="Snelle navigatie"
-    >
-        <a
-            class="mashal-dock-link {{ request()->routeIs('home') ? 'active' : '' }}"
-            href="{{ route('home') }}"
-        >
-            <span class="mashal-dock-icon" aria-hidden="true">◇</span>
-            <span>Studio</span>
-        </a>
-
-        @auth
-            @if ($hasImagesIndex)
-                <a
-                    class="mashal-dock-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
-                    href="{{ route('images.index') }}"
-                >
-                    <span class="mashal-dock-icon" aria-hidden="true">▦</span>
-                    <span>Library</span>
-                </a>
-            @endif
-
-            @if ($hasAiChat)
-                <a
-                    class="mashal-dock-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
-                    href="{{ route('ai.chat') }}"
-                >
-                    <span class="mashal-dock-icon" aria-hidden="true">✦</span>
-                    <span>AI</span>
-                </a>
-            @endif
-        @endauth
-
-        @auth
-            <button
-                class="mashal-dock-link mashal-dock-button"
-                id="mashalDockProfile"
-                type="button"
-            >
-                <span class="mashal-dock-icon" aria-hidden="true">○</span>
-                <span>Account</span>
-            </button>
-        @endauth
-    </nav>
-
-    {{-- Create orb menu --}}
     <div
-        class="mashal-create-menu"
-        id="mashalCreateMenu"
-        aria-hidden="true"
-    >
-        <div class="mashal-create-menu-head">
-            <span>Nieuw</span>
-            <small>Start waar je wilt</small>
-        </div>
-
-        <a
-            class="mashal-create-action mashal-create-action-primary"
-            href="{{ route('home') }}#upload"
-        >
-            <span class="mashal-create-action-icon">＋</span>
-            <span>
-                <strong>Afbeelding uploaden</strong>
-                <small>JPG, PNG of WEBP</small>
-            </span>
-            <span>↗</span>
-        </a>
-
-        @auth
-            @if ($hasImagesIndex)
-                <a
-                    class="mashal-create-action"
-                    href="{{ route('images.index') }}"
-                >
-                    <span class="mashal-create-action-icon">▦</span>
-                    <span>
-                        <strong>Library openen</strong>
-                        <small>Projecten en versies</small>
-                    </span>
-                    <span>→</span>
-                </a>
-            @endif
-
-            @if ($hasAiChat)
-                <a
-                    class="mashal-create-action"
-                    href="{{ route('ai.chat') }}"
-                >
-                    <span class="mashal-create-action-icon">✦</span>
-                    <span>
-                        <strong>Mashal AI</strong>
-                        <small>Open je AI-workspace</small>
-                    </span>
-                    <span>→</span>
-                </a>
-            @endif
-        @endauth
-    </div>
-
-    <div
-        class="mashal-sheet-overlay"
-        id="mashalSheetOverlay"
+        class="expert-command-overlay"
+        id="studioCommandOverlay"
         aria-hidden="true"
     ></div>
 
-    {{-- Account side sheet --}}
-    @auth
-        <aside
-            class="mashal-profile-sheet"
-            id="mashalProfileSheet"
-            aria-hidden="true"
-            aria-label="Account"
-        >
-            <div class="mashal-profile-sheet-head">
+    <div
+        class="expert-command-palette"
+        id="studioCommandPalette"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="studioCommandTitle"
+        aria-hidden="true"
+    >
+        <div class="expert-command-shell">
+            <div class="expert-command-head">
                 <div>
-                    <span class="mashal-profile-kicker">
-                        Workspace
+                    <span class="expert-command-kicker">
+                        Navigation
                     </span>
 
-                    <strong>
-                        Account
+                    <strong id="studioCommandTitle">
+                        Waar wil je heen?
                     </strong>
                 </div>
 
                 <button
-                    class="mashal-sheet-close"
-                    id="mashalProfileClose"
+                    class="expert-command-close"
+                    id="studioCommandClose"
                     type="button"
-                    aria-label="Account sluiten"
+                    aria-label="Command menu sluiten"
                 >
                     ×
                 </button>
             </div>
 
-            <div class="mashal-profile-card">
-                <span class="mashal-profile-card-avatar">
+            <div class="expert-command-search">
+                <span aria-hidden="true">⌕</span>
+
+                <input
+                    id="studioCommandInput"
+                    type="search"
+                    placeholder="Zoek in Mashal Studio…"
+                    autocomplete="off"
+                >
+
+                <kbd>ESC</kbd>
+            </div>
+
+            <div class="expert-command-groups" id="studioCommandGroups">
+                <div class="expert-command-group">
+                    <div class="expert-command-group-label">
+                        Studio
+                    </div>
+
+                    <a
+                        class="expert-command-item"
+                        href="{{ route('home') }}"
+                        data-command-search="studio home editor"
+                    >
+                        <span class="expert-command-item-icon">◇</span>
+                        <span>
+                            <strong>Studio</strong>
+                            <small>Ga naar de homepage en editor-start</small>
+                        </span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
+
+                    <a
+                        class="expert-command-item"
+                        href="{{ route('home') }}#upload"
+                        data-command-search="upload nieuwe afbeelding image"
+                    >
+                        <span class="expert-command-item-icon">＋</span>
+                        <span>
+                            <strong>Nieuwe afbeelding</strong>
+                            <small>Upload JPG, PNG of WEBP</small>
+                        </span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
+
+                    @auth
+                        @if ($hasImagesIndex)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('images.index') }}"
+                                data-command-search="library afbeeldingen projecten images"
+                            >
+                                <span class="expert-command-item-icon">▦</span>
+                                <span>
+                                    <strong>Mijn afbeeldingen</strong>
+                                    <small>Open je projectbibliotheek</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+
+                        @if ($hasAiChat)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('ai.chat') }}"
+                                data-command-search="mashal ai chat assistant"
+                            >
+                                <span class="expert-command-item-icon">✦</span>
+                                <span>
+                                    <strong>Mashal AI</strong>
+                                    <small>Open de AI-workspace</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+                    @endauth
+                </div>
+
+                @auth
+                    <div class="expert-command-group">
+                        <div class="expert-command-group-label">
+                            Account
+                        </div>
+
+                        @if ($hasAccount)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('account') }}"
+                                data-command-search="account profiel instellingen voorkeuren"
+                            >
+                                <span class="expert-command-item-icon">○</span>
+                                <span>
+                                    <strong>Account</strong>
+                                    <small>Profiel en voorkeuren</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+
+                        @if ($hasSecurity)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('security.index') }}"
+                                data-command-search="security beveiliging login apparaten"
+                            >
+                                <span class="expert-command-item-icon">◈</span>
+                                <span>
+                                    <strong>Beveiliging</strong>
+                                    <small>Login en apparaten beheren</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+                    </div>
+                @endauth
+            </div>
+
+            <div class="expert-command-foot">
+                <span>
+                    <kbd>↑</kbd>
+                    <kbd>↓</kbd>
+                    navigeren
+                </span>
+
+                <span>
+                    <kbd>↵</kbd>
+                    openen
+                </span>
+
+                <span>
+                    <kbd>ESC</kbd>
+                    sluiten
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="studio-mobile-overlay expert-mobile-overlay"
+        id="studioMobileOverlay"
+        aria-hidden="true"
+    ></div>
+
+    <aside
+        class="studio-mobile-drawer expert-mobile-drawer"
+        id="studioMobileDrawer"
+        aria-hidden="true"
+        aria-label="Mobiele navigatie"
+    >
+        <div class="expert-mobile-head">
+            <a
+                class="expert-mobile-brand"
+                href="{{ route('home') }}"
+            >
+                <span class="expert-brand-mark">
+                    <span class="expert-brand-glyph">M</span>
+                    <span class="expert-brand-status"></span>
+                </span>
+
+                <span>
+                    <strong>Mashal Studio</strong>
+                    <small>Image workspace</small>
+                </span>
+            </a>
+
+            <button
+                class="expert-mobile-close"
+                id="studioMobileClose"
+                type="button"
+                aria-label="Menu sluiten"
+            >
+                ×
+            </button>
+        </div>
+
+        <a
+            class="expert-mobile-upload"
+            href="{{ route('home') }}#upload"
+        >
+            <span class="expert-mobile-upload-icon">＋</span>
+
+            <span>
+                <strong>Nieuwe afbeelding</strong>
+                <small>JPG, PNG of WEBP uploaden</small>
+            </span>
+
+            <span>↗</span>
+        </a>
+
+        @auth
+            <div class="expert-mobile-user">
+                <span class="expert-account-menu-avatar">
                     @if (
                         method_exists($layoutUser, 'avatarUrl') &&
                         $layoutUser->avatarUrl()
@@ -5725,106 +6912,87 @@
                     @endif
                 </span>
 
-                <span class="mashal-profile-card-copy">
-                    <strong>
-                        {{ $layoutUser->name }}
-                    </strong>
-
-                    <small>
-                        {{ $layoutUser->email }}
-                    </small>
-                </span>
-
-                <span class="mashal-profile-card-state">
-                    Active
+                <span class="expert-mobile-user-copy">
+                    <strong>{{ $layoutUser->name }}</strong>
+                    <small>{{ $layoutUser->email }}</small>
                 </span>
             </div>
+        @endauth
 
-            <div class="mashal-profile-stats">
-                <div>
-                    <span>Workspace</span>
-                    <strong>Personal</strong>
-                </div>
-
-                <div>
-                    <span>Projects</span>
-                    <strong>
-                        {{ $layoutImageCount ?? '—' }}
-                    </strong>
-                </div>
+        <nav class="expert-mobile-nav">
+            <div class="expert-mobile-label">
+                Workspace
             </div>
 
-            <div class="mashal-profile-section">
-                <div class="mashal-profile-label">
-                    Workspace
-                </div>
+            <a
+                class="expert-mobile-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                href="{{ route('home') }}"
+            >
+                <span class="expert-mobile-link-icon">◇</span>
+                <span>
+                    <strong>Studio</strong>
+                    <small>Home en editor-start</small>
+                </span>
+                <span>→</span>
+            </a>
 
+            @auth
                 @if ($hasImagesIndex)
                     <a
-                        class="mashal-profile-item"
+                        class="expert-mobile-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
                         href="{{ route('images.index') }}"
                     >
-                        <span class="mashal-profile-item-icon">▦</span>
-
+                        <span class="expert-mobile-link-icon">▦</span>
                         <span>
                             <strong>Mijn afbeeldingen</strong>
                             <small>Projecten en versies</small>
                         </span>
-
                         <span>→</span>
                     </a>
                 @endif
 
                 @if ($hasAiChat)
                     <a
-                        class="mashal-profile-item"
+                        class="expert-mobile-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
                         href="{{ route('ai.chat') }}"
                     >
-                        <span class="mashal-profile-item-icon">✦</span>
-
+                        <span class="expert-mobile-link-icon">✦</span>
                         <span>
                             <strong>Mashal AI</strong>
                             <small>AI workspace</small>
                         </span>
-
-                        <span>→</span>
+                        <span class="expert-mobile-ai">AI</span>
                     </a>
                 @endif
-            </div>
 
-            <div class="mashal-profile-section">
-                <div class="mashal-profile-label">
+                <div class="expert-mobile-label">
                     Account
                 </div>
 
                 @if ($hasAccount)
                     <a
-                        class="mashal-profile-item"
+                        class="expert-mobile-link {{ request()->routeIs('account') ? 'active' : '' }}"
                         href="{{ route('account') }}"
                     >
-                        <span class="mashal-profile-item-icon">○</span>
-
+                        <span class="expert-mobile-link-icon">○</span>
                         <span>
                             <strong>Account</strong>
                             <small>Profiel en voorkeuren</small>
                         </span>
-
                         <span>→</span>
                     </a>
                 @endif
 
                 @if ($hasSecurity)
                     <a
-                        class="mashal-profile-item"
+                        class="expert-mobile-link {{ request()->routeIs('security.*') ? 'active' : '' }}"
                         href="{{ route('security.index') }}"
                     >
-                        <span class="mashal-profile-item-icon">◈</span>
-
+                        <span class="expert-mobile-link-icon">◈</span>
                         <span>
                             <strong>Beveiliging</strong>
                             <small>Login en apparaten</small>
                         </span>
-
                         <span>→</span>
                     </a>
                 @endif
@@ -5834,22 +7002,36 @@
                     $hasAdmin
                 )
                     <a
-                        class="mashal-profile-item"
+                        class="expert-mobile-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}"
                     >
-                        <span class="mashal-profile-item-icon">⌁</span>
-
+                        <span class="expert-mobile-link-icon">⌁</span>
                         <span>
                             <strong>Admin</strong>
                             <small>Applicatiebeheer</small>
                         </span>
-
                         <span>→</span>
                     </a>
                 @endif
-            </div>
+            @endauth
+        </nav>
 
-            <div class="mashal-profile-sheet-foot">
+        <div class="expert-mobile-footer">
+            @guest
+                <a
+                    class="expert-mobile-auth"
+                    href="{{ route('login') }}"
+                >
+                    Inloggen
+                </a>
+
+                <a
+                    class="expert-mobile-auth expert-mobile-auth-primary"
+                    href="{{ route('register') }}"
+                >
+                    Gratis starten
+                </a>
+            @else
                 <form
                     method="POST"
                     action="{{ route('logout') }}"
@@ -5857,84 +7039,16 @@
                     @csrf
 
                     <button
-                        class="mashal-profile-logout"
+                        class="expert-mobile-logout"
                         type="submit"
                     >
                         <span>Uitloggen</span>
                         <span>↗</span>
                     </button>
                 </form>
-            </div>
-        </aside>
-    @endauth
-
-    {{-- Native-style mobile bottom navigation --}}
-    <nav
-        class="mashal-mobile-bar"
-        aria-label="Mobiele navigatie"
-    >
-        <a
-            class="mashal-mobile-bar-link {{ request()->routeIs('home') ? 'active' : '' }}"
-            href="{{ route('home') }}"
-        >
-            <span>◇</span>
-            <small>Studio</small>
-        </a>
-
-        @auth
-            @if ($hasImagesIndex)
-                <a
-                    class="mashal-mobile-bar-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
-                    href="{{ route('images.index') }}"
-                >
-                    <span>▦</span>
-                    <small>Library</small>
-                </a>
-            @endif
-        @endauth
-
-        <button
-            class="mashal-mobile-create"
-            id="mashalMobileCreate"
-            type="button"
-            aria-label="Nieuw"
-        >
-            <span>＋</span>
-        </button>
-
-        @auth
-            @if ($hasAiChat)
-                <a
-                    class="mashal-mobile-bar-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
-                    href="{{ route('ai.chat') }}"
-                >
-                    <span>✦</span>
-                    <small>AI</small>
-                </a>
-            @endif
-
-            <button
-                class="mashal-mobile-bar-link mashal-mobile-account"
-                id="mashalMobileProfile"
-                type="button"
-            >
-                <span>○</span>
-                <small>Account</small>
-            </button>
-        @else
-            @if (\Illuminate\Support\Facades\Route::has('login'))
-                <a
-                    class="mashal-mobile-bar-link"
-                    href="{{ route('login') }}"
-                >
-                    <span>○</span>
-                    <small>Login</small>
-                </a>
-            @endif
-        @endauth
-    </nav>
-
-
+            @endguest
+        </div>
+    </aside>
 
 
     @if (
@@ -7010,221 +8124,258 @@
     </script>
 
 
-    <script id="mashal-signature-navigation-js">
+    <script id="mashal-expert-navbar-js">
         document.addEventListener(
             'DOMContentLoaded',
             function () {
                 const body =
                     document.body;
 
-                const header =
+                const trigger =
                     document.getElementById(
-                        'studioHeader'
+                        'studioCommandTrigger'
                     );
 
-                const dock =
+                const palette =
                     document.getElementById(
-                        'mashalDock'
+                        'studioCommandPalette'
                     );
 
-                const createTrigger =
+                const overlay =
                     document.getElementById(
-                        'mashalCreateTrigger'
+                        'studioCommandOverlay'
                     );
 
-                const mobileCreate =
+                const closeButton =
                     document.getElementById(
-                        'mashalMobileCreate'
+                        'studioCommandClose'
                     );
 
-                const createMenu =
+                const input =
                     document.getElementById(
-                        'mashalCreateMenu'
+                        'studioCommandInput'
                     );
 
-                const profileTrigger =
-                    document.getElementById(
-                        'mashalProfileTrigger'
-                    );
+                const commandItems =
+                    [
+                        ...document.querySelectorAll(
+                            '.expert-command-item'
+                        )
+                    ];
 
-                const dockProfile =
-                    document.getElementById(
-                        'mashalDockProfile'
-                    );
-
-                const mobileProfile =
-                    document.getElementById(
-                        'mashalMobileProfile'
-                    );
-
-                const profileSheet =
-                    document.getElementById(
-                        'mashalProfileSheet'
-                    );
-
-                const profileClose =
-                    document.getElementById(
-                        'mashalProfileClose'
-                    );
-
-                const sheetOverlay =
-                    document.getElementById(
-                        'mashalSheetOverlay'
-                    );
-
-                let createOpen =
+                let commandOpen =
                     false;
 
-                let profileOpen =
-                    false;
+                let selectedIndex =
+                    0;
 
-                function setCreateMenu(open) {
-                    createOpen =
-                        Boolean(open);
-
-                    createMenu?.classList.toggle(
-                        'is-open',
-                        createOpen
-                    );
-
-                    createMenu?.setAttribute(
-                        'aria-hidden',
-                        createOpen
-                            ? 'false'
-                            : 'true'
-                    );
-
-                    createTrigger?.setAttribute(
-                        'aria-expanded',
-                        createOpen
-                            ? 'true'
-                            : 'false'
+                function visibleItems() {
+                    return commandItems.filter(
+                        function (item) {
+                            return !item.hidden;
+                        }
                     );
                 }
 
-                function setProfileSheet(open) {
-                    profileOpen =
+                function updateSelection() {
+                    const items =
+                        visibleItems();
+
+                    if (!items.length) {
+                        return;
+                    }
+
+                    selectedIndex =
+                        Math.max(
+                            0,
+                            Math.min(
+                                selectedIndex,
+                                items.length - 1
+                            )
+                        );
+
+                    commandItems.forEach(
+                        function (item) {
+                            item.classList.remove(
+                                'is-selected'
+                            );
+                        }
+                    );
+
+                    items[
+                        selectedIndex
+                    ]?.classList.add(
+                        'is-selected'
+                    );
+
+                    items[
+                        selectedIndex
+                    ]?.scrollIntoView({
+                        block:
+                            'nearest'
+                    });
+                }
+
+                function filterCommands() {
+                    const query =
+                        (
+                            input?.value ||
+                            ''
+                        )
+                        .trim()
+                        .toLowerCase();
+
+                    commandItems.forEach(
+                        function (item) {
+                            const search =
+                                (
+                                    item.getAttribute(
+                                        'data-command-search'
+                                    ) ||
+                                    item.textContent ||
+                                    ''
+                                )
+                                .toLowerCase();
+
+                            item.hidden =
+                                Boolean(
+                                    query &&
+                                    !search.includes(
+                                        query
+                                    )
+                                );
+                        }
+                    );
+
+                    selectedIndex =
+                        0;
+
+                    updateSelection();
+                }
+
+                function setCommandOpen(open) {
+                    commandOpen =
                         Boolean(open);
 
-                    profileSheet?.classList.toggle(
-                        'is-open',
-                        profileOpen
-                    );
-
-                    sheetOverlay?.classList.toggle(
-                        'is-open',
-                        profileOpen
-                    );
-
-                    profileSheet?.setAttribute(
-                        'aria-hidden',
-                        profileOpen
-                            ? 'false'
-                            : 'true'
-                    );
-
-                    sheetOverlay?.setAttribute(
-                        'aria-hidden',
-                        profileOpen
-                            ? 'false'
-                            : 'true'
-                    );
-
-                    profileTrigger?.setAttribute(
+                    trigger?.setAttribute(
                         'aria-expanded',
-                        profileOpen
+                        commandOpen
                             ? 'true'
                             : 'false'
+                    );
+
+                    palette?.classList.toggle(
+                        'is-open',
+                        commandOpen
+                    );
+
+                    overlay?.classList.toggle(
+                        'is-open',
+                        commandOpen
+                    );
+
+                    palette?.setAttribute(
+                        'aria-hidden',
+                        commandOpen
+                            ? 'false'
+                            : 'true'
+                    );
+
+                    overlay?.setAttribute(
+                        'aria-hidden',
+                        commandOpen
+                            ? 'false'
+                            : 'true'
                     );
 
                     body.classList.toggle(
-                        'mashal-sheet-open',
-                        profileOpen
+                        'expert-command-open',
+                        commandOpen
                     );
 
-                    if (profileOpen) {
-                        setCreateMenu(
-                            false
+                    if (commandOpen) {
+                        window.setTimeout(
+                            function () {
+                                input?.focus();
+
+                                selectedIndex =
+                                    0;
+
+                                updateSelection();
+                            },
+                            40
                         );
+                    } else {
+                        if (input) {
+                            input.value =
+                                '';
+                        }
+
+                        filterCommands();
+
+                        trigger?.focus();
                     }
                 }
 
-                createTrigger?.addEventListener(
+                trigger?.addEventListener(
                     'click',
                     function () {
-                        setCreateMenu(
-                            !createOpen
+                        setCommandOpen(
+                            !commandOpen
                         );
                     }
                 );
 
-                mobileCreate?.addEventListener(
+                closeButton?.addEventListener(
                     'click',
                     function () {
-                        setCreateMenu(
-                            !createOpen
+                        setCommandOpen(
+                            false
                         );
                     }
                 );
 
-                [
-                    profileTrigger,
-                    dockProfile,
-                    mobileProfile
-                ].forEach(
-                    function (trigger) {
-                        trigger?.addEventListener(
-                            'click',
+                overlay?.addEventListener(
+                    'click',
+                    function () {
+                        setCommandOpen(
+                            false
+                        );
+                    }
+                );
+
+                input?.addEventListener(
+                    'input',
+                    filterCommands
+                );
+
+                commandItems.forEach(
+                    function (item) {
+                        item.addEventListener(
+                            'pointerenter',
                             function () {
-                                setProfileSheet(
-                                    true
-                                );
+                                const items =
+                                    visibleItems();
+
+                                selectedIndex =
+                                    Math.max(
+                                        0,
+                                        items.indexOf(
+                                            item
+                                        )
+                                    );
+
+                                updateSelection();
                             }
                         );
-                    }
-                );
 
-                profileClose?.addEventListener(
-                    'click',
-                    function () {
-                        setProfileSheet(
-                            false
-                        );
-                    }
-                );
-
-                sheetOverlay?.addEventListener(
-                    'click',
-                    function () {
-                        setProfileSheet(
-                            false
-                        );
-                    }
-                );
-
-                document.addEventListener(
-                    'pointerdown',
-                    function (event) {
-                        if (!createOpen) {
-                            return;
-                        }
-
-                        if (
-                            createMenu?.contains(
-                                event.target
-                            ) ||
-                            createTrigger?.contains(
-                                event.target
-                            ) ||
-                            mobileCreate?.contains(
-                                event.target
-                            )
-                        ) {
-                            return;
-                        }
-
-                        setCreateMenu(
-                            false
+                        item.addEventListener(
+                            'click',
+                            function () {
+                                setCommandOpen(
+                                    false
+                                );
+                            }
                         );
                     }
                 );
@@ -7232,83 +8383,126 @@
                 document.addEventListener(
                     'keydown',
                     function (event) {
-                        if (event.key !== 'Escape') {
+                        const active =
+                            document.activeElement;
+
+                        const typing =
+                            active &&
+                            (
+                                active.tagName === 'INPUT' ||
+                                active.tagName === 'TEXTAREA' ||
+                                active.isContentEditable
+                            );
+
+                        if (
+                            (
+                                event.metaKey ||
+                                event.ctrlKey
+                            ) &&
+                            event.key.toLowerCase() === 'k'
+                        ) {
+                            event.preventDefault();
+
+                            setCommandOpen(
+                                !commandOpen
+                            );
+
                             return;
                         }
 
-                        setCreateMenu(
-                            false
-                        );
+                        if (
+                            !commandOpen &&
+                            !typing &&
+                            event.key === '/'
+                        ) {
+                            event.preventDefault();
 
-                        setProfileSheet(
-                            false
-                        );
-                    }
-                );
+                            setCommandOpen(
+                                true
+                            );
 
-                function updateChrome() {
-                    const y =
-                        window.scrollY;
-
-                    header?.classList.toggle(
-                        'is-scrolled',
-                        y > 8
-                    );
-
-                    /*
-                     * On the homepage the dock only appears after the hero
-                     * starts moving away. On inner pages it can appear sooner.
-                     */
-                    const isHome =
-                        document.body
-                            .querySelector(
-                                '.ms-home, .home-page'
-                            ) !== null;
-
-                    const threshold =
-                        isHome
-                            ? 260
-                            : 90;
-
-                    dock?.classList.toggle(
-                        'is-visible',
-                        y > threshold
-                    );
-                }
-
-                let framePending =
-                    false;
-
-                function scheduleChromeUpdate() {
-                    if (framePending) {
-                        return;
-                    }
-
-                    framePending =
-                        true;
-
-                    window.requestAnimationFrame(
-                        function () {
-                            updateChrome();
-
-                            framePending =
-                                false;
+                            return;
                         }
-                    );
-                }
 
-                window.addEventListener(
-                    'scroll',
-                    scheduleChromeUpdate,
-                    {
-                        passive: true
+                        if (!commandOpen) {
+                            return;
+                        }
+
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+
+                            setCommandOpen(
+                                false
+                            );
+
+                            return;
+                        }
+
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+
+                            const items =
+                                visibleItems();
+
+                            if (!items.length) {
+                                return;
+                            }
+
+                            selectedIndex =
+                                (
+                                    selectedIndex +
+                                    1
+                                ) %
+                                items.length;
+
+                            updateSelection();
+
+                            return;
+                        }
+
+                        if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+
+                            const items =
+                                visibleItems();
+
+                            if (!items.length) {
+                                return;
+                            }
+
+                            selectedIndex =
+                                (
+                                    selectedIndex -
+                                    1 +
+                                    items.length
+                                ) %
+                                items.length;
+
+                            updateSelection();
+
+                            return;
+                        }
+
+                        if (event.key === 'Enter') {
+                            const items =
+                                visibleItems();
+
+                            const selected =
+                                items[
+                                    selectedIndex
+                                ];
+
+                            if (selected) {
+                                event.preventDefault();
+
+                                selected.click();
+                            }
+                        }
                     }
                 );
-
-                updateChrome();
 
                 /*
-                 * Desktop magnetic micro-motion.
+                 * Desktop magnetic polish.
                  */
                 const reducedMotion =
                     window.matchMedia(
@@ -7326,76 +8520,78 @@
                 ) {
                     document
                         .querySelectorAll(
-                            '.mashal-chrome-link, ' +
-                            '.mashal-create-trigger, ' +
-                            '.mashal-profile-trigger, ' +
-                            '.mashal-dock-link'
+                            '.expert-nav-link, ' +
+                            '.expert-new-project, ' +
+                            '.expert-auth-link, ' +
+                            '.expert-command-trigger'
                         )
                         .forEach(
                             function (element) {
-                                let tx =
+                                let currentX =
                                     0;
 
-                                let ty =
+                                let currentY =
                                     0;
 
-                                let x =
+                                let targetX =
                                     0;
 
-                                let y =
+                                let targetY =
                                     0;
 
-                                let animationFrame =
+                                let frame =
                                     null;
 
                                 function animate() {
-                                    x +=
+                                    currentX +=
                                         (
-                                            tx -
-                                            x
+                                            targetX -
+                                            currentX
                                         ) *
-                                        .13;
+                                        .14;
 
-                                    y +=
+                                    currentY +=
                                         (
-                                            ty -
-                                            y
+                                            targetY -
+                                            currentY
                                         ) *
-                                        .13;
+                                        .14;
 
                                     element.style.transform =
                                         'translate3d(' +
-                                        x +
+                                        currentX +
                                         'px,' +
-                                        y +
+                                        currentY +
                                         'px,0)';
 
                                     if (
                                         Math.abs(
-                                            tx -
-                                            x
-                                        ) > .05 ||
+                                            targetX -
+                                            currentX
+                                        ) >
+                                        .05 ||
                                         Math.abs(
-                                            ty -
-                                            y
-                                        ) > .05
+                                            targetY -
+                                            currentY
+                                        ) >
+                                        .05
                                     ) {
-                                        animationFrame =
+                                        frame =
                                             window.requestAnimationFrame(
                                                 animate
                                             );
                                     } else {
-                                        animationFrame =
+                                        frame =
                                             null;
                                     }
                                 }
 
-                                function schedule() {
-                                    if (animationFrame) {
+                                function start() {
+                                    if (frame) {
                                         return;
                                     }
 
-                                    animationFrame =
+                                    frame =
                                         window.requestAnimationFrame(
                                             animate
                                         );
@@ -7407,7 +8603,7 @@
                                         const rect =
                                             element.getBoundingClientRect();
 
-                                        tx =
+                                        targetX =
                                             (
                                                 event.clientX -
                                                 (
@@ -7416,9 +8612,9 @@
                                                     2
                                                 )
                                             ) *
-                                            .045;
+                                            .05;
 
-                                        ty =
+                                        targetY =
                                             (
                                                 event.clientY -
                                                 (
@@ -7427,22 +8623,22 @@
                                                     2
                                                 )
                                             ) *
-                                            .045;
+                                            .05;
 
-                                        schedule();
+                                        start();
                                     }
                                 );
 
                                 element.addEventListener(
                                     'pointerleave',
                                     function () {
-                                        tx =
+                                        targetX =
                                             0;
 
-                                        ty =
+                                        targetY =
                                             0;
 
-                                        schedule();
+                                        start();
                                     }
                                 );
                             }
