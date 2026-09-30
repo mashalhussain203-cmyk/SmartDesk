@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
@@ -62,16 +64,10 @@ class GmailLiveChatInboxService
             $this->command($socket, 'LOGIN '.$this->quote($username).' '.$this->quote($password));
             $this->command($socket, 'SELECT INBOX');
 
-            $usernameParts = explode('@', $username, 2);
-            $aliasPrefix = count($usernameParts) === 2
-                ? $usernameParts[0].'+lc-'
-                : '+lc-';
-
-            $search = $this->command(
-                $socket,
-                'UID SEARCH UNSEEN OR HEADER To '.$this->quote($aliasPrefix)
-                    .' HEADER Delivered-To '.$this->quote($aliasPrefix)
-            );
+            // Zoek alle ongelezen berichten. Daarna filteren we streng op:
+            // - het echte Gmail-adres of een oude +lc- alias;
+            // - een [LC:TOKEN] onderwerp of een bekende In-Reply-To Message-ID.
+            $search = $this->command($socket, 'UID SEARCH UNSEEN');
             $uids = $this->extractSearchUids($search['text']);
             $uids = array_slice($uids, -$limit);
 
@@ -88,8 +84,23 @@ class GmailLiveChatInboxService
 
                 $headers = $this->parseHeaders($headersRaw);
                 $recipient = $this->firstRecipientHeader($headers);
+                $subject = $this->decodeHeader((string) ($headers['subject'] ?? ''));
+                $inReplyTo = trim((string) ($headers['in-reply-to'] ?? ''));
 
-                if (! $this->looksLikeLiveChatAlias($recipient, $username)) {
+                $isAlias = $this->looksLikeLiveChatAlias($recipient, $username);
+                $isMailbox = $this->isGmailMailboxRecipient($recipient, $username);
+                $hasThreadToken = $this->subjectHasLiveChatToken($subject);
+
+                $matchesKnownMessage = $inReplyTo !== ''
+                    && DB::table('live_chat_messages')
+                        ->where('email_message_id', Str::limit($inReplyTo, 190, ''))
+                        ->exists();
+
+                if (! $isAlias && ! $isMailbox) {
+                    continue;
+                }
+
+                if (! $isAlias && ! $hasThreadToken && ! $matchesKnownMessage) {
                     continue;
                 }
 
@@ -108,8 +119,8 @@ class GmailLiveChatInboxService
                         'recipient' => $recipient,
                         'from' => $this->extractEmailAddress((string) ($headers['from'] ?? '')),
                         'message_id' => trim((string) ($headers['message-id'] ?? '')),
-                        'in_reply_to' => trim((string) ($headers['in-reply-to'] ?? '')) ?: null,
-                        'subject' => $this->decodeHeader((string) ($headers['subject'] ?? '')),
+                        'in_reply_to' => $inReplyTo !== '' ? $inReplyTo : null,
+                        'subject' => $subject,
                         'body' => $this->cleanReplyText($parsed['text']),
                         'attachments' => $parsed['attachments'],
                     ]);
@@ -319,6 +330,21 @@ class GmailLiveChatInboxService
             '/^'.preg_quote($local, '/').'\\+lc-[a-z0-9]{32,80}@'.preg_quote($domain, '/').'$/i',
             $recipient
         ) === 1;
+    }
+
+    private function isGmailMailboxRecipient(string $recipient, string $username): bool
+    {
+        $recipient = strtolower($this->extractEmailAddress($recipient));
+        $username = strtolower(trim($username));
+
+        return $recipient !== ''
+            && $username !== ''
+            && hash_equals($username, $recipient);
+    }
+
+    private function subjectHasLiveChatToken(string $subject): bool
+    {
+        return preg_match('/\[LC:[A-Za-z0-9]{32,80}\]/', $subject) === 1;
     }
 
     private function extractEmailAddress(string $value): string

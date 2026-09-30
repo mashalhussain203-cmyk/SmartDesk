@@ -169,7 +169,15 @@ class LiveChatEmailService
 
             $bodyText = $this->mailBodyForMessage($message);
             $prefix = trim((string) config('live-chat-email.subject_prefix', 'Mashal Support'));
-            $subject = ($prefix ?: 'Mashal Support').' · gesprek #'.$conversationId;
+            $threadToken = trim((string) ($conversation->email_thread_token ?? ''));
+
+            if ($threadToken === '') {
+                throw new RuntimeException('Dit gesprek heeft geen e-mailthread-token.');
+            }
+
+            $subject = ($prefix ?: 'Mashal Support')
+                .' · gesprek #'.$conversationId
+                .' [LC:'.$threadToken.']';
 
             $payload = [
                 'sender' => [
@@ -279,7 +287,8 @@ class LiveChatEmailService
 
         $conversation = $this->conversationFromInboundMail(
             (string) ($mail['recipient'] ?? ''),
-            (string) ($mail['in_reply_to'] ?? '')
+            (string) ($mail['in_reply_to'] ?? ''),
+            (string) ($mail['subject'] ?? '')
         );
 
         abort_unless($conversation, 404, 'Geen live-chatgesprek gevonden voor deze e-mail.');
@@ -387,8 +396,10 @@ class LiveChatEmailService
 
     private function conversationFromInboundMail(
         string $recipient,
-        string $inReplyTo
+        string $inReplyTo,
+        string $subject = ''
     ): ?stdClass {
+        // Backwards compatibel met eerder gebruikte Gmail +lc- aliassen.
         $token = $this->threadTokenFromGmailAlias($recipient);
 
         if ($token !== null) {
@@ -398,6 +409,17 @@ class LiveChatEmailService
             }
         }
 
+        // Nieuwe methode: thread-token staat in het onderwerp.
+        $token = $this->threadTokenFromSubject($subject);
+
+        if ($token !== null) {
+            $conversation = $this->conversationWithUserByToken($token);
+            if ($conversation) {
+                return $conversation;
+            }
+        }
+
+        // Extra fallback: standaard e-mailthread via Message-ID / In-Reply-To.
         $inReplyTo = trim($inReplyTo);
         if ($inReplyTo !== '') {
             $message = DB::table('live_chat_messages')
@@ -443,21 +465,15 @@ class LiveChatEmailService
 
     private function replyAddress(stdClass $conversation): string
     {
-        $username = $this->gmailUsername();
-        $token = trim((string) ($conversation->email_thread_token ?? ''));
+        // Brevo weigert in sommige accounts dynamische Gmail +tag adressen
+        // als replyTo. Gebruik daarom het echte Gmail-adres.
+        $gmail = $this->gmailUsername();
 
-        if ($token === '') {
-            abort(503, 'Dit gesprek heeft geen e-mailthread-token.');
-        }
-
-        $parts = explode('@', $username, 2);
-        if (count($parts) !== 2) {
+        if (! filter_var($gmail, FILTER_VALIDATE_EMAIL)) {
             abort(503, 'LIVE_CHAT_GMAIL_USERNAME is ongeldig.');
         }
 
-        [$local, $domain] = $parts;
-
-        return $local.'+lc-'.$token.'@'.$domain;
+        return $gmail;
     }
 
     private function threadTokenFromGmailAlias(string $recipient): ?string
@@ -479,6 +495,23 @@ class LiveChatEmailService
         $matched = preg_match(
             '/^'.preg_quote($local, '/').'\\+lc-([a-z0-9]{32,80})@'.preg_quote($domain, '/').'$/i',
             $recipient,
+            $matches
+        );
+
+        return $matched === 1 ? $matches[1] : null;
+    }
+
+    private function threadTokenFromSubject(string $subject): ?string
+    {
+        $subject = trim($subject);
+
+        if ($subject === '') {
+            return null;
+        }
+
+        $matched = preg_match(
+            '/\[LC:([A-Za-z0-9]{32,80})\]/',
+            $subject,
             $matches
         );
 
