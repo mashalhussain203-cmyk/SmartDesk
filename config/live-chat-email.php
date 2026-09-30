@@ -1,28 +1,36 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Live chat -> e-mail handoff
-    |--------------------------------------------------------------------------
-    |
-    | De admin blijft in het bestaande live-chatpaneel. Zodra een gesprek
-    | naar e-mail wordt overgezet, worden adminberichten ook per e-mail naar
-    | de klant gestuurd. Antwoorden van de klant komen via Mailgun terug in
-    | hetzelfde live_chat_messages gesprek.
-    |
-    */
-
     'enabled' => (bool) env('LIVE_CHAT_EMAIL_ENABLED', true),
 
-    'reply_domain' => env('LIVE_CHAT_REPLY_DOMAIN'),
+    /*
+    |--------------------------------------------------------------------------
+    | Uitgaand: Brevo transactional API
+    |--------------------------------------------------------------------------
+    */
+    'brevo_api_key' => env('BREVO_API_KEY'),
+    'from_email' => env('BREVO_FROM_EMAIL', env('MAIL_FROM_ADDRESS')),
+    'from_name' => env('BREVO_FROM_NAME', env('MAIL_FROM_NAME', 'Mashal Support')),
+    'brevo_endpoint' => env('BREVO_API_ENDPOINT', 'https://api.brevo.com/v3/smtp/email'),
+    'brevo_timeout_seconds' => (int) env('LIVE_CHAT_BREVO_TIMEOUT', 20),
 
-    'inbound_secret' => env('LIVE_CHAT_INBOUND_SECRET'),
-
-    'mailgun_signing_key' => env('MAILGUN_WEBHOOK_SIGNING_KEY'),
+    /*
+    |--------------------------------------------------------------------------
+    | Inkomend: Gmail via IMAP
+    |--------------------------------------------------------------------------
+    |
+    | Als LIVE_CHAT_GMAIL_USERNAME leeg is, gebruiken we BREVO_FROM_EMAIL.
+    | Voor een @gmail.com adres werkt reply+tagging zonder eigen domein.
+    |
+    */
+    'gmail_username' => env('LIVE_CHAT_GMAIL_USERNAME', env('BREVO_FROM_EMAIL')),
+    'gmail_app_password' => env('LIVE_CHAT_GMAIL_APP_PASSWORD'),
+    'gmail_host' => env('LIVE_CHAT_GMAIL_HOST', 'imap.gmail.com'),
+    'gmail_port' => (int) env('LIVE_CHAT_GMAIL_PORT', 993),
+    'gmail_timeout_seconds' => (int) env('LIVE_CHAT_GMAIL_TIMEOUT', 15),
+    'gmail_sync_limit' => (int) env('LIVE_CHAT_GMAIL_SYNC_LIMIT', 25),
 
     'strict_sender_match' => (bool) env('LIVE_CHAT_EMAIL_STRICT_SENDER_MATCH', true),
-
     'subject_prefix' => env('LIVE_CHAT_EMAIL_SUBJECT_PREFIX', 'Mashal Support'),
 
     'handoff_message' => env(
@@ -31,8 +39,5 @@ return [
     ),
 
     'max_inbound_body_length' => (int) env('LIVE_CHAT_EMAIL_MAX_BODY', 12000),
-
     'max_attachment_bytes' => (int) env('LIVE_CHAT_EMAIL_MAX_ATTACHMENT_BYTES', 20 * 1024 * 1024),
-
-    'webhook_max_age_seconds' => (int) env('LIVE_CHAT_EMAIL_WEBHOOK_MAX_AGE', 1800),
 ];

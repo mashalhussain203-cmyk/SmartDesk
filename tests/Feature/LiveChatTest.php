@@ -388,6 +388,18 @@ class LiveChatTest extends TestCase
 
             ->postJson(
 
+                '/admin/live-chat/email-sync',
+
+                []
+
+            )
+
+            ->assertForbidden();
+
+        $this
+
+            ->postJson(
+
                 '/admin/live-chat/presence',
 
                 [

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 
 
+use App\Services\GmailLiveChatInboxService;
 use App\Services\LiveChatEmailService;
 use App\Services\LiveChatService;
 
@@ -1017,6 +1018,35 @@ class AdminLiveChatController extends Controller
                 'Cache-Control',
                 'no-store'
             );
+    }
+
+
+
+    public function emailSync(
+        Request $request,
+        GmailLiveChatInboxService $gmail
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+
+        try {
+            $result = $gmail->sync();
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            $result = [
+                'ok' => false,
+                'configured' => true,
+                'checked' => 0,
+                'inserted' => 0,
+                'duplicates' => 0,
+                'errors' => 1,
+                'message' => 'Gmail kon niet worden gesynchroniseerd. Controleer het Gmail app-wachtwoord in Railway.',
+            ];
+        }
+
+        return response()
+            ->json($result)
+            ->header('Cache-Control', 'no-store');
     }
 
 

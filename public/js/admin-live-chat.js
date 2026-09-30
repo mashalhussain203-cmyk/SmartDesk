@@ -252,6 +252,8 @@
 
         presenceMs: 20000,
 
+        emailSyncMs: 30000,
+
 
 
         requestTimeoutMs: 30000,
@@ -379,6 +381,8 @@
 
 
     let presencePending = false;
+
+    let emailSyncPending = false;
 
 
 
@@ -1507,7 +1511,91 @@
 
 
 
+    function emailSyncEndpoint() {
 
+        const url = new URL(
+
+            root.dataset.base,
+
+            window.location.origin
+
+        );
+
+        url.pathname = url.pathname.replace(
+
+            /\/conversations\/?$/,
+
+            '/email-sync'
+
+        );
+
+        url.search = '';
+
+        return url.toString();
+
+    }
+
+
+
+    async function syncEmailReplies() {
+
+        if (
+
+            emailSyncPending
+
+            || stopped
+
+            || document.hidden
+
+        ) {
+
+            return;
+
+        }
+
+        emailSyncPending = true;
+
+        try {
+
+            const result = await api(
+
+                emailSyncEndpoint(),
+
+                'POST',
+
+                {}
+
+            );
+
+            if (Number(result?.inserted || 0) > 0) {
+
+                await inbox();
+
+                if (selected?.id) {
+
+                    await detail();
+
+                }
+
+            }
+
+        } catch (error) {
+
+            console.debug(
+
+                '[AdminLiveChat] Gmail synchronisatie overgeslagen',
+
+                error
+
+            );
+
+        } finally {
+
+            emailSyncPending = false;
+
+        }
+
+    }
 
 
 
@@ -8043,7 +8131,17 @@
 
 
 
+    window.setInterval(
 
+        () => {
+
+            void syncEmailReplies();
+
+        },
+
+        CONFIG.emailSyncMs
+
+    );
 
 
 
@@ -8052,6 +8150,14 @@
 
 
     void presence();
+
+    window.setTimeout(
+
+        () => void syncEmailReplies(),
+
+        1500
+
+    );
 
 
 

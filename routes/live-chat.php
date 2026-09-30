@@ -2,9 +2,6 @@
 
 use App\Http\Controllers\AdminLiveChatController;
 use App\Http\Controllers\LiveChatController;
-use App\Http\Controllers\MailgunLiveChatWebhookController;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
@@ -34,17 +31,6 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
 });
 
 
-Route::post(
-    '/webhooks/live-chat/mailgun/{secret}',
-    MailgunLiveChatWebhookController::class
-)
-    ->withoutMiddleware([
-        ValidateCsrfToken::class,
-        VerifyCsrfToken::class,
-    ])
-    ->middleware('throttle:120,1')
-    ->name('webhooks.live-chat.mailgun');
-
 Route::middleware('auth')
     ->prefix('admin/live-chat')
     ->name('admin.live-chat.')
@@ -59,6 +45,11 @@ Route::middleware('auth')
         Route::post('/presence', [AdminLiveChatController::class, 'presence'])
             ->middleware('throttle:30,1')
             ->name('presence');
+
+
+        Route::post('/email-sync', [AdminLiveChatController::class, 'emailSync'])
+            ->middleware('throttle:10,1')
+            ->name('email-sync');
 
         Route::get('/conversations/{conversation}', [AdminLiveChatController::class, 'show'])
             ->whereNumber('conversation')
