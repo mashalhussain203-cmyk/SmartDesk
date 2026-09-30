@@ -3711,139 +3711,56 @@
     </style>
 
 
-    <style id="mashal-signature-layout-match">
+    <style id="mashal-expert-navbar-system">
         /*
         |--------------------------------------------------------------------------
-        | Mashal Signature Layout Match
+        | Expert navigation system
         |--------------------------------------------------------------------------
-        | Matches the cinematic purple/blue home experience while preserving
-        | the existing Blade structure, route checks, auth state and mobile logic.
         */
 
         :root {
-            --studio-bg: #050609;
-            --studio-bg-deep: #040507;
-            --studio-bg-soft: #090b10;
+            --nav-bg:
+                rgba(6, 7, 11, .82);
 
-            --studio-surface: #0d1016;
-            --studio-surface-2: #121620;
-            --studio-surface-3: #171c27;
-            --studio-surface-glass: rgba(10, 13, 19, .82);
+            --nav-bg-solid:
+                rgba(6, 7, 11, .96);
 
-            --studio-text: #f6f8fb;
-            --studio-text-soft: #d9dfe8;
-            --studio-muted: #858f9e;
-            --studio-muted-2: #626c79;
-            --studio-muted-3: #48515e;
+            --nav-panel:
+                #0d1017;
 
-            --studio-line: rgba(255, 255, 255, .075);
-            --studio-line-strong: rgba(255, 255, 255, .135);
+            --nav-panel-2:
+                #121722;
 
-            /*
-             * Existing components use the "gold" tokens.
-             * Remap them to the new Mashal signature palette so every
-             * existing page automatically follows the new design language.
-             */
-            --studio-gold: #7a6cff;
-            --studio-gold-light: #b9b2ff;
-            --studio-gold-deep: #5546d8;
-            --studio-gold-soft: rgba(122, 108, 255, .09);
+            --nav-line:
+                rgba(255, 255, 255, .075);
 
-            --studio-cyan: #42a5ff;
-            --studio-purple: #9b8fff;
+            --nav-line-strong:
+                rgba(255, 255, 255, .135);
 
-            --studio-success: #74dfa7;
-            --studio-success-soft: rgba(116, 223, 167, .08);
+            --nav-text:
+                #f6f8fb;
 
-            --studio-warning: #ffbd78;
-            --studio-warning-soft: rgba(255, 189, 120, .08);
+            --nav-muted:
+                #7d8795;
 
-            --studio-danger: #ff7c91;
-            --studio-danger-soft: rgba(255, 124, 145, .08);
+            --nav-accent:
+                #7a6cff;
 
-            --studio-shadow:
-                0 42px 120px rgba(0, 0, 0, .46);
+            --nav-accent-2:
+                #4b9cff;
 
-            --studio-shadow-soft:
-                0 20px 60px rgba(0, 0, 0, .28);
+            --nav-green:
+                #82efbd;
 
-            --studio-header-height: 76px;
-        }
-
-        html,
-        body {
-            background:
-                #050609;
-        }
-
-        body::selection {
-            color:
-                #ffffff;
-
-            background:
-                rgba(122, 108, 255, .72);
-        }
-
-        :focus-visible {
-            outline:
-                2px solid rgba(153, 142, 255, .88);
-
-            outline-offset:
-                3px;
+            --nav-danger:
+                #ff879b;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Global atmosphere
-        |--------------------------------------------------------------------------
+        | Header shell
         */
 
-        .studio-atmosphere {
-            background:
-                radial-gradient(
-                    circle at 78% -8%,
-                    rgba(122, 108, 255, .13),
-                    transparent 31rem
-                ),
-                radial-gradient(
-                    circle at 10% 28%,
-                    rgba(66, 165, 255, .05),
-                    transparent 28rem
-                ),
-                linear-gradient(
-                    180deg,
-                    #050609 0%,
-                    #07090d 52%,
-                    #050609 100%
-                );
-        }
-
-        .studio-atmosphere::before {
-            background:
-                radial-gradient(
-                    circle at 78% 4%,
-                    rgba(122, 108, 255, .14),
-                    transparent 29rem
-                ),
-                radial-gradient(
-                    circle at 12% 20%,
-                    rgba(66, 165, 255, .055),
-                    transparent 31rem
-                ),
-                radial-gradient(
-                    circle at 72% 82%,
-                    rgba(141, 240, 208, .035),
-                    transparent 32rem
-                );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Signature header
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-header {
+        .studio-header-expert {
             position:
                 sticky;
 
@@ -3853,31 +3770,30 @@
             z-index:
                 1000;
 
+            width:
+                100%;
+
             border-bottom:
-                1px solid rgba(255, 255, 255, .06);
+                1px solid rgba(255, 255, 255, .055);
 
             background:
-                rgba(5, 6, 9, .82) !important;
+                var(--nav-bg) !important;
 
             backdrop-filter:
-                blur(20px)
-                saturate(135%) !important;
+                blur(22px)
+                saturate(140%) !important;
 
             -webkit-backdrop-filter:
-                blur(20px)
-                saturate(135%) !important;
-
-            box-shadow:
-                none;
+                blur(22px)
+                saturate(140%) !important;
 
             transition:
-                background .28s ease,
-                border-color .28s ease,
-                box-shadow .28s ease,
-                transform .28s cubic-bezier(.16, 1, .3, 1);
+                background .26s ease,
+                border-color .26s ease,
+                box-shadow .26s ease;
         }
 
-        .studio-header::before {
+        .studio-header-expert::before {
             content:
                 "";
 
@@ -3890,69 +3806,111 @@
             height:
                 1px;
 
+            opacity:
+                .55;
+
             pointer-events:
                 none;
-
-            opacity:
-                .5;
 
             background:
                 linear-gradient(
                     90deg,
-                    transparent,
-                    rgba(122, 108, 255, .25),
-                    rgba(66, 165, 255, .20),
-                    transparent
+                    transparent 5%,
+                    rgba(122, 108, 255, .16),
+                    rgba(75, 156, 255, .14),
+                    transparent 95%
                 );
         }
 
-        .studio-header.is-scrolled {
+        .studio-header-expert.is-scrolled {
             border-color:
-                rgba(122, 108, 255, .13);
+                rgba(122, 108, 255, .12);
 
             background:
-                rgba(5, 6, 9, .94) !important;
+                var(--nav-bg-solid) !important;
 
             box-shadow:
-                0 18px 55px rgba(0, 0, 0, .30);
+                0 20px 60px rgba(0, 0, 0, .28);
         }
 
-        .studio-nav {
+        .expert-nav {
             min-height:
-                var(--studio-header-height);
+                76px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                minmax(330px, auto)
+                minmax(0, 1fr)
+                auto;
+
+            align-items:
+                center;
 
             gap:
                 24px;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Brand
-        |--------------------------------------------------------------------------
+        | Left cluster
         */
 
-        .studio-brand {
+        .expert-nav-left {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                14px;
+        }
+
+        .expert-brand {
+            min-width:
+                max-content;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
             gap:
                 11px;
 
-            transition:
-                transform .25s cubic-bezier(.16, 1, .3, 1);
+            color:
+                inherit;
+
+            text-decoration:
+                none;
         }
 
-        .studio-brand:hover {
-            transform:
-                translateY(-1px);
-        }
+        .expert-brand-mark {
+            position:
+                relative;
 
-        .studio-brand-mark {
             width:
                 42px;
 
             height:
                 42px;
 
-            flex-basis:
-                42px;
+            flex:
+                0 0 42px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            overflow:
+                hidden;
 
             border:
                 1px solid rgba(122, 108, 255, .28);
@@ -3965,21 +3923,23 @@
 
             background:
                 radial-gradient(
-                    circle at 25% 18%,
+                    circle at 25% 20%,
                     rgba(255, 255, 255, .20),
-                    transparent 32%
+                    transparent 28%
                 ),
                 linear-gradient(
                     145deg,
-                    #806fff,
-                    #566cf5 52%,
-                    #3f8be8
+                    #806eff,
+                    #5b66ef 50%,
+                    #3e91e8
                 );
 
             box-shadow:
                 inset 0 1px 0 rgba(255, 255, 255, .22),
-                0 14px 36px rgba(72, 64, 204, .24);
+                0 14px 38px rgba(72, 64, 204, .24);
+        }
 
+        .expert-brand-glyph {
             font-size:
                 14px;
 
@@ -3990,30 +3950,7 @@
                 -.08em;
         }
 
-        .studio-brand-mark::before {
-            width:
-                30px;
-
-            height:
-                30px;
-
-            left:
-                -15px;
-
-            top:
-                -15px;
-
-            background:
-                rgba(255, 255, 255, .24);
-
-            filter:
-                blur(8px);
-        }
-
-        .studio-brand-mark::after {
-            content:
-                "";
-
+        .expert-brand-status {
             position:
                 absolute;
 
@@ -4024,41 +3961,55 @@
                 5px;
 
             width:
-                5px;
+                6px;
 
             height:
-                5px;
+                6px;
+
+            border:
+                1px solid rgba(6, 7, 11, .9);
 
             border-radius:
                 50%;
 
             background:
-                #8df0d0;
+                var(--nav-green);
 
             box-shadow:
-                0 0 12px rgba(141, 240, 208, .8);
+                0 0 12px rgba(130, 239, 189, .75);
         }
 
-        .studio-brand-copy strong {
+        .expert-brand-copy {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            line-height:
+                1;
+        }
+
+        .expert-brand-copy strong {
             color:
-                #f7f9fc;
+                #f6f8fb;
 
             font-size:
                 13px;
 
             font-weight:
-                790;
+                820;
 
             letter-spacing:
-                -.035em;
+                -.04em;
         }
 
-        .studio-brand-copy small {
+        .expert-brand-copy small {
             margin-top:
                 5px;
 
             color:
-                #646e7c;
+                #687382;
 
             font-size:
                 7px;
@@ -4067,38 +4018,237 @@
                 800;
 
             letter-spacing:
-                .17em;
+                .16em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-brand-divider {
+            width:
+                1px;
+
+            height:
+                30px;
+
+            background:
+                var(--nav-line);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Desktop navigation
-        |--------------------------------------------------------------------------
+        | Command trigger
         */
 
-        .studio-nav-center {
-            gap:
-                3px;
+        .expert-command-trigger {
+            min-width:
+                178px;
+
+            min-height:
+                43px;
 
             padding:
-                4px;
+                0 9px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                28px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
 
             border:
-                1px solid rgba(255, 255, 255, .045);
+                1px solid var(--nav-line);
 
             border-radius:
-                14px;
+                11px;
+
+            color:
+                #aeb6c2;
 
             background:
-                rgba(255, 255, 255, .012);
+                rgba(255, 255, 255, .018);
+
+            cursor:
+                pointer;
+
+            text-align:
+                left;
+
+            transition:
+                border-color .2s ease,
+                background .2s ease,
+                transform .2s ease;
         }
 
-        .studio-nav-link {
+        .expert-command-trigger:hover,
+        .expert-command-trigger[aria-expanded="true"] {
+            transform:
+                translateY(-1px);
+
+            border-color:
+                rgba(122, 108, 255, .20);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .025)
+                );
+        }
+
+        .expert-command-icon {
+            width:
+                28px;
+
+            height:
+                28px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                8px;
+
+            color:
+                #9c94ff;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            font-size:
+                10px;
+        }
+
+        .expert-command-copy {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-command-copy strong {
+            color:
+                #cfd5de;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-command-copy small {
+            margin-top:
+                2px;
+
+            overflow:
+                hidden;
+
+            color:
+                #596371;
+
+            font-size:
+                6px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-command-key {
+            min-width:
+                23px;
+
+            height:
+                23px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-bottom-color:
+                rgba(255, 255, 255, .15);
+
+            border-radius:
+                6px;
+
+            color:
+                #697482;
+
+            background:
+                #0c0f15;
+
+            font-size:
+                7px;
+
+            font-weight:
+                800;
+        }
+
+        /*
+        | Main nav
+        */
+
+        .expert-nav-center {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                4px;
+        }
+
+        .expert-nav-link {
+            position:
+                relative;
+
             min-height:
-                40px;
+                42px;
 
             padding:
-                0 12px;
+                0 13px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                8px;
 
             overflow:
                 hidden;
@@ -4110,10 +4260,13 @@
                 10px;
 
             color:
-                #7c8694;
+                #7d8795;
 
             background:
                 transparent;
+
+            text-decoration:
+                none;
 
             font-size:
                 9px;
@@ -4122,14 +4275,42 @@
                 760;
 
             transition:
+                transform .2s ease,
                 color .2s ease,
-                background .2s ease,
                 border-color .2s ease,
-                transform .2s cubic-bezier(.16, 1, .3, 1),
-                box-shadow .2s ease;
+                background .2s ease;
         }
 
-        .studio-nav-link::before {
+        .expert-nav-link:hover {
+            transform:
+                translateY(-1px);
+
+            border-color:
+                rgba(255, 255, 255, .065);
+
+            color:
+                #e0e5ec;
+
+            background:
+                rgba(255, 255, 255, .028);
+        }
+
+        .expert-nav-link.active {
+            border-color:
+                rgba(122, 108, 255, .17);
+
+            color:
+                #f1f2ff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(122, 108, 255, .13),
+                    rgba(75, 156, 255, .04)
+                );
+        }
+
+        .expert-nav-link.active::after {
             content:
                 "";
 
@@ -4137,75 +4318,10 @@
                 absolute;
 
             left:
-                12px;
+                15px;
 
             right:
-                12px;
-
-            top:
-                0;
-
-            height:
-                1px;
-
-            opacity:
-                0;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, .48),
-                    transparent
-                );
-
-            transition:
-                opacity .2s ease;
-        }
-
-        .studio-nav-link:hover {
-            transform:
-                translateY(-1px);
-
-            color:
-                #d9dee7;
-
-            border-color:
-                rgba(255, 255, 255, .065);
-
-            background:
-                rgba(255, 255, 255, .035);
-        }
-
-        .studio-nav-link:hover::before {
-            opacity:
-                .55;
-        }
-
-        .studio-nav-link.active {
-            border-color:
-                rgba(122, 108, 255, .18);
-
-            color:
-                #f3f4ff;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .14),
-                    rgba(66, 165, 255, .05)
-                );
-
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, .035);
-        }
-
-        .studio-nav-link.active::after {
-            left:
-                14px;
-
-            right:
-                14px;
+                15px;
 
             bottom:
                 3px;
@@ -4217,183 +4333,197 @@
                 linear-gradient(
                     90deg,
                     transparent,
-                    #8176ff,
-                    #5ca7ff,
+                    #8378ff,
+                    #62adff,
                     transparent
                 );
         }
 
-        .studio-nav-link.ai-link,
-        .studio-nav-link.ai-link.active {
-            border-color:
-                rgba(122, 108, 255, .16);
-
+        .expert-nav-link-icon {
             color:
-                #bbb5ff;
+                #9991ff;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .09),
-                    rgba(66, 165, 255, .035)
-                );
+            font-size:
+                9px;
         }
 
-        .studio-nav-link.ai-link:hover {
-            color:
-                #eeeaff;
-
-            border-color:
-                rgba(122, 108, 255, .27);
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(122, 108, 255, .15),
-                    rgba(66, 165, 255, .055)
-                );
-        }
-
-        .studio-ai-badge {
+        .expert-nav-badge,
+        .expert-nav-ai-badge {
             min-width:
-                23px;
+                20px;
 
             height:
                 19px;
 
+            padding:
+                0 6px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
             border:
-                1px solid rgba(143, 132, 255, .24);
+                1px solid rgba(122, 108, 255, .17);
+
+            border-radius:
+                999px;
 
             color:
-                #c9c4ff;
+                #aca5ff;
 
             background:
-                rgba(122, 108, 255, .10);
+                rgba(122, 108, 255, .07);
 
             font-size:
                 6px;
+
+            font-weight:
+                850;
         }
 
-        .studio-nav-icon {
+        .expert-nav-link-ai {
             color:
-                #9a93ff;
-
-            opacity:
-                .95;
-        }
-
-        .studio-nav-count {
-            border-color:
-                rgba(122, 108, 255, .18);
-
-            color:
-                #aaa3ff;
-
-            background:
-                rgba(122, 108, 255, .075);
+                #a29cff;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Guest actions
-        |--------------------------------------------------------------------------
+        | Right cluster
         */
 
-        .studio-action-link,
-        .studio-action-button {
+        .expert-nav-right {
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                flex-end;
+
+            gap:
+                8px;
+        }
+
+        .expert-new-project {
             min-height:
-                42px;
+                43px;
 
             padding:
                 0 14px;
 
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                8px;
+
             border:
-                1px solid rgba(255, 255, 255, .075);
+                1px solid rgba(122, 108, 255, .28);
 
             border-radius:
                 10px;
 
             color:
-                #aab2be;
+                #ffffff;
 
             background:
-                rgba(255, 255, 255, .018);
+                linear-gradient(
+                    135deg,
+                    #7766ff,
+                    #4d91ff
+                );
+
+            box-shadow:
+                0 12px 34px rgba(75, 67, 208, .20),
+                inset 0 1px 0 rgba(255, 255, 255, .18);
+
+            text-decoration:
+                none;
 
             font-size:
                 9px;
 
             font-weight:
-                780;
+                800;
 
             transition:
-                transform .22s cubic-bezier(.16, 1, .3, 1),
-                color .2s ease,
-                border-color .2s ease,
-                background .2s ease,
+                transform .2s ease,
                 box-shadow .2s ease;
         }
 
-        .studio-action-link:hover,
-        .studio-action-button:hover {
+        .expert-new-project:hover {
             transform:
                 translateY(-2px);
 
-            border-color:
-                rgba(122, 108, 255, .20);
-
-            color:
-                #eef1f6;
-
-            background:
-                rgba(122, 108, 255, .055);
+            box-shadow:
+                0 17px 43px rgba(75, 67, 208, .29);
         }
 
-        .studio-action-link.primary,
-        .studio-action-button.primary {
+        .expert-auth-link {
+            min-height:
+                42px;
+
+            padding:
+                0 13px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                10px;
+
+            color:
+                #a9b1bd;
+
+            background:
+                rgba(255, 255, 255, .016);
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-auth-link-primary {
             border-color:
-                rgba(122, 108, 255, .34);
+                rgba(122, 108, 255, .24);
 
             color:
                 #ffffff;
 
             background:
-                linear-gradient(
-                    135deg,
-                    #7b69ff,
-                    #4e8fff
-                );
-
-            box-shadow:
-                0 15px 38px rgba(75, 67, 208, .22),
-                inset 0 1px 0 rgba(255, 255, 255, .18);
-        }
-
-        .studio-action-link.primary:hover,
-        .studio-action-button.primary:hover {
-            color:
-                #ffffff;
-
-            border-color:
-                rgba(140, 127, 255, .48);
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #8978ff,
-                    #5b99ff
-                );
-
-            box-shadow:
-                0 18px 48px rgba(75, 67, 208, .29);
+                rgba(122, 108, 255, .09);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Account pill
-        |--------------------------------------------------------------------------
+        | Account trigger
         */
 
-        .studio-account-trigger {
+        .expert-account-trigger {
             min-height:
                 44px;
 
@@ -4401,55 +4531,50 @@
                 230px;
 
             padding:
-                5px 9px 5px 5px;
+                5px 8px 5px 5px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
 
             border:
-                1px solid rgba(255, 255, 255, .075);
+                1px solid var(--nav-line);
 
             border-radius:
-                12px;
+                11px;
 
             background:
                 rgba(255, 255, 255, .018);
-
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, .018);
-
-            transition:
-                transform .22s cubic-bezier(.16, 1, .3, 1),
-                border-color .2s ease,
-                background .2s ease,
-                box-shadow .2s ease;
         }
 
-        .studio-account-trigger:hover,
-        .studio-account-trigger[aria-expanded="true"] {
-            transform:
-                translateY(-1px);
-
+        .expert-account-trigger:hover,
+        .expert-account-trigger[aria-expanded="true"] {
             border-color:
-                rgba(122, 108, 255, .20);
+                rgba(122, 108, 255, .21);
 
             background:
                 linear-gradient(
                     135deg,
-                    rgba(122, 108, 255, .08),
-                    rgba(66, 165, 255, .025)
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .022)
                 );
-
-            box-shadow:
-                0 12px 34px rgba(0, 0, 0, .20);
         }
 
-        .studio-account-avatar {
-            width:
-                32px;
+        .expert-account-avatar,
+        .expert-account-menu-avatar {
+            display:
+                grid;
 
-            height:
-                32px;
+            place-items:
+                center;
 
-            flex-basis:
-                32px;
+            overflow:
+                hidden;
 
             border:
                 1px solid rgba(122, 108, 255, .20);
@@ -4460,435 +4585,1193 @@
             background:
                 linear-gradient(
                     145deg,
-                    #7767ff,
-                    #506fe8
+                    #7968ff,
+                    #4f83ea
                 );
 
             font-weight:
                 850;
         }
 
-        .studio-account-trigger-copy strong {
+        .expert-account-avatar {
+            width:
+                32px;
+
+            height:
+                32px;
+
+            flex:
+                0 0 32px;
+
+            border-radius:
+                9px;
+
+            font-size:
+                9px;
+        }
+
+        .expert-account-avatar img,
+        .expert-account-menu-avatar img {
+            width:
+                100%;
+
+            height:
+                100%;
+
+            object-fit:
+                cover;
+        }
+
+        .expert-account-copy {
+            min-width:
+                0;
+
+            flex:
+                1;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            text-align:
+                left;
+        }
+
+        .expert-account-copy strong {
+            overflow:
+                hidden;
+
             color:
-                #e2e7ee;
+                #dfe4eb;
 
             font-size:
                 9px;
 
             font-weight:
-                780;
+                760;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
         }
 
-        .studio-account-trigger-copy small {
+        .expert-account-copy small {
+            margin-top:
+                2px;
+
             color:
-                #596473;
+                #596472;
 
             font-size:
                 6px;
 
+            text-transform:
+                uppercase;
+
             letter-spacing:
-                .1em;
+                .09em;
         }
 
-        .studio-account-chevron {
+        .expert-account-chevron {
             color:
-                #737d8b;
+                #6d7784;
+
+            font-size:
+                8px;
+
+            transition:
+                transform .2s ease;
+        }
+
+        .expert-account-trigger[aria-expanded="true"]
+        .expert-account-chevron {
+            transform:
+                rotate(180deg);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Account popover
-        |--------------------------------------------------------------------------
+        | Rich account menu
         */
 
-        .studio-account-menu {
-            top:
-                calc(100% + 11px);
-
+        .expert-account-menu {
             width:
-                min(340px, calc(100vw - 28px));
+                min(390px, calc(100vw - 28px));
+
+            overflow:
+                hidden;
 
             border:
                 1px solid rgba(122, 108, 255, .13);
 
             border-radius:
-                17px;
+                18px;
 
             background:
-                rgba(10, 12, 17, .975);
+                rgba(8, 10, 15, .985);
 
             box-shadow:
-                0 36px 110px rgba(0, 0, 0, .50);
+                0 36px 110px rgba(0, 0, 0, .52);
 
             backdrop-filter:
-                blur(24px)
+                blur(26px)
                 saturate(135%);
 
             -webkit-backdrop-filter:
-                blur(24px)
+                blur(26px)
                 saturate(135%);
-
-            transform:
-                translateY(-7px)
-                scale(.985);
         }
 
-        .studio-account-menu.is-open {
-            transform:
-                translateY(0)
-                scale(1);
-        }
-
-        .studio-account-menu::before {
-            content:
-                "";
-
-            position:
-                absolute;
-
-            right:
-                26px;
-
-            top:
-                -5px;
-
-            width:
-                9px;
-
-            height:
-                9px;
-
-            border-left:
-                1px solid rgba(122, 108, 255, .13);
-
-            border-top:
-                1px solid rgba(122, 108, 255, .13);
-
-            background:
-                #0a0c11;
-
-            transform:
-                rotate(45deg);
-        }
-
-        .studio-account-menu-head {
+        .expert-account-hero {
             padding:
                 18px;
 
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                16px;
+
             border-bottom:
-                1px solid var(--studio-line);
-
-            background:
-                radial-gradient(
-                    circle at 90% 0%,
-                    rgba(122, 108, 255, .13),
-                    transparent 11rem
-                );
-        }
-
-        .studio-account-menu-avatar {
-            border-color:
-                rgba(122, 108, 255, .20);
-
-            color:
-                #ffffff;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #7868ff,
-                    #4f7eeb
-                );
-        }
-
-        .studio-account-menu-user strong {
-            color:
-                #f0f3f7;
-
-            font-weight:
-                760;
-        }
-
-        .studio-account-menu-user span {
-            color:
-                #66717f;
-        }
-
-        .studio-account-menu-body {
-            padding:
-                8px;
-        }
-
-        .studio-account-menu-link {
-            min-height:
-                45px;
-
-            padding:
-                0 11px;
-
-            border-radius:
-                9px;
-
-            color:
-                #929ca9;
-
-            font-weight:
-                700;
-        }
-
-        .studio-account-menu-link:hover {
-            border-color:
-                rgba(122, 108, 255, .10);
-
-            color:
-                #e0e5ec;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(122, 108, 255, .08),
-                    rgba(66, 165, 255, .02)
-                );
-        }
-
-        .studio-account-menu-link span:last-child {
-            color:
-                #737d8a;
-        }
-
-        .studio-account-menu-divider {
-            background:
-                var(--studio-line);
-        }
-
-        .studio-account-menu-logout {
-            border-radius:
-                9px;
-
-            color:
-                #df8c9b;
-
-            font-weight:
-                760;
-        }
-
-        .studio-account-menu-logout:hover {
-            border-color:
-                rgba(255, 124, 145, .12);
-
-            background:
-                rgba(255, 124, 145, .055);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Menu trigger
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-menu-toggle {
-            width:
-                43px;
-
-            height:
-                43px;
-
-            border:
-                1px solid rgba(255, 255, 255, .08);
-
-            border-radius:
-                10px;
-
-            color:
-                #e2e6ed;
-
-            background:
-                rgba(255, 255, 255, .022);
-        }
-
-        .studio-menu-toggle:hover {
-            border-color:
-                rgba(122, 108, 255, .20);
-
-            background:
-                rgba(122, 108, 255, .055);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Mobile overlay + drawer
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-mobile-overlay {
-            background:
-                rgba(2, 3, 6, .68);
-
-            backdrop-filter:
-                blur(8px);
-
-            -webkit-backdrop-filter:
-                blur(8px);
-        }
-
-        .studio-mobile-drawer {
-            width:
-                min(410px, 92vw);
-
-            border-left:
-                1px solid rgba(122, 108, 255, .12);
+                1px solid var(--nav-line);
 
             background:
                 radial-gradient(
                     circle at 100% 0%,
                     rgba(122, 108, 255, .13),
-                    transparent 18rem
-                ),
-                rgba(7, 9, 13, .985);
+                    transparent 12rem
+                );
+        }
 
-            box-shadow:
-                -35px 0 110px rgba(0, 0, 0, .52);
+        .expert-account-identity {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+        }
+
+        .expert-account-menu-avatar {
+            width:
+                45px;
+
+            height:
+                45px;
+
+            flex:
+                0 0 45px;
+
+            border-radius:
+                12px;
+
+            font-size:
+                12px;
+        }
+
+        .expert-account-identity > span:last-child {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-account-identity strong {
+            overflow:
+                hidden;
+
+            color:
+                #eef2f7;
+
+            font-size:
+                11px;
+
+            font-weight:
+                780;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-account-identity small {
+            margin-top:
+                3px;
+
+            overflow:
+                hidden;
+
+            color:
+                #67717f;
+
+            font-size:
+                8px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-plan-chip {
+            min-height:
+                25px;
+
+            padding:
+                0 8px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            border:
+                1px solid rgba(122, 108, 255, .15);
+
+            border-radius:
+                999px;
+
+            color:
+                #aba4ff;
+
+            background:
+                rgba(122, 108, 255, .06);
+
+            font-size:
+                6px;
+
+            font-weight:
+                850;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .08em;
+        }
+
+        .expert-account-section {
+            padding:
+                9px;
+        }
+
+        .expert-account-section + .expert-account-section {
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-account-section-label {
+            padding:
+                7px 9px 8px;
+
+            color:
+                #535e6c;
+
+            font-size:
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .12em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-account-item {
+            min-height:
+                57px;
+
+            padding:
+                8px 9px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                34px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                10px;
+
+            text-decoration:
+                none;
+
+            transition:
+                border-color .18s ease,
+                background .18s ease,
+                transform .18s ease;
+        }
+
+        .expert-account-item:hover {
+            transform:
+                translateX(2px);
+
+            border-color:
+                rgba(122, 108, 255, .10);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .075),
+                    rgba(75, 156, 255, .015)
+                );
+        }
+
+        .expert-account-item-icon {
+            width:
+                34px;
+
+            height:
+                34px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                9px;
+
+            color:
+                #978fff;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            font-size:
+                9px;
+        }
+
+        .expert-account-item-copy {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-account-item-copy strong {
+            color:
+                #d7dce4;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-account-item-copy small {
+            margin-top:
+                3px;
+
+            color:
+                #5e6876;
+
+            font-size:
+                7px;
+        }
+
+        .expert-account-item-meta {
+            color:
+                #707b89;
+
+            font-size:
+                8px;
+
+            font-weight:
+                800;
+        }
+
+        .expert-account-footer {
+            padding:
+                9px;
+
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-account-footer form {
+            margin:
+                0;
+        }
+
+        .expert-logout-button {
+            width:
+                100%;
+
+            min-height:
+                44px;
+
+            padding:
+                0 11px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                9px;
+
+            color:
+                #db8b99;
+
+            background:
+                transparent;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+
+            cursor:
+                pointer;
+        }
+
+        .expert-logout-button:hover {
+            border-color:
+                rgba(255, 135, 155, .11);
+
+            background:
+                rgba(255, 135, 155, .045);
+        }
+
+        /*
+        | Command palette
+        */
+
+        .expert-command-overlay {
+            position:
+                fixed;
+
+            z-index:
+                1500;
+
+            inset:
+                0;
+
+            opacity:
+                0;
+
+            visibility:
+                hidden;
+
+            pointer-events:
+                none;
+
+            background:
+                rgba(2, 3, 6, .72);
 
             backdrop-filter:
-                blur(28px);
+                blur(8px);
 
             -webkit-backdrop-filter:
-                blur(28px);
+                blur(8px);
+
+            transition:
+                opacity .2s ease,
+                visibility .2s ease;
         }
 
-        .studio-mobile-head {
-            border-bottom:
-                1px solid var(--studio-line);
+        .expert-command-overlay.is-open {
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+            pointer-events:
+                auto;
         }
 
-        .studio-mobile-head strong {
+        .expert-command-palette {
+            position:
+                fixed;
+
+            z-index:
+                1510;
+
+            left:
+                50%;
+
+            top:
+                min(15vh, 130px);
+
+            width:
+                min(calc(100% - 28px), 650px);
+
+            transform:
+                translate(-50%, -18px)
+                scale(.98);
+
+            opacity:
+                0;
+
+            visibility:
+                hidden;
+
+            pointer-events:
+                none;
+
+            transition:
+                opacity .22s ease,
+                visibility .22s ease,
+                transform .22s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .expert-command-palette.is-open {
+            transform:
+                translate(-50%, 0)
+                scale(1);
+
+            opacity:
+                1;
+
+            visibility:
+                visible;
+
+            pointer-events:
+                auto;
+        }
+
+        .expert-command-shell {
+            overflow:
+                hidden;
+
+            border:
+                1px solid rgba(122, 108, 255, .16);
+
+            border-radius:
+                20px;
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .12),
+                    transparent 16rem
+                ),
+                rgba(8, 10, 15, .985);
+
+            box-shadow:
+                0 50px 140px rgba(0, 0, 0, .58);
+        }
+
+        .expert-command-head {
+            padding:
+                18px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                20px;
+        }
+
+        .expert-command-head > div {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-command-kicker {
+            color:
+                #746cff;
+
+            font-size:
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .14em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-command-head strong {
+            margin-top:
+                5px;
+
             color:
                 #f0f3f7;
 
             font-size:
-                12px;
+                14px;
 
             font-weight:
                 780;
         }
 
-        .studio-mobile-close {
+        .expert-command-close {
+            width:
+                34px;
+
+            height:
+                34px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
             border:
-                1px solid var(--studio-line);
+                1px solid var(--nav-line);
+
+            border-radius:
+                9px;
+
+            color:
+                #8f99a6;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            cursor:
+                pointer;
+        }
+
+        .expert-command-search {
+            min-height:
+                54px;
+
+            margin:
+                0 12px;
+
+            padding:
+                0 11px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                auto minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                12px;
+
+            background:
+                #0b0e14;
+
+            color:
+                #7c8795;
+        }
+
+        .expert-command-search input {
+            width:
+                100%;
+
+            border:
+                0;
+
+            outline:
+                0;
+
+            color:
+                #e6eaf0;
+
+            background:
+                transparent;
+
+            font-size:
+                11px;
+        }
+
+        .expert-command-search input::placeholder {
+            color:
+                #4f5a68;
+        }
+
+        .expert-command-search kbd,
+        .expert-command-foot kbd {
+            min-width:
+                27px;
+
+            height:
+                24px;
+
+            padding:
+                0 7px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-bottom-color:
+                rgba(255, 255, 255, .15);
+
+            border-radius:
+                6px;
+
+            color:
+                #697482;
+
+            background:
+                #11151c;
+
+            font-family:
+                inherit;
+
+            font-size:
+                7px;
+        }
+
+        .expert-command-groups {
+            max-height:
+                min(57vh, 490px);
+
+            overflow-y:
+                auto;
+
+            padding:
+                12px;
+        }
+
+        .expert-command-group + .expert-command-group {
+            margin-top:
+                8px;
+
+            padding-top:
+                8px;
+
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-command-group-label {
+            padding:
+                5px 8px 8px;
+
+            color:
+                #505b69;
+
+            font-size:
+                7px;
+
+            font-weight:
+                850;
+
+            letter-spacing:
+                .12em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .expert-command-item {
+            min-height:
+                58px;
+
+            padding:
+                8px 9px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                36px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                10px;
+
+            text-decoration:
+                none;
+
+            transition:
+                border-color .16s ease,
+                background .16s ease;
+        }
+
+        .expert-command-item:hover,
+        .expert-command-item.is-selected {
+            border-color:
+                rgba(122, 108, 255, .10);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(122, 108, 255, .085),
+                    rgba(75, 156, 255, .02)
+                );
+        }
+
+        .expert-command-item[hidden] {
+            display:
+                none !important;
+        }
+
+        .expert-command-item-icon {
+            width:
+                36px;
+
+            height:
+                36px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                9px;
+
+            color:
+                #988fff;
+
+            background:
+                rgba(255, 255, 255, .018);
+        }
+
+        .expert-command-item > span:nth-child(2) {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-command-item strong {
+            color:
+                #dce1e8;
+
+            font-size:
+                10px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-command-item small {
+            margin-top:
+                3px;
+
+            color:
+                #5f6976;
+
+            font-size:
+                7px;
+        }
+
+        .expert-command-item-arrow {
+            color:
+                #65707e;
+
+            font-size:
+                8px;
+        }
+
+        .expert-command-foot {
+            min-height:
+                46px;
+
+            padding:
+                0 14px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                16px;
+
+            border-top:
+                1px solid var(--nav-line);
+
+            color:
+                #596472;
+
+            font-size:
+                7px;
+        }
+
+        .expert-command-foot span {
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                5px;
+        }
+
+        /*
+        | Mobile drawer
+        */
+
+        .expert-mobile-drawer {
+            width:
+                min(430px, 94vw);
+
+            padding:
+                calc(15px + env(safe-area-inset-top))
+                calc(15px + env(safe-area-inset-right))
+                calc(15px + env(safe-area-inset-bottom))
+                15px;
+
+            border-left:
+                1px solid rgba(122, 108, 255, .13);
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(122, 108, 255, .13),
+                    transparent 20rem
+                ),
+                rgba(7, 9, 14, .988);
+
+            box-shadow:
+                -40px 0 120px rgba(0, 0, 0, .55);
+        }
+
+        .expert-mobile-head {
+            min-height:
+                58px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                16px;
+
+            padding-bottom:
+                13px;
+
+            border-bottom:
+                1px solid var(--nav-line);
+        }
+
+        .expert-mobile-brand {
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            text-decoration:
+                none;
+        }
+
+        .expert-mobile-brand > span:last-child {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-brand strong {
+            color:
+                #f1f4f8;
+
+            font-size:
+                11px;
+
+            font-weight:
+                800;
+        }
+
+        .expert-mobile-brand small {
+            margin-top:
+                3px;
+
+            color:
+                #5d6876;
+
+            font-size:
+                7px;
+        }
+
+        .expert-mobile-close {
+            width:
+                38px;
+
+            height:
+                38px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border:
+                1px solid var(--nav-line);
 
             border-radius:
                 10px;
 
             color:
-                #9ca5b1;
+                #98a2af;
 
             background:
                 rgba(255, 255, 255, .02);
+
+            cursor:
+                pointer;
         }
 
-        .studio-mobile-user {
+        .expert-mobile-upload {
+            min-height:
+                66px;
+
+            margin-top:
+                14px;
+
+            padding:
+                10px 12px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                38px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
             border:
-                1px solid rgba(122, 108, 255, .10);
+                1px solid rgba(122, 108, 255, .20);
 
             border-radius:
-                14px;
+                13px;
+
+            color:
+                inherit;
 
             background:
                 linear-gradient(
                     135deg,
-                    rgba(122, 108, 255, .07),
-                    rgba(66, 165, 255, .02)
+                    rgba(122, 108, 255, .12),
+                    rgba(75, 156, 255, .04)
                 );
+
+            text-decoration:
+                none;
         }
 
-        .studio-mobile-nav-label {
-            color:
-                #566170;
-        }
+        .expert-mobile-upload-icon {
+            width:
+                38px;
 
-        .studio-mobile-link {
-            min-height:
-                50px;
+            height:
+                38px;
 
-            padding:
-                0 13px;
+            display:
+                grid;
+
+            place-items:
+                center;
 
             border-radius:
                 10px;
-
-            color:
-                #88929f;
-
-            font-weight:
-                720;
-        }
-
-        .studio-mobile-link:hover,
-        .studio-mobile-link.active {
-            border-color:
-                rgba(122, 108, 255, .12);
-
-            color:
-                #ecefff;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(122, 108, 255, .10),
-                    rgba(66, 165, 255, .025)
-                );
-        }
-
-        .studio-mobile-link span:last-child {
-            color:
-                #8d85ff;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Progress bar
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-progress {
-            display:
-                block !important;
-
-            height:
-                2px;
-
-            background:
-                transparent;
-        }
-
-        .studio-progress-bar {
-            background:
-                linear-gradient(
-                    90deg,
-                    #7465ff,
-                    #4b9cff,
-                    #8df0d0
-                );
-
-            box-shadow:
-                0 0 18px rgba(122, 108, 255, .38);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Quick upload
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-quick-upload {
-            min-height:
-                50px;
-
-            padding:
-                0 17px 0 10px;
-
-            border:
-                1px solid rgba(122, 108, 255, .28);
 
             color:
                 #ffffff;
@@ -4897,191 +5780,403 @@
                 linear-gradient(
                     135deg,
                     #7766ff,
-                    #4f8fff
+                    #4f91ff
                 );
+        }
 
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, .38),
-                0 12px 34px rgba(79, 70, 211, .20);
+        .expert-mobile-upload > span:nth-child(2) {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-upload strong {
+            color:
+                #eef2f7;
+
+            font-size:
+                10px;
+        }
+
+        .expert-mobile-upload small {
+            margin-top:
+                3px;
+
+            color:
+                #697482;
+
+            font-size:
+                7px;
+        }
+
+        .expert-mobile-upload > span:last-child {
+            color:
+                #8e86ff;
+
+            font-size:
+                9px;
+        }
+
+        .expert-mobile-user {
+            margin-top:
+                12px;
+
+            padding:
+                12px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                11px;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                12px;
+
+            background:
+                rgba(255, 255, 255, .015);
+        }
+
+        .expert-mobile-user-copy {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-user-copy strong {
+            overflow:
+                hidden;
+
+            color:
+                #dfe4ea;
+
+            font-size:
+                9px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-mobile-user-copy small {
+            margin-top:
+                3px;
+
+            overflow:
+                hidden;
+
+            color:
+                #606b79;
+
+            font-size:
+                7px;
+
+            text-overflow:
+                ellipsis;
+
+            white-space:
+                nowrap;
+        }
+
+        .expert-mobile-nav {
+            margin-top:
+                13px;
+
+            display:
+                grid;
+
+            gap:
+                4px;
+        }
+
+        .expert-mobile-label {
+            margin:
+                12px 7px 5px;
+
+            color:
+                #4e5967;
+
+            font-size:
+                7px;
 
             font-weight:
-                780;
+                850;
+
+            letter-spacing:
+                .12em;
+
+            text-transform:
+                uppercase;
         }
 
-        .studio-quick-upload:hover {
-            box-shadow:
-                0 26px 72px rgba(0, 0, 0, .42),
-                0 16px 42px rgba(79, 70, 211, .28);
-        }
+        .expert-mobile-link {
+            min-height:
+                58px;
 
-        .studio-quick-upload-icon {
+            padding:
+                7px 9px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                36px minmax(0, 1fr) auto;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
             border:
-                1px solid rgba(255, 255, 255, .16);
+                1px solid transparent;
 
-            background:
-                rgba(255, 255, 255, .14);
+            border-radius:
+                10px;
+
+            color:
+                inherit;
+
+            text-decoration:
+                none;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Flash states
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-flash {
-            border:
-                1px solid rgba(255, 255, 255, .075);
-
-            background:
-                rgba(12, 15, 21, .96);
-
-            box-shadow:
-                0 17px 48px rgba(0, 0, 0, .25);
-        }
-
-        .studio-flash.success {
+        .expert-mobile-link:hover,
+        .expert-mobile-link.active {
             border-color:
-                rgba(116, 223, 167, .15);
+                rgba(122, 108, 255, .10);
 
-            color:
-                #aee8c5;
-
-            background:
-                rgba(116, 223, 167, .055);
-        }
-
-        .studio-flash.warning {
-            border-color:
-                rgba(255, 189, 120, .16);
-
-            color:
-                #e4c39d;
-
-            background:
-                rgba(255, 189, 120, .055);
-        }
-
-        .studio-flash.error {
-            border-color:
-                rgba(255, 124, 145, .16);
-
-            color:
-                #efa8b5;
-
-            background:
-                rgba(255, 124, 145, .055);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Footer match
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-footer {
-            border-top:
-                1px solid rgba(255, 255, 255, .055);
-
-            background:
-                radial-gradient(
-                    circle at 80% 0%,
-                    rgba(122, 108, 255, .055),
-                    transparent 24rem
-                ),
-                linear-gradient(
-                    180deg,
-                    rgba(9, 11, 16, .98),
-                    #050609
-                );
-        }
-
-        .studio-footer-trust::before {
-            background:
-                var(--studio-success);
-        }
-
-        .studio-footer-links a:hover,
-        .studio-footer-bottom-links a:hover {
-            color:
-                #b7b0ff;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Page helpers match
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-page-kicker {
-            color:
-                #958cff;
-        }
-
-        .studio-page-kicker::before {
             background:
                 linear-gradient(
                     90deg,
-                    #7a6cff,
-                    transparent
+                    rgba(122, 108, 255, .08),
+                    rgba(75, 156, 255, .015)
                 );
         }
 
-        .studio-panel {
+        .expert-mobile-link-icon {
+            width:
+                36px;
+
+            height:
+                36px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
             border:
-                1px solid var(--studio-line);
+                1px solid var(--nav-line);
+
+            border-radius:
+                9px;
+
+            color:
+                #978fff;
+
+            background:
+                rgba(255, 255, 255, .018);
+        }
+
+        .expert-mobile-link > span:nth-child(2) {
+            min-width:
+                0;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .expert-mobile-link strong {
+            color:
+                #d8dde4;
+
+            font-size:
+                9px;
+        }
+
+        .expert-mobile-link small {
+            margin-top:
+                3px;
+
+            color:
+                #5e6977;
+
+            font-size:
+                7px;
+        }
+
+        .expert-mobile-link > span:last-child {
+            color:
+                #697482;
+
+            font-size:
+                8px;
+        }
+
+        .expert-mobile-ai {
+            min-height:
+                20px;
+
+            padding:
+                0 6px;
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            border:
+                1px solid rgba(122, 108, 255, .16);
+
+            border-radius:
+                999px;
+
+            color:
+                #aaa3ff !important;
+
+            background:
+                rgba(122, 108, 255, .06);
+        }
+
+        .expert-mobile-footer {
+            margin-top:
+                auto;
+
+            padding-top:
+                15px;
+
+            display:
+                grid;
+
+            gap:
+                8px;
+
+            border-top:
+                1px solid var(--nav-line);
+        }
+
+        .expert-mobile-auth,
+        .expert-mobile-logout {
+            width:
+                100%;
+
+            min-height:
+                48px;
+
+            padding:
+                0 14px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid var(--nav-line);
+
+            border-radius:
+                10px;
+
+            color:
+                #c9d0da;
+
+            background:
+                rgba(255, 255, 255, .018);
+
+            text-decoration:
+                none;
+
+            font-size:
+                9px;
+
+            font-weight:
+                760;
+        }
+
+        .expert-mobile-auth-primary {
+            border-color:
+                rgba(122, 108, 255, .24);
+
+            color:
+                #ffffff;
 
             background:
                 linear-gradient(
-                    145deg,
-                    rgba(255, 255, 255, .025),
-                    rgba(255, 255, 255, .006)
-                ),
-                var(--studio-surface);
+                    135deg,
+                    #7766ff,
+                    #4f91ff
+                );
+        }
+
+        .expert-mobile-logout {
+            justify-content:
+                space-between;
+
+            color:
+                #dd8f9d;
+
+            cursor:
+                pointer;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Desktop micro motion
-        |--------------------------------------------------------------------------
-        */
-
-        @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-            .studio-nav-link,
-            .studio-action-link,
-            .studio-account-trigger,
-            .studio-menu-toggle,
-            .studio-brand {
-                will-change:
-                    transform;
-            }
-
-            .studio-brand-mark {
-                transition:
-                    transform .45s cubic-bezier(.16, 1, .3, 1),
-                    box-shadow .35s ease;
-            }
-
-            .studio-brand:hover .studio-brand-mark {
-                transform:
-                    rotate(-4deg)
-                    scale(1.04);
-
-                box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, .22),
-                    0 18px 45px rgba(72, 64, 204, .32);
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
         | Responsive
-        |--------------------------------------------------------------------------
         */
 
-        @media (max-width: 1120px) {
-            .studio-nav-center {
+        .expert-menu-toggle {
+            display:
+                none;
+        }
+
+        @media (max-width: 1250px) {
+            .expert-command-trigger {
+                min-width:
+                    43px;
+
+                width:
+                    43px;
+
+                grid-template-columns:
+                    1fr;
+
                 padding:
                     0;
+            }
+
+            .expert-command-copy,
+            .expert-command-key {
+                display:
+                    none;
+            }
+
+            .expert-command-icon {
+                margin:
+                    auto;
 
                 border:
                     0;
@@ -5091,73 +6186,122 @@
             }
         }
 
-        @media (max-width: 820px) {
-            :root {
-                --studio-header-height:
-                    70px;
+        @media (max-width: 1120px) {
+            .expert-nav {
+                grid-template-columns:
+                    auto 1fr auto;
+
+                gap:
+                    14px;
             }
 
-            .studio-header,
-            .studio-header.is-scrolled {
-                background:
-                    rgba(5, 6, 9, .965) !important;
-
-                backdrop-filter:
-                    none !important;
-
-                -webkit-backdrop-filter:
-                    none !important;
+            .expert-nav-center {
+                display:
+                    none;
             }
 
-            .studio-brand-mark {
-                width:
-                    39px;
+            .expert-new-project {
+                display:
+                    none;
+            }
 
-                height:
-                    39px;
+            .expert-menu-toggle {
+                display:
+                    grid;
+            }
 
-                flex-basis:
-                    39px;
+            .studio-mobile-overlay,
+            .studio-mobile-drawer {
+                display:
+                    flex;
             }
         }
 
-        @media (max-width: 560px) {
-            .studio-shell {
+        @media (max-width: 760px) {
+            .expert-brand-divider,
+            .expert-command-trigger {
+                display:
+                    none;
+            }
+
+            .expert-nav {
+                min-height:
+                    70px;
+
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    auto;
+            }
+
+            .expert-account-copy,
+            .expert-account-chevron {
+                display:
+                    none;
+            }
+
+            .expert-account-trigger {
+                max-width:
+                    43px;
+
+                padding:
+                    5px;
+            }
+
+            .expert-auth-link {
+                display:
+                    none;
+            }
+
+            .expert-auth-link-primary {
+                display:
+                    inline-flex;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .expert-brand-copy small {
+                display:
+                    none;
+            }
+
+            .expert-auth-link-primary {
+                display:
+                    none;
+            }
+
+            .expert-mobile-drawer {
                 width:
-                    min(
-                        calc(100% - 22px),
-                        var(--studio-shell)
-                    );
+                    100vw;
+
+                max-width:
+                    100%;
+
+                border-left:
+                    0;
             }
 
-            .studio-brand-copy strong {
-                font-size:
-                    12px;
-            }
+            .expert-command-palette {
+                top:
+                    72px;
 
-            .studio-mobile-drawer {
                 width:
-                    min(420px, 94vw);
+                    calc(100% - 20px);
             }
 
-            .studio-quick-upload {
-                right:
-                    12px;
-
-                bottom:
-                    12px;
+            .expert-command-foot {
+                display:
+                    none;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .studio-header,
-            .studio-brand,
-            .studio-brand-mark,
-            .studio-nav-link,
-            .studio-action-link,
-            .studio-action-button,
-            .studio-account-trigger {
-                transform:
+            .expert-command-palette,
+            .expert-command-overlay,
+            .expert-nav-link,
+            .expert-new-project,
+            .expert-account-item,
+            .expert-command-trigger {
+                transition:
                     none !important;
             }
         }
@@ -5194,64 +6338,83 @@
         <span class="studio-orb three"></span>
     </div>
 
-
     <header
-        class="studio-header"
+        class="studio-header studio-header-expert"
         id="studioHeader"
     >
         <div class="studio-shell">
-            <div class="studio-nav">
-                {{-- Brand --}}
-                <a
-                    class="studio-brand"
-                    href="{{ route('home') }}"
-                    aria-label="Mashal Studio home"
-                >
-                    <span class="studio-brand-mark">
-                        M
-                    </span>
+            <div class="expert-nav">
+                <div class="expert-nav-left">
+                    <a
+                        class="expert-brand"
+                        href="{{ route('home') }}"
+                        aria-label="Mashal Studio home"
+                    >
+                        <span class="expert-brand-mark" aria-hidden="true">
+                            <span class="expert-brand-glyph">M</span>
+                            <span class="expert-brand-status"></span>
+                        </span>
 
-                    <span class="studio-brand-copy">
-                        <strong>
-                            Mashal Studio
-                        </strong>
+                        <span class="expert-brand-copy">
+                            <strong>Mashal</strong>
+                            <small>Studio</small>
+                        </span>
+                    </a>
 
-                        <small>
-                            Image workspace
-                        </small>
-                    </span>
-                </a>
+                    <span class="expert-brand-divider" aria-hidden="true"></span>
 
-                {{-- Desktop navigation --}}
+                    <button
+                        class="expert-command-trigger"
+                        id="studioCommandTrigger"
+                        type="button"
+                        aria-haspopup="dialog"
+                        aria-controls="studioCommandPalette"
+                        aria-expanded="false"
+                    >
+                        <span class="expert-command-icon" aria-hidden="true">
+                            ⌘
+                        </span>
+
+                        <span class="expert-command-copy">
+                            <strong>Ga naar…</strong>
+                            <small>Projecten, AI, account</small>
+                        </span>
+
+                        <span class="expert-command-key" aria-hidden="true">
+                            K
+                        </span>
+                    </button>
+                </div>
+
                 <nav
-                    class="studio-nav-center"
+                    class="expert-nav-center"
                     aria-label="Hoofdnavigatie"
                 >
                     <a
-                        class="studio-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                        class="expert-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
                         href="{{ route('home') }}"
                     >
-                        <span class="studio-nav-icon" aria-hidden="true">
+                        <span class="expert-nav-link-icon" aria-hidden="true">
                             ◇
                         </span>
 
-                        Studio
+                        <span>Studio</span>
                     </a>
 
                     @auth
                         @if ($hasImagesIndex)
                             <a
-                                class="studio-nav-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
+                                class="expert-nav-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
                                 href="{{ route('images.index') }}"
                             >
-                                <span class="studio-nav-icon" aria-hidden="true">
+                                <span class="expert-nav-link-icon" aria-hidden="true">
                                     ▦
                                 </span>
 
-                                Mijn afbeeldingen
+                                <span>Library</span>
 
                                 @if ($layoutImageCount !== null)
-                                    <span class="studio-nav-count">
+                                    <span class="expert-nav-badge">
                                         {{ min($layoutImageCount, 999) }}
                                     </span>
                                 @endif
@@ -5260,86 +6423,56 @@
 
                         @if ($hasAiChat)
                             <a
-                                class="studio-nav-link ai-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
+                                class="expert-nav-link expert-nav-link-ai {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
                                 href="{{ route('ai.chat') }}"
                             >
-                                <span class="studio-nav-icon" aria-hidden="true">
+                                <span class="expert-nav-link-icon" aria-hidden="true">
                                     ✦
                                 </span>
 
-                                Mashal AI
+                                <span>Mashal AI</span>
 
-                                <span class="studio-ai-badge">
+                                <span class="expert-nav-ai-badge">
                                     AI
                                 </span>
                             </a>
                         @endif
-
-                        @if ($hasAccount)
-                            <a
-                                class="studio-nav-link {{ request()->routeIs('account') ? 'active' : '' }}"
-                                href="{{ route('account') }}"
-                            >
-                                <span class="studio-nav-icon" aria-hidden="true">
-                                    ○
-                                </span>
-
-                                Account
-                            </a>
-                        @endif
-
-                        @if ($hasSecurity)
-                            <a
-                                class="studio-nav-link {{ request()->routeIs('security.*') ? 'active' : '' }}"
-                                href="{{ route('security.index') }}"
-                            >
-                                <span class="studio-nav-icon" aria-hidden="true">
-                                    ◈
-                                </span>
-
-                                Beveiliging
-                            </a>
-                        @endif
                     @endauth
-
-                    <a
-                        class="studio-nav-link"
-                        href="{{ route('home') }}#upload"
-                    >
-                        <span class="studio-nav-icon" aria-hidden="true">
-                            ↑
-                        </span>
-
-                        Upload
-                    </a>
                 </nav>
 
-                {{-- Right actions --}}
-                <div class="studio-nav-actions">
+                <div class="expert-nav-right">
+                    <a
+                        class="expert-new-project"
+                        href="{{ route('home') }}#upload"
+                    >
+                        <span aria-hidden="true">＋</span>
+                        <span>New image</span>
+                    </a>
+
                     @guest
                         <a
-                            class="studio-action-link desktop-secondary"
+                            class="expert-auth-link"
                             href="{{ route('login') }}"
                         >
                             Inloggen
                         </a>
 
                         <a
-                            class="studio-action-link primary"
+                            class="expert-auth-link expert-auth-link-primary"
                             href="{{ route('register') }}"
                         >
-                            Gratis starten
+                            Start gratis
                         </a>
                     @else
-                        <div class="studio-account-wrap">
+                        <div class="studio-account-wrap expert-account-wrap">
                             <button
-                                class="studio-account-trigger"
+                                class="studio-account-trigger expert-account-trigger"
                                 id="studioAccountTrigger"
                                 type="button"
                                 aria-expanded="false"
                                 aria-controls="studioAccountMenu"
                             >
-                                <span class="studio-account-avatar">
+                                <span class="expert-account-avatar">
                                     @if (
                                         method_exists($layoutUser, 'avatarUrl') &&
                                         $layoutUser->avatarUrl()
@@ -5354,18 +6487,18 @@
                                     @endif
                                 </span>
 
-                                <span class="studio-account-trigger-copy">
+                                <span class="expert-account-copy">
                                     <strong>
                                         {{ $layoutUser->name }}
                                     </strong>
 
                                     <small>
-                                        Mijn workspace
+                                        Workspace
                                     </small>
                                 </span>
 
                                 <span
-                                    class="studio-account-chevron"
+                                    class="expert-account-chevron"
                                     aria-hidden="true"
                                 >
                                     ▾
@@ -5373,94 +6506,113 @@
                             </button>
 
                             <div
-                                class="studio-account-menu"
+                                class="studio-account-menu expert-account-menu"
                                 id="studioAccountMenu"
                                 aria-hidden="true"
                             >
-                                <div class="studio-account-menu-head">
-                                    <span class="studio-account-menu-avatar">
-                                        @if (
-                                            method_exists($layoutUser, 'avatarUrl') &&
-                                            $layoutUser->avatarUrl()
-                                        )
-                                            <img
-                                                src="{{ $layoutUser->avatarUrl() }}"
-                                                alt=""
-                                            >
-                                        @else
-                                            {{ $layoutInitials }}
-                                        @endif
-                                    </span>
-
-                                    <span class="studio-account-menu-user">
-                                        <strong>
-                                            {{ $layoutUser->name }}
-                                        </strong>
+                                <div class="expert-account-hero">
+                                    <div class="expert-account-identity">
+                                        <span class="expert-account-menu-avatar">
+                                            @if (
+                                                method_exists($layoutUser, 'avatarUrl') &&
+                                                $layoutUser->avatarUrl()
+                                            )
+                                                <img
+                                                    src="{{ $layoutUser->avatarUrl() }}"
+                                                    alt=""
+                                                >
+                                            @else
+                                                {{ $layoutInitials }}
+                                            @endif
+                                        </span>
 
                                         <span>
-                                            {{ $layoutUser->email }}
+                                            <strong>{{ $layoutUser->name }}</strong>
+                                            <small>{{ $layoutUser->email }}</small>
                                         </span>
+                                    </div>
+
+                                    <span class="expert-plan-chip">
+                                        Workspace
                                     </span>
                                 </div>
 
-                                <div class="studio-account-menu-body">
+                                <div class="expert-account-section">
+                                    <div class="expert-account-section-label">
+                                        Workspace
+                                    </div>
+
                                     @if ($hasImagesIndex)
                                         <a
-                                            class="studio-account-menu-link"
+                                            class="expert-account-item"
                                             href="{{ route('images.index') }}"
                                         >
-                                            <span>
-                                                Mijn afbeeldingen
+                                            <span class="expert-account-item-icon">▦</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Mijn afbeeldingen</strong>
+                                                <small>Beheer projecten en versies</small>
                                             </span>
 
-                                            <span>
-                                                {{ $layoutImageCount ?? '—' }}
+                                            <span class="expert-account-item-meta">
+                                                {{ $layoutImageCount ?? '→' }}
                                             </span>
                                         </a>
                                     @endif
 
                                     @if ($hasAiChat)
                                         <a
-                                            class="studio-account-menu-link"
+                                            class="expert-account-item"
                                             href="{{ route('ai.chat') }}"
                                         >
-                                            <span>
-                                                Mashal AI
+                                            <span class="expert-account-item-icon">✦</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Mashal AI</strong>
+                                                <small>Open je AI workspace</small>
                                             </span>
 
-                                            <span aria-hidden="true">
-                                                ✦
+                                            <span class="expert-account-item-meta">
+                                                AI
                                             </span>
                                         </a>
                                     @endif
+                                </div>
+
+                                <div class="expert-account-section">
+                                    <div class="expert-account-section-label">
+                                        Account
+                                    </div>
 
                                     @if ($hasAccount)
                                         <a
-                                            class="studio-account-menu-link"
+                                            class="expert-account-item"
                                             href="{{ route('account') }}"
                                         >
-                                            <span>
-                                                Accountinstellingen
+                                            <span class="expert-account-item-icon">○</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Accountinstellingen</strong>
+                                                <small>Profiel en voorkeuren</small>
                                             </span>
 
-                                            <span>
-                                                →
-                                            </span>
+                                            <span class="expert-account-item-meta">→</span>
                                         </a>
                                     @endif
 
                                     @if ($hasSecurity)
                                         <a
-                                            class="studio-account-menu-link"
+                                            class="expert-account-item"
                                             href="{{ route('security.index') }}"
                                         >
-                                            <span>
-                                                Loginbeveiliging
+                                            <span class="expert-account-item-icon">◈</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Beveiliging</strong>
+                                                <small>Login en apparaten</small>
                                             </span>
 
-                                            <span>
-                                                →
-                                            </span>
+                                            <span class="expert-account-item-meta">→</span>
                                         </a>
                                     @endif
 
@@ -5468,42 +6620,35 @@
                                         $layoutIsAdmin &&
                                         $hasAdmin
                                     )
-                                        <div class="studio-account-menu-divider"></div>
-
                                         <a
-                                            class="studio-account-menu-link"
+                                            class="expert-account-item"
                                             href="{{ route('admin.dashboard') }}"
                                         >
-                                            <span>
-                                                Admin
+                                            <span class="expert-account-item-icon">⌁</span>
+
+                                            <span class="expert-account-item-copy">
+                                                <strong>Admin</strong>
+                                                <small>Beheer de applicatie</small>
                                             </span>
 
-                                            <span>
-                                                →
-                                            </span>
+                                            <span class="expert-account-item-meta">→</span>
                                         </a>
                                     @endif
+                                </div>
 
-                                    <div class="studio-account-menu-divider"></div>
-
+                                <div class="expert-account-footer">
                                     <form
-                                        class="studio-account-menu-form"
                                         method="POST"
                                         action="{{ route('logout') }}"
                                     >
                                         @csrf
 
                                         <button
-                                            class="studio-account-menu-logout"
+                                            class="expert-logout-button"
                                             type="submit"
                                         >
-                                            <span>
-                                                Uitloggen
-                                            </span>
-
-                                            <span>
-                                                →
-                                            </span>
+                                            <span>Uitloggen</span>
+                                            <span aria-hidden="true">↗</span>
                                         </button>
                                     </form>
                                 </div>
@@ -5512,7 +6657,7 @@
                     @endguest
 
                     <button
-                        class="studio-menu-toggle"
+                        class="studio-menu-toggle expert-menu-toggle"
                         id="studioMenuToggle"
                         type="button"
                         aria-label="Menu openen"
@@ -5526,26 +6671,209 @@
         </div>
     </header>
 
+    <div
+        class="expert-command-overlay"
+        id="studioCommandOverlay"
+        aria-hidden="true"
+    ></div>
 
     <div
-        class="studio-mobile-overlay"
+        class="expert-command-palette"
+        id="studioCommandPalette"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="studioCommandTitle"
+        aria-hidden="true"
+    >
+        <div class="expert-command-shell">
+            <div class="expert-command-head">
+                <div>
+                    <span class="expert-command-kicker">
+                        Navigation
+                    </span>
+
+                    <strong id="studioCommandTitle">
+                        Waar wil je heen?
+                    </strong>
+                </div>
+
+                <button
+                    class="expert-command-close"
+                    id="studioCommandClose"
+                    type="button"
+                    aria-label="Command menu sluiten"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="expert-command-search">
+                <span aria-hidden="true">⌕</span>
+
+                <input
+                    id="studioCommandInput"
+                    type="search"
+                    placeholder="Zoek in Mashal Studio…"
+                    autocomplete="off"
+                >
+
+                <kbd>ESC</kbd>
+            </div>
+
+            <div class="expert-command-groups" id="studioCommandGroups">
+                <div class="expert-command-group">
+                    <div class="expert-command-group-label">
+                        Studio
+                    </div>
+
+                    <a
+                        class="expert-command-item"
+                        href="{{ route('home') }}"
+                        data-command-search="studio home editor"
+                    >
+                        <span class="expert-command-item-icon">◇</span>
+                        <span>
+                            <strong>Studio</strong>
+                            <small>Ga naar de homepage en editor-start</small>
+                        </span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
+
+                    <a
+                        class="expert-command-item"
+                        href="{{ route('home') }}#upload"
+                        data-command-search="upload nieuwe afbeelding image"
+                    >
+                        <span class="expert-command-item-icon">＋</span>
+                        <span>
+                            <strong>Nieuwe afbeelding</strong>
+                            <small>Upload JPG, PNG of WEBP</small>
+                        </span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
+
+                    @auth
+                        @if ($hasImagesIndex)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('images.index') }}"
+                                data-command-search="library afbeeldingen projecten images"
+                            >
+                                <span class="expert-command-item-icon">▦</span>
+                                <span>
+                                    <strong>Mijn afbeeldingen</strong>
+                                    <small>Open je projectbibliotheek</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+
+                        @if ($hasAiChat)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('ai.chat') }}"
+                                data-command-search="mashal ai chat assistant"
+                            >
+                                <span class="expert-command-item-icon">✦</span>
+                                <span>
+                                    <strong>Mashal AI</strong>
+                                    <small>Open de AI-workspace</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+                    @endauth
+                </div>
+
+                @auth
+                    <div class="expert-command-group">
+                        <div class="expert-command-group-label">
+                            Account
+                        </div>
+
+                        @if ($hasAccount)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('account') }}"
+                                data-command-search="account profiel instellingen voorkeuren"
+                            >
+                                <span class="expert-command-item-icon">○</span>
+                                <span>
+                                    <strong>Account</strong>
+                                    <small>Profiel en voorkeuren</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+
+                        @if ($hasSecurity)
+                            <a
+                                class="expert-command-item"
+                                href="{{ route('security.index') }}"
+                                data-command-search="security beveiliging login apparaten"
+                            >
+                                <span class="expert-command-item-icon">◈</span>
+                                <span>
+                                    <strong>Beveiliging</strong>
+                                    <small>Login en apparaten beheren</small>
+                                </span>
+                                <span class="expert-command-item-arrow">↗</span>
+                            </a>
+                        @endif
+                    </div>
+                @endauth
+            </div>
+
+            <div class="expert-command-foot">
+                <span>
+                    <kbd>↑</kbd>
+                    <kbd>↓</kbd>
+                    navigeren
+                </span>
+
+                <span>
+                    <kbd>↵</kbd>
+                    openen
+                </span>
+
+                <span>
+                    <kbd>ESC</kbd>
+                    sluiten
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="studio-mobile-overlay expert-mobile-overlay"
         id="studioMobileOverlay"
         aria-hidden="true"
     ></div>
 
     <aside
-        class="studio-mobile-drawer"
+        class="studio-mobile-drawer expert-mobile-drawer"
         id="studioMobileDrawer"
         aria-hidden="true"
         aria-label="Mobiele navigatie"
     >
-        <div class="studio-mobile-head">
-            <strong>
-                Mashal Studio
-            </strong>
+        <div class="expert-mobile-head">
+            <a
+                class="expert-mobile-brand"
+                href="{{ route('home') }}"
+            >
+                <span class="expert-brand-mark">
+                    <span class="expert-brand-glyph">M</span>
+                    <span class="expert-brand-status"></span>
+                </span>
+
+                <span>
+                    <strong>Mashal Studio</strong>
+                    <small>Image workspace</small>
+                </span>
+            </a>
 
             <button
-                class="studio-mobile-close"
+                class="expert-mobile-close"
                 id="studioMobileClose"
                 type="button"
                 aria-label="Menu sluiten"
@@ -5554,9 +6882,23 @@
             </button>
         </div>
 
+        <a
+            class="expert-mobile-upload"
+            href="{{ route('home') }}#upload"
+        >
+            <span class="expert-mobile-upload-icon">＋</span>
+
+            <span>
+                <strong>Nieuwe afbeelding</strong>
+                <small>JPG, PNG of WEBP uploaden</small>
+            </span>
+
+            <span>↗</span>
+        </a>
+
         @auth
-            <div class="studio-mobile-user">
-                <span class="studio-account-menu-avatar">
+            <div class="expert-mobile-user">
+                <span class="expert-account-menu-avatar">
                     @if (
                         method_exists($layoutUser, 'avatarUrl') &&
                         $layoutUser->avatarUrl()
@@ -5570,111 +6912,88 @@
                     @endif
                 </span>
 
-                <span>
-                    <strong>
-                        {{ $layoutUser->name }}
-                    </strong>
-
-                    <span>
-                        {{ $layoutUser->email }}
-                    </span>
+                <span class="expert-mobile-user-copy">
+                    <strong>{{ $layoutUser->name }}</strong>
+                    <small>{{ $layoutUser->email }}</small>
                 </span>
             </div>
         @endauth
 
-        <nav class="studio-mobile-nav">
-            <div class="studio-mobile-nav-label">
-                Studio
+        <nav class="expert-mobile-nav">
+            <div class="expert-mobile-label">
+                Workspace
             </div>
 
             <a
-                class="studio-mobile-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                class="expert-mobile-link {{ request()->routeIs('home') ? 'active' : '' }}"
                 href="{{ route('home') }}"
             >
+                <span class="expert-mobile-link-icon">◇</span>
                 <span>
-                    Home / Studio
+                    <strong>Studio</strong>
+                    <small>Home en editor-start</small>
                 </span>
-
-                <span>
-                    ◇
-                </span>
-            </a>
-
-            <a
-                class="studio-mobile-link"
-                href="{{ route('home') }}#upload"
-            >
-                <span>
-                    Nieuwe afbeelding
-                </span>
-
-                <span>
-                    ↑
-                </span>
+                <span>→</span>
             </a>
 
             @auth
                 @if ($hasImagesIndex)
                     <a
-                        class="studio-mobile-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
+                        class="expert-mobile-link {{ request()->routeIs('images.*') ? 'active' : '' }}"
                         href="{{ route('images.index') }}"
                     >
+                        <span class="expert-mobile-link-icon">▦</span>
                         <span>
-                            Mijn afbeeldingen
+                            <strong>Mijn afbeeldingen</strong>
+                            <small>Projecten en versies</small>
                         </span>
-
-                        <span>
-                            {{ $layoutImageCount ?? '▦' }}
-                        </span>
+                        <span>→</span>
                     </a>
                 @endif
 
                 @if ($hasAiChat)
                     <a
-                        class="studio-mobile-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
+                        class="expert-mobile-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
                         href="{{ route('ai.chat') }}"
                     >
+                        <span class="expert-mobile-link-icon">✦</span>
                         <span>
-                            Mashal AI
+                            <strong>Mashal AI</strong>
+                            <small>AI workspace</small>
                         </span>
-
-                        <span aria-hidden="true">
-                            ✦ AI
-                        </span>
+                        <span class="expert-mobile-ai">AI</span>
                     </a>
                 @endif
 
-                <div class="studio-mobile-nav-label">
+                <div class="expert-mobile-label">
                     Account
                 </div>
 
                 @if ($hasAccount)
                     <a
-                        class="studio-mobile-link {{ request()->routeIs('account') ? 'active' : '' }}"
+                        class="expert-mobile-link {{ request()->routeIs('account') ? 'active' : '' }}"
                         href="{{ route('account') }}"
                     >
+                        <span class="expert-mobile-link-icon">○</span>
                         <span>
-                            Accountinstellingen
+                            <strong>Account</strong>
+                            <small>Profiel en voorkeuren</small>
                         </span>
-
-                        <span>
-                            →
-                        </span>
+                        <span>→</span>
                     </a>
                 @endif
 
                 @if ($hasSecurity)
                     <a
-                        class="studio-mobile-link {{ request()->routeIs('security.*') ? 'active' : '' }}"
+                        class="expert-mobile-link {{ request()->routeIs('security.*') ? 'active' : '' }}"
                         href="{{ route('security.index') }}"
                     >
+                        <span class="expert-mobile-link-icon">◈</span>
                         <span>
-                            Loginbeveiliging
+                            <strong>Beveiliging</strong>
+                            <small>Login en apparaten</small>
                         </span>
-
-                        <span>
-                            ◈
-                        </span>
+                        <span>→</span>
                     </a>
                 @endif
 
@@ -5683,35 +7002,34 @@
                     $hasAdmin
                 )
                     <a
-                        class="studio-mobile-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
+                        class="expert-mobile-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}"
                     >
+                        <span class="expert-mobile-link-icon">⌁</span>
                         <span>
-                            Admin
+                            <strong>Admin</strong>
+                            <small>Applicatiebeheer</small>
                         </span>
-
-                        <span>
-                            →
-                        </span>
+                        <span>→</span>
                     </a>
                 @endif
             @endauth
         </nav>
 
-        <div class="studio-mobile-actions">
+        <div class="expert-mobile-footer">
             @guest
                 <a
-                    class="studio-action-link"
+                    class="expert-mobile-auth"
                     href="{{ route('login') }}"
                 >
                     Inloggen
                 </a>
 
                 <a
-                    class="studio-action-link primary"
+                    class="expert-mobile-auth expert-mobile-auth-primary"
                     href="{{ route('register') }}"
                 >
-                    Gratis account maken
+                    Gratis starten
                 </a>
             @else
                 <form
@@ -5721,16 +7039,16 @@
                     @csrf
 
                     <button
-                        class="studio-action-button"
+                        class="expert-mobile-logout"
                         type="submit"
                     >
-                        Uitloggen
+                        <span>Uitloggen</span>
+                        <span>↗</span>
                     </button>
                 </form>
             @endguest
         </div>
     </aside>
-
 
 
     @if (
@@ -6806,20 +8124,386 @@
     </script>
 
 
-    <script id="mashal-signature-layout-motion">
+    <script id="mashal-expert-navbar-js">
         document.addEventListener(
             'DOMContentLoaded',
             function () {
-                const header =
+                const body =
+                    document.body;
+
+                const trigger =
                     document.getElementById(
-                        'studioHeader'
+                        'studioCommandTrigger'
                     );
 
-                const progressBar =
+                const palette =
                     document.getElementById(
-                        'studioProgressBar'
+                        'studioCommandPalette'
                     );
 
+                const overlay =
+                    document.getElementById(
+                        'studioCommandOverlay'
+                    );
+
+                const closeButton =
+                    document.getElementById(
+                        'studioCommandClose'
+                    );
+
+                const input =
+                    document.getElementById(
+                        'studioCommandInput'
+                    );
+
+                const commandItems =
+                    [
+                        ...document.querySelectorAll(
+                            '.expert-command-item'
+                        )
+                    ];
+
+                let commandOpen =
+                    false;
+
+                let selectedIndex =
+                    0;
+
+                function visibleItems() {
+                    return commandItems.filter(
+                        function (item) {
+                            return !item.hidden;
+                        }
+                    );
+                }
+
+                function updateSelection() {
+                    const items =
+                        visibleItems();
+
+                    if (!items.length) {
+                        return;
+                    }
+
+                    selectedIndex =
+                        Math.max(
+                            0,
+                            Math.min(
+                                selectedIndex,
+                                items.length - 1
+                            )
+                        );
+
+                    commandItems.forEach(
+                        function (item) {
+                            item.classList.remove(
+                                'is-selected'
+                            );
+                        }
+                    );
+
+                    items[
+                        selectedIndex
+                    ]?.classList.add(
+                        'is-selected'
+                    );
+
+                    items[
+                        selectedIndex
+                    ]?.scrollIntoView({
+                        block:
+                            'nearest'
+                    });
+                }
+
+                function filterCommands() {
+                    const query =
+                        (
+                            input?.value ||
+                            ''
+                        )
+                        .trim()
+                        .toLowerCase();
+
+                    commandItems.forEach(
+                        function (item) {
+                            const search =
+                                (
+                                    item.getAttribute(
+                                        'data-command-search'
+                                    ) ||
+                                    item.textContent ||
+                                    ''
+                                )
+                                .toLowerCase();
+
+                            item.hidden =
+                                Boolean(
+                                    query &&
+                                    !search.includes(
+                                        query
+                                    )
+                                );
+                        }
+                    );
+
+                    selectedIndex =
+                        0;
+
+                    updateSelection();
+                }
+
+                function setCommandOpen(open) {
+                    commandOpen =
+                        Boolean(open);
+
+                    trigger?.setAttribute(
+                        'aria-expanded',
+                        commandOpen
+                            ? 'true'
+                            : 'false'
+                    );
+
+                    palette?.classList.toggle(
+                        'is-open',
+                        commandOpen
+                    );
+
+                    overlay?.classList.toggle(
+                        'is-open',
+                        commandOpen
+                    );
+
+                    palette?.setAttribute(
+                        'aria-hidden',
+                        commandOpen
+                            ? 'false'
+                            : 'true'
+                    );
+
+                    overlay?.setAttribute(
+                        'aria-hidden',
+                        commandOpen
+                            ? 'false'
+                            : 'true'
+                    );
+
+                    body.classList.toggle(
+                        'expert-command-open',
+                        commandOpen
+                    );
+
+                    if (commandOpen) {
+                        window.setTimeout(
+                            function () {
+                                input?.focus();
+
+                                selectedIndex =
+                                    0;
+
+                                updateSelection();
+                            },
+                            40
+                        );
+                    } else {
+                        if (input) {
+                            input.value =
+                                '';
+                        }
+
+                        filterCommands();
+
+                        trigger?.focus();
+                    }
+                }
+
+                trigger?.addEventListener(
+                    'click',
+                    function () {
+                        setCommandOpen(
+                            !commandOpen
+                        );
+                    }
+                );
+
+                closeButton?.addEventListener(
+                    'click',
+                    function () {
+                        setCommandOpen(
+                            false
+                        );
+                    }
+                );
+
+                overlay?.addEventListener(
+                    'click',
+                    function () {
+                        setCommandOpen(
+                            false
+                        );
+                    }
+                );
+
+                input?.addEventListener(
+                    'input',
+                    filterCommands
+                );
+
+                commandItems.forEach(
+                    function (item) {
+                        item.addEventListener(
+                            'pointerenter',
+                            function () {
+                                const items =
+                                    visibleItems();
+
+                                selectedIndex =
+                                    Math.max(
+                                        0,
+                                        items.indexOf(
+                                            item
+                                        )
+                                    );
+
+                                updateSelection();
+                            }
+                        );
+
+                        item.addEventListener(
+                            'click',
+                            function () {
+                                setCommandOpen(
+                                    false
+                                );
+                            }
+                        );
+                    }
+                );
+
+                document.addEventListener(
+                    'keydown',
+                    function (event) {
+                        const active =
+                            document.activeElement;
+
+                        const typing =
+                            active &&
+                            (
+                                active.tagName === 'INPUT' ||
+                                active.tagName === 'TEXTAREA' ||
+                                active.isContentEditable
+                            );
+
+                        if (
+                            (
+                                event.metaKey ||
+                                event.ctrlKey
+                            ) &&
+                            event.key.toLowerCase() === 'k'
+                        ) {
+                            event.preventDefault();
+
+                            setCommandOpen(
+                                !commandOpen
+                            );
+
+                            return;
+                        }
+
+                        if (
+                            !commandOpen &&
+                            !typing &&
+                            event.key === '/'
+                        ) {
+                            event.preventDefault();
+
+                            setCommandOpen(
+                                true
+                            );
+
+                            return;
+                        }
+
+                        if (!commandOpen) {
+                            return;
+                        }
+
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+
+                            setCommandOpen(
+                                false
+                            );
+
+                            return;
+                        }
+
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+
+                            const items =
+                                visibleItems();
+
+                            if (!items.length) {
+                                return;
+                            }
+
+                            selectedIndex =
+                                (
+                                    selectedIndex +
+                                    1
+                                ) %
+                                items.length;
+
+                            updateSelection();
+
+                            return;
+                        }
+
+                        if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+
+                            const items =
+                                visibleItems();
+
+                            if (!items.length) {
+                                return;
+                            }
+
+                            selectedIndex =
+                                (
+                                    selectedIndex -
+                                    1 +
+                                    items.length
+                                ) %
+                                items.length;
+
+                            updateSelection();
+
+                            return;
+                        }
+
+                        if (event.key === 'Enter') {
+                            const items =
+                                visibleItems();
+
+                            const selected =
+                                items[
+                                    selectedIndex
+                                ];
+
+                            if (selected) {
+                                event.preventDefault();
+
+                                selected.click();
+                            }
+                        }
+                    }
+                );
+
+                /*
+                 * Desktop magnetic polish.
+                 */
                 const reducedMotion =
                     window.matchMedia(
                         '(prefers-reduced-motion: reduce)'
@@ -6830,94 +8514,33 @@
                         '(pointer: fine)'
                     ).matches;
 
-                let scrollFrame =
-                    false;
-
-                function updateSignatureScroll() {
-                    if (header) {
-                        header.classList.toggle(
-                            'is-scrolled',
-                            window.scrollY > 10
-                        );
-                    }
-
-                    if (progressBar) {
-                        const documentElement =
-                            document.documentElement;
-
-                        const scrollable =
-                            documentElement.scrollHeight -
-                            window.innerHeight;
-
-                        const ratio =
-                            scrollable > 0
-                                ? Math.min(
-                                    1,
-                                    Math.max(
-                                        0,
-                                        window.scrollY /
-                                        scrollable
-                                    )
-                                )
-                                : 0;
-
-                        progressBar.style.transform =
-                            'scaleX(' +
-                            ratio +
-                            ')';
-                    }
-                }
-
-                function scheduleSignatureScroll() {
-                    if (scrollFrame) {
-                        return;
-                    }
-
-                    scrollFrame =
-                        true;
-
-                    window.requestAnimationFrame(
-                        function () {
-                            updateSignatureScroll();
-
-                            scrollFrame =
-                                false;
-                        }
-                    );
-                }
-
-                updateSignatureScroll();
-
-                window.addEventListener(
-                    'scroll',
-                    scheduleSignatureScroll,
-                    {
-                        passive: true
-                    }
-                );
-
-                /*
-                 * Subtle magnetic movement.
-                 * Only enabled for fine pointers to keep touch interaction stable.
-                 */
                 if (
                     !reducedMotion &&
                     finePointer
                 ) {
                     document
                         .querySelectorAll(
-                            '.studio-nav-link, ' +
-                            '.studio-action-link, ' +
-                            '.studio-account-trigger, ' +
-                            '.studio-menu-toggle'
+                            '.expert-nav-link, ' +
+                            '.expert-new-project, ' +
+                            '.expert-auth-link, ' +
+                            '.expert-command-trigger'
                         )
                         .forEach(
                             function (element) {
-                                let currentX = 0;
-                                let currentY = 0;
-                                let targetX = 0;
-                                let targetY = 0;
-                                let frameId = null;
+                                let currentX =
+                                    0;
+
+                                let currentY =
+                                    0;
+
+                                let targetX =
+                                    0;
+
+                                let targetY =
+                                    0;
+
+                                let frame =
+                                    null;
 
                                 function animate() {
                                     currentX +=
@@ -6945,28 +8568,30 @@
                                         Math.abs(
                                             targetX -
                                             currentX
-                                        ) > .05 ||
+                                        ) >
+                                        .05 ||
                                         Math.abs(
                                             targetY -
                                             currentY
-                                        ) > .05
+                                        ) >
+                                        .05
                                     ) {
-                                        frameId =
+                                        frame =
                                             window.requestAnimationFrame(
                                                 animate
                                             );
                                     } else {
-                                        frameId =
+                                        frame =
                                             null;
                                     }
                                 }
 
-                                function startAnimation() {
-                                    if (frameId) {
+                                function start() {
+                                    if (frame) {
                                         return;
                                     }
 
-                                    frameId =
+                                    frame =
                                         window.requestAnimationFrame(
                                             animate
                                         );
@@ -6987,7 +8612,7 @@
                                                     2
                                                 )
                                             ) *
-                                            .055;
+                                            .05;
 
                                         targetY =
                                             (
@@ -6998,9 +8623,9 @@
                                                     2
                                                 )
                                             ) *
-                                            .055;
+                                            .05;
 
-                                        startAnimation();
+                                        start();
                                     }
                                 );
 
@@ -7013,42 +8638,11 @@
                                         targetY =
                                             0;
 
-                                        startAnimation();
+                                        start();
                                     }
                                 );
                             }
                         );
-                }
-
-                /*
-                 * Add a tiny animated indicator to the active desktop link.
-                 * This is progressive enhancement only.
-                 */
-                const activeDesktopLink =
-                    document.querySelector(
-                        '.studio-nav-center .studio-nav-link.active'
-                    );
-
-                if (
-                    activeDesktopLink &&
-                    !reducedMotion
-                ) {
-                    activeDesktopLink.animate(
-                        [
-                            {
-                                opacity: .7,
-                                transform: 'translateY(-2px)'
-                            },
-                            {
-                                opacity: 1,
-                                transform: 'translateY(0)'
-                            }
-                        ],
-                        {
-                            duration: 420,
-                            easing: 'cubic-bezier(.16,1,.3,1)'
-                        }
-                    );
                 }
             }
         );
