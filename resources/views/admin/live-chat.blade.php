@@ -1762,6 +1762,8 @@
 
                     >
 
+                        @csrf
+
 
 
                         <label
@@ -2000,19 +2002,54 @@
 
 
 
-<script
+<script>
+    /* Laravel request hardening for live chat. */
+    (() => {
+        const bladeToken = @json(csrf_token());
+        const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const csrfToken = metaToken || bladeToken;
+        const originalFetch = window.fetch.bind(window);
 
+        window.fetch = (input, init = {}) => {
+            const request = input instanceof Request ? input : null;
+            const requestUrl = request ? request.url : String(input);
+            const url = new URL(requestUrl, window.location.href);
 
+            if (url.origin !== window.location.origin) {
+                return originalFetch(input, init);
+            }
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=60"
+            const method = String(init.method || request?.method || 'GET').toUpperCase();
+            const headers = new Headers(request?.headers || undefined);
 
+            new Headers(init.headers || undefined).forEach((value, key) => {
+                headers.set(key, value);
+            });
 
+            if (!headers.has('X-Requested-With')) {
+                headers.set('X-Requested-With', 'XMLHttpRequest');
+            }
 
-    defer
+            if (!headers.has('Accept')) {
+                headers.set('Accept', 'application/json, text/plain, */*');
+            }
 
+            if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+                if (!headers.has('X-CSRF-TOKEN') && !headers.has('X-XSRF-TOKEN')) {
+                    headers.set('X-CSRF-TOKEN', csrfToken);
+                }
+            }
 
+            return originalFetch(input, {
+                ...init,
+                headers,
+                credentials: init.credentials || request?.credentials || 'same-origin',
+            });
+        };
+    })();
+</script>
 
-></script>
+<script src="{{ asset('js/admin-live-chat.js') }}?v=60" defer></script>
 
 
 
