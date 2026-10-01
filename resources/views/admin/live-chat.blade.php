@@ -1,9 +1,27 @@
 @extends('layouts.admin-layout')
 
+
+
+
+
+
+
 @section('title', 'Live chat | Mashal Admin')
+
+
+
 @section('page-title', 'Live chat')
 
+
+
+
+
+
+
 @section('content')
+
+
+
 <style>
     .lca {
         --ink: #111318;
@@ -260,139 +278,1742 @@
     }
 </style>
 
+
+
+
+
+
+
 <div
-    class="lca"
-    id="admin-live-chat"
-    data-inbox="{{ route('admin.live-chat.conversations') }}"
-    data-presence="{{ route('admin.live-chat.presence') }}"
-    data-base="{{ route('admin.live-chat.conversations') }}"
+
+
+
+    class="lca"
+
+
+
+    id="admin-live-chat"
+
+
+
+    data-inbox="{{ route('admin.live-chat.conversations') }}"
+
+
+
+    data-presence="{{ route('admin.live-chat.presence') }}"
+
+
+
+    data-base="{{ route('admin.live-chat.conversations') }}"
+
+
+
 >
-    <div class="lca-shell">
-        <header class="lca-top">
-            <div class="lca-top__copy">
-                <div class="lca-eyebrow"><span class="lca-eyebrow__dot"></span> Mashal Support / Live</div>
-                <h1>Support<br>zonder ruis.</h1>
-                <p>Alle actieve gesprekken, uploads en voiceberichten in één compacte werkruimte.</p>
-            </div>
 
-            <label class="lca-presence">
-                <input type="checkbox" id="lca-online" checked>
-                <span class="lca-presence__copy">
-                    <strong>Live beschikbaar</strong>
-                    <small>Je blijft zichtbaar zolang dit tabblad actief is.</small>
-                </span>
-            </label>
-        </header>
 
-        <div class="lca-stats">
-            <div class="lca-stat">
-                <div class="lca-stat__icon">01</div>
-                <div class="lca-stat__copy"><strong data-inbox-count>—</strong><small>Gesprekken op deze pagina</small></div>
-            </div>
-            <div class="lca-stat">
-                <div class="lca-stat__icon">↻</div>
-                <div class="lca-stat__copy"><strong>Realtime sync</strong><small>Nieuwe activiteit wordt automatisch geladen</small></div>
-            </div>
-            <div class="lca-stat">
-                <div class="lca-stat__icon">+</div>
-                <div class="lca-stat__copy"><strong>Rich replies</strong><small>Tekst, bestanden, afbeeldingen en voice</small></div>
-            </div>
-        </div>
 
-        <p class="lca-error" role="status" aria-live="polite" hidden></p>
+    <div class="lca-shell">
 
-        <div class="lca-grid">
-            <aside class="lca-inbox" aria-label="Gesprekken">
-                <div class="lca-inbox__head">
-                    <div class="lca-inbox__title"><strong>Inbox</strong><span>Live queue</span></div>
 
-                    <div class="lca-search">
-                        <span class="lca-search__icon" aria-hidden="true">⌕</span>
-                        <input type="search" data-search placeholder="Zoek naam of e-mailadres…" aria-label="Gesprekken zoeken" autocomplete="off">
-                    </div>
 
-                    <div class="lca-filter">
-                        <select data-filter aria-label="Gesprekken filteren">
-                            <option value="active">Actieve gesprekken</option>
-                            <option value="closed">Afgesloten gesprekken</option>
-                        </select>
-                        <button type="button" class="lca-icon-button" data-refresh title="Inbox verversen" aria-label="Inbox verversen">↻</button>
-                    </div>
-                </div>
 
-                <div class="lca-list">
-                    <p class="lca-list-empty">Gesprekken laden…</p>
-                </div>
 
-                <div class="lca-pages">
-                    <button type="button" data-prev aria-label="Vorige pagina" title="Vorige pagina">←</button>
-                    <span data-page>Pagina —</span>
-                    <button type="button" data-next aria-label="Volgende pagina" title="Volgende pagina">→</button>
-                </div>
-            </aside>
 
-            <section class="lca-detail" aria-label="Geselecteerd gesprek">
-                <header class="lca-heading">
-                    <div class="lca-heading__identity">
-                        <div class="lca-heading__name-row"><strong data-name>Kies een gesprek</strong></div>
-                        <p data-email>Selecteer links een gesprek om de berichten te openen.</p>
-                        <span class="lca-status-chip" data-status>Geen gesprek geselecteerd</span>
-                    </div>
 
-                    <div class="lca-heading__actions">
-                        <button type="button" class="lca-email-handoff" data-email-handoff data-active="false" hidden>✉ Verder via e-mail</button>
-                        <button type="button" class="lca-email-handoff" data-email-settings hidden title="E-mailadres, onderwerp en titel beheren">✎ E-mail / titel</button>
-                        <button type="button" class="lca-close" data-close hidden>Afsluiten</button>
-                    </div>
-                </header>
+        {{-- ================================================================
 
-                <div class="lca-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Berichten">
-                    <div class="lca-empty-chat" data-empty-chat>
-                        <div>
-                            <div class="lca-empty-chat__icon">↗</div>
-                            <strong>Open een gesprek</strong>
-                            <p>Berichten, documenten, afbeeldingen en spraakberichten verschijnen hier.</p>
-                        </div>
-                    </div>
-                </div>
 
-                <button type="button" class="lca-scroll-down" data-scroll-down title="Naar nieuwste bericht" aria-label="Naar nieuwste bericht" hidden>↓</button>
 
-                <div class="lca-typing" data-typing-indicator aria-live="polite" aria-label="Bezoeker is aan het typen" hidden>
-                    <span class="lca-typing__avatar" data-typing-avatar aria-hidden="true">B</span>
-                    <div class="lca-typing__bubble" aria-hidden="true">
-                        <span class="lca-typing__dot"></span>
-                        <span class="lca-typing__dot"></span>
-                        <span class="lca-typing__dot"></span>
-                    </div>
-                    <span class="lca-typing__label" data-typing-text>Bezoeker typt…</span>
-                </div>
+             Header
 
-                <div class="lca-composer-wrap">
-                    <div class="lca-composer-info">
-                        <span data-composer-state>Selecteer een gesprek om te antwoorden.</span>
-                        <span class="lca-recorder-state" data-recorder-state></span>
-                    </div>
 
-                    <form class="lca-form" autocomplete="off">
-                        <label class="lca-tool" title="Bestand versturen" aria-label="Bestand versturen">
-                            ＋
-                            <input class="lca-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden>
-                        </label>
 
-                        <button type="button" class="lca-tool lca-voice" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen" aria-pressed="false">●</button>
+             ================================================================ --}}
 
-                        <textarea aria-label="Antwoord aan bezoeker" placeholder="Schrijf een antwoord…" maxlength="4000" rows="1" required disabled></textarea>
 
-                        <button type="submit" class="lca-submit" disabled>Verstuur →</button>
-                    </form>
-                </div>
-            </section>
-        </div>
 
-        <div class="lca-toast-stack" data-toasts aria-live="polite" aria-atomic="false"></div>
-    </div>
+
+
+
+
+        <header class="lca-top">
+
+
+
+            <div class="lca-top__copy">
+
+
+
+                <div class="lca-eyebrow">
+
+
+
+                    <span class="lca-eyebrow__dot"></span>
+
+
+
+                    Mashal Support Desk
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <h1>
+
+
+
+                    Live gesprekken
+
+
+
+                </h1>
+
+
+
+
+
+
+
+                <p>
+
+
+
+                    Beheer bezoekers, berichten, documenten en spraakberichten vanuit één centrale supportomgeving.
+
+
+
+                </p>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <label class="lca-presence">
+
+
+
+                <input
+
+
+
+                    type="checkbox"
+
+
+
+                    id="lca-online"
+
+
+
+                    checked
+
+
+
+                >
+
+
+
+
+
+
+
+                <span class="lca-presence__copy">
+
+
+
+                    <strong>
+
+
+
+                        Beschikbaar voor live chat
+
+
+
+                    </strong>
+
+
+
+
+
+
+
+                    <small>
+
+
+
+                        Presence blijft actief zolang dit tabblad zichtbaar is.
+
+
+
+                    </small>
+
+
+
+                </span>
+
+
+
+            </label>
+
+
+
+        </header>
+
+
+
+
+
+
+
+        {{-- ================================================================
+
+
+
+             Status cards
+
+
+
+             ================================================================ --}}
+
+
+
+
+
+
+
+        <div class="lca-stats">
+
+
+
+            <div class="lca-stat">
+
+
+
+                <div class="lca-stat__icon">
+
+
+
+                    💬
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="lca-stat__copy">
+
+
+
+                    <strong data-inbox-count>
+
+
+
+                        —
+
+
+
+                    </strong>
+
+
+
+
+
+
+
+                    <small>
+
+
+
+                        Gesprekken op huidige pagina
+
+
+
+                    </small>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="lca-stat">
+
+
+
+                <div class="lca-stat__icon">
+
+
+
+                    ⚡
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="lca-stat__copy">
+
+
+
+                    <strong>
+
+
+
+                        Realtime
+
+
+
+                    </strong>
+
+
+
+
+
+
+
+                    <small>
+
+
+
+                        Automatische synchronisatie actief
+
+
+
+                    </small>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="lca-stat">
+
+
+
+                <div class="lca-stat__icon">
+
+
+
+                    🎙️
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="lca-stat__copy">
+
+
+
+                    <strong>
+
+
+
+                        Media support
+
+
+
+                    </strong>
+
+
+
+
+
+
+
+                    <small>
+
+
+
+                        Afbeeldingen, bestanden en voice
+
+
+
+                    </small>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        {{-- ================================================================
+
+
+
+             Error output
+
+
+
+             ================================================================ --}}
+
+
+
+
+
+
+
+        <p
+
+
+
+            class="lca-error"
+
+
+
+            role="status"
+
+
+
+            aria-live="polite"
+
+
+
+            hidden
+
+
+
+        ></p>
+
+
+
+
+
+
+
+        {{-- ================================================================
+
+
+
+             Main workspace
+
+
+
+             ================================================================ --}}
+
+
+
+
+
+
+
+        <div class="lca-grid">
+
+
+
+
+
+
+
+            {{-- ============================================================
+
+
+
+                 Inbox
+
+
+
+                 ============================================================ --}}
+
+
+
+
+
+
+
+            <aside
+
+
+
+                class="lca-inbox"
+
+
+
+                aria-label="Gesprekken"
+
+
+
+            >
+
+
+
+                <div class="lca-inbox__head">
+
+
+
+                    <div class="lca-inbox__title">
+
+
+
+                        <strong>
+
+
+
+                            Inbox
+
+
+
+                        </strong>
+
+
+
+
+
+
+
+                        <span>
+
+
+
+                            Live support
+
+
+
+                        </span>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div class="lca-search">
+
+
+
+                        <span
+
+
+
+                            class="lca-search__icon"
+
+
+
+                            aria-hidden="true"
+
+
+
+                        >
+
+
+
+                            ⌕
+
+
+
+                        </span>
+
+
+
+
+
+
+
+                        <input
+
+
+
+                            type="search"
+
+
+
+                            data-search
+
+
+
+                            placeholder="Zoek naam of e-mailadres…"
+
+
+
+                            aria-label="Gesprekken zoeken"
+
+
+
+                            autocomplete="off"
+
+
+
+                        >
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div class="lca-filter">
+
+
+
+                        <select
+
+
+
+                            data-filter
+
+
+
+                            aria-label="Gesprekken filteren"
+
+
+
+                        >
+
+
+
+                            <option value="active">
+
+
+
+                                Actieve gesprekken
+
+
+
+                            </option>
+
+
+
+
+
+
+
+                            <option value="closed">
+
+
+
+                                Afgesloten gesprekken
+
+
+
+                            </option>
+
+
+
+                        </select>
+
+
+
+
+
+
+
+                        <button
+
+
+
+                            type="button"
+
+
+
+                            class="lca-icon-button"
+
+
+
+                            data-refresh
+
+
+
+                            title="Inbox verversen"
+
+
+
+                            aria-label="Inbox verversen"
+
+
+
+                        >
+
+
+
+                            ↻
+
+
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="lca-list">
+
+
+
+                    <p class="lca-list-empty">
+
+
+
+                        Gesprekken laden…
+
+
+
+                    </p>
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="lca-pages">
+
+
+
+                    <button
+
+
+
+                        type="button"
+
+
+
+                        data-prev
+
+
+
+                        aria-label="Vorige pagina"
+
+
+
+                        title="Vorige pagina"
+
+
+
+                    >
+
+
+
+                        ←
+
+
+
+                    </button>
+
+
+
+
+
+
+
+                    <span data-page>
+
+
+
+                        Pagina —
+
+
+
+                    </span>
+
+
+
+
+
+
+
+                    <button
+
+
+
+                        type="button"
+
+
+
+                        data-next
+
+
+
+                        aria-label="Volgende pagina"
+
+
+
+                        title="Volgende pagina"
+
+
+
+                    >
+
+
+
+                        →
+
+
+
+                    </button>
+
+
+
+                </div>
+
+
+
+            </aside>
+
+
+
+
+
+
+
+            {{-- ============================================================
+
+
+
+                 Conversation
+
+
+
+                 ============================================================ --}}
+
+
+
+
+
+
+
+            <section
+
+
+
+                class="lca-detail"
+
+
+
+                aria-label="Geselecteerd gesprek"
+
+
+
+            >
+
+
+
+
+
+
+
+                {{-- Header --}}
+
+
+
+
+
+
+
+                <header class="lca-heading">
+
+
+
+                    <div class="lca-heading__identity">
+
+
+
+                        <div class="lca-heading__name-row">
+
+
+
+                            <strong data-name>
+
+
+
+                                Kies een gesprek
+
+
+
+                            </strong>
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <p data-email>
+
+
+
+                            Selecteer links een gesprek om de berichten te openen.
+
+
+
+                        </p>
+
+
+
+
+
+
+
+                        <span
+
+
+
+                            class="lca-status-chip"
+
+
+
+                            data-status
+
+
+
+                        >
+
+
+
+                            Geen gesprek geselecteerd
+
+
+
+                        </span>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div class="lca-heading__actions">
+
+
+
+                        <button
+
+
+
+                            type="button"
+
+
+
+                            class="lca-email-handoff"
+
+
+
+                            data-email-handoff
+
+
+
+                            data-active="false"
+
+
+
+                            hidden
+
+
+
+                        >
+
+
+
+                            ✉ Verder via e-mail
+
+
+
+                        </button>
+
+
+
+
+
+
+
+                        <button
+
+
+
+                            type="button"
+
+
+
+                            class="lca-email-handoff"
+
+
+
+                            data-email-settings
+
+
+
+                            hidden
+
+
+
+                            title="E-mailadres, onderwerp en titel beheren"
+
+
+
+                        >
+
+
+
+                            ✎ E-mail / titel
+
+
+
+                        </button>
+
+
+
+
+
+
+
+                        <button
+
+
+
+                            type="button"
+
+
+
+                            class="lca-close"
+
+
+
+                            data-close
+
+
+
+                            hidden
+
+
+
+                        >
+
+
+
+                            Afsluiten
+
+
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+                </header>
+
+
+
+
+
+
+
+                {{-- Messages --}}
+
+
+
+
+
+
+
+                <div
+
+
+
+                    class="lca-log"
+
+
+
+                    role="log"
+
+
+
+                    aria-live="polite"
+
+
+
+                    aria-relevant="additions"
+
+
+
+                    aria-label="Berichten"
+
+
+
+                >
+
+
+
+                    <div
+
+
+
+                        class="lca-empty-chat"
+
+
+
+                        data-empty-chat
+
+
+
+                    >
+
+
+
+                        <div>
+
+
+
+                            <div class="lca-empty-chat__icon">
+
+
+
+                                💬
+
+
+
+                            </div>
+
+
+
+
+
+
+
+                            <strong>
+
+
+
+                                Selecteer een gesprek
+
+
+
+                            </strong>
+
+
+
+
+
+
+
+                            <p>
+
+
+
+                                Berichten, documenten, afbeeldingen en spraakberichten verschijnen hier.
+
+
+
+                            </p>
+
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+
+
+
+
+
+
+                {{-- Scroll helper --}}
+
+
+
+
+
+
+
+                <button
+
+
+
+                    type="button"
+
+
+
+                    class="lca-scroll-down"
+
+
+
+                    data-scroll-down
+
+
+
+                    title="Naar nieuwste bericht"
+
+
+
+                    aria-label="Naar nieuwste bericht"
+
+
+
+                    hidden
+
+
+
+                >
+
+
+
+                    ↓
+
+
+
+                </button>
+
+
+
+
+
+
+
+
+
+
+
+                {{-- Typing indicator --}}
+
+
+
+
+
+
+
+                <div
+
+
+
+                    class="lca-typing"
+
+
+
+                    data-typing-indicator
+
+
+
+                    aria-live="polite"
+
+
+
+                    aria-label="Bezoeker is aan het typen"
+
+
+
+                    hidden
+
+
+
+                >
+
+
+
+                    <span
+
+
+
+                        class="lca-typing__avatar"
+
+
+
+                        data-typing-avatar
+
+
+
+                        aria-hidden="true"
+
+
+
+                    >
+
+
+
+                        B
+
+
+
+                    </span>
+
+
+
+
+
+
+
+                    <div
+
+
+
+                        class="lca-typing__bubble"
+
+
+
+                        aria-hidden="true"
+
+
+
+                    >
+
+
+
+                        <span class="lca-typing__dot"></span>
+
+
+
+                        <span class="lca-typing__dot"></span>
+
+
+
+                        <span class="lca-typing__dot"></span>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <span
+
+
+
+                        class="lca-typing__label"
+
+
+
+                        data-typing-text
+
+
+
+                    >
+
+
+
+                        Bezoeker typt…
+
+
+
+                    </span>
+
+
+
+                </div>
+
+
+
+
+
+
+
+                {{-- Composer --}}
+
+
+
+
+
+
+
+                <div class="lca-composer-wrap">
+
+
+
+                    <div class="lca-composer-info">
+
+
+
+                        <span data-composer-state>
+
+
+
+                            Selecteer een gesprek om te antwoorden.
+
+
+
+                        </span>
+
+
+
+
+
+
+
+                        <span
+
+
+
+                            class="lca-recorder-state"
+
+
+
+                            data-recorder-state
+
+
+
+                        ></span>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <form
+
+
+
+                        class="lca-form"
+
+
+
+                        autocomplete="off"
+
+
+
+                    >
+
+
+
+                        <label
+
+
+
+                            class="lca-tool"
+
+
+
+                            title="Bestand versturen"
+
+
+
+                            aria-label="Bestand versturen"
+
+
+
+                        >
+
+
+
+                            📎
+
+
+
+
+
+
+
+                            <input
+
+
+
+                                class="lca-file"
+
+
+
+                                type="file"
+
+
+
+                                accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx"
+
+
+
+                                hidden
+
+
+
+                            >
+
+
+
+                        </label>
+
+
+
+
+
+
+
+                        <button
+
+
+
+                            type="button"
+
+
+
+                            class="lca-tool lca-voice"
+
+
+
+                            title="Spraakbericht opnemen"
+
+
+
+                            aria-label="Spraakbericht opnemen"
+
+
+
+                            aria-pressed="false"
+
+
+
+                        >
+
+
+
+                            🎤
+
+
+
+                        </button>
+
+
+
+
+
+
+
+                        <textarea
+
+
+
+                            aria-label="Antwoord aan bezoeker"
+
+
+
+                            placeholder="Typ je antwoord…"
+
+
+
+                            maxlength="4000"
+
+
+
+                            rows="1"
+
+
+
+                            required
+
+
+
+                            disabled
+
+
+
+                        ></textarea>
+
+
+
+
+
+
+
+                        <button
+
+
+
+                            type="submit"
+
+
+
+                            class="lca-submit"
+
+
+
+                            disabled
+
+
+
+                        >
+
+
+
+                            Verstuur
+
+
+
+                        </button>
+
+
+
+                    </form>
+
+
+
+                </div>
+
+
+
+            </section>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        {{-- ================================================================
+
+
+
+             Toasts
+
+
+
+             ================================================================ --}}
+
+
+
+
+
+
+
+        <div
+
+
+
+            class="lca-toast-stack"
+
+
+
+            data-toasts
+
+
+
+            aria-live="polite"
+
+
+
+            aria-atomic="false"
+
+
+
+        ></div>
+
+
+
+    </div>
+
+
+
 </div>
 
-<script src="{{ asset('js/admin-live-chat.js') }}?v=60" defer></script>
+
+
+
+
+
+
+<script
+
+
+
+    src="{{ asset('js/admin-live-chat.js') }}?v=60"
+
+
+
+    defer
+
+
+
+></script>
+
+
+
 @endsection
