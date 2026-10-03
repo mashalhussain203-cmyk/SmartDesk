@@ -193,43 +193,39 @@
             throw new Error('Ongeldige WebRTC session description ontvangen.');
         }
 
-        const type = String(description.type || expectedType || '').trim().toLowerCase();
+        const type = String(description.type || expectedType || '').trim();
         let sdp = typeof description.sdp === 'string' ? description.sdp : '';
 
-        if (!['offer', 'answer'].includes(type)) {
+        if (!type || !['offer', 'answer'].includes(type)) {
             throw new Error('Ongeldig SDP-type ontvangen.');
         }
 
-        // JSON decoding normally restores real CR/LF characters. Older records may
-        // however contain literal "\\r\\n" text. Repair those unconditionally.
+        // Soms komt SDP via JSON/database terug met letterlijke escaped newlines.
+        // Zet die alleen om wanneer er geen echte regeleinden aanwezig zijn.
+        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
+            sdp = sdp.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+        }
+
+        // Verwijder BOM/NUL en normaliseer alle regeleinden naar CRLF, zoals SDP vereist.
         sdp = sdp
             .replace(/^\uFEFF/, '')
             .replace(/\u0000/g, '')
-            .replace(/\\r\\n/g, '\n')
-            .replace(/\\n/g, '\n')
-            .replace(/\\r/g, '\n')
             .replace(/\r\n/g, '\n')
-            .replace(/\r/g, '\n');
+            .replace(/\r/g, '\n')
+            .split('\n')
+            .map(line => line.trimEnd())
+            .join('\r\n')
+            .trim();
 
-        // Preserve the content of every SDP line. Only normalize line separators.
-        const lines = sdp.split('\n');
-        while (lines.length && lines[lines.length - 1] === '') lines.pop();
-
-        if (!lines.length || lines[0].trim() !== 'v=0') {
-            throw new Error('Ongeldige SDP ontvangen: de eerste regel is geen v=0.');
+        if (!sdp.startsWith('v=0')) {
+            throw new Error('Ongeldige SDP ontvangen: eerste regel is geen v=0.');
         }
 
-        for (let i = 0; i < lines.length; i += 1) {
-            const line = lines[i];
-            if (line === '') continue;
-            if (!/^[a-z]=/i.test(line)) {
-                console.error('[LiveChatCall] Ongeldige SDP-regel', i + 1, JSON.stringify(line));
-                throw new Error(`Ongeldige SDP-regel ${i + 1}: ${line.slice(0, 80)}`);
-            }
+        if (!sdp.endsWith('\r\n')) {
+            sdp += '\r\n';
         }
 
-        sdp = lines.join('\r\n') + '\r\n';
-        return { type, sdp };
+        return new RTCSessionDescription({ type, sdp });
     }
 
     function waitForIce(pc) {

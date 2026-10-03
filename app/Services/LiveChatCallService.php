@@ -81,7 +81,7 @@ class LiveChatCallService
                 'admin_user_id' => $adminUserId,
                 'mode' => $mode,
                 'status' => 'ringing',
-                'offer_json' => json_encode($offer, JSON_UNESCAPED_SLASHES),
+                'offer_json' => json_encode($this->encodeDescription($offer, 'offer'), JSON_UNESCAPED_SLASHES),
                 'answer_json' => null,
                 'answered_at' => null,
                 'ended_at' => null,
@@ -151,7 +151,7 @@ class LiveChatCallService
             ->where('conversation_id', $conversationId)
             ->update([
                 'status' => 'accepted',
-                'answer_json' => json_encode($answer, JSON_UNESCAPED_SLASHES),
+                'answer_json' => json_encode($this->encodeDescription($answer, 'answer'), JSON_UNESCAPED_SLASHES),
                 'answered_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -205,6 +205,19 @@ class LiveChatCallService
         ];
     }
 
+    private function encodeDescription(array $description, string $expectedType): array
+    {
+        $type = (string) ($description['type'] ?? $expectedType);
+        $sdp = (string) ($description['sdp'] ?? '');
+
+        // Store SDP as base64 so CR/LF sequences can never be altered by JSON,
+        // a database driver, logging middleware, or response serialization.
+        return [
+            'type' => $type,
+            'sdp_b64' => base64_encode($sdp),
+        ];
+    }
+
     private function decodeDescription(?string $json): ?array
     {
         if (! $json) {
@@ -212,8 +225,36 @@ class LiveChatCallService
         }
 
         $decoded = json_decode($json, true);
+        if (! is_array($decoded)) {
+            return null;
+        }
 
-        return is_array($decoded) ? $decoded : null;
+        $type = (string) ($decoded['type'] ?? '');
+        $sdp = '';
+
+        if (isset($decoded['sdp_b64']) && is_string($decoded['sdp_b64'])) {
+            $raw = base64_decode($decoded['sdp_b64'], true);
+            if ($raw !== false) {
+                $sdp = $raw;
+            }
+        } elseif (isset($decoded['sdp']) && is_string($decoded['sdp'])) {
+            // Backwards compatibility for calls created before the base64 fix.
+            $sdp = $decoded['sdp'];
+        }
+
+        // Repair old records that may contain literal escaped newline sequences.
+        $sdp = str_replace(["\\r\\n", "\\n", "\\r"], ["\r\n", "\n", "\r"], $sdp);
+        $sdp = preg_replace('/^\xEF\xBB\xBF/', '', $sdp) ?? $sdp;
+        $sdp = str_replace("\0", '', $sdp);
+
+        if ($type === '' || $sdp === '') {
+            return null;
+        }
+
+        return [
+            'type' => $type,
+            'sdp' => $sdp,
+        ];
     }
 
     private function expireStale(int $conversationId): void
