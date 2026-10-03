@@ -60,8 +60,13 @@ class LiveChatCallController extends Controller
         $data = $request->validate([
             'mode' => ['required', Rule::in(['audio', 'video'])],
             'offer.type' => ['required', 'string', 'in:offer'],
-            'offer.sdp' => ['required', 'string', 'max:500000'],
+            'offer.sdp_b64' => ['nullable', 'string', 'max:700000'],
+            'offer.sdp' => ['nullable', 'string', 'max:500000'],
         ]);
+
+        if (empty($data['offer']['sdp_b64']) && empty($data['offer']['sdp'])) {
+            return response()->json(['message' => 'SDP offer ontbreekt.'], 422);
+        }
 
         try {
             $call = $calls->start(
@@ -92,8 +97,13 @@ class LiveChatCallController extends Controller
 
         $data = $request->validate([
             'answer.type' => ['required', 'string', 'in:answer'],
-            'answer.sdp' => ['required', 'string', 'max:500000'],
+            'answer.sdp_b64' => ['nullable', 'string', 'max:700000'],
+            'answer.sdp' => ['nullable', 'string', 'max:500000'],
         ]);
+
+        if (empty($data['answer']['sdp_b64']) && empty($data['answer']['sdp'])) {
+            return response()->json(['message' => 'SDP answer ontbreekt.'], 422);
+        }
 
         try {
             $record = $calls->answer(

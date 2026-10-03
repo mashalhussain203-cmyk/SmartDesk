@@ -4950,6 +4950,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=7" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=8" defer></script>
 
 @endsection

@@ -188,36 +188,64 @@
         return state.iceServers;
     }
 
+    function bytesToBase64(text) {
+        const bytes = new TextEncoder().encode(String(text || ''));
+        let binary = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+        }
+        return btoa(binary);
+    }
+
+    function base64ToText(value) {
+        const binary = atob(String(value || ''));
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+    }
+
+    function packDescription(description, expectedType) {
+        const type = String(description?.type || expectedType || '').trim();
+        const sdp = typeof description?.sdp === 'string' ? description.sdp : '';
+        if (type !== expectedType || !sdp.startsWith('v=0')) {
+            throw new Error(`Ongeldige ${expectedType} SDP.`);
+        }
+        return { type, sdp_b64: bytesToBase64(sdp) };
+    }
+
     function normalizeDescription(description, expectedType = null) {
         if (!description || typeof description !== 'object') {
             throw new Error('Ongeldige WebRTC session description ontvangen.');
         }
 
         const type = String(description.type || expectedType || '').trim();
-        let sdp = typeof description.sdp === 'string' ? description.sdp : '';
+        let sdp = '';
+
+        if (typeof description.sdp_b64 === 'string' && description.sdp_b64) {
+            try {
+                sdp = base64ToText(description.sdp_b64);
+            } catch {
+                throw new Error('SDP base64 kon niet worden gelezen.');
+            }
+        } else if (typeof description.sdp === 'string') {
+            // Alleen voor oude records / oudere browserscripts.
+            sdp = description.sdp;
+            if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
+                sdp = sdp.replace(/\\r\\n/g, '\r\n').replace(/\\n/g, '\r\n');
+            }
+        }
+
+        sdp = sdp.replace(/^\uFEFF/, '').replace(/\u0000/g, '');
 
         if (!['offer', 'answer'].includes(type)) {
             throw new Error('Ongeldig SDP-type ontvangen.');
         }
-
-        if (!sdp) {
-            throw new Error('Lege SDP ontvangen.');
-        }
-
-        // Laat geldige SDP exact zoals de browser hem heeft gemaakt.
-        // Alleen oudere records met letterlijk opgeslagen \\r\\n / \\n herstellen.
-        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
-            sdp = sdp.replace(/\\r\\n/g, '\r\n').replace(/\\n/g, '\r\n');
-        }
-
-        // Alleen tekens verwijderen die nooit onderdeel van SDP horen te zijn.
-        sdp = sdp.replace(/^\uFEFF/, '').replace(/\u0000/g, '');
-
-        if (!/^v=0(?:\r?\n)/.test(sdp)) {
+        if (!sdp.startsWith('v=0')) {
             throw new Error('Ongeldige SDP ontvangen: eerste regel is geen v=0.');
         }
 
-        return { type, sdp };
+        return new RTCSessionDescription({ type, sdp });
     }
 
     async function getMedia(mode, facingMode = 'user') {
@@ -264,8 +292,8 @@
                 startTimer();
             }
 
-            if (['failed', 'closed'].includes(pc.connectionState)) {
-                void finishCall(false, 'Verbinding beëindigd');
+            if (pc.connectionState === 'failed') {
+                void finishCall(true, 'Verbinding mislukt');
             }
         });
 
@@ -484,7 +512,7 @@
             const ep = endpoints(conversationId);
             const data = await request(ep.start, 'POST', {
                 mode,
-                offer: pc.localDescription.toJSON(),
+                offer: packDescription(pc.localDescription, 'offer'),
             });
 
             state.call = data.call;
@@ -523,14 +551,21 @@
 
             const ep = endpoints(call.conversation_id, call.id);
             const data = await request(ep.answer, 'POST', {
-                answer: pc.localDescription.toJSON(),
+                answer: packDescription(pc.localDescription, 'answer'),
             });
             state.call = data.call || call;
             state.call.conversation_id = Number(state.call.conversation_id || call.conversation_id);
             beginActivePolling();
         } catch (error) {
+            const failedCall = state.call || call;
+            if (failedCall?.id) {
+                try {
+                    await request(endpoints(failedCall.conversation_id, failedCall.id).end, 'POST', {});
+                } catch {}
+            }
             cleanupMedia();
             state.call = null;
+            state.isCaller = false;
             toast(error.name === 'NotAllowedError'
                 ? 'Geef toegang tot microfoon/camera om op te nemen.'
                 : error.message || 'Oproep kon niet worden opgenomen.');
@@ -588,7 +623,9 @@
         } catch (error) {
             if (error.status === 401 || error.status === 403 || error.status === 419) {
                 await finishCall(false, 'Sessie verlopen');
+                return;
             }
+            await finishCall(true, error.message || 'Oproepverbinding mislukt');
         }
     }
 
