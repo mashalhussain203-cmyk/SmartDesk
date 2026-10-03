@@ -1384,6 +1384,77 @@
 
                                                     >{!! nl2br(e($bodyText)) !!}</div>
 
+                                                    @if (!empty($videoLinks))
+                                                        <table
+                                                            role="presentation"
+                                                            width="100%"
+                                                            cellspacing="0"
+                                                            cellpadding="0"
+                                                            border="0"
+                                                            style="margin-top:22px;width:100%;"
+                                                        >
+                                                            @foreach ($videoLinks as $video)
+                                                                <tr>
+                                                                    <td
+                                                                        style="
+                                                                            padding:16px;
+                                                                            border:1px solid #dbe4ee;
+                                                                            border-radius:14px;
+                                                                            background:#f8fafc;
+                                                                        "
+                                                                    >
+                                                                        <div
+                                                                            style="
+                                                                                font-size:15px;
+                                                                                line-height:22px;
+                                                                                font-weight:700;
+                                                                                color:#0f172a;
+                                                                                margin-bottom:5px;
+                                                                            "
+                                                                        >
+                                                                            🎬 {{ $video['name'] ?? 'Video uit de chat' }}
+                                                                        </div>
+
+                                                                        @if (!empty($video['size']))
+                                                                            <div
+                                                                                style="
+                                                                                    font-size:12px;
+                                                                                    line-height:18px;
+                                                                                    color:#64748b;
+                                                                                    margin-bottom:12px;
+                                                                                "
+                                                                            >
+                                                                                {{ $video['size'] }}
+                                                                            </div>
+                                                                        @endif
+
+                                                                        <a
+                                                                            href="{{ $video['url'] ?? '#' }}"
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            style="
+                                                                                display:inline-block;
+                                                                                padding:11px 16px;
+                                                                                border-radius:10px;
+                                                                                background:#0f172a;
+                                                                                color:#ffffff;
+                                                                                font-size:14px;
+                                                                                line-height:18px;
+                                                                                font-weight:700;
+                                                                                text-decoration:none;
+                                                                            "
+                                                                        >
+                                                                            ▶ Video bekijken / downloaden
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="height:10px;line-height:10px;font-size:1px;">&nbsp;</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </table>
+                                                    @endif
+
 
 
                                                 </td>
@@ -1400,102 +1471,6 @@
 
 
 
-
-
-                                @if (!empty($mediaLinks))
-                                    <tr>
-                                        <td
-                                            class="mobile-padding"
-                                            style="padding:0 34px 8px 34px;"
-                                        >
-                                            <table
-                                                role="presentation"
-                                                width="100%"
-                                            >
-                                                @foreach ($mediaLinks as $media)
-                                                    <tr>
-                                                        <td
-                                                            style="
-                                                                padding:16px;
-                                                                background:#ffffff;
-                                                                border:1px solid #dbe4f0;
-                                                                border-radius:14px;
-                                                            "
-                                                        >
-                                                            <div
-                                                                style="
-                                                                    font-size:15px;
-                                                                    font-weight:700;
-                                                                    color:#172033;
-                                                                    margin-bottom:6px;
-                                                                "
-                                                            >
-                                                                🎬 {{ $media['name'] ?? 'Video' }}
-                                                            </div>
-
-                                                            @if (!empty($media['size']))
-                                                                <div
-                                                                    style="
-                                                                        font-size:13px;
-                                                                        color:#64748b;
-                                                                        margin-bottom:12px;
-                                                                    "
-                                                                >
-                                                                    {{ $media['size'] }}
-                                                                </div>
-                                                            @endif
-
-                                                            <a
-                                                                href="{{ $media['url'] }}"
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                style="
-                                                                    display:inline-block;
-                                                                    padding:11px 16px;
-                                                                    margin:0 8px 8px 0;
-                                                                    background:#2563eb;
-                                                                    color:#ffffff;
-                                                                    border-radius:10px;
-                                                                    font-size:14px;
-                                                                    font-weight:700;
-                                                                "
-                                                            >▶ Video bekijken</a>
-
-                                                            <a
-                                                                href="{{ $media['download_url'] }}"
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                style="
-                                                                    display:inline-block;
-                                                                    padding:11px 16px;
-                                                                    margin:0 0 8px 0;
-                                                                    background:#e2e8f0;
-                                                                    color:#172033;
-                                                                    border-radius:10px;
-                                                                    font-size:14px;
-                                                                    font-weight:700;
-                                                                "
-                                                            >↓ Video downloaden</a>
-
-                                                            <div
-                                                                style="
-                                                                    margin-top:6px;
-                                                                    font-size:12px;
-                                                                    line-height:1.5;
-                                                                    color:#64748b;
-                                                                "
-                                                            >
-                                                                Als uw e-mailapp video niet rechtstreeks kan afspelen, opent de knop de video veilig in uw browser.
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="height:10px;"></td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                        </td>
-                                    </tr>
 
 
                                 <!-- Reply CTA -->
