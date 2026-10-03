@@ -1819,6 +1819,10 @@
 
         selectionGeneration += 1;
 
+        // Een reply hoort altijd bij het huidige gesprek.
+        replyTarget = null;
+        fail('');
+
         selected = {
 
             ...item,
@@ -2437,6 +2441,11 @@
 
             }
 
+            // Het antwoorddoel is nu succesvol meegestuurd.
+            // Wis het pas NA een succesvolle request, zodat een mislukte
+            // verzending opnieuw geprobeerd kan worden met dezelfde reply.
+            replyTarget = null;
+
             await detail();
 
             await inbox();
@@ -2466,6 +2475,16 @@
         } catch (error) {
 
             fail(error.message);
+
+            // Bij een mislukte verzending blijft replyTarget bewust bestaan.
+            // Zo kan de admin opnieuw verzenden zonder opnieuw op ↩ te klikken.
+            if (replyTarget?.id) {
+                window.setTimeout(() => {
+                    if (replyTarget?.id && !busy) {
+                        fail('Je antwoordt op: ' + (replyTarget.label || 'bericht'));
+                    }
+                }, 1800);
+            }
 
             return false;
 
