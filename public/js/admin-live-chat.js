@@ -206,6 +206,75 @@
     const seen = new Set();
 
     // =========================================================================
+    // REPLY / QUOTE UI
+    // =========================================================================
+    const composerWrap = root.querySelector('.lca-composer-wrap');
+    const replyPreview = document.createElement('div');
+    replyPreview.className = 'lca-reply-preview';
+    replyPreview.hidden = true;
+    replyPreview.style.display = 'none';
+    replyPreview.style.alignItems = 'center';
+    replyPreview.style.justifyContent = 'space-between';
+    replyPreview.style.gap = '10px';
+    replyPreview.style.margin = '0 0 8px';
+    replyPreview.style.padding = '9px 11px';
+    replyPreview.style.border = '1px solid rgba(255,255,255,.12)';
+    replyPreview.style.borderRadius = '10px';
+    replyPreview.style.background = 'rgba(255,255,255,.05)';
+
+    const replyPreviewText = document.createElement('span');
+    replyPreviewText.style.minWidth = '0';
+    replyPreviewText.style.overflow = 'hidden';
+    replyPreviewText.style.textOverflow = 'ellipsis';
+    replyPreviewText.style.whiteSpace = 'nowrap';
+
+    const replyPreviewClose = document.createElement('button');
+    replyPreviewClose.type = 'button';
+    replyPreviewClose.textContent = '×';
+    replyPreviewClose.title = 'Antwoord annuleren';
+    replyPreviewClose.setAttribute('aria-label', 'Antwoord annuleren');
+    replyPreviewClose.style.flex = '0 0 auto';
+    replyPreviewClose.style.width = '30px';
+    replyPreviewClose.style.height = '30px';
+    replyPreviewClose.style.borderRadius = '999px';
+
+    replyPreview.append(replyPreviewText, replyPreviewClose);
+    if (composerWrap) {
+        const form = composerWrap.querySelector('form');
+        if (form) composerWrap.insertBefore(replyPreview, form);
+        else composerWrap.append(replyPreview);
+    }
+
+    function clearReplyTarget() {
+        replyTarget = null;
+        replyPreviewText.textContent = '';
+        replyPreview.hidden = true;
+        replyPreview.style.display = 'none';
+    }
+
+    function setReplyTarget(message) {
+        const id = Number(message?.id || 0);
+        if (!Number.isFinite(id) || id <= 0) return;
+        const label = String(
+            message?.body
+            || message?.attachment_name
+            || (message?.type === 'voice' ? 'Spraakbericht' : '')
+            || (message?.type === 'video' ? 'Video' : '')
+            || 'Bericht'
+        ).trim();
+        replyTarget = { id, label };
+        replyPreviewText.textContent = `↩ Antwoord op: ${label}`;
+        replyPreview.hidden = false;
+        replyPreview.style.display = 'flex';
+        input.focus();
+    }
+
+    replyPreviewClose.addEventListener('click', () => {
+        clearReplyTarget();
+        input.focus();
+    });
+
+    // =========================================================================
 
     // HELPERS
 
@@ -1534,9 +1603,7 @@
             return button;
         };
         actions.append(miniButton('↩', 'Beantwoorden', () => {
-            replyTarget = {id, label: message.body || message.attachment_name || 'bericht'};
-            input.focus();
-            fail('Je antwoordt op: ' + replyTarget.label);
+            setReplyTarget(message);
         }));
         ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji => {
             const count = Number(message.reactions?.[emoji] || 0);
@@ -1820,7 +1887,7 @@
         selectionGeneration += 1;
 
         // Een reply hoort altijd bij het huidige gesprek.
-        replyTarget = null;
+        clearReplyTarget();
         fail('');
 
         selected = {
@@ -2444,7 +2511,7 @@
             // Het antwoorddoel is nu succesvol meegestuurd.
             // Wis het pas NA een succesvolle request, zodat een mislukte
             // verzending opnieuw geprobeerd kan worden met dezelfde reply.
-            replyTarget = null;
+            clearReplyTarget();
 
             await detail();
 
@@ -2475,16 +2542,6 @@
         } catch (error) {
 
             fail(error.message);
-
-            // Bij een mislukte verzending blijft replyTarget bewust bestaan.
-            // Zo kan de admin opnieuw verzenden zonder opnieuw op ↩ te klikken.
-            if (replyTarget?.id) {
-                window.setTimeout(() => {
-                    if (replyTarget?.id && !busy) {
-                        fail('Je antwoordt op: ' + (replyTarget.label || 'bericht'));
-                    }
-                }, 1800);
-            }
 
             return false;
 
@@ -2867,6 +2924,8 @@
 
             file,
 
+            parentMessageId: replyTarget?.id || null,
+
         });
 
         controls();
@@ -3187,6 +3246,7 @@
 
                 }
 
+                const parentMessageId = replyTarget?.id || null;
                 stopAdminTyping();
 
                 await sendPayload({
@@ -3194,6 +3254,8 @@
                     body,
 
                     type: 'text',
+
+                    parentMessageId,
 
                 });
 
@@ -3303,6 +3365,7 @@
         controls();
         fail('');
 
+        const parentMessageId = replyTarget?.id || null;
         const storageKey = adminVideoUploadStorageKey(file);
         let uploadId = window.localStorage.getItem(storageKey) || '';
 
@@ -3355,10 +3418,10 @@
             }
 
             fail('Video verwerken…');
-            const result = await api(adminUploadUrl(`/${uploadId}/complete`), 'POST', {});
+            const result = await api(adminUploadUrl(`/${uploadId}/complete`), 'POST', { parent_message_id: parentMessageId });
             window.localStorage.removeItem(storageKey);
 
-            replyTarget = null;
+            clearReplyTarget();
             await detail();
             await inbox();
 
@@ -3380,6 +3443,7 @@
     }
 
     async function handleSelectedFiles(files) {
+        const parentMessageId = replyTarget?.id || null;
         for (const file of Array.from(files || [])) {
             const video = isVideoFile(file);
             const maxBytes = video ? CONFIG.maxVideoBytes : CONFIG.maxFileBytes;
@@ -3390,7 +3454,7 @@
             if (video) {
                 await uploadVideoInChunks(file);
             } else {
-                await sendPayload({type: 'file', file});
+                await sendPayload({type: 'file', file, parentMessageId});
             }
         }
     }

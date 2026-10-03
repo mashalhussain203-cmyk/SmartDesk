@@ -981,6 +981,19 @@ class AdminLiveChatController extends Controller
 
 
 
+        if (! empty($data['parent_message_id'])) {
+            $parentBelongsToConversation = DB::table('live_chat_messages')
+                ->where('id', (int) $data['parent_message_id'])
+                ->where('conversation_id', $conversation)
+                ->exists();
+
+            abort_unless(
+                $parentBelongsToConversation,
+                422,
+                'Het bericht waarop je antwoordt hoort niet bij dit gesprek.'
+            );
+        }
+
         $attachment = $request->file(
 
             'attachment'
@@ -1199,6 +1212,23 @@ class AdminLiveChatController extends Controller
     ): JsonResponse {
         $this->authorizeAdmin($request);
 
+        $data = $request->validate([
+            'parent_message_id' => ['nullable', 'integer', 'exists:live_chat_messages,id'],
+        ]);
+
+        if (! empty($data['parent_message_id'])) {
+            $parentBelongsToConversation = DB::table('live_chat_messages')
+                ->where('id', (int) $data['parent_message_id'])
+                ->where('conversation_id', $conversation)
+                ->exists();
+
+            abort_unless(
+                $parentBelongsToConversation,
+                422,
+                'Het bericht waarop je antwoordt hoort niet bij dit gesprek.'
+            );
+        }
+
         try {
             $attachment = $uploads->complete(
                 'admin:'.$request->user()->id.':conversation:'.$conversation,
@@ -1212,6 +1242,7 @@ class AdminLiveChatController extends Controller
                     'client_id' => $attachment['client_id'],
                     'type' => 'video',
                     'body' => null,
+                    'parent_message_id' => $data['parent_message_id'] ?? null,
                 ],
                 null,
                 $attachment
