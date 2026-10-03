@@ -508,14 +508,26 @@ class LiveChatService
 
                         $attachmentUrl = null;
 
-                        if (! empty($message->attachment_path)) {
-                            $disk = Storage::disk('public');
 
-                            if ($disk->exists($message->attachment_path)) {
-                                $attachmentUrl = Storage::url(
+
+                        if (
+
+                            ! empty(
+
+                                $message->attachment_path
+
+                            )
+
+                        ) {
+
+                            $attachmentUrl =
+
+                                Storage::url(
+
                                     $message->attachment_path
+
                                 );
-                            }
+
                         }
 
 
