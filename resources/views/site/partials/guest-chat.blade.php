@@ -2318,6 +2318,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let unread = 0;
     let toastTimer = null;
+    let notificationAudioContext = null;
+    let notificationSoundUnlocked = false;
+
+    const unlockNotificationSound = function () {
+        if (notificationSoundUnlocked) {
+            return;
+        }
+
+        try {
+            const AudioContextClass =
+                window.AudioContext || window.webkitAudioContext;
+
+            if (!AudioContextClass) {
+                return;
+            }
+
+            notificationAudioContext =
+                notificationAudioContext || new AudioContextClass();
+
+            if (notificationAudioContext.state === 'suspended') {
+                const resumePromise = notificationAudioContext.resume();
+
+                if (resumePromise && typeof resumePromise.catch === 'function') {
+                    resumePromise.catch(function () {});
+                }
+            }
+
+            notificationSoundUnlocked = true;
+        } catch (error) {}
+    };
+
+    const playNotificationSound = function () {
+        if (!notificationSoundUnlocked) {
+            unlockNotificationSound();
+        }
+
+        const context = notificationAudioContext;
+
+        if (!context) {
+            return;
+        }
+
+        try {
+            if (context.state === 'suspended') {
+                const resumePromise = context.resume();
+
+                if (resumePromise && typeof resumePromise.catch === 'function') {
+                    resumePromise.catch(function () {});
+                }
+            }
+
+            const now = context.currentTime;
+            const master = context.createGain();
+
+            master.gain.setValueAtTime(0.0001, now);
+            master.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
+            master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+            master.connect(context.destination);
+
+            const first = context.createOscillator();
+            first.type = 'sine';
+            first.frequency.setValueAtTime(740, now);
+            first.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+            first.connect(master);
+            first.start(now);
+            first.stop(now + 0.18);
+
+            const second = context.createOscillator();
+            second.type = 'sine';
+            second.frequency.setValueAtTime(988, now + 0.16);
+            second.frequency.exponentialRampToValueAtTime(1174, now + 0.30);
+            second.connect(master);
+            second.start(now + 0.16);
+            second.stop(now + 0.36);
+        } catch (error) {}
+    };
+
+    document.addEventListener(
+        'pointerdown',
+        unlockNotificationSound,
+        { once: true, passive: true }
+    );
+
+    document.addEventListener(
+        'keydown',
+        unlockNotificationSound,
+        { once: true }
+    );
 
     let liveBaselineReady = false;
     let lastLiveAdminCount = 0;
@@ -2466,6 +2554,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         addUnread();
         showToast(message);
+        playNotificationSound();
         showBrowserNotification(message);
         openForIncomingMessage();
     };
