@@ -277,6 +277,47 @@
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
     }
 
+    async function waitForIce(pc, timeoutMs = 8000) {
+        if (!pc || pc.signalingState === 'closed') return;
+        if (pc.iceGatheringState === 'complete') return;
+
+        await new Promise(resolve => {
+            let finished = false;
+            let timer = null;
+
+            const cleanup = () => {
+                if (timer) clearTimeout(timer);
+                pc.removeEventListener('icegatheringstatechange', onStateChange);
+                pc.removeEventListener('icecandidate', onIceCandidate);
+            };
+
+            const done = () => {
+                if (finished) return;
+                finished = true;
+                cleanup();
+                resolve();
+            };
+
+            const onStateChange = () => {
+                if (pc.iceGatheringState === 'complete') done();
+            };
+
+            const onIceCandidate = event => {
+                if (!event.candidate) done();
+            };
+
+            pc.addEventListener('icegatheringstatechange', onStateChange);
+            pc.addEventListener('icecandidate', onIceCandidate);
+
+            // Safari/iOS geeft niet altijd netjes een laatste null-candidate terug.
+            // Een timeout voorkomt dat de call daardoor permanent blijft hangen.
+            timer = setTimeout(done, timeoutMs);
+
+            // Nogmaals controleren nadat listeners zijn gekoppeld om een race te vermijden.
+            if (pc.iceGatheringState === 'complete') done();
+        });
+    }
+
     let overlay = null;
     let remoteVideo = null;
     let localVideo = null;
