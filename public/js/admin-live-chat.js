@@ -1289,7 +1289,7 @@
             download.className =
                 'lca-file-link';
             download.href =
-                message.attachment_url;
+                message.attachment_download_url || message.attachment_url;
             download.download =
                 message.attachment_name || 'video';
             download.target =
@@ -3144,7 +3144,7 @@
 
         return mime.startsWith('video/')
 
-            || /\.(mp4|webm|mov|m4v)$/.test(name);
+            || /\.(mp4|webm|mov|m4v|avi|mkv|mpeg|mpg|3gp|3g2|ogv|ts|mts|m2ts|flv|wmv)$/.test(name);
 
     }
 

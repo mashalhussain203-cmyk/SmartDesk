@@ -562,6 +562,30 @@ class AdminLiveChatController extends Controller
 
 
 
+        $payload['messages'] = collect($payload['messages'] ?? [])
+            ->map(function (array $message) use ($conversation): array {
+                if (! empty($message['attachment_url'])) {
+                    $message['attachment_url'] = route(
+                        'admin.live-chat.attachment',
+                        [
+                            'conversation' => $conversation,
+                            'message' => $message['id'],
+                        ]
+                    );
+                    $message['attachment_download_url'] = route(
+                        'admin.live-chat.attachment',
+                        [
+                            'conversation' => $conversation,
+                            'message' => $message['id'],
+                            'download' => 1,
+                        ]
+                    );
+                }
+
+                return $message;
+            })
+            ->all();
+
         $lastId = collect(
 
             $payload['messages']
@@ -1024,6 +1048,39 @@ class AdminLiveChatController extends Controller
 
 
 
+
+    public function attachment(
+        Request $request,
+        int $conversation,
+        int $message
+    ) {
+        $this->authorizeAdmin($request);
+
+        $record = DB::table('live_chat_messages')
+            ->where('id', $message)
+            ->where('conversation_id', $conversation)
+            ->first();
+
+        abort_unless($record && $record->attachment_path, 404);
+
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($record->attachment_path), 404, 'Bestand niet beschikbaar.');
+
+        $path = $disk->path($record->attachment_path);
+        $name = $record->attachment_name ?: basename($record->attachment_path);
+        $headers = [
+            'Content-Type' => $record->attachment_mime ?: 'application/octet-stream',
+            'Cache-Control' => 'private, max-age=3600',
+            'Accept-Ranges' => 'bytes',
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
+        if ($request->boolean('download')) {
+            return response()->download($path, $name, $headers);
+        }
+
+        return response()->file($path, $headers);
+    }
 
     public function uploadStart(
         Request $request,

@@ -42,6 +42,11 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->middleware('throttle:30,1,visitor-live-chat-upload-cancel')
         ->name('upload-cancel');
 
+    Route::get('/messages/{message}/attachment', [LiveChatController::class, 'attachment'])
+        ->whereNumber('message')
+        ->middleware('throttle:180,1,visitor-live-chat-attachment')
+        ->name('attachment');
+
     Route::post('/typing', [LiveChatController::class, 'typing'])
         ->middleware('throttle:120,1,visitor-live-chat-typing')
         ->name('typing');
@@ -126,6 +131,12 @@ Route::middleware('auth')
             ->whereUuid('upload')
             ->middleware('throttle:30,1,admin-live-chat-upload-cancel')
             ->name('upload-cancel');
+
+        Route::get('/conversations/{conversation}/messages/{message}/attachment', [AdminLiveChatController::class, 'attachment'])
+            ->whereNumber('conversation')
+            ->whereNumber('message')
+            ->middleware('throttle:180,1,admin-live-chat-attachment')
+            ->name('attachment');
 
         Route::post('/conversations/{conversation}/typing', [AdminLiveChatController::class, 'typing'])
             ->whereNumber('conversation')

@@ -20,18 +20,35 @@ class LiveChatController extends Controller
             'after' => ['sometimes', 'integer', 'min:0'],
         ]);
 
+        $payload = $chat->payload(
+            $chat->visitorConversation($request),
+            (int) ($data['after'] ?? 0)
+        ) + [
+            'identity' => hash(
+                'sha256',
+                $chat->ownerKey($request)
+            ),
+        ];
+
+        $payload['messages'] = collect($payload['messages'] ?? [])
+            ->map(function (array $message): array {
+                if (! empty($message['attachment_url'])) {
+                    $message['attachment_url'] = route(
+                        'live-chat.attachment',
+                        ['message' => $message['id']]
+                    );
+                    $message['attachment_download_url'] = route(
+                        'live-chat.attachment',
+                        ['message' => $message['id'], 'download' => 1]
+                    );
+                }
+
+                return $message;
+            })
+            ->all();
+
         return response()
-            ->json(
-                $chat->payload(
-                    $chat->visitorConversation($request),
-                    (int) ($data['after'] ?? 0)
-                ) + [
-                    'identity' => hash(
-                        'sha256',
-                        $chat->ownerKey($request)
-                    ),
-                ]
-            )
+            ->json($payload)
             ->header('Cache-Control', 'no-store');
     }
 
@@ -101,7 +118,7 @@ class LiveChatController extends Controller
                 'required',
                 'file',
                 'max:51200',
-                'mimetypes:video/mp4,video/webm,video/quicktime,video/x-m4v',
+                'mimes:mp4,webm,mov,m4v,avi,mkv,mpeg,mpg,3gp,3g2,ogv,ts,mts,m2ts,flv,wmv',
             ];
         }
 
@@ -281,6 +298,40 @@ class LiveChatController extends Controller
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
+    }
+
+    public function attachment(
+        Request $request,
+        LiveChatService $chat,
+        int $message
+    ) {
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
+
+        $record = DB::table('live_chat_messages')
+            ->where('id', $message)
+            ->where('conversation_id', $conversation->id)
+            ->first();
+
+        abort_unless($record && $record->attachment_path, 404);
+
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($record->attachment_path), 404, 'Bestand niet beschikbaar.');
+
+        $path = $disk->path($record->attachment_path);
+        $name = $record->attachment_name ?: basename($record->attachment_path);
+        $headers = [
+            'Content-Type' => $record->attachment_mime ?: 'application/octet-stream',
+            'Cache-Control' => 'private, max-age=3600',
+            'Accept-Ranges' => 'bytes',
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
+        if ($request->boolean('download')) {
+            return response()->download($path, $name, $headers);
+        }
+
+        return response()->file($path, $headers);
     }
 
     public function typing(
