@@ -555,6 +555,10 @@
             });
             state.call = data.call || call;
             state.call.conversation_id = Number(state.call.conversation_id || call.conversation_id);
+            // iOS/Safari kan een reeds lopende incoming-poll pas na het tikken
+            // op Opnemen afronden en daardoor de oude popup opnieuw tekenen.
+            // Verwijder hem na succesvolle answer daarom nogmaals geforceerd.
+            removeIncoming();
             beginActivePolling();
         } catch (error) {
             const failedCall = state.call || call;
@@ -638,7 +642,7 @@
     let incomingNode = null;
 
     function showIncoming(call) {
-        if (!call?.id || state.call || state.incomingShownId === call.id) return;
+        if (!call?.id || state.busy || state.call || state.incomingShownId === call.id) return;
         state.incomingShownId = call.id;
         incomingNode?.remove();
         incomingNode = document.createElement('section');
@@ -680,6 +684,14 @@
                 data = await request(endpoints().incoming);
             } else {
                 data = await request(endpoints().current);
+            }
+
+            // Een request kan gestart zijn voordat de gebruiker op Opnemen tikte.
+            // Als de call intussen wordt verwerkt, mag een stale response de
+            // incoming UI niet opnieuw zichtbaar maken.
+            if (state.busy || state.call) {
+                if (incomingNode) removeIncoming();
+                return;
             }
 
             const call = data.call;

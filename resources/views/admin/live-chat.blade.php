@@ -4937,7 +4937,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=80"
+    src="{{ asset('js/admin-live-chat.js') }}?v=90"
 
 
 
@@ -4950,6 +4950,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=8" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=9" defer></script>
 
 @endsection
