@@ -230,7 +230,7 @@
 
 
 
-    const REQUEST_TIMEOUT = 30000;
+    const REQUEST_TIMEOUT = 120000;
 
 
 
@@ -239,6 +239,10 @@
 
 
     const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+
+
+    const MAX_VIDEO_SIZE = 1024 * 1024 * 1024;
 
 
 
@@ -2308,6 +2312,26 @@
 
 
 
+    function renderVideo(message, item) {
+
+        const video = document.createElement('video');
+
+        video.className = 'lc-media-video';
+
+        video.controls = true;
+
+        video.preload = 'metadata';
+
+        video.playsInline = true;
+
+        video.src = message.attachment_url;
+
+        item.append(video);
+
+    }
+
+
+
     function renderFile(message, item) {
 
 
@@ -2497,6 +2521,28 @@
 
 
 
+
+
+
+        if (
+
+            message.type === 'video' ||
+
+            (
+
+                mime.startsWith('video/') &&
+
+                message.type !== 'voice'
+
+            )
+
+        ) {
+
+            renderVideo(message, item);
+
+            return;
+
+        }
 
 
 
@@ -4238,6 +4284,20 @@
 
 
 
+    function isVideoFile(file) {
+
+        const mime = normalizeMime(file?.type);
+
+        const name = String(file?.name || '').toLowerCase();
+
+        return mime.startsWith('video/')
+
+            || /\.(mp4|webm|mov|m4v)$/.test(name);
+
+    }
+
+
+
     function validateFile(file) {
 
 
@@ -4290,22 +4350,19 @@
 
 
 
-        if (file.size > MAX_FILE_SIZE) {
 
+        const video = isVideoFile(file);
 
+        const maxSize = video
+            ? MAX_VIDEO_SIZE
+            : MAX_FILE_SIZE;
 
+        if (file.size > maxSize) {
             throw new Error(
-
-
-
-                'Het bestand is te groot. Maximaal 20 MB toegestaan.'
-
-
-
+                video
+                    ? 'De video is te groot. Maximaal 1 GB toegestaan.'
+                    : 'Het bestand is te groot. Maximaal 20 MB toegestaan.'
             );
-
-
-
         }
 
 
@@ -6606,6 +6663,108 @@
 
 
 
+    function visitorUploadUrl(path = '') {
+        const url = new URL(live.dataset.store, window.location.origin);
+        url.pathname = url.pathname.replace(/\/messages\/?$/, '/uploads' + path);
+        url.search = '';
+        return url.toString();
+    }
+
+    function videoUploadStorageKey(file) {
+        return `live-chat-video:${file.name}:${file.size}:${file.lastModified}`;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => window.setTimeout(resolve, ms));
+    }
+
+    async function uploadChunkWithRetry(url, formData, attempts = 4) {
+        let lastError;
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+            try {
+                return await api(url, 'POST', formData);
+            } catch (error) {
+                lastError = error;
+                if (attempt < attempts) {
+                    await sleep(500 * attempt);
+                }
+            }
+        }
+        throw lastError || new Error('Een videodeel kon niet worden geüpload.');
+    }
+
+    async function uploadVideoInChunks(file) {
+        if (sending || stopped || closed || emailMode) {
+            return false;
+        }
+
+        sending = true;
+        updateControls();
+        showError('');
+
+        const storageKey = videoUploadStorageKey(file);
+        let uploadId = window.localStorage.getItem(storageKey) || '';
+
+        try {
+            let state = null;
+
+            if (uploadId) {
+                try {
+                    state = await api(visitorUploadUrl(`/${uploadId}`));
+                } catch {
+                    window.localStorage.removeItem(storageKey);
+                    uploadId = '';
+                }
+            }
+
+            if (!uploadId) {
+                const started = await api(visitorUploadUrl('/start'), 'POST', {
+                    client_id: makeUuid(),
+                    name: file.name,
+                    mime: file.type || '',
+                    size: file.size,
+                });
+                uploadId = String(started.upload_id || '');
+                if (!uploadId) {
+                    throw new Error('De video-upload kon niet worden gestart.');
+                }
+                window.localStorage.setItem(storageKey, uploadId);
+                state = await api(visitorUploadUrl(`/${uploadId}`));
+            }
+
+            const chunkSize = Number(state?.chunk_size || (5 * 1024 * 1024));
+            const totalChunks = Number(state?.total_chunks || Math.ceil(file.size / chunkSize));
+            const received = new Set((Array.isArray(state?.received) ? state.received : []).map(Number));
+
+            for (let index = 0; index < totalChunks; index += 1) {
+                if (!received.has(index)) {
+                    const start = index * chunkSize;
+                    const end = Math.min(start + chunkSize, file.size);
+                    const form = new FormData();
+                    form.append('chunk', file.slice(start, end), `chunk-${index}.part`);
+                    await uploadChunkWithRetry(visitorUploadUrl(`/${uploadId}/chunks/${index}`), form);
+                    received.add(index);
+                }
+
+                const percent = Math.min(100, Math.round((received.size / totalChunks) * 100));
+                setStatus(`Video uploaden… ${percent}%`);
+            }
+
+            setStatus('Video verwerken…');
+            await api(visitorUploadUrl(`/${uploadId}/complete`), 'POST', {});
+            window.localStorage.removeItem(storageKey);
+            await poll(true);
+            setStatus('Video verstuurd.');
+            return true;
+        } catch (exception) {
+            showError(exception?.message || 'De video kon niet worden verstuurd.');
+            return false;
+        } finally {
+            sending = false;
+            updateControls();
+        }
+    }
+
     fileInput.addEventListener(
 
 
@@ -6666,35 +6825,21 @@
 
 
 
+
+                const video = isVideoFile(file);
+
                 setStatus(
-
-
-
-                    `Bestand wordt verstuurd (${formatBytes(file.size)})…`
-
-
-
+                    `${video ? 'Video' : 'Bestand'} wordt verstuurd (${formatBytes(file.size)})…`
                 );
 
-
-
-
-
-
-
-                await sendPayload({
-
-
-
-                    type: 'file',
-
-
-
-                    file,
-
-
-
-                });
+                if (video) {
+                    await uploadVideoInChunks(file);
+                } else {
+                    await sendPayload({
+                        type: 'file',
+                        file,
+                    });
+                }
 
 
 

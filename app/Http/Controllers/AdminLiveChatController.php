@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Services\GmailLiveChatInboxService;
 use App\Services\LiveChatEmailService;
+use App\Services\LiveChatChunkUploadService;
 use App\Services\LiveChatService;
 
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Validation\Rule;
 
@@ -682,6 +684,8 @@ class AdminLiveChatController extends Controller
 
                     'voice',
 
+                    'video',
+
                 ]),
 
             ],
@@ -842,41 +846,71 @@ class AdminLiveChatController extends Controller
 
 
 
+        if ($type === 'video') {
+
+            $rules['attachment'] = [
+
+                'required',
+
+                'file',
+
+                'max:51200',
+
+                'mimetypes:'.
+
+                    'video/mp4,'.
+
+                    'video/webm,'.
+
+                    'video/quicktime,'.
+
+                    'video/x-m4v',
+
+            ];
+
+        }
+
+
+
         $data = $request->validate(
 
             $rules,
 
             [
 
-                'attachment.required' =>
+                'attachment.required' => match ($type) {
 
-                    $type === 'voice'
+                    'voice' => 'Er is geen spraakopname ontvangen.',
 
-                        ? 'Er is geen spraakopname ontvangen.'
+                    'video' => 'Er is geen video ontvangen.',
 
-                        : 'Er is geen bestand ontvangen.',
+                    default => 'Er is geen bestand ontvangen.',
 
-
+                },
 
                 'attachment.file' =>
 
                     'Het ontvangen bestand is ongeldig.',
 
+                'attachment.max' => match ($type) {
 
+                    'voice' => 'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.',
 
-                'attachment.max' =>
+                    'video' => 'De video is te groot. Maximaal 50 MB toegestaan.',
 
-                    $type === 'voice'
+                    default => 'Het bestand is te groot. Maximaal 20 MB toegestaan.',
 
-                        ? 'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.'
+                },
 
-                        : 'Het bestand is te groot. Maximaal 20 MB toegestaan.',
+                'attachment.mimetypes' => match ($type) {
 
+                    'voice' => 'Dit spraakberichtbestand wordt niet ondersteund.',
 
+                    'video' => 'Dit videoformaat wordt niet ondersteund.',
 
-                'attachment.mimetypes' =>
+                    default => 'Dit bestandsformaat wordt niet ondersteund.',
 
-                    'Dit spraakberichtbestand wordt niet ondersteund.',
+                },
 
             ]
 
@@ -989,6 +1023,144 @@ class AdminLiveChatController extends Controller
     }
 
 
+
+
+    public function uploadStart(
+        Request $request,
+        LiveChatChunkUploadService $uploads,
+        int $conversation
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+        $record = DB::table('live_chat_conversations')->where('id', $conversation)->first();
+        abort_unless($record, 404);
+        abort_if($record->status === 'closed', 409, 'Open het gesprek voordat je een video verstuurt.');
+
+        $data = $request->validate([
+            'client_id' => ['required', 'uuid'],
+            'name' => ['required', 'string', 'max:255'],
+            'mime' => ['nullable', 'string', 'max:100'],
+            'size' => ['required', 'integer', 'min:1', 'max:1073741824'],
+        ]);
+
+        try {
+            return response()->json(
+                $uploads->start('admin:'.$request->user()->id.':conversation:'.$conversation, $data)
+            );
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function uploadStatus(
+        Request $request,
+        LiveChatChunkUploadService $uploads,
+        int $conversation,
+        string $upload
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+        try {
+            return response()->json(
+                $uploads->status('admin:'.$request->user()->id.':conversation:'.$conversation, $upload)
+            );
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function uploadChunk(
+        Request $request,
+        LiveChatChunkUploadService $uploads,
+        int $conversation,
+        string $upload,
+        int $index
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+        $request->validate([
+            'chunk' => ['required', 'file', 'max:5120'],
+        ]);
+
+        try {
+            return response()->json(
+                $uploads->storeChunk(
+                    'admin:'.$request->user()->id.':conversation:'.$conversation,
+                    $upload,
+                    $index,
+                    $request->file('chunk')
+                )
+            );
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function uploadComplete(
+        Request $request,
+        LiveChatService $chat,
+        LiveChatEmailService $email,
+        LiveChatChunkUploadService $uploads,
+        int $conversation,
+        string $upload
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+
+        try {
+            $attachment = $uploads->complete(
+                'admin:'.$request->user()->id.':conversation:'.$conversation,
+                $upload
+            );
+
+            $chat->sendAdmin(
+                $conversation,
+                (int) $request->user()->id,
+                [
+                    'client_id' => $attachment['client_id'],
+                    'type' => 'video',
+                    'body' => null,
+                ],
+                null,
+                $attachment
+            );
+
+            $emailDelivery = $email->deliverAdminMessage(
+                $conversation,
+                (string) $attachment['client_id']
+            );
+
+            $chat->setAdminTyping($conversation, (int) $request->user()->id, false);
+
+            return response()->json([
+                'ok' => true,
+                'email_sent' => $emailDelivery['sent'],
+                'email_skipped' => $emailDelivery['skipped'],
+                'email_error' => $emailDelivery['error'],
+            ])->header('Cache-Control', 'no-store');
+        } catch (\RuntimeException $e) {
+            if (isset($attachment['path'])) {
+                Storage::disk('public')->delete($attachment['path']);
+            }
+            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            if (isset($attachment['path'])) {
+                Storage::disk('public')->delete($attachment['path']);
+            }
+            throw $e;
+        }
+    }
+
+    public function uploadCancel(
+        Request $request,
+        LiveChatChunkUploadService $uploads,
+        int $conversation,
+        string $upload
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+        try {
+            $uploads->cancel('admin:'.$request->user()->id.':conversation:'.$conversation, $upload);
+            return response()->json(['ok' => true]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
 
     public function emailHandoff(
         Request $request,

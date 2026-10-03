@@ -16,6 +16,32 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->block(10, 10)
         ->name('store');
 
+
+    Route::post('/uploads/start', [LiveChatController::class, 'uploadStart'])
+        ->middleware('throttle:30,1,visitor-live-chat-upload-start')
+        ->name('upload-start');
+
+    Route::get('/uploads/{upload}', [LiveChatController::class, 'uploadStatus'])
+        ->whereUuid('upload')
+        ->middleware('throttle:120,1,visitor-live-chat-upload-status')
+        ->name('upload-status');
+
+    Route::post('/uploads/{upload}/chunks/{index}', [LiveChatController::class, 'uploadChunk'])
+        ->whereUuid('upload')
+        ->whereNumber('index')
+        ->middleware('throttle:300,1,visitor-live-chat-upload-chunk')
+        ->name('upload-chunk');
+
+    Route::post('/uploads/{upload}/complete', [LiveChatController::class, 'uploadComplete'])
+        ->whereUuid('upload')
+        ->middleware('throttle:30,1,visitor-live-chat-upload-complete')
+        ->name('upload-complete');
+
+    Route::delete('/uploads/{upload}', [LiveChatController::class, 'uploadCancel'])
+        ->whereUuid('upload')
+        ->middleware('throttle:30,1,visitor-live-chat-upload-cancel')
+        ->name('upload-cancel');
+
     Route::post('/typing', [LiveChatController::class, 'typing'])
         ->middleware('throttle:120,1,visitor-live-chat-typing')
         ->name('typing');
@@ -69,6 +95,37 @@ Route::middleware('auth')
             ->whereNumber('conversation')
             ->middleware('throttle:30,1,admin-live-chat-store')
             ->name('store');
+
+
+        Route::post('/conversations/{conversation}/uploads/start', [AdminLiveChatController::class, 'uploadStart'])
+            ->whereNumber('conversation')
+            ->middleware('throttle:30,1,admin-live-chat-upload-start')
+            ->name('upload-start');
+
+        Route::get('/conversations/{conversation}/uploads/{upload}', [AdminLiveChatController::class, 'uploadStatus'])
+            ->whereNumber('conversation')
+            ->whereUuid('upload')
+            ->middleware('throttle:120,1,admin-live-chat-upload-status')
+            ->name('upload-status');
+
+        Route::post('/conversations/{conversation}/uploads/{upload}/chunks/{index}', [AdminLiveChatController::class, 'uploadChunk'])
+            ->whereNumber('conversation')
+            ->whereUuid('upload')
+            ->whereNumber('index')
+            ->middleware('throttle:300,1,admin-live-chat-upload-chunk')
+            ->name('upload-chunk');
+
+        Route::post('/conversations/{conversation}/uploads/{upload}/complete', [AdminLiveChatController::class, 'uploadComplete'])
+            ->whereNumber('conversation')
+            ->whereUuid('upload')
+            ->middleware('throttle:30,1,admin-live-chat-upload-complete')
+            ->name('upload-complete');
+
+        Route::delete('/conversations/{conversation}/uploads/{upload}', [AdminLiveChatController::class, 'uploadCancel'])
+            ->whereNumber('conversation')
+            ->whereUuid('upload')
+            ->middleware('throttle:30,1,admin-live-chat-upload-cancel')
+            ->name('upload-cancel');
 
         Route::post('/conversations/{conversation}/typing', [AdminLiveChatController::class, 'typing'])
             ->whereNumber('conversation')

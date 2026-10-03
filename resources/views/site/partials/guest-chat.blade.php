@@ -160,7 +160,7 @@
 
 #guest-chat .lc-msg-head small { margin:0; }
 
-#guest-chat .lc-media-image { display:block; max-width:min(260px,100%); max-height:260px; border-radius:10px; object-fit:cover; }
+#guest-chat .lc-media-image, #guest-chat .lc-media-video { display:block; max-width:min(260px,100%); max-height:260px; border-radius:10px; object-fit:cover; }
 
 #guest-chat .lc-file-link { color:inherit; text-decoration:underline; overflow-wrap:anywhere; }
 
@@ -3398,7 +3398,7 @@
 
                 <form class="guest-chat__form lc-form">
 
-                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">📎<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
+                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">📎<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
 
                     <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">🎤</button>
 
@@ -4364,4 +4364,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<script src="{{ asset('js/live-chat.js') }}?v=2" defer></script>
+<script src="{{ asset('js/live-chat.js') }}?v=3" defer></script>

@@ -1020,6 +1020,7 @@ class LiveChatEmailService
         ) {
             'voice' => 'Mashal Support heeft een spraakbericht gestuurd.',
             'file' => 'Mashal Support heeft een bestand gestuurd.',
+            'video' => 'Mashal Support heeft een video gestuurd.',
             default => 'Mashal Support heeft een nieuw bericht gestuurd.',
         };
     }
@@ -1046,10 +1047,6 @@ class LiveChatEmailService
             return [];
         }
 
-        $content = Storage::disk('public')->get(
-            $message->attachment_path
-        );
-
         $maxBytes = max(
             1024,
             (int) config(
@@ -1058,11 +1055,19 @@ class LiveChatEmailService
             )
         );
 
-        if (strlen($content) > $maxBytes) {
+        $attachmentBytes = (int) Storage::disk('public')->size(
+            $message->attachment_path
+        );
+
+        if ($attachmentBytes > $maxBytes) {
             throw new RuntimeException(
                 'De bijlage is te groot om per e-mail te versturen.'
             );
         }
+
+        $content = Storage::disk('public')->get(
+            $message->attachment_path
+        );
 
         return [[
             'name' => (string) (

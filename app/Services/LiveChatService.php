@@ -806,7 +806,9 @@ class LiveChatService
 
         array $data,
 
-        ?UploadedFile $file = null
+        ?UploadedFile $file = null,
+
+        ?array $storedAttachment = null
 
     ): stdClass {
 
@@ -823,6 +825,8 @@ class LiveChatService
                 $data,
 
                 $file,
+
+                $storedAttachment,
 
                 $owner
 
@@ -1000,7 +1004,9 @@ class LiveChatService
 
                     $data,
 
-                    $file
+                    $file,
+
+                    $storedAttachment
 
                 );
 
@@ -1086,7 +1092,9 @@ class LiveChatService
 
         array $data,
 
-        ?UploadedFile $file = null
+        ?UploadedFile $file = null,
+
+        ?array $storedAttachment = null
 
     ): stdClass {
 
@@ -1100,7 +1108,9 @@ class LiveChatService
 
                 $data,
 
-                $file
+                $file,
+
+                $storedAttachment
 
             ): stdClass {
 
@@ -1240,7 +1250,9 @@ class LiveChatService
 
                     $data,
 
-                    $file
+                    $file,
+
+                    $storedAttachment
 
                 );
 
@@ -1512,7 +1524,9 @@ class LiveChatService
 
         array $data,
 
-        ?UploadedFile $file
+        ?UploadedFile $file,
+
+        ?array $storedAttachment = null
 
     ): void {
 
@@ -1591,6 +1605,16 @@ class LiveChatService
             $attachmentSize =
 
                 $file->getSize();
+
+        } elseif ($storedAttachment) {
+
+            $path = (string) ($storedAttachment['path'] ?? '');
+
+            $attachmentName = (string) ($storedAttachment['name'] ?? 'video');
+
+            $attachmentMime = (string) ($storedAttachment['mime'] ?? 'application/octet-stream');
+
+            $attachmentSize = (int) ($storedAttachment['size'] ?? 0);
 
         }
 

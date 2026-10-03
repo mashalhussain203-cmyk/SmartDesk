@@ -1604,7 +1604,8 @@
     line-height: 1.58;
 }
 
-.lca-media-image {
+.lca-media-image,
+.lca-media-video {
     display: block;
 
     max-width:
@@ -3835,7 +3836,7 @@
 
 
 
-                                accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.doc,.docx,.xls,.xlsx"
+                                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v,application/pdf,text/plain,.doc,.docx,.xls,.xlsx"
 
 
 
@@ -4114,7 +4115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=60"
+    src="{{ asset('js/admin-live-chat.js') }}?v=61"
 
 
 
