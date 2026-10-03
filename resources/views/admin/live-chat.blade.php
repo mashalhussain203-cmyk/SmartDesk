@@ -2879,6 +2879,255 @@
     .lca-submit { grid-column: 1 / -1; width: 100%; }
 }
 
+
+
+/* ==========================================================================\n   FULL PAGE / ADMIN CHROME REDESIGN\n   These overrides load only on the live-chat page because this stylesheet\n   lives inside this Blade view. Other admin pages remain untouched.\n   ========================================================================== */
+
+body {
+    background:
+        radial-gradient(circle at 75% -10%, rgba(89, 139, 255, .12), transparent 32rem),
+        radial-gradient(circle at 5% 100%, rgba(200, 255, 98, .06), transparent 28rem),
+        #05070a !important;
+}
+
+.admin-app {
+    min-height: 100vh;
+    background: transparent !important;
+}
+
+/* Sidebar becomes a real operator-console rail */
+.admin-sidebar {
+    top: 14px !important;
+    bottom: 14px !important;
+    left: 14px !important;
+    height: calc(100vh - 28px) !important;
+    border: 1px solid rgba(255,255,255,.075) !important;
+    border-radius: 22px !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.025), transparent 24%),
+        rgba(8, 11, 16, .96) !important;
+    box-shadow: 0 30px 90px rgba(0,0,0,.38) !important;
+    overflow: hidden !important;
+    backdrop-filter: blur(18px);
+}
+
+.admin-sidebar::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: linear-gradient(180deg, #c8ff62, #68e7ff 48%, transparent 88%);
+    opacity: .75;
+    pointer-events: none;
+}
+
+.admin-brand-row {
+    padding-top: 17px !important;
+    padding-bottom: 14px !important;
+}
+
+.admin-brand-mark {
+    border-radius: 12px !important;
+    background: linear-gradient(145deg, #d8ff8e, #a8eb39) !important;
+    color: #071008 !important;
+    box-shadow: 0 8px 30px rgba(200,255,98,.16) !important;
+}
+
+.admin-profile {
+    margin: 4px 10px 10px !important;
+    border: 1px solid rgba(255,255,255,.06) !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,.025) !important;
+}
+
+.admin-sidebar-search {
+    margin-inline: 10px !important;
+    border: 1px solid rgba(255,255,255,.065) !important;
+    border-radius: 13px !important;
+    background: rgba(255,255,255,.025) !important;
+}
+
+.admin-nav {
+    padding-inline: 9px !important;
+}
+
+.admin-nav-link {
+    min-height: 50px !important;
+    border-radius: 13px !important;
+    border: 1px solid transparent !important;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease !important;
+}
+
+.admin-nav-link:hover {
+    transform: translateX(2px);
+    border-color: rgba(255,255,255,.06) !important;
+    background: rgba(255,255,255,.035) !important;
+}
+
+.admin-nav-link.active {
+    border-color: rgba(200,255,98,.16) !important;
+    background:
+        linear-gradient(90deg, rgba(200,255,98,.10), rgba(104,231,255,.035)) !important;
+    box-shadow: inset 3px 0 0 #c8ff62 !important;
+}
+
+.admin-nav-link.active .admin-nav-icon {
+    color: #dfff9e !important;
+}
+
+/* Main workspace */
+.admin-main {
+    min-height: 100vh !important;
+    padding-top: 14px !important;
+    padding-right: 14px !important;
+    padding-bottom: 14px !important;
+}
+
+.admin-topbar {
+    min-height: 76px !important;
+    margin-bottom: 12px !important;
+    padding: 12px 18px !important;
+    border: 1px solid rgba(255,255,255,.07) !important;
+    border-radius: 20px !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.018), transparent),
+        rgba(9,13,18,.92) !important;
+    box-shadow: 0 20px 55px rgba(0,0,0,.22) !important;
+    backdrop-filter: blur(16px);
+}
+
+.admin-topbar-copy {
+    gap: 4px !important;
+}
+
+.admin-page-title {
+    font-size: clamp(20px, 2vw, 28px) !important;
+    letter-spacing: -.035em !important;
+    font-weight: 760 !important;
+}
+
+.admin-topbar-copy::before {
+    content: "SUPPORT COMMAND CENTER";
+    display: block;
+    color: #84909b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+
+.admin-topbar-actions > * {
+    border-radius: 12px !important;
+}
+
+.admin-content {
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Make the live workspace use the available viewport like a real support desk */
+.lca {
+    min-height: calc(100vh - 116px);
+}
+
+.lca-shell {
+    min-height: calc(100vh - 116px);
+}
+
+.lca-top {
+    min-height: 86px;
+}
+
+.lca-grid {
+    min-height: min(760px, calc(100vh - 292px));
+    height: calc(100vh - 292px);
+}
+
+.lca-inbox,
+.lca-detail {
+    min-height: 0;
+}
+
+.lca-list,
+.lca-log {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.16) transparent;
+}
+
+.lca-list::-webkit-scrollbar,
+.lca-log::-webkit-scrollbar {
+    width: 7px;
+}
+
+.lca-list::-webkit-scrollbar-thumb,
+.lca-log::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(255,255,255,.14);
+}
+
+/* Wider desktop support view */
+@media (min-width: 1180px) {
+    .lca-grid {
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) !important;
+    }
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    .admin-main {
+        padding: 10px !important;
+    }
+
+    .admin-topbar {
+        border-radius: 16px !important;
+    }
+
+    .lca,
+    .lca-shell {
+        min-height: auto;
+    }
+
+    .lca-grid {
+        height: auto;
+        min-height: 680px;
+    }
+}
+
+/* Mobile: keep the page purposeful instead of looking like squeezed desktop */
+@media (max-width: 760px) {
+    body {
+        background: #06090d !important;
+    }
+
+    .admin-main {
+        padding: 8px !important;
+    }
+
+    .admin-topbar {
+        min-height: 64px !important;
+        margin-bottom: 8px !important;
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+    }
+
+    .admin-topbar-copy::before {
+        font-size: 9px;
+    }
+
+    .admin-page-title {
+        font-size: 20px !important;
+    }
+
+    .lca-top,
+    .lca-stats {
+        border-radius: 15px;
+    }
+
+    .lca-grid {
+        min-height: 0;
+    }
+}
+
 </style>
 
 
