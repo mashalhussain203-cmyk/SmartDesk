@@ -3433,7 +3433,7 @@
 
         const confirmation = subjectLocked
             ? `Instellingen opslaan?\n\nE-mail: ${email}\nOnderwerp (vast voor dezelfde Gmail-thread): ${subject}\nTitel in de mail: ${title}`
-            : `Gesprek via e-mail starten?\n\nE-mail: ${email}\nOnderwerp: ${subject}\nTitel in de mail: ${title}`;
+            : `Gesprek via e-mail starten?\n\nDe volledige chatgeschiedenis tot nu toe wordt als transcript in de eerste e-mail meegestuurd.\n\nE-mail: ${email}\nOnderwerp: ${subject}\nTitel in de mail: ${title}`;
 
         if (!window.confirm(confirmation)) {
             return;

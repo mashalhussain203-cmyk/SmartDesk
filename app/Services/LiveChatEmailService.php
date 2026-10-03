@@ -270,9 +270,16 @@ class LiveChatEmailService
                 $references = $context['references'];
             }
 
-            $bodyText = $this->mailBodyForMessage(
-                $message
-            );
+            $isInitialHandoff = $threadId === '';
+
+            $bodyText = $isInitialHandoff
+                ? $this->handoffTranscriptBody(
+                    $conversation,
+                    $message
+                )
+                : $this->mailBodyForMessage(
+                    $message
+                );
 
             $raw = $this->buildRawEmail(
                 to: $targetEmail,
@@ -1002,6 +1009,210 @@ class LiveChatEmailService
         );
 
         return $token;
+    }
+
+    private function handoffTranscriptBody(
+        stdClass $conversation,
+        stdClass $handoffMessage
+    ): string {
+        $messages = DB::table('live_chat_messages as m')
+            ->leftJoin(
+                'users as u',
+                'u.id',
+                '=',
+                'm.sender_user_id'
+            )
+            ->where(
+                'm.conversation_id',
+                $conversation->id
+            )
+            ->where(
+                'm.id',
+                '<=',
+                $handoffMessage->id
+            )
+            ->orderBy('m.id')
+            ->select(
+                'm.*',
+                'u.name as sender_user_name'
+            )
+            ->get();
+
+        $customerName = trim(
+            (string) ($conversation->user_name ?? '')
+        );
+
+        if ($customerName === '') {
+            $customerName = 'Klant';
+        }
+
+        $handoffText = trim(
+            (string) config(
+                'live-chat-email.handoff_message',
+                'Uw gesprek met Mashal Support gaat vanaf nu verder via e-mail. U kunt rechtstreeks op deze e-mail antwoorden.'
+            )
+        );
+
+        $isHandoffMarker = (string) ($handoffMessage->type ?? 'text') === 'text'
+            && empty($handoffMessage->attachment_path)
+            && trim((string) ($handoffMessage->body ?? '')) === $handoffText;
+
+        $lines = [
+            'Hieronder staat het volledige transcript van uw live-chat tot het moment waarop het gesprek naar e-mail is verplaatst.',
+            '',
+            '===== VOLLEDIG CHATTRANSCRIPT =====',
+        ];
+
+        if ($messages->isEmpty()) {
+            $lines[] = 'Er waren nog geen eerdere chatberichten.';
+        } else {
+            foreach ($messages as $chatMessage) {
+                if (
+                    $isHandoffMarker
+                    && (int) $chatMessage->id === (int) $handoffMessage->id
+                ) {
+                    continue;
+                }
+
+                $sender = $chatMessage->sender === 'admin'
+                    ? trim(
+                        (string) (
+                            $chatMessage->sender_user_name
+                            ?? 'Medewerker'
+                        )
+                    )
+                    : $customerName;
+
+                if ($sender === '') {
+                    $sender = $chatMessage->sender === 'admin'
+                        ? 'Medewerker'
+                        : 'Klant';
+                }
+
+                $timestamp = $this->transcriptTimestamp(
+                    $chatMessage->created_at ?? null
+                );
+
+                $prefix = '['.$timestamp.'] '.$sender.':';
+                $body = trim((string) ($chatMessage->body ?? ''));
+
+                if ($body !== '') {
+                    $bodyLines = preg_split(
+                        '/\R/u',
+                        $body
+                    ) ?: [$body];
+
+                    $firstLine = array_shift($bodyLines);
+                    $lines[] = $prefix.' '.$firstLine;
+
+                    foreach ($bodyLines as $bodyLine) {
+                        $lines[] = '    '.$bodyLine;
+                    }
+                }
+
+                $attachment = $this->transcriptAttachmentLabel(
+                    $chatMessage
+                );
+
+                if ($attachment !== null) {
+                    if ($body === '') {
+                        $lines[] = $prefix.' '.$attachment;
+                    } else {
+                        $lines[] = '    '.$attachment;
+                    }
+                }
+
+                if ($body === '' && $attachment === null) {
+                    $lines[] = $prefix.' [Leeg bericht]';
+                }
+            }
+        }
+
+        $lines[] = '===== EINDE CHATTRANSCRIPT =====';
+        $lines[] = '';
+        $lines[] = $handoffText;
+
+        return implode("\n", $lines);
+    }
+
+    private function transcriptTimestamp(mixed $value): string
+    {
+        if ($value === null || trim((string) $value) === '') {
+            return 'onbekende tijd';
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($value)
+                ->timezone(
+                    (string) config(
+                        'app.timezone',
+                        'Europe/Amsterdam'
+                    )
+                )
+                ->format('d-m-Y H:i');
+        } catch (Throwable) {
+            return (string) $value;
+        }
+    }
+
+    private function transcriptAttachmentLabel(
+        stdClass $message
+    ): ?string {
+        if (empty($message->attachment_path)) {
+            return null;
+        }
+
+        $name = trim(
+            (string) (
+                $message->attachment_name
+                ?: basename(
+                    (string) $message->attachment_path
+                )
+            )
+        );
+
+        if ($name === '') {
+            $name = 'bijlage';
+        }
+
+        $type = match ((string) ($message->type ?? 'file')) {
+            'voice' => 'Spraakbericht',
+            'video' => 'Video',
+            default => 'Bestand',
+        };
+
+        $size = $this->formatTranscriptBytes(
+            (int) ($message->attachment_size ?? 0)
+        );
+
+        return '['.$type.': '.$name
+            .($size !== '' ? ' · '.$size : '')
+            .']';
+    }
+
+    private function formatTranscriptBytes(int $bytes): string
+    {
+        if ($bytes <= 0) {
+            return '';
+        }
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $value = (float) $bytes;
+        $unit = 0;
+
+        while ($value >= 1024 && $unit < count($units) - 1) {
+            $value /= 1024;
+            $unit++;
+        }
+
+        $decimals = $unit >= 2 ? 1 : 0;
+
+        return number_format(
+            $value,
+            $decimals,
+            ',',
+            '.'
+        ).' '.$units[$unit];
     }
 
     private function mailBodyForMessage(
