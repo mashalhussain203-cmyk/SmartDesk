@@ -2715,10 +2715,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const senderType =
             String(
-                message.sender_type
+                message.sender
+                ?? message.sender_type
                 ?? message.senderType
                 ?? message.role
-                ?? message.type
                 ?? message.author_type
                 ?? message.authorType
                 ?? ''
@@ -2793,6 +2793,14 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const getLatestAdminMessage = function (payload) {
+        /*
+         * LiveChatService::payload() retourneert:
+         * {
+         *   messages: [
+         *      { id, sender: 'admin'|'visitor', body, ... }
+         *   ]
+         * }
+         */
         const messages =
             getNestedMessages(payload);
 
@@ -2825,19 +2833,101 @@ document.addEventListener('DOMContentLoaded', function () {
         showToast(messageText);
         showBrowserNotification(messageText);
 
-        if (!isOpen()) {
-            toggle.click();
+        /*
+         * CRUCIAAL:
+         * De bestaande live-chat.js pollt alleen wanneer:
+         *   chat.dataset.mode === 'human'
+         *
+         * Daarom openen we niet alleen het algemene AI-paneel,
+         * maar schakelen we expliciet naar de bestaande human handoff.
+         */
+        try {
+            root.dispatchEvent(
+                new CustomEvent(
+                    'live-chat:handoff',
+                    {
+                        detail: {
+                            body: ''
+                        }
+                    }
+                )
+            );
+        } catch (error) {
+            /*
+             * Fallback wanneer CustomEvent onverwacht niet beschikbaar is.
+             */
+            root.dataset.mode = 'human';
         }
 
         /*
-         * Geef live-chat.js na het openen kort tijd om het nieuwe
-         * gesprek/bericht in de zichtbare chat te renderen.
+         * guest-chat.js houdt open/dicht bij met panel.hidden,
+         * data-open en aria-expanded. We zetten die drie bewust gelijk,
+         * zodat de bezoeker NIET eerst zelf hoeft te klikken.
+         */
+        panel.hidden = false;
+        root.dataset.open = 'true';
+        toggle.setAttribute(
+            'aria-expanded',
+            'true'
+        );
+
+        /*
+         * De live sectie direct zichtbaar maken.
+         * activateHuman() uit live-chat.js doet dit ook, maar deze
+         * fallback voorkomt timingproblemen tussen beide scripts.
+         */
+        if (livePanel) {
+            livePanel.hidden = false;
+        }
+
+        const aiBody =
+            root.querySelector('.gc-body');
+
+        const aiBottom =
+            root.querySelector('.gc-bottom');
+
+        const resetButton =
+            root.querySelector('.gc-reset');
+
+        if (aiBody) {
+            aiBody.hidden = true;
+        }
+
+        if (aiBottom) {
+            aiBottom.hidden = true;
+        }
+
+        if (resetButton) {
+            resetButton.hidden = true;
+        }
+
+        /*
+         * Op mobiel/desktop meteen naar de nieuwe live-chat scrollpositie.
+         */
+        window.requestAnimationFrame(function () {
+            const liveInput =
+                root.querySelector('.lc-input');
+
+            if (
+                liveInput
+                && !window.matchMedia(
+                    '(max-width: 699px)'
+                ).matches
+            ) {
+                liveInput.focus({
+                    preventScroll: true
+                });
+            }
+        });
+
+        /*
+         * Extra check na de native live-chat poll.
          */
         window.setTimeout(function () {
             if (typeof checkForNewLiveAdminMessage === 'function') {
                 checkForNewLiveAdminMessage();
             }
-        }, 350);
+        }, 450);
     };
 
     const pollLiveChatInBackground = async function () {
@@ -2927,7 +3017,7 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     window.setInterval(
         pollLiveChatInBackground,
-        3000
+        2000
     );
 
     /*
