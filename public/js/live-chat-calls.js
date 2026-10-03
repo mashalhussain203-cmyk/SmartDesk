@@ -33,10 +33,11 @@
         incomingShownId: null,
         busy: false,
         sound: { context: null, loopTimer: null, kind: null },
+        mediaSyncTimer: null,
     };
 
     const css = `
-.lcc-call-btn{display:inline-grid;place-items:center;width:42px;height:42px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.045);color:#eaf0ff;cursor:pointer;transition:.18s ease;font-size:18px;line-height:1}.lcc-call-btn:hover:not(:disabled){background:rgba(122,108,255,.16);border-color:rgba(139,126,255,.5);transform:translateY(-1px)}.lcc-call-btn:disabled{opacity:.35;cursor:not-allowed}.lcc-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:20px;background:rgba(2,5,11,.82);backdrop-filter:blur(18px);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.lcc-card{position:relative;width:min(920px,100%);height:min(680px,calc(100dvh - 40px));overflow:hidden;border:1px solid rgba(255,255,255,.11);border-radius:28px;background:linear-gradient(145deg,#111728,#070a11 75%);box-shadow:0 35px 120px rgba(0,0,0,.62)}.lcc-stage{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,rgba(122,108,255,.18),transparent 42%),#080b12}.lcc-remote{width:100%;height:100%;object-fit:cover;background:#05070b}.lcc-local{position:absolute;right:22px;bottom:112px;width:min(210px,28vw);aspect-ratio:3/4;object-fit:cover;border:1px solid rgba(255,255,255,.18);border-radius:20px;background:#111827;box-shadow:0 18px 50px rgba(0,0,0,.45);transform:scaleX(-1)}.lcc-audio-avatar{display:grid;place-items:center;width:128px;height:128px;border-radius:50%;background:linear-gradient(135deg,#786cff,#3e7bff);box-shadow:0 0 0 16px rgba(122,108,255,.08),0 0 0 32px rgba(122,108,255,.04);font-size:46px;font-weight:800;color:white}.lcc-top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;padding:24px;background:linear-gradient(180deg,rgba(0,0,0,.64),transparent)}.lcc-title{margin:0;color:#fff;font-size:18px;font-weight:750}.lcc-status{margin:6px 0 0;color:#bbc4d7;font-size:13px}.lcc-timer{min-width:76px;text-align:right;color:#fff;font-variant-numeric:tabular-nums;font-size:13px}.lcc-controls{position:absolute;left:50%;bottom:26px;z-index:4;display:flex;gap:12px;transform:translateX(-50%);padding:11px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:rgba(8,11,18,.72);backdrop-filter:blur(16px)}.lcc-control{display:grid;place-items:center;width:54px;height:54px;border:0;border-radius:18px;background:rgba(255,255,255,.09);color:white;font-size:21px;cursor:pointer}.lcc-control:hover{background:rgba(255,255,255,.15)}.lcc-control[data-active="false"]{background:rgba(239,68,68,.22);color:#fecaca}.lcc-control--end{background:#ef4444}.lcc-control--end:hover{background:#dc2626}.lcc-incoming{position:fixed;right:24px;bottom:24px;z-index:2147483001;width:min(390px,calc(100vw - 32px));padding:18px;border:1px solid rgba(255,255,255,.13);border-radius:22px;background:linear-gradient(145deg,#151b2a,#0a0e17);box-shadow:0 24px 80px rgba(0,0,0,.56);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;color:white}.lcc-incoming__head{display:flex;gap:13px;align-items:center}.lcc-incoming__icon{display:grid;place-items:center;width:50px;height:50px;border-radius:16px;background:rgba(122,108,255,.16);font-size:22px}.lcc-incoming strong{display:block;font-size:15px}.lcc-incoming p{margin:4px 0 0;color:#9eabc0;font-size:12px}.lcc-incoming__actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.lcc-incoming button{min-height:44px;border:0;border-radius:13px;font-weight:750;cursor:pointer}.lcc-accept{background:#22c55e;color:#04130a}.lcc-decline{background:#ef4444;color:white}.lcc-toast{position:fixed;left:50%;bottom:28px;z-index:2147483002;transform:translateX(-50%);padding:11px 16px;border-radius:13px;background:#111827;color:#f8fafc;box-shadow:0 12px 40px rgba(0,0,0,.45);font:600 13px/1.35 system-ui,sans-serif}.lcc-hidden{display:none!important}@media(max-width:700px){.lcc-overlay{padding:0}.lcc-card{width:100%;height:100dvh;border:0;border-radius:0}.lcc-local{right:14px;bottom:102px;width:120px;border-radius:16px}.lcc-controls{bottom:18px}.lcc-top{padding:18px}.lcc-incoming{right:16px;bottom:16px}}`;
+.lcc-call-btn{display:inline-grid;place-items:center;width:42px;height:42px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.045);color:#eaf0ff;cursor:pointer;transition:.18s ease;font-size:18px;line-height:1}.lcc-call-btn:hover:not(:disabled){background:rgba(122,108,255,.16);border-color:rgba(139,126,255,.5);transform:translateY(-1px)}.lcc-call-btn:disabled{opacity:.35;cursor:not-allowed}.lcc-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:20px;background:rgba(2,5,11,.82);backdrop-filter:blur(18px);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.lcc-card{position:relative;width:min(920px,100%);height:min(680px,calc(100dvh - 40px));overflow:hidden;border:1px solid rgba(255,255,255,.11);border-radius:28px;background:linear-gradient(145deg,#111728,#070a11 75%);box-shadow:0 35px 120px rgba(0,0,0,.62)}.lcc-stage{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,rgba(122,108,255,.18),transparent 42%),#080b12}.lcc-remote{width:100%;height:100%;object-fit:cover;background:#05070b}.lcc-local{position:absolute;right:22px;bottom:112px;width:min(210px,28vw);aspect-ratio:3/4;object-fit:cover;border:1px solid rgba(255,255,255,.18);border-radius:20px;background:#111827;box-shadow:0 18px 50px rgba(0,0,0,.45);transform:scaleX(-1)}.lcc-audio-avatar{display:grid;place-items:center;width:128px;height:128px;border-radius:50%;background:linear-gradient(135deg,#786cff,#3e7bff);box-shadow:0 0 0 16px rgba(122,108,255,.08),0 0 0 32px rgba(122,108,255,.04);font-size:46px;font-weight:800;color:white}.lcc-top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;padding:24px;background:linear-gradient(180deg,rgba(0,0,0,.64),transparent)}.lcc-title{margin:0;color:#fff;font-size:18px;font-weight:750}.lcc-status{margin:6px 0 0;color:#bbc4d7;font-size:13px}.lcc-timer{min-width:76px;text-align:right;color:#fff;font-variant-numeric:tabular-nums;font-size:13px}.lcc-controls{position:absolute;left:50%;bottom:26px;z-index:4;display:flex;gap:12px;transform:translateX(-50%);padding:11px;border:1px solid rgba(255,255,255,.09);border-radius:22px;background:rgba(8,11,18,.72);backdrop-filter:blur(16px)}.lcc-control{display:grid;place-items:center;width:54px;height:54px;border:0;border-radius:18px;background:rgba(255,255,255,.09);color:white;font-size:21px;cursor:pointer}.lcc-control:hover{background:rgba(255,255,255,.15)}.lcc-control[data-active="false"]{background:rgba(239,68,68,.22);color:#fecaca}.lcc-control--end{background:#ef4444}.lcc-control--end:hover{background:#dc2626}.lcc-incoming{position:fixed;right:24px;bottom:24px;z-index:2147483001;width:min(390px,calc(100vw - 32px));padding:18px;border:1px solid rgba(255,255,255,.13);border-radius:22px;background:linear-gradient(145deg,#151b2a,#0a0e17);box-shadow:0 24px 80px rgba(0,0,0,.56);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;color:white}.lcc-incoming__head{display:flex;gap:13px;align-items:center}.lcc-incoming__icon{display:grid;place-items:center;width:50px;height:50px;border-radius:16px;background:rgba(122,108,255,.16);font-size:22px}.lcc-incoming strong{display:block;font-size:15px}.lcc-incoming p{margin:4px 0 0;color:#9eabc0;font-size:12px}.lcc-incoming__actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.lcc-incoming button{min-height:44px;border:0;border-radius:13px;font-weight:750;cursor:pointer}.lcc-accept{background:#22c55e;color:#04130a}.lcc-decline{background:#ef4444;color:white}.lcc-toast{position:fixed;left:50%;bottom:28px;z-index:2147483002;transform:translateX(-50%);padding:11px 16px;border-radius:13px;background:#111827;color:#f8fafc;box-shadow:0 12px 40px rgba(0,0,0,.45);font:600 13px/1.35 system-ui,sans-serif}.lcc-hidden{display:none!important}@media(max-width:700px){.lcc-overlay{padding:0}.lcc-card{width:100%;height:100dvh;border:0;border-radius:0}.lcc-local{right:14px;bottom:calc(112px + env(safe-area-inset-bottom));width:120px;border-radius:16px}.lcc-controls{left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));transform:none;width:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:9px}.lcc-control{width:100%;min-width:0;height:52px;border-radius:16px}.lcc-control[data-lcc-camera],.lcc-control[data-lcc-mute]{display:grid!important;visibility:visible!important;opacity:1}.lcc-top{padding:calc(18px + env(safe-area-inset-top)) 18px 18px}.lcc-incoming{right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}}`;
 
     const style = document.createElement('style');
     style.textContent = css;
@@ -308,6 +309,7 @@
                 setStatus('Verbonden');
                 playConnectedSound();
                 startTimer();
+                startMediaSync();
             }
 
             if (pc.connectionState === 'failed') {
@@ -415,6 +417,7 @@
         switchButton.addEventListener('click', () => void switchCamera());
         overlay.querySelector('[data-lcc-end]').addEventListener('click', () => void finishCall(true, 'Oproep beëindigd'));
         syncMediaElements();
+        startMediaSync();
     }
 
     function setStatus(text) {
@@ -452,9 +455,69 @@
 
     function toggleMute() {
         state.muted = !state.muted;
-        state.localStream?.getAudioTracks().forEach(track => { track.enabled = !state.muted; });
-        muteButton?.setAttribute('data-active', String(!state.muted));
-        if (muteButton) muteButton.textContent = state.muted ? '🔇' : '🎙';
+        const enabled = !state.muted;
+
+        // iOS/Safari: wijzig zowel de lokale streamtrack als de daadwerkelijke
+        // RTCRtpSender-track. Daardoor werkt mute ook nadat streams/tracks zijn
+        // vervangen bij audio -> video.
+        state.localStream?.getAudioTracks().forEach(track => { track.enabled = enabled; });
+        state.peer?.getSenders?.().forEach(sender => {
+            if (sender.track?.kind === 'audio') sender.track.enabled = enabled;
+        });
+
+        muteButton?.setAttribute('data-active', String(enabled));
+        muteButton?.setAttribute('aria-pressed', String(state.muted));
+        if (muteButton) {
+            muteButton.textContent = state.muted ? '🔇' : '🎙';
+            muteButton.title = state.muted ? 'Microfoon inschakelen' : 'Microfoon dempen';
+            muteButton.setAttribute('aria-label', muteButton.title);
+        }
+    }
+
+    function syncRemoteReceivers() {
+        if (!state.peer || !state.remoteStream) return;
+
+        let hasLiveVideo = false;
+        for (const receiver of state.peer.getReceivers?.() || []) {
+            const track = receiver.track;
+            if (!track || track.readyState === 'ended') continue;
+
+            if (!state.remoteStream.getTracks().some(item => item.id === track.id)) {
+                try { state.remoteStream.addTrack(track); } catch {}
+            }
+
+            if (track.kind === 'video') {
+                // Safari/iOS vuurt bij replaceTrack niet altijd opnieuw een
+                // `unmute` event af. Een live receiver betekent dat de video
+                // wel beschikbaar is; laat het element daarom zien en spelen.
+                hasLiveVideo = true;
+            }
+        }
+
+        if (hasLiveVideo !== state.remoteVideoActive) {
+            state.remoteVideoActive = hasLiveVideo;
+            updateVideoUi();
+        }
+
+        syncMediaElements();
+        if (remoteVideo && hasLiveVideo) {
+            remoteVideo.playsInline = true;
+            remoteVideo.autoplay = true;
+            remoteVideo.muted = false;
+            remoteVideo.volume = 1;
+            remoteVideo.play().catch(() => {});
+        }
+    }
+
+    function startMediaSync() {
+        if (state.mediaSyncTimer) return;
+        syncRemoteReceivers();
+        state.mediaSyncTimer = window.setInterval(syncRemoteReceivers, 650);
+    }
+
+    function stopMediaSync() {
+        if (state.mediaSyncTimer) window.clearInterval(state.mediaSyncTimer);
+        state.mediaSyncTimer = null;
     }
 
     function updateVideoUi() {
@@ -470,6 +533,7 @@
             cameraButton.classList.remove('lcc-hidden');
             cameraButton.setAttribute('data-active', String(state.localVideoActive));
             cameraButton.textContent = state.localVideoActive ? '📷' : '🎥';
+            cameraButton.dataset.videoToggle = state.localVideoActive ? 'on' : 'off';
             cameraButton.title = state.localVideoActive ? 'Video uitzetten' : 'Overschakelen naar video';
             cameraButton.setAttribute('aria-label', cameraButton.title);
         }
@@ -550,6 +614,8 @@
             }
 
             await sender.replaceTrack(track);
+            window.setTimeout(syncRemoteReceivers, 120);
+            window.setTimeout(syncRemoteReceivers, 700);
 
             state.localStream?.getVideoTracks().forEach(oldTrack => {
                 if (oldTrack.id !== track.id) oldTrack.stop();
@@ -638,6 +704,7 @@
         state.remoteVideoActive = false;
         state.cameraOff = false;
         stopTimer();
+        stopMediaSync();
         overlay?.remove();
         overlay = null;
         remoteVideo = localVideo = statusNode = timerNode = muteButton = cameraButton = switchButton = null;
