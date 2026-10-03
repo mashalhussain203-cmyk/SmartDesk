@@ -636,7 +636,7 @@
     }
 
     async function pollIncoming() {
-        if (state.call || state.busy || document.hidden) return;
+        if (state.call || state.busy) return;
         try {
             let data;
             if (side === 'admin') {
@@ -653,7 +653,12 @@
 
             if (incoming) showIncoming(call);
             else if (incomingNode) removeIncoming();
-        } catch {}
+        } catch (error) {
+            // Laat pollingfouten zichtbaar zijn in DevTools; op iOS waren deze
+            // eerder volledig stil, waardoor een 401/419/500 eruitzag alsof
+            // er simpelweg geen inkomende oproep bestond.
+            console.warn('[LiveChatCall] incoming poll failed', error);
+        }
     }
 
     function installButtons() {
@@ -729,14 +734,36 @@
         refresh();
     }
 
+    // iOS/Safari laat WebAudio pas spelen nadat de bezoeker minimaal één
+    // interactie met de pagina heeft gehad. Ontgrendel de AudioContext bij de
+    // eerste tap zodat een inkomende ringtone daarna wel hoorbaar is.
+    const unlockAudio = () => {
+        const ctx = audioContext();
+        if (ctx?.state === 'suspended') ctx.resume().catch(() => {});
+    };
+    document.addEventListener('touchstart', unlockAudio, { passive: true, once: true });
+    document.addEventListener('pointerdown', unlockAudio, { passive: true, once: true });
+    document.addEventListener('click', unlockAudio, { passive: true, once: true });
+
     installButtons();
     setInterval(installButtons, 2500);
+
+    // Voorgrondpolling. iOS mag timers in de achtergrond pauzeren, maar zodra
+    // Safari weer actief is controleren we direct opnieuw via de events hieronder.
     setInterval(() => void pollIncoming(), POLL_MS);
     void pollIncoming();
 
+    const wakeIncomingPoll = () => {
+        window.setTimeout(() => void pollIncoming(), 0);
+        window.setTimeout(() => void pollIncoming(), 350);
+    };
+
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) void pollIncoming();
+        if (!document.hidden) wakeIncomingPoll();
     });
+    window.addEventListener('pageshow', wakeIncomingPoll);
+    window.addEventListener('focus', wakeIncomingPoll);
+    window.addEventListener('online', wakeIncomingPoll);
 
     window.addEventListener('beforeunload', () => {
         stopCallSound();
