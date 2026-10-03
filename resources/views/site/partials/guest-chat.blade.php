@@ -1494,6 +1494,642 @@
     }
 }
 
+
+/* ==========================================================================
+   MASHAL AI V4 — ULTRA EXPERT
+   Conversation-first, premium SaaS, purple/blue, mobile app feel
+   ========================================================================== */
+
+#guest-chat {
+    --ai-purple: #7a6cff;
+    --ai-purple-soft: #9b93ff;
+    --ai-blue: #42a5ff;
+    --ai-bg: #07090e;
+    --ai-surface: #0c0f16;
+    --ai-surface-2: #111620;
+    --ai-text: #f7f8fb;
+    --ai-muted: #7d8796;
+    --ai-line: rgba(255,255,255,.075);
+}
+
+/* LAUNCHER ------------------------------------------------------------- */
+
+#guest-chat .guest-chat__toggle {
+    width: 58px;
+    height: 58px;
+    min-height: 58px;
+    border-radius: 18px;
+
+    border: 1px solid rgba(151,143,255,.38);
+
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.20), transparent 28%),
+        linear-gradient(145deg, #7567fa 0%, #626fff 46%, #42a5ff 100%);
+
+    box-shadow:
+        0 18px 42px rgba(0,0,0,.38),
+        0 10px 32px rgba(93,80,230,.28),
+        inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+#guest-chat .guest-chat__toggle::before {
+    inset: -5px;
+    border-radius: 22px;
+    border-color: rgba(122,108,255,.16);
+}
+
+#guest-chat .guest-chat__toggle .gc-icon svg {
+    width: 27px;
+    height: 27px;
+    stroke-width: 1.85;
+}
+
+#guest-chat .gc-launch-status {
+    right: 3px;
+    bottom: 3px;
+    width: 11px;
+    height: 11px;
+    border-width: 3px;
+}
+
+/* PANEL SHELL ---------------------------------------------------------- */
+
+#guest-chat .guest-chat__panel {
+    width: min(392px, calc(100vw - 28px));
+    height: min(640px, calc(100dvh - 96px));
+    max-height: calc(100dvh - 96px);
+
+    margin-bottom: 12px;
+
+    border: 1px solid rgba(145,136,255,.18);
+    border-radius: 24px;
+
+    background:
+        radial-gradient(circle at 92% 3%, rgba(66,165,255,.09), transparent 16rem),
+        radial-gradient(circle at 5% 0%, rgba(122,108,255,.12), transparent 18rem),
+        linear-gradient(180deg, rgba(12,15,22,.995), rgba(6,8,13,.995));
+
+    box-shadow:
+        0 38px 110px rgba(0,0,0,.62),
+        0 10px 46px rgba(71,62,190,.10),
+        inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+#guest-chat .guest-chat__panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.012);
+}
+
+/* HEADER --------------------------------------------------------------- */
+
+#guest-chat .guest-chat__header {
+    min-height: 68px;
+    padding: 11px 11px 11px 13px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.018),
+            rgba(255,255,255,.004)
+        );
+}
+
+#guest-chat .guest-chat__header .gc-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(122,108,255,.24);
+
+    color: #c9c5ff;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(122,108,255,.16),
+            rgba(66,165,255,.045)
+        );
+
+    box-shadow: none;
+}
+
+#guest-chat .gc-title-wrap {
+    min-width: 0;
+    flex: 1;
+}
+
+#guest-chat .gc-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#guest-chat .guest-chat__header h2 {
+    font-size: 14px;
+    font-weight: 760;
+    letter-spacing: -.025em;
+}
+
+#guest-chat .gc-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    min-height: 20px;
+    padding: 0 7px;
+
+    border: 1px solid rgba(116,223,167,.12);
+    border-radius: 999px;
+
+    color: #86cfa5;
+    background: rgba(116,223,167,.035);
+
+    font-size: 8px;
+    font-weight: 750;
+}
+
+#guest-chat .gc-live-pill i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #74dfa7;
+    box-shadow: 0 0 8px rgba(116,223,167,.48);
+}
+
+#guest-chat .gc-subtitle {
+    max-width: none;
+    margin-top: 1px;
+    color: #697382;
+    font-size: 9px;
+}
+
+#guest-chat .gc-action {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+}
+
+/* WELCOME -------------------------------------------------------------- */
+
+#guest-chat .gc-welcome {
+    padding: 28px 20px 12px;
+}
+
+#guest-chat .gc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    color: #8d84ff;
+
+    font-size: 8px;
+    font-weight: 850;
+    letter-spacing: .18em;
+}
+
+#guest-chat .gc-welcome h3 {
+    max-width: 300px;
+    margin: 0;
+
+    font-size: clamp(31px, 4vw, 38px);
+    font-weight: 680;
+    line-height: .98;
+    letter-spacing: -.065em;
+}
+
+#guest-chat .gc-welcome > p:last-of-type {
+    max-width: 295px;
+    margin-top: 13px;
+
+    color: #737d8b;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* QUICK PROMPTS — no more chunky cards -------------------------------- */
+
+#guest-chat .guest-chat__suggestions {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 22px;
+}
+
+#guest-chat .guest-chat__suggestions button {
+    position: relative;
+
+    min-height: 48px;
+    padding: 10px 36px 10px 12px;
+
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.014);
+
+    color: #c0c6d0;
+
+    font-size: 10px;
+    line-height: 1.35;
+
+    box-shadow: none;
+}
+
+#guest-chat .guest-chat__suggestions button::after {
+    content: "↗";
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    color: #596373;
+    transform: translateY(-50%);
+    transition: transform .18s ease, color .18s ease;
+}
+
+#guest-chat .guest-chat__suggestions button:hover {
+    transform: none;
+
+    border-color: rgba(122,108,255,.20);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(122,108,255,.075),
+            rgba(66,165,255,.018)
+        );
+
+    box-shadow: none;
+}
+
+#guest-chat .guest-chat__suggestions button:hover::after {
+    color: #9d96ff;
+    transform: translate(2px,-50%);
+}
+
+#guest-chat .gc-topic {
+    display: inline;
+    margin: 0 7px 0 0;
+
+    color: #8f87ff;
+
+    font-size: 8px;
+    font-weight: 820;
+}
+
+/* CHAT BODY ------------------------------------------------------------ */
+
+#guest-chat .gc-body {
+    scroll-behavior: smooth;
+}
+
+#guest-chat .guest-chat__messages {
+    padding: 14px 15px 6px;
+}
+
+#guest-chat .gc-turn {
+    margin-bottom: 17px;
+}
+
+#guest-chat .gc-speaker {
+    margin-left: 3px;
+    margin-bottom: 5px;
+
+    color: #626c7a;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+#guest-chat .guest-chat__message {
+    max-width: 86%;
+    padding: 11px 13px;
+
+    border-radius: 5px 16px 16px 16px;
+
+    border: 1px solid rgba(255,255,255,.055);
+
+    background:
+        rgba(255,255,255,.026);
+
+    color: #d8dde5;
+
+    box-shadow: none;
+
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#guest-chat .guest-chat__message--user {
+    border: 0;
+    border-radius: 16px 5px 16px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7467f7 0%,
+            #5e78ff 55%,
+            #449cf3 100%
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 8px 22px rgba(74,66,190,.14);
+}
+
+/* COMPOSER ------------------------------------------------------------- */
+
+#guest-chat .gc-bottom {
+    padding: 9px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(8,10,15,.88),
+            rgba(6,8,12,.99)
+        );
+}
+
+#guest-chat .gc-links {
+    padding: 0 14px 8px;
+}
+
+#guest-chat .guest-chat__form {
+    position: relative;
+
+    margin: 0 10px;
+    padding: 5px;
+
+    border: 1px solid rgba(255,255,255,.095);
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.02),
+            rgba(255,255,255,.007)
+        ),
+        #080b10;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+#guest-chat .guest-chat__form:focus-within {
+    border-color: rgba(122,108,255,.36);
+
+    box-shadow:
+        0 0 0 3px rgba(122,108,255,.055),
+        inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+#guest-chat textarea {
+    height: 45px;
+    min-height: 45px;
+    max-height: 120px;
+
+    padding: 10px 9px;
+
+    color: #edf0f5;
+
+    font-size: 13px;
+}
+
+#guest-chat .guest-chat__send {
+    width: 43px;
+    height: 43px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #796bff,
+            #5f7dff 54%,
+            #42a5ff
+        );
+}
+
+/* LIVE CHAT ------------------------------------------------------------ */
+
+#guest-chat .lc-modes {
+    padding: 6px 10px;
+
+    background: rgba(5,7,11,.46);
+}
+
+#guest-chat .lc-modes button {
+    min-height: 34px;
+    font-size: 9px;
+}
+
+#guest-chat .lc-panel {
+    background: transparent;
+}
+
+#guest-chat .lc-log {
+    padding: 13px;
+}
+
+#guest-chat .lc-msg {
+    max-width: 86%;
+    border-radius: 15px 15px 15px 5px;
+    background: rgba(255,255,255,.028);
+}
+
+#guest-chat .lc-msg--visitor {
+    border: 0;
+    border-radius: 15px 15px 5px 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7467f7,
+            #5f78ff 55%,
+            #449cf3
+        );
+}
+
+/* INCOMING TOAST ------------------------------------------------------- */
+
+#guest-chat .gc-incoming-toast {
+    width: min(306px, calc(100vw - 28px));
+    bottom: 72px;
+
+    border-radius: 14px;
+
+    border-color: rgba(122,108,255,.18);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(122,108,255,.07),
+            rgba(66,165,255,.018)
+        ),
+        rgba(9,12,18,.98);
+}
+
+#guest-chat .gc-incoming-toast__icon {
+    border-color: rgba(122,108,255,.18);
+    color: #bcb7ff;
+    background: rgba(122,108,255,.08);
+}
+
+/* DESKTOP EXPANDED ----------------------------------------------------- */
+
+@media (min-width: 700px) {
+    #guest-chat .guest-chat__panel[data-expanded="true"] {
+        width: min(580px, calc(100vw - 48px));
+        height: min(760px, calc(100dvh - 72px));
+    }
+}
+
+/* MOBILE — APP MODE ---------------------------------------------------- */
+
+@media (max-width: 699px) {
+    #guest-chat {
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    #guest-chat[data-open="true"] {
+        inset: 0;
+        padding: 0;
+
+        background: #05070b;
+
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    #guest-chat[data-open="true"] .guest-chat__panel {
+        width: 100%;
+        height: var(--gc-viewport-height,100dvh);
+        max-height: var(--gc-viewport-height,100dvh);
+
+        border: 0;
+        border-radius: 0;
+
+        background:
+            radial-gradient(circle at 90% 0%, rgba(66,165,255,.08), transparent 15rem),
+            radial-gradient(circle at 10% 0%, rgba(122,108,255,.10), transparent 18rem),
+            #07090e;
+
+        box-shadow: none;
+    }
+
+    #guest-chat .guest-chat__header {
+        min-height: 68px;
+
+        padding:
+            max(10px, env(safe-area-inset-top))
+            10px
+            10px
+            12px;
+    }
+
+    #guest-chat .guest-chat__header .gc-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    #guest-chat .gc-live-pill {
+        display: none;
+    }
+
+    #guest-chat .gc-subtitle {
+        font-size: 8px;
+    }
+
+    #guest-chat .gc-welcome {
+        padding: 27px 17px 12px;
+    }
+
+    #guest-chat .gc-welcome h3 {
+        max-width: 290px;
+
+        font-size: clamp(35px, 10vw, 45px);
+        line-height: .95;
+    }
+
+    #guest-chat .gc-welcome > p:last-of-type {
+        max-width: 300px;
+        font-size: 12px;
+    }
+
+    #guest-chat .guest-chat__suggestions {
+        gap: 6px;
+    }
+
+    #guest-chat .guest-chat__suggestions button {
+        min-height: 52px;
+        padding-left: 13px;
+    }
+
+    #guest-chat .guest-chat__messages {
+        padding-inline: 12px;
+    }
+
+    #guest-chat .guest-chat__message,
+    #guest-chat .lc-msg {
+        max-width: 90%;
+        font-size: 13px;
+    }
+
+    #guest-chat .gc-bottom {
+        padding-bottom:
+            max(6px, env(safe-area-inset-bottom));
+    }
+
+    #guest-chat .guest-chat__form {
+        margin-inline: 8px;
+    }
+
+    #guest-chat .guest-chat__notice {
+        padding-bottom: 7px;
+    }
+}
+
+/* VERY SMALL ----------------------------------------------------------- */
+
+@media (max-width: 380px) {
+    #guest-chat .gc-welcome {
+        padding-top: 21px;
+    }
+
+    #guest-chat .gc-welcome h3 {
+        font-size: 35px;
+    }
+
+    #guest-chat .gc-subtitle {
+        display: none;
+    }
+
+    #guest-chat .guest-chat__header {
+        min-height: 62px;
+    }
+
+    #guest-chat .gc-action {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* REDUCED MOTION ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    #guest-chat .guest-chat__panel,
+    #guest-chat .guest-chat__toggle,
+    #guest-chat .guest-chat__suggestions button {
+        animation: none !important;
+        transition-duration: .01ms !important;
+    }
+}
+
 </style>
 
 
@@ -1506,7 +2142,7 @@
 
             <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
 
-            <div><h2 id="guest-chat-title">Mashal AI</h2><p class="gc-subtitle">Je assistent voor ideeën & antwoorden</p></div>
+            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>Online</span></div><p class="gc-subtitle">Slimme hulp, direct in je workspace</p></div>
 
             <div class="gc-actions">
 
@@ -1526,11 +2162,11 @@
 
             <div class="gc-welcome">
 
-                <p class="gc-eyebrow">Een vraag. Een goed begin.</p>
+                <p class="gc-eyebrow">MASHAL INTELLIGENCE</p>
 
-                <h3>Waar kan ik je<br>mee helpen?</h3>
+                <h3>Wat wil je<br>bereiken?</h3>
 
-                <p>Van een eerste idee tot hulp bij Mashal Studio. Stel je vraag, dan denken we samen verder.</p>
+                <p>Vraag iets, werk een idee uit of krijg direct hulp met Mashal Studio.</p>
 
                 <div class="guest-chat__suggestions" aria-label="Voorbeeldvragen">
 
@@ -1681,8 +2317,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     let unread = 0;
-    let armed = false;
     let toastTimer = null;
+
+    let liveBaselineReady = false;
+    let lastLiveAdminCount = 0;
+    let lastLiveAdminSignature = '';
+
+    const normalizeText = function (value) {
+        return String(value || '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
 
     const isOpen = function () {
         return (
@@ -1694,12 +2339,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const clearUnread = function () {
         unread = 0;
-        unreadBadge.textContent = '0';
-        unreadBadge.hidden = true;
-        unreadBadge.setAttribute(
-            'aria-label',
-            '0 ongelezen berichten'
-        );
+
+        if (unreadBadge) {
+            unreadBadge.textContent = '0';
+            unreadBadge.hidden = true;
+            unreadBadge.setAttribute('aria-label', '0 ongelezen berichten');
+        }
 
         toggle.classList.remove('has-unread');
     };
@@ -1707,21 +2352,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const addUnread = function () {
         unread += 1;
 
-        unreadBadge.textContent =
-            unread > 9
-                ? '9+'
-                : String(unread);
-
-        unreadBadge.hidden = false;
-
-        unreadBadge.setAttribute(
-            'aria-label',
-            unread + (
-                unread === 1
-                    ? ' ongelezen bericht'
-                    : ' ongelezen berichten'
-            )
-        );
+        if (unreadBadge) {
+            unreadBadge.textContent = unread > 9 ? '9+' : String(unread);
+            unreadBadge.hidden = false;
+            unreadBadge.setAttribute(
+                'aria-label',
+                unread + (
+                    unread === 1
+                        ? ' ongelezen bericht'
+                        : ' ongelezen berichten'
+                )
+            );
+        }
 
         toggle.classList.remove('has-unread');
 
@@ -1761,13 +2403,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = Notification.requestPermission();
 
             if (result && typeof result.catch === 'function') {
-                result.catch(function () {
-                    // Browsermelding is optioneel; in-app melding blijft werken.
-                });
+                result.catch(function () {});
             }
-        } catch (error) {
-            // Geen blokkade wanneer browsernotificaties niet beschikbaar zijn.
-        }
+        } catch (error) {}
     };
 
     const showBrowserNotification = function (message) {
@@ -1783,9 +2421,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const notification = new Notification(
                 'Nieuw bericht · Mashal Studio',
                 {
-                    body:
-                        message
-                        || 'Je hebt een nieuw bericht ontvangen.',
+                    body: message || 'Je hebt een nieuw bericht ontvangen.',
                     tag: 'mashal-chat-message'
                 }
             );
@@ -1804,9 +2440,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.setTimeout(function () {
                 notification.close();
             }, 6500);
-        } catch (error) {
-            // In-app notificatie blijft beschikbaar.
-        }
+        } catch (error) {}
     };
 
     const openForIncomingMessage = function () {
@@ -1816,10 +2450,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const getMessageText = function (node) {
-        const text =
-            (node?.textContent || '')
-                .replace(/\s+/g, ' ')
-                .trim();
+        const text = normalizeText(node?.textContent);
 
         if (!text) {
             return 'Je hebt een nieuw bericht ontvangen.';
@@ -1831,12 +2462,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const notifyIncoming = function (node) {
-        if (!armed) {
-            return;
-        }
-
-        const message =
-            getMessageText(node);
+        const message = getMessageText(node);
 
         addUnread();
         showToast(message);
@@ -1844,56 +2470,146 @@ document.addEventListener('DOMContentLoaded', function () {
         openForIncomingMessage();
     };
 
-    const containsIncomingLiveMessage = function (node) {
-        if (!(node instanceof Element)) {
-            return null;
+    const getAdminMessages = function () {
+        if (!liveLog) {
+            return [];
         }
 
-        if (
-            node.matches('.lc-msg:not(.lc-msg--visitor)')
-        ) {
-            return node;
-        }
-
-        return node.querySelector(
-            '.lc-msg:not(.lc-msg--visitor)'
+        return Array.from(
+            liveLog.querySelectorAll('.lc-msg:not(.lc-msg--visitor)')
         );
     };
 
-    const containsIncomingAiMessage = function (node) {
-        if (!(node instanceof Element)) {
-            return null;
+    const buildLiveSignature = function (node, index) {
+        if (!node) {
+            return '';
         }
 
-        if (
-            node.matches(
-                '.gc-turn:not(.gc-turn--user), ' +
-                '.guest-chat__message:not(.guest-chat__message--user)'
-            )
-        ) {
-            return node;
+        const explicitId =
+            node.dataset?.messageId
+            || node.dataset?.id
+            || node.getAttribute('data-message-id')
+            || node.getAttribute('data-id');
+
+        if (explicitId) {
+            return 'id:' + explicitId;
         }
 
-        return node.querySelector(
-            '.gc-turn:not(.gc-turn--user), ' +
-            '.guest-chat__message:not(.guest-chat__message--user)'
+        return (
+            'idx:' + index
+            + '|'
+            + normalizeText(node.textContent)
         );
     };
 
-    const watchLog = function (
-        target,
-        detector
-    ) {
-        if (!target) {
+    const syncLiveBaseline = function () {
+        const messages = getAdminMessages();
+
+        lastLiveAdminCount = messages.length;
+        lastLiveAdminSignature =
+            messages.length
+                ? buildLiveSignature(
+                    messages[messages.length - 1],
+                    messages.length - 1
+                )
+                : '';
+
+        liveBaselineReady = true;
+    };
+
+    const checkForNewLiveAdminMessage = function () {
+        if (!liveBaselineReady) {
+            syncLiveBaseline();
             return;
         }
 
-        const observer =
+        const messages = getAdminMessages();
+
+        if (!messages.length) {
+            lastLiveAdminCount = 0;
+            lastLiveAdminSignature = '';
+            return;
+        }
+
+        const latest = messages[messages.length - 1];
+        const latestSignature =
+            buildLiveSignature(latest, messages.length - 1);
+
+        const countIncreased =
+            messages.length > lastLiveAdminCount;
+
+        const latestChanged =
+            latestSignature
+            && latestSignature !== lastLiveAdminSignature;
+
+        if (countIncreased || latestChanged) {
+            notifyIncoming(latest);
+        }
+
+        lastLiveAdminCount = messages.length;
+        lastLiveAdminSignature = latestSignature;
+    };
+
+    if (liveLog) {
+        const liveObserver =
+            new MutationObserver(function () {
+                window.requestAnimationFrame(
+                    checkForNewLiveAdminMessage
+                );
+            });
+
+        liveObserver.observe(
+            liveLog,
+            {
+                childList: true,
+                subtree: true,
+                characterData: true
+            }
+        );
+    }
+
+    /*
+     * Fallback voor live-chat.js implementations die de hele log opnieuw
+     * opbouwen. Hierdoor wordt een adminbericht alsnog binnen ongeveer
+     * 1,2 seconde gezien.
+     */
+    window.setInterval(
+        checkForNewLiveAdminMessage,
+        1200
+    );
+
+    /*
+     * Bestaande historie eerst als baseline opslaan, zodat oude berichten
+     * de chat niet automatisch openen.
+     */
+    window.setTimeout(
+        syncLiveBaseline,
+        2600
+    );
+
+    if (aiLog) {
+        let aiReady = false;
+
+        const aiObserver =
             new MutationObserver(function (mutations) {
+                if (!aiReady) {
+                    return;
+                }
+
                 for (const mutation of mutations) {
                     for (const addedNode of mutation.addedNodes) {
+                        if (!(addedNode instanceof Element)) {
+                            continue;
+                        }
+
+                        const selector =
+                            '.gc-turn:not(.gc-turn--user), ' +
+                            '.guest-chat__message:not(.guest-chat__message--user)';
+
                         const incoming =
-                            detector(addedNode);
+                            addedNode.matches(selector)
+                                ? addedNode
+                                : addedNode.querySelector(selector);
 
                         if (incoming) {
                             notifyIncoming(incoming);
@@ -1903,37 +2619,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-        observer.observe(
-            target,
+        aiObserver.observe(
+            aiLog,
             {
                 childList: true,
                 subtree: true
             }
         );
-    };
 
-    watchLog(
-        liveLog,
-        containsIncomingLiveMessage
-    );
+        window.setTimeout(function () {
+            aiReady = true;
+        }, 2200);
+    }
 
-    watchLog(
-        aiLog,
-        containsIncomingAiMessage
-    );
-
-    /*
-     * Geef bestaande scripts eerst tijd om opgeslagen chatgeschiedenis
-     * in de DOM te zetten. Daarna worden alleen nieuwe mutaties gemeld.
-     */
-    window.setTimeout(function () {
-        armed = true;
-    }, 2200);
-
-    /*
-     * Browsers staan notificatie-permissie alleen betrouwbaar toe
-     * na een echte gebruikersactie.
-     */
     toggle.addEventListener(
         'click',
         requestNotificationPermission,
@@ -1943,29 +2641,21 @@ document.addEventListener('DOMContentLoaded', function () {
     toggle.addEventListener(
         'click',
         function () {
-            if (isOpen()) {
-                clearUnread();
-            }
+            window.setTimeout(function () {
+                if (isOpen()) {
+                    clearUnread();
+                }
+            }, 0);
         }
     );
 
-    panel.addEventListener(
-        'pointerdown',
-        clearUnread
-    );
-
-    panel.addEventListener(
-        'focusin',
-        clearUnread
-    );
+    panel.addEventListener('pointerdown', clearUnread);
+    panel.addEventListener('focusin', clearUnread);
 
     document.addEventListener(
         'visibilitychange',
         function () {
-            if (
-                !document.hidden
-                && isOpen()
-            ) {
+            if (!document.hidden && isOpen()) {
                 clearUnread();
             }
         }
@@ -1973,9 +2663,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-
 <script src="{{ asset('js/guest-chat.js') }}?v=7" defer></script>
 
 
 
 <script src="{{ asset('js/live-chat.js') }}?v=2" defer></script>
+s
