@@ -1287,6 +1287,32 @@
 
 
 
+        /*
+         * Typing, presence en e-mail-sync zijn ondersteunend.
+         * Een fout daar mag de hoofdchat niet permanent blokkeren.
+         */
+        const requestUrl = String(url || '');
+
+        const auxiliaryRequest =
+            /\/(?:typing|presence|email-sync)(?:[/?]|$)/.test(
+                requestUrl
+            );
+
+        if (
+            auxiliaryRequest
+            && (
+                response.status === 401
+                || response.status === 403
+                || response.status === 419
+            )
+        ) {
+            throw new Error(
+                'Ondersteunende live-chatstatus kon niet worden bijgewerkt.'
+            );
+        }
+
+
+
         if (
 
 

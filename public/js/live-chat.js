@@ -2,7 +2,19 @@
 
 
 
+
+
+
+
     'use strict';
+
+
+
+
+
+
+
+
 
 
 
@@ -18,7 +30,19 @@
 
 
 
+
+
+
+
+
+
+
+
     if (!chat) {
+
+
+
+
 
 
 
@@ -26,7 +50,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -42,11 +78,27 @@
 
 
 
+
+
+
+
+
+
+
+
     if (!live) {
 
 
 
+
+
+
+
         return;
+
+
+
+
 
 
 
@@ -58,7 +110,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -66,7 +130,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -78,7 +154,15 @@
 
 
 
+
+
+
+
     const aiBottom = chat.querySelector('.gc-bottom');
+
+
+
+
 
 
 
@@ -86,11 +170,23 @@
 
 
 
+
+
+
+
     const resetConfirm = chat.querySelector('.gc-reset-confirm');
 
 
 
+
+
+
+
     const header = chat.querySelector('#guest-chat-title');
+
+
+
+
 
 
 
@@ -102,7 +198,19 @@
 
 
 
+
+
+
+
+
+
+
+
     const status = live.querySelector('.lc-status');
+
+
+
+
 
 
 
@@ -110,7 +218,15 @@
 
 
 
+
+
+
+
     const errorBox = live.querySelector('.lc-error');
+
+
+
+
 
 
 
@@ -118,7 +234,15 @@
 
 
 
+
+
+
+
     const input = live.querySelector('.lc-input');
+
+
+
+
 
 
 
@@ -126,7 +250,15 @@
 
 
 
+
+
+
+
     const reopenButton = live.querySelector('.lc-reopen');
+
+
+
+
 
 
 
@@ -134,11 +266,23 @@
 
 
 
+
+
+
+
     const voiceButton = live.querySelector('.lc-voice');
 
 
 
+
+
+
+
     const toggleButton = chat.querySelector('.guest-chat__toggle');
+
+
+
+
 
 
 
@@ -150,7 +294,19 @@
 
 
 
+
+
+
+
+
+
+
+
     if (
+
+
+
+
 
 
 
@@ -158,7 +314,15 @@
 
 
 
+
+
+
+
         !log ||
+
+
+
+
 
 
 
@@ -166,7 +330,15 @@
 
 
 
+
+
+
+
         !form ||
+
+
+
+
 
 
 
@@ -174,7 +346,15 @@
 
 
 
+
+
+
+
         !sendButton ||
+
+
+
+
 
 
 
@@ -182,7 +362,15 @@
 
 
 
+
+
+
+
         !fileInput ||
+
+
+
+
 
 
 
@@ -190,7 +378,15 @@
 
 
 
+
+
+
+
     ) {
+
+
+
+
 
 
 
@@ -198,7 +394,15 @@
 
 
 
+
+
+
+
         return;
+
+
+
+
 
 
 
@@ -210,7 +414,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -218,7 +434,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -230,7 +458,15 @@
 
 
 
+
+
+
+
     const REQUEST_TIMEOUT = 30000;
+
+
+
+
 
 
 
@@ -238,7 +474,15 @@
 
 
 
+
+
+
+
     const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+
+
+
 
 
 
@@ -246,11 +490,27 @@
 
 
 
+
+
+
+
     const MAX_RECORDING_TIME = 5 * 60 * 1000;
+
+
 
     const TYPING_PING_MS = 1000;
 
+
+
     const TYPING_IDLE_MS = 2600;
+
+
+
+
+
+
+
+
 
 
 
@@ -262,7 +522,15 @@
 
 
 
+
+
+
+
         'audio/webm;codecs=opus',
+
+
+
+
 
 
 
@@ -270,7 +538,15 @@
 
 
 
+
+
+
+
         'audio/ogg;codecs=opus',
+
+
+
+
 
 
 
@@ -278,7 +554,15 @@
 
 
 
+
+
+
+
         'audio/mp4',
+
+
+
+
 
 
 
@@ -290,7 +574,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -298,7 +594,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -310,7 +618,15 @@
 
 
 
+
+
+
+
     let fetching = false;
+
+
+
+
 
 
 
@@ -318,7 +634,15 @@
 
 
 
+
+
+
+
     let closed = false;
+
+
+
+
 
 
 
@@ -326,7 +650,15 @@
 
 
 
+
+
+
+
     let stopped = false;
+
+
+
+
 
 
 
@@ -334,7 +666,19 @@
 
 
 
+
+
+
+
     let identity = null;
+
+
+
+
+
+
+
+
 
 
 
@@ -350,7 +694,19 @@
 
 
 
+
+
+
+
+
+
+
+
     let mediaRecorder = null;
+
+
+
+
 
 
 
@@ -358,7 +714,15 @@
 
 
 
+
+
+
+
     let audioChunks = [];
+
+
+
+
 
 
 
@@ -366,7 +730,15 @@
 
 
 
+
+
+
+
     let recordingStartedAt = 0;
+
+
+
+
 
 
 
@@ -374,15 +746,29 @@
 
 
 
+
+
+
+
     let recordingTimeout = null;
+
+
+
+
 
 
 
     let lastTypingPingAt = 0;
 
+
+
     let typingStopTimer = null;
 
+
+
     let adminTypingHideTimer = null;
+
+
 
     let adminTypingIndicator = null;
 
@@ -392,7 +778,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -400,7 +798,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -412,7 +822,15 @@
 
 
 
+
+
+
+
         if (window.crypto?.randomUUID) {
+
+
+
+
 
 
 
@@ -420,7 +838,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -432,7 +862,15 @@
 
 
 
+
+
+
+
             /[xy]/g,
+
+
+
+
 
 
 
@@ -440,7 +878,15 @@
 
 
 
+
+
+
+
                 const random = Math.random() * 16 | 0;
+
+
+
+
 
 
 
@@ -448,7 +894,15 @@
 
 
 
+
+
+
+
                     ? random
+
+
+
+
 
 
 
@@ -460,7 +914,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 return value.toString(16);
+
+
+
+
 
 
 
@@ -468,11 +934,27 @@
 
 
 
+
+
+
+
         );
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -484,7 +966,15 @@
 
 
 
+
+
+
+
         return document
+
+
+
+
 
 
 
@@ -492,11 +982,27 @@
 
 
 
+
+
+
+
             ?.getAttribute('content') || '';
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -508,7 +1014,15 @@
 
 
 
+
+
+
+
         return String(mime || '')
+
+
+
+
 
 
 
@@ -516,7 +1030,15 @@
 
 
 
+
+
+
+
             .toLowerCase()
+
+
+
+
 
 
 
@@ -524,7 +1046,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -536,7 +1070,19 @@
 
 
 
+
+
+
+
         const value = Number(bytes || 0);
+
+
+
+
+
+
+
+
 
 
 
@@ -548,11 +1094,27 @@
 
 
 
+
+
+
+
             return '0 B';
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -564,11 +1126,27 @@
 
 
 
+
+
+
+
             return `${value} B`;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -580,11 +1158,27 @@
 
 
 
+
+
+
+
             return `${(value / 1024).toFixed(1)} KB`;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -596,7 +1190,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -608,7 +1214,19 @@
 
 
 
+
+
+
+
         const text = String(message || '').trim();
+
+
+
+
+
+
+
+
 
 
 
@@ -620,11 +1238,27 @@
 
 
 
+
+
+
+
         errorBox.hidden = text === '';
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -636,11 +1270,27 @@
 
 
 
+
+
+
+
         status.textContent = String(message || '');
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -652,7 +1302,15 @@
 
 
 
+
+
+
+
         if (typeof log.scrollTo === 'function') {
+
+
+
+
 
 
 
@@ -660,11 +1318,23 @@
 
 
 
+
+
+
+
                 top: log.scrollHeight,
 
 
 
+
+
+
+
                 behavior: smooth ? 'smooth' : 'auto',
+
+
+
+
 
 
 
@@ -676,11 +1346,31 @@
 
 
 
+
+
+
+
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -692,7 +1382,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -704,7 +1406,15 @@
 
 
 
+
+
+
+
         return (
+
+
+
+
 
 
 
@@ -712,7 +1422,15 @@
 
 
 
+
+
+
+
             - log.scrollTop
+
+
+
+
 
 
 
@@ -720,11 +1438,27 @@
 
 
 
+
+
+
+
         ) < 120;
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -736,7 +1470,19 @@
 
 
 
+
+
+
+
         input.style.height = 'auto';
+
+
+
+
+
+
+
+
 
 
 
@@ -748,7 +1494,15 @@
 
 
 
+
+
+
+
             Math.max(input.scrollHeight, 44),
+
+
+
+
 
 
 
@@ -756,7 +1510,19 @@
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -768,7 +1534,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -780,7 +1558,15 @@
 
 
 
+
+
+
+
         const unavailable =
+
+
+
+
 
 
 
@@ -788,7 +1574,15 @@
 
 
 
+
+
+
+
             closed ||
+
+
+
+
 
 
 
@@ -796,7 +1590,15 @@
 
 
 
+
+
+
+
             sending ||
+
+
+
+
 
 
 
@@ -808,7 +1610,19 @@
 
 
 
+
+
+
+
+
+
+
+
         input.disabled =
+
+
+
+
 
 
 
@@ -816,11 +1630,23 @@
 
 
 
+
+
+
+
             closed ||
 
 
 
+
+
+
+
             emailMode ||
+
+
+
+
 
 
 
@@ -832,7 +1658,19 @@
 
 
 
+
+
+
+
+
+
+
+
         fileInput.disabled = unavailable;
+
+
+
+
 
 
 
@@ -844,7 +1682,19 @@
 
 
 
+
+
+
+
+
+
+
+
         sendButton.disabled =
+
+
+
+
 
 
 
@@ -852,10 +1702,18 @@
 
 
 
+
+
+
+
             input.value.trim() === '';
 
 
 
+
+
+
+
     }
 
 
@@ -864,43 +1722,91 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
 
 
 
+
+
+
+
     // =========================================================================
+
+
 
     // LIVE TYPING INDICATOR
 
+
+
     // =========================================================================
+
+
+
+
 
 
 
     function typingEndpoint() {
+
         if (live.dataset.typing) {
+
             return live.dataset.typing;
+
         }
 
+
+
         const storeUrl = new URL(
+
             live.dataset.store,
+
             window.location.origin
+
         );
+
+
 
         storeUrl.pathname = storeUrl.pathname.replace(
+
             /\/messages\/?$/,
+
             '/typing'
+
         );
 
+
+
         return storeUrl.toString();
+
     }
+
+
 
     function ensureAdminTypingIndicator() {
 
+
+
         if (adminTypingIndicator) {
+
+
 
             return adminTypingIndicator;
 
+
+
         }
+
+
+
+
 
 
 
@@ -908,263 +1814,527 @@
 
 
 
+
+
+
+
         if (!document.getElementById(styleId)) {
+
+
 
             const style = document.createElement('style');
 
+
+
             style.id = styleId;
+
+
 
             style.textContent = `
 
+
+
                 .lc-live-typing {
 
+
+
                     display:flex;
+
+
 
                     align-items:flex-end;
 
+
+
                     gap:8px;
+
+
 
                     padding:6px 10px 8px;
 
+
+
                 }
+
+
 
                 .lc-live-typing[hidden] { display:none !important; }
 
+
+
                 .lc-live-typing__avatar {
+
+
 
                     width:28px;
 
+
+
                     height:28px;
+
+
 
                     flex:0 0 28px;
 
+
+
                     display:grid;
+
+
 
                     place-items:center;
 
+
+
                     overflow:hidden;
 
+
+
                     border-radius:50%;
+
+
 
                     background:#343d49;
 
+
+
                     color:#fff;
 
+
+
                     font-size:10px;
+
+
 
                     font-weight:800;
 
+
+
                 }
+
+
 
                 .lc-live-typing__avatar img {
 
+
+
                     width:100%;
+
+
 
                     height:100%;
 
+
+
                     object-fit:cover;
 
+
+
                 }
+
+
 
                 .lc-live-typing__bubble {
 
+
+
                     display:flex;
+
+
 
                     align-items:center;
 
+
+
                     gap:4px;
+
+
 
                     min-height:36px;
 
+
+
                     padding:10px 13px;
+
+
 
                     border-radius:15px 15px 15px 5px;
 
+
+
                     background:#e8e8ea;
+
+
 
                     color:#45484d;
 
+
+
                     box-shadow:0 5px 18px rgba(0,0,0,.10);
 
+
+
                 }
+
+
 
                 .lc-live-typing__dot {
 
+
+
                     width:6px;
+
+
 
                     height:6px;
 
+
+
                     border-radius:50%;
+
+
 
                     background:#878b92;
 
+
+
                     animation:lcLiveTypingDot 1.15s infinite ease-in-out;
 
+
+
                 }
+
+
 
                 .lc-live-typing__dot:nth-child(2) { animation-delay:.15s; }
 
+
+
                 .lc-live-typing__dot:nth-child(3) { animation-delay:.30s; }
+
+
 
                 .lc-live-typing__label {
 
+
+
                     align-self:center;
+
+
 
                     color:#858a93;
 
+
+
                     font-size:10px;
 
+
+
                 }
+
+
 
                 @keyframes lcLiveTypingDot {
 
+
+
                     0%, 60%, 100% { opacity:.35; transform:translateY(0); }
+
+
 
                     30% { opacity:1; transform:translateY(-4px); }
 
+
+
                 }
+
+
 
                 @media (prefers-reduced-motion: reduce) {
 
+
+
                     .lc-live-typing__dot { animation:none; opacity:.75; }
+
+
 
                 }
 
+
+
             `;
+
+
 
             document.head.append(style);
 
+
+
         }
+
+
+
+
 
 
 
         const wrapper = document.createElement('div');
 
+
+
         wrapper.className = 'lc-live-typing';
+
+
 
         wrapper.hidden = true;
 
+
+
         wrapper.setAttribute('aria-live', 'polite');
+
+
 
         wrapper.innerHTML = `
 
+
+
             <span class="lc-live-typing__avatar" data-live-typing-avatar>M</span>
+
+
 
             <span class="lc-live-typing__bubble" aria-hidden="true">
 
-                <span class="lc-live-typing__dot"></span>
+
 
                 <span class="lc-live-typing__dot"></span>
 
+
+
                 <span class="lc-live-typing__dot"></span>
+
+
+
+                <span class="lc-live-typing__dot"></span>
+
+
 
             </span>
 
+
+
             <span class="lc-live-typing__label" data-live-typing-label>Medewerker typt…</span>
+
+
 
         `;
 
 
 
+
+
+
+
         form.parentNode?.insertBefore(wrapper, form);
+
+
 
         adminTypingIndicator = wrapper;
 
+
+
         return wrapper;
 
+
+
     }
+
+
+
+
 
 
 
     function hideAdminTyping() {
 
+
+
         if (adminTypingHideTimer) {
+
+
 
             window.clearTimeout(adminTypingHideTimer);
 
+
+
             adminTypingHideTimer = null;
 
+
+
         }
+
+
+
+
 
 
 
         if (adminTypingIndicator) {
 
+
+
             adminTypingIndicator.hidden = true;
 
+
+
         }
+
+
 
     }
 
 
 
+
+
+
+
     function syncAdminTyping(data) {
+
+
 
         const info = data?.typing?.admin || {};
 
+
+
         const active = Boolean(
+
+
 
             data?.admin_typing === true ||
 
+
+
             info?.active === true
+
+
 
         );
 
 
 
+
+
+
+
         if (!active || closed) {
+
+
 
             hideAdminTyping();
 
+
+
             return;
 
+
+
         }
+
+
+
+
 
 
 
         const indicator = ensureAdminTypingIndicator();
 
+
+
         const name = String(info?.name || 'Medewerker').trim();
 
+
+
         const avatar = indicator.querySelector('[data-live-typing-avatar]');
+
+
 
         const label = indicator.querySelector('[data-live-typing-label]');
 
 
 
+
+
+
+
         if (label) {
+
+
 
             label.textContent = `${name} typt…`;
 
+
+
         }
+
+
+
+
 
 
 
         if (avatar) {
 
+
+
             avatar.replaceChildren();
+
+
+
+
 
 
 
             if (info?.avatar) {
 
+
+
                 const image = document.createElement('img');
+
+
 
                 image.src = info.avatar;
 
+
+
                 image.alt = '';
+
+
 
                 image.loading = 'lazy';
 
+
+
                 avatar.append(image);
+
+
 
             } else {
 
+
+
                 avatar.textContent = name.charAt(0).toUpperCase() || 'M';
+
+
 
             }
 
+
+
         }
+
+
+
+
 
 
 
@@ -1172,107 +2342,215 @@
 
 
 
+
+
+
+
         if (adminTypingHideTimer) {
+
+
 
             window.clearTimeout(adminTypingHideTimer);
 
+
+
         }
+
+
+
+
 
 
 
         adminTypingHideTimer = window.setTimeout(
 
+
+
             hideAdminTyping,
+
+
 
             6500
 
+
+
         );
 
+
+
     }
+
+
+
+
 
 
 
     async function sendVisitorTyping(active) {
 
+
+
         if (
+
+
 
             stopped ||
 
+
+
             closed ||
+
+
 
             emailMode ||
 
+
+
             chat.dataset.mode !== 'human'
+
+
 
         ) {
 
+
+
             return;
 
+
+
         }
+
+
+
+
 
 
 
         try {
 
+
+
             await api(
+
+
 
                 typingEndpoint(),
 
+
+
                 'POST',
+
+
 
                 { typing: Boolean(active) }
 
+
+
             );
+
+
 
         } catch (exception) {
 
+
+
             console.debug('[LiveChat] typing heartbeat mislukt', exception);
+
+
 
         }
 
+
+
     }
+
+
+
+
 
 
 
     function stopVisitorTyping() {
 
+
+
         if (typingStopTimer) {
+
+
 
             window.clearTimeout(typingStopTimer);
 
+
+
             typingStopTimer = null;
 
+
+
         }
+
+
+
+
 
 
 
         lastTypingPingAt = 0;
 
+
+
         void sendVisitorTyping(false);
+
+
 
     }
 
 
 
+
+
+
+
     function queueVisitorTyping() {
+
+
 
         if (
 
+
+
             stopped ||
+
+
 
             closed ||
 
+
+
             emailMode ||
+
+
 
             sending ||
 
+
+
             chat.dataset.mode !== 'human'
+
+
 
         ) {
 
+
+
             return;
 
+
+
         }
+
+
+
+
 
 
 
@@ -1280,13 +2558,27 @@
 
 
 
+
+
+
+
         if (!hasText) {
+
+
 
             stopVisitorTyping();
 
+
+
             return;
 
+
+
         }
+
+
+
+
 
 
 
@@ -1294,33 +2586,67 @@
 
 
 
+
+
+
+
         if (now - lastTypingPingAt >= TYPING_PING_MS) {
+
+
 
             lastTypingPingAt = now;
 
+
+
             void sendVisitorTyping(true);
 
+
+
         }
+
+
+
+
 
 
 
         if (typingStopTimer) {
 
+
+
             window.clearTimeout(typingStopTimer);
+
+
 
         }
 
 
 
+
+
+
+
         typingStopTimer = window.setTimeout(
+
+
 
             stopVisitorTyping,
 
+
+
             TYPING_IDLE_MS
+
+
 
         );
 
+
+
     }
+
+
+
+
 
 
 
@@ -1328,7 +2654,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -1340,7 +2678,15 @@
 
 
 
+
+
+
+
         try {
+
+
+
+
 
 
 
@@ -1348,7 +2694,15 @@
 
 
 
+
+
+
+
         } catch {
+
+
+
+
 
 
 
@@ -1356,11 +2710,27 @@
 
 
 
+
+
+
+
         }
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -1372,7 +2742,19 @@
 
 
 
+
+
+
+
         const errors = payload?.errors;
+
+
+
+
+
+
+
+
 
 
 
@@ -1384,7 +2766,15 @@
 
 
 
+
+
+
+
             const preferredFields = [
+
+
+
+
 
 
 
@@ -1392,7 +2782,15 @@
 
 
 
+
+
+
+
                 'body',
+
+
+
+
 
 
 
@@ -1400,7 +2798,15 @@
 
 
 
+
+
+
+
                 'type',
+
+
+
+
 
 
 
@@ -1412,7 +2818,19 @@
 
 
 
+
+
+
+
+
+
+
+
             for (const field of preferredFields) {
+
+
+
+
 
 
 
@@ -1424,7 +2842,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 if (Array.isArray(messages) && messages.length > 0) {
+
+
+
+
 
 
 
@@ -1432,11 +2862,27 @@
 
 
 
+
+
+
+
                 }
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -1448,7 +2894,15 @@
 
 
 
+
+
+
+
                 if (Array.isArray(messages) && messages.length > 0) {
+
+
+
+
 
 
 
@@ -1456,7 +2910,15 @@
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -1464,7 +2926,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1476,11 +2950,23 @@
 
 
 
+
+
+
+
             ? String(payload.message)
 
 
 
+
+
+
+
             : 'De invoer is ongeldig.';
+
+
+
+
 
 
 
@@ -1492,7 +2978,19 @@
 
 
 
+
+
+
+
+
+
+
+
     async function api(
+
+
+
+
 
 
 
@@ -1500,7 +2998,15 @@
 
 
 
+
+
+
+
         method = 'GET',
+
+
+
+
 
 
 
@@ -1508,7 +3014,15 @@
 
 
 
+
+
+
+
     ) {
+
+
+
+
 
 
 
@@ -1520,7 +3034,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const headers = {
+
+
+
+
 
 
 
@@ -1528,7 +3054,15 @@
 
 
 
+
+
+
+
             'X-CSRF-TOKEN': csrfToken(),
+
+
+
+
 
 
 
@@ -1540,7 +3074,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (!isForm && data !== undefined) {
+
+
+
+
 
 
 
@@ -1548,7 +3094,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1564,7 +3122,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const timeoutId = window.setTimeout(
+
+
+
+
 
 
 
@@ -1572,11 +3142,27 @@
 
 
 
+
+
+
+
             REQUEST_TIMEOUT
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -1592,7 +3178,19 @@
 
 
 
+
+
+
+
+
+
+
+
         try {
+
+
+
+
 
 
 
@@ -1600,7 +3198,15 @@
 
 
 
+
+
+
+
                 method,
+
+
+
+
 
 
 
@@ -1608,7 +3214,15 @@
 
 
 
+
+
+
+
                 cache: 'no-store',
+
+
+
+
 
 
 
@@ -1616,7 +3230,15 @@
 
 
 
+
+
+
+
                 body: data === undefined
+
+
+
+
 
 
 
@@ -1624,7 +3246,15 @@
 
 
 
+
+
+
+
                     : (
+
+
+
+
 
 
 
@@ -1632,7 +3262,15 @@
 
 
 
+
+
+
+
                             ? data
+
+
+
+
 
 
 
@@ -1640,7 +3278,15 @@
 
 
 
+
+
+
+
                     ),
+
+
+
+
 
 
 
@@ -1648,7 +3294,15 @@
 
 
 
+
+
+
+
             });
+
+
+
+
 
 
 
@@ -1656,7 +3310,15 @@
 
 
 
+
+
+
+
             if (exception?.name === 'AbortError') {
+
+
+
+
 
 
 
@@ -1664,11 +3326,27 @@
 
 
 
+
+
+
+
                     'De verbinding duurt te lang. Probeer opnieuw.'
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -1684,11 +3362,31 @@
 
 
 
+
+
+
+
+
+
+
+
                 throw timeoutError;
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -1700,7 +3398,15 @@
 
 
 
+
+
+
+
                 throw new Error(
+
+
+
+
 
 
 
@@ -1708,7 +3414,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -1720,7 +3434,19 @@
 
 
 
+
+
+
+
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1728,7 +3454,15 @@
 
 
 
+
+
+
+
             );
+
+
+
+
 
 
 
@@ -1736,11 +3470,27 @@
 
 
 
+
+
+
+
             window.clearTimeout(timeoutId);
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1756,7 +3506,43 @@
 
 
 
+
+
+
+
+
+
+
+
+        /*
+         * /typing is ondersteunende UI.
+         * Een mislukte typing-heartbeat mag de live chat niet stoppen.
+         */
+        const requestUrl = String(url || '');
+
+        const auxiliaryRequest =
+            /\/typing(?:[/?]|$)/.test(requestUrl);
+
+        if (
+            auxiliaryRequest
+            && (
+                response.status === 401
+                || response.status === 403
+                || response.status === 419
+            )
+        ) {
+            throw new Error(
+                'Typingstatus kon niet worden bijgewerkt.'
+            );
+        }
+
+
+
         if (response.ok) {
+
+
+
+
 
 
 
@@ -1764,7 +3550,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1776,7 +3574,15 @@
 
 
 
+
+
+
+
             response.status === 401 ||
+
+
+
+
 
 
 
@@ -1784,11 +3590,23 @@
 
 
 
+
+
+
+
         ) {
 
 
 
+
+
+
+
             stopped = true;
+
+
+
+
 
 
 
@@ -1800,7 +3618,19 @@
 
 
 
+
+
+
+
+
+
+
+
             input.disabled = true;
+
+
+
+
 
 
 
@@ -1808,7 +3638,15 @@
 
 
 
+
+
+
+
             fileInput.disabled = true;
+
+
+
+
 
 
 
@@ -1820,7 +3658,19 @@
 
 
 
+
+
+
+
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1828,11 +3678,27 @@
 
 
 
+
+
+
+
             );
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1844,7 +3710,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1852,11 +3726,27 @@
 
 
 
+
+
+
+
             );
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1868,7 +3758,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1876,7 +3774,15 @@
 
 
 
+
+
+
+
                 'Dit gesprek is gesloten of gewijzigd.'
+
+
+
+
 
 
 
@@ -1884,7 +3790,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1896,7 +3814,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1904,11 +3830,27 @@
 
 
 
+
+
+
+
             );
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1920,7 +3862,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -1928,11 +3878,23 @@
 
 
 
+
+
+
+
                 'Dit gesprek of bericht bestaat niet meer.'
 
 
 
+
+
+
+
             );
+
+
+
+
 
 
 
@@ -1944,7 +3906,19 @@
 
 
 
+
+
+
+
+
+
+
+
         throw new Error(
+
+
+
+
 
 
 
@@ -1952,11 +3926,23 @@
 
 
 
+
+
+
+
             'Live chat is tijdelijk niet bereikbaar. Probeer opnieuw.'
 
 
 
+
+
+
+
         );
+
+
+
+
 
 
 
@@ -1968,7 +3954,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -1976,7 +3974,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -1988,7 +3998,19 @@
 
 
 
+
+
+
+
         const avatar = document.createElement('span');
+
+
+
+
+
+
+
+
 
 
 
@@ -2004,7 +4026,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const name =
+
+
+
+
 
 
 
@@ -2012,7 +4046,15 @@
 
 
 
+
+
+
+
             (
+
+
+
+
 
 
 
@@ -2020,7 +4062,15 @@
 
 
 
+
+
+
+
                     ? 'Gast'
+
+
+
+
 
 
 
@@ -2028,7 +4078,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -2040,7 +4102,19 @@
 
 
 
+
+
+
+
             const image = document.createElement('img');
+
+
+
+
+
+
+
+
 
 
 
@@ -2052,7 +4126,15 @@
 
 
 
+
+
+
+
             image.alt = '';
+
+
+
+
 
 
 
@@ -2064,7 +4146,19 @@
 
 
 
+
+
+
+
+
+
+
+
             image.addEventListener(
+
+
+
+
 
 
 
@@ -2072,7 +4166,15 @@
 
 
 
+
+
+
+
                 () => {
+
+
+
+
 
 
 
@@ -2084,7 +4186,19 @@
 
 
 
+
+
+
+
+
+
+
+
                     avatar.textContent = name
+
+
+
+
 
 
 
@@ -2092,7 +4206,15 @@
 
 
 
+
+
+
+
                         .charAt(0)
+
+
+
+
 
 
 
@@ -2100,7 +4222,15 @@
 
 
 
+
+
+
+
                 },
+
+
+
+
 
 
 
@@ -2108,7 +4238,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -2124,7 +4266,19 @@
 
 
 
+
+
+
+
+
+
+
+
             return avatar;
+
+
+
+
 
 
 
@@ -2136,7 +4290,19 @@
 
 
 
+
+
+
+
+
+
+
+
         avatar.textContent = name
+
+
+
+
 
 
 
@@ -2144,7 +4310,15 @@
 
 
 
+
+
+
+
             .charAt(0)
+
+
+
+
 
 
 
@@ -2156,7 +4330,19 @@
 
 
 
+
+
+
+
+
+
+
+
         return avatar;
+
+
+
+
 
 
 
@@ -2168,7 +4354,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -2176,7 +4374,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -2188,7 +4398,19 @@
 
 
 
+
+
+
+
         const link = document.createElement('a');
+
+
+
+
+
+
+
+
 
 
 
@@ -2200,11 +4422,27 @@
 
 
 
+
+
+
+
         link.target = '_blank';
 
 
 
+
+
+
+
         link.rel = 'noopener noreferrer';
+
+
+
+
+
+
+
+
 
 
 
@@ -2220,7 +4458,19 @@
 
 
 
+
+
+
+
+
+
+
+
         image.className = 'lc-media-image';
+
+
+
+
 
 
 
@@ -2228,7 +4478,15 @@
 
 
 
+
+
+
+
         image.alt =
+
+
+
+
 
 
 
@@ -2236,7 +4494,19 @@
 
 
 
+
+
+
+
             'Afbeelding';
+
+
+
+
+
+
+
+
 
 
 
@@ -2252,7 +4522,19 @@
 
 
 
+
+
+
+
+
+
+
+
         link.append(image);
+
+
+
+
 
 
 
@@ -2260,7 +4542,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -2272,7 +4566,19 @@
 
 
 
+
+
+
+
         const audio = document.createElement('audio');
+
+
+
+
+
+
+
+
 
 
 
@@ -2284,7 +4590,15 @@
 
 
 
+
+
+
+
         audio.preload = 'metadata';
+
+
+
+
 
 
 
@@ -2296,11 +4610,31 @@
 
 
 
+
+
+
+
+
+
+
+
         item.append(audio);
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -2312,7 +4646,19 @@
 
 
 
+
+
+
+
         const link = document.createElement('a');
+
+
+
+
+
+
+
+
 
 
 
@@ -2324,11 +4670,23 @@
 
 
 
+
+
+
+
         link.href = message.attachment_url;
 
 
 
+
+
+
+
         link.target = '_blank';
+
+
+
+
 
 
 
@@ -2340,11 +4698,27 @@
 
 
 
+
+
+
+
+
+
+
+
         const name =
 
 
 
+
+
+
+
             message.attachment_name ||
+
+
+
+
 
 
 
@@ -2356,11 +4730,27 @@
 
 
 
+
+
+
+
+
+
+
+
         if (message.attachment_size) {
 
 
 
+
+
+
+
             link.textContent =
+
+
+
+
 
 
 
@@ -2368,7 +4758,15 @@
 
 
 
+
+
+
+
         } else {
+
+
+
+
 
 
 
@@ -2376,11 +4774,27 @@
 
 
 
+
+
+
+
                 `📎 ${name}`;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2392,7 +4806,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -2404,11 +4830,23 @@
 
 
 
+
+
+
+
         if (message.body) {
 
 
 
+
+
+
+
             const paragraph =
+
+
+
+
 
 
 
@@ -2420,7 +4858,19 @@
 
 
 
+
+
+
+
+
+
+
+
             paragraph.textContent =
+
+
+
+
 
 
 
@@ -2432,11 +4882,31 @@
 
 
 
+
+
+
+
+
+
+
+
             item.append(paragraph);
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2448,11 +4918,27 @@
 
 
 
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2464,11 +4950,23 @@
 
 
 
+
+
+
+
             normalizeMime(
 
 
 
+
+
+
+
                 message.attachment_mime
+
+
+
+
 
 
 
@@ -2480,7 +4978,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (mime.startsWith('image/')) {
+
+
+
+
 
 
 
@@ -2488,11 +4998,27 @@
 
 
 
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2504,7 +5030,15 @@
 
 
 
+
+
+
+
             message.type === 'voice' ||
+
+
+
+
 
 
 
@@ -2512,7 +5046,15 @@
 
 
 
+
+
+
+
             mime === 'video/webm' ||
+
+
+
+
 
 
 
@@ -2520,7 +5062,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -2528,11 +5078,27 @@
 
 
 
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2544,6 +5110,10 @@
 
 
 
+
+
+
+
     }
 
 
@@ -2552,7 +5122,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -2560,7 +5142,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -2572,7 +5166,19 @@
 
 
 
+
+
+
+
         const id = Number(message.id);
+
+
+
+
+
+
+
+
 
 
 
@@ -2584,11 +5190,27 @@
 
 
 
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -2600,7 +5222,15 @@
 
 
 
+
+
+
+
             return;
+
+
+
+
 
 
 
@@ -2612,7 +5242,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const shouldScroll =
+
+
+
+
 
 
 
@@ -2620,7 +5262,19 @@
 
 
 
+
+
+
+
             message.sender === 'visitor';
+
+
+
+
+
+
+
+
 
 
 
@@ -2636,7 +5290,19 @@
 
 
 
+
+
+
+
+
+
+
+
         lastMessageId = Math.max(
+
+
+
+
 
 
 
@@ -2644,11 +5310,27 @@
 
 
 
+
+
+
+
             id
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -2660,7 +5342,19 @@
 
 
 
+
+
+
+
             document.createElement('article');
+
+
+
+
+
+
+
+
 
 
 
@@ -2672,7 +5366,15 @@
 
 
 
+
+
+
+
             `lc-msg${
+
+
+
+
 
 
 
@@ -2680,11 +5382,23 @@
 
 
 
+
+
+
+
                     ? ' lc-msg--visitor'
 
 
 
+
+
+
+
                     : ''
+
+
+
+
 
 
 
@@ -2696,7 +5410,19 @@
 
 
 
+
+
+
+
+
+
+
+
         item.dataset.messageId =
+
+
+
+
 
 
 
@@ -2708,7 +5434,19 @@
 
 
 
+
+
+
+
+
+
+
+
         item.dataset.sender =
+
+
+
+
 
 
 
@@ -2720,7 +5458,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const head =
+
+
+
+
 
 
 
@@ -2732,7 +5482,19 @@
 
 
 
+
+
+
+
+
+
+
+
         head.className =
+
+
+
+
 
 
 
@@ -2744,7 +5506,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const label =
+
+
+
+
 
 
 
@@ -2756,7 +5530,19 @@
 
 
 
+
+
+
+
+
+
+
+
         label.textContent =
+
+
+
+
 
 
 
@@ -2764,7 +5550,15 @@
 
 
 
+
+
+
+
             (
+
+
+
+
 
 
 
@@ -2772,11 +5566,23 @@
 
 
 
+
+
+
+
                     ? 'JIJ'
 
 
 
+
+
+
+
                     : 'MEDEWERKER'
+
+
+
+
 
 
 
@@ -2788,7 +5594,19 @@
 
 
 
+
+
+
+
+
+
+
+
         head.append(
+
+
+
+
 
 
 
@@ -2796,11 +5614,27 @@
 
 
 
+
+
+
+
             label
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -2816,7 +5650,19 @@
 
 
 
+
+
+
+
+
+
+
+
         messageContent(
+
+
+
+
 
 
 
@@ -2824,7 +5670,15 @@
 
 
 
+
+
+
+
             item
+
+
+
+
 
 
 
@@ -2836,11 +5690,27 @@
 
 
 
+
+
+
+
+
+
+
+
         if (message.sender === 'visitor') {
 
 
 
+
+
+
+
             const remove =
+
+
+
+
 
 
 
@@ -2852,11 +5722,27 @@
 
 
 
+
+
+
+
+
+
+
+
             remove.type = 'button';
 
 
 
+
+
+
+
             remove.className =
+
+
+
+
 
 
 
@@ -2868,7 +5754,19 @@
 
 
 
+
+
+
+
+
+
+
+
             remove.textContent =
+
+
+
+
 
 
 
@@ -2880,7 +5778,19 @@
 
 
 
+
+
+
+
+
+
+
+
             remove.addEventListener(
+
+
+
+
 
 
 
@@ -2888,7 +5798,15 @@
 
 
 
+
+
+
+
                 async () => {
+
+
+
+
 
 
 
@@ -2896,11 +5814,27 @@
 
 
 
+
+
+
+
                         return;
 
 
 
+
+
+
+
                     }
+
+
+
+
+
+
+
+
 
 
 
@@ -2916,7 +5850,19 @@
 
 
 
+
+
+
+
+
+
+
+
                     try {
+
+
+
+
 
 
 
@@ -2924,7 +5870,15 @@
 
 
 
+
+
+
+
                             `${live.dataset.store}/${id}`,
+
+
+
+
 
 
 
@@ -2932,7 +5886,19 @@
 
 
 
+
+
+
+
                         );
+
+
+
+
+
+
+
+
 
 
 
@@ -2944,7 +5910,19 @@
 
 
 
+
+
+
+
                         seen.delete(id);
+
+
+
+
+
+
+
+
 
 
 
@@ -2956,7 +5934,15 @@
 
 
 
+
+
+
+
                     } catch (exception) {
+
+
+
+
 
 
 
@@ -2968,7 +5954,19 @@
 
 
 
+
+
+
+
+
+
+
+
                         showError(
+
+
+
+
 
 
 
@@ -2976,7 +5974,15 @@
 
 
 
+
+
+
+
                         );
+
+
+
+
 
 
 
@@ -2984,7 +5990,15 @@
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -2996,11 +6010,31 @@
 
 
 
+
+
+
+
+
+
+
+
             item.append(remove);
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -3016,7 +6050,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (shouldScroll) {
+
+
+
+
 
 
 
@@ -3024,7 +6070,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -3036,7 +6090,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -3044,7 +6110,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -3056,7 +6134,15 @@
 
 
 
+
+
+
+
         if (
+
+
+
+
 
 
 
@@ -3064,7 +6150,15 @@
 
 
 
+
+
+
+
             stopped ||
+
+
+
+
 
 
 
@@ -3072,7 +6166,15 @@
 
 
 
+
+
+
+
             chat.dataset.mode !== 'human' ||
+
+
+
+
 
 
 
@@ -3080,7 +6182,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -3088,7 +6198,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -3104,7 +6226,19 @@
 
 
 
+
+
+
+
+
+
+
+
         try {
+
+
+
+
 
 
 
@@ -3112,11 +6246,27 @@
 
 
 
+
+
+
+
                 `${live.dataset.show}?after=${lastMessageId}`
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -3128,7 +6278,15 @@
 
 
 
+
+
+
+
              * Als de server een andere conversation identity teruggeeft,
+
+
+
+
 
 
 
@@ -3136,7 +6294,15 @@
 
 
 
+
+
+
+
              * hier, waardoor loaded=false bleef en het formulier daarna
+
+
+
+
 
 
 
@@ -3144,7 +6310,15 @@
 
 
 
+
+
+
+
              */
+
+
+
+
 
 
 
@@ -3152,7 +6326,15 @@
 
 
 
+
+
+
+
                 identity &&
+
+
+
+
 
 
 
@@ -3160,7 +6342,15 @@
 
 
 
+
+
+
+
                 identity !== data.identity
+
+
+
+
 
 
 
@@ -3168,7 +6358,15 @@
 
 
 
+
+
+
+
                 log.replaceChildren();
+
+
+
+
 
 
 
@@ -3176,7 +6374,15 @@
 
 
 
+
+
+
+
                 lastMessageId = 0;
+
+
+
+
 
 
 
@@ -3184,7 +6390,19 @@
 
 
 
+
+
+
+
                 identity = data.identity;
+
+
+
+
+
+
+
+
 
 
 
@@ -3196,11 +6414,27 @@
 
 
 
+
+
+
+
                     'Je huidige gesprek wordt geladen…'
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -3212,7 +6446,15 @@
 
 
 
+
+
+
+
                     `${live.dataset.show}?after=0`
+
+
+
+
 
 
 
@@ -3220,7 +6462,19 @@
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3232,11 +6486,27 @@
 
 
 
+
+
+
+
                 identity = data.identity;
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3248,7 +6518,19 @@
 
 
 
+
+
+
+
                 !loaded;
+
+
+
+
+
+
+
+
 
 
 
@@ -3260,11 +6542,23 @@
 
 
 
+
+
+
+
                 Array.isArray(data.messages)
 
 
 
+
+
+
+
                     ? data.messages
+
+
+
+
 
 
 
@@ -3276,11 +6570,27 @@
 
 
 
+
+
+
+
+
+
+
+
             messages.forEach(
 
 
 
+
+
+
+
                 appendMessage
+
+
+
+
 
 
 
@@ -3292,11 +6602,27 @@
 
 
 
+
+
+
+
+
+
+
+
             closed =
 
 
 
+
+
+
+
                 data.conversation?.status
+
+
+
+
 
 
 
@@ -3308,11 +6634,27 @@
 
 
 
+
+
+
+
+
+
+
+
             emailMode =
 
 
 
+
+
+
+
                 data.conversation?.delivery_channel
+
+
+
+
 
 
 
@@ -3324,7 +6666,19 @@
 
 
 
+
+
+
+
+
+
+
+
             if (emailMode) {
+
+
+
+
 
 
 
@@ -3332,11 +6686,23 @@
 
 
 
+
+
+
+
             } else {
 
 
 
+
+
+
+
                 syncAdminTyping(data);
+
+
+
+
 
 
 
@@ -3348,7 +6714,19 @@
 
 
 
+
+
+
+
+
+
+
+
             reopenButton.hidden =
+
+
+
+
 
 
 
@@ -3356,7 +6734,19 @@
 
 
 
+
+
+
+
                 || emailMode;
+
+
+
+
+
+
+
+
 
 
 
@@ -3372,7 +6762,19 @@
 
 
 
+
+
+
+
+
+
+
+
             if (emailMode) {
+
+
+
+
 
 
 
@@ -3380,11 +6782,23 @@
 
 
 
+
+
+
+
                     data.conversation?.contact_email
 
 
 
+
+
+
+
                     || ''
+
+
+
+
 
 
 
@@ -3396,7 +6810,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 setStatus(
+
+
+
+
 
 
 
@@ -3404,7 +6830,15 @@
 
 
 
+
+
+
+
                     + (
+
+
+
+
 
 
 
@@ -3412,7 +6846,15 @@
 
 
 
+
+
+
+
                             ? ` naar ${contactEmail}`
+
+
+
+
 
 
 
@@ -3420,7 +6862,15 @@
 
 
 
+
+
+
+
                     )
+
+
+
+
 
 
 
@@ -3428,7 +6878,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -3436,7 +6894,15 @@
 
 
 
+
+
+
+
                 setStatus(
+
+
+
+
 
 
 
@@ -3444,7 +6910,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -3452,7 +6926,15 @@
 
 
 
+
+
+
+
                 setStatus(
+
+
+
+
 
 
 
@@ -3460,7 +6942,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -3468,7 +6958,15 @@
 
 
 
+
+
+
+
                 setStatus(
+
+
+
+
 
 
 
@@ -3476,11 +6974,27 @@
 
 
 
+
+
+
+
                 );
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3492,7 +7006,15 @@
 
 
 
+
+
+
+
                 status.textContent +=
+
+
+
+
 
 
 
@@ -3500,7 +7022,19 @@
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3512,11 +7046,27 @@
 
 
 
+
+
+
+
                 scrollToBottom(false);
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3528,7 +7078,15 @@
 
 
 
+
+
+
+
                 showError('');
+
+
+
+
 
 
 
@@ -3540,7 +7098,19 @@
 
 
 
+
+
+
+
+
+
+
+
             updateControls();
+
+
+
+
 
 
 
@@ -3548,7 +7118,15 @@
 
 
 
+
+
+
+
             showError(
+
+
+
+
 
 
 
@@ -3556,7 +7134,15 @@
 
 
 
+
+
+
+
                 'Live chat kon niet worden bijgewerkt.'
+
+
+
+
 
 
 
@@ -3564,7 +7150,15 @@
 
 
 
+
+
+
+
         } finally {
+
+
+
+
 
 
 
@@ -3572,7 +7166,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -3584,7 +7186,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -3592,7 +7206,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -3604,7 +7230,15 @@
 
 
 
+
+
+
+
         body = null,
+
+
+
+
 
 
 
@@ -3612,7 +7246,15 @@
 
 
 
+
+
+
+
         file = null,
+
+
+
+
 
 
 
@@ -3620,7 +7262,15 @@
 
 
 
+
+
+
+
         if (
+
+
+
+
 
 
 
@@ -3628,7 +7278,15 @@
 
 
 
+
+
+
+
             stopped ||
+
+
+
+
 
 
 
@@ -3636,7 +7294,15 @@
 
 
 
+
+
+
+
             emailMode
+
+
+
+
 
 
 
@@ -3644,7 +7310,15 @@
 
 
 
+
+
+
+
             return false;
+
+
+
+
 
 
 
@@ -3656,11 +7330,31 @@
 
 
 
+
+
+
+
+
+
+
+
         sending = true;
 
 
 
+
+
+
+
         updateControls();
+
+
+
+
+
+
+
+
 
 
 
@@ -3676,7 +7370,19 @@
 
 
 
+
+
+
+
+
+
+
+
         try {
+
+
+
+
 
 
 
@@ -3688,11 +7394,27 @@
 
 
 
+
+
+
+
+
+
+
+
             if (file) {
 
 
 
+
+
+
+
                 payload =
+
+
+
+
 
 
 
@@ -3704,7 +7426,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 payload.append(
+
+
+
+
 
 
 
@@ -3712,11 +7446,27 @@
 
 
 
+
+
+
+
                     makeUuid()
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -3728,7 +7478,15 @@
 
 
 
+
+
+
+
                     'type',
+
+
+
+
 
 
 
@@ -3736,7 +7494,19 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -3748,7 +7518,15 @@
 
 
 
+
+
+
+
                     payload.append(
+
+
+
+
 
 
 
@@ -3756,11 +7534,23 @@
 
 
 
+
+
+
+
                         body
 
 
 
+
+
+
+
                     );
+
+
+
+
 
 
 
@@ -3772,7 +7562,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 payload.append(
+
+
+
+
 
 
 
@@ -3780,7 +7582,15 @@
 
 
 
+
+
+
+
                     file,
+
+
+
+
 
 
 
@@ -3788,7 +7598,15 @@
 
 
 
+
+
+
+
                     `${type}-${Date.now()}`
+
+
+
+
 
 
 
@@ -3796,7 +7614,15 @@
 
 
 
+
+
+
+
             } else {
+
+
+
+
 
 
 
@@ -3804,7 +7630,15 @@
 
 
 
+
+
+
+
                     body,
+
+
+
+
 
 
 
@@ -3812,7 +7646,15 @@
 
 
 
+
+
+
+
                     client_id:
+
+
+
+
 
 
 
@@ -3820,11 +7662,27 @@
 
 
 
+
+
+
+
                 };
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3836,7 +7694,15 @@
 
 
 
+
+
+
+
                 live.dataset.store,
+
+
+
+
 
 
 
@@ -3844,7 +7710,15 @@
 
 
 
+
+
+
+
                 payload
+
+
+
+
 
 
 
@@ -3856,7 +7730,28 @@
 
 
 
+
+
+
+
+
+
+
+
+            /*
+             * De server heeft het bericht geaccepteerd.
+             * Houd de composer actief, ook als de directe poll tegelijk
+             * met een achtergrondpoll loopt of tijdelijk faalt.
+             */
+            loaded = true;
+
+
+
             if (type === 'text') {
+
+
+
+
 
 
 
@@ -3864,11 +7759,27 @@
 
 
 
+
+
+
+
                 autoResizeTextarea();
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -3884,7 +7795,19 @@
 
 
 
+
+
+
+
+
+
+
+
             return true;
+
+
+
+
 
 
 
@@ -3892,7 +7815,15 @@
 
 
 
+
+
+
+
             showError(
+
+
+
+
 
 
 
@@ -3900,7 +7831,15 @@
 
 
 
+
+
+
+
                     ? 'Geen bevestiging ontvangen. Probeer opnieuw.'
+
+
+
+
 
 
 
@@ -3908,7 +7847,15 @@
 
 
 
+
+
+
+
                       'Het bericht kon niet worden verstuurd.'
+
+
+
+
 
 
 
@@ -3920,7 +7867,19 @@
 
 
 
+
+
+
+
+
+
+
+
             return false;
+
+
+
+
 
 
 
@@ -3928,7 +7887,15 @@
 
 
 
+
+
+
+
             sending = false;
+
+
+
+
 
 
 
@@ -3936,7 +7903,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -3948,7 +7923,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -3956,7 +7943,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -3968,7 +7967,15 @@
 
 
 
+
+
+
+
         initialBody = ''
+
+
+
+
 
 
 
@@ -3976,7 +7983,15 @@
 
 
 
+
+
+
+
         chat.dataset.mode =
+
+
+
+
 
 
 
@@ -3988,7 +8003,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (aiBody) {
+
+
+
+
 
 
 
@@ -3996,7 +8023,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4008,11 +8047,27 @@
 
 
 
+
+
+
+
             aiBottom.hidden = true;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4024,11 +8079,27 @@
 
 
 
+
+
+
+
             reset.hidden = true;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4040,7 +8111,15 @@
 
 
 
+
+
+
+
             resetConfirm.hidden = true;
+
+
+
+
 
 
 
@@ -4052,9 +8131,27 @@
 
 
 
+
+
+
+
+
+
+
+
         live.hidden = false;
 
+
+
         ensureAdminTypingIndicator();
+
+
+
+
+
+
+
+
 
 
 
@@ -4066,7 +8163,15 @@
 
 
 
+
+
+
+
          * Op mobiel kan de buitenste guest panel nog hidden zijn.
+
+
+
+
 
 
 
@@ -4074,7 +8179,15 @@
 
 
 
+
+
+
+
          */
+
+
+
+
 
 
 
@@ -4082,11 +8195,27 @@
 
 
 
+
+
+
+
             guestPanel.hidden = false;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4098,7 +8227,15 @@
 
 
 
+
+
+
+
             header.textContent =
+
+
+
+
 
 
 
@@ -4106,7 +8243,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4118,7 +8267,15 @@
 
 
 
+
+
+
+
             subtitle.textContent =
+
+
+
+
 
 
 
@@ -4126,7 +8283,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4142,11 +8311,27 @@
 
 
 
+
+
+
+
+
+
+
+
         const message =
 
 
 
+
+
+
+
             String(initialBody || '')
+
+
+
+
 
 
 
@@ -4158,7 +8343,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (message) {
+
+
+
+
 
 
 
@@ -4166,7 +8363,15 @@
 
 
 
+
+
+
+
                 body: message,
+
+
+
+
 
 
 
@@ -4174,11 +8379,27 @@
 
 
 
+
+
+
+
             });
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4190,7 +8411,15 @@
 
 
 
+
+
+
+
             !window.matchMedia(
+
+
+
+
 
 
 
@@ -4198,7 +8427,15 @@
 
 
 
+
+
+
+
             ).matches
+
+
+
+
 
 
 
@@ -4206,11 +8443,23 @@
 
 
 
+
+
+
+
             input.focus();
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -4222,7 +8471,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -4230,7 +8491,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -4242,7 +8515,15 @@
 
 
 
+
+
+
+
         if (!(file instanceof File)) {
+
+
+
+
 
 
 
@@ -4250,7 +8531,15 @@
 
 
 
+
+
+
+
                 'Het gekozen bestand is ongeldig.'
+
+
+
+
 
 
 
@@ -4258,7 +8547,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4270,7 +8571,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -4278,11 +8587,27 @@
 
 
 
+
+
+
+
             );
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4294,7 +8619,15 @@
 
 
 
+
+
+
+
             throw new Error(
+
+
+
+
 
 
 
@@ -4302,11 +8635,23 @@
 
 
 
+
+
+
+
             );
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -4318,7 +8663,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -4326,7 +8683,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -4338,7 +8707,15 @@
 
 
 
+
+
+
+
         if (!window.MediaRecorder) {
+
+
+
+
 
 
 
@@ -4346,7 +8723,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4358,7 +8747,15 @@
 
 
 
+
+
+
+
             const mimeType
+
+
+
+
 
 
 
@@ -4366,7 +8763,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -4374,7 +8779,15 @@
 
 
 
+
+
+
+
                 if (
+
+
+
+
 
 
 
@@ -4382,7 +8795,15 @@
 
 
 
+
+
+
+
                         .isTypeSupported(
+
+
+
+
 
 
 
@@ -4390,7 +8811,15 @@
 
 
 
+
+
+
+
                         )
+
+
+
+
 
 
 
@@ -4398,7 +8827,15 @@
 
 
 
+
+
+
+
                     return mimeType;
+
+
+
+
 
 
 
@@ -4406,7 +8843,15 @@
 
 
 
+
+
+
+
             } catch {
+
+
+
+
 
 
 
@@ -4414,11 +8859,27 @@
 
 
 
+
+
+
+
             }
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4430,7 +8891,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4442,7 +8915,15 @@
 
 
 
+
+
+
+
         mimeType
+
+
+
+
 
 
 
@@ -4450,7 +8931,15 @@
 
 
 
+
+
+
+
         const value =
+
+
+
+
 
 
 
@@ -4458,7 +8947,15 @@
 
 
 
+
+
+
+
                 .trim()
+
+
+
+
 
 
 
@@ -4470,11 +8967,27 @@
 
 
 
+
+
+
+
+
+
+
+
         if (
 
 
 
+
+
+
+
             value.startsWith(
+
+
+
+
 
 
 
@@ -4482,11 +8995,23 @@
 
 
 
+
+
+
+
             )
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -4494,7 +9019,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4506,7 +9043,15 @@
 
 
 
+
+
+
+
             value.startsWith(
+
+
+
+
 
 
 
@@ -4514,11 +9059,23 @@
 
 
 
+
+
+
+
             )
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -4526,7 +9083,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4538,7 +9107,15 @@
 
 
 
+
+
+
+
             value.startsWith(
+
+
+
+
 
 
 
@@ -4546,7 +9123,15 @@
 
 
 
+
+
+
+
             )
+
+
+
+
 
 
 
@@ -4554,11 +9139,27 @@
 
 
 
+
+
+
+
             return 'audio/mp4';
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4570,7 +9171,15 @@
 
 
 
+
+
+
+
             value.startsWith(
+
+
+
+
 
 
 
@@ -4578,7 +9187,15 @@
 
 
 
+
+
+
+
             )
+
+
+
+
 
 
 
@@ -4586,11 +9203,27 @@
 
 
 
+
+
+
+
             return 'video/webm';
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4602,11 +9235,27 @@
 
 
 
+
+
+
+
             || 'audio/webm';
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4618,7 +9267,15 @@
 
 
 
+
+
+
+
         mimeType
+
+
+
+
 
 
 
@@ -4626,7 +9283,15 @@
 
 
 
+
+
+
+
         const mime =
+
+
+
+
 
 
 
@@ -4638,7 +9303,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (mime.includes('ogg')) {
+
+
+
+
 
 
 
@@ -4646,7 +9323,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4658,11 +9347,27 @@
 
 
 
+
+
+
+
             return 'm4a';
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4674,11 +9379,27 @@
 
 
 
+
+
+
+
             return 'wav';
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4690,7 +9411,15 @@
 
 
 
+
+
+
+
             mime.includes('mpeg') ||
+
+
+
+
 
 
 
@@ -4698,7 +9427,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -4706,7 +9443,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4718,7 +9467,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4730,7 +9491,15 @@
 
 
 
+
+
+
+
         if (recordingTimer) {
+
+
+
+
 
 
 
@@ -4738,11 +9507,27 @@
 
 
 
+
+
+
+
                 recordingTimer
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -4754,7 +9539,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -4766,11 +9563,23 @@
 
 
 
+
+
+
+
             window.clearTimeout(
 
 
 
+
+
+
+
                 recordingTimeout
+
+
+
+
 
 
 
@@ -4782,7 +9591,19 @@
 
 
 
+
+
+
+
+
+
+
+
             recordingTimeout = null;
+
+
+
+
 
 
 
@@ -4790,7 +9611,19 @@
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4802,11 +9635,23 @@
 
 
 
+
+
+
+
         if (!mediaStream) {
 
 
 
+
+
+
+
             return;
+
+
+
+
 
 
 
@@ -4818,7 +9663,19 @@
 
 
 
+
+
+
+
+
+
+
+
         mediaStream
+
+
+
+
 
 
 
@@ -4826,7 +9683,15 @@
 
 
 
+
+
+
+
             .forEach(track => {
+
+
+
+
 
 
 
@@ -4834,7 +9699,15 @@
 
 
 
+
+
+
+
                     track.stop();
+
+
+
+
 
 
 
@@ -4842,11 +9715,23 @@
 
 
 
+
+
+
+
                     // Geen probleem.
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -4858,7 +9743,19 @@
 
 
 
+
+
+
+
+
+
+
+
         mediaStream = null;
+
+
+
+
 
 
 
@@ -4870,7 +9767,19 @@
 
 
 
+
+
+
+
+
+
+
+
     function resetVoiceUi() {
+
+
+
+
 
 
 
@@ -4882,7 +9791,19 @@
 
 
 
+
+
+
+
+
+
+
+
         voiceButton.setAttribute(
+
+
+
+
 
 
 
@@ -4890,7 +9811,15 @@
 
 
 
+
+
+
+
             'false'
+
+
+
+
 
 
 
@@ -4902,7 +9831,19 @@
 
 
 
+
+
+
+
+
+
+
+
         voiceButton.textContent =
+
+
+
+
 
 
 
@@ -4914,11 +9855,31 @@
 
 
 
+
+
+
+
+
+
+
+
         voiceButton.title =
 
 
 
+
+
+
+
             'Spraakbericht opnemen';
+
+
+
+
+
+
+
+
 
 
 
@@ -4934,11 +9895,31 @@
 
 
 
+
+
+
+
+
+
+
+
         updateControls();
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4950,7 +9931,15 @@
 
 
 
+
+
+
+
         stopMediaStream();
+
+
+
+
 
 
 
@@ -4962,11 +9951,27 @@
 
 
 
+
+
+
+
+
+
+
+
         mediaRecorder = null;
 
 
 
+
+
+
+
         audioChunks = [];
+
+
+
+
 
 
 
@@ -4978,11 +9983,31 @@
 
 
 
+
+
+
+
+
+
+
+
         resetVoiceUi();
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -4994,11 +10019,23 @@
 
 
 
+
+
+
+
         if (!recordingStartedAt) {
 
 
 
+
+
+
+
             return;
+
+
+
+
 
 
 
@@ -5010,7 +10047,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const elapsed =
+
+
+
+
 
 
 
@@ -5018,7 +10067,15 @@
 
 
 
+
+
+
+
                 (
+
+
+
+
 
 
 
@@ -5026,7 +10083,15 @@
 
 
 
+
+
+
+
                     - recordingStartedAt
+
+
+
+
 
 
 
@@ -5034,7 +10099,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5046,7 +10123,19 @@
 
 
 
+
+
+
+
             Math.floor(elapsed / 60);
+
+
+
+
+
+
+
+
 
 
 
@@ -5058,11 +10147,23 @@
 
 
 
+
+
+
+
             String(
 
 
 
+
+
+
+
                 elapsed % 60
+
+
+
+
 
 
 
@@ -5074,7 +10175,19 @@
 
 
 
+
+
+
+
+
+
+
+
         setStatus(
+
+
+
+
 
 
 
@@ -5082,7 +10195,15 @@
 
 
 
+
+
+
+
         );
+
+
+
+
 
 
 
@@ -5094,11 +10215,27 @@
 
 
 
+
+
+
+
+
+
+
+
     async function handleRecordingStopped() {
 
 
 
+
+
+
+
         const recorder =
+
+
+
+
 
 
 
@@ -5110,7 +10247,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const chunks =
+
+
+
+
 
 
 
@@ -5122,7 +10271,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const originalMime =
+
+
+
+
 
 
 
@@ -5130,7 +10291,15 @@
 
 
 
+
+
+
+
             recorderMimeType ||
+
+
+
+
 
 
 
@@ -5142,7 +10311,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const mime =
+
+
+
+
 
 
 
@@ -5150,7 +10331,15 @@
 
 
 
+
+
+
+
                 originalMime
+
+
+
+
 
 
 
@@ -5162,7 +10351,19 @@
 
 
 
+
+
+
+
+
+
+
+
         stopMediaStream();
+
+
+
+
 
 
 
@@ -5174,7 +10375,19 @@
 
 
 
+
+
+
+
+
+
+
+
         mediaRecorder = null;
+
+
+
+
 
 
 
@@ -5182,7 +10395,19 @@
 
 
 
+
+
+
+
         recorderMimeType = '';
+
+
+
+
+
+
+
+
 
 
 
@@ -5198,7 +10423,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const totalBytes =
+
+
+
+
 
 
 
@@ -5206,7 +10443,15 @@
 
 
 
+
+
+
+
                 (total, chunk) =>
+
+
+
+
 
 
 
@@ -5214,7 +10459,15 @@
 
 
 
+
+
+
+
                     + Number(
+
+
+
+
 
 
 
@@ -5222,7 +10475,15 @@
 
 
 
+
+
+
+
                     ),
+
+
+
+
 
 
 
@@ -5230,7 +10491,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5242,11 +10515,23 @@
 
 
 
+
+
+
+
             showError(
 
 
 
+
+
+
+
                 'De opname bevat geen gegevens. Probeer opnieuw.'
+
+
+
+
 
 
 
@@ -5258,11 +10543,31 @@
 
 
 
+
+
+
+
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -5274,7 +10579,15 @@
 
 
 
+
+
+
+
             new Blob(
+
+
+
+
 
 
 
@@ -5282,7 +10595,15 @@
 
 
 
+
+
+
+
                 {
+
+
+
+
 
 
 
@@ -5290,11 +10611,27 @@
 
 
 
+
+
+
+
                 }
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5306,11 +10643,23 @@
 
 
 
+
+
+
+
             showError(
 
 
 
+
+
+
+
                 'Het spraakbericht is leeg. Probeer opnieuw.'
+
+
+
+
 
 
 
@@ -5322,11 +10671,31 @@
 
 
 
+
+
+
+
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -5338,7 +10707,15 @@
 
 
 
+
+
+
+
             blob.size >
+
+
+
+
 
 
 
@@ -5346,7 +10723,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -5354,7 +10739,15 @@
 
 
 
+
+
+
+
                 'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.'
+
+
+
+
 
 
 
@@ -5366,11 +10759,31 @@
 
 
 
+
+
+
+
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -5382,7 +10795,19 @@
 
 
 
+
+
+
+
             voiceExtension(mime);
+
+
+
+
+
+
+
+
 
 
 
@@ -5394,7 +10819,15 @@
 
 
 
+
+
+
+
             new File(
+
+
+
+
 
 
 
@@ -5402,7 +10835,15 @@
 
 
 
+
+
+
+
                 `spraakbericht-${Date.now()}.${extension}`,
+
+
+
+
 
 
 
@@ -5410,7 +10851,15 @@
 
 
 
+
+
+
+
                     type: mime,
+
+
+
+
 
 
 
@@ -5418,7 +10867,15 @@
 
 
 
+
+
+
+
                         Date.now(),
+
+
+
+
 
 
 
@@ -5426,7 +10883,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5438,7 +10907,15 @@
 
 
 
+
+
+
+
             `Spraakbericht wordt verstuurd (${formatBytes(file.size)})…`
+
+
+
+
 
 
 
@@ -5450,7 +10927,19 @@
 
 
 
+
+
+
+
+
+
+
+
         const success =
+
+
+
+
 
 
 
@@ -5458,11 +10947,23 @@
 
 
 
+
+
+
+
                 type: 'voice',
 
 
 
+
+
+
+
                 file,
+
+
+
+
 
 
 
@@ -5474,7 +10975,19 @@
 
 
 
+
+
+
+
+
+
+
+
         if (!success) {
+
+
+
+
 
 
 
@@ -5482,7 +10995,15 @@
 
 
 
+
+
+
+
                 '[LiveChat] Spraakbericht kon niet worden verstuurd.',
+
+
+
+
 
 
 
@@ -5490,7 +11011,15 @@
 
 
 
+
+
+
+
                     name:
+
+
+
+
 
 
 
@@ -5498,7 +11027,15 @@
 
 
 
+
+
+
+
                     type:
+
+
+
+
 
 
 
@@ -5506,7 +11043,15 @@
 
 
 
+
+
+
+
                     size:
+
+
+
+
 
 
 
@@ -5514,7 +11059,15 @@
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -5522,7 +11075,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -5534,7 +11095,19 @@
 
 
 
+
+
+
+
+
+
+
+
     async function startRecording() {
+
+
+
+
 
 
 
@@ -5542,7 +11115,15 @@
 
 
 
+
+
+
+
             !navigator.mediaDevices
+
+
+
+
 
 
 
@@ -5550,7 +11131,15 @@
 
 
 
+
+
+
+
             !window.MediaRecorder
+
+
+
+
 
 
 
@@ -5558,11 +11147,23 @@
 
 
 
+
+
+
+
             showError(
 
 
 
+
+
+
+
                 'Spraakopname wordt niet ondersteund in deze browser.'
+
+
+
+
 
 
 
@@ -5574,11 +11175,31 @@
 
 
 
+
+
+
+
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -5590,7 +11211,15 @@
 
 
 
+
+
+
+
             closed ||
+
+
+
+
 
 
 
@@ -5598,7 +11227,15 @@
 
 
 
+
+
+
+
             stopped ||
+
+
+
+
 
 
 
@@ -5606,7 +11243,15 @@
 
 
 
+
+
+
+
             !loaded
+
+
+
+
 
 
 
@@ -5614,11 +11259,27 @@
 
 
 
+
+
+
+
             return;
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -5634,7 +11295,19 @@
 
 
 
+
+
+
+
+
+
+
+
         try {
+
+
+
+
 
 
 
@@ -5642,7 +11315,15 @@
 
 
 
+
+
+
+
                 await navigator
+
+
+
+
 
 
 
@@ -5650,7 +11331,15 @@
 
 
 
+
+
+
+
                     .getUserMedia({
+
+
+
+
 
 
 
@@ -5658,11 +11347,23 @@
 
 
 
+
+
+
+
                             echoCancellation:
 
 
 
+
+
+
+
                                 true,
+
+
+
+
 
 
 
@@ -5670,7 +11371,15 @@
 
 
 
+
+
+
+
                                 true,
+
+
+
+
 
 
 
@@ -5678,7 +11387,15 @@
 
 
 
+
+
+
+
                                 true,
+
+
+
+
 
 
 
@@ -5686,7 +11403,19 @@
 
 
 
+
+
+
+
                     });
+
+
+
+
+
+
+
+
 
 
 
@@ -5702,7 +11431,19 @@
 
 
 
+
+
+
+
+
+
+
+
             recorderMimeType =
+
+
+
+
 
 
 
@@ -5714,7 +11455,19 @@
 
 
 
+
+
+
+
+
+
+
+
             const options =
+
+
+
+
 
 
 
@@ -5722,7 +11475,15 @@
 
 
 
+
+
+
+
                     ? {
+
+
+
+
 
 
 
@@ -5730,11 +11491,23 @@
 
 
 
+
+
+
+
                             recorderMimeType,
 
 
 
+
+
+
+
                     }
+
+
+
+
 
 
 
@@ -5746,7 +11519,19 @@
 
 
 
+
+
+
+
+
+
+
+
             mediaRecorder =
+
+
+
+
 
 
 
@@ -5754,11 +11539,23 @@
 
 
 
+
+
+
+
                     mediaStream,
 
 
 
+
+
+
+
                     options
+
+
+
+
 
 
 
@@ -5770,7 +11567,19 @@
 
 
 
+
+
+
+
+
+
+
+
             mediaRecorder.addEventListener(
+
+
+
+
 
 
 
@@ -5778,7 +11587,15 @@
 
 
 
+
+
+
+
                 event => {
+
+
+
+
 
 
 
@@ -5786,7 +11603,15 @@
 
 
 
+
+
+
+
                         event.data &&
+
+
+
+
 
 
 
@@ -5794,7 +11619,15 @@
 
 
 
+
+
+
+
                     ) {
+
+
+
+
 
 
 
@@ -5802,7 +11635,15 @@
 
 
 
+
+
+
+
                             event.data
+
+
+
+
 
 
 
@@ -5810,11 +11651,23 @@
 
 
 
+
+
+
+
                     }
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -5826,7 +11679,19 @@
 
 
 
+
+
+
+
+
+
+
+
             mediaRecorder.addEventListener(
+
+
+
+
 
 
 
@@ -5834,7 +11699,15 @@
 
 
 
+
+
+
+
                 event => {
+
+
+
+
 
 
 
@@ -5842,7 +11715,15 @@
 
 
 
+
+
+
+
                         '[LiveChat] MediaRecorder fout:',
+
+
+
+
 
 
 
@@ -5850,7 +11731,19 @@
 
 
 
+
+
+
+
                     );
+
+
+
+
+
+
+
+
 
 
 
@@ -5862,7 +11755,15 @@
 
 
 
+
+
+
+
                         'Er ging iets mis tijdens de spraakopname.'
+
+
+
+
 
 
 
@@ -5874,7 +11775,19 @@
 
 
 
+
+
+
+
+
+
+
+
                     cleanupRecorder();
+
+
+
+
 
 
 
@@ -5882,7 +11795,19 @@
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5894,7 +11819,15 @@
 
 
 
+
+
+
+
                 'stop',
+
+
+
+
 
 
 
@@ -5902,7 +11835,15 @@
 
 
 
+
+
+
+
                     void handleRecordingStopped();
+
+
+
+
 
 
 
@@ -5910,7 +11851,15 @@
 
 
 
+
+
+
+
                 {
+
+
+
+
 
 
 
@@ -5918,11 +11867,27 @@
 
 
 
+
+
+
+
                 }
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -5938,7 +11903,19 @@
 
 
 
+
+
+
+
+
+
+
+
             recordingStartedAt =
+
+
+
+
 
 
 
@@ -5950,7 +11927,19 @@
 
 
 
+
+
+
+
+
+
+
+
             voiceButton.setAttribute(
+
+
+
+
 
 
 
@@ -5958,7 +11947,15 @@
 
 
 
+
+
+
+
                 'true'
+
+
+
+
 
 
 
@@ -5970,7 +11967,19 @@
 
 
 
+
+
+
+
+
+
+
+
             voiceButton.textContent =
+
+
+
+
 
 
 
@@ -5982,11 +11991,31 @@
 
 
 
+
+
+
+
+
+
+
+
             voiceButton.title =
 
 
 
+
+
+
+
                 'Opname stoppen en versturen';
+
+
+
+
+
+
+
+
 
 
 
@@ -6002,7 +12031,19 @@
 
 
 
+
+
+
+
+
+
+
+
             recordingTimer =
+
+
+
+
 
 
 
@@ -6010,7 +12051,15 @@
 
 
 
+
+
+
+
                     updateRecordingStatus,
+
+
+
+
 
 
 
@@ -6018,7 +12067,19 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -6030,7 +12091,15 @@
 
 
 
+
+
+
+
                 window.setTimeout(
+
+
+
+
 
 
 
@@ -6038,7 +12107,15 @@
 
 
 
+
+
+
+
                         if (
+
+
+
+
 
 
 
@@ -6046,7 +12123,15 @@
 
 
 
+
+
+
+
                             === 'recording'
+
+
+
+
 
 
 
@@ -6054,7 +12139,15 @@
 
 
 
+
+
+
+
                             mediaRecorder.stop();
+
+
+
+
 
 
 
@@ -6062,7 +12155,15 @@
 
 
 
+
+
+
+
                     },
+
+
+
+
 
 
 
@@ -6070,7 +12171,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -6078,7 +12187,15 @@
 
 
 
+
+
+
+
             console.error(
+
+
+
+
 
 
 
@@ -6086,11 +12203,27 @@
 
 
 
+
+
+
+
                 exception
 
 
 
+
+
+
+
             );
+
+
+
+
+
+
+
+
 
 
 
@@ -6106,11 +12239,27 @@
 
 
 
+
+
+
+
+
+
+
+
             if (
 
 
 
+
+
+
+
                 exception?.name
+
+
+
+
 
 
 
@@ -6118,11 +12267,23 @@
 
 
 
+
+
+
+
             ) {
 
 
 
+
+
+
+
                 showError(
+
+
+
+
 
 
 
@@ -6130,7 +12291,19 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -6142,7 +12315,19 @@
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6154,7 +12339,15 @@
 
 
 
+
+
+
+
                 exception?.name
+
+
+
+
 
 
 
@@ -6162,7 +12355,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -6170,7 +12371,15 @@
 
 
 
+
+
+
+
                     'Er is geen microfoon gevonden.'
+
+
+
+
 
 
 
@@ -6182,11 +12391,31 @@
 
 
 
+
+
+
+
+
+
+
+
                 return;
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6198,7 +12427,15 @@
 
 
 
+
+
+
+
                 exception?.name
+
+
+
+
 
 
 
@@ -6206,7 +12443,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -6214,7 +12459,15 @@
 
 
 
+
+
+
+
                     'De microfoon kan momenteel niet worden gebruikt.'
+
+
+
+
 
 
 
@@ -6226,11 +12479,31 @@
 
 
 
+
+
+
+
+
+
+
+
                 return;
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6242,7 +12515,15 @@
 
 
 
+
+
+
+
                 'Microfoontoegang is niet beschikbaar.'
+
+
+
+
 
 
 
@@ -6250,11 +12531,27 @@
 
 
 
+
+
+
+
         }
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -6266,7 +12563,15 @@
 
 
 
+
+
+
+
         if (
+
+
+
+
 
 
 
@@ -6274,7 +12579,15 @@
 
 
 
+
+
+
+
             mediaRecorder.state
+
+
+
+
 
 
 
@@ -6282,7 +12595,15 @@
 
 
 
+
+
+
+
         ) {
+
+
+
+
 
 
 
@@ -6290,7 +12611,19 @@
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -6302,7 +12635,19 @@
 
 
 
+
+
+
+
             true;
+
+
+
+
+
+
+
+
 
 
 
@@ -6314,7 +12659,15 @@
 
 
 
+
+
+
+
             mediaRecorder.requestData();
+
+
+
+
 
 
 
@@ -6322,11 +12675,27 @@
 
 
 
+
+
+
+
             // Niet iedere browser vereist dit.
 
 
 
+
+
+
+
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -6338,6 +12707,10 @@
 
 
 
+
+
+
+
     }
 
 
@@ -6346,7 +12719,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -6354,7 +12739,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -6366,7 +12763,15 @@
 
 
 
+
+
+
+
         'submit',
+
+
+
+
 
 
 
@@ -6374,7 +12779,19 @@
 
 
 
+
+
+
+
             event.preventDefault();
+
+
+
+
+
+
+
+
 
 
 
@@ -6386,7 +12803,19 @@
 
 
 
+
+
+
+
                 input.value.trim();
+
+
+
+
+
+
+
+
 
 
 
@@ -6398,7 +12827,15 @@
 
 
 
+
+
+
+
                 body === '' ||
+
+
+
+
 
 
 
@@ -6406,7 +12843,15 @@
 
 
 
+
+
+
+
                     MAX_TEXT_LENGTH ||
+
+
+
+
 
 
 
@@ -6414,7 +12859,15 @@
 
 
 
+
+
+
+
                 emailMode ||
+
+
+
+
 
 
 
@@ -6422,7 +12875,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -6430,7 +12891,19 @@
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6442,7 +12915,15 @@
 
 
 
+
+
+
+
             await sendPayload({
+
+
+
+
 
 
 
@@ -6450,7 +12931,15 @@
 
 
 
+
+
+
+
                 type: 'text',
+
+
+
+
 
 
 
@@ -6458,7 +12947,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6470,7 +12967,19 @@
 
 
 
+
+
+
+
+
+
+
+
     input.addEventListener(
+
+
+
+
 
 
 
@@ -6478,7 +12987,15 @@
 
 
 
+
+
+
+
         () => {
+
+
+
+
 
 
 
@@ -6486,7 +13003,15 @@
 
 
 
+
+
+
+
             updateControls();
+
+
+
+
 
 
 
@@ -6494,7 +13019,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6506,7 +13039,19 @@
 
 
 
+
+
+
+
+
+
+
+
     input.addEventListener(
+
+
+
+
 
 
 
@@ -6514,7 +13059,15 @@
 
 
 
+
+
+
+
         event => {
+
+
+
+
 
 
 
@@ -6522,7 +13075,15 @@
 
 
 
+
+
+
+
                 event.key !== 'Enter' ||
+
+
+
+
 
 
 
@@ -6530,7 +13091,15 @@
 
 
 
+
+
+
+
                 event.isComposing
+
+
+
+
 
 
 
@@ -6538,11 +13107,27 @@
 
 
 
+
+
+
+
                 return;
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6558,7 +13143,19 @@
 
 
 
+
+
+
+
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -6566,7 +13163,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -6574,11 +13179,23 @@
 
 
 
+
+
+
+
             }
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6590,7 +13207,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -6598,7 +13227,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -6610,7 +13251,15 @@
 
 
 
+
+
+
+
         'change',
+
+
+
+
 
 
 
@@ -6618,11 +13267,27 @@
 
 
 
+
+
+
+
             const file =
 
 
 
+
+
+
+
                 fileInput.files?.[0];
+
+
+
+
+
+
+
+
 
 
 
@@ -6638,11 +13303,27 @@
 
 
 
+
+
+
+
+
+
+
+
             if (!file) {
 
 
 
+
+
+
+
                 return;
+
+
+
+
 
 
 
@@ -6654,7 +13335,19 @@
 
 
 
+
+
+
+
+
+
+
+
             try {
+
+
+
+
 
 
 
@@ -6666,7 +13359,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 setStatus(
+
+
+
+
 
 
 
@@ -6674,7 +13379,19 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
+
+
+
+
 
 
 
@@ -6686,7 +13403,15 @@
 
 
 
+
+
+
+
                     type: 'file',
+
+
+
+
 
 
 
@@ -6694,7 +13419,15 @@
 
 
 
+
+
+
+
                 });
+
+
+
+
 
 
 
@@ -6702,7 +13435,15 @@
 
 
 
+
+
+
+
                 showError(
+
+
+
+
 
 
 
@@ -6710,7 +13451,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -6718,7 +13467,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6730,7 +13487,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -6738,7 +13507,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -6750,7 +13531,15 @@
 
 
 
+
+
+
+
         'click',
+
+
+
+
 
 
 
@@ -6758,7 +13547,15 @@
 
 
 
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -6766,7 +13563,15 @@
 
 
 
+
+
+
+
                 === 'recording'
+
+
+
+
 
 
 
@@ -6774,7 +13579,15 @@
 
 
 
+
+
+
+
                 stopRecording();
+
+
+
+
 
 
 
@@ -6782,7 +13595,19 @@
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -6794,7 +13619,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6806,7 +13639,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -6814,7 +13659,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -6826,7 +13683,15 @@
 
 
 
+
+
+
+
         'click',
+
+
+
+
 
 
 
@@ -6834,7 +13699,15 @@
 
 
 
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -6842,11 +13715,23 @@
 
 
 
+
+
+
+
             ) {
 
 
 
+
+
+
+
                 return;
+
+
+
+
 
 
 
@@ -6858,7 +13743,19 @@
 
 
 
+
+
+
+
+
+
+
+
             reopenButton.disabled =
+
+
+
+
 
 
 
@@ -6870,7 +13767,19 @@
 
 
 
+
+
+
+
+
+
+
+
             try {
+
+
+
+
 
 
 
@@ -6878,7 +13787,15 @@
 
 
 
+
+
+
+
                     live.dataset.reopen,
+
+
+
+
 
 
 
@@ -6886,7 +13803,15 @@
 
 
 
+
+
+
+
                     {}
+
+
+
+
 
 
 
@@ -6898,11 +13823,31 @@
 
 
 
+
+
+
+
+
+
+
+
                 closed = false;
 
 
 
+
+
+
+
                 emailMode = false;
+
+
+
+
+
+
+
+
 
 
 
@@ -6918,7 +13863,19 @@
 
 
 
+
+
+
+
+
+
+
+
                 input.focus();
+
+
+
+
 
 
 
@@ -6926,7 +13883,15 @@
 
 
 
+
+
+
+
                 showError(
+
+
+
+
 
 
 
@@ -6934,7 +13899,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -6942,7 +13915,15 @@
 
 
 
+
+
+
+
                 reopenButton.disabled =
+
+
+
+
 
 
 
@@ -6950,11 +13931,23 @@
 
 
 
+
+
+
+
             }
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -6966,7 +13959,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -6974,7 +13979,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -6986,7 +14003,15 @@
 
 
 
+
+
+
+
         'live-chat:handoff',
+
+
+
+
 
 
 
@@ -6994,7 +14019,15 @@
 
 
 
+
+
+
+
             const body =
+
+
+
+
 
 
 
@@ -7002,11 +14035,23 @@
 
 
 
+
+
+
+
                     event.detail?.body ||
 
 
 
+
+
+
+
                     ''
+
+
+
+
 
 
 
@@ -7018,7 +14063,19 @@
 
 
 
+
+
+
+
+
+
+
+
             void activateHuman(body).catch(exception => {
+
+
+
+
 
 
 
@@ -7026,7 +14083,15 @@
 
 
 
+
+
+
+
                     exception?.message ||
+
+
+
+
 
 
 
@@ -7034,7 +14099,15 @@
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -7042,7 +14115,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7054,7 +14135,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -7062,7 +14155,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -7074,7 +14179,15 @@
 
 
 
+
+
+
+
         'click',
+
+
+
+
 
 
 
@@ -7082,7 +14195,15 @@
 
 
 
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -7090,7 +14211,15 @@
 
 
 
+
+
+
+
                 === 'human'
+
+
+
+
 
 
 
@@ -7098,7 +14227,15 @@
 
 
 
+
+
+
+
                 void poll();
+
+
+
+
 
 
 
@@ -7106,7 +14243,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7118,7 +14263,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -7126,7 +14283,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -7138,7 +14307,15 @@
 
 
 
+
+
+
+
         'visibilitychange',
+
+
+
+
 
 
 
@@ -7146,7 +14323,15 @@
 
 
 
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -7154,7 +14339,15 @@
 
 
 
+
+
+
+
                 chat.dataset.mode
+
+
+
+
 
 
 
@@ -7162,7 +14355,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -7170,11 +14371,23 @@
 
 
 
+
+
+
+
             }
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7186,7 +14399,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -7194,7 +14419,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -7206,11 +14443,23 @@
 
 
 
+
+
+
+
         'online',
 
 
 
+
+
+
+
         () => {
+
+
+
+
 
 
 
@@ -7222,7 +14471,19 @@
 
 
 
+
+
+
+
+
+
+
+
             if (
+
+
+
+
 
 
 
@@ -7230,7 +14491,15 @@
 
 
 
+
+
+
+
                 === 'human'
+
+
+
+
 
 
 
@@ -7238,11 +14507,23 @@
 
 
 
+
+
+
+
                 setStatus(
 
 
 
+
+
+
+
                     'Verbinding hersteld. Gesprek wordt bijgewerkt…'
+
+
+
+
 
 
 
@@ -7254,11 +14535,31 @@
 
 
 
+
+
+
+
+
+
+
+
                 void poll();
 
 
 
+
+
+
+
             }
+
+
+
+
+
+
+
+
 
 
 
@@ -7270,7 +14571,15 @@
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7282,7 +14591,19 @@
 
 
 
+
+
+
+
+
+
+
+
     window.addEventListener(
+
+
+
+
 
 
 
@@ -7290,7 +14611,15 @@
 
 
 
+
+
+
+
         () => {
+
+
+
+
 
 
 
@@ -7298,7 +14627,15 @@
 
 
 
+
+
+
+
                 'Je bent offline. Controleer je internetverbinding.'
+
+
+
+
 
 
 
@@ -7310,11 +14647,31 @@
 
 
 
+
+
+
+
+
+
+
+
             sendButton.disabled =
 
 
 
+
+
+
+
                 true;
+
+
+
+
+
+
+
+
 
 
 
@@ -7326,7 +14683,19 @@
 
 
 
+
+
+
+
                 true;
+
+
+
+
+
+
+
+
 
 
 
@@ -7338,11 +14707,23 @@
 
 
 
+
+
+
+
                 true;
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7354,7 +14735,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -7362,7 +14755,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -7374,7 +14779,15 @@
 
 
 
+
+
+
+
         'beforeunload',
+
+
+
+
 
 
 
@@ -7382,13 +14795,31 @@
 
 
 
+
+
+
+
             clearRecordingTimers();
+
+
+
+
 
 
 
             stopVisitorTyping();
 
+
+
             hideAdminTyping();
+
+
+
+
+
+
+
+
 
 
 
@@ -7400,7 +14831,15 @@
 
 
 
+
+
+
+
                 mediaRecorder?.state
+
+
+
+
 
 
 
@@ -7408,7 +14847,15 @@
 
 
 
+
+
+
+
             ) {
+
+
+
+
 
 
 
@@ -7416,7 +14863,15 @@
 
 
 
+
+
+
+
                     mediaRecorder.stop();
+
+
+
+
 
 
 
@@ -7424,11 +14879,23 @@
 
 
 
+
+
+
+
                     // Pagina sluit al.
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -7440,11 +14907,27 @@
 
 
 
+
+
+
+
+
+
+
+
             stopMediaStream();
 
 
 
+
+
+
+
         }
+
+
+
+
 
 
 
@@ -7456,7 +14939,19 @@
 
 
 
+
+
+
+
+
+
+
+
     // =========================================================================
+
+
+
+
 
 
 
@@ -7464,7 +14959,19 @@
 
 
 
+
+
+
+
     // =========================================================================
+
+
+
+
+
+
+
+
 
 
 
@@ -7480,7 +14987,19 @@
 
 
 
+
+
+
+
+
+
+
+
     voiceButton.setAttribute(
+
+
+
+
 
 
 
@@ -7488,11 +15007,27 @@
 
 
 
+
+
+
+
         'false'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -7504,7 +15039,19 @@
 
 
 
+
+
+
+
     updateControls();
+
+
+
+
+
+
+
+
 
 
 
@@ -7516,7 +15063,15 @@
 
 
 
+
+
+
+
         () => {
+
+
+
+
 
 
 
@@ -7524,7 +15079,15 @@
 
 
 
+
+
+
+
         },
+
+
+
+
 
 
 
@@ -7532,7 +15095,15 @@
 
 
 
+
+
+
+
     );
+
+
+
+
 
 
 
