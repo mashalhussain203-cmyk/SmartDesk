@@ -334,6 +334,49 @@ class LiveChatController extends Controller
         return response()->file($path, $headers);
     }
 
+    public function emailAttachment(
+        Request $request,
+        int $message
+    ) {
+        $record = DB::table('live_chat_messages')
+            ->where('id', $message)
+            ->first();
+
+        abort_unless($record && $record->attachment_path, 404);
+
+        $disk = Storage::disk('public');
+        abort_unless(
+            $disk->exists($record->attachment_path),
+            404,
+            'Bestand niet beschikbaar.'
+        );
+
+        $path = $disk->path($record->attachment_path);
+        $name = $record->attachment_name
+            ?: basename($record->attachment_path);
+
+        $headers = [
+            'Content-Type' => $record->attachment_mime
+                ?: 'application/octet-stream',
+            'Cache-Control' => 'private, max-age=3600',
+            'Accept-Ranges' => 'bytes',
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
+        if ($request->boolean('download')) {
+            return response()->download(
+                $path,
+                $name,
+                $headers
+            );
+        }
+
+        return response()->file(
+            $path,
+            $headers
+        );
+    }
+
     public function typing(
         Request $request,
         LiveChatService $chat

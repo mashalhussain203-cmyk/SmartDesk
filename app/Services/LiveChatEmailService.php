@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use RuntimeException;
 use stdClass;
@@ -281,6 +282,13 @@ class LiveChatEmailService
                     $message
                 );
 
+            $mediaLinks = $isInitialHandoff
+                ? $this->transcriptVideoLinks(
+                    $conversationId,
+                    (int) $message->id
+                )
+                : $this->messageVideoLinks($message);
+
             $raw = $this->buildRawEmail(
                 to: $targetEmail,
                 toName: $conversation->user_name ?: null,
@@ -293,7 +301,8 @@ class LiveChatEmailService
                     $conversation->user_name ?: null,
                     $subject,
                     trim((string) ($conversation->email_title ?? ''))
-                        ?: 'Mashal Support'
+                        ?: 'Mashal Support',
+                    $mediaLinks
                 ),
                 attachments: $this->mailAttachmentsForMessage(
                     $message
@@ -1185,9 +1194,16 @@ class LiveChatEmailService
             (int) ($message->attachment_size ?? 0)
         );
 
-        return '['.$type.': '.$name
+        $label = '['.$type.': '.$name
             .($size !== '' ? ' · '.$size : '')
             .']';
+
+        if ((string) ($message->type ?? '') === 'video') {
+            $label .= "\n    Video bekijken/downloaden: "
+                .$this->emailAttachmentUrl((int) $message->id);
+        }
+
+        return $label;
     }
 
     private function formatTranscriptBytes(int $bytes): string
@@ -1231,7 +1247,9 @@ class LiveChatEmailService
         ) {
             'voice' => 'Mashal Support heeft een spraakbericht gestuurd.',
             'file' => 'Mashal Support heeft een bestand gestuurd.',
-            'video' => 'Mashal Support heeft een video gestuurd.',
+            'video' => 'Mashal Support heeft een video gestuurd.'
+                ."\n\nVideo bekijken/downloaden: "
+                .$this->emailAttachmentUrl((int) $message->id),
             default => 'Mashal Support heeft een nieuw bericht gestuurd.',
         };
     }
@@ -1247,6 +1265,12 @@ class LiveChatEmailService
         stdClass $message
     ): array {
         if (empty($message->attachment_path)) {
+            return [];
+        }
+
+        // Video's kunnen tot 1 GB groot zijn. Die gaan daarom niet als
+        // klassieke e-mailbijlage mee, maar via een beveiligde link.
+        if ((string) ($message->type ?? '') === 'video') {
             return [];
         }
 
@@ -1293,6 +1317,83 @@ class LiveChatEmailService
             ),
             'content' => $content,
         ]];
+    }
+
+    private function emailAttachmentUrl(
+        int $messageId,
+        bool $download = false
+    ): string {
+        return URL::signedRoute(
+            'live-chat.email-attachment',
+            [
+                'message' => $messageId,
+                'download' => $download ? 1 : 0,
+            ]
+        );
+    }
+
+    /**
+     * @return array<int,array{
+     *   name:string,
+     *   url:string,
+     *   download_url:string,
+     *   mime:string,
+     *   size:string
+     * }>
+     */
+    private function messageVideoLinks(stdClass $message): array
+    {
+        if (
+            (string) ($message->type ?? '') !== 'video'
+            || empty($message->attachment_path)
+        ) {
+            return [];
+        }
+
+        return [[
+            'name' => (string) (
+                $message->attachment_name
+                ?: basename((string) $message->attachment_path)
+            ),
+            'url' => $this->emailAttachmentUrl((int) $message->id),
+            'download_url' => $this->emailAttachmentUrl(
+                (int) $message->id,
+                true
+            ),
+            'mime' => (string) (
+                $message->attachment_mime
+                ?: 'video/mp4'
+            ),
+            'size' => $this->formatTranscriptBytes(
+                (int) ($message->attachment_size ?? 0)
+            ),
+        ]];
+    }
+
+    /**
+     * @return array<int,array{
+     *   name:string,
+     *   url:string,
+     *   download_url:string,
+     *   mime:string,
+     *   size:string
+     * }>
+     */
+    private function transcriptVideoLinks(
+        int $conversationId,
+        int $throughMessageId
+    ): array {
+        return DB::table('live_chat_messages')
+            ->where('conversation_id', $conversationId)
+            ->where('id', '<=', $throughMessageId)
+            ->where('type', 'video')
+            ->whereNotNull('attachment_path')
+            ->orderBy('id')
+            ->get()
+            ->map(function (object $message): array {
+                return $this->messageVideoLinks($message)[0];
+            })
+            ->all();
     }
 
     /**
@@ -1509,7 +1610,8 @@ class LiveChatEmailService
         string $bodyText,
         ?string $customerName,
         string $emailSubject,
-        string $emailTitle
+        string $emailTitle,
+        array $mediaLinks = []
     ): string {
         return view(
             'mail.thread',
@@ -1519,6 +1621,7 @@ class LiveChatEmailService
                 'customerName' => $customerName,
                 'emailSubject' => $emailSubject,
                 'emailTitle' => $emailTitle,
+                'mediaLinks' => $mediaLinks,
             ]
         )->render();
     }

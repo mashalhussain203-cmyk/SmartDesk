@@ -47,6 +47,11 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->middleware('throttle:180,1,visitor-live-chat-attachment')
         ->name('attachment');
 
+    Route::get('/email/messages/{message}/attachment', [LiveChatController::class, 'emailAttachment'])
+        ->whereNumber('message')
+        ->middleware(['signed', 'throttle:180,1,live-chat-email-attachment'])
+        ->name('email-attachment');
+
     Route::post('/typing', [LiveChatController::class, 'typing'])
         ->middleware('throttle:120,1,visitor-live-chat-typing')
         ->name('typing');
