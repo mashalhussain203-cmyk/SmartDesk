@@ -1,12 +1,41 @@
 <?php
 
 use App\Http\Controllers\AdminLiveChatController;
+use App\Http\Controllers\AdminLiveChatCallController;
 use App\Http\Controllers\AdminLiveChatFeaturesController;
 use App\Http\Controllers\GmailLiveChatOAuthController;
 use App\Http\Controllers\LiveChatController;
+use App\Http\Controllers\LiveChatCallController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
+    Route::get('/calls/config', [LiveChatCallController::class, 'config'])
+        ->middleware('throttle:30,1,visitor-live-chat-call-config')
+        ->name('calls.config');
+
+    Route::get('/calls/current', [LiveChatCallController::class, 'current'])
+        ->middleware('throttle:180,1,visitor-live-chat-call-current')
+        ->name('calls.current');
+
+    Route::post('/calls', [LiveChatCallController::class, 'start'])
+        ->middleware('throttle:20,1,visitor-live-chat-call-start')
+        ->name('calls.start');
+
+    Route::post('/calls/{call}/answer', [LiveChatCallController::class, 'answer'])
+        ->whereUuid('call')
+        ->middleware('throttle:30,1,visitor-live-chat-call-answer')
+        ->name('calls.answer');
+
+    Route::post('/calls/{call}/decline', [LiveChatCallController::class, 'decline'])
+        ->whereUuid('call')
+        ->middleware('throttle:30,1,visitor-live-chat-call-decline')
+        ->name('calls.decline');
+
+    Route::post('/calls/{call}/end', [LiveChatCallController::class, 'end'])
+        ->whereUuid('call')
+        ->middleware('throttle:60,1,visitor-live-chat-call-end')
+        ->name('calls.end');
+
     Route::get('/', [LiveChatController::class, 'show'])
         ->middleware('throttle:90,1,visitor-live-chat-show')
         ->block(10, 10)
@@ -78,6 +107,38 @@ Route::middleware('auth')
     ->prefix('admin/live-chat')
     ->name('admin.live-chat.')
     ->group(function (): void {
+        Route::get('/calls/incoming', [AdminLiveChatCallController::class, 'incoming'])
+            ->middleware('throttle:180,1,admin-live-chat-call-incoming')
+            ->name('calls.incoming');
+
+        Route::get('/conversations/{conversation}/calls/current', [AdminLiveChatCallController::class, 'current'])
+            ->whereNumber('conversation')
+            ->middleware('throttle:180,1,admin-live-chat-call-current')
+            ->name('calls.current');
+
+        Route::post('/conversations/{conversation}/calls', [AdminLiveChatCallController::class, 'start'])
+            ->whereNumber('conversation')
+            ->middleware('throttle:20,1,admin-live-chat-call-start')
+            ->name('calls.start');
+
+        Route::post('/conversations/{conversation}/calls/{call}/answer', [AdminLiveChatCallController::class, 'answer'])
+            ->whereNumber('conversation')
+            ->whereUuid('call')
+            ->middleware('throttle:30,1,admin-live-chat-call-answer')
+            ->name('calls.answer');
+
+        Route::post('/conversations/{conversation}/calls/{call}/decline', [AdminLiveChatCallController::class, 'decline'])
+            ->whereNumber('conversation')
+            ->whereUuid('call')
+            ->middleware('throttle:30,1,admin-live-chat-call-decline')
+            ->name('calls.decline');
+
+        Route::post('/conversations/{conversation}/calls/{call}/end', [AdminLiveChatCallController::class, 'end'])
+            ->whereNumber('conversation')
+            ->whereUuid('call')
+            ->middleware('throttle:60,1,admin-live-chat-call-end')
+            ->name('calls.end');
+
         Route::get('/', [AdminLiveChatController::class, 'index'])
             ->name('index');
 

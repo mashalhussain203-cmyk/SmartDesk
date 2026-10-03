@@ -4365,3 +4365,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <script src="{{ asset('js/live-chat.js') }}?v=20" defer></script>
+
+<script src="{{ asset('js/live-chat-calls.js') }}?v=1" defer></script>

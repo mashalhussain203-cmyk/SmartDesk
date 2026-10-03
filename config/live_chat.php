@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'calls' => [
+        'stun_urls' => env('LIVE_CHAT_STUN_URLS', 'stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302'),
+        'turn_url' => env('LIVE_CHAT_TURN_URL', ''),
+        'turn_username' => env('LIVE_CHAT_TURN_USERNAME', ''),
+        'turn_credential' => env('LIVE_CHAT_TURN_CREDENTIAL', ''),
+        'ring_timeout_seconds' => (int) env('LIVE_CHAT_CALL_RING_TIMEOUT', 45),
+    ],
     'auto_reply' => [
         'enabled' => (bool) env('LIVE_CHAT_AUTO_REPLY_ENABLED', false),
         'timezone' => env('LIVE_CHAT_TIMEZONE', 'Europe/Amsterdam'),

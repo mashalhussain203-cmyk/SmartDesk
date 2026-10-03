@@ -4949,4 +4949,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+<script src="{{ asset('js/live-chat-calls.js') }}?v=1" defer></script>
+
 @endsection
