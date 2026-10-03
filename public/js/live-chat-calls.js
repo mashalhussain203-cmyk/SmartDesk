@@ -488,17 +488,53 @@
             || null;
     }
 
-    async function enableVideo() {
-        if (!state.peer || state.peer.signalingState === 'closed') return;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+    async function getVideoOnlyStream(facingMode = 'user') {
+        const attempts = [
+            {
                 audio: false,
                 video: {
-                    facingMode: { ideal: state.facingMode },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+                    facingMode,
+                    width: { ideal: 1280, max: 1920 },
+                    height: { ideal: 720, max: 1080 },
                 },
-            });
+            },
+            { audio: false, video: { facingMode } },
+            { audio: false, video: true },
+        ];
+
+        let lastError = null;
+        for (const constraints of attempts) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                if (stream.getVideoTracks().length) return stream;
+                stream.getTracks().forEach(track => track.stop());
+            } catch (error) {
+                lastError = error;
+                console.warn('[LiveChatCall] camera attempt failed', error?.name, error?.message);
+                if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') throw error;
+            }
+        }
+
+        throw lastError || new Error('Geen camera beschikbaar.');
+    }
+
+    async function playLocalPreview() {
+        if (!localVideo || !state.localStream) return;
+        localVideo.srcObject = state.localStream;
+        localVideo.muted = true;
+        localVideo.playsInline = true;
+        try {
+            await localVideo.play();
+        } catch (error) {
+            console.warn('[LiveChatCall] local preview play failed', error?.name, error?.message);
+        }
+    }
+
+    async function enableVideo() {
+        if (!state.peer || state.peer.signalingState === 'closed') return;
+        let stream = null;
+        try {
+            stream = await getVideoOnlyStream(state.facingMode);
             const track = stream.getVideoTracks()[0];
             if (!track) throw new Error('Geen camera beschikbaar.');
 
@@ -508,19 +544,41 @@
                 throw new Error('Deze oproep is gestart vóór de video-switch update. Start een nieuwe audiocall.');
             }
 
+            const transceiver = state.peer.getTransceivers().find(item => item.sender === sender);
+            if (transceiver && transceiver.direction !== 'sendrecv') {
+                try { transceiver.direction = 'sendrecv'; } catch {}
+            }
+
             await sender.replaceTrack(track);
-            state.localStream?.getVideoTracks().forEach(oldTrack => oldTrack.stop());
+
+            state.localStream?.getVideoTracks().forEach(oldTrack => {
+                if (oldTrack.id !== track.id) oldTrack.stop();
+            });
             const audioTracks = state.localStream?.getAudioTracks() || [];
             state.localStream = new MediaStream([...audioTracks, track]);
             state.localVideoActive = true;
             state.cameraOff = false;
             syncMediaElements();
             updateVideoUi();
+            await playLocalPreview();
             setStatus('Video ingeschakeld');
+            console.info('[LiveChatCall] camera enabled', {
+                facingMode: state.facingMode,
+                readyState: track.readyState,
+                enabled: track.enabled,
+                muted: track.muted,
+                settings: track.getSettings?.() || {},
+            });
         } catch (error) {
+            stream?.getTracks?.().forEach(track => track.stop());
+            console.error('[LiveChatCall] enable video failed', error);
             toast(error.name === 'NotAllowedError'
-                ? 'Geef cameratoegang om naar video over te schakelen.'
-                : error.message || 'Video kon niet worden ingeschakeld.');
+                ? 'Camera is geblokkeerd. Sta cameratoegang toe in Safari en probeer opnieuw.'
+                : error.name === 'NotFoundError'
+                    ? 'Geen camera gevonden op dit apparaat.'
+                    : error.name === 'NotReadableError'
+                        ? 'De camera wordt al door een andere app of tab gebruikt.'
+                        : error.message || 'Video kon niet worden ingeschakeld.');
         }
     }
 
@@ -554,10 +612,7 @@
         if (!state.localVideoActive || !state.peer) return;
         state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
         try {
-            const replacement = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: state.facingMode } },
-                audio: false,
-            });
+            const replacement = await getVideoOnlyStream(state.facingMode);
             const newTrack = replacement.getVideoTracks()[0];
             const sender = state.peer.getSenders().find(item => item.track?.kind === 'video');
             if (sender && newTrack) await sender.replaceTrack(newTrack);
@@ -565,6 +620,7 @@
             const audioTracks = state.localStream?.getAudioTracks() || [];
             state.localStream = new MediaStream([...audioTracks, newTrack]);
             syncMediaElements();
+            await playLocalPreview();
         } catch {
             toast('Camera wisselen is niet beschikbaar op dit apparaat.');
         }
