@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -1199,8 +1200,11 @@ class LiveChatEmailService
             .']';
 
         if ((string) ($message->type ?? '') === 'video') {
-            $label .= "\n    Video bekijken/downloaden: "
-                .$this->emailAttachmentUrl((int) $message->id);
+            $videoUrl = $this->emailAttachmentUrl((int) $message->id);
+
+            if ($videoUrl !== null) {
+                $label .= "\n    Video bekijken/downloaden: ".$videoUrl;
+            }
         }
 
         return $label;
@@ -1247,9 +1251,7 @@ class LiveChatEmailService
         ) {
             'voice' => 'Mashal Support heeft een spraakbericht gestuurd.',
             'file' => 'Mashal Support heeft een bestand gestuurd.',
-            'video' => 'Mashal Support heeft een video gestuurd.'
-                ."\n\nVideo bekijken/downloaden: "
-                .$this->emailAttachmentUrl((int) $message->id),
+            'video' => $this->videoMailBody($message),
             default => 'Mashal Support heeft een nieuw bericht gestuurd.',
         };
     }
@@ -1322,14 +1324,52 @@ class LiveChatEmailService
     private function emailAttachmentUrl(
         int $messageId,
         bool $download = false
-    ): string {
-        return URL::signedRoute(
-            'live-chat.email-attachment',
-            [
-                'message' => $messageId,
-                'download' => $download ? 1 : 0,
-            ]
-        );
+    ): ?string {
+        // Een nieuwe route kan op productie nog ontbreken wanneer Laravel
+        // een oude route-cache gebruikt. Dat mag nooit de volledige e-mail
+        // tegenhouden. Na `php artisan optimize:clear` is de route beschikbaar.
+        if (! Route::has('live-chat.email-attachment')) {
+            Log::warning(
+                'Live-chat e-mailattachment-route is niet geregistreerd.',
+                [
+                    'route' => 'live-chat.email-attachment',
+                    'message_id' => $messageId,
+                ]
+            );
+
+            return null;
+        }
+
+        try {
+            return URL::signedRoute(
+                'live-chat.email-attachment',
+                [
+                    'message' => $messageId,
+                    'download' => $download ? 1 : 0,
+                ]
+            );
+        } catch (Throwable $exception) {
+            Log::warning(
+                'Beveiligde video-URL voor live-chat e-mail kon niet worden gemaakt.',
+                [
+                    'message_id' => $messageId,
+                    'download' => $download,
+                    'exception' => $exception->getMessage(),
+                ]
+            );
+
+            return null;
+        }
+    }
+
+    private function videoMailBody(stdClass $message): string
+    {
+        $url = $this->emailAttachmentUrl((int) $message->id);
+
+        return $url !== null
+            ? 'Mashal Support heeft een video gestuurd.'
+                ."\n\nVideo bekijken/downloaden: ".$url
+            : 'Mashal Support heeft een video gestuurd.';
     }
 
     /**
@@ -1350,16 +1390,23 @@ class LiveChatEmailService
             return [];
         }
 
+        $url = $this->emailAttachmentUrl((int) $message->id);
+        $downloadUrl = $this->emailAttachmentUrl(
+            (int) $message->id,
+            true
+        );
+
+        if ($url === null || $downloadUrl === null) {
+            return [];
+        }
+
         return [[
             'name' => (string) (
                 $message->attachment_name
                 ?: basename((string) $message->attachment_path)
             ),
-            'url' => $this->emailAttachmentUrl((int) $message->id),
-            'download_url' => $this->emailAttachmentUrl(
-                (int) $message->id,
-                true
-            ),
+            'url' => $url,
+            'download_url' => $downloadUrl,
             'mime' => (string) (
                 $message->attachment_mime
                 ?: 'video/mp4'
