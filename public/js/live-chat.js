@@ -2326,7 +2326,21 @@
 
         video.src = message.attachment_url;
 
-        item.append(video);
+        const download = document.createElement('a');
+
+        download.className = 'lc-file-link';
+
+        download.href = message.attachment_url;
+
+        download.download = message.attachment_name || 'video';
+
+        download.target = '_blank';
+
+        download.rel = 'noopener noreferrer';
+
+        download.textContent = '⬇ Video downloaden';
+
+        item.append(video, download);
 
     }
 
