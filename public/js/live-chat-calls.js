@@ -30,6 +30,7 @@
         facingMode: 'user',
         incomingShownId: null,
         busy: false,
+        sound: { context: null, loopTimer: null, kind: null },
     };
 
     const css = `
@@ -110,11 +111,121 @@
         window.setTimeout(() => node.remove(), 3200);
     }
 
+    function audioContext() {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        if (!state.sound.context) state.sound.context = new Ctx();
+        if (state.sound.context.state === 'suspended') {
+            state.sound.context.resume().catch(() => {});
+        }
+        return state.sound.context;
+    }
+
+    function tone(frequency = 440, duration = 0.16, volume = 0.045, delay = 0) {
+        const ctx = audioContext();
+        if (!ctx) return;
+        const start = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.03);
+    }
+
+    function stopCallSound() {
+        if (state.sound.loopTimer) clearInterval(state.sound.loopTimer);
+        state.sound.loopTimer = null;
+        state.sound.kind = null;
+    }
+
+    function playIncomingRing() {
+        if (state.sound.kind === 'incoming') return;
+        stopCallSound();
+        state.sound.kind = 'incoming';
+        const ring = () => {
+            tone(880, 0.16, 0.05, 0);
+            tone(1046, 0.16, 0.05, 0.22);
+            tone(880, 0.16, 0.05, 0.44);
+        };
+        ring();
+        state.sound.loopTimer = setInterval(ring, 2600);
+    }
+
+    function playOutgoingRing() {
+        if (state.sound.kind === 'outgoing') return;
+        stopCallSound();
+        state.sound.kind = 'outgoing';
+        const ring = () => {
+            tone(440, 0.42, 0.035, 0);
+            tone(480, 0.42, 0.035, 0.48);
+        };
+        ring();
+        state.sound.loopTimer = setInterval(ring, 3000);
+    }
+
+    function playConnectedSound() {
+        stopCallSound();
+        tone(660, 0.10, 0.035, 0);
+        tone(880, 0.13, 0.035, 0.11);
+    }
+
+    function playEndedSound() {
+        stopCallSound();
+        tone(440, 0.12, 0.035, 0);
+        tone(330, 0.16, 0.035, 0.13);
+    }
+
     async function getIceServers() {
         if (state.iceServers) return state.iceServers;
         const data = await request(endpoints().config);
         state.iceServers = Array.isArray(data.ice_servers) ? data.ice_servers : [];
         return state.iceServers;
+    }
+
+    function normalizeDescription(description, expectedType = null) {
+        if (!description || typeof description !== 'object') {
+            throw new Error('Ongeldige WebRTC session description ontvangen.');
+        }
+
+        const type = String(description.type || expectedType || '').trim();
+        let sdp = typeof description.sdp === 'string' ? description.sdp : '';
+
+        if (!type || !['offer', 'answer'].includes(type)) {
+            throw new Error('Ongeldig SDP-type ontvangen.');
+        }
+
+        // Soms komt SDP via JSON/database terug met letterlijke escaped newlines.
+        // Zet die alleen om wanneer er geen echte regeleinden aanwezig zijn.
+        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
+            sdp = sdp.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+        }
+
+        // Verwijder BOM/NUL en normaliseer alle regeleinden naar CRLF, zoals SDP vereist.
+        sdp = sdp
+            .replace(/^\uFEFF/, '')
+            .replace(/\u0000/g, '')
+            .replace(/\r\n/g, '\n')
+            .replace(/\r/g, '\n')
+            .split('\n')
+            .map(line => line.trimEnd())
+            .join('\r\n')
+            .trim();
+
+        if (!sdp.startsWith('v=0')) {
+            throw new Error('Ongeldige SDP ontvangen: eerste regel is geen v=0.');
+        }
+
+        if (!sdp.endsWith('\r\n')) {
+            sdp += '\r\n';
+        }
+
+        return new RTCSessionDescription({ type, sdp });
     }
 
     function waitForIce(pc) {
@@ -161,12 +272,18 @@
                 }
             }
             syncMediaElements();
+            if (remoteVideo) {
+                remoteVideo.muted = false;
+                remoteVideo.volume = 1;
+                remoteVideo.play().catch(() => {});
+            }
         });
 
         pc.addEventListener('connectionstatechange', () => {
             if (pc.connectionState === 'connected') {
                 state.connectedAt = state.connectedAt || Date.now();
                 setStatus('Verbonden');
+                playConnectedSound();
                 startTimer();
             }
 
@@ -253,6 +370,9 @@
         }
         if (remoteVideo && state.remoteStream && remoteVideo.srcObject !== state.remoteStream) {
             remoteVideo.srcObject = state.remoteStream;
+            remoteVideo.muted = false;
+            remoteVideo.volume = 1;
+            remoteVideo.play().catch(() => {});
         }
     }
 
@@ -308,6 +428,7 @@
     }
 
     function cleanupMedia() {
+        stopCallSound();
         try { state.peer?.close(); } catch {}
         state.peer = null;
         state.localStream?.getTracks().forEach(track => track.stop());
@@ -336,6 +457,7 @@
             addLocalTracks(pc, stream);
             ensureOverlay(mode);
             setStatus('Bellen…');
+            playOutgoingRing();
 
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
@@ -364,6 +486,7 @@
     async function acceptIncoming(call) {
         if (state.busy || state.call) return;
         state.busy = true;
+        stopCallSound();
         removeIncoming();
         try {
             const stream = await getMedia(call.mode, state.facingMode);
@@ -371,7 +494,7 @@
             state.call = call;
             state.isCaller = false;
             const pc = await createPeer(call.mode);
-            await pc.setRemoteDescription(call.offer);
+            await pc.setRemoteDescription(normalizeDescription(call.offer, 'offer'));
             addLocalTracks(pc, stream);
             ensureOverlay(call.mode);
             setStatus('Verbinden…');
@@ -399,6 +522,8 @@
     }
 
     async function declineIncoming(call) {
+        stopCallSound();
+        playEndedSound();
         removeIncoming();
         try {
             await request(endpoints(call.conversation_id, call.id).decline, 'POST', {});
@@ -415,6 +540,7 @@
         state.call = null;
         state.isCaller = false;
         cleanupMedia();
+        playEndedSound();
         if (message) toast(message);
     }
 
@@ -434,7 +560,7 @@
             state.call = call;
 
             if (state.isCaller && call.answer && state.peer && !state.peer.remoteDescription) {
-                await state.peer.setRemoteDescription(call.answer);
+                await state.peer.setRemoteDescription(normalizeDescription(call.answer, 'answer'));
                 setStatus('Verbinden…');
             }
 
@@ -473,11 +599,13 @@
                 <button type="button" class="lcc-accept">Opnemen</button>
             </div>`;
         document.body.append(incomingNode);
+        playIncomingRing();
         incomingNode.querySelector('.lcc-accept').addEventListener('click', () => void acceptIncoming(call));
         incomingNode.querySelector('.lcc-decline').addEventListener('click', () => void declineIncoming(call));
     }
 
     function removeIncoming() {
+        if (state.sound.kind === 'incoming') stopCallSound();
         incomingNode?.remove();
         incomingNode = null;
         state.incomingShownId = null;
@@ -593,6 +721,7 @@
     });
 
     window.addEventListener('beforeunload', () => {
+        stopCallSound();
         state.localStream?.getTracks().forEach(track => track.stop());
         try { state.peer?.close(); } catch {}
     });
