@@ -3971,78 +3971,8 @@
     );
 
     // =========================================================================
-    // ADVANCED CHAT TOOLS
+    // INBOX SEARCH + STATS
     // =========================================================================
-
-    function featureUrl(path = '') {
-        return `${root.dataset.base}/${selected?.id || ''}${path}`;
-    }
-
-    const advancedBar = document.createElement('div');
-    advancedBar.className = 'lca-advanced-tools';
-    advancedBar.style.display = 'flex';
-    advancedBar.style.flexWrap = 'wrap';
-    advancedBar.style.gap = '6px';
-    advancedBar.style.padding = '8px';
-    advancedBar.style.borderBottom = '1px solid rgba(255,255,255,.12)';
-    log.parentElement?.insertBefore(advancedBar, log);
-
-    const addTool = (label, handler) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.textContent = label;
-        button.addEventListener('click', handler);
-        advancedBar.append(button);
-        return button;
-    };
-
-    function openInfo(title, content) {
-        const overlay = document.createElement('div');
-        Object.assign(overlay.style, {position:'fixed', inset:'0', zIndex:'99999', background:'rgba(0,0,0,.72)', display:'grid', placeItems:'center', padding:'20px'});
-        const card = document.createElement('div');
-        Object.assign(card.style, {width:'min(820px,96vw)', maxHeight:'85vh', overflow:'auto', background:'#11151b', color:'#fff', borderRadius:'16px', padding:'18px'});
-        const h = document.createElement('h3'); h.textContent = title;
-        const close = document.createElement('button'); close.type='button'; close.textContent='Sluiten'; close.style.float='right'; close.onclick=()=>overlay.remove();
-        card.append(close,h);
-        if (typeof content === 'string') { const pre=document.createElement('pre'); pre.style.whiteSpace='pre-wrap'; pre.textContent=content; card.append(pre); } else { card.append(content); }
-        overlay.append(card); overlay.addEventListener('click', e=>{if(e.target===overlay) overlay.remove();}); document.body.append(overlay);
-    }
-
-    addTool('⚙ Chat', async () => {
-        if (!selected) return;
-        const priority = window.prompt('Prioriteit: low, normal, high of urgent', selected.priority || 'normal');
-        if (!priority) return;
-        const labels = window.prompt('Labels, gescheiden door komma’s:', Array.isArray(selected.labels) ? selected.labels.join(', ') : '');
-        const assigned = window.prompt('Toewijzen aan admin user-ID (leeg = niet wijzigen):', selected.assigned_admin_id || '');
-        const payload = {priority, labels: String(labels || '').split(',').map(v=>v.trim()).filter(Boolean)};
-        if (assigned !== null && String(assigned).trim() !== '') payload.assigned_admin_id = Number(assigned);
-        try {
-            await api(featureUrl('/meta'), 'PATCH', payload);
-            selected.priority = priority; selected.labels = payload.labels; if (payload.assigned_admin_id) selected.assigned_admin_id = payload.assigned_admin_id; await inbox();
-        } catch (error) { fail(error.message); }
-    });
-
-    addTool('📝 Notities', async () => {
-        if (!selected) return;
-        const wrap=document.createElement('div');
-        try {
-            const data=await api(featureUrl('/notes'));
-            (data.items||[]).forEach(n=>{const p=document.createElement('p');p.textContent=`${n.admin_name||'Admin'} · ${n.created_at}: ${n.body}`;wrap.append(p);});
-            const b=document.createElement('button');b.type='button';b.textContent='+ notitie';b.onclick=async()=>{const body=window.prompt('Interne notitie:');if(body?.trim()){await api(featureUrl('/notes'),'POST',{body:body.trim()});}};wrap.prepend(b);
-            openInfo('Interne notities',wrap);
-        } catch(error){fail(error.message);}
-    });
-
-    addTool('🖼 Media', async () => {
-        if(!selected)return;
-        try { const data=await api(featureUrl('/media')); const wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gap='10px'; (data.items||[]).forEach(m=>{const a=document.createElement('a');a.href=m.url;a.target='_blank';a.rel='noopener';a.textContent=`${m.type==='video'?'🎬':'📎'} ${m.attachment_name||'Bestand'} · ${Math.round((m.attachment_size||0)/1048576*10)/10} MB`;wrap.append(a);}); openInfo('Media & bestanden',wrap);} catch(error){fail(error.message);}
-    });
-
-    addTool('👤 Profiel', async () => { if(!selected)return; try{const d=await api(featureUrl('/profile')); openInfo('Klantprofiel', JSON.stringify(d,null,2));}catch(e){fail(e.message);} });
-    addTool('🕘 Geschiedenis', async () => { if(!selected)return; try{const d=await api(featureUrl('/history')); openInfo('Gespreksgeschiedenis',(d.items||[]).map(x=>`${x.created_at} · ${x.actor_name||'Systeem'} · ${x.event_type}`).join('\n')||'Nog geen gebeurtenissen.');}catch(e){fail(e.message);} });
-    addTool('📄 PDF', () => { if(selected) window.open(featureUrl('/transcript'),'_blank','noopener'); });
-    addTool('🗜 ZIP', () => { if(selected) window.location.href=featureUrl('/export.zip'); });
-    addTool('🚫 Blokkeer', async () => { if(!selected)return; const reason=window.prompt('Reden voor blokkeren:','Misbruik'); if(reason===null)return; try{await api(featureUrl('/block'),'POST',{reason}); selected.status='closed'; controls(); await inbox();}catch(e){fail(e.message);} });
 
     const searchInput=document.createElement('input');
     searchInput.type='search'; searchInput.placeholder='Zoek naam, e-mail of bericht…'; searchInput.style.width='100%'; searchInput.style.padding='9px'; searchInput.style.boxSizing='border-box';
@@ -4052,21 +3982,6 @@
 
     const statsNode=document.createElement('div'); statsNode.style.fontSize='12px'; statsNode.style.padding='8px'; list.parentElement?.insertBefore(statsNode,list);
     async function loadStats(){try{const url=new URL(root.dataset.base,window.location.origin);url.pathname=url.pathname.replace(/\/conversations\/?$/,'/stats');const d=await api(url.toString());statsNode.textContent=`Actief ${d.active} · Wacht ${d.waiting} · Ongelezen ${d.unread} · Vandaag ${d.messages_today}`;document.title=d.unread?`(${d.unread}) ${originalDocumentTitle}`:originalDocumentTitle;}catch{}}
-
-    if ('Notification' in window && Notification.permission === 'default') {
-        addTool('🔔 Meldingen', () => void Notification.requestPermission());
-    }
-
-    const cameraInput=document.createElement('input'); cameraInput.type='file'; cameraInput.accept='image/*,video/*'; cameraInput.capture='environment'; cameraInput.hidden=true; root.append(cameraInput);
-    addTool('📷 Camera',()=>cameraInput.click()); cameraInput.addEventListener('change',async()=>{const f=cameraInput.files?.[0];cameraInput.value='';if(f)await handleSelectedFiles([f]);});
-    const pauseUploadButton = addTool('⏸ Upload', () => {
-        uploadPaused = !uploadPaused;
-        pauseUploadButton.textContent = uploadPaused ? '▶ Hervat upload' : '⏸ Upload';
-        fail(uploadPaused ? 'Video-upload gepauzeerd. De huidige chunk wordt nog afgerond.' : 'Video-upload hervat.');
-    });
-
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(SpeechRecognition){ addTool('🗣 Dicteer',()=>{const r=new SpeechRecognition();r.lang='nl-NL';r.interimResults=false;r.onresult=e=>{input.value=(input.value+' '+e.results[0][0].transcript).trim();autoResizeInput();controls();};r.onerror=()=>fail('Spraak-naar-tekst kon niet worden gestart.');r.start();}); }
 
     // =========================================================================
 
