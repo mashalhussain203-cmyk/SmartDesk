@@ -338,7 +338,11 @@
 
 
 
-    let identity = null;
+    
+    let replyTarget = null;
+    let uploadPaused = false;
+
+let identity = null;
 
 
 
@@ -2325,6 +2329,15 @@
         video.playsInline = true;
 
         video.src = message.attachment_url;
+        const videoMeta = document.createElement('small');
+        videoMeta.style.display = 'block';
+        videoMeta.style.opacity = '.7';
+        videoMeta.textContent = message.attachment_size ? `${Math.round(message.attachment_size / 104857.6) / 10} MB` : '';
+        video.addEventListener('loadedmetadata', () => {
+            const minutes = Math.floor(video.duration / 60);
+            const seconds = Math.floor(video.duration % 60).toString().padStart(2, '0');
+            videoMeta.textContent = `${minutes}:${seconds}` + (message.attachment_size ? ` · ${Math.round(message.attachment_size / 104857.6) / 10} MB` : '');
+        }, {once:true});
 
         const download = document.createElement('a');
 
@@ -2340,7 +2353,7 @@
 
         download.textContent = '⬇ Video downloaden';
 
-        item.append(video, download);
+        item.append(video, videoMeta, download);
 
     }
 
@@ -2870,6 +2883,18 @@
 
         item.append(head);
 
+        if (message.reply_to) {
+            const quote = document.createElement('button');
+            quote.type = 'button';
+            quote.className = 'lc-file-link';
+            quote.textContent = '↩ ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
+            quote.addEventListener('click', () => {
+                log.querySelector(`[data-message-id="${message.reply_to.id}"]`)?.scrollIntoView({behavior:'smooth', block:'center'});
+            });
+            item.append(quote);
+        }
+
+
 
 
 
@@ -2896,7 +2921,42 @@
 
 
 
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.gap = '5px';
+        actions.style.flexWrap = 'wrap';
+        actions.style.marginTop = '6px';
+        const actionButton = (label, title, handler) => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.textContent = label; b.title = title; b.className = 'lc-delete';
+            b.addEventListener('click', handler); return b;
+        };
+        actions.append(actionButton('↩','Beantwoorden',()=>{
+            replyTarget={id,label:message.body||message.attachment_name||'bericht'};
+            input.focus(); setStatus('Je antwoordt op: '+replyTarget.label);
+        }));
+        ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji=>{
+            const count=Number(message.reactions?.[emoji]||0);
+            actions.append(actionButton(emoji+(count?` ${count}`:''),'Reactie',async()=>{
+                try{await api(`${live.dataset.store}/${id}/reaction`,'POST',{emoji});lastMessageId=0;seen.clear();log.replaceChildren();await poll(true);}catch(e){showError(e.message);}
+            }));
+        });
+        if(message.attachment_url){actions.append(actionButton('⛶','Fullscreen',()=>window.open(message.attachment_url,'_blank','noopener')));}
+        const status=document.createElement('span');
+        status.style.fontSize='11px'; status.style.opacity='.65';
+        status.textContent=(message.edited_at?'bewerkt · ':'')+(message.sender==='visitor'?(message.read_by_other?'gelezen':'verzonden'):'');
+        actions.append(status);
+        item.append(actions);
+
         if (message.sender === 'visitor') {
+            if (message.body) {
+                actions.append(actionButton('Bewerken','Bericht bewerken (max. 5 minuten)',async()=>{
+                    const body=window.prompt('Bericht bewerken:',message.body);
+                    if(body===null||!body.trim())return;
+                    try{await api(`${live.dataset.store}/${id}`,'PATCH',{body:body.trim()});lastMessageId=0;seen.clear();log.replaceChildren();await poll(true);}catch(e){showError(e.message);}
+                }));
+            }
+
 
 
 
@@ -3662,19 +3722,10 @@
 
     async function sendPayload({
 
-
-
         body = null,
-
-
-
         type = 'text',
-
-
-
         file = null,
-
-
+        parentMessageId = replyTarget?.id || null,
 
     }) {
 
@@ -3832,6 +3883,10 @@
 
 
 
+                if (parentMessageId) {
+                    payload.append('parent_message_id', String(parentMessageId));
+                }
+
                 payload.append(
 
 
@@ -3869,6 +3924,7 @@
 
 
                     type,
+                    parent_message_id: parentMessageId,
 
 
 
@@ -3929,6 +3985,14 @@
 
 
             }
+
+
+
+
+
+
+
+            replyTarget = null;
 
 
 
@@ -6751,6 +6815,9 @@
             const received = new Set((Array.isArray(state?.received) ? state.received : []).map(Number));
 
             for (let index = 0; index < totalChunks; index += 1) {
+                while (uploadPaused) {
+                    await new Promise(resolve => window.setTimeout(resolve, 250));
+                }
                 if (!received.has(index)) {
                     const start = index * chunkSize;
                     const end = Math.min(start + chunkSize, file.size);
@@ -6779,131 +6846,44 @@
         }
     }
 
-    fileInput.addEventListener(
-
-
-
-        'change',
-
-
-
-        async () => {
-
-
-
-            const file =
-
-
-
-                fileInput.files?.[0];
-
-
-
-
-
-
-
-            fileInput.value = '';
-
-
-
-
-
-
-
-            if (!file) {
-
-
-
-                return;
-
-
-
-            }
-
-
-
-
-
-
-
+    async function handleSelectedFiles(files) {
+        for (const file of Array.from(files || [])) {
             try {
-
-
-
                 validateFile(file);
-
-
-
-
-
-
-
-
                 const video = isVideoFile(file);
-
-                setStatus(
-                    `${video ? 'Video' : 'Bestand'} wordt verstuurd (${formatBytes(file.size)})…`
-                );
-
-                if (video) {
-                    await uploadVideoInChunks(file);
-                } else {
-                    await sendPayload({
-                        type: 'file',
-                        file,
-                    });
-                }
-
-
-
+                setStatus(`${video ? 'Video' : 'Bestand'} wordt verstuurd (${formatBytes(file.size)})…`);
+                if (video) await uploadVideoInChunks(file);
+                else await sendPayload({type:'file', file});
             } catch (exception) {
-
-
-
-                showError(
-
-
-
-                    exception.message
-
-
-
-                );
-
-
-
+                showError(exception.message);
             }
-
-
-
         }
+    }
 
+    fileInput.multiple = true;
+    fileInput.addEventListener('change', async () => {
+        const files = Array.from(fileInput.files || []);
+        fileInput.value = '';
+        await handleSelectedFiles(files);
+    });
 
+    ['dragenter','dragover'].forEach(name => log.addEventListener(name, event => {event.preventDefault();log.style.outline='2px dashed currentColor';}));
+    ['dragleave','drop'].forEach(name => log.addEventListener(name, event => {event.preventDefault();log.style.outline='';}));
+    log.addEventListener('drop', event => void handleSelectedFiles(event.dataTransfer?.files));
 
-    );
+    const cameraInput = document.createElement('input');
+    cameraInput.type='file'; cameraInput.accept='image/*,video/*'; cameraInput.capture='environment'; cameraInput.hidden=true; live.append(cameraInput);
+    const cameraButton=document.createElement('button'); cameraButton.type='button'; cameraButton.className='lc-tool'; cameraButton.textContent='📷'; cameraButton.title='Camera openen'; voiceButton.parentElement?.insertBefore(cameraButton,voiceButton);
+    cameraButton.addEventListener('click',()=>cameraInput.click());
+    cameraInput.addEventListener('change',async()=>{const f=cameraInput.files?.[0];cameraInput.value='';if(f)await handleSelectedFiles([f]);});
+    const pauseUploadButton=document.createElement('button'); pauseUploadButton.type='button'; pauseUploadButton.className='lc-tool'; pauseUploadButton.textContent='⏸'; pauseUploadButton.title='Video-upload pauzeren/hervatten'; voiceButton.parentElement?.insertBefore(pauseUploadButton,voiceButton);
+    pauseUploadButton.addEventListener('click',()=>{uploadPaused=!uploadPaused;pauseUploadButton.textContent=uploadPaused?'▶':'⏸';setStatus(uploadPaused?'Video-upload gepauzeerd.':'Video-upload hervat.');});
 
-
-
-
-
-
-
-    // =========================================================================
-
-
-
-    // MICROFOONKNOP
-
-
-
-    // =========================================================================
-
-
-
-
-
-
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SpeechRecognition){
+        const speech=document.createElement('button'); speech.type='button'; speech.className='lc-tool'; speech.textContent='🗣'; speech.title='Spraak naar tekst'; voiceButton.parentElement?.insertBefore(speech,voiceButton);
+        speech.addEventListener('click',()=>{const r=new SpeechRecognition();r.lang='nl-NL';r.onresult=e=>{input.value=(input.value+' '+e.results[0][0].transcript).trim();input.dispatchEvent(new Event('input'));};r.onerror=()=>showError('Spraak-naar-tekst kon niet starten.');r.start();});
+    }
 
     voiceButton.addEventListener(
 

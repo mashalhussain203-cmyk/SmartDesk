@@ -92,6 +92,10 @@ class AdminLiveChatController extends Controller
 
             ],
 
+            'q' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'priority' => ['sometimes', 'nullable', 'in:low,normal,high,urgent'],
+            'assigned_admin_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
+
         ]);
 
 
@@ -121,6 +125,10 @@ class AdminLiveChatController extends Controller
                 'c.user_id',
 
                 'c.status',
+                'c.priority',
+                'c.labels',
+                'c.assigned_admin_id',
+                'c.blocked_at',
 
                 'c.last_message_at',
 
@@ -226,6 +234,30 @@ class AdminLiveChatController extends Controller
 
 
 
+        if (! empty($data['q'])) {
+            $term = trim((string) $data['q']);
+            $query->where(function ($sub) use ($term): void {
+                $like = '%'.$term.'%';
+                $sub->where('u.name', 'like', $like)
+                    ->orWhere('u.email', 'like', $like)
+                    ->orWhere('c.contact_email', 'like', $like)
+                    ->orWhereExists(function ($messageQuery) use ($like): void {
+                        $messageQuery->selectRaw('1')
+                            ->from('live_chat_messages as sm')
+                            ->whereColumn('sm.conversation_id', 'c.id')
+                            ->where('sm.body', 'like', $like);
+                    });
+            });
+        }
+
+        if (! empty($data['priority'])) {
+            $query->where('c.priority', $data['priority']);
+        }
+
+        if (! empty($data['assigned_admin_id'])) {
+            $query->where('c.assigned_admin_id', (int) $data['assigned_admin_id']);
+        }
+
         $page = $query
 
             ->orderByDesc(
@@ -277,8 +309,12 @@ class AdminLiveChatController extends Controller
                         'status' =>
 
                             $conversation->status,
-
-
+                        'priority' => $conversation->priority ?? 'normal',
+                        'labels' => is_string($conversation->labels ?? null)
+                            ? (json_decode($conversation->labels, true) ?: [])
+                            : ($conversation->labels ?? []),
+                        'assigned_admin_id' => $conversation->assigned_admin_id ?? null,
+                        'blocked_at' => $conversation->blocked_at ?? null,
 
                         'name' => $userId
 
@@ -723,8 +759,11 @@ class AdminLiveChatController extends Controller
                 'uuid',
 
             ],
-
-
+            'parent_message_id' => [
+                'nullable',
+                'integer',
+                'exists:live_chat_messages,id',
+            ],
 
             'body' => [
 
@@ -1431,7 +1470,8 @@ class AdminLiveChatController extends Controller
 
                 $conversation,
 
-                $data
+                $data,
+                $request
 
             ): void {
 
@@ -1481,17 +1521,24 @@ class AdminLiveChatController extends Controller
 
                     ->update([
 
-                        'status' =>
+                        'status' => $data['status'],
+                        'closed_at' => $data['status'] === 'closed' ? now() : null,
+                        'closed_by_user_id' => $data['status'] === 'closed' ? (int) $request->user()->id : null,
+                        'reopened_count' => $data['status'] === 'open' && $record->status === 'closed'
+                            ? ((int) ($record->reopened_count ?? 0) + 1)
+                            : (int) ($record->reopened_count ?? 0),
 
-                            $data['status'],
-
-
-
-                        'updated_at' =>
-
-                            now(),
+                        'updated_at' => now(),
 
                     ]);
+
+                DB::table('live_chat_conversation_events')->insert([
+                    'conversation_id' => $conversation,
+                    'actor_user_id' => (int) $request->user()->id,
+                    'event_type' => $data['status'] === 'closed' ? 'closed' : 'reopened',
+                    'metadata' => null,
+                    'created_at' => now(),
+                ]);
 
             }
 

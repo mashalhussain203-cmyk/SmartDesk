@@ -20,6 +20,8 @@ class LiveChatController extends Controller
             'after' => ['sometimes', 'integer', 'min:0'],
         ]);
 
+        $chat->markVisitorRead($request);
+
         $payload = $chat->payload(
             $chat->visitorConversation($request),
             (int) ($data['after'] ?? 0)
@@ -88,6 +90,11 @@ class LiveChatController extends Controller
                 Rule::in(['text', 'file', 'voice', 'video']),
             ],
             'client_id' => ['required', 'uuid'],
+            'parent_message_id' => [
+                'nullable',
+                'integer',
+                'exists:live_chat_messages,id',
+            ],
             'body' => [
                 $type === 'text' ? 'required' : 'nullable',
                 'string',
@@ -334,49 +341,6 @@ class LiveChatController extends Controller
         return response()->file($path, $headers);
     }
 
-    public function emailAttachment(
-        Request $request,
-        int $message
-    ) {
-        $record = DB::table('live_chat_messages')
-            ->where('id', $message)
-            ->first();
-
-        abort_unless($record && $record->attachment_path, 404);
-
-        $disk = Storage::disk('public');
-        abort_unless(
-            $disk->exists($record->attachment_path),
-            404,
-            'Bestand niet beschikbaar.'
-        );
-
-        $path = $disk->path($record->attachment_path);
-        $name = $record->attachment_name
-            ?: basename($record->attachment_path);
-
-        $headers = [
-            'Content-Type' => $record->attachment_mime
-                ?: 'application/octet-stream',
-            'Cache-Control' => 'private, max-age=3600',
-            'Accept-Ranges' => 'bytes',
-            'X-Content-Type-Options' => 'nosniff',
-        ];
-
-        if ($request->boolean('download')) {
-            return response()->download(
-                $path,
-                $name,
-                $headers
-            );
-        }
-
-        return response()->file(
-            $path,
-            $headers
-        );
-    }
-
     public function typing(
         Request $request,
         LiveChatService $chat
@@ -403,6 +367,77 @@ class LiveChatController extends Controller
             ->header('Cache-Control', 'no-store');
     }
 
+    public function editMessage(
+        Request $request,
+        LiveChatService $chat,
+        int $message
+    ): JsonResponse {
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
+
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:4000'],
+        ]);
+
+        $record = DB::table('live_chat_messages')
+            ->where('id', $message)
+            ->where('conversation_id', $conversation->id)
+            ->where('sender', 'visitor')
+            ->first();
+
+        abort_unless($record, 404);
+        abort_if(
+            now()->diffInMinutes($record->created_at) > (int) config('live_chat.edit_window_minutes', 5),
+            409,
+            'Dit bericht kan niet meer worden bewerkt.'
+        );
+
+        DB::table('live_chat_messages')->where('id', $message)->update([
+            'body' => trim($data['body']),
+            'edited_at' => now(),
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function react(
+        Request $request,
+        LiveChatService $chat,
+        int $message
+    ): JsonResponse {
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
+        abort_unless(
+            DB::table('live_chat_messages')->where('id', $message)->where('conversation_id', $conversation->id)->exists(),
+            404
+        );
+
+        $data = $request->validate([
+            'emoji' => ['required', 'string', 'max:16', 'in:👍,❤️,😂,😮,😢,🙏'],
+        ]);
+        $actorKey = 'visitor:'.hash('sha256', $chat->ownerKey($request));
+        $existing = DB::table('live_chat_message_reactions')
+            ->where('message_id', $message)
+            ->where('actor_key', $actorKey)
+            ->where('emoji', $data['emoji'])
+            ->first();
+
+        if ($existing) {
+            DB::table('live_chat_message_reactions')->where('id', $existing->id)->delete();
+            $active = false;
+        } else {
+            DB::table('live_chat_message_reactions')->insert([
+                'message_id' => $message,
+                'actor_key' => $actorKey,
+                'emoji' => $data['emoji'],
+                'created_at' => now(),
+            ]);
+            $active = true;
+        }
+
+        return response()->json(['ok' => true, 'active' => $active]);
+    }
+
     public function destroy(
         Request $request,
         LiveChatService $chat,
@@ -426,8 +461,19 @@ class LiveChatController extends Controller
             ->where('status', 'closed')
             ->update([
                 'status' => 'waiting',
+                'closed_at' => null,
+                'closed_by_user_id' => null,
+                'reopened_count' => ((int) ($conversation->reopened_count ?? 0)) + 1,
                 'updated_at' => now(),
             ]);
+
+        DB::table('live_chat_conversation_events')->insert([
+            'conversation_id' => (int) $conversation->id,
+            'actor_user_id' => $request->user()?->getAuthIdentifier(),
+            'event_type' => 'visitor_reopened',
+            'metadata' => null,
+            'created_at' => now(),
+        ]);
 
         $chat->clearTyping((int) $conversation->id);
 

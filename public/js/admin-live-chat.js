@@ -197,6 +197,11 @@
     let visitorTypingHideTimer = null;
     let typingStopTimer = null;
     let lastTypingPingAt = 0;
+    let replyTarget = null;
+    let uploadPaused = false;
+    let inboxSearch = '';
+    let lastNotificationId = 0;
+    const originalDocumentTitle = document.title;
 
     const seen = new Set();
 
@@ -1283,6 +1288,15 @@
             video.playsInline = true;
             video.src =
                 message.attachment_url;
+            const videoMeta = document.createElement('small');
+            videoMeta.style.display = 'block';
+            videoMeta.style.opacity = '.7';
+            videoMeta.textContent = message.attachment_size ? `${Math.round(message.attachment_size / 104857.6) / 10} MB` : '';
+            video.addEventListener('loadedmetadata', () => {
+                const minutes = Math.floor(video.duration / 60);
+                const seconds = Math.floor(video.duration % 60).toString().padStart(2, '0');
+                videoMeta.textContent = `${minutes}:${seconds}` + (message.attachment_size ? ` · ${Math.round(message.attachment_size / 104857.6) / 10} MB` : '');
+            }, {once:true});
 
             const download =
                 document.createElement('a');
@@ -1299,7 +1313,7 @@
             download.textContent =
                 '⬇ Video downloaden';
 
-            item.append(video, download);
+            item.append(video, videoMeta, download);
             return;
         }
 
@@ -1481,6 +1495,20 @@
 
         item.append(head);
 
+        if (message.reply_to) {
+            const quote = document.createElement('button');
+            quote.type = 'button';
+            quote.className = 'lca-file-link';
+            quote.style.display = 'block';
+            quote.style.opacity = '.8';
+            quote.style.marginBottom = '6px';
+            quote.textContent = '↩ ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
+            quote.addEventListener('click', () => {
+                log.querySelector(`[data-message-id="${message.reply_to.id}"]`)?.scrollIntoView({behavior:'smooth', block:'center'});
+            });
+            item.append(quote);
+        }
+
         appendContent(
 
             message,
@@ -1488,6 +1516,66 @@
             item
 
         );
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.gap = '6px';
+        actions.style.flexWrap = 'wrap';
+        actions.style.marginTop = '7px';
+        const miniButton = (label, title, handler) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            button.title = title;
+            button.style.fontSize = '12px';
+            button.style.padding = '3px 7px';
+            button.style.borderRadius = '999px';
+            button.addEventListener('click', handler);
+            return button;
+        };
+        actions.append(miniButton('↩', 'Beantwoorden', () => {
+            replyTarget = {id, label: message.body || message.attachment_name || 'bericht'};
+            input.focus();
+            fail('Je antwoordt op: ' + replyTarget.label);
+        }));
+        ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji => {
+            const count = Number(message.reactions?.[emoji] || 0);
+            actions.append(miniButton(emoji + (count ? ` ${count}` : ''), 'Reactie', async () => {
+                try {
+                    await api(`${root.dataset.base}/${selected.id}/messages/${id}/reaction`, 'POST', {emoji});
+                    lastMessageId = 0; seen.clear(); log.replaceChildren(); await detail();
+                } catch (error) { fail(error.message); }
+            }));
+        });
+        if (message.sender === 'admin' && message.body) {
+            actions.append(miniButton('✎', 'Bericht bewerken (max. 5 minuten)', async () => {
+                const body = window.prompt('Bericht bewerken:', message.body);
+                if (body === null || !body.trim()) return;
+                try {
+                    await api(`${root.dataset.base}/${selected.id}/messages/${id}`, 'PATCH', {body: body.trim()});
+                    lastMessageId = 0; seen.clear(); log.replaceChildren(); await detail();
+                } catch (error) { fail(error.message); }
+            }));
+        }
+        if (message.attachment_url) {
+            actions.append(miniButton('⛶', 'Media fullscreen openen', () => window.open(message.attachment_url, '_blank', 'noopener')));
+        }
+        const status = document.createElement('span');
+        status.style.fontSize = '11px';
+        status.style.opacity = '.65';
+        status.textContent = (message.edited_at ? 'bewerkt · ' : '') + (message.sender === 'admin' ? (message.read_by_other ? 'gelezen' : 'verzonden') : '');
+        actions.append(status);
+        item.append(actions);
+
+        if (message.sender === 'visitor' && id > lastNotificationId) {
+            lastNotificationId = id;
+            if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification(selected?.name || 'Nieuw chatbericht', {body: message.body || message.attachment_name || 'Nieuwe bijlage'});
+            }
+            if (document.hidden) {
+                try { const ctx = new AudioContext(); const o = ctx.createOscillator(); o.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .08); } catch {}
+            }
+        }
 
         /*
 
@@ -1864,6 +1952,8 @@
         status.textContent =
 
             formatStatus(item.status)
+            + (item.priority && item.priority !== 'normal' ? ` · ${String(item.priority).toUpperCase()}` : '')
+            + (Array.isArray(item.labels) && item.labels.length ? ` · ${item.labels.map(label => '#'+label).join(' ')}` : '')
 
             + (
 
@@ -1954,6 +2044,9 @@
                 String(filter.value)
 
             );
+            if (inboxSearch) {
+                url.searchParams.set('q', inboxSearch);
+            }
 
             const data =
 
@@ -2230,6 +2323,7 @@
         type = 'text',
 
         file = null,
+        parentMessageId = replyTarget?.id || null,
 
     }) {
 
@@ -2292,6 +2386,9 @@
                     );
 
                 }
+                if (parentMessageId) {
+                    payload.append('parent_message_id', String(parentMessageId));
+                }
 
                 payload.append(
 
@@ -2312,6 +2409,7 @@
                     body,
 
                     type,
+                    parent_message_id: parentMessageId,
 
                     client_id:
 
@@ -3221,6 +3319,9 @@
             const received = new Set((Array.isArray(state?.received) ? state.received : []).map(Number));
 
             for (let index = 0; index < totalChunks; index += 1) {
+                while (uploadPaused) {
+                    await new Promise(resolve => window.setTimeout(resolve, 250));
+                }
                 if (!received.has(index)) {
                     const start = index * chunkSize;
                     const end = Math.min(start + chunkSize, file.size);
@@ -3238,6 +3339,7 @@
             const result = await api(adminUploadUrl(`/${uploadId}/complete`), 'POST', {});
             window.localStorage.removeItem(storageKey);
 
+            replyTarget = null;
             await detail();
             await inbox();
 
@@ -3258,61 +3360,39 @@
         }
     }
 
-    fileInput.addEventListener(
-
-        'change',
-
-        async () => {
-
-            const file =
-
-                fileInput.files?.[0];
-
-            fileInput.value = '';
-
-            if (!file) {
-
-                return;
-
-            }
-
+    async function handleSelectedFiles(files) {
+        for (const file of Array.from(files || [])) {
             const video = isVideoFile(file);
-
-            const maxBytes = video
-
-                ? CONFIG.maxVideoBytes
-
-                : CONFIG.maxFileBytes;
-
-
-
+            const maxBytes = video ? CONFIG.maxVideoBytes : CONFIG.maxFileBytes;
             if (file.size > maxBytes) {
-
-                fail(
-
-                    video
-
-                        ? 'De video is te groot. Maximaal 1 GB toegestaan.'
-
-                        : 'Het bestand is te groot. Maximaal 20 MB toegestaan.'
-
-                );
-
-                return;
-
+                fail(video ? 'De video is te groot. Maximaal 1 GB toegestaan.' : 'Het bestand is te groot. Maximaal 20 MB toegestaan.');
+                continue;
             }
             if (video) {
                 await uploadVideoInChunks(file);
             } else {
-                await sendPayload({
-                    type: 'file',
-                    file,
-                });
+                await sendPayload({type: 'file', file});
             }
-
         }
+    }
 
-    );
+    fileInput.multiple = true;
+    fileInput.addEventListener('change', async () => {
+        const files = Array.from(fileInput.files || []);
+        fileInput.value = '';
+        await handleSelectedFiles(files);
+    });
+
+    ['dragenter','dragover'].forEach(name => log.addEventListener(name, event => {
+        event.preventDefault();
+        log.style.outline = '2px dashed currentColor';
+    }));
+    ['dragleave','drop'].forEach(name => log.addEventListener(name, event => {
+        event.preventDefault();
+        log.style.outline = '';
+    }));
+    log.addEventListener('drop', event => void handleSelectedFiles(event.dataTransfer?.files));
+
 
     voiceButton.addEventListener(
 
@@ -3808,6 +3888,104 @@
     );
 
     // =========================================================================
+    // ADVANCED CHAT TOOLS
+    // =========================================================================
+
+    function featureUrl(path = '') {
+        return `${root.dataset.base}/${selected?.id || ''}${path}`;
+    }
+
+    const advancedBar = document.createElement('div');
+    advancedBar.className = 'lca-advanced-tools';
+    advancedBar.style.display = 'flex';
+    advancedBar.style.flexWrap = 'wrap';
+    advancedBar.style.gap = '6px';
+    advancedBar.style.padding = '8px';
+    advancedBar.style.borderBottom = '1px solid rgba(255,255,255,.12)';
+    log.parentElement?.insertBefore(advancedBar, log);
+
+    const addTool = (label, handler) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', handler);
+        advancedBar.append(button);
+        return button;
+    };
+
+    function openInfo(title, content) {
+        const overlay = document.createElement('div');
+        Object.assign(overlay.style, {position:'fixed', inset:'0', zIndex:'99999', background:'rgba(0,0,0,.72)', display:'grid', placeItems:'center', padding:'20px'});
+        const card = document.createElement('div');
+        Object.assign(card.style, {width:'min(820px,96vw)', maxHeight:'85vh', overflow:'auto', background:'#11151b', color:'#fff', borderRadius:'16px', padding:'18px'});
+        const h = document.createElement('h3'); h.textContent = title;
+        const close = document.createElement('button'); close.type='button'; close.textContent='Sluiten'; close.style.float='right'; close.onclick=()=>overlay.remove();
+        card.append(close,h);
+        if (typeof content === 'string') { const pre=document.createElement('pre'); pre.style.whiteSpace='pre-wrap'; pre.textContent=content; card.append(pre); } else { card.append(content); }
+        overlay.append(card); overlay.addEventListener('click', e=>{if(e.target===overlay) overlay.remove();}); document.body.append(overlay);
+    }
+
+    addTool('⚙ Chat', async () => {
+        if (!selected) return;
+        const priority = window.prompt('Prioriteit: low, normal, high of urgent', selected.priority || 'normal');
+        if (!priority) return;
+        const labels = window.prompt('Labels, gescheiden door komma’s:', Array.isArray(selected.labels) ? selected.labels.join(', ') : '');
+        const assigned = window.prompt('Toewijzen aan admin user-ID (leeg = niet wijzigen):', selected.assigned_admin_id || '');
+        const payload = {priority, labels: String(labels || '').split(',').map(v=>v.trim()).filter(Boolean)};
+        if (assigned !== null && String(assigned).trim() !== '') payload.assigned_admin_id = Number(assigned);
+        try {
+            await api(featureUrl('/meta'), 'PATCH', payload);
+            selected.priority = priority; selected.labels = payload.labels; if (payload.assigned_admin_id) selected.assigned_admin_id = payload.assigned_admin_id; await inbox();
+        } catch (error) { fail(error.message); }
+    });
+
+    addTool('📝 Notities', async () => {
+        if (!selected) return;
+        const wrap=document.createElement('div');
+        try {
+            const data=await api(featureUrl('/notes'));
+            (data.items||[]).forEach(n=>{const p=document.createElement('p');p.textContent=`${n.admin_name||'Admin'} · ${n.created_at}: ${n.body}`;wrap.append(p);});
+            const b=document.createElement('button');b.type='button';b.textContent='+ notitie';b.onclick=async()=>{const body=window.prompt('Interne notitie:');if(body?.trim()){await api(featureUrl('/notes'),'POST',{body:body.trim()});}};wrap.prepend(b);
+            openInfo('Interne notities',wrap);
+        } catch(error){fail(error.message);}
+    });
+
+    addTool('🖼 Media', async () => {
+        if(!selected)return;
+        try { const data=await api(featureUrl('/media')); const wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gap='10px'; (data.items||[]).forEach(m=>{const a=document.createElement('a');a.href=m.url;a.target='_blank';a.rel='noopener';a.textContent=`${m.type==='video'?'🎬':'📎'} ${m.attachment_name||'Bestand'} · ${Math.round((m.attachment_size||0)/1048576*10)/10} MB`;wrap.append(a);}); openInfo('Media & bestanden',wrap);} catch(error){fail(error.message);}
+    });
+
+    addTool('👤 Profiel', async () => { if(!selected)return; try{const d=await api(featureUrl('/profile')); openInfo('Klantprofiel', JSON.stringify(d,null,2));}catch(e){fail(e.message);} });
+    addTool('🕘 Geschiedenis', async () => { if(!selected)return; try{const d=await api(featureUrl('/history')); openInfo('Gespreksgeschiedenis',(d.items||[]).map(x=>`${x.created_at} · ${x.actor_name||'Systeem'} · ${x.event_type}`).join('\n')||'Nog geen gebeurtenissen.');}catch(e){fail(e.message);} });
+    addTool('📄 PDF', () => { if(selected) window.open(featureUrl('/transcript'),'_blank','noopener'); });
+    addTool('🗜 ZIP', () => { if(selected) window.location.href=featureUrl('/export.zip'); });
+    addTool('🚫 Blokkeer', async () => { if(!selected)return; const reason=window.prompt('Reden voor blokkeren:','Misbruik'); if(reason===null)return; try{await api(featureUrl('/block'),'POST',{reason}); selected.status='closed'; controls(); await inbox();}catch(e){fail(e.message);} });
+
+    const searchInput=document.createElement('input');
+    searchInput.type='search'; searchInput.placeholder='Zoek naam, e-mail of bericht…'; searchInput.style.width='100%'; searchInput.style.padding='9px'; searchInput.style.boxSizing='border-box';
+    list.parentElement?.insertBefore(searchInput,list);
+    let searchTimer=null;
+    searchInput.addEventListener('input',()=>{window.clearTimeout(searchTimer);searchTimer=window.setTimeout(()=>{inboxSearch=searchInput.value.trim();page=1;cachedInboxSignature='';void inbox();},250);});
+
+    const statsNode=document.createElement('div'); statsNode.style.fontSize='12px'; statsNode.style.padding='8px'; list.parentElement?.insertBefore(statsNode,list);
+    async function loadStats(){try{const url=new URL(root.dataset.base,window.location.origin);url.pathname=url.pathname.replace(/\/conversations\/?$/,'/stats');const d=await api(url.toString());statsNode.textContent=`Actief ${d.active} · Wacht ${d.waiting} · Ongelezen ${d.unread} · Vandaag ${d.messages_today}`;document.title=d.unread?`(${d.unread}) ${originalDocumentTitle}`:originalDocumentTitle;}catch{}}
+
+    if ('Notification' in window && Notification.permission === 'default') {
+        addTool('🔔 Meldingen', () => void Notification.requestPermission());
+    }
+
+    const cameraInput=document.createElement('input'); cameraInput.type='file'; cameraInput.accept='image/*,video/*'; cameraInput.capture='environment'; cameraInput.hidden=true; root.append(cameraInput);
+    addTool('📷 Camera',()=>cameraInput.click()); cameraInput.addEventListener('change',async()=>{const f=cameraInput.files?.[0];cameraInput.value='';if(f)await handleSelectedFiles([f]);});
+    const pauseUploadButton = addTool('⏸ Upload', () => {
+        uploadPaused = !uploadPaused;
+        pauseUploadButton.textContent = uploadPaused ? '▶ Hervat upload' : '⏸ Upload';
+        fail(uploadPaused ? 'Video-upload gepauzeerd. De huidige chunk wordt nog afgerond.' : 'Video-upload hervat.');
+    });
+
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SpeechRecognition){ addTool('🗣 Dicteer',()=>{const r=new SpeechRecognition();r.lang='nl-NL';r.interimResults=false;r.onresult=e=>{input.value=(input.value+' '+e.results[0][0].transcript).trim();autoResizeInput();controls();};r.onerror=()=>fail('Spraak-naar-tekst kon niet worden gestart.');r.start();}); }
+
+    // =========================================================================
 
     // START
 
@@ -3856,6 +4034,8 @@
     );
 
     void inbox();
+    void loadStats();
+    window.setInterval(() => void loadStats(), 15000);
 
     void presence();
 

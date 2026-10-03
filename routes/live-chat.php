@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminLiveChatController;
+use App\Http\Controllers\AdminLiveChatFeaturesController;
 use App\Http\Controllers\GmailLiveChatOAuthController;
 use App\Http\Controllers\LiveChatController;
 use Illuminate\Support\Facades\Route;
@@ -47,14 +48,19 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->middleware('throttle:180,1,visitor-live-chat-attachment')
         ->name('attachment');
 
-    Route::get('/email/messages/{message}/attachment', [LiveChatController::class, 'emailAttachment'])
-        ->whereNumber('message')
-        ->middleware(['signed', 'throttle:180,1,live-chat-email-attachment'])
-        ->name('email-attachment');
-
     Route::post('/typing', [LiveChatController::class, 'typing'])
         ->middleware('throttle:120,1,visitor-live-chat-typing')
         ->name('typing');
+
+    Route::patch('/messages/{message}', [LiveChatController::class, 'editMessage'])
+        ->whereNumber('message')
+        ->middleware('throttle:20,1,visitor-live-chat-edit')
+        ->name('edit-message');
+
+    Route::post('/messages/{message}/reaction', [LiveChatController::class, 'react'])
+        ->whereNumber('message')
+        ->middleware('throttle:60,1,visitor-live-chat-reaction')
+        ->name('reaction');
 
     Route::delete('/messages/{message}', [LiveChatController::class, 'destroy'])
         ->whereNumber('message')
@@ -158,6 +164,37 @@ Route::middleware('auth')
             ->whereNumber('message')
             ->middleware('throttle:30,1,admin-live-chat-destroy')
             ->name('destroy');
+
+        Route::get('/stats', [AdminLiveChatFeaturesController::class, 'stats'])
+            ->middleware('throttle:60,1,admin-live-chat-stats')
+            ->name('stats');
+
+        Route::patch('/conversations/{conversation}/meta', [AdminLiveChatFeaturesController::class, 'updateMeta'])
+            ->whereNumber('conversation')->name('meta');
+        Route::get('/conversations/{conversation}/notes', [AdminLiveChatFeaturesController::class, 'notes'])
+            ->whereNumber('conversation')->name('notes');
+        Route::post('/conversations/{conversation}/notes', [AdminLiveChatFeaturesController::class, 'storeNote'])
+            ->whereNumber('conversation')->name('notes.store');
+        Route::delete('/conversations/{conversation}/notes/{note}', [AdminLiveChatFeaturesController::class, 'deleteNote'])
+            ->whereNumber('conversation')->whereNumber('note')->name('notes.delete');
+        Route::post('/conversations/{conversation}/messages/{message}/reaction', [AdminLiveChatFeaturesController::class, 'react'])
+            ->whereNumber('conversation')->whereNumber('message')->name('reaction');
+        Route::patch('/conversations/{conversation}/messages/{message}', [AdminLiveChatFeaturesController::class, 'editMessage'])
+            ->whereNumber('conversation')->whereNumber('message')->name('edit-message');
+        Route::post('/conversations/{conversation}/block', [AdminLiveChatFeaturesController::class, 'block'])
+            ->whereNumber('conversation')->name('block');
+        Route::delete('/conversations/{conversation}/block', [AdminLiveChatFeaturesController::class, 'unblock'])
+            ->whereNumber('conversation')->name('unblock');
+        Route::get('/conversations/{conversation}/history', [AdminLiveChatFeaturesController::class, 'history'])
+            ->whereNumber('conversation')->name('history');
+        Route::get('/conversations/{conversation}/media', [AdminLiveChatFeaturesController::class, 'media'])
+            ->whereNumber('conversation')->name('media');
+        Route::get('/conversations/{conversation}/profile', [AdminLiveChatFeaturesController::class, 'profile'])
+            ->whereNumber('conversation')->name('profile');
+        Route::get('/conversations/{conversation}/transcript', [AdminLiveChatFeaturesController::class, 'transcript'])
+            ->whereNumber('conversation')->name('transcript');
+        Route::get('/conversations/{conversation}/export.zip', [AdminLiveChatFeaturesController::class, 'exportZip'])
+            ->whereNumber('conversation')->name('export-zip');
 
         Route::patch('/conversations/{conversation}', [AdminLiveChatController::class, 'update'])
             ->whereNumber('conversation')

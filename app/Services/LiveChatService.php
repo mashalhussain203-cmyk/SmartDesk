@@ -335,6 +335,28 @@ class LiveChatService
 
 
 
+        $messageIds = $messages->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $reactionMap = [];
+        $parentMap = [];
+
+        if ($messageIds !== []) {
+            $reactionMap = DB::table('live_chat_message_reactions')
+                ->whereIn('message_id', $messageIds)
+                ->get()
+                ->groupBy('message_id')
+                ->map(fn ($rows) => $rows->groupBy('emoji')->map->count()->all())
+                ->all();
+
+            $parentIds = $messages->pluck('parent_message_id')->filter()->unique()->map(fn ($id) => (int) $id)->all();
+            if ($parentIds !== []) {
+                $parentMap = DB::table('live_chat_messages')
+                    ->whereIn('id', $parentIds)
+                    ->get(['id', 'sender', 'body', 'attachment_name', 'type'])
+                    ->keyBy('id')
+                    ->all();
+            }
+        }
+
         $visitorTyping = $this->typingState(
             $conversation,
             'visitor'
@@ -373,6 +395,12 @@ class LiveChatService
 
                         ?? null,
 
+                    'priority' => $conversation->priority ?? 'normal',
+                    'labels' => $this->decodeLabels($conversation->labels ?? null),
+                    'assigned_admin_id' => $conversation->assigned_admin_id ?? null,
+                    'blocked_at' => $conversation->blocked_at ?? null,
+                    'visitor_last_read_id' => (int) ($conversation->visitor_last_read_id ?? 0),
+                    'admin_last_read_id' => (int) ($conversation->admin_last_read_id ?? 0),
                 ]
 
                 : null,
@@ -404,7 +432,9 @@ class LiveChatService
 
                         $conversation,
 
-                        $identities
+                        $identities,
+                        $reactionMap,
+                        $parentMap
 
                     ): array {
 
@@ -600,7 +630,21 @@ class LiveChatService
 
                                 ?? null,
 
-
+                            'edited_at' => $message->edited_at ?? null,
+                            'parent_message_id' => $message->parent_message_id ?? null,
+                            'reply_to' => ! empty($message->parent_message_id) && isset($parentMap[(int) $message->parent_message_id])
+                                ? [
+                                    'id' => (int) $parentMap[(int) $message->parent_message_id]->id,
+                                    'sender' => $parentMap[(int) $message->parent_message_id]->sender,
+                                    'body' => (string) ($parentMap[(int) $message->parent_message_id]->body ?? ''),
+                                    'attachment_name' => $parentMap[(int) $message->parent_message_id]->attachment_name ?? null,
+                                    'type' => $parentMap[(int) $message->parent_message_id]->type ?? 'text',
+                                ]
+                                : null,
+                            'reactions' => $reactionMap[(int) $message->id] ?? [],
+                            'read_by_other' => $message->sender === 'admin'
+                                ? (int) $message->id <= (int) ($conversation?->visitor_last_read_id ?? 0)
+                                : (int) $message->id <= (int) ($conversation?->admin_last_read_id ?? 0),
 
                             'created_at' =>
 
@@ -619,6 +663,50 @@ class LiveChatService
     }
 
 
+
+    public function markVisitorRead(Request $request): void
+    {
+        $conversation = $this->visitorConversation($request);
+        if (! $conversation) {
+            return;
+        }
+        $lastAdminId = (int) (DB::table('live_chat_messages')
+            ->where('conversation_id', $conversation->id)
+            ->where('sender', 'admin')
+            ->max('id') ?? 0);
+        if ($lastAdminId > (int) ($conversation->visitor_last_read_id ?? 0)) {
+            DB::table('live_chat_conversations')->where('id', $conversation->id)->update([
+                'visitor_last_read_id' => $lastAdminId,
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    public function visitorBlocked(Request $request): bool
+    {
+        $ownerKey = $this->ownerKey($request);
+        $ipHash = hash('sha256', (string) $request->ip());
+        return DB::table('live_chat_blocks')
+            ->where(function ($query) use ($ownerKey, $ipHash): void {
+                $query->where('owner_key', $ownerKey)->orWhere('ip_hash', $ipHash);
+            })
+            ->where(function ($query): void {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->exists();
+    }
+
+    private function decodeLabels(mixed $labels): array
+    {
+        if (is_array($labels)) {
+            return array_values(array_filter(array_map('strval', $labels)));
+        }
+        if (! is_string($labels) || trim($labels) === '') {
+            return [];
+        }
+        $decoded = json_decode($labels, true);
+        return is_array($decoded) ? array_values(array_filter(array_map('strval', $decoded))) : [];
+    }
 
     /**
      * Houdt een tijdelijke typing-status bij voor de bezoeker.
@@ -814,7 +902,11 @@ class LiveChatService
 
         $owner = $this->ownerKey($request);
 
-
+        abort_if(
+            $this->visitorBlocked($request),
+            403,
+            'Deze chat is geblokkeerd.'
+        );
 
         return DB::transaction(
 
@@ -853,8 +945,7 @@ class LiveChatService
 
 
                     'status' => 'waiting',
-
-
+                    'visitor_ip_hash' => hash('sha256', (string) $request->ip()),
 
                     'created_at' => now(),
 
@@ -1010,7 +1101,22 @@ class LiveChatService
 
                 );
 
-
+                if ($this->shouldSendAutoReply($conversation)) {
+                    $this->insertMessage(
+                        (int) $conversation->id,
+                        'admin',
+                        null,
+                        [
+                            'client_id' => (string) Str::uuid(),
+                            'type' => 'text',
+                            'body' => (string) config('live_chat.auto_reply.message'),
+                        ],
+                        null
+                    );
+                    DB::table('live_chat_conversations')
+                        ->where('id', $conversation->id)
+                        ->update(['auto_reply_sent_at' => now()]);
+                }
 
                 DB::table(
 
@@ -1275,6 +1381,7 @@ class LiveChatService
                     ->update([
 
                         'status' => 'open',
+                        'first_response_at' => $conversation->first_response_at ?? now(),
 
                         'updated_at' => now(),
 
@@ -1496,6 +1603,26 @@ class LiveChatService
 
 
 
+    private function shouldSendAutoReply(stdClass $conversation): bool
+    {
+        if (! (bool) config('live_chat.auto_reply.enabled', false)) {
+            return false;
+        }
+        if (! empty($conversation->auto_reply_sent_at)) {
+            return false;
+        }
+        $timezone = (string) config('live_chat.auto_reply.timezone', 'Europe/Amsterdam');
+        $now = now($timezone);
+        $weekdays = (array) config('live_chat.auto_reply.weekdays', [1, 2, 3, 4, 5]);
+        if (! in_array($now->dayOfWeekIso, $weekdays, true)) {
+            return true;
+        }
+        $start = (string) config('live_chat.auto_reply.start', '09:00');
+        $end = (string) config('live_chat.auto_reply.end', '18:00');
+        $time = $now->format('H:i');
+        return $time < $start || $time >= $end;
+    }
+
     /**
 
      * Slaat een nieuw chatbericht op.
@@ -1647,6 +1774,16 @@ class LiveChatService
             'sender_user_id' =>
 
                 $senderUserId,
+
+
+
+            'parent_message_id' =>
+
+                isset($data['parent_message_id'])
+
+                    ? (int) $data['parent_message_id']
+
+                    : null,
 
 
 

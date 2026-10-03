@@ -4364,4 +4364,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<script src="{{ asset('js/live-chat.js') }}?v=5" defer></script>
+<script src="{{ asset('js/live-chat.js') }}?v=20" defer></script>
