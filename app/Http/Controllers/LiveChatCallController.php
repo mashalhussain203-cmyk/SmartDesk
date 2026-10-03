@@ -1,126 +1,266 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Services;
 
-use App\Services\LiveChatCallService;
-use App\Services\LiveChatService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use RuntimeException;
+use stdClass;
 
-class LiveChatCallController extends Controller
+class LiveChatCallService
 {
-    public function config(LiveChatCallService $calls): JsonResponse
+    public function iceServers(): array
     {
-        return response()->json([
-            'ice_servers' => $calls->iceServers(),
-            'ring_timeout_seconds' => (int) config('live_chat.calls.ring_timeout_seconds', 45),
-        ])->header('Cache-Control', 'no-store');
-    }
+        $servers = [];
 
-    public function current(
-        Request $request,
-        LiveChatService $chat,
-        LiveChatCallService $calls
-    ): JsonResponse {
-        $conversation = $chat->visitorConversation($request);
+        $stunUrls = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) config('live_chat.calls.stun_urls', 'stun:stun.l.google.com:19302'))
+        )));
 
-        return response()->json([
-            'call' => $conversation
-                ? $calls->payload($calls->current((int) $conversation->id))
-                : null,
-        ])->header('Cache-Control', 'no-store');
+        if ($stunUrls !== []) {
+            $servers[] = ['urls' => $stunUrls];
+        }
+
+        $turnUrl = trim((string) config('live_chat.calls.turn_url', ''));
+        $turnUser = trim((string) config('live_chat.calls.turn_username', ''));
+        $turnCredential = (string) config('live_chat.calls.turn_credential', '');
+
+        if ($turnUrl !== '' && $turnUser !== '' && $turnCredential !== '') {
+            $servers[] = [
+                'urls' => [$turnUrl],
+                'username' => $turnUser,
+                'credential' => $turnCredential,
+            ];
+        }
+
+        return $servers;
     }
 
     public function start(
-        Request $request,
-        LiveChatService $chat,
-        LiveChatCallService $calls
-    ): JsonResponse {
-        $conversation = $chat->visitorConversation($request);
+        int $conversationId,
+        string $initiatedBy,
+        string $mode,
+        array $offer,
+        ?int $adminUserId = null
+    ): stdClass {
+        return DB::transaction(function () use (
+            $conversationId,
+            $initiatedBy,
+            $mode,
+            $offer,
+            $adminUserId
+        ): stdClass {
+            $conversation = DB::table('live_chat_conversations')
+                ->where('id', $conversationId)
+                ->lockForUpdate()
+                ->first();
 
-        if (! $conversation) {
-            return response()->json([
-                'message' => 'Stuur eerst een chatbericht voordat je belt.',
-            ], 409);
-        }
+            if (! $conversation) {
+                throw new RuntimeException('Het gesprek bestaat niet meer.');
+            }
 
-        if (($conversation->delivery_channel ?? 'live') === 'email') {
-            return response()->json([
-                'message' => 'Dit gesprek loopt momenteel via e-mail.',
-            ], 409);
-        }
+            $this->expireStale($conversationId);
 
-        $data = $request->validate([
-            'mode' => ['required', Rule::in(['audio', 'video'])],
-            'offer.type' => ['required', 'string', 'in:offer'],
-            'offer.sdp' => ['required', 'string', 'max:200000'],
-        ]);
+            $active = DB::table('live_chat_calls')
+                ->where('conversation_id', $conversationId)
+                ->whereIn('status', ['ringing', 'accepted'])
+                ->exists();
 
-        try {
-            $call = $calls->start(
-                (int) $conversation->id,
-                'visitor',
-                (string) $data['mode'],
-                $data['offer']
-            );
-        } catch (RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
-        }
+            if ($active) {
+                throw new RuntimeException('Er is al een actieve oproep in dit gesprek.');
+            }
 
-        return response()->json([
-            'call' => $calls->payload($call),
-        ], 201)->header('Cache-Control', 'no-store');
+            $id = (string) Str::uuid();
+            $now = now();
+
+            DB::table('live_chat_calls')->insert([
+                'id' => $id,
+                'conversation_id' => $conversationId,
+                'initiated_by' => $initiatedBy,
+                'admin_user_id' => $adminUserId,
+                'mode' => $mode,
+                'status' => 'ringing',
+                'offer_json' => $this->encodeDescription($offer),
+                'answer_json' => null,
+                'answered_at' => null,
+                'ended_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            return DB::table('live_chat_calls')->where('id', $id)->first();
+        });
     }
 
-    public function answer(
-        Request $request,
-        LiveChatService $chat,
-        LiveChatCallService $calls,
-        string $call
-    ): JsonResponse {
-        $conversation = $chat->visitorConversation($request);
-        abort_unless($conversation, 404);
+    public function current(int $conversationId): ?stdClass
+    {
+        $this->expireStale($conversationId);
 
-        $data = $request->validate([
-            'answer.type' => ['required', 'string', 'in:answer'],
-            'answer.sdp' => ['required', 'string', 'max:200000'],
-        ]);
+        return DB::table('live_chat_calls')
+            ->where('conversation_id', $conversationId)
+            ->whereIn('status', ['ringing', 'accepted'])
+            ->orderByDesc('created_at')
+            ->first();
+    }
 
-        try {
-            $record = $calls->answer($call, (int) $conversation->id, $data['answer']);
-        } catch (RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+    public function incomingForAdmin(): ?stdClass
+    {
+        $cutoff = now()->subSeconds((int) config('live_chat.calls.ring_timeout_seconds', 45));
+
+        DB::table('live_chat_calls')
+            ->where('status', 'ringing')
+            ->where('created_at', '<', $cutoff)
+            ->update([
+                'status' => 'missed',
+                'ended_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        return DB::table('live_chat_calls as c')
+            ->join('live_chat_conversations as lc', 'lc.id', '=', 'c.conversation_id')
+            ->leftJoin('users as u', 'u.id', '=', 'lc.user_id')
+            ->where('c.status', 'ringing')
+            ->where('c.initiated_by', 'visitor')
+            ->orderByDesc('c.created_at')
+            ->select(
+                'c.*',
+                DB::raw("COALESCE(NULLIF(u.name, ''), CONCAT('Gast #', lc.id)) as caller_name")
+            )
+            ->first();
+    }
+
+    public function findForConversation(string $callId, int $conversationId): ?stdClass
+    {
+        return DB::table('live_chat_calls')
+            ->where('id', $callId)
+            ->where('conversation_id', $conversationId)
+            ->first();
+    }
+
+    public function answer(string $callId, int $conversationId, array $answer): stdClass
+    {
+        $call = $this->findForConversation($callId, $conversationId);
+
+        if (! $call || $call->status !== 'ringing') {
+            throw new RuntimeException('Deze oproep is niet meer beschikbaar.');
         }
 
-        return response()->json(['call' => $calls->payload($record)])
-            ->header('Cache-Control', 'no-store');
+        DB::table('live_chat_calls')
+            ->where('id', $callId)
+            ->where('conversation_id', $conversationId)
+            ->update([
+                'status' => 'accepted',
+                'answer_json' => $this->encodeDescription($answer),
+                'answered_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        return DB::table('live_chat_calls')->where('id', $callId)->first();
     }
 
-    public function decline(
-        Request $request,
-        LiveChatService $chat,
-        LiveChatCallService $calls,
-        string $call
-    ): JsonResponse {
-        $conversation = $chat->visitorConversation($request);
-        abort_unless($conversation, 404);
-        $calls->decline($call, (int) $conversation->id);
-
-        return response()->json(['ok' => true]);
+    public function decline(string $callId, int $conversationId): void
+    {
+        DB::table('live_chat_calls')
+            ->where('id', $callId)
+            ->where('conversation_id', $conversationId)
+            ->where('status', 'ringing')
+            ->update([
+                'status' => 'declined',
+                'ended_at' => now(),
+                'updated_at' => now(),
+            ]);
     }
 
-    public function end(
-        Request $request,
-        LiveChatService $chat,
-        LiveChatCallService $calls,
-        string $call
-    ): JsonResponse {
-        $conversation = $chat->visitorConversation($request);
-        abort_unless($conversation, 404);
-        $calls->end($call, (int) $conversation->id);
+    public function end(string $callId, int $conversationId): void
+    {
+        DB::table('live_chat_calls')
+            ->where('id', $callId)
+            ->where('conversation_id', $conversationId)
+            ->whereIn('status', ['ringing', 'accepted'])
+            ->update([
+                'status' => 'ended',
+                'ended_at' => now(),
+                'updated_at' => now(),
+            ]);
+    }
 
-        return response()->json(['ok' => true]);
+    public function payload(?stdClass $call): ?array
+    {
+        if (! $call) {
+            return null;
+        }
+
+        return [
+            'id' => (string) $call->id,
+            'conversation_id' => (int) $call->conversation_id,
+            'initiated_by' => (string) $call->initiated_by,
+            'mode' => (string) $call->mode,
+            'status' => (string) $call->status,
+            'offer' => $this->decodeDescription($call->offer_json ?? null),
+            'answer' => $this->decodeDescription($call->answer_json ?? null),
+            'caller_name' => isset($call->caller_name) ? (string) $call->caller_name : null,
+            'created_at' => $call->created_at ?? null,
+            'answered_at' => $call->answered_at ?? null,
+        ];
+    }
+
+    private function encodeDescription(array $description): string
+    {
+        // Preserve SDP byte-for-byte. JSON escaping/newline conversions should never
+        // be able to alter browser-generated SDP.
+        return json_encode([
+            'type' => (string) ($description['type'] ?? ''),
+            'sdp_b64' => base64_encode((string) ($description['sdp'] ?? '')),
+            'encoding' => 'base64-sdp-v1',
+        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    }
+
+    private function decodeDescription(?string $json): ?array
+    {
+        if (! $json) {
+            return null;
+        }
+
+        $decoded = json_decode($json, true);
+        if (! is_array($decoded)) {
+            return null;
+        }
+
+        // New exact-storage format.
+        if (($decoded['encoding'] ?? null) === 'base64-sdp-v1' && isset($decoded['sdp_b64'])) {
+            $sdp = base64_decode((string) $decoded['sdp_b64'], true);
+            if ($sdp === false) {
+                return null;
+            }
+
+            return [
+                'type' => (string) ($decoded['type'] ?? ''),
+                'sdp' => $sdp,
+            ];
+        }
+
+        // Backward compatibility for calls created before this fix.
+        if (isset($decoded['type'], $decoded['sdp'])) {
+            return [
+                'type' => (string) $decoded['type'],
+                'sdp' => (string) $decoded['sdp'],
+            ];
+        }
+
+        return null;
+    }
+
+    private function expireStale(int $conversationId): void
+    {
+        DB::table('live_chat_calls')
+            ->where('conversation_id', $conversationId)
+            ->where('status', 'ringing')
+            ->where('created_at', '<', now()->subSeconds((int) config('live_chat.calls.ring_timeout_seconds', 45)))
+            ->update([
+                'status' => 'missed',
+                'ended_at' => now(),
+                'updated_at' => now(),
+            ]);
     }
 }

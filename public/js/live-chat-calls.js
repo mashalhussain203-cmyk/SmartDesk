@@ -196,36 +196,49 @@
         const type = String(description.type || expectedType || '').trim();
         let sdp = typeof description.sdp === 'string' ? description.sdp : '';
 
-        if (!type || !['offer', 'answer'].includes(type)) {
+        if (!['offer', 'answer'].includes(type)) {
             throw new Error('Ongeldig SDP-type ontvangen.');
         }
 
-        // Soms komt SDP via JSON/database terug met letterlijke escaped newlines.
-        // Zet die alleen om wanneer er geen echte regeleinden aanwezig zijn.
-        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
-            sdp = sdp.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+        if (!sdp) {
+            throw new Error('Lege SDP ontvangen.');
         }
 
-        // Verwijder BOM/NUL en normaliseer alle regeleinden naar CRLF, zoals SDP vereist.
-        sdp = sdp
-            .replace(/^\uFEFF/, '')
-            .replace(/\u0000/g, '')
-            .replace(/\r\n/g, '\n')
-            .replace(/\r/g, '\n')
-            .split('\n')
-            .map(line => line.trimEnd())
-            .join('\r\n')
-            .trim();
+        // IMPORTANT: browser-generated SDP is passed through unchanged.
+        // Rewriting every line can break Safari/WebKit SDP.
+        sdp = sdp.replace(/^\uFEFF/, '').replace(/\u0000/g, '');
 
-        if (!sdp.startsWith('v=0')) {
-            throw new Error('Ongeldige SDP ontvangen: eerste regel is geen v=0.');
+        // Legacy records may contain literal escaped line breaks. Only repair those
+        // when the SDP contains no actual CR/LF characters at all.
+        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n|\\r/.test(sdp)) {
+            sdp = sdp
+                .replace(/\\r\\n/g, '\r\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\\r/g, '\r');
         }
 
-        if (!sdp.endsWith('\r\n')) {
-            sdp += '\r\n';
+        // SDP requires one field per line. Normalize LF-only/CR-only transport,
+        // but do NOT trim or rewrite the content of any line.
+        if (sdp.includes('\n') && !sdp.includes('\r\n')) {
+            sdp = sdp.replace(/\n/g, '\r\n');
+        } else if (!sdp.includes('\n') && sdp.includes('\r')) {
+            sdp = sdp.replace(/\r/g, '\r\n');
         }
 
-        return new RTCSessionDescription({ type, sdp });
+        if (!sdp.startsWith('v=0\r\n') && !sdp.startsWith('v=0\n')) {
+            const first = sdp.split(/\r\n|\n|\r/, 1)[0];
+            throw new Error(`Ongeldige SDP: eerste regel is ${JSON.stringify(first)}, verwacht "v=0".`);
+        }
+
+        // Helpful diagnostic before WebRTC receives it.
+        const lines = sdp.split(/\r\n|\n|\r/).filter((line, index, arr) => !(line === '' && index === arr.length - 1));
+        for (let i = 0; i < lines.length; i++) {
+            if (!/^[a-z]=/.test(lines[i])) {
+                throw new Error(`Ongeldige SDP-regel ${i + 1}: ${JSON.stringify(lines[i].slice(0, 180))}`);
+            }
+        }
+
+        return { type, sdp };
     }
 
     function waitForIce(pc) {
