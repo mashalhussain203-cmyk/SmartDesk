@@ -11,17 +11,22 @@
 <style>
 
     :root {
-        --glass-bg: #020202;
-        --glass-card: rgba(18,18,22,.73);
+        --glass-bg: #050609;
+        --glass-card: rgba(13,16,22,.78);
         --glass-line: rgba(255,255,255,.18);
         --glass-soft: rgba(255,255,255,.08);
         --glass-text: #f7f7f8;
         --glass-muted: #9d9ca1;
-        --glass-yellow: #f4ee1f;
-        --glass-yellow-2: #d9b70b;
-        --glass-orange: #ff6b23;
+        --glass-yellow: #7a6cff;
+        --glass-yellow-2: #42a5ff;
+        --glass-orange: #42a5ff;
         --glass-green: #18ed7e;
         --glass-danger: #ff8b8b;
+
+        /* Home palette aliases — visual only; existing login logic/classes stay intact. */
+        --home-accent: #7a6cff;
+        --home-accent-2: #42a5ff;
+        --home-accent-3: #8df0d0;
     }
 
     .glass-auth-page,
@@ -38,8 +43,9 @@
         justify-content: center;
         color: var(--glass-text);
         background:
-            radial-gradient(circle at 50% 34%, rgba(255,177,0,.045), transparent 29rem),
-            #020202;
+            radial-gradient(circle at 72% -5%, rgba(122,108,255,.15), transparent 31rem),
+            radial-gradient(circle at 20% 20%, rgba(66,165,255,.065), transparent 29rem),
+            linear-gradient(180deg, #050609 0%, #07090d 45%, #050609 100%);
     }
 
     .glass-bg,
@@ -66,18 +72,18 @@
             linear-gradient(
                 128deg,
                 transparent 0 25%,
-                rgba(255,115,0,.04) 29%,
-                rgba(255,141,0,.42) 31%,
-                rgba(255,219,108,.94) 32%,
-                rgba(255,122,0,.34) 33.3%,
+                rgba(66,165,255,.04) 29%,
+                rgba(122,108,255,.42) 31%,
+                rgba(199,193,255,.94) 32%,
+                rgba(66,165,255,.34) 33.3%,
                 transparent 36% 49%,
-                rgba(255,126,0,.03) 52%,
-                rgba(255,141,0,.45) 54%,
-                rgba(255,226,126,.87) 55%,
-                rgba(255,123,0,.31) 56.2%,
+                rgba(122,108,255,.03) 52%,
+                rgba(122,108,255,.45) 54%,
+                rgba(128,199,255,.87) 55%,
+                rgba(66,165,255,.31) 56.2%,
                 transparent 59% 74%,
-                rgba(255,173,0,.21) 77%,
-                rgba(255,230,145,.72) 78%,
+                rgba(122,108,255,.21) 77%,
+                rgba(141,240,208,.72) 78%,
                 transparent 81%
             );
         filter: none;
@@ -96,9 +102,9 @@
                 rgba(247,247,250,.42) 21%,
                 rgba(89,91,96,.12) 22%,
                 transparent 24% 62%,
-                rgba(255,152,0,.12) 64%,
-                rgba(255,202,81,.45) 65%,
-                rgba(255,123,0,.10) 66%,
+                rgba(122,108,255,.12) 64%,
+                rgba(66,165,255,.45) 65%,
+                rgba(141,240,208,.10) 66%,
                 transparent 68%
             );
         filter: none;
@@ -120,9 +126,9 @@
             linear-gradient(
                 180deg,
                 transparent 0 28%,
-                rgba(255,128,0,.10) 39%,
-                rgba(255,211,85,.81) 49%,
-                rgba(255,127,0,.35) 55%,
+                rgba(122,108,255,.10) 39%,
+                rgba(128,199,255,.81) 49%,
+                rgba(66,165,255,.35) 55%,
                 transparent 72%
             );
     }
@@ -191,9 +197,9 @@
             linear-gradient(
                 142deg,
                 rgba(255,255,255,.65),
-                rgba(255,218,132,.18) 28%,
+                rgba(122,108,255,.18) 28%,
                 rgba(255,255,255,.16) 59%,
-                rgba(255,196,63,.68)
+                rgba(66,165,255,.68)
             );
     }
 
@@ -222,9 +228,9 @@
             linear-gradient(
                 125deg,
                 transparent 33%,
-                rgba(255,153,0,.13) 43%,
-                rgba(255,226,133,.44) 47%,
-                rgba(255,127,0,.14) 51%,
+                rgba(122,108,255,.13) 43%,
+                rgba(128,199,255,.44) 47%,
+                rgba(66,165,255,.14) 51%,
                 transparent 58%
             );
         animation: glassSweep 8s ease-in-out infinite;
@@ -271,13 +277,13 @@
         margin: 0 auto 13px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(236,224,28,.35);
+        border: 1px solid rgba(122,108,255,.35);
         border-radius: 13px;
         color: var(--glass-yellow);
-        background: rgba(240,232,31,.035);
+        background: rgba(122,108,255,.035);
         box-shadow:
-            0 0 18px rgba(240,229,33,.08),
-            inset 0 0 12px rgba(240,229,33,.025);
+            0 0 18px rgba(122,108,255,.14),
+            inset 0 0 12px rgba(66,165,255,.04);
     }
 
     .glass-icon svg {
@@ -329,9 +335,9 @@
     }
 
     .glass-message.info {
-        border: 1px solid rgba(244,238,31,.17);
-        color: #e6df77;
-        background: rgba(244,238,31,.045);
+        border: 1px solid rgba(122,108,255,.17);
+        color: #b9b3ff;
+        background: rgba(122,108,255,.045);
     }
 
     .glass-message ul {
@@ -391,9 +397,9 @@
     }
 
     .glass-input:focus {
-        border-color: rgba(244,238,31,.57);
-        background: rgba(244,238,31,.025);
-        box-shadow: 0 0 0 3px rgba(244,238,31,.06);
+        border-color: rgba(122,108,255,.57);
+        background: rgba(122,108,255,.025);
+        box-shadow: 0 0 0 3px rgba(122,108,255,.06);
     }
 
     .glass-input::placeholder {
@@ -422,10 +428,10 @@
         min-height: 42px;
         border: 0;
         border-radius: 9px;
-        color: #171200;
-        background: linear-gradient(180deg,#fbef39,#dbb90a);
+        color: #ffffff;
+        background: linear-gradient(135deg,#7a6cff,#4e8eff);
         box-shadow:
-            0 9px 24px rgba(242,197,0,.18),
+            0 9px 24px rgba(81,70,214,.28),
             inset 0 1px 0 rgba(255,255,255,.59);
         font: inherit;
         font-size: 9px;
@@ -449,10 +455,10 @@
     .glass-secondary {
         min-height: 38px;
         padding: 0 11px;
-        border: 1px solid rgba(244,238,31,.21);
+        border: 1px solid rgba(122,108,255,.21);
         border-radius: 9px;
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.05);
+        background: rgba(122,108,255,.05);
         font: inherit;
         font-size: 8px;
         font-weight: 850;
@@ -460,7 +466,7 @@
     }
 
     .glass-small-link {
-        color: #d8bd35;
+        color: #9f96ff;
         text-decoration: none;
         font-size: 8px;
         font-weight: 850;
@@ -518,7 +524,7 @@
     }
 
     .glass-code-dot.red { background: #ff5e64; }
-    .glass-code-dot.yellow { background: #ffca3a; }
+    .glass-code-dot.yellow { background: #42a5ff; }
     .glass-code-dot.green { background: #38d568; }
 
     .glass-code-tab {
@@ -545,7 +551,7 @@
     .glass-code-body .pink { color: #ff56ba; }
     .glass-code-body .cyan { color: #34d5f4; }
     .glass-code-body .green { color: #73e282; }
-    .glass-code-body .yellow { color: #f4d65b; }
+    .glass-code-body .yellow { color: #9f96ff; }
 
     .glass-footer {
         margin-top: 16px;
@@ -637,9 +643,9 @@
     }
 
     .login-tab.active {
-        border-color: rgba(244,238,31,.20);
+        border-color: rgba(122,108,255,.20);
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
+        background: rgba(122,108,255,.055);
     }
 
     .login-panel-section {
@@ -687,7 +693,7 @@
     .login-remember input {
         width: 13px;
         height: 13px;
-        accent-color: #e5ca18;
+        accent-color: #7a6cff;
     }
 
     .login-passwordless-card {
@@ -714,10 +720,10 @@
         flex: 0 0 31px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(244,238,31,.17);
+        border: 1px solid rgba(122,108,255,.17);
         border-radius: 8px;
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.04);
+        background: rgba(122,108,255,.04);
         font-size: 9px;
         font-weight: 900;
     }
@@ -771,8 +777,8 @@
 
     .login-oauth:hover {
         transform: translateY(-1px);
-        border-color: rgba(244,238,31,.20);
-        background: rgba(244,238,31,.025);
+        border-color: rgba(122,108,255,.20);
+        background: rgba(122,108,255,.025);
     }
 
     .login-oauth-icon {
@@ -1039,9 +1045,9 @@
     }
 
     .glass-auth-switch a.active {
-        border-color: rgba(244,238,31,.20);
+        border-color: rgba(122,108,255,.20);
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
+        background: rgba(122,108,255,.055);
     }
 
     .glass-auth-switch a:hover {
@@ -1143,9 +1149,9 @@
             linear-gradient(
                 105deg,
                 transparent 15%,
-                rgba(255,244,112,.10) 40%,
-                rgba(255,225,50,.42) 50%,
-                rgba(255,244,112,.10) 60%,
+                rgba(122,108,255,.10) 40%,
+                rgba(66,165,255,.42) 50%,
+                rgba(122,108,255,.10) 60%,
                 transparent 85%
             );
         transform: translateX(-120%);
@@ -1165,15 +1171,15 @@
         background:
             radial-gradient(
                 circle at 50% 46%,
-                rgba(255,219,68,.11),
+                rgba(122,108,255,.11),
                 transparent 22rem
             ),
             linear-gradient(
                 110deg,
                 transparent 0 38%,
-                rgba(255,175,0,.10) 46%,
-                rgba(255,230,121,.31) 50%,
-                rgba(255,145,0,.11) 54%,
+                rgba(122,108,255,.10) 46%,
+                rgba(128,199,255,.31) 50%,
+                rgba(66,165,255,.11) 54%,
                 transparent 62% 100%
             );
         transform: translateX(-28%);
@@ -1435,20 +1441,20 @@
             translate(-50%,-50%)
             scale(.55)
             rotate(45deg);
-        border: 1px solid rgba(255,238,111,.46);
+        border: 1px solid rgba(159,150,255,.46);
         border-radius: 18px;
         background:
             linear-gradient(
                 135deg,
                 rgba(255,255,255,.10),
-                rgba(255,198,46,.08)
+                rgba(66,165,255,.08)
             ),
             rgba(13,13,16,.74);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
         box-shadow:
             0 0 0 1px rgba(255,255,255,.04) inset,
-            0 0 35px rgba(255,189,0,.18);
+            0 0 35px rgba(81,70,214,.18);
     }
 
     .glass-auth-page.is-folding-out .glass-fold-seal {
@@ -1662,14 +1668,14 @@
         top: 0 !important;
         left: 0 !important;
         border: 0 !important;
-        border-top: 1px solid rgba(255,238,139,.56) !important;
-        border-left: 1px solid rgba(255,238,139,.56) !important;
+        border-top: 1px solid rgba(159,150,255,.56) !important;
+        border-left: 1px solid rgba(159,150,255,.56) !important;
         border-radius: 24px 0 0 0 !important;
         background:
             linear-gradient(
                 135deg,
                 rgba(255,255,255,.075),
-                rgba(255,218,92,.025) 48%,
+                rgba(122,108,255,.025) 48%,
                 transparent 72%
             ) !important;
     }
@@ -1678,14 +1684,14 @@
         right: 0 !important;
         bottom: 0 !important;
         border: 0 !important;
-        border-right: 1px solid rgba(255,205,72,.56) !important;
-        border-bottom: 1px solid rgba(255,205,72,.56) !important;
+        border-right: 1px solid rgba(66,165,255,.56) !important;
+        border-bottom: 1px solid rgba(66,165,255,.56) !important;
         border-radius: 0 0 24px 0 !important;
         background:
             linear-gradient(
                 315deg,
                 rgba(255,255,255,.065),
-                rgba(255,187,48,.025) 48%,
+                rgba(66,165,255,.025) 48%,
                 transparent 72%
             ) !important;
     }
@@ -1714,7 +1720,7 @@
             linear-gradient(
                 135deg,
                 rgba(255,255,255,.09),
-                rgba(255,198,46,.075)
+                rgba(122,108,255,.075)
             ),
             rgba(13,13,16,.96) !important;
     }
