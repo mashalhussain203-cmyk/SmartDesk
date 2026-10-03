@@ -27,6 +27,8 @@
         iceServers: null,
         muted: false,
         cameraOff: false,
+        localVideoActive: false,
+        remoteVideoActive: false,
         facingMode: 'user',
         incomingShownId: null,
         busy: false,
@@ -271,9 +273,25 @@
         state.remoteStream = remoteStream;
 
         pc.addEventListener('track', event => {
-            for (const track of event.streams?.[0]?.getTracks?.() || [event.track]) {
+            const tracks = event.streams?.[0]?.getTracks?.() || [event.track];
+            for (const track of tracks) {
                 if (!remoteStream.getTracks().some(item => item.id === track.id)) {
                     remoteStream.addTrack(track);
+                }
+
+                if (track.kind === 'video') {
+                    const showRemoteVideo = () => {
+                        state.remoteVideoActive = true;
+                        updateVideoUi();
+                    };
+                    const hideRemoteVideo = () => {
+                        state.remoteVideoActive = false;
+                        updateVideoUi();
+                    };
+                    track.addEventListener('unmute', showRemoteVideo);
+                    track.addEventListener('mute', hideRemoteVideo);
+                    track.addEventListener('ended', hideRemoteVideo);
+                    if (!track.muted && track.readyState === 'live') showRemoteVideo();
                 }
             }
             syncMediaElements();
@@ -388,19 +406,12 @@
         cameraButton = overlay.querySelector('[data-lcc-camera]');
         switchButton = overlay.querySelector('[data-lcc-switch]');
 
-        const avatar = overlay.querySelector('.lcc-audio-avatar');
-        if (mode !== 'video') {
-            remoteVideo.classList.add('lcc-hidden');
-            localVideo.classList.add('lcc-hidden');
-            cameraButton.classList.add('lcc-hidden');
-            switchButton.classList.add('lcc-hidden');
-            avatar.classList.remove('lcc-hidden');
-        } else {
-            avatar.classList.add('lcc-hidden');
-        }
+        state.localVideoActive = mode === 'video' && Boolean(state.localStream?.getVideoTracks().length);
+        state.cameraOff = !state.localVideoActive;
+        updateVideoUi();
 
         muteButton.addEventListener('click', toggleMute);
-        cameraButton.addEventListener('click', toggleCamera);
+        cameraButton.addEventListener('click', () => void toggleVideoMode());
         switchButton.addEventListener('click', () => void switchCamera());
         overlay.querySelector('[data-lcc-end]').addEventListener('click', () => void finishCall(true, 'Oproep beëindigd'));
         syncMediaElements();
@@ -446,15 +457,101 @@
         if (muteButton) muteButton.textContent = state.muted ? '🔇' : '🎙';
     }
 
-    function toggleCamera() {
-        state.cameraOff = !state.cameraOff;
-        state.localStream?.getVideoTracks().forEach(track => { track.enabled = !state.cameraOff; });
-        cameraButton?.setAttribute('data-active', String(!state.cameraOff));
-        if (cameraButton) cameraButton.textContent = state.cameraOff ? '🚫' : '📷';
+    function updateVideoUi() {
+        if (!overlay) return;
+        const avatar = overlay.querySelector('.lcc-audio-avatar');
+        const anyVideo = state.localVideoActive || state.remoteVideoActive;
+
+        if (remoteVideo) remoteVideo.classList.toggle('lcc-hidden', !state.remoteVideoActive);
+        if (localVideo) localVideo.classList.toggle('lcc-hidden', !state.localVideoActive);
+        avatar?.classList.toggle('lcc-hidden', anyVideo);
+
+        if (cameraButton) {
+            cameraButton.classList.remove('lcc-hidden');
+            cameraButton.setAttribute('data-active', String(state.localVideoActive));
+            cameraButton.textContent = state.localVideoActive ? '📷' : '🎥';
+            cameraButton.title = state.localVideoActive ? 'Video uitzetten' : 'Overschakelen naar video';
+            cameraButton.setAttribute('aria-label', cameraButton.title);
+        }
+        if (switchButton) {
+            switchButton.classList.toggle('lcc-hidden', !state.localVideoActive);
+        }
+
+        const title = overlay.querySelector('.lcc-title');
+        if (title) title.textContent = anyVideo ? 'Videogesprek' : 'Audiogesprek';
+    }
+
+    function videoSender() {
+        if (!state.peer) return null;
+        return state.peer.getSenders().find(sender => sender.track?.kind === 'video')
+            || state.peer.getTransceivers().find(item => item.receiver?.track?.kind === 'video')?.sender
+            || null;
+    }
+
+    async function enableVideo() {
+        if (!state.peer || state.peer.signalingState === 'closed') return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    facingMode: { ideal: state.facingMode },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                },
+            });
+            const track = stream.getVideoTracks()[0];
+            if (!track) throw new Error('Geen camera beschikbaar.');
+
+            const sender = videoSender();
+            if (!sender) {
+                track.stop();
+                throw new Error('Deze oproep is gestart vóór de video-switch update. Start een nieuwe audiocall.');
+            }
+
+            await sender.replaceTrack(track);
+            state.localStream?.getVideoTracks().forEach(oldTrack => oldTrack.stop());
+            const audioTracks = state.localStream?.getAudioTracks() || [];
+            state.localStream = new MediaStream([...audioTracks, track]);
+            state.localVideoActive = true;
+            state.cameraOff = false;
+            syncMediaElements();
+            updateVideoUi();
+            setStatus('Video ingeschakeld');
+        } catch (error) {
+            toast(error.name === 'NotAllowedError'
+                ? 'Geef cameratoegang om naar video over te schakelen.'
+                : error.message || 'Video kon niet worden ingeschakeld.');
+        }
+    }
+
+    async function disableVideo() {
+        const sender = videoSender();
+        try {
+            if (sender) await sender.replaceTrack(null);
+        } catch {}
+        state.localStream?.getVideoTracks().forEach(track => track.stop());
+        const audioTracks = state.localStream?.getAudioTracks() || [];
+        state.localStream = new MediaStream(audioTracks);
+        state.localVideoActive = false;
+        state.cameraOff = true;
+        syncMediaElements();
+        updateVideoUi();
+        setStatus('Alleen audio');
+    }
+
+    async function toggleVideoMode() {
+        if (state.busy || !state.call || !state.peer) return;
+        state.busy = true;
+        try {
+            if (state.localVideoActive) await disableVideo();
+            else await enableVideo();
+        } finally {
+            state.busy = false;
+        }
     }
 
     async function switchCamera() {
-        if (state.call?.mode !== 'video' || !state.peer) return;
+        if (!state.localVideoActive || !state.peer) return;
         state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
         try {
             const replacement = await navigator.mediaDevices.getUserMedia({
@@ -481,6 +578,9 @@
         state.remoteStream?.getTracks().forEach(track => track.stop());
         state.localStream = null;
         state.remoteStream = null;
+        state.localVideoActive = false;
+        state.remoteVideoActive = false;
+        state.cameraOff = false;
         stopTimer();
         overlay?.remove();
         overlay = null;
@@ -500,6 +600,12 @@
             const stream = await getMedia(mode, state.facingMode);
             state.localStream = stream;
             const pc = await createPeer(mode);
+            // Reserveer bij een audiocall vanaf het begin een video m-line.
+            // Daardoor kan later met replaceTrack() naar video worden geschakeld
+            // zonder de call opnieuw te onderhandelen of opnieuw op te nemen.
+            if (mode === 'audio') {
+                pc.addTransceiver('video', { direction: 'sendrecv' });
+            }
             addLocalTracks(pc, stream);
             ensureOverlay(mode);
             setStatus('Bellen…');
@@ -541,6 +647,10 @@
             state.isCaller = false;
             const pc = await createPeer(call.mode);
             await pc.setRemoteDescription(normalizeDescription(call.offer, 'offer'));
+            if (call.mode === 'audio') {
+                const videoTransceiver = pc.getTransceivers().find(item => item.receiver?.track?.kind === 'video');
+                if (videoTransceiver) videoTransceiver.direction = 'sendrecv';
+            }
             addLocalTracks(pc, stream);
             ensureOverlay(call.mode);
             setStatus('Verbinden…');
