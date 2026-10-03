@@ -2771,115 +2771,7 @@
             cursor:
                 pointer;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Quick upload
-        |--------------------------------------------------------------------------
-        */
-
-        .studio-quick-upload {
-            position:
-                fixed;
-
-            z-index:
-                800;
-
-            right:
-                20px;
-
-            bottom:
-                20px;
-
-            min-height:
-                50px;
-
-            padding:
-                0 18px 0 12px;
-
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            gap:
-                10px;
-
-            border:
-                1px solid rgba(227, 179, 107, .20);
-
-            border-radius:
-                999px;
-
-            color:
-                #181109;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--studio-gold-light),
-                    #d19a51
-                );
-
-            box-shadow:
-                0 20px 55px rgba(0, 0, 0, .35),
-                0 10px 30px rgba(227, 179, 107, .14);
-
-            text-decoration:
-                none;
-
-            font-size:
-                9px;
-
-            font-weight:
-                950;
-
-            transform:
-                translateY(0);
-
-            transition:
-                transform .2s ease,
-                box-shadow .2s ease,
-                opacity .2s ease;
-        }
-
-        .studio-quick-upload:hover {
-            transform:
-                translateY(-3px);
-
-            box-shadow:
-                0 26px 66px rgba(0, 0, 0, .38),
-                0 14px 38px rgba(227, 179, 107, .19);
-        }
-
-        .studio-quick-upload-icon {
-            width:
-                30px;
-
-            height:
-                30px;
-
-            display:
-                grid;
-
-            place-items:
-                center;
-
-            border:
-                1px solid rgba(24, 17, 9, .11);
-
-            border-radius:
-                50%;
-
-            background:
-                rgba(255, 255, 255, .19);
-
-            font-size:
-                13px;
-        }
-
-        /*
+/*
         |--------------------------------------------------------------------------
         | Generic content helpers
         |--------------------------------------------------------------------------
@@ -3389,7 +3281,7 @@
         .studio-account-menu-link,
         .studio-account-menu-logout,
         .studio-flash-close,
-        .studio-quick-upload {
+        .Mashal Hussain {
             touch-action:
                 manipulation;
 
@@ -3676,7 +3568,7 @@
                     44px;
             }
 
-            .studio-quick-upload {
+            .Mashal Hussain {
                 right:
                     10px;
 
@@ -3690,7 +3582,7 @@
                     14px;
             }
 
-            .studio-quick-upload span:last-child {
+            .Mashal Hussain span:last-child {
                 display:
                     none;
             }
@@ -3785,7 +3677,7 @@
         @media print {
             .studio-header,
             .studio-footer,
-            .studio-quick-upload,
+            .Mashal Hussain,
             .studio-progress,
             .studio-atmosphere,
             .studio-mobile-overlay,
@@ -7400,25 +7292,6 @@
         @yield('content')
     </main>
 
-
-    @unless (request()->routeIs('home'))
-        <a
-            class="studio-quick-upload"
-            href="{{ route('home') }}#upload"
-            aria-label="Nieuwe afbeelding uploaden"
-        >
-            <span
-                class="studio-quick-upload-icon"
-                aria-hidden="true"
-            >
-                ↑
-            </span>
-
-            <span>
-                Nieuwe afbeelding
-            </span>
-        </a>
-    @endunless
 
 
 
