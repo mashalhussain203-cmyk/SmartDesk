@@ -81,7 +81,7 @@ class LiveChatCallService
                 'admin_user_id' => $adminUserId,
                 'mode' => $mode,
                 'status' => 'ringing',
-                'offer_json' => json_encode($offer, JSON_UNESCAPED_SLASHES),
+                'offer_json' => $this->encodeDescription($offer),
                 'answer_json' => null,
                 'answered_at' => null,
                 'ended_at' => null,
@@ -151,7 +151,7 @@ class LiveChatCallService
             ->where('conversation_id', $conversationId)
             ->update([
                 'status' => 'accepted',
-                'answer_json' => json_encode($answer, JSON_UNESCAPED_SLASHES),
+                'answer_json' => $this->encodeDescription($answer),
                 'answered_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -205,15 +205,56 @@ class LiveChatCallService
         ];
     }
 
+    private function encodeDescription(array $description): string
+    {
+        $type = (string) ($description['type'] ?? '');
+        $sdp = (string) ($description['sdp'] ?? '');
+
+        if (! in_array($type, ['offer', 'answer'], true) || $sdp === '') {
+            throw new RuntimeException('Ongeldige WebRTC session description.');
+        }
+
+        return json_encode([
+            '_encoding' => 'base64-sdp-v1',
+            'type' => $type,
+            'sdp' => base64_encode($sdp),
+        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    }
+
     private function decodeDescription(?string $json): ?array
     {
-        if (! $json) {
+        if (! is_string($json) || $json === '') {
             return null;
         }
 
         $decoded = json_decode($json, true);
 
-        return is_array($decoded) ? $decoded : null;
+        if (! is_array($decoded)) {
+            return null;
+        }
+
+        if (($decoded['_encoding'] ?? null) === 'base64-sdp-v1') {
+            $sdp = base64_decode((string) ($decoded['sdp'] ?? ''), true);
+
+            if ($sdp === false) {
+                return null;
+            }
+
+            return [
+                'type' => (string) ($decoded['type'] ?? ''),
+                'sdp' => $sdp,
+            ];
+        }
+
+        // Backward compatible met bestaande records die plain JSON bevatten.
+        if (isset($decoded['type'], $decoded['sdp']) && is_string($decoded['sdp'])) {
+            return [
+                'type' => (string) $decoded['type'],
+                'sdp' => $decoded['sdp'],
+            ];
+        }
+
+        return null;
     }
 
     private function expireStale(int $conversationId): void

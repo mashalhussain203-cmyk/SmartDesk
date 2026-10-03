@@ -196,51 +196,28 @@
         const type = String(description.type || expectedType || '').trim();
         let sdp = typeof description.sdp === 'string' ? description.sdp : '';
 
-        if (!type || !['offer', 'answer'].includes(type)) {
+        if (!['offer', 'answer'].includes(type)) {
             throw new Error('Ongeldig SDP-type ontvangen.');
         }
 
-        // Soms komt SDP via JSON/database terug met letterlijke escaped newlines.
-        // Zet die alleen om wanneer er geen echte regeleinden aanwezig zijn.
-        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
-            sdp = sdp.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+        if (!sdp) {
+            throw new Error('Lege SDP ontvangen.');
         }
 
-        // Verwijder BOM/NUL en normaliseer alle regeleinden naar CRLF, zoals SDP vereist.
-        sdp = sdp
-            .replace(/^\uFEFF/, '')
-            .replace(/\u0000/g, '')
-            .replace(/\r\n/g, '\n')
-            .replace(/\r/g, '\n')
-            .split('\n')
-            .map(line => line.trimEnd())
-            .join('\r\n')
-            .trim();
+        // Laat geldige SDP exact zoals de browser hem heeft gemaakt.
+        // Alleen oudere records met letterlijk opgeslagen \\r\\n / \\n herstellen.
+        if (!/[\r\n]/.test(sdp) && /\\r\\n|\\n/.test(sdp)) {
+            sdp = sdp.replace(/\\r\\n/g, '\r\n').replace(/\\n/g, '\r\n');
+        }
 
-        if (!sdp.startsWith('v=0')) {
+        // Alleen tekens verwijderen die nooit onderdeel van SDP horen te zijn.
+        sdp = sdp.replace(/^\uFEFF/, '').replace(/\u0000/g, '');
+
+        if (!/^v=0(?:\r?\n)/.test(sdp)) {
             throw new Error('Ongeldige SDP ontvangen: eerste regel is geen v=0.');
         }
 
-        if (!sdp.endsWith('\r\n')) {
-            sdp += '\r\n';
-        }
-
-        return new RTCSessionDescription({ type, sdp });
-    }
-
-    function waitForIce(pc) {
-        if (pc.iceGatheringState === 'complete') return Promise.resolve();
-        return new Promise(resolve => {
-            const timeout = setTimeout(resolve, 6500);
-            const handler = () => {
-                if (pc.iceGatheringState === 'complete') {
-                    clearTimeout(timeout);
-                    pc.removeEventListener('icegatheringstatechange', handler);
-                    resolve();
-                }
-            };
-            pc.addEventListener('icegatheringstatechange', handler);
-        });
+        return { type, sdp };
     }
 
     async function getMedia(mode, facingMode = 'user') {
