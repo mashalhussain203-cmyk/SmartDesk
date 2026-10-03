@@ -16,7 +16,7 @@ class AdminLiveChatCallController extends Controller
         abort_unless((bool) $request->user()?->is_admin, 403);
     }
 
-    priavate function conversation(int $conversation): object
+    private function conversation(int $conversation): object
     {
         $record = DB::table('live_chat_conversations')->where('id', $conversation)->first();
         abort_unless($record, 404);
