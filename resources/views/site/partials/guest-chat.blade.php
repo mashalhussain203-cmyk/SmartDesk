@@ -2364,34 +2364,89 @@ document.addEventListener('DOMContentLoaded', function () {
             if (context.state === 'suspended') {
                 const resumePromise = context.resume();
 
-                if (resumePromise && typeof resumePromise.catch === 'function') {
+                if (
+                    resumePromise
+                    && typeof resumePromise.catch === 'function'
+                ) {
                     resumePromise.catch(function () {});
                 }
             }
 
             const now = context.currentTime;
+
+            /*
+             * Zachte moderne chat-notificatie:
+             * warme C5 + G5 met een subtiele boventoon.
+             * Kort, rustig en niet pieperig.
+             */
             const master = context.createGain();
 
             master.gain.setValueAtTime(0.0001, now);
-            master.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
-            master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+            master.gain.exponentialRampToValueAtTime(0.045, now + 0.012);
+            master.gain.exponentialRampToValueAtTime(0.018, now + 0.12);
+            master.gain.exponentialRampToValueAtTime(0.0001, now + 0.52);
             master.connect(context.destination);
 
-            const first = context.createOscillator();
-            first.type = 'sine';
-            first.frequency.setValueAtTime(740, now);
-            first.frequency.exponentialRampToValueAtTime(880, now + 0.12);
-            first.connect(master);
-            first.start(now);
-            first.stop(now + 0.18);
+            const firstGain = context.createGain();
 
-            const second = context.createOscillator();
-            second.type = 'sine';
-            second.frequency.setValueAtTime(988, now + 0.16);
-            second.frequency.exponentialRampToValueAtTime(1174, now + 0.30);
-            second.connect(master);
-            second.start(now + 0.16);
-            second.stop(now + 0.36);
+            firstGain.gain.setValueAtTime(0.0001, now);
+            firstGain.gain.exponentialRampToValueAtTime(0.85, now + 0.012);
+            firstGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
+            firstGain.connect(master);
+
+            const firstTone = context.createOscillator();
+
+            firstTone.type = 'sine';
+            firstTone.frequency.setValueAtTime(523.25, now);
+            firstTone.frequency.exponentialRampToValueAtTime(
+                587.33,
+                now + 0.11
+            );
+            firstTone.connect(firstGain);
+            firstTone.start(now);
+            firstTone.stop(now + 0.35);
+
+            const secondGain = context.createGain();
+
+            secondGain.gain.setValueAtTime(0.0001, now + 0.085);
+            secondGain.gain.exponentialRampToValueAtTime(
+                0.62,
+                now + 0.105
+            );
+            secondGain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                now + 0.46
+            );
+            secondGain.connect(master);
+
+            const secondTone = context.createOscillator();
+
+            secondTone.type = 'sine';
+            secondTone.frequency.setValueAtTime(783.99, now + 0.085);
+            secondTone.connect(secondGain);
+            secondTone.start(now + 0.085);
+            secondTone.stop(now + 0.47);
+
+            const shimmerGain = context.createGain();
+
+            shimmerGain.gain.setValueAtTime(0.0001, now + 0.11);
+            shimmerGain.gain.exponentialRampToValueAtTime(
+                0.16,
+                now + 0.13
+            );
+            shimmerGain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                now + 0.31
+            );
+            shimmerGain.connect(master);
+
+            const shimmerTone = context.createOscillator();
+
+            shimmerTone.type = 'sine';
+            shimmerTone.frequency.setValueAtTime(1046.50, now + 0.11);
+            shimmerTone.connect(shimmerGain);
+            shimmerTone.start(now + 0.11);
+            shimmerTone.stop(now + 0.32);
         } catch (error) {}
     };
 
@@ -2920,6 +2975,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const openChatForAdminReply = function (messageText) {
         addUnread();
         showToast(messageText);
+        playNotificationSound();
         showBrowserNotification(messageText);
 
         /*
