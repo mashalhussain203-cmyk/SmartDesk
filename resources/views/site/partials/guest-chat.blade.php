@@ -2660,6 +2660,288 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     );
+
+    /*
+     * ======================================================================
+     * BACKGROUND LIVE-CHAT WATCHER
+     * ======================================================================
+     * Belangrijk: dit draait óók wanneer de chat dicht is.
+     * Daardoor kan een adminantwoord de chat automatisch openen terwijl
+     * de bezoeker gewoon door de website navigeert.
+     */
+    const livePanel =
+        root.querySelector('.lc-panel[data-show]');
+
+    const liveShowEndpoint =
+        livePanel?.dataset?.show || '';
+
+    let serverBaselineReady = false;
+    let lastServerAdminSignature = '';
+    let backgroundPollBusy = false;
+
+    const getNestedMessages = function (payload) {
+        if (Array.isArray(payload)) {
+            return payload;
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            return [];
+        }
+
+        const candidates = [
+            payload.messages,
+            payload.data?.messages,
+            payload.conversation?.messages,
+            payload.chat?.messages,
+            payload.data?.conversation?.messages,
+            payload.data?.chat?.messages,
+            payload.thread?.messages,
+            payload.data?.thread?.messages
+        ];
+
+        for (const candidate of candidates) {
+            if (Array.isArray(candidate)) {
+                return candidate;
+            }
+        }
+
+        return [];
+    };
+
+    const messageLooksLikeAdmin = function (message) {
+        if (!message || typeof message !== 'object') {
+            return false;
+        }
+
+        const senderType =
+            String(
+                message.sender_type
+                ?? message.senderType
+                ?? message.role
+                ?? message.type
+                ?? message.author_type
+                ?? message.authorType
+                ?? ''
+            ).toLowerCase();
+
+        const senderName =
+            String(
+                message.sender_name
+                ?? message.senderName
+                ?? message.author_name
+                ?? message.authorName
+                ?? ''
+            ).toLowerCase();
+
+        const explicitAdmin =
+            message.is_admin === true
+            || message.isAdmin === true
+            || message.from_admin === true
+            || message.fromAdmin === true
+            || message.admin === true;
+
+        const explicitVisitor =
+            message.is_visitor === true
+            || message.isVisitor === true
+            || message.from_visitor === true
+            || message.fromVisitor === true
+            || senderType === 'visitor'
+            || senderType === 'guest'
+            || senderType === 'user'
+            || senderType === 'customer';
+
+        if (explicitVisitor) {
+            return false;
+        }
+
+        return (
+            explicitAdmin
+            || senderType === 'admin'
+            || senderType === 'agent'
+            || senderType === 'staff'
+            || senderType === 'support'
+            || senderType === 'assistant'
+            || senderName.includes('admin')
+            || senderName.includes('support')
+            || senderName.includes('medewerker')
+        );
+    };
+
+    const getMessageId = function (message, index) {
+        return String(
+            message?.id
+            ?? message?.uuid
+            ?? message?.message_id
+            ?? message?.messageId
+            ?? message?.created_at
+            ?? message?.createdAt
+            ?? message?.timestamp
+            ?? index
+        );
+    };
+
+    const getServerMessageText = function (message) {
+        return normalizeText(
+            message?.message
+            ?? message?.body
+            ?? message?.text
+            ?? message?.content
+            ?? message?.content_text
+            ?? message?.contentText
+            ?? 'Je hebt een nieuw bericht ontvangen.'
+        );
+    };
+
+    const getLatestAdminMessage = function (payload) {
+        const messages =
+            getNestedMessages(payload);
+
+        let latest = null;
+        let latestIndex = -1;
+
+        messages.forEach(function (message, index) {
+            if (messageLooksLikeAdmin(message)) {
+                latest = message;
+                latestIndex = index;
+            }
+        });
+
+        if (!latest) {
+            return null;
+        }
+
+        return {
+            message: latest,
+            index: latestIndex,
+            signature:
+                getMessageId(latest, latestIndex)
+                + '|'
+                + getServerMessageText(latest)
+        };
+    };
+
+    const openChatForAdminReply = function (messageText) {
+        addUnread();
+        showToast(messageText);
+        showBrowserNotification(messageText);
+
+        if (!isOpen()) {
+            toggle.click();
+        }
+
+        /*
+         * Geef live-chat.js na het openen kort tijd om het nieuwe
+         * gesprek/bericht in de zichtbare chat te renderen.
+         */
+        window.setTimeout(function () {
+            if (typeof checkForNewLiveAdminMessage === 'function') {
+                checkForNewLiveAdminMessage();
+            }
+        }, 350);
+    };
+
+    const pollLiveChatInBackground = async function () {
+        if (
+            !liveShowEndpoint
+            || backgroundPollBusy
+            || document.visibilityState === 'prerender'
+        ) {
+            return;
+        }
+
+        backgroundPollBusy = true;
+
+        try {
+            const response =
+                await fetch(
+                    liveShowEndpoint,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store'
+                    }
+                );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload =
+                await response.json();
+
+            const latestAdmin =
+                getLatestAdminMessage(payload);
+
+            if (!latestAdmin) {
+                serverBaselineReady = true;
+                return;
+            }
+
+            if (!serverBaselineReady) {
+                lastServerAdminSignature =
+                    latestAdmin.signature;
+
+                serverBaselineReady = true;
+                return;
+            }
+
+            if (
+                latestAdmin.signature
+                !== lastServerAdminSignature
+            ) {
+                lastServerAdminSignature =
+                    latestAdmin.signature;
+
+                openChatForAdminReply(
+                    getServerMessageText(
+                        latestAdmin.message
+                    )
+                );
+            }
+        } catch (error) {
+            /*
+             * Geen console-spam / geen blokkade.
+             * De volgende poll probeert opnieuw.
+             */
+        } finally {
+            backgroundPollBusy = false;
+        }
+    };
+
+    /*
+     * Eerste request wordt baseline:
+     * bestaande adminberichten openen de chat niet opnieuw.
+     */
+    window.setTimeout(
+        pollLiveChatInBackground,
+        900
+    );
+
+    /*
+     * Ook met gesloten chat blijven controleren.
+     * 3 seconden is snel genoeg voor support-chat zonder onnodige load.
+     */
+    window.setInterval(
+        pollLiveChatInBackground,
+        3000
+    );
+
+    /*
+     * Zodra de bezoeker terugkomt op de tab meteen opnieuw controleren.
+     */
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (!document.hidden) {
+                pollLiveChatInBackground();
+            }
+        }
+    );
+
 });
 </script>
 
@@ -2668,4 +2950,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <script src="{{ asset('js/live-chat.js') }}?v=2" defer></script>
-s
