@@ -1,29 +1,118 @@
+@extends('layouts.site-layout')
+
+@section('title', 'Over ons | Mashal Studio')
+
 @push('styles')
 <style>
-    /* Alleen kleuraccenten voor de Over ons-pagina */
     .legal-page {
+        min-height: 100vh;
+        padding: 72px 18px 90px;
+        color: #f5f5f7;
         background:
             radial-gradient(circle at 12% 4%, rgba(122, 108, 255, .10), transparent 26rem),
             radial-gradient(circle at 92% 16%, rgba(66, 165, 255, .045), transparent 28rem),
             #08090b;
     }
 
-    .legal-kicker,
+    .legal-shell {
+        width: min(100% - 16px, 980px);
+        margin: 0 auto;
+    }
+
+    .legal-hero {
+        margin-bottom: 30px;
+    }
+
+    .legal-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        color: #a99fff;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+    }
+
+    .legal-kicker::before {
+        content: "";
+        width: 30px;
+        height: 1px;
+        background: #8f82ff;
+    }
+
+    .legal-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(40px, 6vw, 72px);
+        line-height: .98;
+        letter-spacing: -.055em;
+    }
+
     .legal-title span,
     .legal-highlight,
     .legal-link {
         color: #a99fff;
     }
 
-    .legal-kicker::before {
-        background: #8f82ff;
+    .legal-intro {
+        max-width: 760px;
+        margin: 18px 0 0;
+        color: #a6a8ae;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .legal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .legal-card {
+        margin-bottom: 16px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 255, 255, .04),
+                rgba(255, 255, 255, .015)
+            );
+        box-shadow: 0 16px 44px rgba(0, 0, 0, .18);
+    }
+
+    .legal-card h2 {
+        margin: 0 0 10px;
+        color: #ffffff;
+        font-size: 19px;
+        letter-spacing: -.02em;
+    }
+
+    .legal-card p {
+        margin: 0;
+        color: #8f949c;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .legal-card p + p {
+        margin-top: 14px;
     }
 
     .legal-link {
-        border-bottom-color: rgba(169, 159, 255, .35);
+        border-bottom: 1px solid rgba(169, 159, 255, .35);
+        text-decoration: none;
+        transition:
+            color .2s ease,
+            border-color .2s ease;
     }
 
     .legal-link:hover {
+        color: #c3bcff;
         border-bottom-color: rgba(169, 159, 255, .80);
     }
 
@@ -41,6 +130,20 @@
     .contact-button:hover {
         border-color: rgba(122, 108, 255, .48);
         background: rgba(122, 108, 255, .14);
+    }
+
+    @media (max-width: 720px) {
+        .legal-page {
+            padding: 50px 12px 70px;
+        }
+
+        .legal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .legal-card {
+            padding: 20px;
+        }
     }
 </style>
 @endpush
