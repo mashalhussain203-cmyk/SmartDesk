@@ -29,6 +29,8 @@ class LiveChatCallController extends Controller
             'call' => $conversation
                 ? $calls->payload($calls->current((int) $conversation->id))
                 : null,
+            'agent_online' => $chat->online(),
+            'conversation_available' => (bool) $conversation,
         ])->header('Cache-Control', 'no-store');
     }
 
@@ -42,6 +44,12 @@ class LiveChatCallController extends Controller
         if (! $conversation) {
             return response()->json([
                 'message' => 'Start eerst een live-chatgesprek voordat je belt.',
+            ], 409);
+        }
+
+        if (! $chat->online()) {
+            return response()->json([
+                'message' => 'Er is momenteel geen medewerker beschikbaar om op te nemen.',
             ], 409);
         }
 
