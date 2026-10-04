@@ -106,19 +106,19 @@
 
 @media(max-width:699px) {
 
- #guest-chat { right:16px; bottom:max(16px,env(safe-area-inset-bottom)); }
+ #guest-chat { right:16px; bottom:max(16px,env(safe-area-inset-bottom)); }
 
- #guest-chat .gc-expand { display:none; }
+ #guest-chat .gc-expand { display:none; }
 
- #guest-chat[data-open="true"] { bottom:var(--gc-keyboard-bottom,16px); }
+ #guest-chat[data-open="true"] { bottom:var(--gc-keyboard-bottom,16px); }
 
- #guest-chat[data-open="true"] .guest-chat__toggle { display:none; }
+ #guest-chat[data-open="true"] .guest-chat__toggle { display:none; }
 
- #guest-chat .guest-chat__panel { width:calc(100vw - 32px); height:640px; max-height:calc(var(--gc-viewport-height,100dvh) - 32px); margin-bottom:0; }
+ #guest-chat .guest-chat__panel { width:calc(100vw - 32px); height:640px; max-height:calc(var(--gc-viewport-height,100dvh) - 32px); margin-bottom:0; }
 
- #guest-chat .guest-chat__header { padding:12px 14px; }
+ #guest-chat .guest-chat__header { padding:12px 14px; }
 
- #guest-chat .gc-welcome { padding:20px 18px 10px; }
+ #guest-chat .gc-welcome { padding:20px 18px 10px; }
 
 }
 
@@ -176,7 +176,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT — EXPERT LAUNCHER + INCOMING MESSAGE SYSTEM
+   MASHAL CHAT â EXPERT LAUNCHER + INCOMING MESSAGE SYSTEM
    ========================================================================== */
 
 #guest-chat {
@@ -520,7 +520,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT V3 — PREMIUM PURPLE / RESPONSIVE SYSTEM
+   MASHAL CHAT V3 â PREMIUM PURPLE / RESPONSIVE SYSTEM
    Final visual layer. Existing AI/live-chat behavior stays unchanged.
    ========================================================================== */
 
@@ -1496,7 +1496,7 @@
 
 
 /* ==========================================================================
-   MASHAL AI V4 — ULTRA EXPERT
+   MASHAL AI V4 â ULTRA EXPERT
    Conversation-first, premium SaaS, purple/blue, mobile app feel
    ========================================================================== */
 
@@ -1713,7 +1713,7 @@
     line-height: 1.7;
 }
 
-/* QUICK PROMPTS — no more chunky cards -------------------------------- */
+/* QUICK PROMPTS â no more chunky cards -------------------------------- */
 
 #guest-chat .guest-chat__suggestions {
     grid-template-columns: 1fr;
@@ -1741,7 +1741,7 @@
 }
 
 #guest-chat .guest-chat__suggestions button::after {
-    content: "↗";
+    content: "â";
     position: absolute;
     right: 13px;
     top: 50%;
@@ -1988,7 +1988,7 @@
     }
 }
 
-/* MOBILE — APP MODE ---------------------------------------------------- */
+/* MOBILE â APP MODE ---------------------------------------------------- */
 
 @media (max-width: 699px) {
     #guest-chat {
@@ -2543,7 +2543,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT — ULTRA PREMIUM V2
+   MASHAL CHAT â ULTRA PREMIUM V2
    Editorial AI cockpit. Minder "standaard widget", meer eigen product-identiteit.
    ========================================================================== */
 
@@ -2791,7 +2791,7 @@
     line-height: 1.7;
 }
 
-/* QUICK ACTIONS — geen standaard kaartjes meer --------------------------- */
+/* QUICK ACTIONS â geen standaard kaartjes meer --------------------------- */
 
 #guest-chat .guest-chat__suggestions {
     display: flex;
@@ -2827,7 +2827,7 @@
 }
 
 #guest-chat .guest-chat__suggestions button::after {
-    content: "↗";
+    content: "â";
     position: absolute;
     right: 4px;
     top: 50%;
@@ -2905,7 +2905,7 @@
         0 8px 22px rgba(75,65,199,.14);
 }
 
-/* BOTTOM — zwevende composer --------------------------------------------- */
+/* BOTTOM â zwevende composer --------------------------------------------- */
 
 #guest-chat .gc-bottom {
     position: relative;
@@ -3073,7 +3073,7 @@
     }
 }
 
-/* MOBILE — native app gevoel --------------------------------------------- */
+/* MOBILE â native app gevoel --------------------------------------------- */
 
 @media (max-width: 699px) {
     #guest-chat {
@@ -3316,111 +3316,111 @@
 
 <aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" hidden data-mode="ai" data-endpoint="{{ route('guest-chat.message') }}">
 
-    <section id="guest-chat-panel" class="guest-chat__panel" aria-labelledby="guest-chat-title" hidden>
+    <section id="guest-chat-panel" class="guest-chat__panel" aria-labelledby="guest-chat-title" hidden>
 
-        <header class="guest-chat__header">
+        <header class="guest-chat__header">
 
-            <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
+            <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
 
-            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>Online</span></div><p class="gc-subtitle">Slimme hulp, direct in je workspace</p></div>
+            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>Online</span></div><p class="gc-subtitle">Slimme hulp, direct in je workspace</p></div>
 
-            <div class="gc-actions">
+            <div class="gc-actions">
 
-                <button type="button" class="gc-action gc-reset" aria-label="Nieuw gesprek" title="Nieuw gesprek"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                <button type="button" class="gc-action gc-reset" aria-label="Nieuw gesprek" title="Nieuw gesprek"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
-                <button type="button" class="gc-action gc-expand" aria-label="Chat vergroten" aria-pressed="false" title="Chat vergroten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6m0 6 7-7"/></svg></button>
+                <button type="button" class="gc-action gc-expand" aria-label="Chat vergroten" aria-pressed="false" title="Chat vergroten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6m0 6 7-7"/></svg></button>
 
-                <button type="button" class="gc-action guest-chat__close" aria-label="Chat sluiten" title="Chat sluiten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+                <button type="button" class="gc-action guest-chat__close" aria-label="Chat sluiten" title="Chat sluiten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
 
-            </div>
+            </div>
 
-        </header>
+        </header>
 
-        <div class="gc-reset-confirm" hidden><span>Dit gesprek wissen?</span><button type="button" data-reset-confirm>Wissen</button><button type="button" data-reset-cancel>Annuleren</button></div>
+        <div class="gc-reset-confirm" hidden><span>Dit gesprek wissen?</span><button type="button" data-reset-confirm>Wissen</button><button type="button" data-reset-cancel>Annuleren</button></div>
 
-        <div class="gc-body">
+        <div class="gc-body">
 
-            <div class="gc-welcome">
+            <div class="gc-welcome">
 
-                <p class="gc-eyebrow">MASHAL INTELLIGENCE</p>
+                <p class="gc-eyebrow">MASHAL INTELLIGENCE</p>
 
-                <h3>Wat wil je<br>bereiken?</h3>
+                <h3>Wat wil je<br>bereiken?</h3>
 
-                <p>Vraag iets, werk een idee uit of krijg direct hulp met Mashal Studio.</p>
+                <p>Vraag iets, werk een idee uit of krijg direct hulp met Mashal Studio.</p>
 
-                <div class="guest-chat__suggestions" aria-label="Voorbeeldvragen">
+                <div class="guest-chat__suggestions" aria-label="Voorbeeldvragen">
 
-                    <button type="button" data-question="Hoe kan ik een afbeelding uploaden en bewerken op Mashal Studio?"><span class="gc-topic">AFBEELDINGEN</span>Maak meer van je foto</button>
+                    <button type="button" data-question="Hoe kan ik een afbeelding uploaden en bewerken op Mashal Studio?"><span class="gc-topic">AFBEELDINGEN</span>Maak meer van je foto</button>
 
-                    <button type="button" data-question="Help mij een professionele e-mail schrijven."><span class="gc-topic">SCHRIJVEN</span>Vind de juiste woorden</button>
+                    <button type="button" data-question="Help mij een professionele e-mail schrijven."><span class="gc-topic">SCHRIJVEN</span>Vind de juiste woorden</button>
 
-                    <button type="button" data-question="Ik heb hulp nodig bij het inloggen op Mashal Studio."><span class="gc-topic">ACCOUNT</span>Hulp bij het inloggen</button>
+                    <button type="button" data-question="Ik heb hulp nodig bij het inloggen op Mashal Studio."><span class="gc-topic">ACCOUNT</span>Hulp bij het inloggen</button>
 
-                    <button type="button" data-question="Wat kan ik allemaal doen met Mashal Studio?"><span class="gc-topic">ONTDEKKEN</span>Leer de website kennen</button>
+                    <button type="button" data-question="Wat kan ik allemaal doen met Mashal Studio?"><span class="gc-topic">ONTDEKKEN</span>Leer de website kennen</button>
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
-            <div class="guest-chat__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Chatberichten"></div>
+            <div class="guest-chat__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Chatberichten"></div>
 
-        </div>
+        </div>
 
-        <div class="gc-bottom">
+        <div class="gc-bottom">
 
-            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen ↗</a><a href="{{ route('privacy') }}">Privacy</a></nav>
+            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen â</a><a href="{{ route('privacy') }}">Privacy</a></nav>
 
-            <form class="guest-chat__form">
+            <form class="guest-chat__form">
 
-                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AI…" maxlength="2000" required></textarea>
+                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AIâ¦" maxlength="2000" required></textarea>
 
-                <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
+                <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
 
-            </form>
+            </form>
 
-            <p class="guest-chat__notice">AI kan fouten maken. Controleer belangrijke informatie.</p>
+            <p class="guest-chat__notice">AI kan fouten maken. Controleer belangrijke informatie.</p>
 
-        </div>
+        </div>
 
-        @if (\Illuminate\Support\Facades\Route::has('live-chat.show'))
+        @if (\Illuminate\Support\Facades\Route::has('live-chat.show'))
 
-            <section class="lc-panel" aria-label="Live chat met medewerker" hidden
+            <section class="lc-panel" aria-label="Live chat met medewerker" hidden
 
-                data-show="{{ route('live-chat.show') }}" data-store="{{ route('live-chat.store') }}" data-reopen="{{ route('live-chat.reopen') }}">
+                data-show="{{ route('live-chat.show') }}" data-store="{{ route('live-chat.store') }}" data-reopen="{{ route('live-chat.reopen') }}">
 
-                <p class="lc-status" role="status">Beschikbaarheid controleren…</p>
+                <p class="lc-status" role="status">Beschikbaarheid controlerenâ¦</p>
 
-                <div class="lc-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Gesprek met medewerker"></div>
+                <div class="lc-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Gesprek met medewerker"></div>
 
-                <p class="lc-error" role="status" hidden></p>
+                <p class="lc-error" role="status" hidden></p>
 
-                <button type="button" class="lc-reopen" hidden>Gesprek opnieuw openen</button>
+                <button type="button" class="lc-reopen" hidden>Gesprek opnieuw openen</button>
 
-                <form class="guest-chat__form lc-form">
+                <form class="guest-chat__form lc-form">
 
-                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">📎<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.mp4,.webm,.mov,.m4v,.avi,.mkv,.mpeg,.mpg,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.flv,.wmv,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
+                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">ð<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.mp4,.webm,.mov,.m4v,.avi,.mkv,.mpeg,.mpg,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.flv,.wmv,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
 
-                    <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">🎤</button>
+                    <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">ð¤</button>
 
-                    <textarea class="lc-input" rows="1" maxlength="4000" aria-label="Bericht aan medewerker" placeholder="Schrijf je bericht…" required></textarea>
+                    <textarea class="lc-input" rows="1" maxlength="4000" aria-label="Bericht aan medewerker" placeholder="Schrijf je berichtâ¦" required></textarea>
 
-                    <button class="guest-chat__send" type="submit" aria-label="Bericht aan medewerker versturen">↑</button>
+                    <button class="guest-chat__send" type="submit" aria-label="Bericht aan medewerker versturen">â</button>
 
-                </form>
+                </form>
 
-                <p class="guest-chat__notice">Je praat met een medewerker. Berichten worden bewaard voor ondersteuning.
+                <p class="guest-chat__notice">Je praat met een medewerker. Berichten worden bewaard voor ondersteuning.
 
-                    @guest Bewaar deze browsersessie om antwoorden te ontvangen. @endguest
+                    @guest Bewaar deze browsersessie om antwoorden te ontvangen. @endguest
 
-                </p>
+                </p>
 
-            </section>
+            </section>
 
-        @endif
+        @endif
 
-    </section>
+    </section>
 
-    <button
+    <button
         type="button"
         class="guest-chat__toggle"
         aria-expanded="false"
@@ -3742,7 +3742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const notification = new Notification(
-                'Nieuw bericht · Mashal Studio',
+                'Nieuw bericht Â· Mashal Studio',
                 {
                     body: message || 'Je hebt een nieuw bericht ontvangen.',
                     tag: 'mashal-chat-message'
@@ -3780,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         return text.length > 92
-            ? text.slice(0, 89) + '…'
+            ? text.slice(0, 89) + 'â¦'
             : text;
     };
 
@@ -3989,7 +3989,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * ======================================================================
      * BACKGROUND LIVE-CHAT WATCHER
      * ======================================================================
-     * Belangrijk: dit draait óók wanneer de chat dicht is.
+     * Belangrijk: dit draait Ã³Ã³k wanneer de chat dicht is.
      * Daardoor kan een adminantwoord de chat automatisch openen terwijl
      * de bezoeker gewoon door de website navigeert.
      */
