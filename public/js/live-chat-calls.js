@@ -399,7 +399,7 @@
                     <button type="button" class="lcc-control" data-lcc-mute title="Microfoon">🎙</button>
                     <button type="button" class="lcc-control" data-lcc-camera title="Camera">📷</button>
                     <button type="button" class="lcc-control" data-lcc-switch title="Camera wisselen">🔄</button>
-                    <button type="button" class="lcc-control lcc-control--end" data-lcc-end title="Ophangen">â</button>
+                    <button type="button" class="lcc-control lcc-control--end" data-lcc-end title="Ophangen">☎</button>
                 </div>
             </section>`;
         document.body.append(overlay);
@@ -986,13 +986,14 @@
             && state.conversationAvailable;
 
         const dock = root.querySelector('[data-lcc-mobile-dock]');
-        if (dock) dock.hidden = !available;
+        if (dock && dock.hidden !== !available) dock.hidden = !available;
 
         audioButtons.forEach((audio) => {
             const inDock = Boolean(audio.closest('[data-lcc-mobile-dock]'));
             // De dock-knoppen zijn de hoofdknoppen voor de medewerkerchat op
             // telefoon én desktop. Headerknoppen houden we alleen als fallback.
-            audio.hidden = inDock ? !available : available;
+            const audioHidden = inDock ? !available : available;
+            if (audio.hidden !== audioHidden) audio.hidden = audioHidden;
             audio.disabled = !available || Boolean(state.call) || state.busy;
             audio.title = state.agentOnline
                 ? 'Bellen met beschikbare medewerker'
@@ -1001,7 +1002,8 @@
 
         videoButtons.forEach((video) => {
             const inDock = Boolean(video.closest('[data-lcc-mobile-dock]'));
-            video.hidden = inDock ? !available : available;
+            const videoHidden = inDock ? !available : available;
+            if (video.hidden !== videoHidden) video.hidden = videoHidden;
             video.disabled = !available || Boolean(state.call) || state.busy;
             video.title = state.agentOnline
                 ? 'Videobellen met beschikbare medewerker'
@@ -1133,7 +1135,17 @@
         video.addEventListener('click', () => void startOutgoing('video'));
 
         const refresh = () => refreshVisitorCallButtons();
-        new MutationObserver(refresh).observe(root, {
+        new MutationObserver((mutations) => {
+            const relevant = mutations.some((mutation) =>
+                mutation.attributeName === 'data-mode'
+                || (
+                    mutation.attributeName === 'hidden'
+                    && mutation.target instanceof Element
+                    && mutation.target.classList.contains('lc-panel')
+                )
+            );
+            if (relevant) refresh();
+        }).observe(root, {
             attributes: true,
             subtree: true,
             attributeFilter: ['data-mode', 'hidden'],
