@@ -62,16 +62,14 @@ class LiveChatCallService
 
             $this->expireStale($conversationId);
 
-            // Een oude/mislukte call mag een nieuwe call nooit blokkeren.
-            // De browser verhindert zelf dubbel starten tijdens een echte actieve sessie.
-            DB::table('live_chat_calls')
+            $active = DB::table('live_chat_calls')
                 ->where('conversation_id', $conversationId)
                 ->whereIn('status', ['ringing', 'accepted'])
-                ->update([
-                    'status' => 'failed',
-                    'ended_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                ->exists();
+
+            if ($active) {
+                throw new RuntimeException('Er is al een actieve oproep in dit gesprek.');
+            }
 
             $id = (string) Str::uuid();
             $now = now();
@@ -83,7 +81,7 @@ class LiveChatCallService
                 'admin_user_id' => $adminUserId,
                 'mode' => $mode,
                 'status' => 'ringing',
-                'offer_json' => $this->encodeDescription($offer, 'offer'),
+                'offer_json' => json_encode($offer, JSON_UNESCAPED_SLASHES),
                 'answer_json' => null,
                 'answered_at' => null,
                 'ended_at' => null,
@@ -153,7 +151,7 @@ class LiveChatCallService
             ->where('conversation_id', $conversationId)
             ->update([
                 'status' => 'accepted',
-                'answer_json' => $this->encodeDescription($answer, 'answer'),
+                'answer_json' => json_encode($answer, JSON_UNESCAPED_SLASHES),
                 'answered_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -187,19 +185,6 @@ class LiveChatCallService
             ]);
     }
 
-    public function fail(string $callId, int $conversationId): void
-    {
-        DB::table('live_chat_calls')
-            ->where('id', $callId)
-            ->where('conversation_id', $conversationId)
-            ->whereIn('status', ['ringing', 'accepted'])
-            ->update([
-                'status' => 'failed',
-                'ended_at' => now(),
-                'updated_at' => now(),
-            ]);
-    }
-
     public function payload(?stdClass $call): ?array
     {
         if (! $call) {
@@ -212,84 +197,23 @@ class LiveChatCallService
             'initiated_by' => (string) $call->initiated_by,
             'mode' => (string) $call->mode,
             'status' => (string) $call->status,
-            // SDP gaat als base64 over de API zodat JSON/Safari nooit regels kan beschadigen.
-            'offer' => $this->descriptionForTransport($call->offer_json ?? null),
-            'answer' => $this->descriptionForTransport($call->answer_json ?? null),
+            'offer' => $this->decodeDescription($call->offer_json ?? null),
+            'answer' => $this->decodeDescription($call->answer_json ?? null),
             'caller_name' => isset($call->caller_name) ? (string) $call->caller_name : null,
             'created_at' => $call->created_at ?? null,
             'answered_at' => $call->answered_at ?? null,
         ];
     }
 
-    private function encodeDescription(array $description, string $expectedType): string
-    {
-        $type = (string) ($description['type'] ?? $expectedType);
-        $sdp = '';
-
-        if (isset($description['sdp_b64']) && is_string($description['sdp_b64'])) {
-            $decoded = base64_decode($description['sdp_b64'], true);
-            if ($decoded !== false) {
-                $sdp = $decoded;
-            }
-        } elseif (isset($description['sdp']) && is_string($description['sdp'])) {
-            // Backward compatibility met oudere JS.
-            $sdp = $description['sdp'];
-        }
-
-        if ($type !== $expectedType || $sdp === '' || ! str_starts_with($sdp, 'v=0')) {
-            throw new RuntimeException('Ongeldige WebRTC session description.');
-        }
-
-        return json_encode([
-            '_encoding' => 'base64-sdp-v2',
-            'type' => $type,
-            'sdp' => base64_encode($sdp),
-        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-    }
-
     private function decodeDescription(?string $json): ?array
     {
-        if (! is_string($json) || $json === '') {
+        if (! $json) {
             return null;
         }
 
         $decoded = json_decode($json, true);
-        if (! is_array($decoded)) {
-            return null;
-        }
 
-        if (in_array(($decoded['_encoding'] ?? null), ['base64-sdp-v1', 'base64-sdp-v2'], true)) {
-            $sdp = base64_decode((string) ($decoded['sdp'] ?? ''), true);
-            if ($sdp === false || $sdp === '') {
-                return null;
-            }
-            return [
-                'type' => (string) ($decoded['type'] ?? ''),
-                'sdp' => $sdp,
-            ];
-        }
-
-        if (isset($decoded['type'], $decoded['sdp']) && is_string($decoded['sdp'])) {
-            return [
-                'type' => (string) $decoded['type'],
-                'sdp' => $decoded['sdp'],
-            ];
-        }
-
-        return null;
-    }
-
-    private function descriptionForTransport(?string $json): ?array
-    {
-        $decoded = $this->decodeDescription($json);
-        if (! $decoded) {
-            return null;
-        }
-
-        return [
-            'type' => $decoded['type'],
-            'sdp_b64' => base64_encode($decoded['sdp']),
-        ];
+        return is_array($decoded) ? $decoded : null;
     }
 
     private function expireStale(int $conversationId): void

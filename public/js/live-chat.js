@@ -226,11 +226,11 @@
 
 
 
-    const POLL_INTERVAL = window.matchMedia('(max-width: 699px)').matches ? 5000 : 3500;
+    const POLL_INTERVAL = 1500;
 
 
 
-    const REQUEST_TIMEOUT = 35000;
+    const REQUEST_TIMEOUT = 120000;
 
 
 
@@ -2351,7 +2351,7 @@ let identity = null;
 
         download.rel = 'noopener noreferrer';
 
-        download.textContent = 'â¬ Video downloaden';
+        download.textContent = '⬇ Video downloaden';
 
         item.append(video, videoMeta, download);
 
@@ -2887,7 +2887,7 @@ let identity = null;
             const quote = document.createElement('button');
             quote.type = 'button';
             quote.className = 'lc-file-link';
-            quote.textContent = 'â© ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
+            quote.textContent = '↩ ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
             quote.addEventListener('click', () => {
                 log.querySelector(`[data-message-id="${message.reply_to.id}"]`)?.scrollIntoView({behavior:'smooth', block:'center'});
             });
@@ -2931,7 +2931,7 @@ let identity = null;
             b.type = 'button'; b.textContent = label; b.title = title; b.className = 'lc-delete';
             b.addEventListener('click', handler); return b;
         };
-        actions.append(actionButton('â©','Beantwoorden',()=>{
+        actions.append(actionButton('↩','Beantwoorden',()=>{
             replyTarget={id,label:message.body||message.attachment_name||'bericht'};
             input.focus(); setStatus('Je antwoordt op: '+replyTarget.label);
         }));
@@ -2941,7 +2941,7 @@ let identity = null;
                 try{await api(`${live.dataset.store}/${id}/reaction`,'POST',{emoji});lastMessageId=0;seen.clear();log.replaceChildren();await poll(true);}catch(e){showError(e.message);}
             }));
         });
-        if(message.attachment_url){actions.append(actionButton('â¶','Fullscreen',()=>window.open(message.attachment_url,'_blank','noopener')));}
+        if(message.attachment_url){actions.append(actionButton('⛶','Fullscreen',()=>window.open(message.attachment_url,'_blank','noopener')));}
         const status=document.createElement('span');
         status.style.fontSize='11px'; status.style.opacity='.65';
         status.textContent=(message.edited_at?'bewerkt · ':'')+(message.sender==='visitor'?(message.read_by_other?'gelezen':'verzonden'):'');
