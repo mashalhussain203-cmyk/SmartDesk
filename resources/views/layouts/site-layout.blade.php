@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
@@ -6502,6 +6502,60 @@
 
 
     @stack('styles')
+
+
+    {{-- iPhone/mobile visibility stability fix ================================= --}}
+    <style id="studio-mobile-visibility-fix">
+        @media (max-width: 820px) {
+            html,
+            body {
+                min-height: 100%;
+                min-height: 100dvh;
+                overflow-x: hidden;
+                background: var(--studio-bg, #07080b);
+            }
+
+            /*
+             * Safari can restore a page from BFCache before reveal observers
+             * run again. Never leave the actual page content invisible on mobile.
+             */
+            [data-reveal],
+            [data-stagger],
+            [data-stagger] > * {
+                opacity: 1 !important;
+                transform: none !important;
+                filter: none !important;
+            }
+
+            .studio-main,
+            #studioMain {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                min-height: calc(100dvh - var(--studio-header-height, 70px));
+            }
+
+            /* Closed mobile navigation may never cover/lock the restored page. */
+            .studio-mobile-overlay:not(.is-open),
+            .studio-mobile-drawer:not(.is-open) {
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+
+            body:not(.studio-menu-open) {
+                position: static !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                width: auto !important;
+                overflow-y: auto !important;
+                touch-action: auto !important;
+                overscroll-behavior-y: auto !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -8855,6 +8909,114 @@
     @include('site.partials.guest-chat')
 
     @include('partials.auth-success-overlay')
+
+
+    <script id="studio-mobile-bfcache-fix">
+    (function () {
+        'use strict';
+
+        function updateMobileViewportHeight() {
+            var viewport = window.visualViewport;
+            var height = viewport && viewport.height
+                ? viewport.height
+                : window.innerHeight;
+
+            if (height) {
+                document.documentElement.style.setProperty(
+                    '--studio-visual-height',
+                    height + 'px'
+                );
+            }
+        }
+
+        function revealMobileContent() {
+            if (!window.matchMedia('(max-width: 820px)').matches) {
+                return;
+            }
+
+            document
+                .querySelectorAll('[data-reveal], [data-stagger]')
+                .forEach(function (element) {
+                    element.classList.add('is-visible');
+                });
+        }
+
+        function resetClosedMobileNavigation() {
+            var body = document.body;
+            var drawer = document.getElementById('studioMobileDrawer');
+            var overlay = document.getElementById('studioMobileOverlay');
+            var toggle = document.getElementById('studioMenuToggle');
+
+            if (!body) {
+                return;
+            }
+
+            /*
+             * iOS Safari can restore body inline styles/classes from BFCache.
+             * On a freshly shown page the drawer should start closed.
+             */
+            body.classList.remove('studio-menu-open');
+            body.style.position = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.width = '';
+            body.style.overflow = '';
+            body.style.touchAction = '';
+
+            if (drawer) {
+                drawer.classList.remove('is-open');
+                drawer.setAttribute('aria-hidden', 'true');
+            }
+
+            if (overlay) {
+                overlay.classList.remove('is-open');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-label', 'Menu openen');
+            }
+        }
+
+        function restoreMobilePage() {
+            updateMobileViewportHeight();
+            resetClosedMobileNavigation();
+            revealMobileContent();
+
+            window.requestAnimationFrame(function () {
+                revealMobileContent();
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', restoreMobilePage, { once: true });
+        } else {
+            restoreMobilePage();
+        }
+
+        window.addEventListener('pageshow', restoreMobilePage);
+        window.addEventListener('focus', function () {
+            updateMobileViewportHeight();
+            revealMobileContent();
+        });
+        window.addEventListener('orientationchange', function () {
+            window.setTimeout(restoreMobilePage, 180);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                updateMobileViewportHeight();
+                revealMobileContent();
+            }
+        });
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', updateMobileViewportHeight);
+        }
+    })();
+    </script>
+
 </body>
 </html>
-
