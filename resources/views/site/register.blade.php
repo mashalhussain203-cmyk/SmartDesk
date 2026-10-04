@@ -10,19 +10,23 @@
 @push('styles')
 <style>
 
-
     :root {
-        --glass-bg: #020202;
-        --glass-card: rgba(18,18,22,.73);
+        --glass-bg: #050609;
+        --glass-card: rgba(13,16,22,.78);
         --glass-line: rgba(255,255,255,.18);
         --glass-soft: rgba(255,255,255,.08);
         --glass-text: #f7f7f8;
         --glass-muted: #9d9ca1;
-        --glass-yellow: #f4ee1f;
-        --glass-yellow-2: #d9b70b;
-        --glass-orange: #ff6b23;
+        --glass-yellow: #7a6cff;
+        --glass-yellow-2: #42a5ff;
+        --glass-orange: #42a5ff;
         --glass-green: #18ed7e;
         --glass-danger: #ff8b8b;
+
+        /* Home palette aliases — visual only; existing login logic/classes stay intact. */
+        --home-accent: #7a6cff;
+        --home-accent-2: #42a5ff;
+        --home-accent-3: #8df0d0;
     }
 
     .glass-auth-page,
@@ -39,8 +43,9 @@
         justify-content: center;
         color: var(--glass-text);
         background:
-            radial-gradient(circle at 50% 34%, rgba(255,177,0,.045), transparent 29rem),
-            #020202;
+            radial-gradient(circle at 72% -5%, rgba(122,108,255,.15), transparent 31rem),
+            radial-gradient(circle at 20% 20%, rgba(66,165,255,.065), transparent 29rem),
+            linear-gradient(180deg, #050609 0%, #07090d 45%, #050609 100%);
     }
 
     .glass-bg,
@@ -67,18 +72,18 @@
             linear-gradient(
                 128deg,
                 transparent 0 25%,
-                rgba(255,115,0,.04) 29%,
-                rgba(255,141,0,.42) 31%,
-                rgba(255,219,108,.94) 32%,
-                rgba(255,122,0,.34) 33.3%,
+                rgba(66,165,255,.04) 29%,
+                rgba(122,108,255,.42) 31%,
+                rgba(199,193,255,.94) 32%,
+                rgba(66,165,255,.34) 33.3%,
                 transparent 36% 49%,
-                rgba(255,126,0,.03) 52%,
-                rgba(255,141,0,.45) 54%,
-                rgba(255,226,126,.87) 55%,
-                rgba(255,123,0,.31) 56.2%,
+                rgba(122,108,255,.03) 52%,
+                rgba(122,108,255,.45) 54%,
+                rgba(128,199,255,.87) 55%,
+                rgba(66,165,255,.31) 56.2%,
                 transparent 59% 74%,
-                rgba(255,173,0,.21) 77%,
-                rgba(255,230,145,.72) 78%,
+                rgba(122,108,255,.21) 77%,
+                rgba(141,240,208,.72) 78%,
                 transparent 81%
             );
         filter: none;
@@ -97,9 +102,9 @@
                 rgba(247,247,250,.42) 21%,
                 rgba(89,91,96,.12) 22%,
                 transparent 24% 62%,
-                rgba(255,152,0,.12) 64%,
-                rgba(255,202,81,.45) 65%,
-                rgba(255,123,0,.10) 66%,
+                rgba(122,108,255,.12) 64%,
+                rgba(66,165,255,.45) 65%,
+                rgba(141,240,208,.10) 66%,
                 transparent 68%
             );
         filter: none;
@@ -121,9 +126,9 @@
             linear-gradient(
                 180deg,
                 transparent 0 28%,
-                rgba(255,128,0,.10) 39%,
-                rgba(255,211,85,.81) 49%,
-                rgba(255,127,0,.35) 55%,
+                rgba(122,108,255,.10) 39%,
+                rgba(128,199,255,.81) 49%,
+                rgba(66,165,255,.35) 55%,
                 transparent 72%
             );
     }
@@ -192,9 +197,9 @@
             linear-gradient(
                 142deg,
                 rgba(255,255,255,.65),
-                rgba(255,218,132,.18) 28%,
+                rgba(122,108,255,.18) 28%,
                 rgba(255,255,255,.16) 59%,
-                rgba(255,196,63,.68)
+                rgba(66,165,255,.68)
             );
     }
 
@@ -223,9 +228,9 @@
             linear-gradient(
                 125deg,
                 transparent 33%,
-                rgba(255,153,0,.13) 43%,
-                rgba(255,226,133,.44) 47%,
-                rgba(255,127,0,.14) 51%,
+                rgba(122,108,255,.13) 43%,
+                rgba(128,199,255,.44) 47%,
+                rgba(66,165,255,.14) 51%,
                 transparent 58%
             );
         animation: glassSweep 8s ease-in-out infinite;
@@ -272,13 +277,13 @@
         margin: 0 auto 13px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(236,224,28,.35);
+        border: 1px solid rgba(122,108,255,.35);
         border-radius: 13px;
         color: var(--glass-yellow);
-        background: rgba(240,232,31,.035);
+        background: rgba(122,108,255,.035);
         box-shadow:
-            0 0 18px rgba(240,229,33,.08),
-            inset 0 0 12px rgba(240,229,33,.025);
+            0 0 18px rgba(122,108,255,.14),
+            inset 0 0 12px rgba(66,165,255,.04);
     }
 
     .glass-icon svg {
@@ -330,9 +335,9 @@
     }
 
     .glass-message.info {
-        border: 1px solid rgba(244,238,31,.17);
-        color: #e6df77;
-        background: rgba(244,238,31,.045);
+        border: 1px solid rgba(122,108,255,.17);
+        color: #b9b3ff;
+        background: rgba(122,108,255,.045);
     }
 
     .glass-message ul {
@@ -392,9 +397,9 @@
     }
 
     .glass-input:focus {
-        border-color: rgba(244,238,31,.57);
-        background: rgba(244,238,31,.025);
-        box-shadow: 0 0 0 3px rgba(244,238,31,.06);
+        border-color: rgba(122,108,255,.57);
+        background: rgba(122,108,255,.025);
+        box-shadow: 0 0 0 3px rgba(122,108,255,.06);
     }
 
     .glass-input::placeholder {
@@ -423,10 +428,10 @@
         min-height: 42px;
         border: 0;
         border-radius: 9px;
-        color: #171200;
-        background: linear-gradient(180deg,#fbef39,#dbb90a);
+        color: #ffffff;
+        background: linear-gradient(135deg,#7a6cff,#4e8eff);
         box-shadow:
-            0 9px 24px rgba(242,197,0,.18),
+            0 9px 24px rgba(81,70,214,.28),
             inset 0 1px 0 rgba(255,255,255,.59);
         font: inherit;
         font-size: 9px;
@@ -450,10 +455,10 @@
     .glass-secondary {
         min-height: 38px;
         padding: 0 11px;
-        border: 1px solid rgba(244,238,31,.21);
+        border: 1px solid rgba(122,108,255,.21);
         border-radius: 9px;
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.05);
+        background: rgba(122,108,255,.05);
         font: inherit;
         font-size: 8px;
         font-weight: 850;
@@ -461,7 +466,7 @@
     }
 
     .glass-small-link {
-        color: #d8bd35;
+        color: #9f96ff;
         text-decoration: none;
         font-size: 8px;
         font-weight: 850;
@@ -519,7 +524,7 @@
     }
 
     .glass-code-dot.red { background: #ff5e64; }
-    .glass-code-dot.yellow { background: #ffca3a; }
+    .glass-code-dot.yellow { background: #42a5ff; }
     .glass-code-dot.green { background: #38d568; }
 
     .glass-code-tab {
@@ -546,7 +551,7 @@
     .glass-code-body .pink { color: #ff56ba; }
     .glass-code-body .cyan { color: #34d5f4; }
     .glass-code-body .green { color: #73e282; }
-    .glass-code-body .yellow { color: #f4d65b; }
+    .glass-code-body .yellow { color: #9f96ff; }
 
     .glass-footer {
         margin-top: 16px;
@@ -609,273 +614,6 @@
         }
     }
 
-
-    .login-glass-card {
-        min-height: 482px;
-    }
-
-    .login-tabs {
-        margin-bottom: 13px;
-        padding: 3px;
-        display: grid;
-        grid-template-columns: repeat(3,1fr);
-        gap: 3px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 10px;
-        background: rgba(0,0,0,.18);
-    }
-
-    .login-tab {
-        min-height: 34px;
-        padding: 0 5px;
-        border: 1px solid transparent;
-        border-radius: 7px;
-        color: #77767c;
-        background: transparent;
-        font: inherit;
-        font-size: 7px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-    .login-tab.active {
-        border-color: rgba(244,238,31,.20);
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
-    }
-
-    .login-panel-section {
-        display: none;
-    }
-
-    .login-panel-section.active {
-        display: block;
-    }
-
-    .login-options {
-        margin: 3px 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .login-remember {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: #88878d;
-        font-size: 8px;
-        cursor: pointer;
-    }
-
-    .login-remember input {
-        width: 13px;
-        height: 13px;
-        accent-color: #e5ca18;
-    }
-
-    .login-passwordless-card {
-        padding: 11px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 11px;
-        background: rgba(0,0,0,.16);
-    }
-
-    .login-passwordless-card + .login-passwordless-card {
-        margin-top: 8px;
-    }
-
-    .login-passwordless-head {
-        margin-bottom: 9px;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .login-passwordless-icon {
-        width: 31px;
-        height: 31px;
-        flex: 0 0 31px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(244,238,31,.17);
-        border-radius: 8px;
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.04);
-        font-size: 9px;
-        font-weight: 900;
-    }
-
-    .login-passwordless-copy strong {
-        display: block;
-        color: #dedee1;
-        font-size: 8px;
-    }
-
-    .login-passwordless-copy span {
-        display: block;
-        margin-top: 3px;
-        color: #77767c;
-        font-size: 7px;
-        line-height: 1.45;
-    }
-
-    .login-passwordless-form {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 6px;
-    }
-
-    .login-passwordless-form .glass-input {
-        height: 38px;
-    }
-
-    .login-oauth-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 7px;
-    }
-
-    .login-oauth {
-        min-height: 54px;
-        padding: 0 9px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(255,255,255,.10);
-        border-radius: 10px;
-        color: #e1e1e3;
-        background: rgba(0,0,0,.19);
-        text-decoration: none;
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .login-oauth:hover {
-        transform: translateY(-1px);
-        border-color: rgba(244,238,31,.20);
-        background: rgba(244,238,31,.025);
-    }
-
-    .login-oauth-icon {
-        width: 27px;
-        height: 27px;
-        display: grid;
-        place-items: center;
-        flex: 0 0 27px;
-    }
-
-    .login-oauth-icon svg {
-        width: 23px;
-        height: 23px;
-    }
-
-    .login-oauth-copy strong,
-    .login-oauth-copy span {
-        display: block;
-    }
-
-    .login-oauth-copy strong {
-        font-size: 8px;
-    }
-
-    .login-oauth-copy span {
-        margin-top: 2px;
-        color: #717177;
-        font-size: 6px;
-    }
-
-    .login-pending {
-        margin-bottom: 10px;
-        padding: 8px 10px;
-        border: 1px solid rgba(24,237,126,.16);
-        border-radius: 9px;
-        color: #9bf5c7;
-        background: rgba(24,237,126,.045);
-        font-size: 8px;
-        line-height: 1.5;
-    }
-
-    .login-register-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 10px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 10px;
-        background: rgba(0,0,0,.14);
-    }
-
-    .login-register-row span {
-        color: #85848a;
-        font-size: 7px;
-        line-height: 1.45;
-    }
-
-    .login-register-row a {
-        flex: 0 0 auto;
-    }
-
-    .login-security-note {
-        margin-top: 10px;
-        color: #69686e;
-        font-size: 7px;
-        line-height: 1.5;
-        text-align: center;
-    }
-
-    @media (max-width: 380px) {
-        .login-oauth-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-
-    .glass-auth-switch {
-        width: min(100%, 270px);
-        margin: 0 auto 14px;
-        padding: 3px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 11px;
-        background: rgba(0,0,0,.19);
-    }
-
-    .glass-auth-switch a {
-        min-height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        color: #77767c;
-        text-decoration: none;
-        font-size: 8px;
-        font-weight: 900;
-        transition:
-            color .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .glass-auth-switch a.active {
-        border-color: rgba(244,238,31,.20);
-        color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
-    }
-
-    .glass-auth-switch a:hover {
-        color: var(--glass-yellow);
-    }
-
-
-
     .register-glass-card {
         min-height: 622px;
     }
@@ -905,9 +643,9 @@
     }
 
     .register-tab.active {
-        border-color: rgba(244,238,31,.20);
+        border-color: rgba(122,108,255,.20);
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.055);
+        background: rgba(122,108,255,.055);
     }
 
     .register-panel-section {
@@ -962,7 +700,7 @@
         height: 13px;
         flex: 0 0 13px;
         margin-top: 1px;
-        accent-color: #e5ca18;
+        accent-color: #7a6cff;
     }
 
     .register-status {
@@ -975,7 +713,7 @@
     }
 
     .register-status.is-active {
-        color: #dbc92c;
+        color: #8ab4ff;
     }
 
     .register-passwordless-card {
@@ -1002,10 +740,10 @@
         flex: 0 0 31px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(244,238,31,.17);
+        border: 1px solid rgba(122,108,255,.17);
         border-radius: 8px;
         color: var(--glass-yellow);
-        background: rgba(244,238,31,.04);
+        background: rgba(122,108,255,.04);
         font-size: 9px;
         font-weight: 900;
     }
@@ -1062,8 +800,8 @@
 
     .register-oauth:hover {
         transform: translateY(-1px);
-        border-color: rgba(244,238,31,.20);
-        background: rgba(244,238,31,.025);
+        border-color: rgba(122,108,255,.20);
+        background: rgba(122,108,255,.025);
     }
 
     .register-oauth-icon {
@@ -1371,9 +1109,9 @@
             linear-gradient(
                 105deg,
                 transparent 15%,
-                rgba(255,244,112,.10) 40%,
-                rgba(255,225,50,.42) 50%,
-                rgba(255,244,112,.10) 60%,
+                rgba(128,199,255,.10) 40%,
+                rgba(122,108,255,.42) 50%,
+                rgba(128,199,255,.10) 60%,
                 transparent 85%
             );
         transform: translateX(-120%);
@@ -1393,15 +1131,15 @@
         background:
             radial-gradient(
                 circle at 50% 46%,
-                rgba(255,219,68,.11),
+                rgba(122,108,255,.11),
                 transparent 22rem
             ),
             linear-gradient(
                 110deg,
                 transparent 0 38%,
-                rgba(255,175,0,.10) 46%,
-                rgba(255,230,121,.31) 50%,
-                rgba(255,145,0,.11) 54%,
+                rgba(66,165,255,.10) 46%,
+                rgba(128,199,255,.31) 50%,
+                rgba(141,240,208,.11) 54%,
                 transparent 62% 100%
             );
         transform: translateX(-28%);
@@ -1664,20 +1402,20 @@
             translate(-50%,-50%)
             scale(.55)
             rotate(45deg);
-        border: 1px solid rgba(255,238,111,.46);
+        border: 1px solid rgba(128,199,255,.46);
         border-radius: 18px;
         background:
             linear-gradient(
                 135deg,
                 rgba(255,255,255,.10),
-                rgba(255,198,46,.08)
+                rgba(122,108,255,.08)
             ),
             rgba(13,13,16,.74);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
         box-shadow:
             0 0 0 1px rgba(255,255,255,.04) inset,
-            0 0 35px rgba(255,189,0,.18);
+            0 0 35px rgba(66,165,255,.18);
     }
 
     .glass-auth-page.is-folding-out .glass-fold-seal {
@@ -1943,7 +1681,7 @@
             linear-gradient(
                 135deg,
                 rgba(255,255,255,.09),
-                rgba(255,198,46,.075)
+                rgba(122,108,255,.075)
             ),
             rgba(13,13,16,.96) !important;
     }
@@ -2064,7 +1802,7 @@
     }
 
     .x-complete-actions a {
-        color: #d8bd35;
+        color: #8ab4ff;
         text-decoration: none;
         font-size: 8px;
         font-weight: 850;
@@ -2104,7 +1842,7 @@
 
     <main class="glass-stage">
         <h1 class="glass-poster-title">
-            Glassy Sign Up
+            Glassy Register
             <span>Mashal Studio</span>
         </h1>
 
@@ -2122,7 +1860,7 @@
                         </div>
 
                         <h2 class="glass-heading">
-                            Create <strong>Account</strong>
+                            Secure <strong>Register</strong>
                         </h2>
 
                         <p class="glass-description">
