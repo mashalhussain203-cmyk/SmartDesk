@@ -31,7 +31,7 @@
     --ms-accent-3: #8df0d0;
     --ms-danger: #ff7c91;
     --ms-success: #74dfa7;
-    --ms-warm: #ffbc79;
+    --ms-warm: #a99fff;
     --ms-radius-xs: 8px;
     --ms-radius-sm: 12px;
     --ms-radius-md: 18px;

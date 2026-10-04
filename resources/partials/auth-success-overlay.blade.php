@@ -79,7 +79,7 @@
             ),
             radial-gradient(
                 circle at 50% 18%,
-                rgba(255,181,0,.055),
+                rgba(122,108,255,.055),
                 transparent 27rem
             ),
             rgba(2,2,2,.988);
@@ -103,9 +103,9 @@
             linear-gradient(
                 180deg,
                 transparent,
-                rgba(255,198,54,.16),
-                rgba(255,230,132,.54),
-                rgba(255,122,0,.14),
+                rgba(143,130,255,.16),
+                rgba(169,159,255,.54),
+                rgba(66,165,255,.14),
                 transparent
             );
     }

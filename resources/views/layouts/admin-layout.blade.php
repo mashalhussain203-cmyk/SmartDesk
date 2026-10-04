@@ -168,12 +168,12 @@
             --admin-line-strong:
                 rgba(255, 255, 255, .12);
 
-            --admin-gold: #e2b36c;
-            --admin-gold-light: #f1d194;
-            --admin-gold-deep: #b77e3b;
+            --admin-gold: #8f82ff;
+            --admin-gold-light: #a99fff;
+            --admin-gold-deep: #5f7dff;
 
             --admin-gold-soft:
-                rgba(226, 179, 108, .07);
+                rgba(122, 108, 255, .07);
 
             --admin-blue: #78b7ff;
             --admin-green: #69d894;
@@ -238,7 +238,7 @@
             background:
                 radial-gradient(
                     circle at 84% 6%,
-                    rgba(226, 179, 108, .055),
+                    rgba(122, 108, 255, .055),
                     transparent 26rem
                 ),
                 radial-gradient(
@@ -295,7 +295,7 @@
 
 
         :focus-visible {
-            outline: 2px solid rgba(241, 209, 148, .72);
+            outline: 2px solid rgba(169, 159, 255, .72);
             outline-offset: 3px;
         }
 
@@ -371,7 +371,7 @@
                 );
 
             box-shadow:
-                0 0 20px rgba(226, 179, 108, .30);
+                0 0 20px rgba(122, 108, 255, .30);
 
             transition: width .08s linear;
         }
@@ -425,7 +425,7 @@
             background:
                 radial-gradient(
                     circle at 30% 0%,
-                    rgba(226, 179, 108, .09),
+                    rgba(122, 108, 255, .09),
                     transparent 15rem
                 ),
                 linear-gradient(
@@ -455,7 +455,7 @@
             width: var(--admin-sidebar-expanded);
 
             border-color:
-                rgba(226, 179, 108, .15);
+                rgba(122, 108, 255, .15);
 
             box-shadow:
                 0 40px 110px rgba(0, 0, 0, .52),
@@ -513,7 +513,7 @@
             overflow: hidden;
 
             border:
-                1px solid rgba(226, 179, 108, .20);
+                1px solid rgba(122, 108, 255, .20);
 
             border-radius: 15px;
 
@@ -522,8 +522,8 @@
             background:
                 linear-gradient(
                     145deg,
-                    rgba(226, 179, 108, .15),
-                    rgba(226, 179, 108, .03)
+                    rgba(122, 108, 255, .15),
+                    rgba(122, 108, 255, .03)
                 );
 
             box-shadow:
@@ -677,12 +677,12 @@
         .admin-sidebar-pin:hover,
         .admin-sidebar.is-pinned .admin-sidebar-pin {
             border-color:
-                rgba(226, 179, 108, .14);
+                rgba(122, 108, 255, .14);
 
             color: var(--admin-gold-light);
 
             background:
-                rgba(226, 179, 108, .07);
+                rgba(122, 108, 255, .07);
         }
 
 
@@ -746,14 +746,14 @@
             overflow: hidden;
 
             border:
-                1px solid rgba(226, 179, 108, .17);
+                1px solid rgba(122, 108, 255, .17);
 
             border-radius: 14px;
 
-            color: #e4ba79;
+            color: #a99fff;
 
             background:
-                rgba(226, 179, 108, .055);
+                rgba(122, 108, 255, .055);
 
             font-size: 12px;
             font-weight: 950;
@@ -937,11 +937,11 @@
 
         .admin-sidebar-search:focus-within {
             border-color:
-                rgba(226, 179, 108, .26) !important;
+                rgba(122, 108, 255, .26) !important;
 
             box-shadow:
                 0 0 0 3px
-                rgba(226, 179, 108, .05);
+                rgba(122, 108, 255, .05);
         }
 
 
@@ -1119,15 +1119,15 @@
 
         .admin-nav-link.active {
             border-color:
-                rgba(226, 179, 108, .13);
+                rgba(122, 108, 255, .13);
 
             color: var(--admin-gold-light);
 
             background:
                 linear-gradient(
                     90deg,
-                    rgba(226, 179, 108, .12),
-                    rgba(226, 179, 108, .035)
+                    rgba(122, 108, 255, .12),
+                    rgba(122, 108, 255, .035)
                 );
         }
 
@@ -1151,7 +1151,7 @@
 
             box-shadow:
                 0 0 14px
-                rgba(226, 179, 108, .55);
+                rgba(122, 108, 255, .55);
         }
 
 
@@ -1250,14 +1250,14 @@
             justify-content: center;
 
             border:
-                1px solid rgba(226, 179, 108, .12);
+                1px solid rgba(122, 108, 255, .12);
 
             border-radius: 999px;
 
-            color: #c3995b;
+            color: #8f82ff;
 
             background:
-                rgba(226, 179, 108, .055);
+                rgba(122, 108, 255, .055);
 
             font-size: 7px;
             font-weight: 950;
@@ -1348,21 +1348,21 @@
 
         .admin-bottom-link.primary {
             border-color:
-                rgba(226, 179, 108, .09);
+                rgba(122, 108, 255, .09);
 
             color: var(--admin-gold-light);
 
             background:
-                rgba(226, 179, 108, .05);
+                rgba(122, 108, 255, .05);
         }
 
 
         .admin-bottom-link.primary:hover {
             border-color:
-                rgba(226, 179, 108, .17);
+                rgba(122, 108, 255, .17);
 
             background:
-                rgba(226, 179, 108, .095);
+                rgba(122, 108, 255, .095);
         }
 
 
@@ -1496,7 +1496,7 @@
 
             margin-bottom: 6px;
 
-            color: #886a3f;
+            color: #7468d8;
 
             font-size: 7px;
             font-weight: 950;
@@ -1579,12 +1579,12 @@
                 linear-gradient(
                     135deg,
                     var(--admin-gold-light),
-                    #d49c52
+                    #4d88ff
                 );
 
             box-shadow:
                 0 13px 30px
-                rgba(226, 179, 108, .12);
+                rgba(122, 108, 255, .12);
 
             text-decoration: none;
 
@@ -1608,7 +1608,7 @@
 
             box-shadow:
                 0 17px 38px
-                rgba(226, 179, 108, .18);
+                rgba(122, 108, 255, .18);
         }
 
 
@@ -1627,12 +1627,12 @@
 
         .admin-button.secondary:hover {
             border-color:
-                rgba(226, 179, 108, .13);
+                rgba(122, 108, 255, .13);
 
             color: #e1e3e6;
 
             background:
-                rgba(226, 179, 108, .03);
+                rgba(122, 108, 255, .03);
         }
 
 
@@ -1666,7 +1666,7 @@
             padding: 0;
 
             border:
-                1px solid rgba(226, 179, 108, .16);
+                1px solid rgba(122, 108, 255, .16);
 
             border-radius: 13px;
 
@@ -2043,7 +2043,7 @@
             bottom: -55px;
 
             border:
-                1px solid rgba(226, 179, 108, .06);
+                1px solid rgba(122, 108, 255, .06);
 
             border-radius: 50%;
         }
@@ -2261,7 +2261,7 @@
 
         tbody tr:hover {
             background:
-                rgba(226, 179, 108, .017);
+                rgba(122, 108, 255, .017);
         }
 
 
@@ -2414,13 +2414,13 @@
         .admin-content select:focus,
         .admin-content textarea:focus {
             border-color:
-                rgba(226, 179, 108, .28);
+                rgba(122, 108, 255, .28);
 
             background: #151a21;
 
             box-shadow:
                 0 0 0 4px
-                rgba(226, 179, 108, .04);
+                rgba(122, 108, 255, .04);
         }
 
 
@@ -2448,7 +2448,7 @@
             background:
                 radial-gradient(
                     circle at 50% 0%,
-                    rgba(226, 179, 108, .08),
+                    rgba(122, 108, 255, .08),
                     transparent 27rem
                 ),
                 var(--admin-bg);
@@ -2492,14 +2492,14 @@
             place-items: center;
 
             border:
-                1px solid rgba(226, 179, 108, .15);
+                1px solid rgba(122, 108, 255, .15);
 
             border-radius: 18px;
 
             color: var(--admin-gold-light);
 
             background:
-                rgba(226, 179, 108, .045);
+                rgba(122, 108, 255, .045);
 
             font-size: 19px;
             font-weight: 950;

@@ -788,11 +788,11 @@
 
                                                     90deg,
 
-                                                    #2563eb,
+                                                    #8f82ff,
 
-                                                    #7c3aed,
+                                                    #6f63e8,
 
-                                                    #0ea5e9
+                                                    #4d88ff
 
                                                 );
 
@@ -1190,9 +1190,9 @@
 
                                                                     border-radius:10px;
 
-                                                                    background:#eff6ff;
+                                                                    background:#f3f1ff;
 
-                                                                    color:#2563eb;
+                                                                    color:#8f82ff;
 
                                                                     font-size:16px;
 
@@ -1360,7 +1360,7 @@
 
                                                             0
 
-                                                            #2563eb;
+                                                            #8f82ff;
 
                                                     "
 
@@ -1515,13 +1515,13 @@
 
                                                 width:100%;
 
-                                                background:#eef6ff;
+                                                background:#f3f1ff;
 
                                                 border:
 
                                                     1px solid
 
-                                                    #bfdbfe;
+                                                    #d7d3ff;
 
                                                 border-radius:16px;
 
@@ -1593,7 +1593,7 @@
 
                                                                     border-radius:11px;
 
-                                                                    background:#2563eb;
+                                                                    background:#8f82ff;
 
                                                                     color:#ffffff;
 
@@ -1653,7 +1653,7 @@
 
                                                             font-weight:750;
 
-                                                            color:#1e3a8a;
+                                                            color:#5f57a8;
 
                                                         "
 

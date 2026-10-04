@@ -8,7 +8,7 @@
         min-height: 72vh;
         padding: 86px 0 110px;
         background:
-            radial-gradient(circle at 12% 4%, rgba(215, 164, 95, .10), transparent 26rem),
+            radial-gradient(circle at 12% 4%, rgba(122, 108, 255, .10), transparent 26rem),
             radial-gradient(circle at 92% 16%, rgba(255, 255, 255, .025), transparent 28rem),
             #08090b;
     }
@@ -27,7 +27,7 @@
         align-items: center;
         gap: 10px;
         margin-bottom: 14px;
-        color: #d7a45f;
+        color: #8f82ff;
         font-size: 9px;
         font-weight: 900;
         letter-spacing: .2em;
@@ -38,7 +38,7 @@
         content: "";
         width: 30px;
         height: 1px;
-        background: #d7a45f;
+        background: #8f82ff;
     }
 
     .legal-title {
@@ -51,7 +51,7 @@
     }
 
     .legal-title span {
-        color: #efc985;
+        color: #a99fff;
     }
 
     .legal-intro {
@@ -114,9 +114,9 @@
 
     .contact-box {
         padding: 18px;
-        border: 1px solid rgba(215, 164, 95, .18);
+        border: 1px solid rgba(122, 108, 255, .18);
         border-radius: 16px;
-        background: rgba(215, 164, 95, .055);
+        background: rgba(122, 108, 255, .055);
     }
 
     .contact-box strong {
@@ -141,10 +141,10 @@
         min-height: 42px;
         margin-top: 14px;
         padding: 0 16px;
-        border: 1px solid rgba(215, 164, 95, .28);
+        border: 1px solid rgba(122, 108, 255, .28);
         border-radius: 999px;
-        background: rgba(215, 164, 95, .08);
-        color: #efc985;
+        background: rgba(122, 108, 255, .08);
+        color: #a99fff;
         text-decoration: none;
         font-size: 10px;
         font-weight: 900;
@@ -155,20 +155,20 @@
     }
 
     .contact-button:hover {
-        background: rgba(215, 164, 95, .14);
-        border-color: rgba(215, 164, 95, .48);
+        background: rgba(122, 108, 255, .14);
+        border-color: rgba(122, 108, 255, .48);
         transform: translateY(-1px);
     }
 
     .legal-link {
-        color: #efc985;
+        color: #a99fff;
         text-decoration: none;
-        border-bottom: 1px solid rgba(239, 201, 133, .35);
+        border-bottom: 1px solid rgba(169, 159, 255, .35);
         transition: border-color .2s ease;
     }
 
     .legal-link:hover {
-        border-color: rgba(239, 201, 133, .8);
+        border-color: rgba(169, 159, 255, .8);
     }
 
     .contact-note {

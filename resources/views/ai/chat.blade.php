@@ -20,7 +20,7 @@
         --mashal-muted: #a6a6a6;
         --mashal-subtle: #7d7d7d;
         --mashal-user: #303030;
-        --mashal-accent: #ffffff;
+        --mashal-accent: #8f82ff;
         --mashal-danger: #ff6b6b;
         --mashal-sidebar-width: 272px;
         --mashal-content-width: 780px;
@@ -94,8 +94,8 @@
         flex: 0 0 auto;
         border: 1px solid rgba(255,255,255,.12);
         border-radius: 9px;
-        background: #fff;
-        color: #111;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
+        color: #f8f8ff;
         font-size: 10px;
         font-weight: 950;
     }
@@ -134,8 +134,8 @@
     }
 
     .chat-search:focus {
-        border-color: rgba(255,255,255,.10);
-        background: rgba(255,255,255,.04);
+        border-color: rgba(122,108,255,.32);
+        background: rgba(122,108,255,.055);
     }
 
     .chat-sidebar-label {
@@ -390,8 +390,8 @@
         display: grid;
         place-items: center;
         border-radius: 14px;
-        color: #101010;
-        background: #fff;
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
         box-shadow: 0 8px 30px rgba(0,0,0,.18);
         font-size: 12px;
         font-weight: 950;
@@ -492,8 +492,8 @@
         place-items: center;
         margin-right: 8px;
         border-radius: 7px;
-        color: #111;
-        background: #fff;
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
         font-size: 9px;
         font-weight: 950;
         vertical-align: middle;
@@ -592,7 +592,7 @@
     }
 
     .ai-input-wrap:focus-within {
-        border-color: rgba(255,255,255,.16);
+        border-color: rgba(122,108,255,.34);
         box-shadow:
             0 0 0 1px rgba(0,0,0,.08),
             0 10px 34px rgba(0,0,0,.23);
@@ -681,8 +681,8 @@
         place-items: center;
         border: 0;
         border-radius: 50%;
-        color: #151515;
-        background: #fff;
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
         cursor: pointer;
         transition: transform .12s ease, opacity .12s ease;
     }
@@ -771,7 +771,7 @@
             max(18px, env(safe-area-inset-left));
         color: #f5f5f5;
         background:
-            radial-gradient(circle at 50% 40%, rgba(100,110,255,.16), transparent 34rem),
+            radial-gradient(circle at 50% 40%, rgba(122,108,255,.16), transparent 34rem),
             #0d0d0d;
         opacity: 0;
         visibility: hidden;
@@ -805,8 +805,8 @@
         margin-left: 6px;
         padding: 3px 7px;
         border-radius: 999px;
-        color: #111;
-        background: #fff;
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
         font-size: 9px;
         text-transform: uppercase;
         letter-spacing: .08em;
@@ -836,10 +836,10 @@
         aspect-ratio: 1;
         border-radius: 50%;
         background:
-            radial-gradient(circle at 33% 28%, #fff 0 4%, #dfe2ff 12%, #939bff 34%, #5b63c5 57%, #282d65 76%, #11152e 100%);
+            radial-gradient(circle at 33% 28%, #fff 0 4%, #e7e3ff 12%, #a99fff 34%, #8f82ff 57%, #5f57a8 76%, #201d49 100%);
         box-shadow:
-            0 0 44px rgba(124,132,255,.24),
-            0 0 100px rgba(124,132,255,.14),
+            0 0 44px rgba(122,108,255,.24),
+            0 0 100px rgba(77,136,255,.14),
             inset -24px -18px 42px rgba(0,0,0,.28);
         transition: transform .16s ease, filter .16s ease;
     }
@@ -938,8 +938,8 @@
     }
 
     .voice-language-option.active {
-        color: #151515;
-        background: #fff;
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
     }
 
     .voice-main-controls {
@@ -1418,14 +1418,14 @@
     }
 
     .ai-rich-content a {
-        color: #b9c8ff;
+        color: #a99fff;
         text-decoration: underline;
-        text-decoration-color: rgba(185,200,255,.40);
+        text-decoration-color: rgba(169,159,255,.40);
         text-underline-offset: 2px;
     }
 
     .ai-rich-content a:hover {
-        color: #d8e0ff;
+        color: #d7d3ff;
     }
 
     .ai-rich-content code {

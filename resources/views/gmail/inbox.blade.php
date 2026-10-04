@@ -84,13 +84,13 @@
             --text-soft: #4f5d6f;
             --muted: #6b7788;
 
-            --primary: #0b57d0;
-            --primary-hover: #0847ac;
-            --primary-soft: #dce9ff;
-            --primary-softer: #eef4ff;
+            --primary: #8f82ff;
+            --primary-hover: #6f63e8;
+            --primary-soft: #e7e3ff;
+            --primary-softer: #f3f1ff;
 
-            --compose: #c7e7ff;
-            --compose-hover: #b6dfff;
+            --compose: #d9d4ff;
+            --compose-hover: #c9c2ff;
 
             --success-bg: #e7f6ed;
             --success-text: #126c3a;
@@ -132,7 +132,7 @@
             background:
                 radial-gradient(
                     circle at top right,
-                    rgba(11, 87, 208, 0.06),
+                    rgba(122, 108, 255, 0.06),
                     transparent 28rem
                 ),
                 var(--app-bg);
@@ -186,7 +186,7 @@
         }
 
         :focus-visible {
-            outline: 3px solid rgba(11, 87, 208, 0.28);
+            outline: 3px solid rgba(122, 108, 255, 0.28);
             outline-offset: 2px;
         }
 
@@ -247,14 +247,14 @@
             background:
                 linear-gradient(
                     145deg,
-                    #0b57d0,
-                    #4285f4
+                    #8f82ff,
+                    #4d88ff
                 );
 
             color: #ffffff;
 
             box-shadow:
-                0 6px 16px rgba(11, 87, 208, 0.24);
+                0 6px 16px rgba(122, 108, 255, 0.24);
 
             font-size: 19px;
             font-weight: 800;
@@ -324,7 +324,7 @@
 
             border-radius: 18px;
 
-            background: #eaf1fb;
+            background: #f0edff;
 
             color: var(--text);
 
@@ -474,7 +474,7 @@
             border-radius: 50%;
 
             background: var(--primary-soft);
-            color: #174ea6;
+            color: #5f57a8;
 
             font-size: 12px;
             font-weight: 800;
@@ -553,7 +553,7 @@
             color: #08304f;
 
             box-shadow:
-                0 5px 14px rgba(32, 92, 135, 0.12);
+                0 5px 14px rgba(122, 108, 255, 0.12);
 
             font-size: 14px;
             font-weight: 760;
@@ -568,7 +568,7 @@
             background: var(--compose-hover);
 
             box-shadow:
-                0 7px 18px rgba(32, 92, 135, 0.17);
+                0 7px 18px rgba(122, 108, 255, 0.17);
         }
 
         .compose-button:active {
@@ -606,7 +606,7 @@
 
         .side-nav-link.active {
             background: var(--primary-soft);
-            color: #123a73;
+            color: #5f57a8;
 
             font-weight: 760;
         }
@@ -898,7 +898,7 @@
             position: relative;
             z-index: 2;
 
-            background: #f8fbff;
+            background: #faf9ff;
 
             box-shadow:
                 inset 3px 0 0 var(--primary);
@@ -924,7 +924,7 @@
             border-radius: 50%;
 
             background: var(--primary-softer);
-            color: #2b5aa5;
+            color: #7468d8;
 
             font-size: 12px;
             font-weight: 800;
@@ -1020,14 +1020,14 @@
             background:
                 linear-gradient(
                     145deg,
-                    #edf4ff,
-                    #dceaff
+                    #f3f1ff,
+                    #e4e0ff
                 );
 
             color: var(--primary);
 
             box-shadow:
-                inset 0 0 0 1px rgba(11, 87, 208, 0.08);
+                inset 0 0 0 1px rgba(122, 108, 255, 0.08);
 
             font-size: 38px;
         }
@@ -1077,7 +1077,7 @@
             color: #ffffff;
 
             box-shadow:
-                0 5px 14px rgba(11, 87, 208, 0.18);
+                0 5px 14px rgba(122, 108, 255, 0.18);
 
             font-size: 13px;
             font-weight: 760;
@@ -1792,12 +1792,12 @@
         }
 
         .message-row.is-unread {
-            background: #f8fbff;
+            background: #faf9ff;
         }
 
         .message-row.is-unread .sender-name,
         .message-row.is-unread .message-subject {
-            color: #0d3f83;
+            color: #5f57a8;
             font-weight: 800;
         }
 
@@ -1846,9 +1846,9 @@
             }
 
             .mobile-folder-chip.active {
-                border-color: rgba(11, 87, 208, 0.18);
+                border-color: rgba(122, 108, 255, 0.18);
                 background: var(--primary-soft);
-                color: #123a73;
+                color: #5f57a8;
             }
 
             .folder-menu-overlay {
@@ -1955,7 +1955,7 @@
             }
 
             .folder-sheet-link.active {
-                border-color: rgba(11, 87, 208, 0.15);
+                border-color: rgba(122, 108, 255, 0.15);
                 background: var(--primary-softer);
             }
 

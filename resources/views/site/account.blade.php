@@ -50,8 +50,8 @@
         border: 1px solid rgba(255,255,255,.075);
         border-radius: 30px;
         background:
-            radial-gradient(circle at 92% 12%, rgba(227,179,107,.13), transparent 21rem),
-            radial-gradient(circle at 72% 100%, rgba(98,94,255,.055), transparent 24rem),
+            radial-gradient(circle at 92% 12%, rgba(122,108,255,.13), transparent 21rem),
+            radial-gradient(circle at 72% 100%, rgba(66,165,255,.055), transparent 24rem),
             linear-gradient(145deg, rgba(255,255,255,.043), rgba(255,255,255,.007)),
             #0c0f14;
         box-shadow: 0 34px 100px rgba(0,0,0,.28);
@@ -64,11 +64,11 @@
         height: 280px;
         right: -125px;
         bottom: -160px;
-        border: 1px solid rgba(227,179,107,.065);
+        border: 1px solid rgba(122,108,255,.065);
         border-radius: 50%;
         box-shadow:
-            0 0 0 55px rgba(227,179,107,.012),
-            0 0 0 110px rgba(227,179,107,.007);
+            0 0 0 55px rgba(122,108,255,.012),
+            0 0 0 110px rgba(122,108,255,.007);
         pointer-events: none;
     }
 
@@ -76,7 +76,7 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        color: #d9aa65;
+        color: #9f95ff;
         font-size: 9px;
         font-weight: 950;
         letter-spacing: .18em;
@@ -87,7 +87,7 @@
         content: "";
         width: 30px;
         height: 1px;
-        background: linear-gradient(90deg, #e0b16b, transparent);
+        background: linear-gradient(90deg, #8f82ff, transparent);
     }
 
     .account-title {
@@ -102,7 +102,7 @@
     }
 
     .account-title span {
-        color: #f0ca8b;
+        color: #a99fff;
     }
 
     .account-intro {
@@ -148,21 +148,21 @@
 
     .account-action:hover {
         transform: translateY(-2px);
-        border-color: rgba(227,179,107,.16);
+        border-color: rgba(122,108,255,.16);
         color: #e4e6e9;
-        background: rgba(227,179,107,.035);
+        background: rgba(122,108,255,.035);
     }
 
     .account-action.primary {
-        border-color: rgba(227,179,107,.18);
-        color: #171009;
-        background: linear-gradient(135deg, #f2d393, #d49c52);
-        box-shadow: 0 16px 38px rgba(227,179,107,.15);
+        border-color: rgba(122,108,255,.18);
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
+        box-shadow: 0 16px 38px rgba(122,108,255,.15);
     }
 
     .account-action.primary:hover {
-        color: #171009;
-        box-shadow: 0 22px 48px rgba(227,179,107,.22);
+        color: #f8f8ff;
+        box-shadow: 0 22px 48px rgba(122,108,255,.22);
     }
 
     .account-message {
@@ -214,7 +214,7 @@
 
     .stat-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(227,179,107,.15);
+        border-color: rgba(122,108,255,.15);
     }
 
     .stat-card::after {
@@ -224,7 +224,7 @@
         height: 120px;
         right: -45px;
         bottom: -58px;
-        border: 1px solid rgba(227,179,107,.055);
+        border: 1px solid rgba(122,108,255,.055);
         border-radius: 50%;
     }
 
@@ -292,11 +292,11 @@
         display: grid;
         place-items: center;
         overflow: hidden;
-        border: 1px solid rgba(227,179,107,.16);
+        border: 1px solid rgba(122,108,255,.16);
         border-radius: 22px;
-        color: #e5bc7c;
+        color: #a99fff;
         background:
-            linear-gradient(145deg, rgba(227,179,107,.15), rgba(227,179,107,.035));
+            linear-gradient(145deg, rgba(122,108,255,.15), rgba(122,108,255,.035));
         box-shadow: 0 16px 38px rgba(0,0,0,.20);
         font-size: 23px;
         font-weight: 950;
@@ -338,7 +338,7 @@
     }
 
     .profile-status.pending {
-        color: #d3ad69;
+        color: #9f95ff;
     }
 
     .profile-status::before {
@@ -412,9 +412,9 @@
 
     .account-nav-link:hover {
         transform: translateX(2px);
-        border-color: rgba(227,179,107,.09);
-        color: #d6b075;
-        background: rgba(227,179,107,.03);
+        border-color: rgba(122,108,255,.09);
+        color: #a99fff;
+        background: rgba(122,108,255,.03);
     }
 
     .account-content {
@@ -439,7 +439,7 @@
     .panel-index {
         display: block;
         margin-bottom: 6px;
-        color: #946e3e;
+        color: #7468d8;
         font-size: 7px;
         font-weight: 950;
         letter-spacing: .15em;
@@ -468,10 +468,10 @@
         padding: 0 9px;
         display: inline-flex;
         align-items: center;
-        border: 1px solid rgba(227,179,107,.11);
+        border: 1px solid rgba(122,108,255,.11);
         border-radius: 999px;
-        color: #af854c;
-        background: rgba(227,179,107,.035);
+        color: #8f82ff;
+        background: rgba(122,108,255,.035);
         font-size: 7px;
         font-weight: 950;
         letter-spacing: .09em;
@@ -485,10 +485,10 @@
         grid-template-columns: 100px minmax(0, 1fr);
         gap: 18px;
         align-items: center;
-        border: 1px solid rgba(227,179,107,.10);
+        border: 1px solid rgba(122,108,255,.10);
         border-radius: 17px;
         background:
-            linear-gradient(145deg, rgba(227,179,107,.035), rgba(255,255,255,.009));
+            linear-gradient(145deg, rgba(122,108,255,.035), rgba(255,255,255,.009));
     }
 
     .photo-preview {
@@ -497,11 +497,11 @@
         display: grid;
         place-items: center;
         overflow: hidden;
-        border: 1px solid rgba(227,179,107,.16);
+        border: 1px solid rgba(122,108,255,.16);
         border-radius: 25px;
-        color: #e7bd7b;
+        color: #a99fff;
         background:
-            linear-gradient(145deg, rgba(227,179,107,.14), rgba(227,179,107,.035));
+            linear-gradient(145deg, rgba(122,108,255,.14), rgba(122,108,255,.035));
         box-shadow: 0 16px 36px rgba(0,0,0,.20);
         font-size: 25px;
         font-weight: 950;
@@ -550,10 +550,10 @@
         align-items: center;
         justify-content: center;
         gap: 7px;
-        border: 1px solid rgba(227,179,107,.14);
+        border: 1px solid rgba(122,108,255,.14);
         border-radius: 10px;
-        color: #d8ad6c;
-        background: rgba(227,179,107,.04);
+        color: #9f95ff;
+        background: rgba(122,108,255,.04);
         font-size: 8px;
         font-weight: 900;
         cursor: pointer;
@@ -571,7 +571,7 @@
     .photo-remove input {
         width: 14px;
         height: 14px;
-        accent-color: #d7a45f;
+        accent-color: #8f82ff;
     }
 
     .photo-filename {
@@ -643,9 +643,9 @@
     }
 
     .account-input:focus {
-        border-color: rgba(227,179,107,.29);
-        background: rgba(227,179,107,.022);
-        box-shadow: 0 0 0 4px rgba(227,179,107,.04);
+        border-color: rgba(122,108,255,.29);
+        background: rgba(122,108,255,.022);
+        box-shadow: 0 0 0 4px rgba(122,108,255,.04);
     }
 
     .password-toggle {
@@ -669,10 +669,10 @@
         display: flex;
         align-items: flex-start;
         gap: 10px;
-        border: 1px solid rgba(227,179,107,.09);
+        border: 1px solid rgba(122,108,255,.09);
         border-radius: 12px;
-        color: #746957;
-        background: rgba(227,179,107,.022);
+        color: #77718f;
+        background: rgba(122,108,255,.022);
         font-size: 8px;
         line-height: 1.65;
     }
@@ -683,9 +683,9 @@
         flex: 0 0 22px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(227,179,107,.12);
+        border: 1px solid rgba(122,108,255,.12);
         border-radius: 50%;
-        color: #b88a4c;
+        color: #8f82ff;
         font-size: 7px;
         font-weight: 950;
     }
@@ -700,9 +700,9 @@
         gap: 8px;
         border: 0;
         border-radius: 11px;
-        color: #171009;
-        background: linear-gradient(135deg, #f0d08f, #d29a50);
-        box-shadow: 0 14px 32px rgba(227,179,107,.13);
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #8f82ff, #4d88ff);
+        box-shadow: 0 14px 32px rgba(122,108,255,.13);
         font-size: 8px;
         font-weight: 950;
         cursor: pointer;
@@ -713,7 +713,7 @@
 
     .account-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 20px 42px rgba(227,179,107,.20);
+        box-shadow: 0 20px 42px rgba(122,108,255,.20);
     }
 
     #recovery .verification {
@@ -721,7 +721,7 @@
     }
 
     #recovery .form-note strong {
-        color: #b8a27f;
+        color: #9d96bb;
         font-weight: 900;
         overflow-wrap: anywhere;
     }
@@ -741,8 +741,8 @@
     }
 
     .verification.pending {
-        border: 1px solid rgba(237,194,112,.12);
-        background: rgba(237,194,112,.035);
+        border: 1px solid rgba(122,108,255,.12);
+        background: rgba(122,108,255,.035);
     }
 
     .verification-main {
@@ -760,7 +760,7 @@
         place-items: center;
         border: 1px solid rgba(255,255,255,.07);
         border-radius: 12px;
-        color: #d2aa6b;
+        color: #9f95ff;
         background: rgba(255,255,255,.015);
         font-size: 11px;
         font-weight: 950;
@@ -836,7 +836,7 @@
 
     .project-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(227,179,107,.14);
+        border-color: rgba(122,108,255,.14);
     }
 
     .project-preview {
@@ -844,7 +844,7 @@
         aspect-ratio: 16 / 10;
         overflow: hidden;
         background:
-            radial-gradient(circle at 70% 28%, rgba(227,179,107,.16), transparent 8rem),
+            radial-gradient(circle at 70% 28%, rgba(122,108,255,.16), transparent 8rem),
             #11151b;
     }
 
@@ -886,7 +886,7 @@
         align-items: center;
         border: 1px solid rgba(255,255,255,.08);
         border-radius: 8px;
-        color: #d8b170;
+        color: #9f95ff;
         background: rgba(7,9,12,.76);
         backdrop-filter: blur(10px);
         font-size: 7px;
@@ -929,10 +929,10 @@
         padding: 0 11px;
         display: inline-flex;
         align-items: center;
-        border: 1px solid rgba(227,179,107,.10);
+        border: 1px solid rgba(122,108,255,.10);
         border-radius: 9px;
-        color: #c89b59;
-        background: rgba(227,179,107,.025);
+        color: #8f82ff;
+        background: rgba(122,108,255,.025);
         text-decoration: none;
         font-size: 7px;
         font-weight: 950;
@@ -952,10 +952,10 @@
         margin: 0 auto 13px;
         display: grid;
         place-items: center;
-        border: 1px solid rgba(227,179,107,.12);
+        border: 1px solid rgba(122,108,255,.12);
         border-radius: 15px;
-        color: #d8ac6a;
-        background: rgba(227,179,107,.035);
+        color: #9f95ff;
+        background: rgba(122,108,255,.035);
         font-size: 15px;
         font-weight: 950;
     }
@@ -989,7 +989,7 @@
 
     .security-card small {
         display: block;
-        color: #86663d;
+        color: #7468d8;
         font-size: 7px;
         font-weight: 950;
         letter-spacing: .11em;

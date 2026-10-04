@@ -44,9 +44,9 @@
     --lca-muted: #7e8993;
     --lca-muted-2: #56616c;
 
-    --lca-accent: #c8ff62;
+    --lca-accent: #8f82ff;
     --lca-accent-2: #68e7ff;
-    --lca-accent-soft: rgba(200,255,98,.09);
+    --lca-accent-soft: rgba(122,108,255,.09);
 
     --lca-success: #67e6a3;
     --lca-success-soft: rgba(103,230,163,.09);
@@ -94,7 +94,7 @@
 
     background:
         radial-gradient(circle at 78% 0%, rgba(104,231,255,.055), transparent 30rem),
-        radial-gradient(circle at 8% 40%, rgba(200,255,98,.035), transparent 24rem),
+        radial-gradient(circle at 8% 40%, rgba(122,108,255,.035), transparent 24rem),
         linear-gradient(180deg, #05070a 0%, #070a0e 55%, #05070a 100%);
 }
 
@@ -159,7 +159,7 @@
 
 .lca :is(button, textarea, select, input):focus-visible {
     outline:
-        2px solid rgba(200,255,98,.82);
+        2px solid rgba(122,108,255,.82);
 
     outline-offset:
         2px;
@@ -234,7 +234,7 @@
         );
 
     box-shadow:
-        0 0 24px rgba(200,255,98,.25);
+        0 0 24px rgba(122,108,255,.25);
 }
 
 .lca-top::after {
@@ -369,10 +369,10 @@
         translateY(-1px);
 
     border-color:
-        rgba(200,255,98,.18);
+        rgba(122,108,255,.18);
 
     background:
-        rgba(200,255,98,.035);
+        rgba(122,108,255,.035);
 }
 
 .lca-presence input {
@@ -523,7 +523,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(200,255,98,.28),
+            rgba(122,108,255,.28),
             transparent
         );
 }
@@ -825,7 +825,7 @@
 .lca button:hover:not(:disabled),
 .lca select:hover:not(:disabled) {
     border-color:
-        rgba(200,255,98,.16);
+        rgba(122,108,255,.16);
 
     background:
         #151d26;
@@ -925,7 +925,7 @@
     background:
         linear-gradient(
             90deg,
-            rgba(200,255,98,.09),
+            rgba(122,108,255,.09),
             rgba(104,231,255,.025)
         ) !important;
 
@@ -951,7 +951,7 @@
         var(--lca-accent);
 
     box-shadow:
-        0 0 10px rgba(200,255,98,.45);
+        0 0 10px rgba(122,108,255,.45);
 }
 
 .lca-item__avatar {
@@ -1086,7 +1086,7 @@
         999px;
 
     color:
-        #172009;
+        #f8f8ff;
 
     background:
         var(--lca-accent);
@@ -1429,7 +1429,7 @@
         linear-gradient(
             145deg,
             rgba(104,231,255,.07),
-            rgba(200,255,98,.02)
+            rgba(122,108,255,.02)
         );
 
     box-shadow:
@@ -1504,23 +1504,23 @@
         auto;
 
     border-color:
-        rgba(200,255,98,.18);
+        rgba(122,108,255,.18);
 
     border-radius:
         13px 13px 4px 13px;
 
     color:
-        #172006;
+        #f8f8ff;
 
     background:
         linear-gradient(
             155deg,
-            #d4ff83,
-            #b7ee55
+            #a99fff,
+            #4d88ff
         );
 
     box-shadow:
-        0 12px 30px rgba(120,170,45,.11);
+        0 12px 30px rgba(77,136,255,.11);
 }
 
 @keyframes lcaMessageIn {
@@ -1705,13 +1705,13 @@
     place-items: center;
 
     border:
-        1px solid rgba(200,255,98,.16) !important;
+        1px solid rgba(122,108,255,.16) !important;
 
     border-radius:
         11px !important;
 
     color:
-        #d8ff8c;
+        #a99fff;
 
     background:
         rgba(13,18,23,.94) !important;
@@ -1890,7 +1890,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(200,255,98,.16),
+            rgba(122,108,255,.16),
             rgba(104,231,255,.12),
             transparent
         );
@@ -2030,20 +2030,20 @@
         16px !important;
 
     border:
-        1px solid rgba(200,255,98,.22) !important;
+        1px solid rgba(122,108,255,.22) !important;
 
     color:
-        #172006 !important;
+        #f8f8ff !important;
 
     background:
         linear-gradient(
             155deg,
-            #d5ff84,
-            #b5ea54
+            #a99fff,
+            #4d88ff
         ) !important;
 
     box-shadow:
-        0 10px 28px rgba(116,163,43,.11);
+        0 10px 28px rgba(77,136,255,.11);
 
     font-size: 8px;
     font-weight: 850;
@@ -2056,8 +2056,8 @@
     background:
         linear-gradient(
             155deg,
-            #ddff99,
-            #c0f15f
+            #b5adff,
+            #5d91ff
         ) !important;
 }
 
@@ -2916,7 +2916,7 @@ body {
     position: absolute;
     inset: 0 auto 0 0;
     width: 2px;
-    background: linear-gradient(180deg, #c8ff62, #68e7ff 48%, transparent 88%);
+    background: linear-gradient(180deg, #8f82ff, #68e7ff 48%, transparent 88%);
     opacity: .75;
     pointer-events: none;
 }
@@ -2930,7 +2930,7 @@ body {
     border-radius: 12px !important;
     background: linear-gradient(145deg, #d8ff8e, #a8eb39) !important;
     color: #071008 !important;
-    box-shadow: 0 8px 30px rgba(200,255,98,.16) !important;
+    box-shadow: 0 8px 30px rgba(122,108,255,.16) !important;
 }
 
 .admin-profile {
@@ -2965,10 +2965,10 @@ body {
 }
 
 .admin-nav-link.active {
-    border-color: rgba(200,255,98,.16) !important;
+    border-color: rgba(122,108,255,.16) !important;
     background:
-        linear-gradient(90deg, rgba(200,255,98,.10), rgba(104,231,255,.035)) !important;
-    box-shadow: inset 3px 0 0 #c8ff62 !important;
+        linear-gradient(90deg, rgba(122,108,255,.10), rgba(104,231,255,.035)) !important;
+    box-shadow: inset 3px 0 0 #8f82ff !important;
 }
 
 .admin-nav-link.active .admin-nav-icon {

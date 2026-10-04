@@ -14,7 +14,7 @@
         padding: 38px 0 74px;
         color: #f7f7f4;
         background:
-            radial-gradient(circle at 15% 12%, rgba(229, 182, 111, .08), transparent 28rem),
+            radial-gradient(circle at 15% 12%, rgba(122, 108, 255, .08), transparent 28rem),
             radial-gradient(circle at 88% 18%, rgba(102, 92, 255, .07), transparent 30rem),
             linear-gradient(180deg, #07080b, #090b0f);
     }
@@ -50,10 +50,10 @@
         display: grid;
         place-items: center;
         flex: 0 0 auto;
-        border: 1px solid rgba(229, 182, 111, .18);
+        border: 1px solid rgba(122, 108, 255, .18);
         border-radius: 12px;
-        color: #f0ca89;
-        background: rgba(229, 182, 111, .06);
+        color: #a99fff;
+        background: rgba(122, 108, 255, .06);
         font-size: 13px;
         font-weight: 950;
     }
@@ -106,14 +106,14 @@
 
     .editor-link:hover {
         transform: translateY(-1px);
-        border-color: rgba(229, 182, 111, .16);
+        border-color: rgba(122, 108, 255, .16);
         color: #e7e9eb;
     }
 
     .editor-link.primary {
-        border-color: rgba(229, 182, 111, .18);
-        color: #161009;
-        background: linear-gradient(135deg, #f1d08e, #d49b50);
+        border-color: rgba(122, 108, 255, .18);
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #a99fff, #4d88ff);
     }
 
     .editor-alert {
@@ -202,9 +202,9 @@
     }
 
     .editor-tool.active {
-        border-color: rgba(229, 182, 111, .13);
-        color: #e3bf82;
-        background: rgba(229, 182, 111, .05);
+        border-color: rgba(122, 108, 255, .13);
+        color: #a99fff;
+        background: rgba(122, 108, 255, .05);
     }
 
     .tool-icon {
@@ -372,7 +372,7 @@
 
     .visual-crop-box:focus-visible {
         box-shadow:
-            0 0 0 3px rgba(229, 182, 111, .65),
+            0 0 0 3px rgba(122, 108, 255, .65),
             0 8px 32px rgba(0, 0, 0, .26);
     }
 
@@ -491,10 +491,10 @@
     .crop-instructions {
         margin-top: 11px;
         padding: 11px 12px;
-        border: 1px solid rgba(229, 182, 111, .12);
+        border: 1px solid rgba(122, 108, 255, .12);
         border-radius: 11px;
-        color: #9b8b71;
-        background: rgba(229, 182, 111, .03);
+        color: #9f95ff;
+        background: rgba(122, 108, 255, .03);
         font-size: 8px;
         line-height: 1.65;
     }
@@ -628,19 +628,19 @@
     }
 
     .editor-choice input:checked + span {
-        border-color: rgba(229,182,111,.2);
-        color: #e5c183;
-        background: rgba(229,182,111,.055);
+        border-color: rgba(122,108,255,.20);
+        color: #a99fff;
+        background: rgba(122,108,255,.055);
     }
 
     .editor-submit {
         width: 100%;
         min-height: 44px;
         margin-top: 14px;
-        border: 1px solid rgba(229,182,111,.18);
+        border: 1px solid rgba(122,108,255,.18);
         border-radius: 11px;
-        color: #171009;
-        background: linear-gradient(135deg, #efd08e, #d49b50);
+        color: #f8f8ff;
+        background: linear-gradient(135deg, #a99fff, #4d88ff);
         font-size: 9px;
         font-weight: 950;
         cursor: pointer;
@@ -814,7 +814,7 @@
     }
 
     .editor-live-resize-status strong {
-        color: #d7ad6d;
+        color: #9f95ff;
         font-weight: 900;
     }
 
@@ -914,7 +914,7 @@
         width: 56%;
         height: 68%;
         transform: translateX(-50%);
-        border: 2px dashed rgba(239, 208, 145, .9);
+        border: 2px dashed rgba(169, 159, 255, .9);
         border-radius: 48% 48% 45% 45% / 42% 42% 56% 56%;
         box-shadow: 0 0 0 1px rgba(0, 0, 0, .28);
     }
@@ -1255,10 +1255,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(229,182,111,.18);
+            border: 1px solid rgba(122,108,255,.18);
             border-radius: 10px;
-            color: #edc786;
-            background: rgba(229,182,111,.055);
+            color: #a99fff;
+            background: rgba(122,108,255,.055);
             font-size: 14px;
             font-weight: 900;
             cursor: pointer;
@@ -1274,9 +1274,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-color: rgba(229,182,111,.22);
-            color: #161009;
-            background: linear-gradient(135deg, #efd08e, #d49b50);
+            border-color: rgba(122,108,255,.22);
+            color: #f8f8ff;
+            background: linear-gradient(135deg, #a99fff, #4d88ff);
             box-shadow: 0 12px 34px rgba(0,0,0,.34);
             font-size: 13px;
         }

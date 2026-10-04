@@ -28,20 +28,20 @@
     @once
         @push('styles')
             <style>
-                .mashal-passkeys {margin: 18px 0 26px; padding: 20px; border: 1px solid #615035; border-radius: 18px; background: #171719; color: #f5f2ec; font-size: 14px; line-height: 1.6;}
+                .mashal-passkeys {margin: 18px 0 26px; padding: 20px; border: 1px solid #5f57a8; border-radius: 18px; background: #171719; color: #f5f2ec; font-size: 14px; line-height: 1.6;}
                 .mashal-passkeys[hidden], .mashal-passkeys [hidden] {display: none !important;}
-                .mashal-passkeys h2 {margin: 0 0 8px; font-size: 23px; color: #efc985;}
+                .mashal-passkeys h2 {margin: 0 0 8px; font-size: 23px; color: #a99fff;}
                 .mashal-passkeys p {margin: 10px 0; color: #d5d0c7;}
                 .mashal-passkeys label {display: block; margin-bottom: 6px;}
-                .mashal-passkeys input {box-sizing: border-box; width: 100%; padding: 11px; margin-bottom: 10px; border: 1px solid #786443; border-radius: 9px; background: #101012; color: #fff; font: inherit;}
-                .mashal-passkeys button {padding: 12px 18px; border: 1px solid #e4b878; border-radius: 10px; background: #e4b878; color: #201a12; font: inherit; font-weight: 700; cursor: pointer;}
+                .mashal-passkeys input {box-sizing: border-box; width: 100%; padding: 11px; margin-bottom: 10px; border: 1px solid #6f67b8; border-radius: 9px; background: #101012; color: #fff; font: inherit;}
+                .mashal-passkeys button {padding: 12px 18px; border: 1px solid #8f82ff; border-radius: 10px; background: #8f82ff; color: #f8f8ff; font: inherit; font-weight: 700; cursor: pointer;}
                 .mashal-passkeys [data-passkey-start] {width: 100%;}
                 .mashal-passkeys button:disabled {opacity: .6; cursor: wait;}
                 .mashal-passkeys button:focus-visible, .mashal-passkeys input:focus-visible {outline: 3px solid #fff; outline-offset: 3px;}
                 .mashal-passkeys ul {padding: 0; list-style: none;}
-                .mashal-passkeys li {display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #514431;}
+                .mashal-passkeys li {display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #514a7d;}
                 .mashal-passkeys .mashal-passkey-detail {font-size: 12px;}
-                .mashal-passkeys [data-passkey-status] {color: #ffe1b0; overflow-wrap: anywhere;}
+                .mashal-passkeys [data-passkey-status] {color: #b9b2ff; overflow-wrap: anywhere;}
             </style>
         @endpush
         @push('scripts')

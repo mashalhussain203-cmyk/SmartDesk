@@ -130,16 +130,16 @@
                 rgba(255, 255, 255, .13);
 
             --studio-gold:
-                #e3b36b;
+                #8f82ff;
 
             --studio-gold-light:
-                #f3d69a;
+                #a99fff;
 
             --studio-gold-deep:
-                #b77d38;
+                #5f7dff;
 
             --studio-gold-soft:
-                rgba(227, 179, 107, .08);
+                rgba(122, 108, 255, .08);
 
             --studio-cyan:
                 #73d7ff;
@@ -367,7 +367,7 @@
                 translateY(-160%);
 
             border:
-                1px solid rgba(227, 179, 107, .30);
+                1px solid rgba(122, 108, 255, .30);
 
             border-radius:
                 11px;
@@ -398,7 +398,7 @@
 
         :focus-visible {
             outline:
-                2px solid rgba(243, 214, 154, .82);
+                2px solid rgba(169, 159, 255, .82);
 
             outline-offset:
                 3px;
@@ -448,7 +448,7 @@
             background:
                 radial-gradient(
                     circle at 10% 12%,
-                    rgba(227, 179, 107, .075),
+                    rgba(122, 108, 255, .075),
                     transparent 29rem
                 ),
                 radial-gradient(
@@ -532,7 +532,7 @@
                 23vh;
 
             background:
-                rgba(227, 179, 107, .18);
+                rgba(122, 108, 255, .18);
         }
 
         .studio-orb.two {
@@ -636,11 +636,11 @@
                     90deg,
                     var(--studio-gold-deep),
                     var(--studio-gold-light),
-                    #fff0c5
+                    #d7d3ff
                 );
 
             box-shadow:
-                0 0 18px rgba(227, 179, 107, .28);
+                0 0 18px rgba(122, 108, 255, .28);
 
             transform:
                 scaleX(0);
@@ -710,7 +710,7 @@
 
         .studio-header.is-scrolled {
             border-color:
-                rgba(227, 179, 107, .11);
+                rgba(122, 108, 255, .11);
 
             background:
                 rgba(7, 8, 11, .92);
@@ -787,7 +787,7 @@
                 hidden;
 
             border:
-                1px solid rgba(227, 179, 107, .19);
+                1px solid rgba(122, 108, 255, .19);
 
             border-radius:
                 14px;
@@ -798,8 +798,8 @@
             background:
                 linear-gradient(
                     145deg,
-                    rgba(227, 179, 107, .13),
-                    rgba(227, 179, 107, .025)
+                    rgba(122, 108, 255, .13),
+                    rgba(122, 108, 255, .025)
                 );
 
             box-shadow:
@@ -979,13 +979,13 @@
 
         .studio-nav-link.active {
             border-color:
-                rgba(227, 179, 107, .11);
+                rgba(122, 108, 255, .11);
 
             color:
                 #e3bd81;
 
             background:
-                rgba(227, 179, 107, .045);
+                rgba(122, 108, 255, .045);
         }
 
         .studio-nav-link.ai-link {
@@ -999,7 +999,7 @@
                 linear-gradient(
                     135deg,
                     rgba(132, 116, 255, .045),
-                    rgba(227, 179, 107, .025)
+                    rgba(122, 108, 255, .025)
                 );
         }
 
@@ -1014,7 +1014,7 @@
                 linear-gradient(
                     135deg,
                     rgba(132, 116, 255, .085),
-                    rgba(227, 179, 107, .04)
+                    rgba(122, 108, 255, .04)
                 );
         }
 
@@ -1029,7 +1029,7 @@
                 linear-gradient(
                     135deg,
                     rgba(132, 116, 255, .11),
-                    rgba(227, 179, 107, .045)
+                    rgba(122, 108, 255, .045)
                 );
 
             box-shadow:
@@ -1152,16 +1152,16 @@
                 center;
 
             border:
-                1px solid rgba(227, 179, 107, .14);
+                1px solid rgba(122, 108, 255, .14);
 
             border-radius:
                 999px;
 
             color:
-                #d6aa69;
+                #9f95ff;
 
             background:
-                rgba(227, 179, 107, .055);
+                rgba(122, 108, 255, .055);
 
             font-size:
                 7px;
@@ -1248,19 +1248,19 @@
                 translateY(-1px);
 
             border-color:
-                rgba(227, 179, 107, .16);
+                rgba(122, 108, 255, .16);
 
             color:
                 #eceef0;
 
             background:
-                rgba(227, 179, 107, .035);
+                rgba(122, 108, 255, .035);
         }
 
         .studio-action-link.primary,
         .studio-action-button.primary {
             border-color:
-                rgba(227, 179, 107, .18);
+                rgba(122, 108, 255, .18);
 
             color:
                 #171009;
@@ -1269,11 +1269,11 @@
                 linear-gradient(
                     135deg,
                     var(--studio-gold-light),
-                    #d39a4f
+                    #4d88ff
                 );
 
             box-shadow:
-                0 14px 35px rgba(227, 179, 107, .13);
+                0 14px 35px rgba(122, 108, 255, .13);
         }
 
         .studio-action-link.primary:hover,
@@ -1284,12 +1284,12 @@
             background:
                 linear-gradient(
                     135deg,
-                    #f7dfab,
-                    #dcaa64
+                    #b5adff,
+                    #5d91ff
                 );
 
             box-shadow:
-                0 18px 45px rgba(227, 179, 107, .20);
+                0 18px 45px rgba(122, 108, 255, .20);
         }
 
         /*
@@ -1346,10 +1346,10 @@
         .studio-account-trigger:hover,
         .studio-account-trigger[aria-expanded="true"] {
             border-color:
-                rgba(227, 179, 107, .18);
+                rgba(122, 108, 255, .18);
 
             background:
-                rgba(227, 179, 107, .035);
+                rgba(122, 108, 255, .035);
 
             box-shadow:
                 0 12px 34px rgba(0, 0, 0, .18);
@@ -1375,19 +1375,19 @@
                 hidden;
 
             border:
-                1px solid rgba(227, 179, 107, .15);
+                1px solid rgba(122, 108, 255, .15);
 
             border-radius:
                 50%;
 
             color:
-                #e4ba79;
+                #a99fff;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(227, 179, 107, .14),
-                    rgba(227, 179, 107, .035)
+                    rgba(122, 108, 255, .14),
+                    rgba(122, 108, 255, .035)
                 );
 
             font-size:
@@ -1598,7 +1598,7 @@
             background:
                 linear-gradient(
                     145deg,
-                    rgba(227, 179, 107, .045),
+                    rgba(122, 108, 255, .045),
                     transparent
                 );
         }
@@ -1623,16 +1623,16 @@
                 hidden;
 
             border:
-                1px solid rgba(227, 179, 107, .15);
+                1px solid rgba(122, 108, 255, .15);
 
             border-radius:
                 15px;
 
             color:
-                #e6bc7b;
+                #a99fff;
 
             background:
-                rgba(227, 179, 107, .06);
+                rgba(122, 108, 255, .06);
 
             font-size:
                 13px;
@@ -1750,13 +1750,13 @@
 
         .studio-account-menu-link:hover {
             border-color:
-                rgba(227, 179, 107, .09);
+                rgba(122, 108, 255, .09);
 
             color:
                 #d6d9dd;
 
             background:
-                rgba(227, 179, 107, .035);
+                rgba(122, 108, 255, .035);
         }
 
         .studio-account-menu-link span:last-child {
@@ -1843,9 +1843,9 @@
 
         .studio-menu-toggle {
             --menu-size: 46px;
-            --menu-line: #f8f3e8;
-            --menu-accent: #e3b36b;
-            --menu-accent-2: #8f7cff;
+            --menu-line: #f3f1ff;
+            --menu-accent: #8f82ff;
+            --menu-accent-2: #42a5ff;
 
             position: relative;
             isolation: isolate;
@@ -1888,7 +1888,7 @@
                 conic-gradient(
                     from 0deg,
                     transparent 0 18%,
-                    rgba(227,179,107,.92) 25%,
+                    rgba(122,108,255,.92) 25%,
                     transparent 34% 54%,
                     rgba(143,124,255,.82) 63%,
                     transparent 72% 100%
@@ -1908,13 +1908,13 @@
         }
 
         .studio-menu-toggle:hover {
-            border-color: rgba(227,179,107,.28);
+            border-color: rgba(122,108,255,.28);
             background:
-                linear-gradient(145deg, rgba(227,179,107,.095), rgba(143,124,255,.035));
+                linear-gradient(145deg, rgba(122,108,255,.095), rgba(143,124,255,.035));
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,.10),
                 0 16px 38px rgba(0,0,0,.30),
-                0 0 0 1px rgba(227,179,107,.035);
+                0 0 0 1px rgba(122,108,255,.035);
             transform: translateY(-1px) scale(1.025);
         }
 
@@ -1926,7 +1926,7 @@
             position: absolute;
             z-index: 1;
             inset: 6px;
-            border: 1px solid rgba(227,179,107,.16);
+            border: 1px solid rgba(122,108,255,.16);
             border-radius: 50%;
             opacity: .30;
             transform: scale(.72) rotate(0deg);
@@ -1949,7 +1949,7 @@
             left: 1px;
             top: 7px;
             background: var(--menu-accent);
-            box-shadow: 0 0 10px rgba(227,179,107,.86);
+            box-shadow: 0 0 10px rgba(122,108,255,.86);
         }
 
         .studio-menu-orbit::after {
@@ -1975,7 +1975,7 @@
             height: 2px;
             display: block;
             border-radius: 999px;
-            background: linear-gradient(90deg, var(--menu-line), #d8c6a8);
+            background: linear-gradient(90deg, var(--menu-line), #bdb7ff);
             transform-origin: center;
             transition:
                 width .45s cubic-bezier(.16,1,.3,1),
@@ -2018,13 +2018,13 @@
         }
 
         .studio-menu-toggle[aria-expanded="true"] {
-            border-color: rgba(227,179,107,.34);
+            border-color: rgba(122,108,255,.34);
             background:
-                linear-gradient(145deg, rgba(227,179,107,.12), rgba(143,124,255,.07));
+                linear-gradient(145deg, rgba(122,108,255,.12), rgba(143,124,255,.07));
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,.11),
                 0 18px 50px rgba(0,0,0,.34),
-                0 0 26px rgba(227,179,107,.10);
+                0 0 26px rgba(122,108,255,.10);
             transform: rotate(180deg) scale(1.04);
         }
 
@@ -2035,7 +2035,7 @@
         }
 
         .studio-menu-toggle[aria-expanded="true"] .studio-menu-orbit {
-            border-color: rgba(227,179,107,.30);
+            border-color: rgba(122,108,255,.30);
             opacity: 1;
             transform: scale(1) rotate(360deg);
             animation: studioMenuOrbit 2.2s linear infinite;
@@ -2048,8 +2048,8 @@
         .studio-menu-toggle[aria-expanded="true"] .studio-menu-line {
             top: 8px;
             width: 22px;
-            background: linear-gradient(90deg, #f9e7be, #ffffff);
-            box-shadow: 0 0 13px rgba(227,179,107,.24);
+            background: linear-gradient(90deg, #d7d3ff, #ffffff);
+            box-shadow: 0 0 13px rgba(122,108,255,.24);
         }
 
         .studio-menu-toggle[aria-expanded="true"] .studio-menu-line:nth-child(1) {
@@ -2356,13 +2356,13 @@
                 12px;
 
             border:
-                1px solid rgba(227, 179, 107, .09);
+                1px solid rgba(122, 108, 255, .09);
 
             border-radius:
                 15px;
 
             background:
-                rgba(227, 179, 107, .025);
+                rgba(122, 108, 255, .025);
         }
 
         .studio-mobile-user .studio-account-menu-avatar {
@@ -2473,13 +2473,13 @@
         .studio-mobile-link:hover,
         .studio-mobile-link.active {
             border-color:
-                rgba(227, 179, 107, .10);
+                rgba(122, 108, 255, .10);
 
             color:
-                #dfb979;
+                #a99fff;
 
             background:
-                rgba(227, 179, 107, .035);
+                rgba(122, 108, 255, .035);
         }
 
         .studio-mobile-link span:last-child {

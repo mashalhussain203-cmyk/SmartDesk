@@ -1,3 +1,50 @@
+@push('styles')
+<style>
+    /* Alleen kleuraccenten voor de Over ons-pagina */
+    .legal-page {
+        background:
+            radial-gradient(circle at 12% 4%, rgba(122, 108, 255, .10), transparent 26rem),
+            radial-gradient(circle at 92% 16%, rgba(66, 165, 255, .045), transparent 28rem),
+            #08090b;
+    }
+
+    .legal-kicker,
+    .legal-title span,
+    .legal-highlight,
+    .legal-link {
+        color: #a99fff;
+    }
+
+    .legal-kicker::before {
+        background: #8f82ff;
+    }
+
+    .legal-link {
+        border-bottom-color: rgba(169, 159, 255, .35);
+    }
+
+    .legal-link:hover {
+        border-bottom-color: rgba(169, 159, 255, .80);
+    }
+
+    .contact-box {
+        border-color: rgba(122, 108, 255, .18);
+        background: rgba(122, 108, 255, .055);
+    }
+
+    .contact-button {
+        border-color: rgba(122, 108, 255, .28);
+        background: rgba(122, 108, 255, .08);
+        color: #a99fff;
+    }
+
+    .contact-button:hover {
+        border-color: rgba(122, 108, 255, .48);
+        background: rgba(122, 108, 255, .14);
+    }
+</style>
+@endpush
+
 @section('content')
 <section class="legal-page">
     <div class="legal-shell">
