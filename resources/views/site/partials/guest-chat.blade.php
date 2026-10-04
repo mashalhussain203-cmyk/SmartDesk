@@ -1,4 +1,4 @@
-<style>
+style>
 
 #guest-chat { --gold:#e7c28a; --ink:#f4f1eb; --muted:#a0a3ad; position:fixed; right:24px; bottom:max(24px,env(safe-area-inset-bottom)); z-index:1000; font:14px/1.6 system-ui,-apple-system,sans-serif; color:var(--ink); color-scheme:dark; text-align:left; }
 
@@ -176,7 +176,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT â EXPERT LAUNCHER + INCOMING MESSAGE SYSTEM
+   MASHAL CHAT Ã¢ÂÂ EXPERT LAUNCHER + INCOMING MESSAGE SYSTEM
    ========================================================================== */
 
 #guest-chat {
@@ -520,7 +520,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT V3 â PREMIUM PURPLE / RESPONSIVE SYSTEM
+   MASHAL CHAT V3 Ã¢ÂÂ PREMIUM PURPLE / RESPONSIVE SYSTEM
    Final visual layer. Existing AI/live-chat behavior stays unchanged.
    ========================================================================== */
 
@@ -1496,7 +1496,7 @@
 
 
 /* ==========================================================================
-   MASHAL AI V4 â ULTRA EXPERT
+   MASHAL AI V4 Ã¢ÂÂ ULTRA EXPERT
    Conversation-first, premium SaaS, purple/blue, mobile app feel
    ========================================================================== */
 
@@ -1713,7 +1713,7 @@
     line-height: 1.7;
 }
 
-/* QUICK PROMPTS â no more chunky cards -------------------------------- */
+/* QUICK PROMPTS Ã¢ÂÂ no more chunky cards -------------------------------- */
 
 #guest-chat .guest-chat__suggestions {
     grid-template-columns: 1fr;
@@ -1741,7 +1741,7 @@
 }
 
 #guest-chat .guest-chat__suggestions button::after {
-    content: "â";
+    content: "Ã¢ÂÂ";
     position: absolute;
     right: 13px;
     top: 50%;
@@ -1988,7 +1988,7 @@
     }
 }
 
-/* MOBILE â APP MODE ---------------------------------------------------- */
+/* MOBILE Ã¢ÂÂ APP MODE ---------------------------------------------------- */
 
 @media (max-width: 699px) {
     #guest-chat {
@@ -2543,7 +2543,7 @@
 
 
 /* ==========================================================================
-   MASHAL CHAT â ULTRA PREMIUM V2
+   MASHAL CHAT Ã¢ÂÂ ULTRA PREMIUM V2
    Editorial AI cockpit. Minder "standaard widget", meer eigen product-identiteit.
    ========================================================================== */
 
@@ -2791,7 +2791,7 @@
     line-height: 1.7;
 }
 
-/* QUICK ACTIONS â geen standaard kaartjes meer --------------------------- */
+/* QUICK ACTIONS Ã¢ÂÂ geen standaard kaartjes meer --------------------------- */
 
 #guest-chat .guest-chat__suggestions {
     display: flex;
@@ -2827,7 +2827,7 @@
 }
 
 #guest-chat .guest-chat__suggestions button::after {
-    content: "â";
+    content: "Ã¢ÂÂ";
     position: absolute;
     right: 4px;
     top: 50%;
@@ -2905,7 +2905,7 @@
         0 8px 22px rgba(75,65,199,.14);
 }
 
-/* BOTTOM â zwevende composer --------------------------------------------- */
+/* BOTTOM Ã¢ÂÂ zwevende composer --------------------------------------------- */
 
 #guest-chat .gc-bottom {
     position: relative;
@@ -3073,7 +3073,7 @@
     }
 }
 
-/* MOBILE â native app gevoel --------------------------------------------- */
+/* MOBILE Ã¢ÂÂ native app gevoel --------------------------------------------- */
 
 @media (max-width: 699px) {
     #guest-chat {
@@ -3314,7 +3314,7 @@
 
 
 
-<aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" hidden data-mode="ai" data-endpoint="{{ route('guest-chat.message') }}">
+<aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" data-mode="ai" data-endpoint="{{ route('guest-chat.message') }}">
 
     <section id="guest-chat-panel" class="guest-chat__panel" aria-labelledby="guest-chat-title" hidden>
 
@@ -3368,11 +3368,11 @@
 
         <div class="gc-bottom">
 
-            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen â</a><a href="{{ route('privacy') }}">Privacy</a></nav>
+            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen Ã¢ÂÂ</a><a href="{{ route('privacy') }}">Privacy</a></nav>
 
             <form class="guest-chat__form">
 
-                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AIâ¦" maxlength="2000" required></textarea>
+                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AIÃ¢ÂÂ¦" maxlength="2000" required></textarea>
 
                 <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
 
@@ -3388,7 +3388,7 @@
 
                 data-show="{{ route('live-chat.show') }}" data-store="{{ route('live-chat.store') }}" data-reopen="{{ route('live-chat.reopen') }}">
 
-                <p class="lc-status" role="status">Beschikbaarheid controlerenâ¦</p>
+                <p class="lc-status" role="status">Beschikbaarheid controlerenÃ¢ÂÂ¦</p>
 
                 <div class="lc-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Gesprek met medewerker"></div>
 
@@ -3398,13 +3398,13 @@
 
                 <form class="guest-chat__form lc-form">
 
-                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">ð<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.mp4,.webm,.mov,.m4v,.avi,.mkv,.mpeg,.mpg,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.flv,.wmv,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
+                    <label class="lc-tool" title="Bestand versturen" aria-label="Bestand versturen">Ã°ÂÂÂ<input class="lc-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.mp4,.webm,.mov,.m4v,.avi,.mkv,.mpeg,.mpg,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.flv,.wmv,application/pdf,text/plain,.doc,.docx,.xls,.xlsx" hidden></label>
 
-                    <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">ð¤</button>
+                    <button class="lc-tool lc-voice" type="button" title="Spraakbericht opnemen" aria-label="Spraakbericht opnemen">Ã°ÂÂÂ¤</button>
 
-                    <textarea class="lc-input" rows="1" maxlength="4000" aria-label="Bericht aan medewerker" placeholder="Schrijf je berichtâ¦" required></textarea>
+                    <textarea class="lc-input" rows="1" maxlength="4000" aria-label="Bericht aan medewerker" placeholder="Schrijf je berichtÃ¢ÂÂ¦" required></textarea>
 
-                    <button class="guest-chat__send" type="submit" aria-label="Bericht aan medewerker versturen">â</button>
+                    <button class="guest-chat__send" type="submit" aria-label="Bericht aan medewerker versturen">Ã¢ÂÂ</button>
 
                 </form>
 
@@ -3742,7 +3742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const notification = new Notification(
-                'Nieuw bericht Â· Mashal Studio',
+                'Nieuw bericht ÃÂ· Mashal Studio',
                 {
                     body: message || 'Je hebt een nieuw bericht ontvangen.',
                     tag: 'mashal-chat-message'
@@ -3780,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         return text.length > 92
-            ? text.slice(0, 89) + 'â¦'
+            ? text.slice(0, 89) + 'Ã¢ÂÂ¦'
             : text;
     };
 
@@ -3898,8 +3898,13 @@ document.addEventListener('DOMContentLoaded', function () {
      * 1,2 seconde gezien.
      */
     window.setInterval(
-        checkForNewLiveAdminMessage,
-        1200
+        function () {
+            if (document.hidden || root.dataset.mode !== 'human') {
+                return;
+            }
+            checkForNewLiveAdminMessage();
+        },
+        5000
     );
 
     /*
@@ -3989,7 +3994,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * ======================================================================
      * BACKGROUND LIVE-CHAT WATCHER
      * ======================================================================
-     * Belangrijk: dit draait Ã³Ã³k wanneer de chat dicht is.
+     * Belangrijk: dit draait ÃÂ³ÃÂ³k wanneer de chat dicht is.
      * Daardoor kan een adminantwoord de chat automatisch openen terwijl
      * de bezoeker gewoon door de website navigeert.
      */
@@ -4333,7 +4338,7 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     window.setTimeout(
         pollLiveChatInBackground,
-        900
+        1800
     );
 
     /*
@@ -4341,8 +4346,12 @@ document.addEventListener('DOMContentLoaded', function () {
      * 3 seconden is snel genoeg voor support-chat zonder onnodige load.
      */
     window.setInterval(
-        pollLiveChatInBackground,
-        2000
+        function () {
+            if (!document.hidden) {
+                pollLiveChatInBackground();
+            }
+        },
+        6000
     );
 
     /*
@@ -4360,10 +4369,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<script src="{{ asset('js/guest-chat.js') }}?v=9" defer></script>
+<script src="{{ asset('js/guest-chat.js') }}?v=10" defer></script>
 
 
 
-<script src="{{ asset('js/live-chat.js') }}?v=20" defer></script>
+<script src="{{ asset('js/live-chat.js') }}?v=21" defer></script>
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=17" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=18" defer></script>
