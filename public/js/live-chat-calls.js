@@ -34,6 +34,8 @@
         busy: false,
         sound: { context: null, loopTimer: null, kind: null },
         mediaSyncTimer: null,
+        mutedAudioTrack: null,
+        muting: false,
     };
 
     const css = `
@@ -453,24 +455,78 @@
         state.connectedAt = 0;
     }
 
-    function toggleMute() {
-        state.muted = !state.muted;
-        const enabled = !state.muted;
+    function audioSender() {
+        if (!state.peer) return null;
+        return state.peer.getSenders?.().find(sender => sender.track?.kind === 'audio')
+            || state.peer.getTransceivers?.().find(item => item.receiver?.track?.kind === 'audio')?.sender
+            || null;
+    }
 
-        // iOS/Safari: wijzig zowel de lokale streamtrack als de daadwerkelijke
-        // RTCRtpSender-track. Daardoor werkt mute ook nadat streams/tracks zijn
-        // vervangen bij audio -> video.
-        state.localStream?.getAudioTracks().forEach(track => { track.enabled = enabled; });
-        state.peer?.getSenders?.().forEach(sender => {
-            if (sender.track?.kind === 'audio') sender.track.enabled = enabled;
-        });
+    async function setSenderAudioActive(sender, active) {
+        if (!sender?.getParameters || !sender?.setParameters) return;
+        try {
+            const parameters = sender.getParameters();
+            if (!Array.isArray(parameters.encodings) || !parameters.encodings.length) return;
+            parameters.encodings = parameters.encodings.map(encoding => ({ ...encoding, active }));
+            await sender.setParameters(parameters);
+        } catch (error) {
+            console.debug('[LiveChatCall] audio sender active fallback', error?.name, error?.message);
+        }
+    }
 
-        muteButton?.setAttribute('data-active', String(enabled));
-        muteButton?.setAttribute('aria-pressed', String(state.muted));
-        if (muteButton) {
-            muteButton.textContent = state.muted ? '🔇' : '🎙';
-            muteButton.title = state.muted ? 'Microfoon inschakelen' : 'Microfoon dempen';
-            muteButton.setAttribute('aria-label', muteButton.title);
+    async function toggleMute() {
+        if (state.muting) return;
+        state.muting = true;
+        if (muteButton) muteButton.disabled = true;
+
+        const wantMuted = !state.muted;
+        const sender = audioSender();
+        const localTrack = state.localStream?.getAudioTracks?.()[0] || sender?.track || state.mutedAudioTrack || null;
+
+        try {
+            if (wantMuted) {
+                state.mutedAudioTrack = localTrack || state.mutedAudioTrack;
+
+                // iPhone Safari is betrouwbaarder als de sender tijdelijk geen
+                // audiotrack verstuurt. We houden de track zelf levend zodat
+                // unmute geen nieuwe microfoon-permissie nodig heeft.
+                if (localTrack) localTrack.enabled = false;
+                state.localStream?.getAudioTracks?.().forEach(track => { track.enabled = false; });
+                await setSenderAudioActive(sender, false);
+                if (sender?.replaceTrack) {
+                    try { await sender.replaceTrack(null); } catch (error) {
+                        console.warn('[LiveChatCall] mute replaceTrack(null) failed', error?.name, error?.message);
+                    }
+                }
+            } else {
+                const restoreTrack = state.mutedAudioTrack || state.localStream?.getAudioTracks?.()[0] || null;
+                if (!restoreTrack || restoreTrack.readyState === 'ended') {
+                    throw new Error('De microfoontrack is niet meer beschikbaar. Start de oproep opnieuw.');
+                }
+
+                restoreTrack.enabled = true;
+                state.localStream?.getAudioTracks?.().forEach(track => { track.enabled = true; });
+                if (sender?.replaceTrack) await sender.replaceTrack(restoreTrack);
+                await setSenderAudioActive(sender, true);
+            }
+
+            state.muted = wantMuted;
+            const enabled = !state.muted;
+            muteButton?.setAttribute('data-active', String(enabled));
+            muteButton?.setAttribute('aria-pressed', String(state.muted));
+            if (muteButton) {
+                muteButton.textContent = state.muted ? '🔇' : '🎙';
+                muteButton.title = state.muted ? 'Microfoon inschakelen' : 'Microfoon dempen';
+                muteButton.setAttribute('aria-label', muteButton.title);
+            }
+            toast(state.muted ? 'Microfoon gedempt' : 'Microfoon ingeschakeld');
+            console.info('[LiveChatCall] mute state', { muted: state.muted, senderTrack: sender?.track?.kind || null });
+        } catch (error) {
+            console.error('[LiveChatCall] mute toggle failed', error);
+            toast(error?.message || 'Microfoon kon niet worden gewijzigd.');
+        } finally {
+            state.muting = false;
+            if (muteButton) muteButton.disabled = false;
         }
     }
 
