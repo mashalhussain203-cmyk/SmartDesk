@@ -1081,6 +1081,48 @@
     }
 
 
+
+    /* Auth switch – zelfde nette tab-layout als login */
+    .glass-auth-switch {
+        width: min(100%, 270px);
+        margin: 0 auto 14px;
+        padding: 3px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 11px;
+        background: rgba(0,0,0,.19);
+    }
+
+    .glass-auth-switch a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        color: #77767c;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 900;
+        transition:
+            color .18s ease,
+            border-color .18s ease,
+            background .18s ease;
+    }
+
+    .glass-auth-switch a.active {
+        border-color: rgba(122,108,255,.28);
+        color: #9f95ff;
+        background: rgba(122,108,255,.085);
+    }
+
+    .glass-auth-switch a:hover {
+        color: #a99fff;
+        background: rgba(122,108,255,.045);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | V4 Login <-> Register page transition
