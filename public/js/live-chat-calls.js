@@ -13,7 +13,7 @@
     }
 
     const root = side === 'admin' ? adminRoot : guestRoot;
-    const POLL_MS = side === 'visitor' ? 2500 : 1200;
+    const POLL_MS = side === 'visitor' ? 5000 : 2000;
 
     const state = {
         call: null,
@@ -392,13 +392,13 @@
                     <video class="lcc-local" autoplay playsinline muted></video>
                 </div>
                 <div class="lcc-top">
-                    <div><h2 class="lcc-title">${mode === 'video' ? 'Videogesprek' : 'Audiogesprek'}</h2><p class="lcc-status">Verbindenâ¦</p></div>
+                    <div><h2 class="lcc-title">${mode === 'video' ? 'Videogesprek' : 'Audiogesprek'}</h2><p class="lcc-status">Verbinden…</p></div>
                     <div class="lcc-timer">00:00</div>
                 </div>
                 <div class="lcc-controls">
-                    <button type="button" class="lcc-control" data-lcc-mute title="Microfoon">ð</button>
-                    <button type="button" class="lcc-control" data-lcc-camera title="Camera">ð·</button>
-                    <button type="button" class="lcc-control" data-lcc-switch title="Camera wisselen">ð</button>
+                    <button type="button" class="lcc-control" data-lcc-mute title="Microfoon">🎙</button>
+                    <button type="button" class="lcc-control" data-lcc-camera title="Camera">📷</button>
+                    <button type="button" class="lcc-control" data-lcc-switch title="Camera wisselen">🔄</button>
                     <button type="button" class="lcc-control lcc-control--end" data-lcc-end title="Ophangen">â</button>
                 </div>
             </section>`;
@@ -419,7 +419,7 @@
         muteButton.addEventListener('click', toggleMute);
         cameraButton.addEventListener('click', () => void toggleVideoMode());
         switchButton.addEventListener('click', () => void switchCamera());
-        overlay.querySelector('[data-lcc-end]').addEventListener('click', () => void finishCall(true, 'Oproep beÃ«indigd'));
+        overlay.querySelector('[data-lcc-end]').addEventListener('click', () => void finishCall(true, 'Oproep beëindigd'));
         syncMediaElements();
         startMediaSync();
     }
@@ -517,7 +517,7 @@
             muteButton?.setAttribute('data-active', String(enabled));
             muteButton?.setAttribute('aria-pressed', String(state.muted));
             if (muteButton) {
-                muteButton.textContent = state.muted ? 'ð' : 'ð';
+                muteButton.textContent = state.muted ? '🔇' : '🎙';
                 muteButton.title = state.muted ? 'Microfoon inschakelen' : 'Microfoon dempen';
                 muteButton.setAttribute('aria-label', muteButton.title);
             }
@@ -590,7 +590,7 @@
         if (cameraButton) {
             cameraButton.classList.remove('lcc-hidden');
             cameraButton.setAttribute('data-active', String(state.localVideoActive));
-            cameraButton.textContent = state.localVideoActive ? 'ð·' : 'ð¥';
+            cameraButton.textContent = state.localVideoActive ? '📷' : '🎥';
             cameraButton.dataset.videoToggle = state.localVideoActive ? 'on' : 'off';
             cameraButton.title = state.localVideoActive ? 'Video uitzetten' : 'Overschakelen naar video';
             cameraButton.setAttribute('aria-label', cameraButton.title);
@@ -663,7 +663,7 @@
             const sender = videoSender();
             if (!sender) {
                 track.stop();
-                throw new Error('Deze oproep is gestart vÃ³Ã³r de video-switch update. Start een nieuwe audiocall.');
+                throw new Error('Deze oproep is gestart vóór de video-switch update. Start een nieuwe audiocall.');
             }
 
             const transceiver = state.peer.getTransceivers().find(item => item.sender === sender);
@@ -789,7 +789,7 @@
             }
             addLocalTracks(pc, stream);
             ensureOverlay(mode);
-            setStatus('Bellenâ¦');
+            setStatus('Bellen…');
             playOutgoingRing();
 
             const offer = await pc.createOffer();
@@ -834,7 +834,7 @@
             }
             addLocalTracks(pc, stream);
             ensureOverlay(call.mode);
-            setStatus('Verbindenâ¦');
+            setStatus('Verbinden…');
 
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
@@ -901,7 +901,7 @@
             const call = data.call;
 
             if (!call || call.id !== state.call.id) {
-                await finishCall(false, state.peer?.connectionState === 'connected' ? 'Oproep beÃ«indigd' : 'Geen antwoord');
+                await finishCall(false, state.peer?.connectionState === 'connected' ? 'Oproep beëindigd' : 'Geen antwoord');
                 return;
             }
 
@@ -909,11 +909,11 @@
 
             if (state.isCaller && call.answer && state.peer && !state.peer.remoteDescription) {
                 await state.peer.setRemoteDescription(normalizeDescription(call.answer, 'answer'));
-                setStatus('Verbindenâ¦');
+                setStatus('Verbinden…');
             }
 
             if (call.status === 'accepted' && state.peer?.connectionState !== 'connected') {
-                setStatus('Verbindenâ¦');
+                setStatus('Verbinden…');
             }
         } catch (error) {
             if (error.status === 401 || error.status === 403 || error.status === 419) {
@@ -941,7 +941,7 @@
         const caller = side === 'admin' ? (call.caller_name || 'Bezoeker') : 'Mashal Support';
         incomingNode.innerHTML = `
             <div class="lcc-incoming__head">
-                <div class="lcc-incoming__icon">${call.mode === 'video' ? 'ð¥' : 'ð'}</div>
+                <div class="lcc-incoming__icon">${call.mode === 'video' ? '🎥' : '📞'}</div>
                 <div><strong>${escapeHtml(caller)} belt je</strong><p>${call.mode === 'video' ? 'Inkomend videogesprek' : 'Inkomend audiogesprek'}</p></div>
             </div>
             <div class="lcc-incoming__actions">
@@ -991,7 +991,7 @@
         audioButtons.forEach((audio) => {
             const inDock = Boolean(audio.closest('[data-lcc-mobile-dock]'));
             // De dock-knoppen zijn de hoofdknoppen voor de medewerkerchat op
-            // telefoon Ã©n desktop. Headerknoppen houden we alleen als fallback.
+            // telefoon én desktop. Headerknoppen houden we alleen als fallback.
             audio.hidden = inDock ? !available : available;
             audio.disabled = !available || Boolean(state.call) || state.busy;
             audio.title = state.agentOnline
@@ -1057,7 +1057,7 @@
             audio.dataset.lccAudio = '';
             audio.title = 'Audiobellen';
             audio.setAttribute('aria-label', 'Audiobellen');
-            audio.textContent = 'ð';
+            audio.textContent = '📞';
 
             const video = document.createElement('button');
             video.type = 'button';
@@ -1065,7 +1065,7 @@
             video.dataset.lccVideo = '';
             video.title = 'Videobellen';
             video.setAttribute('aria-label', 'Videobellen');
-            video.textContent = 'ð¥';
+            video.textContent = '🎥';
 
             actions.prepend(video);
             actions.prepend(audio);
@@ -1092,8 +1092,8 @@
             dock.dataset.lccMobileDock = '';
             dock.hidden = true;
             dock.innerHTML = `
-                <button type="button" class="lcc-mobile-call" data-lcc-audio aria-label="Audiobellen met support"><span>ð</span><span>Bellen</span></button>
-                <button type="button" class="lcc-mobile-call lcc-mobile-call--video" data-lcc-video aria-label="Videobellen met support"><span>ð¥</span><span>Video</span></button>
+                <button type="button" class="lcc-mobile-call" data-lcc-audio aria-label="Audiobellen met support"><span>📞</span><span>Bellen</span></button>
+                <button type="button" class="lcc-mobile-call lcc-mobile-call--video" data-lcc-video aria-label="Videobellen met support"><span>🎥</span><span>Video</span></button>
             `;
             const livePanel = root.querySelector('.lc-panel');
             const liveForm = livePanel?.querySelector('.lc-form');
@@ -1117,7 +1117,7 @@
         audio.dataset.lccAudio = '';
         audio.title = 'Audiobellen met support';
         audio.setAttribute('aria-label', 'Audiobellen met support');
-        audio.textContent = 'ð';
+        audio.textContent = '📞';
 
         const video = document.createElement('button');
         video.type = 'button';
@@ -1125,7 +1125,7 @@
         video.dataset.lccVideo = '';
         video.title = 'Videobellen met support';
         video.setAttribute('aria-label', 'Videobellen met support');
-        video.textContent = 'ð¥';
+        video.textContent = '🎥';
 
         actions.prepend(video);
         actions.prepend(audio);
@@ -1141,7 +1141,7 @@
         refresh();
     }
 
-    // iOS/Safari laat WebAudio pas spelen nadat de bezoeker minimaal Ã©Ã©n
+    // iOS/Safari laat WebAudio pas spelen nadat de bezoeker minimaal één
     // interactie met de pagina heeft gehad. Ontgrendel de AudioContext bij de
     // eerste tap zodat een inkomende ringtone daarna wel hoorbaar is.
     const unlockAudio = () => {

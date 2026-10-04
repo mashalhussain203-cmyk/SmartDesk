@@ -226,11 +226,11 @@
 
 
 
-    const POLL_INTERVAL = window.matchMedia('(max-width: 699px)').matches ? 2500 : 1500;
+    const POLL_INTERVAL = window.matchMedia('(max-width: 699px)').matches ? 5000 : 3500;
 
 
 
-    const REQUEST_TIMEOUT = 120000;
+    const REQUEST_TIMEOUT = 35000;
 
 
 
@@ -1068,7 +1068,7 @@ let identity = null;
 
             </span>
 
-            <span class="lc-live-typing__label" data-live-typing-label>Medewerker typtâ¦</span>
+            <span class="lc-live-typing__label" data-live-typing-label>Medewerker typt…</span>
 
         `;
 
@@ -1142,7 +1142,7 @@ let identity = null;
 
         if (label) {
 
-            label.textContent = `${name} typtâ¦`;
+            label.textContent = `${name} typt…`;
 
         }
 
@@ -2336,7 +2336,7 @@ let identity = null;
         video.addEventListener('loadedmetadata', () => {
             const minutes = Math.floor(video.duration / 60);
             const seconds = Math.floor(video.duration % 60).toString().padStart(2, '0');
-            videoMeta.textContent = `${minutes}:${seconds}` + (message.attachment_size ? ` Â· ${Math.round(message.attachment_size / 104857.6) / 10} MB` : '');
+            videoMeta.textContent = `${minutes}:${seconds}` + (message.attachment_size ? ` · ${Math.round(message.attachment_size / 104857.6) / 10} MB` : '');
         }, {once:true});
 
         const download = document.createElement('a');
@@ -2415,7 +2415,7 @@ let identity = null;
 
 
 
-                `ð ${name} Â· ${formatBytes(message.attachment_size)}`;
+                `📎 ${name} · ${formatBytes(message.attachment_size)}`;
 
 
 
@@ -2427,7 +2427,7 @@ let identity = null;
 
 
 
-                `ð ${name}`;
+                `📎 ${name}`;
 
 
 
@@ -2935,7 +2935,7 @@ let identity = null;
             replyTarget={id,label:message.body||message.attachment_name||'bericht'};
             input.focus(); setStatus('Je antwoordt op: '+replyTarget.label);
         }));
-        ['ð','â¤ï¸','ð','ð®','ð¢','ð'].forEach(emoji=>{
+        ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji=>{
             const count=Number(message.reactions?.[emoji]||0);
             actions.append(actionButton(emoji+(count?` ${count}`:''),'Reactie',async()=>{
                 try{await api(`${live.dataset.store}/${id}/reaction`,'POST',{emoji});lastMessageId=0;seen.clear();log.replaceChildren();await poll(true);}catch(e){showError(e.message);}
@@ -2944,7 +2944,7 @@ let identity = null;
         if(message.attachment_url){actions.append(actionButton('â¶','Fullscreen',()=>window.open(message.attachment_url,'_blank','noopener')));}
         const status=document.createElement('span');
         status.style.fontSize='11px'; status.style.opacity='.65';
-        status.textContent=(message.edited_at?'bewerkt Â· ':'')+(message.sender==='visitor'?(message.read_by_other?'gelezen':'verzonden'):'');
+        status.textContent=(message.edited_at?'bewerkt · ':'')+(message.sender==='visitor'?(message.read_by_other?'gelezen':'verzonden'):'');
         actions.append(status);
         item.append(actions);
 
@@ -3316,7 +3316,7 @@ let identity = null;
 
 
 
-                    'Je huidige gesprek wordt geladenâ¦'
+                    'Je huidige gesprek wordt geladen…'
 
 
 
@@ -5041,7 +5041,7 @@ let identity = null;
 
 
 
-            'ð¤';
+            '🎤';
 
 
 
@@ -5213,7 +5213,7 @@ let identity = null;
 
 
 
-            `Opname ${minutes}:${seconds} â klik opnieuw om te stoppen en te versturen.`
+            `Opname ${minutes}:${seconds} — klik opnieuw om te stoppen en te versturen.`
 
 
 
@@ -5573,7 +5573,7 @@ let identity = null;
 
 
 
-            `Spraakbericht wordt verstuurd (${formatBytes(file.size)})â¦`
+            `Spraakbericht wordt verstuurd (${formatBytes(file.size)})…`
 
 
 
@@ -6109,7 +6109,7 @@ let identity = null;
 
 
 
-                'â ';
+                '■';
 
 
 
@@ -6768,7 +6768,7 @@ let identity = null;
                 }
             }
         }
-        throw lastError || new Error('Een videodeel kon niet worden geÃ¼pload.');
+        throw lastError || new Error('Een videodeel kon niet worden geüpload.');
     }
 
     async function uploadVideoInChunks(file) {
@@ -6828,10 +6828,10 @@ let identity = null;
                 }
 
                 const percent = Math.min(100, Math.round((received.size / totalChunks) * 100));
-                setStatus(`Video uploadenâ¦ ${percent}%`);
+                setStatus(`Video uploaden… ${percent}%`);
             }
 
-            setStatus('Video verwerkenâ¦');
+            setStatus('Video verwerken…');
             await api(visitorUploadUrl(`/${uploadId}/complete`), 'POST', {});
             window.localStorage.removeItem(storageKey);
             await poll(true);
@@ -6851,7 +6851,7 @@ let identity = null;
             try {
                 validateFile(file);
                 const video = isVideoFile(file);
-                setStatus(`${video ? 'Video' : 'Bestand'} wordt verstuurd (${formatBytes(file.size)})â¦`);
+                setStatus(`${video ? 'Video' : 'Bestand'} wordt verstuurd (${formatBytes(file.size)})…`);
                 if (video) await uploadVideoInChunks(file);
                 else await sendPayload({type:'file', file});
             } catch (exception) {
@@ -6873,15 +6873,15 @@ let identity = null;
 
     const cameraInput = document.createElement('input');
     cameraInput.type='file'; cameraInput.accept='image/*,video/*'; cameraInput.capture='environment'; cameraInput.hidden=true; live.append(cameraInput);
-    const cameraButton=document.createElement('button'); cameraButton.type='button'; cameraButton.className='lc-tool'; cameraButton.textContent='ð·'; cameraButton.title='Camera openen'; voiceButton.parentElement?.insertBefore(cameraButton,voiceButton);
+    const cameraButton=document.createElement('button'); cameraButton.type='button'; cameraButton.className='lc-tool'; cameraButton.textContent='📷'; cameraButton.title='Camera openen'; voiceButton.parentElement?.insertBefore(cameraButton,voiceButton);
     cameraButton.addEventListener('click',()=>cameraInput.click());
     cameraInput.addEventListener('change',async()=>{const f=cameraInput.files?.[0];cameraInput.value='';if(f)await handleSelectedFiles([f]);});
-    const pauseUploadButton=document.createElement('button'); pauseUploadButton.type='button'; pauseUploadButton.className='lc-tool'; pauseUploadButton.textContent='â¸'; pauseUploadButton.title='Video-upload pauzeren/hervatten'; voiceButton.parentElement?.insertBefore(pauseUploadButton,voiceButton);
-    pauseUploadButton.addEventListener('click',()=>{uploadPaused=!uploadPaused;pauseUploadButton.textContent=uploadPaused?'â¶':'â¸';setStatus(uploadPaused?'Video-upload gepauzeerd.':'Video-upload hervat.');});
+    const pauseUploadButton=document.createElement('button'); pauseUploadButton.type='button'; pauseUploadButton.className='lc-tool'; pauseUploadButton.textContent='⏸'; pauseUploadButton.title='Video-upload pauzeren/hervatten'; voiceButton.parentElement?.insertBefore(pauseUploadButton,voiceButton);
+    pauseUploadButton.addEventListener('click',()=>{uploadPaused=!uploadPaused;pauseUploadButton.textContent=uploadPaused?'▶':'⏸';setStatus(uploadPaused?'Video-upload gepauzeerd.':'Video-upload hervat.');});
 
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(SpeechRecognition){
-        const speech=document.createElement('button'); speech.type='button'; speech.className='lc-tool'; speech.textContent='ð£'; speech.title='Spraak naar tekst'; voiceButton.parentElement?.insertBefore(speech,voiceButton);
+        const speech=document.createElement('button'); speech.type='button'; speech.className='lc-tool'; speech.textContent='🗣'; speech.title='Spraak naar tekst'; voiceButton.parentElement?.insertBefore(speech,voiceButton);
         speech.addEventListener('click',()=>{const r=new SpeechRecognition();r.lang='nl-NL';r.onresult=e=>{input.value=(input.value+' '+e.results[0][0].transcript).trim();input.dispatchEvent(new Event('input'));};r.onerror=()=>showError('Spraak-naar-tekst kon niet starten.');r.start();});
     }
 
@@ -7381,7 +7381,7 @@ let identity = null;
 
 
 
-                    'Verbinding hersteld. Gesprek wordt bijgewerktâ¦'
+                    'Verbinding hersteld. Gesprek wordt bijgewerkt…'
 
 
 

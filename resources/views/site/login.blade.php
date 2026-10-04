@@ -1,3359 +1,3712 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Inloggen | Mashal Studio')
+@section('title', 'Mashal Studio | Intelligent Image Workspace')
 
 @section(
     'meta_description',
-    'Log veilig in bij Mashal Studio met wachtwoord, e-mailcode, magic link, Telegram of je favoriete social login.'
+    'Upload JPG, PNG of WEBP-afbeeldingen, bewerk ze in Mashal Studio en bewaar originelen en versies in je persoonlijke workspace.'
 )
 
 @push('styles')
 <style>
-
-    :root {
-        --glass-bg: #050609;
-        --glass-card: rgba(13,16,22,.78);
-        --glass-line: rgba(255,255,255,.18);
-        --glass-soft: rgba(255,255,255,.08);
-        --glass-text: #f7f7f8;
-        --glass-muted: #9d9ca1;
-        --glass-yellow: #7a6cff;
-        --glass-yellow-2: #42a5ff;
-        --glass-orange: #42a5ff;
-        --glass-green: #18ed7e;
-        --glass-danger: #ff8b8b;
-
-        /* Home palette aliases — visual only; existing login logic/classes stay intact. */
-        --home-accent: #7a6cff;
-        --home-accent-2: #42a5ff;
-        --home-accent-3: #8df0d0;
-    }
-
-    .glass-auth-page,
-    .glass-auth-page * {
-        box-sizing: border-box;
-    }
-
-    .glass-auth-page {
-        position: relative;
-        isolation: isolate;
-        min-height: calc(100dvh - 76px);
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        color: var(--glass-text);
-        background:
-            radial-gradient(circle at 72% -5%, rgba(122,108,255,.15), transparent 31rem),
-            radial-gradient(circle at 20% 20%, rgba(66,165,255,.065), transparent 29rem),
-            linear-gradient(180deg, #050609 0%, #07090d 45%, #050609 100%);
-    }
-
-    .glass-bg,
-    .glass-bg::before,
-    .glass-bg::after {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-    }
-
-    .glass-bg {
-        z-index: -5;
-        overflow: hidden;
-    }
-
-    .glass-bg::before,
-    .glass-bg::after {
-        content: "";
-    }
-
-    .glass-bg::before {
-        inset: -26%;
-        background:
-            linear-gradient(
-                128deg,
-                transparent 0 25%,
-                rgba(66,165,255,.04) 29%,
-                rgba(122,108,255,.42) 31%,
-                rgba(199,193,255,.94) 32%,
-                rgba(66,165,255,.34) 33.3%,
-                transparent 36% 49%,
-                rgba(122,108,255,.03) 52%,
-                rgba(122,108,255,.45) 54%,
-                rgba(128,199,255,.87) 55%,
-                rgba(66,165,255,.31) 56.2%,
-                transparent 59% 74%,
-                rgba(122,108,255,.21) 77%,
-                rgba(141,240,208,.72) 78%,
-                transparent 81%
-            );
-        filter: none;
-        opacity: .95;
-        transform: rotate(-4deg) scale(1.12);
-        animation: glassBgA 12s ease-in-out infinite alternate;
-    }
-
-    .glass-bg::after {
-        inset: -15%;
-        background:
-            linear-gradient(
-                60deg,
-                transparent 0 19%,
-                rgba(165,170,180,.11) 20%,
-                rgba(247,247,250,.42) 21%,
-                rgba(89,91,96,.12) 22%,
-                transparent 24% 62%,
-                rgba(122,108,255,.12) 64%,
-                rgba(66,165,255,.45) 65%,
-                rgba(141,240,208,.10) 66%,
-                transparent 68%
-            );
-        filter: none;
-        opacity: .56;
-        transform: rotate(3deg);
-        animation: glassBgB 15s ease-in-out infinite alternate;
-    }
-
-    .glass-ribbon {
-        position: absolute;
-        z-index: -4;
-        width: 1050px;
-        height: 110px;
-        border-radius: 50%;
-        pointer-events: none;
-
-        opacity: .45;
-        background:
-            linear-gradient(
-                180deg,
-                transparent 0 28%,
-                rgba(122,108,255,.10) 39%,
-                rgba(128,199,255,.81) 49%,
-                rgba(66,165,255,.35) 55%,
-                transparent 72%
-            );
-    }
-
-    .glass-ribbon.one {
-        left: -340px;
-        top: 180px;
-        transform: rotate(31deg);
-    }
-
-    .glass-ribbon.two {
-        right: -390px;
-        top: 460px;
-        transform: rotate(-28deg);
-    }
-
-    .glass-ribbon.three {
-        left: -420px;
-        bottom: 80px;
-        transform: rotate(-25deg);
-    }
-
-    .glass-stage {
-        width: min(100%, 512px);
-        min-height: 910px;
-        padding: 70px 22px 64px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .glass-poster-title {
-        margin: 0 0 48px;
-        text-align: center;
-        color: #f8f8f8;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: clamp(35px, 9vw, 48px);
-        font-weight: 400;
-        line-height: .91;
-        letter-spacing: -.055em;
-        text-shadow: 0 5px 20px rgba(0,0,0,.65);
-    }
-
-    .glass-poster-title span {
-        display: block;
-        margin-top: 8px;
-        color: var(--glass-orange);
-        font-weight: 400;
-    }
-
-    .glass-card-shell {
-        position: relative;
-        width: min(100%, 435px);
-        flex: 0 0 auto;
-        border-radius: 25px;
-        box-shadow: 0 22px 42px rgba(0,0,0,.40);
-    }
-
-    .glass-card-border {
-        position: absolute;
-        inset: 0;
-        padding: 1px;
-        border-radius: 25px;
-        clip-path: none;
-        background:
-            linear-gradient(
-                142deg,
-                rgba(255,255,255,.65),
-                rgba(122,108,255,.18) 28%,
-                rgba(255,255,255,.16) 59%,
-                rgba(66,165,255,.68)
-            );
-    }
-
-    .glass-card {
-        position: relative;
-        width: 100%;
-        min-height: 100%;
-        overflow: hidden;
-        border-radius: 24px;
-        clip-path: none;
-        background:
-            linear-gradient(137deg, rgba(255,255,255,.045), transparent 36%),
-            linear-gradient(160deg, rgba(19,18,22,.78), rgba(8,8,10,.79));
-        backdrop-filter: blur(12px) saturate(116%);
-        -webkit-backdrop-filter: blur(12px) saturate(116%);
-    }
-
-    .glass-card::before {
-        content: "";
-        position: absolute;
-        inset: -55%;
-        z-index: 0;
-        opacity: .27;
-        pointer-events: none;
-        background:
-            linear-gradient(
-                125deg,
-                transparent 33%,
-                rgba(122,108,255,.13) 43%,
-                rgba(128,199,255,.44) 47%,
-                rgba(66,165,255,.14) 51%,
-                transparent 58%
-            );
-        animation: glassSweep 8s ease-in-out infinite;
-    }
-
-    .glass-corner {
-        position: absolute;
-        z-index: 5;
-        border: 1px solid rgba(255,255,255,.44);
-        background: rgba(255,255,255,.07);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        box-shadow: inset 0 0 14px rgba(255,255,255,.05);
-        pointer-events: none;
-    }
-
-    .glass-corner.top-left {
-        width: 70px;
-        height: 70px;
-        top: -2px;
-        left: -4px;
-        border-radius: 16px;
-        clip-path: polygon(0 0,100% 0,0 100%);
-    }
-
-    .glass-corner.bottom-right {
-        width: 69px;
-        height: 69px;
-        right: -3px;
-        bottom: -4px;
-        border-radius: 16px;
-        clip-path: polygon(100% 0,100% 100%,0 100%);
-    }
-
-    .glass-inner {
-        position: relative;
-        z-index: 2;
-        padding: 31px 30px 30px;
-    }
-
-    .glass-icon {
-        width: 46px;
-        height: 46px;
-        margin: 0 auto 13px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(122,108,255,.35);
-        border-radius: 13px;
-        color: var(--glass-yellow);
-        background: rgba(122,108,255,.035);
-        box-shadow:
-            0 0 18px rgba(122,108,255,.14),
-            inset 0 0 12px rgba(66,165,255,.04);
-    }
-
-    .glass-icon svg {
-        width: 23px;
-        height: 23px;
-    }
-
-    .glass-heading {
-        margin: 0;
-        text-align: center;
-        font-size: 24px;
-        line-height: 1;
-        font-weight: 850;
-        letter-spacing: -.035em;
-    }
-
-    .glass-heading strong {
-        color: var(--glass-yellow);
-        font-weight: 900;
-    }
-
-    .glass-description {
-        max-width: 345px;
-        margin: 9px auto 18px;
-        color: #9a999d;
-        text-align: center;
-        font-size: 10.5px;
-        line-height: 1.55;
-    }
-
-    .glass-message {
-        margin: 0 0 10px;
-        padding: 8px 10px;
-        border-radius: 9px;
-        font-size: 9px;
-        line-height: 1.45;
-    }
-
-    .glass-message.success {
-        border: 1px solid rgba(39,244,143,.19);
-        color: #a3ffd0;
-        background: rgba(0,220,118,.055);
-    }
-
-    .glass-message.error {
-        border: 1px solid rgba(255,112,112,.21);
-        color: #ffc0c0;
-        background: rgba(255,66,66,.065);
-    }
-
-    .glass-message.info {
-        border: 1px solid rgba(122,108,255,.17);
-        color: #b9b3ff;
-        background: rgba(122,108,255,.045);
-    }
-
-    .glass-message ul {
-        margin: 5px 0 0 15px;
-        padding: 0;
-    }
-
-    .glass-field {
-        margin-bottom: 11px;
-    }
-
-    .glass-label-row {
-        min-height: 16px;
-        margin-bottom: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .glass-label-row label {
-        color: #a6a5a9;
-        font-size: 8px;
-        font-weight: 850;
-        letter-spacing: .04em;
-    }
-
-    .glass-field-error {
-        color: #ffaaa9;
-        font-size: 7.5px;
-        font-weight: 800;
-    }
-
-    .glass-input-wrap {
-        position: relative;
-    }
-
-    .glass-input {
-        width: 100%;
-        height: 43px;
-        padding: 0 12px;
-        border: 1px solid rgba(255,255,255,.13);
-        border-radius: 10px;
-        outline: 0;
-        color: #f4f4f5;
-        background: rgba(0,0,0,.23);
-        font: inherit;
-        font-size: 10px;
-        transition:
-            border-color .18s ease,
-            box-shadow .18s ease,
-            background .18s ease;
-    }
-
-    .glass-input.with-toggle {
-        padding-right: 72px;
-    }
-
-    .glass-input:focus {
-        border-color: rgba(122,108,255,.57);
-        background: rgba(122,108,255,.025);
-        box-shadow: 0 0 0 3px rgba(122,108,255,.06);
-    }
-
-    .glass-input::placeholder {
-        color: #606066;
-    }
-
-    .glass-password-toggle {
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        height: 31px;
-        padding: 0 8px;
-        transform: translateY(-50%);
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 8px;
-        color: #949399;
-        background: rgba(16,16,19,.92);
-        font: inherit;
-        font-size: 7px;
-        font-weight: 850;
-        cursor: pointer;
-    }
-
-    .glass-primary {
-        width: 100%;
-        min-height: 42px;
-        border: 0;
-        border-radius: 9px;
-        color: #ffffff;
-        background: linear-gradient(135deg,#7a6cff,#4e8eff);
-        box-shadow:
-            0 9px 24px rgba(81,70,214,.28),
-            inset 0 1px 0 rgba(255,255,255,.59);
-        font: inherit;
-        font-size: 9px;
-        font-weight: 900;
-        cursor: pointer;
-        transition:
-            transform .18s ease,
-            filter .18s ease;
-    }
-
-    .glass-primary:hover:not(:disabled) {
-        filter: brightness(1.06);
-        transform: translateY(-1px);
-    }
-
-    .glass-primary:disabled {
-        cursor: wait;
-        opacity: .62;
-    }
-
-    .glass-secondary {
-        min-height: 38px;
-        padding: 0 11px;
-        border: 1px solid rgba(122,108,255,.21);
-        border-radius: 9px;
-        color: var(--glass-yellow);
-        background: rgba(122,108,255,.05);
-        font: inherit;
-        font-size: 8px;
-        font-weight: 850;
-        cursor: pointer;
-    }
-
-    .glass-small-link {
-        color: #9f96ff;
-        text-decoration: none;
-        font-size: 8px;
-        font-weight: 850;
-    }
-
-    .glass-divider {
-        margin: 14px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #6e6e73;
-        font-size: 7px;
-        font-weight: 850;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-    }
-
-    .glass-divider::before,
-    .glass-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: rgba(255,255,255,.08);
-    }
-
-    .glass-code-panel {
-        width: min(100%, 433px);
-        height: 131px;
-        margin-top: 56px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 8px;
-        background: rgba(4,4,5,.87);
-        box-shadow: 0 18px 36px rgba(0,0,0,.46);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
-
-    .glass-code-topbar {
-        height: 29px;
-        display: flex;
-        align-items: center;
-        padding: 0 9px;
-        border-bottom: 1px solid rgba(255,255,255,.07);
-    }
-
-    .glass-code-dots {
-        display: flex;
-        gap: 4px;
-    }
-
-    .glass-code-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-    }
-
-    .glass-code-dot.red { background: #ff5e64; }
-    .glass-code-dot.yellow { background: #42a5ff; }
-    .glass-code-dot.green { background: #38d568; }
-
-    .glass-code-tab {
-        margin-left: 12px;
-        color: #e1e1e4;
-        font-size: 7px;
-    }
-
-    .glass-code-badge {
-        margin-left: auto;
-        color: #2bd9f7;
-        font-size: 7px;
-    }
-
-    .glass-code-body {
-        padding: 8px 10px 10px;
-        color: #83848a;
-        font-size: 6px;
-        line-height: 1.55;
-        white-space: pre;
-        overflow: hidden;
-    }
-
-    .glass-code-body .pink { color: #ff56ba; }
-    .glass-code-body .cyan { color: #34d5f4; }
-    .glass-code-body .green { color: #73e282; }
-    .glass-code-body .yellow { color: #9f96ff; }
-
-    .glass-footer {
-        margin-top: 16px;
-        color: #63646a;
-        text-align: center;
-        font-size: 9px;
-        line-height: 1.5;
-    }
-
-    .glass-footer a {
-        color: #9b9ca1;
-        text-decoration: none;
-    }
-
-    @keyframes glassBgA {
-        from { transform: rotate(-4deg) scale(1.10) translate3d(-1%,-1%,0); }
-        to   { transform: rotate(-1deg) scale(1.16) translate3d(2%,1%,0); }
-    }
-
-    @keyframes glassBgB {
-        from { transform: rotate(3deg) scale(1.02); }
-        to   { transform: rotate(6deg) scale(1.08); }
-    }
-
-    @keyframes glassSweep {
-        0%,100% { transform: translateX(-38%) rotate(-2deg); }
-        50%     { transform: translateX(32%) rotate(1deg); }
-    }
-
-    @media (max-width: 540px) {
-        .glass-stage {
-            width: 100%;
-            min-height: 100dvh;
-            padding: 54px 12px 54px;
-        }
-
-        .glass-poster-title {
-            margin-bottom: 43px;
-            font-size: clamp(34px,10vw,45px);
-        }
-
-        .glass-card-shell,
-        .glass-code-panel {
-            width: min(100%,435px);
-        }
-
-        .glass-inner {
-            padding-inline: 19px;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page *,
-        .glass-auth-page *::before,
-        .glass-auth-page *::after {
-            animation-duration: .01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: .01ms !important;
-            scroll-behavior: auto !important;
-        }
-    }
-
-    .login-glass-card {
-        min-height: 482px;
-    }
-
-    .login-tabs {
-        margin-bottom: 13px;
-        padding: 3px;
-        display: grid;
-        grid-template-columns: repeat(3,1fr);
-        gap: 3px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 10px;
-        background: rgba(0,0,0,.18);
-    }
-
-    .login-tab {
-        min-height: 34px;
-        padding: 0 5px;
-        border: 1px solid transparent;
-        border-radius: 7px;
-        color: #77767c;
-        background: transparent;
-        font: inherit;
-        font-size: 7px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-    .login-tab.active {
-        border-color: rgba(122,108,255,.20);
-        color: var(--glass-yellow);
-        background: rgba(122,108,255,.055);
-    }
-
-    .login-panel-section {
+/* ==========================================================================
+   MASHAL STUDIO — SIGNATURE HOME
+   Cinematic product landing + functional upload workspace
+   ========================================================================== */
+
+:root {
+    --ms-bg: #050609;
+    --ms-bg-2: #090b10;
+    --ms-panel: #0d1016;
+    --ms-panel-2: #121620;
+    --ms-panel-3: #171c27;
+    --ms-text: #f6f8fb;
+    --ms-text-2: #bec5d1;
+    --ms-muted: #7d8796;
+    --ms-muted-2: #505866;
+    --ms-line: rgba(255,255,255,.075);
+    --ms-line-2: rgba(255,255,255,.13);
+    --ms-accent: #7a6cff;
+    --ms-accent-2: #42a5ff;
+    --ms-accent-3: #8df0d0;
+    --ms-danger: #ff7c91;
+    --ms-success: #74dfa7;
+    --ms-warm: #ffbc79;
+    --ms-radius-xs: 8px;
+    --ms-radius-sm: 12px;
+    --ms-radius-md: 18px;
+    --ms-radius-lg: 26px;
+    --ms-radius-xl: 36px;
+    --ms-ease: cubic-bezier(.2,.8,.2,1);
+    --ms-ease-out: cubic-bezier(.16,1,.3,1);
+    --ms-shadow: 0 40px 120px rgba(0,0,0,.42);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    background: var(--ms-bg);
+}
+
+body {
+    background: var(--ms-bg);
+}
+
+.ms-home {
+    position: relative;
+    min-height: 100vh;
+    overflow: clip;
+    color: var(--ms-text);
+    background:
+        radial-gradient(circle at 72% -5%, rgba(122,108,255,.15), transparent 31rem),
+        radial-gradient(circle at 20% 20%, rgba(66,165,255,.065), transparent 29rem),
+        linear-gradient(180deg, #050609 0%, #07090d 45%, #050609 100%);
+}
+
+.ms-home::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .32;
+    background-image:
+        linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.45) 52%, transparent 100%);
+}
+
+.ms-home::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .7;
+    background:
+        radial-gradient(circle at var(--mx, 70%) var(--my, 12%), rgba(122,108,255,.095), transparent 18rem);
+    transition: opacity .2s ease;
+}
+
+.ms-shell {
+    position: relative;
+    z-index: 2;
+    width: min(calc(100% - 42px), 1380px);
+    margin-inline: auto;
+}
+
+.ms-section {
+    position: relative;
+    z-index: 2;
+    padding: 132px 0;
+}
+
+.ms-section--tight {
+    padding: 92px 0;
+}
+
+.ms-section--soft {
+    border-top: 1px solid var(--ms-line);
+    border-bottom: 1px solid var(--ms-line);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.006)),
+        rgba(255,255,255,.006);
+}
+
+.ms-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #9f96ff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.ms-kicker::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, var(--ms-accent), var(--ms-accent-2));
+    box-shadow: 0 0 18px rgba(122,108,255,.6);
+}
+
+.ms-heading {
+    margin: 18px 0 0;
+    color: #fff;
+    font-size: clamp(44px, 5.7vw, 82px);
+    line-height: .95;
+    font-weight: 670;
+    letter-spacing: -.065em;
+    text-wrap: balance;
+}
+
+.ms-heading em {
+    color: #777f8d;
+    font-style: normal;
+}
+
+.ms-copy {
+    max-width: 640px;
+    margin: 20px 0 0;
+    color: var(--ms-muted);
+    font-size: 14px;
+    line-height: 1.85;
+}
+
+.ms-button {
+    --btn-bg: rgba(255,255,255,.025);
+    --btn-color: #dce1e8;
+    --btn-border: var(--ms-line-2);
+    min-height: 52px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--btn-border);
+    border-radius: 12px;
+    color: var(--btn-color);
+    background: var(--btn-bg);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 760;
+    cursor: pointer;
+    isolation: isolate;
+    transition:
+        transform .24s var(--ms-ease),
+        border-color .24s ease,
+        background .24s ease,
+        box-shadow .24s ease;
+}
+
+.ms-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,.1), transparent);
+    transform: translateX(-120%);
+    transition:
+        transform .65s var(--ms-ease),
+        opacity .25s ease;
+}
+
+.ms-button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,.22);
+    background: rgba(255,255,255,.045);
+}
+
+.ms-button:hover::before {
+    opacity: 1;
+    transform: translateX(120%);
+}
+
+.ms-button--primary {
+    --btn-border: rgba(122,108,255,.4);
+    --btn-bg: linear-gradient(135deg, #7a6cff, #4e8eff);
+    --btn-color: #fff;
+    box-shadow:
+        0 18px 44px rgba(81,70,214,.28),
+        inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+.ms-button--ghost {
+    background: rgba(255,255,255,.02);
+}
+
+.ms-icon-button {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 10px;
+    color: #b4bbca;
+    background: rgba(255,255,255,.025);
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+.ms-hero {
+    position: relative;
+    min-height: 920px;
+    padding: 108px 0 90px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.ms-hero-orbit {
+    position: absolute;
+    width: 720px;
+    height: 720px;
+    right: -180px;
+    top: -210px;
+    border: 1px solid rgba(122,108,255,.08);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.ms-hero-orbit::before,
+.ms-hero-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 80px;
+    border: 1px solid rgba(66,165,255,.06);
+    border-radius: inherit;
+}
+
+.ms-hero-orbit::after {
+    inset: 170px;
+}
+
+.ms-hero-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0,.9fr) minmax(560px,1.1fr);
+    gap: 78px;
+    align-items: center;
+}
+
+.ms-hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 670px;
+}
+
+.ms-hero-title {
+    margin: 24px 0 0;
+    max-width: 780px;
+    color: #fff;
+    font-size: clamp(64px, 7vw, 108px);
+    line-height: .89;
+    font-weight: 690;
+    letter-spacing: -.078em;
+}
+
+.ms-hero-title .muted {
+    display: block;
+    color: #707784;
+}
+
+.ms-hero-title .gradient {
+    display: block;
+    color: transparent;
+    background:
+        linear-gradient(120deg, #ffffff 0%, #c7c1ff 42%, #80c7ff 72%, #8df0d0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.ms-hero-lead {
+    max-width: 585px;
+    margin: 28px 0 0;
+    color: #929ba8;
+    font-size: 16px;
+    line-height: 1.85;
+}
+
+.ms-hero-actions {
+    margin-top: 32px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ms-proof {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px 20px;
+    flex-wrap: wrap;
+}
+
+.ms-proof-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #6f7783;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.ms-proof-item::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ms-success);
+    box-shadow: 0 0 0 4px rgba(116,223,167,.06);
+}
+
+/* ==========================================================================
+   INTERACTIVE STUDIO
+   ========================================================================== */
+
+.ms-studio-wrap {
+    position: relative;
+    perspective: 1400px;
+}
+
+.ms-studio-glow {
+    position: absolute;
+    inset: 10% 8% -5% 8%;
+    z-index: -1;
+    filter: blur(70px);
+    opacity: .42;
+    background:
+        radial-gradient(circle at 30% 10%, rgba(122,108,255,.38), transparent 44%),
+        radial-gradient(circle at 78% 82%, rgba(66,165,255,.24), transparent 42%);
+}
+
+.ms-studio-card {
+    position: relative;
+    padding: 9px;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 24px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.012));
+    box-shadow:
+        0 55px 130px rgba(0,0,0,.5),
+        inset 0 1px 0 rgba(255,255,255,.045);
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.ms-studio-window {
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.055);
+    border-radius: 17px;
+    background: #0b0d12;
+}
+
+.ms-windowbar {
+    min-height: 56px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--ms-line);
+    background: #11141a;
+}
+
+.ms-window-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.ms-window-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.14);
+}
+
+.ms-window-dot:nth-child(1) {
+    background: #7a6cff;
+}
+
+.ms-window-dot:nth-child(2) {
+    background: #42a5ff;
+}
+
+.ms-window-dot:nth-child(3) {
+    background: #74dfa7;
+}
+
+.ms-window-title {
+    overflow: hidden;
+    color: #666e7c;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-align: center;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ms-window-secure {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #77808d;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.ms-window-secure::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ms-success);
+}
+
+.ms-window-body {
+    padding: 14px;
+}
+
+.ms-alert {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.ms-alert--success {
+    border: 1px solid rgba(116,223,167,.16);
+    color: #ace9c4;
+    background: rgba(116,223,167,.05);
+}
+
+.ms-alert--error {
+    border: 1px solid rgba(255,124,145,.16);
+    color: #f2a8b5;
+    background: rgba(255,124,145,.05);
+}
+
+.ms-file-input {
+    position: fixed;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.ms-dropzone {
+    position: relative;
+    min-height: 470px;
+    padding: 32px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px dashed rgba(122,108,255,.34);
+    border-radius: 13px;
+    background:
+        radial-gradient(circle at 50% 20%, rgba(122,108,255,.115), transparent 18rem),
+        linear-gradient(180deg, rgba(255,255,255,.012), rgba(255,255,255,.003));
+    cursor: pointer;
+    transition:
+        border-color .25s ease,
+        background .25s ease,
+        transform .25s var(--ms-ease);
+}
+
+.ms-dropzone::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .23;
+    background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(circle at 50% 48%, #000, transparent 72%);
+}
+
+.ms-dropzone::after {
+    content: "";
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border: 1px solid rgba(122,108,255,.12);
+    border-radius: 50%;
+    opacity: .6;
+    transform: scale(.8);
+    transition:
+        transform .35s var(--ms-ease-out),
+        opacity .35s ease;
+}
+
+.ms-dropzone:hover,
+.ms-dropzone.is-dragging {
+    border-color: rgba(122,108,255,.72);
+    background:
+        radial-gradient(circle at 50% 20%, rgba(122,108,255,.17), transparent 19rem),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.004));
+}
+
+.ms-dropzone:hover::after,
+.ms-dropzone.is-dragging::after {
+    transform: scale(2.5);
+    opacity: 0;
+}
+
+.ms-dropzone.has-file {
+    border-style: solid;
+    border-color: rgba(116,223,167,.24);
+}
+
+.ms-upload-empty {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+.ms-upload-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 22px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    border: 1px solid rgba(122,108,255,.22);
+    border-radius: 18px;
+    color: #b4adff;
+    background:
+        linear-gradient(145deg, rgba(122,108,255,.13), rgba(66,165,255,.035));
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 18px 48px rgba(0,0,0,.22);
+    font-size: 26px;
+}
+
+.ms-upload-icon::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border: 1px solid rgba(122,108,255,.08);
+    border-radius: 24px;
+}
+
+.ms-upload-empty h2 {
+    margin: 0;
+    color: #f5f6f8;
+    font-size: 29px;
+    line-height: 1.08;
+    font-weight: 660;
+    letter-spacing: -.045em;
+}
+
+.ms-upload-empty p {
+    max-width: 370px;
+    margin: 12px auto 0;
+    color: #747d89;
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.ms-upload-choose {
+    min-height: 48px;
+    margin-top: 23px;
+    padding: 0 20px;
+    border: 1px solid rgba(122,108,255,.35);
+    border-radius: 10px;
+    color: #fff;
+    background:
+        linear-gradient(135deg, #7867ff, #4f8fff);
+    box-shadow:
+        0 15px 38px rgba(81,69,211,.22),
+        inset 0 1px 0 rgba(255,255,255,.18);
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.ms-format-row {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ms-format {
+    min-height: 26px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 7px;
+    color: #596270;
+    background: rgba(255,255,255,.015);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.ms-preview {
+    position: relative;
+    z-index: 2;
+    display: none;
+    width: 100%;
+}
+
+.ms-dropzone.has-file .ms-upload-empty {
+    display: none;
+}
+
+.ms-dropzone.has-file .ms-preview {
+    display: block;
+}
+
+.ms-preview-frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--ms-line);
+    border-radius: 10px;
+    background:
+        linear-gradient(45deg, #151821 25%, transparent 25%),
+        linear-gradient(-45deg, #151821 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #151821 75%),
+        linear-gradient(-45deg, transparent 75%, #151821 75%),
+        #0e1117;
+    background-size: 22px 22px;
+    background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+}
+
+.ms-preview-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.ms-preview-badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    min-height: 26px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--ms-line-2);
+    border-radius: 7px;
+    color: #d7dce4;
+    background: rgba(7,9,13,.82);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.ms-preview-meta {
+    margin-top: 13px;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.ms-preview-file {
+    min-width: 0;
+}
+
+.ms-preview-file strong {
+    display: block;
+    overflow: hidden;
+    color: #eef1f5;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ms-preview-file span {
+    display: block;
+    margin-top: 4px;
+    color: #626b78;
+    font-size: 9px;
+}
+
+.ms-preview-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.ms-preview-change,
+.ms-preview-submit {
+    min-height: 41px;
+    padding: 0 13px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.ms-preview-change {
+    border: 1px solid var(--ms-line);
+    color: #b6beca;
+    background: rgba(255,255,255,.025);
+}
+
+.ms-preview-submit {
+    border: 0;
+    color: #fff;
+    background: linear-gradient(135deg, #7867ff, #4f8fff);
+}
+
+.ms-preview-submit:disabled {
+    opacity: .56;
+    cursor: wait;
+}
+
+.ms-upload-foot {
+    padding: 13px 3px 2px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #525b68;
+    font-size: 9px;
+}
+
+/* ==========================================================================
+   SIGNAL STRIP
+   ========================================================================== */
+
+.ms-signal {
+    border-top: 1px solid var(--ms-line);
+    border-bottom: 1px solid var(--ms-line);
+    background: rgba(255,255,255,.009);
+}
+
+.ms-signal-grid {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+}
+
+.ms-signal-item {
+    min-height: 94px;
+    padding: 20px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ms-signal-item + .ms-signal-item {
+    border-left: 1px solid var(--ms-line);
+}
+
+.ms-signal-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 9px;
+    color: #958cff;
+    background: rgba(255,255,255,.02);
+}
+
+.ms-signal-item strong {
+    display: block;
+    color: #d8dde5;
+    font-size: 10px;
+}
+
+.ms-signal-item span {
+    display: block;
+    margin-top: 3px;
+    color: #5f6875;
+    font-size: 8px;
+}
+
+/* ==========================================================================
+   LIVE PRODUCT SHOWCASE
+   ========================================================================== */
+
+.ms-showcase-head {
+    max-width: 850px;
+    margin-bottom: 56px;
+}
+
+.ms-editor-shell {
+    position: relative;
+    min-height: 620px;
+    display: grid;
+    grid-template-columns: 230px minmax(0,1fr) 270px;
+    overflow: hidden;
+    border: 1px solid var(--ms-line);
+    border-radius: 22px;
+    background: #0b0d12;
+    box-shadow: var(--ms-shadow);
+}
+
+.ms-editor-sidebar,
+.ms-editor-inspector {
+    background: #10131a;
+}
+
+.ms-editor-sidebar {
+    padding: 18px;
+    border-right: 1px solid var(--ms-line);
+}
+
+.ms-editor-inspector {
+    padding: 18px;
+    border-left: 1px solid var(--ms-line);
+}
+
+.ms-editor-label {
+    margin-bottom: 16px;
+    color: #5e6774;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+}
+
+.ms-editor-tool {
+    min-height: 48px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    border-radius: 9px;
+    color: #7d8692;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: default;
+}
+
+.ms-editor-tool + .ms-editor-tool {
+    margin-top: 3px;
+}
+
+.ms-editor-tool.active {
+    color: #f0f2f6;
+    background:
+        linear-gradient(90deg, rgba(122,108,255,.14), rgba(122,108,255,.03));
+}
+
+.ms-editor-tool.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 2px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--ms-accent), var(--ms-accent-2));
+}
+
+.ms-editor-tool-icon {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 7px;
+    color: #9890ff;
+    background: rgba(255,255,255,.02);
+}
+
+.ms-editor-canvas {
+    position: relative;
+    padding: 52px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+        linear-gradient(45deg, #11141a 25%, transparent 25%),
+        linear-gradient(-45deg, #11141a 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #11141a 75%),
+        linear-gradient(-45deg, transparent 75%, #11141a 75%),
+        #0a0c10;
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0;
+}
+
+.ms-canvas-toolbar {
+    position: absolute;
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+    min-height: 38px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid var(--ms-line);
+    border-radius: 10px;
+    background: rgba(15,18,24,.9);
+    box-shadow: 0 12px 30px rgba(0,0,0,.2);
+}
+
+.ms-canvas-tool {
+    min-width: 29px;
+    height: 28px;
+    padding: 0 7px;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+    color: #707987;
+    font-size: 8px;
+}
+
+.ms-canvas-tool.active {
+    color: #dfe4eb;
+    background: rgba(255,255,255,.06);
+}
+
+.ms-demo-image {
+    position: relative;
+    width: min(100%, 520px);
+    aspect-ratio: 4 / 3;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+        0 35px 90px rgba(0,0,0,.48),
+        0 0 0 1px rgba(255,255,255,.06);
+    transform: translateZ(0);
+}
+
+.ms-demo-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 25% 30%, rgba(255,255,255,.34), transparent 12%),
+        radial-gradient(circle at 68% 30%, rgba(132,112,255,.7), transparent 28%),
+        radial-gradient(circle at 45% 75%, rgba(66,165,255,.42), transparent 33%),
+        linear-gradient(135deg, #192234 0%, #34306d 48%, #10141d 100%);
+}
+
+.ms-demo-image::after {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 50%;
+    transform: rotate(-12deg);
+}
+
+.ms-crop-guide {
+    position: absolute;
+    inset: 14%;
+    border: 1px solid rgba(255,255,255,.65);
+}
+
+.ms-crop-guide::before,
+.ms-crop-guide::after {
+    content: "";
+    position: absolute;
+    background: rgba(255,255,255,.25);
+}
+
+.ms-crop-guide::before {
+    top: 33.33%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    box-shadow: 0  calc(33.33% + 44px) 0 rgba(255,255,255,.25);
+}
+
+.ms-crop-guide::after {
+    left: 33.33%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    box-shadow: calc(33.33% + 60px) 0 0 rgba(255,255,255,.25);
+}
+
+.ms-inspector-title {
+    margin-bottom: 20px;
+    color: #e3e7ed;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.ms-field {
+    margin-bottom: 17px;
+}
+
+.ms-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #616b78;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.ms-fake-input {
+    min-height: 42px;
+    padding: 0 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--ms-line);
+    border-radius: 8px;
+    color: #ccd2dc;
+    background: #0c0f14;
+    font-size: 10px;
+}
+
+.ms-fake-input small {
+    color: #5d6673;
+    font-size: 8px;
+}
+
+.ms-fake-toggle {
+    min-height: 42px;
+    padding: 0 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--ms-line);
+    border-radius: 8px;
+    background: #0c0f14;
+    color: #bbc2cd;
+    font-size: 10px;
+}
+
+.ms-toggle-dot {
+    width: 28px;
+    height: 16px;
+    padding: 2px;
+    display: flex;
+    justify-content: flex-end;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6e60ff, #4d8fff);
+}
+
+.ms-toggle-dot::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.ms-create-version {
+    min-height: 44px;
+    width: 100%;
+    border: 0;
+    border-radius: 9px;
+    color: #fff;
+    background: linear-gradient(135deg, #7867ff, #4f8fff);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   FEATURE BENTO
+   ========================================================================== */
+
+.ms-bento {
+    display: grid;
+    grid-template-columns: repeat(12,1fr);
+    gap: 12px;
+}
+
+.ms-bento-card {
+    position: relative;
+    min-height: 280px;
+    padding: 26px;
+    overflow: hidden;
+    border: 1px solid var(--ms-line);
+    border-radius: 18px;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.022), rgba(255,255,255,.004)),
+        #0d1016;
+    transition:
+        transform .28s var(--ms-ease),
+        border-color .28s ease,
+        background .28s ease;
+}
+
+.ms-bento-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(122,108,255,.2);
+    background:
+        linear-gradient(145deg, rgba(122,108,255,.055), rgba(255,255,255,.004)),
+        #0d1016;
+}
+
+.ms-bento-card:nth-child(1) {
+    grid-column: span 7;
+}
+
+.ms-bento-card:nth-child(2) {
+    grid-column: span 5;
+}
+
+.ms-bento-card:nth-child(3),
+.ms-bento-card:nth-child(4),
+.ms-bento-card:nth-child(5) {
+    grid-column: span 4;
+}
+
+.ms-bento-index {
+    color: #56606e;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .14em;
+}
+
+.ms-bento-card h3 {
+    margin: 54px 0 9px;
+    max-width: 520px;
+    color: #e7ebf0;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -.035em;
+}
+
+.ms-bento-card p {
+    max-width: 520px;
+    margin: 0;
+    color: #737d89;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.ms-bento-visual {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: 160px;
+    height: 110px;
+    opacity: .9;
+}
+
+.ms-version-stack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ms-version-stack span {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 116px;
+    height: 76px;
+    border: 1px solid var(--ms-line);
+    border-radius: 9px;
+    background:
+        radial-gradient(circle at 70% 20%, rgba(122,108,255,.3), transparent 3rem),
+        #151924;
+    box-shadow: 0 16px 34px rgba(0,0,0,.22);
+}
+
+.ms-version-stack span:nth-child(1) {
+    transform: translate(-40px,-24px) rotate(-7deg);
+    opacity: .46;
+}
+
+.ms-version-stack span:nth-child(2) {
+    transform: translate(-20px,-12px) rotate(-3deg);
+    opacity: .68;
+}
+
+.ms-version-stack span:nth-child(3) {
+    transform: none;
+}
+
+.ms-bento-orbit {
+    position: absolute;
+    right: -80px;
+    bottom: -100px;
+    width: 250px;
+    height: 250px;
+    border: 1px solid rgba(122,108,255,.08);
+    border-radius: 50%;
+}
+
+.ms-bento-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 44px;
+    border: 1px solid rgba(66,165,255,.07);
+    border-radius: inherit;
+}
+
+/* ==========================================================================
+   FLOW
+   ========================================================================== */
+
+.ms-flow {
+    display: grid;
+    grid-template-columns: .75fr 1.25fr;
+    gap: 90px;
+    align-items: start;
+}
+
+.ms-flow-copy {
+    position: sticky;
+    top: 110px;
+}
+
+.ms-flow-copy h2 {
+    margin: 18px 0 16px;
+    color: #f4f6f9;
+    font-size: clamp(44px,4.7vw,68px);
+    line-height: .98;
+    font-weight: 650;
+    letter-spacing: -.06em;
+}
+
+.ms-flow-copy p {
+    max-width: 430px;
+    margin: 0;
+    color: #757f8c;
+    font-size: 12px;
+    line-height: 1.85;
+}
+
+.ms-flow-list {
+    display: grid;
+}
+
+.ms-flow-step {
+    position: relative;
+    min-height: 132px;
+    padding: 30px 0 30px 78px;
+    border-top: 1px solid var(--ms-line);
+}
+
+.ms-flow-step:last-child {
+    border-bottom: 1px solid var(--ms-line);
+}
+
+.ms-flow-number {
+    position: absolute;
+    left: 0;
+    top: 28px;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 10px;
+    color: #9189ff;
+    background: #10131a;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.ms-flow-step h3 {
+    margin: 0;
+    color: #dee3ea;
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -.02em;
+}
+
+.ms-flow-step p {
+    max-width: 650px;
+    margin: 8px 0 0;
+    color: #6d7683;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* ==========================================================================
+   WORKSPACE
+   ========================================================================== */
+
+.ms-workspace {
+    position: relative;
+    overflow: hidden;
+    padding: 58px;
+    display: grid;
+    grid-template-columns: 1fr .92fr;
+    gap: 70px;
+    align-items: center;
+    border: 1px solid var(--ms-line);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 92% 10%, rgba(122,108,255,.12), transparent 24rem),
+        linear-gradient(145deg, rgba(255,255,255,.026), rgba(255,255,255,.006)),
+        #0d1016;
+    box-shadow: var(--ms-shadow);
+}
+
+.ms-workspace h2 {
+    margin: 18px 0 16px;
+    color: #f4f6f8;
+    font-size: clamp(44px,4.6vw,66px);
+    line-height: .97;
+    font-weight: 650;
+    letter-spacing: -.06em;
+}
+
+.ms-workspace p {
+    max-width: 590px;
+    margin: 0;
+    color: #798391;
+    font-size: 12px;
+    line-height: 1.85;
+}
+
+.ms-workspace-actions {
+    margin-top: 26px;
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.ms-library-window {
+    padding: 15px;
+    border: 1px solid var(--ms-line);
+    border-radius: 16px;
+    background: rgba(7,9,13,.88);
+    box-shadow: 0 30px 80px rgba(0,0,0,.34);
+    transform: rotate(1.2deg);
+}
+
+.ms-library-head {
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--ms-line);
+}
+
+.ms-library-head strong {
+    color: #dfe4ea;
+    font-size: 10px;
+}
+
+.ms-library-head span {
+    color: #5f6875;
+    font-size: 8px;
+}
+
+.ms-library-grid {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 7px;
+}
+
+.ms-library-thumb {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 1px solid var(--ms-line);
+    border-radius: 8px;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(122,108,255,.38), transparent 4rem),
+        linear-gradient(145deg, #1c2230, #10131a);
+}
+
+.ms-library-thumb:nth-child(2),
+.ms-library-thumb:nth-child(5) {
+    background:
+        radial-gradient(circle at 70% 25%, rgba(66,165,255,.35), transparent 4rem),
+        linear-gradient(145deg, #182430, #0f1319);
+}
+
+.ms-library-thumb:nth-child(3),
+.ms-library-thumb:nth-child(6) {
+    background:
+        radial-gradient(circle at 38% 72%, rgba(141,240,208,.24), transparent 4rem),
+        linear-gradient(145deg, #16231e, #0e1411);
+}
+
+.ms-library-tag {
+    position: absolute;
+    left: 7px;
+    bottom: 7px;
+    min-height: 21px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    color: #dce1e8;
+    background: rgba(7,9,13,.65);
+    font-size: 6px;
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   FAQ
+   ========================================================================== */
+
+.ms-faq-layout {
+    display: grid;
+    grid-template-columns: .7fr 1.3fr;
+    gap: 84px;
+    align-items: start;
+}
+
+.ms-faq-side {
+    position: sticky;
+    top: 110px;
+}
+
+.ms-faq-side h2 {
+    margin: 18px 0 14px;
+    color: #f3f5f8;
+    font-size: clamp(42px,4.5vw,64px);
+    line-height: .98;
+    font-weight: 650;
+    letter-spacing: -.06em;
+}
+
+.ms-faq-side p {
+    max-width: 390px;
+    margin: 0;
+    color: #707a87;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.ms-faq-list {
+    display: grid;
+    gap: 8px;
+}
+
+.ms-faq-item {
+    overflow: hidden;
+    border: 1px solid var(--ms-line);
+    border-radius: 12px;
+    background: rgba(255,255,255,.01);
+}
+
+.ms-faq-question {
+    width: 100%;
+    min-height: 68px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border: 0;
+    color: #d7dce4;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ms-faq-icon {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border: 1px solid var(--ms-line);
+    border-radius: 7px;
+    background: rgba(255,255,255,.02);
+}
+
+.ms-faq-icon::before,
+.ms-faq-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 1px;
+    background: #9189ff;
+    transform: translate(-50%,-50%);
+    transition: transform .22s ease;
+}
+
+.ms-faq-icon::after {
+    transform: translate(-50%,-50%) rotate(90deg);
+}
+
+.ms-faq-item.open .ms-faq-icon::after {
+    transform: translate(-50%,-50%) rotate(0);
+}
+
+.ms-faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .26s var(--ms-ease);
+}
+
+.ms-faq-answer > div {
+    overflow: hidden;
+}
+
+.ms-faq-answer-inner {
+    padding: 0 18px 18px;
+    color: #6d7683;
+    font-size: 10px;
+    line-height: 1.85;
+}
+
+.ms-faq-item.open .ms-faq-answer {
+    grid-template-rows: 1fr;
+}
+
+/* ==========================================================================
+   FINAL CTA
+   ========================================================================== */
+
+.ms-final {
+    position: relative;
+    z-index: 2;
+    padding: 0 0 110px;
+}
+
+.ms-final-panel {
+    position: relative;
+    min-height: 440px;
+    padding: 64px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--ms-line);
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at 82% 18%, rgba(122,108,255,.18), transparent 20rem),
+        radial-gradient(circle at 68% 110%, rgba(66,165,255,.1), transparent 26rem),
+        linear-gradient(145deg,#121620,#0b0d12);
+    box-shadow: 0 45px 120px rgba(0,0,0,.3);
+}
+
+.ms-final-panel::before {
+    content: "M";
+    position: absolute;
+    right: -30px;
+    bottom: -150px;
+    color: rgba(255,255,255,.018);
+    font-size: 500px;
+    font-weight: 900;
+    line-height: .8;
+}
+
+.ms-final-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 780px;
+}
+
+.ms-final-copy h2 {
+    margin: 18px 0 18px;
+    color: #f6f8fb;
+    font-size: clamp(50px,5.8vw,82px);
+    line-height: .93;
+    font-weight: 650;
+    letter-spacing: -.068em;
+}
+
+.ms-final-copy p {
+    max-width: 620px;
+    margin: 0;
+    color: #7e8794;
+    font-size: 13px;
+    line-height: 1.85;
+}
+
+.ms-final-actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   SCROLL PROGRESS + STICKY
+   ========================================================================== */
+
+.ms-scroll-progress {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1100;
+    width: 100%;
+    height: 2px;
+    pointer-events: none;
+    background: rgba(255,255,255,.03);
+}
+
+.ms-scroll-progress > span {
+    display: block;
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--ms-accent), var(--ms-accent-2), var(--ms-accent-3));
+    box-shadow: 0 0 18px rgba(122,108,255,.42);
+}
+
+.ms-sticky {
+    position: fixed;
+    z-index: 950;
+    left: 50%;
+    bottom: 16px;
+    width: min(calc(100% - 28px), 560px);
+    transform: translateX(-50%) translateY(130%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform .28s var(--ms-ease-out),
+        opacity .28s ease;
+}
+
+.ms-sticky.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ms-sticky-inner {
+    min-height: 62px;
+    padding: 8px 8px 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 16px;
+    background: rgba(13,16,22,.96);
+    box-shadow: 0 22px 70px rgba(0,0,0,.44);
+}
+
+.ms-sticky-copy {
+    min-width: 0;
+}
+
+.ms-sticky-copy strong {
+    display: block;
+    color: #e4e8ee;
+    font-size: 10px;
+}
+
+.ms-sticky-copy span {
+    display: block;
+    margin-top: 3px;
+    color: #626b78;
+    font-size: 8px;
+}
+
+.ms-sticky-link {
+    min-height: 42px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9px;
+    color: #fff;
+    background: linear-gradient(135deg,#7867ff,#4f8fff);
+    text-decoration: none;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   REVEAL STATES (JS)
+   ========================================================================== */
+
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(34px);
+    filter: blur(8px);
+    transition:
+        opacity .8s var(--ms-ease-out),
+        transform .8s var(--ms-ease-out),
+        filter .8s ease;
+}
+
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+}
+
+[data-reveal="left"] {
+    transform: translateX(-34px);
+}
+
+[data-reveal="left"].is-visible {
+    transform: translateX(0);
+}
+
+[data-reveal="right"] {
+    transform: translateX(34px);
+}
+
+[data-reveal="right"].is-visible {
+    transform: translateX(0);
+}
+
+[data-stagger] > * {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+[data-stagger].is-visible > * {
+    animation: msStaggerIn .7s var(--ms-ease-out) forwards;
+}
+
+[data-stagger].is-visible > *:nth-child(1) { animation-delay: .02s; }
+[data-stagger].is-visible > *:nth-child(2) { animation-delay: .08s; }
+[data-stagger].is-visible > *:nth-child(3) { animation-delay: .14s; }
+[data-stagger].is-visible > *:nth-child(4) { animation-delay: .20s; }
+[data-stagger].is-visible > *:nth-child(5) { animation-delay: .26s; }
+[data-stagger].is-visible > *:nth-child(6) { animation-delay: .32s; }
+
+@keyframes msStaggerIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes msFloat {
+    0%,100% { transform: translate3d(0,0,0); }
+    50% { transform: translate3d(0,-8px,0); }
+}
+
+@keyframes msPulse {
+    0%,100% { opacity: .45; transform: scale(1); }
+    50% { opacity: .82; transform: scale(1.08); }
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+    .ms-hero {
+        min-height: auto;
+    }
+
+    .ms-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 62px;
+    }
+
+    .ms-hero-copy {
+        max-width: 820px;
+    }
+
+    .ms-studio-wrap {
+        max-width: 860px;
+    }
+
+    .ms-editor-shell {
+        grid-template-columns: 200px minmax(0,1fr);
+    }
+
+    .ms-editor-inspector {
         display: none;
     }
 
-    .login-panel-section.active {
-        display: block;
+    .ms-flow,
+    .ms-workspace {
+        grid-template-columns: 1fr;
     }
 
-    .login-options {
-        margin: 3px 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
+    .ms-flow-copy,
+    .ms-faq-side {
+        position: static;
     }
 
-    .login-recovery-links {
-        display: inline-flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 9px;
-        flex-wrap: wrap;
-        text-align: right;
+    .ms-workspace {
+        gap: 44px;
+    }
+}
+
+@media (max-width: 900px) {
+    .ms-signal-grid {
+        grid-template-columns: repeat(3,1fr);
     }
 
-    .login-recovery-separator {
-        width: 3px;
-        height: 3px;
-        flex: 0 0 3px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.22);
+    .ms-signal-item:nth-child(4) {
+        border-left: 0;
     }
 
-    .login-remember {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: #88878d;
-        font-size: 8px;
-        cursor: pointer;
+    .ms-signal-item:nth-child(n+4) {
+        border-top: 1px solid var(--ms-line);
     }
 
-    .login-remember input {
-        width: 13px;
-        height: 13px;
-        accent-color: #7a6cff;
+    .ms-bento-card:nth-child(n) {
+        grid-column: span 6;
     }
 
-    .login-passwordless-card {
-        padding: 11px;
-        border: 1px solid rgba(255,255,255,.075);
-        border-radius: 11px;
-        background: rgba(0,0,0,.16);
+    .ms-faq-layout {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+}
+
+@media (max-width: 680px) {
+    .ms-shell {
+        width: calc(100% - 24px);
     }
 
-    .login-passwordless-card + .login-passwordless-card {
-        margin-top: 8px;
+    .ms-home::before {
+        opacity: .17;
+        background-size: 44px 44px;
     }
 
-    .login-passwordless-head {
-        margin-bottom: 9px;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
+    .ms-hero {
+        padding: 62px 0 74px;
     }
 
-    .login-passwordless-icon {
-        width: 31px;
-        height: 31px;
-        flex: 0 0 31px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(122,108,255,.17);
-        border-radius: 8px;
-        color: var(--glass-yellow);
-        background: rgba(122,108,255,.04);
-        font-size: 9px;
-        font-weight: 900;
+    .ms-hero-title {
+        font-size: clamp(52px,15vw,70px);
     }
 
-    .login-passwordless-copy strong {
-        display: block;
-        color: #dedee1;
-        font-size: 8px;
+    .ms-hero-lead {
+        font-size: 14px;
     }
 
-    .login-passwordless-copy span {
-        display: block;
-        margin-top: 3px;
-        color: #77767c;
-        font-size: 7px;
-        line-height: 1.45;
+    .ms-hero-actions,
+    .ms-workspace-actions,
+    .ms-final-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .login-passwordless-form {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 6px;
-    }
-
-    .login-passwordless-form .glass-input {
-        height: 38px;
-    }
-
-    .login-oauth-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 7px;
-    }
-
-    .login-oauth {
-        min-height: 54px;
-        padding: 0 9px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(255,255,255,.10);
-        border-radius: 10px;
-        color: #e1e1e3;
-        background: rgba(0,0,0,.19);
-        text-decoration: none;
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .login-oauth:hover {
-        transform: translateY(-1px);
-        border-color: rgba(122,108,255,.20);
-        background: rgba(122,108,255,.025);
-    }
-
-    .login-oauth-icon {
-        width: 27px;
-        height: 27px;
-        display: grid;
-        place-items: center;
-        flex: 0 0 27px;
-    }
-
-    .login-oauth-icon svg {
-        width: 23px;
-        height: 23px;
-    }
-
-    .login-oauth-copy strong,
-    .login-oauth-copy span {
-        display: block;
-    }
-
-    .login-oauth-copy strong {
-        font-size: 8px;
-    }
-
-    .login-oauth-copy span {
-        margin-top: 2px;
-        color: #717177;
-        font-size: 6px;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Telegram Mini App button
-    |--------------------------------------------------------------------------
-    | Mobiel opent de Telegram-app. Desktop gebruikt dezelfde nette knop
-    | en opent de officiële t.me Mini App-link.
-    */
-    .login-telegram-modern {
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        border-color: rgba(34,158,217,.28);
-        background:
-            linear-gradient(
-                135deg,
-                rgba(34,158,217,.12),
-                rgba(0,0,0,.19) 58%
-            );
-        box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.045),
-            0 10px 26px rgba(34,158,217,.07);
-    }
-
-    .login-telegram-modern::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        opacity: .55;
-        background:
-            radial-gradient(
-                circle at 18% 50%,
-                rgba(78,190,239,.16),
-                transparent 42%
-            );
-        transition: opacity .18s ease;
-    }
-
-    .login-telegram-modern:hover {
-        border-color: rgba(72,183,231,.48);
-        background:
-            linear-gradient(
-                135deg,
-                rgba(34,158,217,.17),
-                rgba(0,0,0,.18) 60%
-            );
-        box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.055),
-            0 12px 30px rgba(34,158,217,.10);
-    }
-
-    .login-telegram-modern:hover::before {
-        opacity: .9;
-    }
-
-    .login-telegram-logo-shell {
-        width: 36px;
-        height: 36px;
-        flex: 0 0 36px;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        border: 1px solid rgba(120,211,249,.30);
-        border-radius: 50%;
-        background:
-            radial-gradient(
-                circle at 35% 25%,
-                #6fd5ff,
-                #229ed9 56%,
-                #1686c3
-            );
-        box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.34),
-            0 7px 18px rgba(34,158,217,.22);
-    }
-
-    .login-telegram-logo {
-        width: 34px;
-        height: 34px;
-        display: block;
-        object-fit: contain;
-        border-radius: 50%;
-    }
-
-    .login-telegram-modern .login-oauth-copy {
-        min-width: 0;
-    }
-
-    .login-telegram-modern .login-oauth-copy strong {
-        color: #eefaff;
-        font-size: 8.5px;
-    }
-
-    .login-telegram-modern .login-oauth-copy span {
-        color: #75bddd;
-    }
-
-    .login-telegram-launch {
-        margin-left: auto;
-        flex: 0 0 auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 22px;
-        height: 22px;
-        padding: 0 6px;
-        border: 1px solid rgba(91,194,238,.19);
-        border-radius: 999px;
-        color: #71c9ef;
-        background: rgba(34,158,217,.07);
-        font-size: 9px;
-        font-weight: 900;
-        line-height: 1;
-    }
-
-    .login-telegram-unavailable {
+    .ms-button {
         width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #8b8a90;
-        font-size: 7px;
-        line-height: 1.35;
     }
 
-    .login-telegram-unavailable-logo {
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        display: block;
-        object-fit: contain;
-        border-radius: 50%;
-        opacity: .72;
+    .ms-studio-card {
+        padding: 6px;
+        border-radius: 17px;
     }
 
-    @media (max-width: 380px) {
-        .login-telegram-logo-shell {
-            width: 38px;
-            height: 38px;
-            flex-basis: 38px;
-        }
-
-        .login-telegram-logo {
-            width: 36px;
-            height: 36px;
-        }
+    .ms-studio-window {
+        border-radius: 12px;
     }
 
-    .login-pending {
-        margin-bottom: 10px;
-        padding: 8px 10px;
-        border: 1px solid rgba(24,237,126,.16);
-        border-radius: 9px;
-        color: #9bf5c7;
-        background: rgba(24,237,126,.045);
-        font-size: 8px;
-        line-height: 1.5;
+    .ms-window-title {
+        display: none;
     }
 
-    .login-register-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 10px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 10px;
-        background: rgba(0,0,0,.14);
+    .ms-dropzone {
+        min-height: 390px;
+        padding: 22px 14px;
     }
 
-    .login-register-row span {
-        color: #85848a;
-        font-size: 7px;
-        line-height: 1.45;
+    .ms-preview-meta {
+        grid-template-columns: 1fr;
     }
 
-    .login-register-row a {
-        flex: 0 0 auto;
-    }
-
-    .login-security-note {
-        margin-top: 10px;
-        color: #69686e;
-        font-size: 7px;
-        line-height: 1.5;
-        text-align: center;
-    }
-
-    @media (max-width: 380px) {
-        .login-oauth-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .login-options {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .login-recovery-links {
-            width: 100%;
-            justify-content: flex-start;
-            text-align: left;
-        }
-    }
-
-    .glass-auth-switch {
-        width: min(100%, 270px);
-        margin: 0 auto 14px;
-        padding: 3px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3px;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 11px;
-        background: rgba(0,0,0,.19);
-    }
-
-    .glass-auth-switch a {
-        min-height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        color: #77767c;
-        text-decoration: none;
-        font-size: 8px;
-        font-weight: 900;
-        transition:
-            color .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .glass-auth-switch a.active {
-        border-color: rgba(122,108,255,.20);
-        color: var(--glass-yellow);
-        background: rgba(122,108,255,.055);
-    }
-
-    .glass-auth-switch a:hover {
-        color: var(--glass-yellow);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | V3 layout fix
-    |--------------------------------------------------------------------------
-    | De kaart heeft GEEN vaste hoogte meer. Hierdoor groeien login/register
-    | automatisch mee met Wachtwoord, E-mail en Social zonder afsnijden.
-    */
-    .glass-card-shell {
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible;
-    }
-
-    .glass-card-border {
-        position: relative !important;
-        inset: auto !important;
+    .ms-preview-actions {
         width: 100%;
-        height: auto !important;
-        min-height: 0 !important;
     }
 
-    .glass-card {
-        height: auto !important;
-        min-height: 0 !important;
+    .ms-preview-change,
+    .ms-preview-submit {
+        flex: 1;
     }
 
-    .login-glass-card,
-    .register-glass-card {
-        height: auto !important;
-        min-height: 0 !important;
+    .ms-signal-grid {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .glass-inner {
-        min-height: 0;
-        padding-bottom: 40px;
+    .ms-signal-item:nth-child(n) {
+        border-left: 0;
+        border-top: 0;
+        border-bottom: 1px solid var(--ms-line);
     }
 
-    .glass-stage {
-        min-height: 100dvh;
-        padding-top: clamp(44px, 6vh, 70px);
-        padding-bottom: 72px;
+    .ms-signal-item:nth-child(even) {
+        border-left: 1px solid var(--ms-line);
     }
 
-    .glass-poster-title {
-        flex: 0 0 auto;
+    .ms-section {
+        padding: 88px 0;
     }
 
-    .glass-code-panel {
-        flex: 0 0 auto;
-        margin-top: 46px;
+    .ms-editor-shell {
+        grid-template-columns: 1fr;
+        min-height: auto;
     }
 
-    @media (max-width: 540px) {
-        .glass-stage {
-            padding-top: 38px;
-            padding-bottom: 54px;
-        }
-
-        .glass-inner {
-            padding-bottom: 34px;
-        }
-
-        .glass-code-panel {
-            margin-top: 38px;
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | V4 Login <-> Register page transition
-    |--------------------------------------------------------------------------
-    */
-    .glass-auth-page {
-        --auth-shift: 34px;
-    }
-
-    .glass-stage {
-        will-change: transform, opacity;
-    }
-
-    .glass-auth-switch a {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .glass-auth-switch a::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        opacity: 0;
-        background:
-            linear-gradient(
-                105deg,
-                transparent 15%,
-                rgba(122,108,255,.10) 40%,
-                rgba(66,165,255,.42) 50%,
-                rgba(122,108,255,.10) 60%,
-                transparent 85%
-            );
-        transform: translateX(-120%);
-    }
-
-    .glass-auth-switch a.is-switching::after {
-        opacity: 1;
-        animation: authTabShine .48s ease forwards;
-    }
-
-    .glass-auth-transition-flash {
-        position: fixed;
-        inset: 0;
-        z-index: 2147482500;
-        pointer-events: none;
-        opacity: 0;
-        background:
-            radial-gradient(
-                circle at 50% 46%,
-                rgba(122,108,255,.11),
-                transparent 22rem
-            ),
-            linear-gradient(
-                110deg,
-                transparent 0 38%,
-                rgba(122,108,255,.10) 46%,
-                rgba(128,199,255,.31) 50%,
-                rgba(66,165,255,.11) 54%,
-                transparent 62% 100%
-            );
-        transform: translateX(-28%);
-        will-change: opacity, transform;
-    }
-
-    .glass-auth-page.is-switching-out .glass-auth-transition-flash {
-        animation: authFlashAcross .54s cubic-bezier(.2,.75,.25,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out .glass-poster-title {
-        animation: authTitleOut .42s cubic-bezier(.4,0,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out .glass-card-shell {
-        animation:
-            authCardOutRight .48s cubic-bezier(.4,0,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-switching-out.is-to-login .glass-card-shell {
-        animation-name: authCardOutLeft;
-    }
-
-    .glass-auth-page.is-switching-out .glass-code-panel,
-    .glass-auth-page.is-switching-out .glass-footer {
-        animation: authBottomOut .36s ease forwards;
-    }
-
-    .glass-auth-page.is-switching-in .glass-poster-title {
-        animation: authTitleIn .46s cubic-bezier(.2,.8,.2,1) both;
-    }
-
-    .glass-auth-page.is-switching-in .glass-card-shell {
-        animation:
-            authCardInRight .58s cubic-bezier(.16,.9,.24,1) both;
-    }
-
-    .glass-auth-page.is-switching-in.is-from-login .glass-card-shell {
-        animation-name: authCardInLeft;
-    }
-
-    .glass-auth-page.is-switching-in .glass-code-panel,
-    .glass-auth-page.is-switching-in .glass-footer {
-        animation: authBottomIn .5s .08s ease both;
-    }
-
-    @keyframes authTabShine {
-        0% {
-            opacity: 0;
-            transform: translateX(-120%);
-        }
-        20% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-            transform: translateX(120%);
-        }
-    }
-
-    @keyframes authFlashAcross {
-        0% {
-            opacity: 0;
-            transform: translateX(-30%) scale(1);
-        }
-        35% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-            transform: translateX(30%) scale(1.06);
-        }
-    }
-
-    @keyframes authTitleOut {
-        to {
-            opacity: 0;
-            transform: translateY(-10px) scale(.98);
-
-        }
-    }
-
-    @keyframes authTitleIn {
-        from {
-            opacity: 0;
-            transform: translateY(-12px) scale(.98);
-
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-
-        }
-    }
-
-    @keyframes authCardOutRight {
-        to {
-            opacity: 0;
-            transform:
-                translateX(var(--auth-shift))
-                scale(.965)
-                rotateY(-4deg);
-
-        }
-    }
-
-    @keyframes authCardOutLeft {
-        to {
-            opacity: 0;
-            transform:
-                translateX(calc(var(--auth-shift) * -1))
-                scale(.965)
-                rotateY(4deg);
-
-        }
-    }
-
-    @keyframes authCardInRight {
-        from {
-            opacity: 0;
-            transform:
-                translateX(var(--auth-shift))
-                scale(.965)
-                rotateY(-4deg);
-
-        }
-        to {
-            opacity: 1;
-            transform:
-                translateX(0)
-                scale(1)
-                rotateY(0);
-
-        }
-    }
-
-    @keyframes authCardInLeft {
-        from {
-            opacity: 0;
-            transform:
-                translateX(calc(var(--auth-shift) * -1))
-                scale(.965)
-                rotateY(4deg);
-
-        }
-        to {
-            opacity: 1;
-            transform:
-                translateX(0)
-                scale(1)
-                rotateY(0);
-
-        }
-    }
-
-    @keyframes authBottomOut {
-        to {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-    }
-
-    @keyframes authBottomIn {
-        from {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .ms-editor-sidebar {
+        display: none;
     }
 
-    @media (max-width: 540px) {
-        .glass-auth-page {
-            --auth-shift: 22px;
-        }
+    .ms-editor-canvas {
+        min-height: 440px;
+        padding: 32px 18px;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page.is-switching-out .glass-poster-title,
-        .glass-auth-page.is-switching-out .glass-card-shell,
-        .glass-auth-page.is-switching-out .glass-code-panel,
-        .glass-auth-page.is-switching-out .glass-footer,
-        .glass-auth-page.is-switching-in .glass-poster-title,
-        .glass-auth-page.is-switching-in .glass-card-shell,
-        .glass-auth-page.is-switching-in .glass-code-panel,
-        .glass-auth-page.is-switching-in .glass-footer,
-        .glass-auth-page.is-switching-out .glass-auth-transition-flash,
-        .glass-auth-switch a.is-switching::after {
-            animation-duration: .01ms !important;
-            animation-delay: 0ms !important;
-        }
+    .ms-bento-card:nth-child(n) {
+        grid-column: span 12;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | V5 Glass fold transition
-    |--------------------------------------------------------------------------
-    | De twee glazen hoekstukken klappen naar het midden dicht.
-    | Op de volgende pagina klappen ze vanuit het midden weer open.
-    */
-    .glass-card-shell {
-        perspective: 1200px;
+    .ms-workspace {
+        padding: 30px 22px;
     }
 
-    .glass-corner {
-        transform-origin: center;
-        will-change: transform, opacity, filter;
-        z-index: 30;
+    .ms-final-panel {
+        min-height: auto;
+        padding: 48px 22px;
+        border-radius: 22px;
     }
 
-    .glass-auth-page.is-folding-out .glass-card {
-        animation: authCardFoldDim .38s ease forwards;
+    .ms-sticky-copy span {
+        display: none;
     }
+}
 
-    .glass-auth-page.is-folding-out .glass-corner.top-left {
-        animation: authCornerCloseTop .40s cubic-bezier(.22,.9,.24,1) forwards;
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
     }
-
-    .glass-auth-page.is-folding-out .glass-corner.bottom-right {
-        animation: authCornerCloseBottom .40s cubic-bezier(.22,.9,.24,1) forwards;
-    }
-
-    .glass-auth-page.is-folding-out .glass-poster-title,
-    .glass-auth-page.is-folding-out .glass-footer,
-    .glass-auth-page.is-folding-out .glass-code-panel {
-        animation: authFoldFadeOut .36s ease forwards;
-    }
-
-    .glass-auth-page.is-folding-in .glass-card {
-        animation: authCardFoldReveal .42s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-corner.top-left {
-        animation: authCornerOpenTop .44s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-corner.bottom-right {
-        animation: authCornerOpenBottom .44s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    .glass-auth-page.is-folding-in .glass-poster-title,
-    .glass-auth-page.is-folding-in .glass-footer,
-    .glass-auth-page.is-folding-in .glass-code-panel {
-        animation: authFoldFadeIn .5s .12s ease both;
-    }
-
-    .glass-fold-seal {
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        z-index: 2147482600;
-        width: 92px;
-        height: 92px;
-        pointer-events: none;
-        opacity: 0;
-        transform:
-            translate(-50%,-50%)
-            scale(.55)
-            rotate(45deg);
-        border: 1px solid rgba(159,150,255,.46);
-        border-radius: 18px;
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,.10),
-                rgba(66,165,255,.08)
-            ),
-            rgba(13,13,16,.74);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        box-shadow:
-            0 0 0 1px rgba(255,255,255,.04) inset,
-            0 0 35px rgba(81,70,214,.18);
-    }
-
-    .glass-auth-page.is-folding-out .glass-fold-seal {
-        animation: authSealClose .40s cubic-bezier(.2,.82,.2,1) forwards;
-    }
-
-    .glass-auth-page.is-folding-in .glass-fold-seal {
-        animation: authSealOpen .44s cubic-bezier(.18,.9,.22,1) both;
-    }
-
-    @keyframes authCornerCloseTop {
-        from {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-        to {
-            transform:
-                translate(
-                    var(--fold-top-x, 150px),
-                    var(--fold-top-y, 150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-
-        }
-    }
-
-    @keyframes authCornerCloseBottom {
-        from {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-        to {
-            transform:
-                translate(
-                    var(--fold-bottom-x, -150px),
-                    var(--fold-bottom-y, -150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-
-        }
-    }
-
-    @keyframes authCornerOpenTop {
-        from {
-            transform:
-                translate(
-                    var(--fold-top-x, 150px),
-                    var(--fold-top-y, 150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-        }
-        to {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-    }
-
-    @keyframes authCornerOpenBottom {
-        from {
-            transform:
-                translate(
-                    var(--fold-bottom-x, -150px),
-                    var(--fold-bottom-y, -150px)
-                )
-                scale(1.35)
-                rotate(45deg);
-            opacity: .96;
-        }
-        to {
-            transform: translate(0,0) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-    }
-
-    @keyframes authCardFoldDim {
-        0% {
-            opacity: 1;
-            transform: scale(1);
-
-        }
-        55% {
-            opacity: .50;
-            transform: scale(.985);
-        }
-        100% {
-            opacity: 0;
-            transform: scale(.95);
-
-        }
-    }
-
-    @keyframes authCardFoldReveal {
-        from {
-            opacity: 0;
-            transform: scale(.95);
-
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-
-        }
-    }
-
-    @keyframes authSealClose {
-        0% {
-            opacity: 0;
-            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
-        }
-        62% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(1) rotate(45deg);
-        }
-        100% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
-        }
-    }
-
-    @keyframes authSealOpen {
-        0% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(.88) rotate(45deg);
-        }
-        38% {
-            opacity: 1;
-            transform: translate(-50%,-50%) scale(1) rotate(45deg);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(-50%,-50%) scale(.55) rotate(45deg);
-        }
-    }
-
-    @keyframes authFoldFadeOut {
-        to {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-    }
-
-    @keyframes authFoldFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .glass-auth-page.is-folding-out .glass-card,
-        .glass-auth-page.is-folding-out .glass-corner,
-        .glass-auth-page.is-folding-out .glass-fold-seal,
-        .glass-auth-page.is-folding-in .glass-card,
-        .glass-auth-page.is-folding-in .glass-corner,
-        .glass-auth-page.is-folding-in .glass-fold-seal {
-            animation-duration: .01ms !important;
-            animation-delay: 0ms !important;
-        }
-    }
-
-    /* V7 social-grid polish */
-    .login-oauth-grid > .login-oauth:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | V8 corner alignment fix
-    |--------------------------------------------------------------------------
-    | De kaart is nu een echte afgeronde rechthoek.
-    | De twee bewegende hoekaccenten zitten volledig BINNEN de kaart.
-    */
-
-    .glass-card-shell {
-        border-radius: 25px;
-        overflow: hidden !important;
-    }
-
-    .glass-card-border {
-        border-radius: 25px;
-        clip-path: none !important;
-    }
-
-    .glass-card {
-        border-radius: 24px;
-        clip-path: none !important;
-    }
-
-    .glass-corner {
-        width: 56px !important;
-        height: 56px !important;
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        box-shadow: none !important;
-        clip-path: none !important;
-        opacity: .72;
-    }
-
-    .glass-corner.top-left {
-        top: 0 !important;
-        left: 0 !important;
-        border: 0 !important;
-        border-top: 1px solid rgba(159,150,255,.56) !important;
-        border-left: 1px solid rgba(159,150,255,.56) !important;
-        border-radius: 24px 0 0 0 !important;
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,.075),
-                rgba(122,108,255,.025) 48%,
-                transparent 72%
-            ) !important;
-    }
-
-    .glass-corner.bottom-right {
-        right: 0 !important;
-        bottom: 0 !important;
-        border: 0 !important;
-        border-right: 1px solid rgba(66,165,255,.56) !important;
-        border-bottom: 1px solid rgba(66,165,255,.56) !important;
-        border-radius: 0 0 24px 0 !important;
-        background:
-            linear-gradient(
-                315deg,
-                rgba(255,255,255,.065),
-                rgba(66,165,255,.025) 48%,
-                transparent 72%
-            ) !important;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Motion performance fix
-    |--------------------------------------------------------------------------
-    | Alle bestaande motion blijft. Blur tijdens page/fold transitions is weg,
-    | zodat kaartanimaties via transform + opacity lopen.
-    */
 
-    .glass-auth-page.is-switching-out .glass-card-shell,
-    .glass-auth-page.is-switching-in .glass-card-shell,
-    .glass-auth-page.is-folding-out .glass-card,
-    .glass-auth-page.is-folding-in .glass-card,
-    .glass-auth-page.is-folding-out .glass-corner,
-    .glass-auth-page.is-folding-in .glass-corner {
+    [data-reveal],
+    [data-stagger] > * {
+        opacity: 1 !important;
+        transform: none !important;
         filter: none !important;
     }
-
-    .glass-fold-seal {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,.09),
-                rgba(122,108,255,.075)
-            ),
-            rgba(13,13,16,.96) !important;
-    }
-
-    @media (max-width: 540px) {
-        .glass-corner {
-            width: 46px !important;
-            height: 46px !important;
-        }
-    }
-
+}
 </style>
 @endpush
 
 @section('content')
-<section class="glass-auth-page">
-    <div class="glass-bg" aria-hidden="true"></div>
-    <span class="glass-ribbon one" aria-hidden="true"></span>
-    <span class="glass-ribbon two" aria-hidden="true"></span>
-    <span class="glass-ribbon three" aria-hidden="true"></span>
+<div class="ms-home" id="msHome">
+    <div class="ms-scroll-progress" aria-hidden="true">
+        <span id="msScrollProgress"></span>
+    </div>
 
-    <div class="glass-fold-seal" aria-hidden="true"></div>
+    <section class="ms-hero" id="top">
+        <div class="ms-hero-orbit" aria-hidden="true"></div>
 
-    <div
-        class="glass-auth-transition-flash"
-        aria-hidden="true"
-    ></div>
+        <div class="ms-shell">
+            <div class="ms-hero-grid">
+                <div class="ms-hero-copy" data-reveal>
+                    <span class="ms-kicker">
+                        Mashal Image Workspace
+                    </span>
 
-    <main class="glass-stage">
-        <h1 class="glass-poster-title">
-            Glassy Login
-            <span>Mashal Studio</span>
-        </h1>
+                    <h1 class="ms-hero-title">
+                        Edit images.
+                        <span class="muted">
+                            Keep the original.
+                        </span>
+                        <span class="gradient">
+                            Build better versions.
+                        </span>
+                    </h1>
 
-        <div class="glass-card-shell login-glass-card">
-            <div class="glass-card-border">
-                <div class="glass-card">
-                    <div class="glass-inner">
-                        <div class="glass-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="5" y="10" width="14" height="10" rx="2"></rect>
-                                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                                <path d="M12 14v2"></path>
-                            </svg>
-                        </div>
+                    <p class="ms-hero-lead">
+                        Eén snelle workspace voor resize, crop, rotate, flip,
+                        compress en convert. Elke bewerking wordt een nieuwe versie,
+                        zodat je altijd terug kunt naar het origineel.
+                    </p>
 
-                        <h2 class="glass-heading">
-                            Secure <strong>Access</strong>
-                        </h2>
-
-                        <p class="glass-description">
-                            Kies je inlogmethode en open veilig je persoonlijke Mashal Studio-workspace.
-                        </p>
-
-                        <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
-                            <a class="active" href="{{ route('login') }}" aria-current="page">
-                                Inloggen
-                            </a>
-                            <a href="{{ route('register') }}">
-                                Registreren
-                            </a>
-                        </nav>
-
-                        @if (session()->has('pending_image'))
-                            <div class="login-pending">
-                                ✓ Je afbeelding staat klaar. Rond je login af om verder te gaan naar je editor.
-                            </div>
-                        @endif
-
-                        @if (session('status'))
-                            <div class="glass-message info" role="status">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        @if (session('success'))
-                            <div class="glass-message success" role="status">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="glass-message error" role="alert">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="glass-message error" role="alert">
-                                <strong>Inloggen is niet gelukt.</strong>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        @include('partials.passkeys', ['passkeyMode' => 'login'])
-
-                        <div class="login-tabs" role="tablist" aria-label="Inlogmethode kiezen">
-                            <button
-                                class="login-tab active"
-                                type="button"
-                                role="tab"
-                                aria-selected="true"
-                                data-auth-tab="password"
-                            >
-                                Wachtwoord
-                            </button>
-
-                            <button
-                                class="login-tab"
-                                type="button"
-                                role="tab"
-                                aria-selected="false"
-                                data-auth-tab="passwordless"
-                            >
-                                E-mail
-                            </button>
-
-                            <button
-                                class="login-tab"
-                                type="button"
-                                role="tab"
-                                aria-selected="false"
-                                data-auth-tab="oauth"
-                            >
-                                Social
-                            </button>
-                        </div>
-
-                        <section
-                            class="login-panel-section active"
-                            data-auth-panel="password"
+                    <div class="ms-hero-actions">
+                        <a
+                            class="ms-button ms-button--primary js-magnetic"
+                            href="#upload"
                         >
-                            <form
-                                method="POST"
-                                action="{{ route('login.submit') }}"
-                                data-login-security-form data-auth-transition-form
-                            >
-                                @csrf
+                            Start met een afbeelding
+                            <span aria-hidden="true">↗</span>
+                        </a>
 
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="email">E-mailadres</label>
-                                        @error('email')
-                                            <span class="glass-field-error">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <input
-                                        class="glass-input"
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                        required
-                                    >
-                                </div>
-
-                                <div class="glass-field">
-                                    <div class="glass-label-row">
-                                        <label for="password">Wachtwoord</label>
-                                        @error('password')
-                                            <span class="glass-field-error">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="glass-input-wrap">
-                                        <input
-                                            class="glass-input with-toggle"
-                                            id="password"
-                                            type="password"
-                                            name="password"
-                                            placeholder="Vul je wachtwoord in"
-                                            autocomplete="current-password"
-                                            required
-                                        >
-
-                                        <button
-                                            class="glass-password-toggle"
-                                            type="button"
-                                            data-toggle-password="password"
-                                            aria-label="Wachtwoord tonen of verbergen"
-                                        >
-                                            Tonen
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="login-options">
-                                    <label class="login-remember" for="remember">
-                                        <input
-                                            id="remember"
-                                            type="checkbox"
-                                            name="remember"
-                                            value="1"
-                                            @checked(old('remember'))
-                                        >
-                                        <span>Onthoud mij</span>
-                                    </label>
-
-                                    <div
-                                        class="login-recovery-links"
-                                        aria-label="Account herstellen"
-                                    >
-                                        <a
-                                            class="glass-small-link"
-                                            href="{{ route('password.request') }}"
-                                        >
-                                            Wachtwoord vergeten?
-                                        </a>
-
-                                        <span
-                                            class="login-recovery-separator"
-                                            aria-hidden="true"
-                                        ></span>
-
-                                        <a
-                                            class="glass-small-link"
-                                            href="{{ route('email.forgot') }}"
-                                        >
-                                            E-mailadres vergeten?
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <button
-                                    class="glass-primary"
-                                    type="submit"
-                                    data-submit-label="Inloggen bij Mashal Studio"
+                        @auth
+                            @if (\Illuminate\Support\Facades\Route::has('images.index'))
+                                <a
+                                    class="ms-button ms-button--ghost js-magnetic"
+                                    href="{{ route('images.index') }}"
                                 >
-                                    Inloggen &amp; doorgaan →
-                                </button>
-                            </form>
-                        </section>
+                                    Mijn afbeeldingen
+                                </a>
+                            @endif
+                        @else
+                            @if (\Illuminate\Support\Facades\Route::has('register'))
+                                <a
+                                    class="ms-button ms-button--ghost js-magnetic"
+                                    href="{{ route('register') }}"
+                                >
+                                    Gratis account
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
 
-                        <section
-                            class="login-panel-section"
-                            data-auth-panel="passwordless"
-                            hidden
-                        >
-                            <div class="login-passwordless-card">
-                                <div class="login-passwordless-head">
-                                    <span class="login-passwordless-icon">6</span>
+                    <div class="ms-proof" data-stagger>
+                        <span class="ms-proof-item">
+                            JPG · PNG · WEBP
+                        </span>
 
-                                    <div class="login-passwordless-copy">
-                                        <strong>Eenmalige e-mailcode</strong>
-                                        <span>Ontvang een tijdelijke 6-cijferige code. Geen wachtwoord nodig.</span>
-                                    </div>
+                        <span class="ms-proof-item">
+                            Maximaal 20 MB
+                        </span>
+
+                        <span class="ms-proof-item">
+                            Versies blijven apart
+                        </span>
+                    </div>
+                </div>
+
+                <div
+                    class="ms-studio-wrap"
+                    id="upload"
+                    data-reveal="right"
+                >
+                    <div class="ms-studio-glow" aria-hidden="true"></div>
+
+                    <div
+                        class="ms-studio-card"
+                        id="msStudioCard"
+                    >
+                        <div class="ms-studio-window">
+                            <div class="ms-windowbar">
+                                <div class="ms-window-dots" aria-hidden="true">
+                                    <span class="ms-window-dot"></span>
+                                    <span class="ms-window-dot"></span>
+                                    <span class="ms-window-dot"></span>
                                 </div>
 
-                                <form
-                                    class="login-passwordless-form"
-                                    method="POST"
-                                    action="{{ route('email-login.send') }}"
-                                    data-login-security-form data-auth-transition-form
-                                >
-                                    @csrf
+                                <div class="ms-window-title">
+                                    Mashal / New project
+                                </div>
 
-                                    <input
-                                        class="glass-input"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        required
-                                    >
-
-                                    <button class="glass-secondary" type="submit">
-                                        Stuur code
-                                    </button>
-                                </form>
+                                <div class="ms-window-secure">
+                                    Secure upload
+                                </div>
                             </div>
 
-                            <div class="login-passwordless-card">
-                                <div class="login-passwordless-head">
-                                    <span class="login-passwordless-icon">↗</span>
-
-                                    <div class="login-passwordless-copy">
-                                        <strong>Veilige loginlink</strong>
-                                        <span>Ontvang een persoonlijke magic link die één keer gebruikt kan worden.</span>
-                                    </div>
-                                </div>
-
-                                <form
-                                    class="login-passwordless-form"
-                                    method="POST"
-                                    action="{{ route('email-login.link.send') }}"
-                                    data-login-security-form data-auth-transition-form
-                                >
-                                    @csrf
-
-                                    <input
-                                        class="glass-input"
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="naam@example.com"
-                                        autocomplete="email"
-                                        inputmode="email"
-                                        required
-                                    >
-
-                                    <button class="glass-secondary" type="submit">
-                                        Stuur link
-                                    </button>
-                                </form>
-                            </div>
-                        </section>
-
-                        <section
-                            class="login-panel-section"
-                            data-auth-panel="oauth"
-                            hidden
-                        >
-                            <div class="login-oauth-grid">
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('google.redirect') }}"
-                                    aria-label="Doorgaan met Google"
-                                >
-                                    <span class="login-oauth-icon">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path fill="#4285F4" d="M21.805 10.023h-9.18v3.955h5.28c-.228 1.273-.918 2.352-1.956 3.078v2.559h3.168c1.855-1.708 2.928-4.227 2.928-7.219 0-.8-.072-1.57-.24-2.373Z"/>
-                                            <path fill="#34A853" d="M12.625 22c2.65 0 4.873-.875 6.492-2.385l-3.168-2.559c-.88.59-2.003.94-3.324.94-2.55 0-4.71-1.724-5.486-4.04H3.865v2.64A9.812 9.812 0 0 0 12.625 22Z"/>
-                                            <path fill="#FBBC05" d="M7.139 13.956a5.96 5.96 0 0 1 0-3.912V7.405H3.865A9.82 9.82 0 0 0 2.82 12c0 1.585.38 3.086 1.045 4.595l3.274-2.639Z"/>
-                                            <path fill="#EA4335" d="M12.625 6.004c1.44 0 2.733.495 3.75 1.468l2.813-2.813C17.493 3.076 15.27 2 12.625 2a9.812 9.812 0 0 0-8.76 5.405l3.274 2.639c.776-2.316 2.936-4.04 5.486-4.04Z"/>
-                                        </svg>
-                                    </span>
-                                    <span class="login-oauth-copy">
-                                        <strong>Google / Gmail</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('github.redirect') }}"
-                                    aria-label="Doorgaan met GitHub"
-                                >
-                                    <span class="login-oauth-icon">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path fill="currentColor" d="M12 .7a11.5 11.5 0 0 0-3.636 22.41c.575.105.786-.25.786-.555 0-.274-.01-1-.016-1.962-3.198.695-3.874-1.541-3.874-1.541-.523-1.329-1.277-1.683-1.277-1.683-1.044-.714.08-.699.08-.699 1.154.081 1.761 1.185 1.761 1.185 1.026 1.758 2.692 1.25 3.348.956.104-.743.402-1.25.73-1.537-2.553-.29-5.237-1.276-5.237-5.68 0-1.255.449-2.281 1.184-3.085-.118-.291-.513-1.462.113-3.048 0 0 .965-.309 3.162 1.179A10.98 10.98 0 0 1 12 8.253c.977.004 1.961.132 2.88.387 2.195-1.488 3.158-1.179 3.158-1.179.628 1.586.233 2.757.115 3.048.737.804 1.182 1.83 1.182 3.085 0 4.415-2.688 5.387-5.249 5.671.413.356.78 1.057.78 2.13 0 1.538-.014 2.778-.014 3.155 0 .308.207.666.792.553A11.502 11.502 0 0 0 12 .7Z"/>
-                                        </svg>
-                                    </span>
-                                    <span class="login-oauth-copy">
-                                        <strong>GitHub</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('facebook.redirect') }}"
-                                    aria-label="Doorgaan met Facebook"
-                                >
-                                    <span class="login-oauth-icon" style="color:#1877f2">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path fill="currentColor" d="M13.6 22v-8h2.68l.4-3.12H13.6V8.89c0-.9.25-1.52 1.54-1.52h1.65V4.58a22.1 22.1 0 0 0-2.4-.12c-2.38 0-4.01 1.45-4.01 4.12v2.3H7.69V14h2.69v8h3.22Z"/>
-                                        </svg>
-                                    </span>
-                                    <span class="login-oauth-copy">
-                                        <strong>Facebook</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('tiktok.redirect') }}"
-                                    aria-label="Doorgaan met TikTok"
-                                >
-                                    <span class="login-oauth-icon">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path fill="#25F4EE" d="M15.62 3.2c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V3.2h2.13Z"/>
-                                            <path fill="#FE2C55" d="M16.32 2.6c.39 2.31 1.7 3.69 3.98 3.84v2.63a7.9 7.9 0 0 1-3.94-.99v5.16c0 4.64-5.05 6.1-7.08 2.77-1.3-2.13-.5-5.87 3.67-6.03v2.77c-.38.06-.78.16-1.15.29-1.11.42-1.74 1.22-1.56 2.12.35 1.72 3.39 2.23 3.88-.26.08-.45.07-.9.07-1.36V2.6h2.13Z"/>
-                                        </svg>
-                                    </span>
-                                    <span class="login-oauth-copy">
-                                        <strong>TikTok</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('linkedin.redirect') }}"
-                                    aria-label="Doorgaan met LinkedIn"
-                                >
-                                    <span class="login-oauth-icon" aria-hidden="true">
-                                        <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
-                                    </span>
-                                    <span class="login-oauth-copy">
-                                        <strong>LinkedIn</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('x.redirect') }}"
-                                    aria-label="Doorgaan met X"
-                                >
-                                    <span class="login-oauth-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24">
-                                            <path
-                                                fill="currentColor"
-                                                d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.412 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z"
-                                            />
-                                        </svg>
-                                    </span>
-
-                                    <span class="login-oauth-copy">
-                                        <strong>X</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                <a
-                                    class="login-oauth"
-                                    data-login-security-oauth data-auth-transition-link
-                                    href="{{ route('auth.microsoft.redirect') }}"
-                                    aria-label="Doorgaan met Microsoft"
-                                >
-                                    <span class="login-oauth-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24">
-                                            <rect x="2.5" y="2.5" width="8.7" height="8.7" fill="#F25022"/>
-                                            <rect x="12.8" y="2.5" width="8.7" height="8.7" fill="#7FBA00"/>
-                                            <rect x="2.5" y="12.8" width="8.7" height="8.7" fill="#00A4EF"/>
-                                            <rect x="12.8" y="12.8" width="8.7" height="8.7" fill="#FFB900"/>
-                                        </svg>
-                                    </span>
-
-                                    <span class="login-oauth-copy">
-                                        <strong>Microsoft / Hotmail</strong>
-                                        <span>Doorgaan</span>
-                                    </span>
-                                </a>
-
-                                @php
-                                    $telegramBotUsername = ltrim(
-                                        trim((string) config('services.telegram.bot_username')),
-                                        '@'
-                                    );
-
-                                    $telegramMiniAppUrl = $telegramBotUsername !== ''
-                                        ? 'https://t.me/'
-                                            . rawurlencode($telegramBotUsername)
-                                            . '?startapp=login'
-                                        : null;
-                                @endphp
-
-                                @if ($telegramMiniAppUrl)
-                                    <a
-                                        class="login-oauth login-telegram-modern"
-                                        data-login-security-oauth
-                                        data-auth-transition-link
-                                        data-telegram-mini-app
-                                        data-telegram-bot="{{ $telegramBotUsername }}"
-                                        href="{{ $telegramMiniAppUrl }}"
-                                        aria-label="Doorgaan met Telegram"
-                                    >
-                                        <span
-                                            class="login-telegram-logo-shell"
-                                            aria-hidden="true"
-                                        >
-                                            <img
-                                                class="login-telegram-logo"
-                                                src="{{ asset('images/social/telegram-logo.png') }}"
-                                                alt=""
-                                                loading="lazy"
-                                                decoding="async"
-                                            >
-                                        </span>
-
-                                        <span class="login-oauth-copy">
-                                            <strong>Telegram</strong>
-                                            <span>Open Telegram-app</span>
-                                        </span>
-
-                                        <span
-                                            class="login-telegram-launch"
-                                            aria-hidden="true"
-                                        >
-                                            ↗
-                                        </span>
-                                    </a>
-                                @else
-                                    <div
-                                        class="login-oauth login-telegram-modern"
-                                        aria-label="Telegram-login is nog niet geconfigureerd"
-                                    >
-                                        <div class="login-telegram-unavailable">
-                                            <img
-                                                class="login-telegram-unavailable-logo"
-                                                src="{{ asset('images/social/telegram-logo.png') }}"
-                                                alt=""
-                                                loading="lazy"
-                                                decoding="async"
-                                            >
-
-                                            <span>
-                                                Telegram-login is nog niet geconfigureerd.
-                                            </span>
-                                        </div>
+                            <div class="ms-window-body">
+                                @if (session('success'))
+                                    <div class="ms-alert ms-alert--success">
+                                        {{ session('success') }}
                                     </div>
                                 @endif
+
+                                @if (session('error'))
+                                    <div class="ms-alert ms-alert--error">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
+
+                                @if ($errors->any())
+                                    <div class="ms-alert ms-alert--error">
+                                        <strong>Upload controleren</strong>
+
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                <form
+                                    id="imageUploadForm"
+                                    method="POST"
+                                    action="{{ route('images.upload') }}"
+                                    enctype="multipart/form-data"
+                                >
+                                    @csrf
+
+                                    <input
+                                        class="ms-file-input"
+                                        id="imageInput"
+                                        type="file"
+                                        name="image"
+                                        accept="image/jpeg,image/png,image/webp"
+                                    >
+
+                                    <div
+                                        class="ms-dropzone"
+                                        id="imageDropzone"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-label="Selecteer of sleep een afbeelding hierheen"
+                                    >
+                                        <div class="ms-upload-empty">
+                                            <div
+                                                class="ms-upload-icon"
+                                                id="msUploadIcon"
+                                                aria-hidden="true"
+                                            >
+                                                ↑
+                                            </div>
+
+                                            <h2>
+                                                Drop je afbeelding hier
+                                            </h2>
+
+                                            <p>
+                                                Selecteer een JPG, PNG of WEBP.
+                                                Je ziet eerst een preview voordat de upload begint.
+                                            </p>
+
+                                            <button
+                                                class="ms-upload-choose js-magnetic"
+                                                id="chooseImageButton"
+                                                type="button"
+                                            >
+                                                Kies afbeelding
+                                            </button>
+
+                                            <div class="ms-format-row">
+                                                <span class="ms-format">JPG</span>
+                                                <span class="ms-format">PNG</span>
+                                                <span class="ms-format">WEBP</span>
+                                                <span class="ms-format">≤ 20 MB</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="ms-preview">
+                                            <div class="ms-preview-frame">
+                                                <img
+                                                    id="imagePreview"
+                                                    src=""
+                                                    alt="Voorbeeld van geselecteerde afbeelding"
+                                                >
+
+                                                <span
+                                                    class="ms-preview-badge"
+                                                    id="previewBadge"
+                                                >
+                                                    PREVIEW
+                                                </span>
+                                            </div>
+
+                                            <div class="ms-preview-meta">
+                                                <div class="ms-preview-file">
+                                                    <strong id="previewFileName">
+                                                        —
+                                                    </strong>
+
+                                                    <span id="previewFileMeta">
+                                                        —
+                                                    </span>
+                                                </div>
+
+                                                <div class="ms-preview-actions">
+                                                    <button
+                                                        class="ms-preview-change"
+                                                        id="changeImageButton"
+                                                        type="button"
+                                                    >
+                                                        Wijzigen
+                                                    </button>
+
+                                                    <button
+                                                        class="ms-preview-submit"
+                                                        id="submitImageButton"
+                                                        type="submit"
+                                                    >
+                                                        Open editor
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="ms-upload-foot">
+                                    <span>Client + servervalidatie</span>
+                                    <span>Origineel blijft behouden</span>
+                                </div>
                             </div>
-                        </section>
-
-                        <div class="glass-divider">
-                            Nieuw bij Mashal Studio?
-                        </div>
-
-                        <div class="login-register-row">
-                            <span>
-                                Nog geen account? Maak gratis je eigen workspace.
-                            </span>
-
-                            <a class="glass-small-link" href="{{ route('register') }}">
-                                Registreren
-                            </a>
-                        </div>
-
-                        <div class="login-security-note">
-                            ✓ Mashal Studio vraagt je nooit om je wachtwoord via e-mail, chat of telefoon te delen.
                         </div>
                     </div>
                 </div>
             </div>
-
-            <span class="glass-corner top-left" aria-hidden="true"></span>
-            <span class="glass-corner bottom-right" aria-hidden="true"></span>
         </div>
+    </section>
 
-        <div class="glass-footer">
-            Mashal Studio · Secure account access
+    <section class="ms-signal">
+        <div class="ms-shell">
+            <div class="ms-signal-grid" data-stagger>
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">↔</div>
+                    <div>
+                        <strong>Resize</strong>
+                        <span>Exacte afmetingen</span>
+                    </div>
+                </div>
+
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">⌗</div>
+                    <div>
+                        <strong>Crop</strong>
+                        <span>Snijd gericht uit</span>
+                    </div>
+                </div>
+
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">↻</div>
+                    <div>
+                        <strong>Rotate</strong>
+                        <span>Draai zonder verlies</span>
+                    </div>
+                </div>
+
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">⇆</div>
+                    <div>
+                        <strong>Flip</strong>
+                        <span>Horizontaal / verticaal</span>
+                    </div>
+                </div>
+
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">↓</div>
+                    <div>
+                        <strong>Compress</strong>
+                        <span>Kleinere export</span>
+                    </div>
+                </div>
+
+                <div class="ms-signal-item">
+                    <div class="ms-signal-icon">◇</div>
+                    <div>
+                        <strong>Convert</strong>
+                        <span>JPG · PNG · WEBP</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    </main>
-</section>
+    </section>
+
+    <section class="ms-section">
+        <div class="ms-shell">
+            <header class="ms-showcase-head" data-reveal>
+                <span class="ms-kicker">
+                    Product experience
+                </span>
+
+                <h2 class="ms-heading">
+                    Niet zes losse tools.
+                    <em>Eén editor.</em>
+                </h2>
+
+                <p class="ms-copy">
+                    De interface voelt als één echte beeldworkspace:
+                    bron selecteren, bewerking kiezen, instellingen aanpassen
+                    en een nieuwe versie opslaan.
+                </p>
+            </header>
+
+            <div class="ms-editor-shell" data-reveal>
+                <aside class="ms-editor-sidebar">
+                    <div class="ms-editor-label">
+                        Tools
+                    </div>
+
+                    <div class="ms-editor-tool active">
+                        <span class="ms-editor-tool-icon">↔</span>
+                        Resize
+                    </div>
+
+                    <div class="ms-editor-tool">
+                        <span class="ms-editor-tool-icon">⌗</span>
+                        Crop
+                    </div>
+
+                    <div class="ms-editor-tool">
+                        <span class="ms-editor-tool-icon">↻</span>
+                        Rotate
+                    </div>
+
+                    <div class="ms-editor-tool">
+                        <span class="ms-editor-tool-icon">⇆</span>
+                        Flip
+                    </div>
+
+                    <div class="ms-editor-tool">
+                        <span class="ms-editor-tool-icon">↓</span>
+                        Compress
+                    </div>
+
+                    <div class="ms-editor-tool">
+                        <span class="ms-editor-tool-icon">◇</span>
+                        Convert
+                    </div>
+                </aside>
+
+                <div class="ms-editor-canvas" id="msEditorCanvas">
+                    <div class="ms-canvas-toolbar" aria-hidden="true">
+                        <span class="ms-canvas-tool">−</span>
+                        <span class="ms-canvas-tool active">100%</span>
+                        <span class="ms-canvas-tool">+</span>
+                    </div>
+
+                    <div class="ms-demo-image" id="msDemoImage">
+                        <div class="ms-crop-guide"></div>
+                    </div>
+                </div>
+
+                <aside class="ms-editor-inspector">
+                    <div class="ms-inspector-title">
+                        Resize image
+                    </div>
+
+                    <div class="ms-field">
+                        <label>Width</label>
+
+                        <div class="ms-fake-input">
+                            <span>1920</span>
+                            <small>px</small>
+                        </div>
+                    </div>
+
+                    <div class="ms-field">
+                        <label>Height</label>
+
+                        <div class="ms-fake-input">
+                            <span>1080</span>
+                            <small>px</small>
+                        </div>
+                    </div>
+
+                    <div class="ms-field">
+                        <label>Aspect ratio</label>
+
+                        <div class="ms-fake-toggle">
+                            <span>Keep ratio</span>
+                            <span class="ms-toggle-dot"></span>
+                        </div>
+                    </div>
+
+                    <div class="ms-field">
+                        <label>Source</label>
+
+                        <div class="ms-fake-input">
+                            <span>Original</span>
+                            <small>⌄</small>
+                        </div>
+                    </div>
+
+                    <button
+                        class="ms-create-version"
+                        type="button"
+                        tabindex="-1"
+                    >
+                        Create version
+                    </button>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <section class="ms-section ms-section--soft">
+        <div class="ms-shell">
+            <header class="ms-showcase-head" data-reveal>
+                <span class="ms-kicker">
+                    Version-first
+                </span>
+
+                <h2 class="ms-heading">
+                    Bewerk vrij.
+                    <em>Verlies niets.</em>
+                </h2>
+
+                <p class="ms-copy">
+                    Mashal Studio behandelt elke bewerking als een nieuwe versie.
+                    Daardoor kun je blijven experimenteren zonder je bron te overschrijven.
+                </p>
+            </header>
+
+            <div class="ms-bento" data-stagger>
+                <article class="ms-bento-card">
+                    <span class="ms-bento-index">01 / ORIGINAL</span>
+
+                    <h3>
+                        Eén origineel als veilige basis.
+                    </h3>
+
+                    <p>
+                        Je upload blijft beschikbaar terwijl je nieuwe varianten maakt.
+                        Geen destructieve edits, geen twijfel over welke versie de bron was.
+                    </p>
+
+                    <div class="ms-bento-visual" aria-hidden="true">
+                        <div class="ms-version-stack">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="ms-bento-card">
+                    <span class="ms-bento-index">02 / HISTORY</span>
+
+                    <h3>
+                        Bouw verder op eerdere versies.
+                    </h3>
+
+                    <p>
+                        Gebruik later opnieuw het origineel of een bestaande versie
+                        als bron voor je volgende edit.
+                    </p>
+
+                    <div class="ms-bento-orbit" aria-hidden="true"></div>
+                </article>
+
+                <article class="ms-bento-card">
+                    <span class="ms-bento-index">03 / EXPORT</span>
+
+                    <h3>
+                        JPG, PNG en WEBP.
+                    </h3>
+
+                    <p>
+                        Kies het formaat dat bij je volgende gebruiksmoment past.
+                    </p>
+                </article>
+
+                <article class="ms-bento-card">
+                    <span class="ms-bento-index">04 / PRIVATE</span>
+
+                    <h3>
+                        Persoonlijke workspace.
+                    </h3>
+
+                    <p>
+                        Projecten worden gekoppeld aan jouw account en blijven overzichtelijk bij elkaar.
+                    </p>
+                </article>
+
+                <article class="ms-bento-card">
+                    <span class="ms-bento-index">05 / DOWNLOAD</span>
+
+                    <h3>
+                        Elke versie apart downloaden.
+                    </h3>
+
+                    <p>
+                        Pak precies het bestand dat je nodig hebt zonder het project te verliezen.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="ms-section">
+        <div class="ms-shell">
+            <div class="ms-flow">
+                <div class="ms-flow-copy" data-reveal="left">
+                    <span class="ms-kicker">
+                        Workflow
+                    </span>
+
+                    <h2>
+                        Van upload naar versie zonder omwegen.
+                    </h2>
+
+                    <p>
+                        De workflow is bewust lineair. Upload, kies een bewerking,
+                        maak een nieuwe versie en ga verder vanuit je bibliotheek.
+                    </p>
+                </div>
+
+                <div class="ms-flow-list" data-stagger>
+                    <article class="ms-flow-step">
+                        <div class="ms-flow-number">01</div>
+                        <h3>Upload je bronbestand</h3>
+                        <p>
+                            Kies een JPG, PNG of WEBP-afbeelding tot maximaal 20 MB.
+                        </p>
+                    </article>
+
+                    <article class="ms-flow-step">
+                        <div class="ms-flow-number">02</div>
+                        <h3>Koppel aan je workspace</h3>
+                        <p>
+                            Wanneer login nodig is, wordt je tijdelijke upload na authenticatie aan je account gekoppeld.
+                        </p>
+                    </article>
+
+                    <article class="ms-flow-step">
+                        <div class="ms-flow-number">03</div>
+                        <h3>Bewerk in de editor</h3>
+                        <p>
+                            Resize, crop, rotate, flip, compress of convert vanuit één consistente editorflow.
+                        </p>
+                    </article>
+
+                    <article class="ms-flow-step">
+                        <div class="ms-flow-number">04</div>
+                        <h3>Maak een nieuwe versie</h3>
+                        <p>
+                            Het resultaat komt naast je bestaande bestanden te staan en kan later opnieuw als bron dienen.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ms-section ms-section--soft">
+        <div class="ms-shell">
+            <div class="ms-workspace" data-reveal>
+                <div>
+                    <span class="ms-kicker">
+                        Personal workspace
+                    </span>
+
+                    <h2>
+                        Al je beeldprojecten op één plek.
+                    </h2>
+
+                    <p>
+                        Open je originelen, bekijk gemaakte versies, download specifieke bestanden
+                        of ga terug de editor in wanneer je verder wilt werken.
+                    </p>
+
+                    <div class="ms-workspace-actions">
+                        @auth
+                            @if (\Illuminate\Support\Facades\Route::has('images.index'))
+                                <a
+                                    class="ms-button ms-button--primary js-magnetic"
+                                    href="{{ route('images.index') }}"
+                                >
+                                    Mijn afbeeldingen
+                                </a>
+                            @endif
+
+                            @if (\Illuminate\Support\Facades\Route::has('account'))
+                                <a
+                                    class="ms-button js-magnetic"
+                                    href="{{ route('account') }}"
+                                >
+                                    Mijn account
+                                </a>
+                            @endif
+                        @else
+                            @if (\Illuminate\Support\Facades\Route::has('register'))
+                                <a
+                                    class="ms-button ms-button--primary js-magnetic"
+                                    href="{{ route('register') }}"
+                                >
+                                    Gratis registreren
+                                </a>
+                            @endif
+
+                            @if (\Illuminate\Support\Facades\Route::has('login'))
+                                <a
+                                    class="ms-button js-magnetic"
+                                    href="{{ route('login') }}"
+                                >
+                                    Inloggen
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+                </div>
+
+                <div class="ms-library-window" aria-hidden="true">
+                    <div class="ms-library-head">
+                        <strong>Mijn afbeeldingen</strong>
+                        <span>Private library</span>
+                    </div>
+
+                    <div class="ms-library-grid">
+                        @for ($i = 1; $i <= 6; $i++)
+                            <div class="ms-library-thumb">
+                                <span class="ms-library-tag">
+                                    Project {{ str_pad((string) $i, 2, '0', STR_PAD_LEFT) }}
+                                </span>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ms-section">
+        <div class="ms-shell">
+            <div class="ms-faq-layout">
+                <div class="ms-faq-side" data-reveal="left">
+                    <span class="ms-kicker">
+                        FAQ
+                    </span>
+
+                    <h2>
+                        Kort.
+                        Duidelijk.
+                    </h2>
+
+                    <p>
+                        Alles wat je moet weten over bestanden, versies en je persoonlijke workspace.
+                    </p>
+                </div>
+
+                <div class="ms-faq-list" data-stagger>
+                    <article class="ms-faq-item open">
+                        <button
+                            class="ms-faq-question"
+                            type="button"
+                            aria-expanded="true"
+                        >
+                            <span>Welke bestanden kan ik uploaden?</span>
+                            <span class="ms-faq-icon" aria-hidden="true"></span>
+                        </button>
+
+                        <div class="ms-faq-answer">
+                            <div>
+                                <div class="ms-faq-answer-inner">
+                                    JPG/JPEG, PNG en WEBP tot maximaal 20 MB.
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="ms-faq-item">
+                        <button
+                            class="ms-faq-question"
+                            type="button"
+                            aria-expanded="false"
+                        >
+                            <span>Wordt mijn origineel overschreven?</span>
+                            <span class="ms-faq-icon" aria-hidden="true"></span>
+                        </button>
+
+                        <div class="ms-faq-answer">
+                            <div>
+                                <div class="ms-faq-answer-inner">
+                                    Nee. Elke edit wordt als aparte versie opgeslagen.
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="ms-faq-item">
+                        <button
+                            class="ms-faq-question"
+                            type="button"
+                            aria-expanded="false"
+                        >
+                            <span>Kan ik een eerdere versie opnieuw bewerken?</span>
+                            <span class="ms-faq-icon" aria-hidden="true"></span>
+                        </button>
+
+                        <div class="ms-faq-answer">
+                            <div>
+                                <div class="ms-faq-answer-inner">
+                                    Ja. Zowel je origineel als bestaande versies kunnen opnieuw als bron worden gebruikt.
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="ms-faq-item">
+                        <button
+                            class="ms-faq-question"
+                            type="button"
+                            aria-expanded="false"
+                        >
+                            <span>Waar vind ik mijn projecten terug?</span>
+                            <span class="ms-faq-icon" aria-hidden="true"></span>
+                        </button>
+
+                        <div class="ms-faq-answer">
+                            <div>
+                                <div class="ms-faq-answer-inner">
+                                    Na login vind je ze onder “Mijn afbeeldingen”.
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ms-final">
+        <div class="ms-shell">
+            <div class="ms-final-panel" data-reveal>
+                <div class="ms-final-copy">
+                    <span class="ms-kicker">
+                        Start editing
+                    </span>
+
+                    <h2>
+                        Eén upload.
+                        Daarna ben je vertrokken.
+                    </h2>
+
+                    <p>
+                        Upload je afbeelding, open de editor en bouw je eigen versiegeschiedenis op binnen Mashal Studio.
+                    </p>
+
+                    <div class="ms-final-actions">
+                        <a
+                            class="ms-button ms-button--primary js-magnetic"
+                            href="#upload"
+                        >
+                            Upload afbeelding
+                        </a>
+
+                        @guest
+                            @if (\Illuminate\Support\Facades\Route::has('register'))
+                                <a
+                                    class="ms-button js-magnetic"
+                                    href="{{ route('register') }}"
+                                >
+                                    Account maken
+                                </a>
+                            @endif
+                        @else
+                            @if (\Illuminate\Support\Facades\Route::has('images.index'))
+                                <a
+                                    class="ms-button js-magnetic"
+                                    href="{{ route('images.index') }}"
+                                >
+                                    Mijn bibliotheek
+                                </a>
+                            @endif
+                        @endguest
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div
+        class="ms-sticky"
+        id="stickyUpload"
+    >
+        <div class="ms-sticky-inner">
+            <div class="ms-sticky-copy">
+                <strong>Klaar voor een nieuwe afbeelding?</strong>
+                <span>JPG, PNG of WEBP · maximaal 20 MB</span>
+            </div>
+
+            <a
+                class="ms-sticky-link"
+                href="#upload"
+            >
+                Upload
+            </a>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
+    const doc =
+        document;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login <-> Register animated page switch
-    |--------------------------------------------------------------------------
-    */
-    const authSwitchStorageKey =
-        'mashal_auth_switch_direction';
+    const root =
+        doc.documentElement;
 
-    const authPage =
-        document.querySelector('.glass-auth-page');
+    const home =
+        doc.getElementById('msHome');
 
-    const authSwitchLinks =
-        Array.from(
-            document.querySelectorAll(
-                '.glass-auth-switch a'
-            )
+    const form =
+        doc.getElementById('imageUploadForm');
+
+    const input =
+        doc.getElementById('imageInput');
+
+    const dropzone =
+        doc.getElementById('imageDropzone');
+
+    const preview =
+        doc.getElementById('imagePreview');
+
+    const previewBadge =
+        doc.getElementById('previewBadge');
+
+    const fileName =
+        doc.getElementById('previewFileName');
+
+    const fileMeta =
+        doc.getElementById('previewFileMeta');
+
+    const chooseButton =
+        doc.getElementById('chooseImageButton');
+
+    const changeButton =
+        doc.getElementById('changeImageButton');
+
+    const submitButton =
+        doc.getElementById('submitImageButton');
+
+    const stickyUpload =
+        doc.getElementById('stickyUpload');
+
+    const uploadSection =
+        doc.getElementById('upload');
+
+    const scrollProgress =
+        doc.getElementById('msScrollProgress');
+
+    const studioCard =
+        doc.getElementById('msStudioCard');
+
+    const editorCanvas =
+        doc.getElementById('msEditorCanvas');
+
+    const demoImage =
+        doc.getElementById('msDemoImage');
+
+    const prefersReducedMotion =
+        window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
         );
 
-    function pageKindFromUrl(url) {
-        try {
-            const parsed =
-                new URL(
-                    url,
-                    window.location.origin
-                );
+    const maxBytes =
+        20 * 1024 * 1024;
 
-            if (
-                parsed.pathname
-                    .replace(/\/+$/, '')
-                    .endsWith('/register')
-            ) {
-                return 'register';
-            }
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+    ];
 
-            if (
-                parsed.pathname
-                    .replace(/\/+$/, '')
-                    .endsWith('/login')
-            ) {
-                return 'login';
-            }
-        } catch (error) {
-            return null;
-        }
+    let previewUrl =
+        null;
 
-        return null;
-    }
+    let uploadVisible =
+        true;
 
-    function currentAuthPageKind() {
-        return pageKindFromUrl(
-            window.location.href
+    let rafPending =
+        false;
+
+    /* =========================================================
+       Helpers
+       ========================================================= */
+
+    function clamp(value, min, max) {
+        return Math.min(
+            Math.max(
+                value,
+                min
+            ),
+            max
         );
     }
 
-    function playAuthEntryAnimation() {
-        if (!authPage) {
-            return;
-        }
+    function lerp(start, end, amount) {
+        return (
+            start +
+            (end - start) *
+            amount
+        );
+    }
 
-        let from = null;
-
-        try {
-            from =
-                window.sessionStorage.getItem(
-                    authSwitchStorageKey
-                );
-
-            window.sessionStorage.removeItem(
-                authSwitchStorageKey
-            );
-        } catch (error) {
-            from = null;
-        }
-
+    function formatBytes(bytes) {
         if (
-            from !== 'login'
-            && from !== 'register'
+            !Number.isFinite(bytes) ||
+            bytes <= 0
         ) {
-            return;
+            return '0 KB';
         }
 
-        authPage.classList.add(
-            'is-switching-in',
-            from === 'login'
-                ? 'is-from-login'
-                : 'is-from-register'
-        );
-
-        window.setTimeout(
-            function () {
-                authPage.classList.remove(
-                    'is-switching-in',
-                    'is-from-login',
-                    'is-from-register'
-                );
-            },
-            700
-        );
-    }
-
-    function navigateWithAuthAnimation(
-        link,
-        destination
-    ) {
-        if (!authPage) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        const currentKind =
-            currentAuthPageKind();
-
-        const destinationKind =
-            pageKindFromUrl(
-                destination
-            );
-
-        if (
-            !currentKind
-            || !destinationKind
-            || currentKind === destinationKind
-        ) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        link.classList.add(
-            'is-switching'
-        );
-
-        authPage.classList.add(
-            'is-switching-out'
-        );
-
-        authPage.classList.toggle(
-            'is-to-register',
-            destinationKind === 'register'
-        );
-
-        authPage.classList.toggle(
-            'is-to-login',
-            destinationKind === 'login'
-        );
-
-        try {
-            window.sessionStorage.setItem(
-                authSwitchStorageKey,
-                currentKind
-            );
-        } catch (error) {
-            // Navigatie mag niet blokkeren.
-        }
-
-        window.setTimeout(
-            function () {
-                window.location.assign(
-                    destination
-                );
-            },
-            470
-        );
-    }
-
-    authSwitchLinks.forEach(
-        function (link) {
-            link.addEventListener(
-                'click',
-                function (event) {
-                    if (
-                        event.defaultPrevented
-                        || event.button !== 0
-                        || event.metaKey
-                        || event.ctrlKey
-                        || event.shiftKey
-                        || event.altKey
-                    ) {
-                        return;
-                    }
-
-                    const destination =
-                        link.getAttribute(
-                            'href'
-                        );
-
-                    if (!destination) {
-                        return;
-                    }
-
-                    const kind =
-                        pageKindFromUrl(
-                            destination
-                        );
-
-                    if (
-                        kind !== 'login'
-                        && kind !== 'register'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    navigateWithAuthAnimation(
-                        link,
-                        destination
-                    );
-                }
-            );
-        }
-    );
-
-    playAuthEntryAnimation();
-
-    /*
-    |--------------------------------------------------------------------------
-    | V5 folding switch
-    |--------------------------------------------------------------------------
-    */
-    const authFoldStorageKey =
-        'mashal_auth_fold_from';
-
-    function setFoldVectors() {
-        const shell =
-            document.querySelector('.glass-card-shell');
-
-        const topCorner =
-            document.querySelector('.glass-corner.top-left');
-
-        const bottomCorner =
-            document.querySelector('.glass-corner.bottom-right');
-
-        if (
-            !shell
-            || !topCorner
-            || !bottomCorner
-        ) {
-            return;
-        }
-
-        const shellRect =
-            shell.getBoundingClientRect();
-
-        const topRect =
-            topCorner.getBoundingClientRect();
-
-        const bottomRect =
-            bottomCorner.getBoundingClientRect();
-
-        const centerX =
-            shellRect.left + (shellRect.width / 2);
-
-        const centerY =
-            shellRect.top + (shellRect.height / 2);
-
-        const topCenterX =
-            topRect.left + (topRect.width / 2);
-
-        const topCenterY =
-            topRect.top + (topRect.height / 2);
-
-        const bottomCenterX =
-            bottomRect.left + (bottomRect.width / 2);
-
-        const bottomCenterY =
-            bottomRect.top + (bottomRect.height / 2);
-
-        authPage?.style.setProperty(
-            '--fold-top-x',
-            (centerX - topCenterX) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-top-y',
-            (centerY - topCenterY) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-bottom-x',
-            (centerX - bottomCenterX) + 'px'
-        );
-
-        authPage?.style.setProperty(
-            '--fold-bottom-y',
-            (centerY - bottomCenterY) + 'px'
-        );
-    }
-
-    function playFoldEntry() {
-        if (!authPage) {
-            return;
-        }
-
-        let from = null;
-
-        try {
-            from =
-                window.sessionStorage.getItem(
-                    authFoldStorageKey
-                );
-
-            window.sessionStorage.removeItem(
-                authFoldStorageKey
-            );
-        } catch (error) {
-            from = null;
-        }
-
-        if (
-            from !== 'login'
-            && from !== 'register'
-        ) {
-            return;
-        }
-
-        setFoldVectors();
-
-        authPage.classList.add(
-            'is-folding-in'
-        );
-
-        window.setTimeout(
-            function () {
-                authPage.classList.remove(
-                    'is-folding-in'
-                );
-            },
-            460
-        );
-    }
-
-    function navigateWithFold(
-        link,
-        destination
-    ) {
-        const currentKind =
-            currentAuthPageKind();
-
-        const destinationKind =
-            pageKindFromUrl(
-                destination
-            );
-
-        if (
-            !authPage
-            || !currentKind
-            || !destinationKind
-            || currentKind === destinationKind
-        ) {
-            window.location.assign(
-                destination
-            );
-
-            return;
-        }
-
-        setFoldVectors();
-
-        try {
-            window.sessionStorage.setItem(
-                authFoldStorageKey,
-                currentKind
-            );
-        } catch (error) {
-            // Navigatie mag niet blokkeren.
-        }
-
-        link.classList.add(
-            'is-switching'
-        );
-
-        authPage.classList.add(
-            'is-folding-out'
-        );
-
-        window.setTimeout(
-            function () {
-                window.location.assign(
-                    destination
-                );
-            },
-            400
-        );
-    }
-
-    /*
-     * V4 clickhandler onderscheppen met capture=true zodat de nieuwe
-     * fold-animatie de oude schuifanimatie vervangt.
-     */
-    authSwitchLinks.forEach(
-        function (link) {
-            link.addEventListener(
-                'click',
-                function (event) {
-                    if (
-                        event.defaultPrevented
-                        || event.button !== 0
-                        || event.metaKey
-                        || event.ctrlKey
-                        || event.shiftKey
-                        || event.altKey
-                    ) {
-                        return;
-                    }
-
-                    const destination =
-                        link.getAttribute(
-                            'href'
-                        );
-
-                    const kind =
-                        destination
-                            ? pageKindFromUrl(
-                                destination
-                            )
-                            : null;
-
-                    if (
-                        kind !== 'login'
-                        && kind !== 'register'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-
-                    navigateWithFold(
-                        link,
-                        destination
-                    );
-                },
-                true
-            );
-        }
-    );
-
-    window.addEventListener(
-        'resize',
-        setFoldVectors
-    );
-
-    window.requestAnimationFrame(
-        function () {
-            setFoldVectors();
-            playFoldEntry();
-        }
-    );
-
-    /*
-     * Voorkom dat autofocus/browser scroll-restoration de bovenkant van
-     * de glassy authpagina onder de vaste header schuift.
-     */
-    try {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
-        if (!window.location.hash) {
-            window.scrollTo(0, 0);
-        }
-    } catch (error) {
-        // Geen blokkade voor authenticatie.
-    }
-
-    const authTransitionKey =
-        'mashal_auth_success_pending';
-
-    function markAuthTransition(source) {
-        try {
-            window.localStorage.setItem(
-                authTransitionKey,
-                JSON.stringify({
-                    source:
-                        String(source || 'login'),
-                    createdAt:
-                        Date.now(),
-                })
-            );
-        } catch (error) {
-            // Login moet blijven werken als localStorage niet beschikbaar is.
-        }
-    }
-
-    function clearAuthTransition() {
-        try {
-            window.localStorage.removeItem(
-                authTransitionKey
-            );
-        } catch (error) {
-            // Geen blokkade voor authenticatie.
-        }
-    }
-
-    @if ($errors->any() || session('error'))
-        clearAuthTransition();
-    @endif
-
-    document
-        .querySelectorAll('[data-toggle-password]')
-        .forEach(function (button) {
-            button.addEventListener('click', function () {
-                const input =
-                    document.getElementById(
-                        button.getAttribute('data-toggle-password')
-                    );
-
-                if (!input) {
-                    return;
-                }
-
-                const hidden =
-                    input.type === 'password';
-
-                input.type =
-                    hidden
-                        ? 'text'
-                        : 'password';
-
-                button.textContent =
-                    hidden
-                        ? 'Verbergen'
-                        : 'Tonen';
-
-                button.setAttribute(
-                    'aria-pressed',
-                    hidden
-                        ? 'true'
-                        : 'false'
-                );
-            });
-        });
-
-    const authTabs =
-        Array.from(
-            document.querySelectorAll('[data-auth-tab]')
-        );
-
-    const authPanels =
-        Array.from(
-            document.querySelectorAll('[data-auth-panel]')
-        );
-
-    function selectAuthMethod(name) {
-        authTabs.forEach(function (tab) {
-            const active =
-                tab.dataset.authTab === name;
-
-            tab.classList.toggle(
-                'active',
-                active
-            );
-
-            tab.setAttribute(
-                'aria-selected',
-                active
-                    ? 'true'
-                    : 'false'
-            );
-        });
-
-        authPanels.forEach(function (panel) {
-            const active =
-                panel.dataset.authPanel === name;
-
-            panel.classList.toggle(
-                'active',
-                active
-            );
-
-            panel.hidden =
-                !active;
-        });
-    }
-
-    authTabs.forEach(function (tab) {
-        tab.addEventListener(
-            'click',
-            function () {
-                selectAuthMethod(
-                    tab.dataset.authTab
-                );
-            }
-        );
-    });
-
-    const securityContextUrl =
-        @json(route('login-security.context'));
-
-    const csrfToken =
-        @json(csrf_token());
-
-    const preciseLocationEnabled =
-        @json(
-            (bool) config(
-                'login-security.precise_location.enabled',
-                true
-            )
-        );
-
-    const geolocationTimeout =
-        {{ max(
-            1000,
-            (int) config(
-                'login-security.precise_location.timeout_ms',
-                10000
-            )
-        ) }};
-
-    const geolocationMaximumAge =
-        {{ max(
-            0,
-            (int) config(
-                'login-security.precise_location.maximum_age_ms',
-                60000
-            )
-        ) }};
-
-    function getBrowserTimezone() {
-        try {
+        const mb =
+            bytes /
+            (1024 * 1024);
+
+        if (mb >= 1) {
             return (
-                Intl
-                    .DateTimeFormat()
-                    .resolvedOptions()
-                    .timeZone
-                || null
+                mb.toFixed(
+                    mb >= 10
+                        ? 1
+                        : 2
+                ) +
+                ' MB'
             );
-        } catch (error) {
-            return null;
         }
+
+        return (
+            Math.max(
+                1,
+                Math.round(
+                    bytes / 1024
+                )
+            ) +
+            ' KB'
+        );
     }
 
-    async function getLocationPermissionState() {
-        if (
-            !navigator.permissions
-            || typeof navigator.permissions.query !== 'function'
-        ) {
-            return 'prompt';
+    function mimeLabel(type) {
+        if (type === 'image/jpeg') {
+            return 'JPG';
         }
 
-        try {
-            const status =
-                await navigator.permissions.query({
-                    name: 'geolocation'
-                });
-
-            if (
-                status
-                && ['granted','denied','prompt'].includes(status.state)
-            ) {
-                return status.state;
-            }
-        } catch (error) {
-            return 'prompt';
+        if (type === 'image/png') {
+            return 'PNG';
         }
 
-        return 'prompt';
+        if (type === 'image/webp') {
+            return 'WEBP';
+        }
+
+        return 'IMAGE';
     }
 
-    async function getPreciseLocation() {
-        const base = {
-            latitude: null,
-            longitude: null,
-            location_accuracy: null,
-            location_permission: 'unknown',
-        };
+    function clearClientError() {
+        doc
+            .getElementById(
+                'clientUploadError'
+            )
+            ?.remove();
+    }
 
-        if (!preciseLocationEnabled) {
-            return {
-                ...base,
-                location_permission: 'unavailable',
-            };
+    function showClientError(message) {
+        clearClientError();
+
+        if (!form) {
+            return;
         }
 
+        const alert =
+            doc.createElement(
+                'div'
+            );
+
+        alert.id =
+            'clientUploadError';
+
+        alert.className =
+            'ms-alert ms-alert--error';
+
+        alert.setAttribute(
+            'role',
+            'alert'
+        );
+
+        alert.textContent =
+            message;
+
+        form.parentNode?.insertBefore(
+            alert,
+            form
+        );
+
+        animateError(
+            alert
+        );
+    }
+
+    function animateError(element) {
         if (
-            !navigator.geolocation
-            || typeof navigator.geolocation.getCurrentPosition !== 'function'
+            !element ||
+            prefersReducedMotion.matches
         ) {
-            return {
-                ...base,
-                location_permission: 'unsupported',
-            };
+            return;
         }
 
-        const initialPermission =
-            await getLocationPermissionState();
-
-        if (initialPermission === 'denied') {
-            return {
-                ...base,
-                location_permission: 'denied',
-            };
-        }
-
-        /*
-         * Authenticatie mag nooit wachten op een nieuwe browser-popup.
-         * Alleen locatie ophalen wanneer toestemming al eerder is gegeven.
-         */
-        if (initialPermission !== 'granted') {
-            return {
-                ...base,
-                location_permission: initialPermission,
-            };
-        }
-
-        return new Promise(function (resolve) {
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const coords =
-                        position && position.coords
-                            ? position.coords
-                            : null;
-
-                    if (!coords) {
-                        resolve({
-                            ...base,
-                            location_permission: 'unavailable',
-                        });
-
-                        return;
-                    }
-
-                    const latitude =
-                        Number(coords.latitude);
-
-                    const longitude =
-                        Number(coords.longitude);
-
-                    const accuracy =
-                        Number(coords.accuracy);
-
-                    if (
-                        !Number.isFinite(latitude)
-                        || !Number.isFinite(longitude)
-                    ) {
-                        resolve({
-                            ...base,
-                            location_permission: 'unavailable',
-                        });
-
-                        return;
-                    }
-
-                    resolve({
-                        latitude,
-                        longitude,
-                        location_accuracy:
-                            Number.isFinite(accuracy)
-                                ? Math.max(0, accuracy)
-                                : null,
-                        location_permission: 'granted',
-                    });
-                },
-                function (error) {
-                    let permission =
-                        initialPermission === 'prompt'
-                            ? 'unavailable'
-                            : initialPermission;
-
-                    if (error && error.code === 1) {
-                        permission = 'denied';
-                    }
-
-                    resolve({
-                        ...base,
-                        location_permission: permission,
-                    });
+        element.animate(
+            [
+                {
+                    opacity: 0,
+                    transform: 'translateY(-8px)'
                 },
                 {
-                    enableHighAccuracy: false,
-                    timeout: Math.min(1500, geolocationTimeout),
-                    maximumAge: Math.max(120000, geolocationMaximumAge),
+                    opacity: 1,
+                    transform: 'translateY(0)'
+                }
+            ],
+            {
+                duration: 260,
+                easing: 'cubic-bezier(.16,1,.3,1)'
+            }
+        );
+    }
+
+    function revokePreviewUrl() {
+        if (!previewUrl) {
+            return;
+        }
+
+        URL.revokeObjectURL(
+            previewUrl
+        );
+
+        previewUrl =
+            null;
+    }
+
+    function clearSelection() {
+        revokePreviewUrl();
+
+        if (input) {
+            input.value =
+                '';
+        }
+
+        if (preview) {
+            preview.removeAttribute(
+                'src'
+            );
+        }
+
+        dropzone?.classList.remove(
+            'has-file'
+        );
+    }
+
+    function animatePreviewIn() {
+        const panel =
+            dropzone?.querySelector(
+                '.ms-preview'
+            );
+
+        if (
+            !panel ||
+            prefersReducedMotion.matches
+        ) {
+            return;
+        }
+
+        panel.animate(
+            [
+                {
+                    opacity: 0,
+                    transform: 'scale(.985) translateY(8px)'
+                },
+                {
+                    opacity: 1,
+                    transform: 'scale(1) translateY(0)'
+                }
+            ],
+            {
+                duration: 420,
+                easing: 'cubic-bezier(.16,1,.3,1)'
+            }
+        );
+    }
+
+    function renderFile(file) {
+        clearClientError();
+
+        if (!file) {
+            return;
+        }
+
+        if (
+            !allowedTypes.includes(
+                file.type
+            )
+        ) {
+            clearSelection();
+
+            showClientError(
+                'Gebruik alleen een JPG, PNG of WEBP-afbeelding.'
+            );
+
+            return;
+        }
+
+        if (
+            file.size >
+            maxBytes
+        ) {
+            clearSelection();
+
+            showClientError(
+                'Deze afbeelding is groter dan 20 MB.'
+            );
+
+            return;
+        }
+
+        revokePreviewUrl();
+
+        previewUrl =
+            URL.createObjectURL(
+                file
+            );
+
+        if (preview) {
+            preview.src =
+                previewUrl;
+        }
+
+        if (fileName) {
+            fileName.textContent =
+                file.name;
+        }
+
+        if (fileMeta) {
+            fileMeta.textContent =
+                formatBytes(
+                    file.size
+                ) +
+                ' · ' +
+                mimeLabel(
+                    file.type
+                );
+        }
+
+        if (previewBadge) {
+            previewBadge.textContent =
+                mimeLabel(
+                    file.type
+                );
+        }
+
+        dropzone?.classList.add(
+            'has-file'
+        );
+
+        animatePreviewIn();
+    }
+
+    function openFilePicker() {
+        input?.click();
+    }
+
+    /* =========================================================
+       Upload interactions
+       ========================================================= */
+
+    chooseButton?.addEventListener(
+        'click',
+        function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            openFilePicker();
+        }
+    );
+
+    changeButton?.addEventListener(
+        'click',
+        function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            openFilePicker();
+        }
+    );
+
+    input?.addEventListener(
+        'change',
+        function () {
+            renderFile(
+                input.files?.[0] ??
+                null
+            );
+        }
+    );
+
+    dropzone?.addEventListener(
+        'click',
+        function (event) {
+            if (
+                event.target.closest(
+                    'button, a, input, label'
+                )
+            ) {
+                return;
+            }
+
+            openFilePicker();
+        }
+    );
+
+    dropzone?.addEventListener(
+        'keydown',
+        function (event) {
+            if (
+                event.key !== 'Enter' &&
+                event.key !== ' '
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            openFilePicker();
+        }
+    );
+
+    [
+        'dragenter',
+        'dragover'
+    ].forEach(
+        function (eventName) {
+            dropzone?.addEventListener(
+                eventName,
+                function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    dropzone.classList.add(
+                        'is-dragging'
+                    );
                 }
             );
-        });
-    }
+        }
+    );
 
-    async function collectLoginSecurityContext() {
-        const location =
-            await getPreciseLocation();
+    [
+        'dragleave',
+        'drop'
+    ].forEach(
+        function (eventName) {
+            dropzone?.addEventListener(
+                eventName,
+                function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
 
-        return {
-            browser_timezone:
-                getBrowserTimezone(),
+                    dropzone.classList.remove(
+                        'is-dragging'
+                    );
+                }
+            );
+        }
+    );
 
-            latitude:
-                location.latitude,
+    dropzone?.addEventListener(
+        'drop',
+        function (event) {
+            const file =
+                event.dataTransfer
+                    ?.files
+                    ?.[0];
 
-            longitude:
-                location.longitude,
+            if (
+                !file ||
+                !input
+            ) {
+                return;
+            }
 
-            location_accuracy:
-                location.location_accuracy,
+            try {
+                const transfer =
+                    new DataTransfer();
 
-            location_permission:
-                location.location_permission,
-        };
-    }
-
-    async function storeLoginSecurityContext() {
-        try {
-            const context =
-                await collectLoginSecurityContext();
-
-            const response =
-                await fetch(
-                    securityContextUrl,
-                    {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        keepalive: true,
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                        body:
-                            JSON.stringify(context),
-                    }
+                transfer.items.add(
+                    file
                 );
 
-            return response.ok;
-        } catch (error) {
-            return false;
-        }
-    }
+                input.files =
+                    transfer.files;
+            } catch (error) {
+                //
+            }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login security context - non-blocking
-    |--------------------------------------------------------------------------
-    | De securitycontext wordt vooraf op idle opgeslagen. Formulieren en OAuth
-    | wachten niet meer op GPS of een extra request.
-    */
+            if (
+                !input.files ||
+                !input.files.length
+            ) {
+                showClientError(
+                    'Drag & drop wordt in deze browser niet volledig ondersteund. Kies het bestand via de knop.'
+                );
 
-    function scheduleSecurityContext() {
-        const run = function () {
-            void storeLoginSecurityContext();
-        };
+                return;
+            }
 
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(
-                run,
-                { timeout: 850 }
+            renderFile(
+                file
             );
-        } else {
-            window.setTimeout(run, 180);
         }
-    }
+    );
 
-    scheduleSecurityContext();
+    form?.addEventListener(
+        'submit',
+        function (event) {
+            if (
+                !input?.files ||
+                !input.files.length
+            ) {
+                event.preventDefault();
 
-    document
+                showClientError(
+                    'Kies eerst een afbeelding.'
+                );
+
+                openFilePicker();
+
+                return;
+            }
+
+            if (submitButton) {
+                submitButton.disabled =
+                    true;
+
+                submitButton.textContent =
+                    'Uploaden…';
+            }
+        }
+    );
+
+    /* =========================================================
+       FAQ
+       ========================================================= */
+
+    doc
         .querySelectorAll(
-            'form[data-login-security-form][data-auth-transition-form]'
+            '.ms-faq-item'
         )
-        .forEach(function (form) {
-            form.addEventListener(
-                'submit',
-                function () {
-                    markAuthTransition(
-                        form.getAttribute('action')
-                        || 'login-form'
+        .forEach(
+            function (item) {
+                const question =
+                    item.querySelector(
+                        '.ms-faq-question'
                     );
 
-                    const submit =
-                        form.querySelector('[type="submit"]');
+                question?.addEventListener(
+                    'click',
+                    function () {
+                        const isOpen =
+                            item.classList.contains(
+                                'open'
+                            );
 
-                    if (!submit) {
-                        return;
+                        doc
+                            .querySelectorAll(
+                                '.ms-faq-item'
+                            )
+                            .forEach(
+                                function (other) {
+                                    other.classList.remove(
+                                        'open'
+                                    );
+
+                                    other
+                                        .querySelector(
+                                            '.ms-faq-question'
+                                        )
+                                        ?.setAttribute(
+                                            'aria-expanded',
+                                            'false'
+                                        );
+                                }
+                            );
+
+                        if (!isOpen) {
+                            item.classList.add(
+                                'open'
+                            );
+
+                            question.setAttribute(
+                                'aria-expanded',
+                                'true'
+                            );
+                        }
                     }
+                );
+            }
+        );
 
-                    submit.disabled = true;
-                    submit.dataset.originalText =
-                        submit.dataset.originalText
-                        || submit.textContent.trim();
+    /* =========================================================
+       Reveal engine
+       ========================================================= */
 
-                    submit.textContent =
-                        'Bezig…';
+    const revealTargets =
+        [
+            ...doc.querySelectorAll(
+                '[data-reveal], [data-stagger]'
+            )
+        ];
+
+    if (
+        'IntersectionObserver' in window &&
+        !prefersReducedMotion.matches
+    ) {
+        const revealObserver =
+            new IntersectionObserver(
+                function (entries) {
+                    entries.forEach(
+                        function (entry) {
+                            if (
+                                !entry.isIntersecting
+                            ) {
+                                return;
+                            }
+
+                            entry.target.classList.add(
+                                'is-visible'
+                            );
+
+                            revealObserver.unobserve(
+                                entry.target
+                            );
+                        }
+                    );
+                },
+                {
+                    rootMargin:
+                        '0px 0px -8% 0px',
+                    threshold:
+                        .12
                 }
             );
-        });
 
-    document
+        revealTargets.forEach(
+            function (target) {
+                revealObserver.observe(
+                    target
+                );
+            }
+        );
+    } else {
+        revealTargets.forEach(
+            function (target) {
+                target.classList.add(
+                    'is-visible'
+                );
+            }
+        );
+    }
+
+    /* =========================================================
+       Scroll progress + sticky upload
+       ========================================================= */
+
+    function updateScrollProgress() {
+        if (!scrollProgress) {
+            return;
+        }
+
+        const scrollTop =
+            window.scrollY ||
+            doc.documentElement.scrollTop;
+
+        const maxScroll =
+            doc.documentElement.scrollHeight -
+            window.innerHeight;
+
+        const progress =
+            maxScroll > 0
+                ? clamp(
+                    scrollTop /
+                    maxScroll,
+                    0,
+                    1
+                )
+                : 0;
+
+        scrollProgress.style.width =
+            (
+                progress *
+                100
+            ) +
+            '%';
+    }
+
+    function updateSticky() {
+        if (!stickyUpload) {
+            return;
+        }
+
+        stickyUpload.classList.toggle(
+            'visible',
+            window.scrollY > 760 &&
+            !uploadVisible
+        );
+    }
+
+    if (
+        uploadSection &&
+        'IntersectionObserver' in window
+    ) {
+        const uploadObserver =
+            new IntersectionObserver(
+                function (entries) {
+                    uploadVisible =
+                        Boolean(
+                            entries[0]
+                                ?.isIntersecting
+                        );
+
+                    updateSticky();
+                },
+                {
+                    threshold:
+                        0
+                }
+            );
+
+        uploadObserver.observe(
+            uploadSection
+        );
+    }
+
+    function scheduleScrollWork() {
+        if (rafPending) {
+            return;
+        }
+
+        rafPending =
+            true;
+
+        window.requestAnimationFrame(
+            function () {
+                updateScrollProgress();
+                updateSticky();
+
+                rafPending =
+                    false;
+            }
+        );
+    }
+
+    window.addEventListener(
+        'scroll',
+        scheduleScrollWork,
+        {
+            passive: true
+        }
+    );
+
+    /* =========================================================
+       Pointer effects — event driven, no permanent RAF loops
+       ========================================================= */
+
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
+    const motionAllowed = !prefersReducedMotion.matches;
+
+    if (home && motionAllowed && finePointer) {
+        let glowFrame = 0;
+        let glowX = window.innerWidth * .7;
+        let glowY = 120;
+
+        window.addEventListener('pointermove', function (event) {
+            glowX = event.clientX;
+            glowY = event.clientY;
+
+            if (glowFrame) return;
+            glowFrame = window.requestAnimationFrame(function () {
+                root.style.setProperty('--mx', glowX + 'px');
+                root.style.setProperty('--my', glowY + 'px');
+                glowFrame = 0;
+            });
+        }, { passive: true });
+    }
+
+    /* Studio 3D tilt */
+    if (studioCard && motionAllowed && finePointer) {
+        studioCard.addEventListener('pointermove', function (event) {
+            const rect = studioCard.getBoundingClientRect();
+            const x = (event.clientX - rect.left) / rect.width;
+            const y = (event.clientY - rect.top) / rect.height;
+            studioCard.style.transform =
+                'rotateX(' + ((.5 - y) * 4.5) + 'deg) rotateY(' + ((x - .5) * 5.5) + 'deg)';
+        }, { passive: true });
+
+        studioCard.addEventListener('pointerleave', function () {
+            studioCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }, { passive: true });
+    }
+
+    /* Magnetic buttons */
+    if (motionAllowed && finePointer) {
+        doc.querySelectorAll('.js-magnetic').forEach(function (button) {
+            button.addEventListener('pointermove', function (event) {
+                const rect = button.getBoundingClientRect();
+                const x = (event.clientX - (rect.left + rect.width / 2)) * .12;
+                const y = (event.clientY - (rect.top + rect.height / 2)) * .12;
+                button.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+            }, { passive: true });
+
+            button.addEventListener('pointerleave', function () {
+                button.style.transform = 'translate3d(0,0,0)';
+            }, { passive: true });
+        });
+    }
+
+    /* Product demo parallax */
+    if (editorCanvas && demoImage && motionAllowed && finePointer) {
+        editorCanvas.addEventListener('pointermove', function (event) {
+            const rect = editorCanvas.getBoundingClientRect();
+            const nx = (event.clientX - rect.left) / rect.width - .5;
+            const ny = (event.clientY - rect.top) / rect.height - .5;
+            demoImage.style.transform = 'translate3d(' + (nx * 10) + 'px,' + (ny * 10) + 'px,0)';
+        }, { passive: true });
+
+        editorCanvas.addEventListener('pointerleave', function () {
+            demoImage.style.transform = 'translate3d(0,0,0)';
+        }, { passive: true });
+    }
+
+    /* =========================================================
+       Smooth internal anchors
+       ========================================================= */
+
+    doc
         .querySelectorAll(
-            'a[data-login-security-oauth][data-auth-transition-link]'
+            'a[href^="#"]'
         )
-        .forEach(function (link) {
-            link.addEventListener(
-                'click',
-                function () {
-                    const destination =
-                        link.getAttribute('href');
+        .forEach(
+            function (anchor) {
+                anchor.addEventListener(
+                    'click',
+                    function (event) {
+                        const href =
+                            anchor.getAttribute(
+                                'href'
+                            );
 
-                    if (destination) {
-                        markAuthTransition(destination);
+                        if (
+                            !href ||
+                            href === '#'
+                        ) {
+                            return;
+                        }
+
+                        const target =
+                            doc.querySelector(
+                                href
+                            );
+
+                        if (!target) {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        target.scrollIntoView({
+                            behavior:
+                                prefersReducedMotion.matches
+                                    ? 'auto'
+                                    : 'smooth',
+                            block:
+                                'start'
+                        });
                     }
-                }
-            );
-        });
+                );
+            }
+        );
+
+    /* =========================================================
+       Lifecycle
+       ========================================================= */
+
+    window.addEventListener(
+        'beforeunload',
+        revokePreviewUrl
+    );
 
     window.addEventListener(
         'pageshow',
         function () {
-            document
-                .querySelectorAll('form[data-login-security-form][data-auth-transition-form]')
-                .forEach(function (form) {
-                    delete form.dataset.loginSecuritySubmitting;
+            if (!submitButton) {
+                return;
+            }
 
-                    const submit =
-                        form.querySelector('[type="submit"]');
+            submitButton.disabled =
+                false;
 
-                    if (!submit) {
-                        return;
-                    }
-
-                    submit.disabled = false;
-
-                    if (submit.dataset.originalText) {
-                        submit.textContent =
-                            submit.dataset.originalText;
-                    }
-                });
-
-            document
-                .querySelectorAll('a[data-login-security-oauth][data-auth-transition-link]')
-                .forEach(function (link) {
-                    delete link.dataset.loginSecurityOpening;
-                    link.removeAttribute('aria-busy');
-                });
+            submitButton.textContent =
+                'Open editor';
         }
     );
+
+    updateScrollProgress();
+    updateSticky();
 });
 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
-
-    /*
-    |--------------------------------------------------------------------------
-    | Telegram Mini App launcher
-    |--------------------------------------------------------------------------
-    | Op telefoon proberen we eerst rechtstreeks Telegram te openen.
-    | Lukt dat niet, dan gebruiken we de officiële t.me-link als fallback.
-    */
-    const telegramLinks =
-        Array.from(
-            document.querySelectorAll(
-                '[data-telegram-mini-app]'
-            )
-        );
-
-    if (telegramLinks.length === 0) {
-        return;
-    }
-
-    const looksLikeMobile =
-        /Android|iPhone|iPad|iPod|Mobile/i.test(
-            window.navigator.userAgent || ''
-        )
-        || (
-            window.matchMedia
-            && window.matchMedia('(pointer: coarse)').matches
-        );
-
-    telegramLinks.forEach(function (link) {
-        link.addEventListener(
-            'click',
-            function (event) {
-                if (!looksLikeMobile) {
-                    return;
-                }
-
-                const username =
-                    (link.dataset.telegramBot || '')
-                        .trim()
-                        .replace(/^@+/, '');
-
-                const fallbackUrl =
-                    link.getAttribute('href');
-
-                if (
-                    !username
-                    || !fallbackUrl
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                const deepLink =
-                    'tg://resolve?domain='
-                    + encodeURIComponent(username)
-                    + '&startapp=login';
-
-                let fallbackTimer = null;
-                let pageHidden = false;
-
-                const handleVisibility = function () {
-                    if (!document.hidden) {
-                        return;
-                    }
-
-                    pageHidden = true;
-
-                    if (fallbackTimer !== null) {
-                        window.clearTimeout(
-                            fallbackTimer
-                        );
-
-                        fallbackTimer = null;
-                    }
-
-                    document.removeEventListener(
-                        'visibilitychange',
-                        handleVisibility
-                    );
-                };
-
-                document.addEventListener(
-                    'visibilitychange',
-                    handleVisibility
-                );
-
-                fallbackTimer =
-                    window.setTimeout(
-                        function () {
-                            document.removeEventListener(
-                                'visibilitychange',
-                                handleVisibility
-                            );
-
-                            if (!pageHidden) {
-                                window.location.assign(
-                                    fallbackUrl
-                                );
-                            }
-                        },
-                        1200
-                    );
-
-                try {
-                    window.location.assign(
-                        deepLink
-                    );
-                } catch (error) {
-                    if (fallbackTimer !== null) {
-                        window.clearTimeout(
-                            fallbackTimer
-                        );
-                    }
-
-                    document.removeEventListener(
-                        'visibilitychange',
-                        handleVisibility
-                    );
-
-                    window.location.assign(
-                        fallbackUrl
-                    );
-                }
-            }
-        );
-    });
-});
-</script>
-
 @endpush
