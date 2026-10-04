@@ -3,57 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Services\LiveChatCallService;
+use App\Services\LiveChatService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use RuntimeException;
 
-class AdminLiveChatCallController extends Controller
+class LiveChatCallController extends Controller
 {
-    private function authorizeAdmin(Request $request): void
+    public function config(LiveChatCallService $calls): JsonResponse
     {
-        abort_unless((bool) $request->user()?->is_admin, 403);
-    }
-
-    private function conversation(int $conversation): object
-    {
-        $record = DB::table('live_chat_conversations')->where('id', $conversation)->first();
-        abort_unless($record, 404);
-        return $record;
-    }
-
-    public function incoming(Request $request, LiveChatCallService $calls): JsonResponse
-    {
-        $this->authorizeAdmin($request);
-
         return response()->json([
-            'call' => $calls->payload($calls->incomingForAdmin()),
+            'ice_servers' => $calls->iceServers(),
         ])->header('Cache-Control', 'no-store');
     }
 
     public function current(
         Request $request,
-        LiveChatCallService $calls,
-        int $conversation
+        LiveChatService $chat,
+        LiveChatCallService $calls
     ): JsonResponse {
-        $this->authorizeAdmin($request);
-        $this->conversation($conversation);
+        $conversation = $chat->visitorConversation($request);
 
         return response()->json([
-            'call' => $calls->payload($calls->current($conversation)),
+            'call' => $conversation
+                ? $calls->payload($calls->current((int) $conversation->id))
+                : null,
+            'agent_online' => $chat->online(),
+            'conversation_available' => (bool) $conversation,
         ])->header('Cache-Control', 'no-store');
     }
 
     public function start(
         Request $request,
-        LiveChatCallService $calls,
-        int $conversation
+        LiveChatService $chat,
+        LiveChatCallService $calls
     ): JsonResponse {
-        $this->authorizeAdmin($request);
-        $record = $this->conversation($conversation);
+        $conversation = $chat->visitorConversation($request);
 
-        if (($record->delivery_channel ?? 'live') === 'email') {
+        if (! $conversation) {
+            return response()->json([
+                'message' => 'Start eerst een live-chatgesprek voordat je belt.',
+            ], 409);
+        }
+
+        if (! $chat->online()) {
+            return response()->json([
+                'message' => 'Er is momenteel geen medewerker beschikbaar om op te nemen.',
+            ], 409);
+        }
+
+        if ($chat->visitorBlocked($request)) {
+            return response()->json([
+                'message' => 'Je kunt momenteel geen oproep starten.',
+            ], 403);
+        }
+
+        if (($conversation->delivery_channel ?? 'live') === 'email') {
             return response()->json([
                 'message' => 'Dit gesprek loopt momenteel via e-mail.',
             ], 409);
@@ -72,14 +78,15 @@ class AdminLiveChatCallController extends Controller
 
         try {
             $call = $calls->start(
-                $conversation,
-                'admin',
+                (int) $conversation->id,
+                'visitor',
                 (string) $data['mode'],
-                $data['offer'],
-                (int) $request->user()->id
+                $data['offer']
             );
         } catch (RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 409);
         }
 
         return response()->json([
@@ -89,12 +96,12 @@ class AdminLiveChatCallController extends Controller
 
     public function answer(
         Request $request,
+        LiveChatService $chat,
         LiveChatCallService $calls,
-        int $conversation,
         string $call
     ): JsonResponse {
-        $this->authorizeAdmin($request);
-        $this->conversation($conversation);
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
 
         $data = $request->validate([
             'answer.type' => ['required', 'string', 'in:answer'],
@@ -107,38 +114,49 @@ class AdminLiveChatCallController extends Controller
         }
 
         try {
-            $record = $calls->answer($call, $conversation, $data['answer']);
+            $record = $calls->answer(
+                $call,
+                (int) $conversation->id,
+                $data['answer']
+            );
         } catch (RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 409);
         }
 
-        return response()->json(['call' => $calls->payload($record)])
-            ->header('Cache-Control', 'no-store');
+        return response()->json([
+            'call' => $calls->payload($record),
+        ])->header('Cache-Control', 'no-store');
     }
 
     public function decline(
         Request $request,
+        LiveChatService $chat,
         LiveChatCallService $calls,
-        int $conversation,
         string $call
     ): JsonResponse {
-        $this->authorizeAdmin($request);
-        $this->conversation($conversation);
-        $calls->decline($call, $conversation);
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
 
-        return response()->json(['ok' => true]);
+        $calls->decline($call, (int) $conversation->id);
+
+        return response()->json(['ok' => true])
+            ->header('Cache-Control', 'no-store');
     }
 
     public function end(
         Request $request,
+        LiveChatService $chat,
         LiveChatCallService $calls,
-        int $conversation,
         string $call
     ): JsonResponse {
-        $this->authorizeAdmin($request);
-        $this->conversation($conversation);
-        $calls->end($call, $conversation);
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
 
-        return response()->json(['ok' => true]);
+        $calls->end($call, (int) $conversation->id);
+
+        return response()->json(['ok' => true])
+            ->header('Cache-Control', 'no-store');
     }
 }

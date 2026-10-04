@@ -36,6 +36,8 @@
         mediaSyncTimer: null,
         mutedAudioTrack: null,
         muting: false,
+        agentOnline: false,
+        conversationAvailable: false,
     };
 
     const css = `
@@ -965,6 +967,35 @@
         })[char]);
     }
 
+    function refreshVisitorCallButtons() {
+        if (side !== 'visitor') return;
+
+        const audio = root.querySelector('[data-lcc-audio]');
+        const video = root.querySelector('[data-lcc-video]');
+        if (!audio || !video) return;
+
+        // De gewone live-chat gebruikt `human`, niet `live`. `live` blijft
+        // ondersteund voor oudere templates.
+        const mode = String(root.dataset.mode || '').toLowerCase();
+        const humanChat = mode === 'human' || mode === 'live';
+        const available = humanChat
+            && state.agentOnline
+            && state.conversationAvailable;
+
+        audio.hidden = !available;
+        video.hidden = !available;
+        audio.disabled = !available || Boolean(state.call) || state.busy;
+        video.disabled = !available || Boolean(state.call) || state.busy;
+
+        const title = state.agentOnline
+            ? 'Bellen met beschikbare medewerker'
+            : 'Er is momenteel geen medewerker beschikbaar';
+        audio.title = title;
+        video.title = state.agentOnline
+            ? 'Videobellen met beschikbare medewerker'
+            : title;
+    }
+
     async function pollIncoming() {
         if (state.call || state.busy) return;
         try {
@@ -973,6 +1004,9 @@
                 data = await request(endpoints().incoming);
             } else {
                 data = await request(endpoints().current);
+                state.agentOnline = Boolean(data.agent_online);
+                state.conversationAvailable = Boolean(data.conversation_available);
+                refreshVisitorCallButtons();
             }
 
             // Een request kan gestart zijn voordat de gebruiker op Opnemen tikte.
@@ -1060,14 +1094,11 @@
         audio.addEventListener('click', () => void startOutgoing('audio'));
         video.addEventListener('click', () => void startOutgoing('video'));
 
-        const refresh = () => {
-            const live = root.dataset.mode === 'live';
-            audio.hidden = !live;
-            video.hidden = !live;
-            audio.disabled = !live || Boolean(state.call);
-            video.disabled = !live || Boolean(state.call);
-        };
-        new MutationObserver(refresh).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+        const refresh = () => refreshVisitorCallButtons();
+        new MutationObserver(refresh).observe(root, {
+            attributes: true,
+            attributeFilter: ['data-mode'],
+        });
         setInterval(refresh, 1000);
         refresh();
     }
