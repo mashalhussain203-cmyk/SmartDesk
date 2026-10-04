@@ -6519,6 +6519,7 @@
              * Safari can restore a page from BFCache before reveal observers
              * run again. Never leave the actual page content invisible on mobile.
              */
+            .studio-reveal,
             [data-reveal],
             [data-stagger],
             [data-stagger] > * {
@@ -8935,10 +8936,16 @@
             }
 
             document
-                .querySelectorAll('[data-reveal], [data-stagger]')
+                .querySelectorAll('.studio-reveal, [data-reveal], [data-stagger]')
                 .forEach(function (element) {
                     element.classList.add('is-visible');
                 });
+
+            var main = document.getElementById('studioMain');
+            if (main) {
+                main.style.visibility = 'visible';
+                main.style.opacity = '1';
+            }
         }
 
         function resetClosedMobileNavigation() {
