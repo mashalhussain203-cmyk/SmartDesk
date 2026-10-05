@@ -9,7 +9,7 @@
         padding: 86px 0 110px;
         background:
             radial-gradient(circle at 12% 4%, rgba(122, 108, 255, .10), transparent 26rem),
-            radial-gradient(circle at 92% 16%, rgba(255, 255, 255, .025), transparent 28rem),
+            radial-gradient(circle at 92% 16%, rgba(77, 136, 255, .06), transparent 28rem),
             #08090b;
     }
 
@@ -38,7 +38,11 @@
         content: "";
         width: 30px;
         height: 1px;
-        background: #8f82ff;
+        background: linear-gradient(
+            90deg,
+            #8f82ff,
+            #4d88ff
+        );
     }
 
     .legal-title {
@@ -134,6 +138,166 @@
         word-break: break-word;
     }
 
+    .contact-form-card {
+        margin-bottom: 18px;
+        padding: 28px;
+        border: 1px solid rgba(143, 130, 255, .16);
+        border-radius: 24px;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(143, 130, 255, .06),
+                rgba(77, 136, 255, .025)
+            ),
+            rgba(255, 255, 255, .018);
+        box-shadow:
+            0 18px 45px rgba(0, 0, 0, .20),
+            inset 0 1px 0 rgba(255, 255, 255, .025);
+    }
+
+    .contact-form-card h2 {
+        margin: 0 0 8px;
+        color: #fff;
+        font-size: 22px;
+        letter-spacing: -.03em;
+    }
+
+    .contact-form-intro {
+        margin: 0 0 24px;
+        color: #858b92;
+        font-size: 12px;
+        line-height: 1.75;
+    }
+
+    .contact-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .contact-field {
+        margin-bottom: 16px;
+    }
+
+    .contact-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .contact-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #d8d9df;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .contact-input,
+    .contact-textarea {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid rgba(255, 255, 255, .09);
+        outline: none;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .035);
+        color: #fff;
+        font: inherit;
+        font-size: 13px;
+        transition:
+            border-color .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .contact-input {
+        min-height: 48px;
+        padding: 0 14px;
+    }
+
+    .contact-textarea {
+        min-height: 170px;
+        padding: 14px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .contact-input::placeholder,
+    .contact-textarea::placeholder {
+        color: #5e646b;
+    }
+
+    .contact-input:focus,
+    .contact-textarea:focus {
+        border-color: rgba(143, 130, 255, .65);
+        background: rgba(143, 130, 255, .045);
+        box-shadow: 0 0 0 4px rgba(143, 130, 255, .08);
+    }
+
+    .contact-input.is-invalid,
+    .contact-textarea.is-invalid {
+        border-color: rgba(239, 68, 68, .55);
+    }
+
+    .contact-error {
+        margin-top: 7px;
+        color: #ff8f8f;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    .contact-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 21px;
+        border: 1px solid rgba(169, 159, 255, .25);
+        border-radius: 999px;
+        background: linear-gradient(
+            135deg,
+            #8f82ff,
+            #6f63e8,
+            #4d88ff
+        );
+        color: #f8f8ff;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .01em;
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            opacity .2s ease;
+    }
+
+    .contact-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(111, 99, 232, .24);
+    }
+
+    .contact-submit:active {
+        transform: translateY(0);
+    }
+
+    .contact-alert {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .contact-alert-success {
+        border: 1px solid rgba(34, 197, 94, .25);
+        background: rgba(34, 197, 94, .08);
+        color: #8de8a8;
+    }
+
+    .contact-alert-error {
+        border: 1px solid rgba(239, 68, 68, .25);
+        background: rgba(239, 68, 68, .08);
+        color: #ff9e9e;
+    }
+
     .contact-button {
         display: inline-flex;
         align-items: center;
@@ -186,12 +350,18 @@
             width: min(100% - 30px, 1040px);
         }
 
-        .legal-grid {
+        .legal-grid,
+        .contact-form-grid {
             grid-template-columns: 1fr;
         }
 
-        .legal-card {
+        .legal-card,
+        .contact-form-card {
             padding: 19px;
+        }
+
+        .contact-field-full {
+            grid-column: auto;
         }
     }
 </style>
@@ -202,7 +372,9 @@
     <div class="legal-shell">
 
         <header class="legal-hero">
-            <span class="legal-kicker">Mashal Studio</span>
+            <span class="legal-kicker">
+                Mashal Studio
+            </span>
 
             <h1 class="legal-title">
                 Neem <span>contact op.</span>
@@ -210,10 +382,162 @@
 
             <p class="legal-intro">
                 Heb je een vraag over je account, privacy, beveiliging
-                of het gebruik van Mashal Studio? Neem gerust contact met ons op.
-                We helpen je graag verder.
+                of het gebruik van Mashal Studio? Vul het formulier hieronder in.
+                We hebben je bericht dan direct binnen en nemen zo snel mogelijk contact met je op.
             </p>
         </header>
+
+        <section class="contact-form-card">
+            <h2>Stuur ons een bericht</h2>
+
+            <p class="contact-form-intro">
+                Vul je gegevens en toelichting in. Na het verzenden ontvang je automatisch
+                een bevestiging op het opgegeven e-mailadres.
+            </p>
+
+            @if (session('success'))
+                <div class="contact-alert contact-alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="contact-alert contact-alert-error">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="contact-alert contact-alert-error">
+                    Controleer de ingevulde gegevens en probeer het opnieuw.
+                </div>
+            @endif
+
+            <form
+                method="POST"
+                action="{{ route('contact.send') }}"
+                novalidate
+            >
+                @csrf
+
+                <div class="contact-form-grid">
+
+                    <div class="contact-field">
+                        <label
+                            class="contact-label"
+                            for="first_name"
+                        >
+                            Voornaam
+                        </label>
+
+                        <input
+                            class="contact-input @error('first_name') is-invalid @enderror"
+                            id="first_name"
+                            type="text"
+                            name="first_name"
+                            value="{{ old('first_name', auth()->user()?->first_name ?? auth()->user()?->name) }}"
+                            maxlength="100"
+                            autocomplete="given-name"
+                            placeholder="Je voornaam"
+                            required
+                        >
+
+                        @error('first_name')
+                            <div class="contact-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="contact-field">
+                        <label
+                            class="contact-label"
+                            for="last_name"
+                        >
+                            Achternaam
+                        </label>
+
+                        <input
+                            class="contact-input @error('last_name') is-invalid @enderror"
+                            id="last_name"
+                            type="text"
+                            name="last_name"
+                            value="{{ old('last_name', auth()->user()?->last_name) }}"
+                            maxlength="100"
+                            autocomplete="family-name"
+                            placeholder="Je achternaam"
+                            required
+                        >
+
+                        @error('last_name')
+                            <div class="contact-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="contact-field contact-field-full">
+                        <label
+                            class="contact-label"
+                            for="email"
+                        >
+                            E-mailadres
+                        </label>
+
+                        <input
+                            class="contact-input @error('email') is-invalid @enderror"
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email', auth()->user()?->email) }}"
+                            maxlength="255"
+                            autocomplete="email"
+                            placeholder="jij@example.com"
+                            required
+                        >
+
+                        @error('email')
+                            <div class="contact-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="contact-field contact-field-full">
+                        <label
+                            class="contact-label"
+                            for="message"
+                        >
+                            Toelichting
+                        </label>
+
+                        <textarea
+                            class="contact-textarea @error('message') is-invalid @enderror"
+                            id="message"
+                            name="message"
+                            minlength="10"
+                            maxlength="5000"
+                            placeholder="Vertel ons waarmee we je kunnen helpen..."
+                            required
+                        >{{ old('message') }}</textarea>
+
+                        @error('message')
+                            <div class="contact-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                </div>
+
+                <button
+                    class="contact-submit"
+                    type="submit"
+                >
+                    Bericht versturen
+                </button>
+            </form>
+        </section>
 
         <div class="legal-grid">
 
@@ -224,12 +548,12 @@
                     <strong>E-mailadres</strong>
 
                     <span>
-                        mahsalhussain203@gmail.com
+                        mashalhussain203@gmail.com
                     </span>
 
                     <a
                         class="contact-button"
-                        href="mailto:mahsalhussain203@gmail.com"
+                        href="mailto:mashalhussain203@gmail.com"
                     >
                         E-mail sturen
                     </a>
@@ -258,7 +582,7 @@
             <p>
                 Heb je problemen met inloggen, het aanmaken van een account
                 of het gebruiken van een externe inlogmethode zoals TikTok?
-                Stuur ons dan een e-mail met een korte omschrijving van het probleem.
+                Beschrijf het probleem dan zo duidelijk mogelijk in het formulier.
             </p>
 
             <p>
@@ -273,12 +597,12 @@
             <p>
                 Voor vragen over je persoonsgegevens, inzage, correctie,
                 verwijdering van gegevens of andere privacygerelateerde verzoeken
-                kun je contact opnemen via
+                kun je het contactformulier gebruiken of e-mailen naar
                 <a
                     class="legal-link"
-                    href="mailto:mahsalhussain203@gmail.com"
+                    href="mailto:mashalhussain203@gmail.com"
                 >
-                    mahsalhussain203@gmail.com
+                    mashalhussain203@gmail.com
                 </a>.
             </p>
 
@@ -304,8 +628,7 @@
             </p>
 
             <p>
-                Vermeld in het onderwerp van je e-mail duidelijk dat het om
-                een beveiligingsmelding gaat en beschrijf wat je hebt waargenomen.
+                Beschrijf zo duidelijk mogelijk wat je hebt waargenomen.
                 Deel geen wachtwoorden, verificatiecodes, recoverycodes
                 of andere vertrouwelijke inloggegevens.
             </p>
@@ -343,8 +666,8 @@
             </p>
 
             <p class="contact-note">
-                Voor dringende beveiligings- of privacykwesties kun je dit
-                duidelijk vermelden in het onderwerp van je e-mail.
+                Na het verzenden van het formulier ontvang je automatisch
+                een bevestigingsmail op het opgegeven e-mailadres.
             </p>
         </section>
 

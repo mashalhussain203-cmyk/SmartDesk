@@ -46,7 +46,14 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+
+            'local_domain' => env(
+                'MAIL_EHLO_DOMAIN',
+                parse_url(
+                    (string) env('APP_URL', 'http://localhost'),
+                    PHP_URL_HOST
+                )
+            ),
         ],
 
         'ses' => [
@@ -55,7 +62,11 @@ return [
 
         'postmark' => [
             'transport' => 'postmark',
-            // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
+
+            // 'message_stream_id' => env(
+            //     'POSTMARK_MESSAGE_STREAM_ID'
+            // ),
+
             // 'client' => [
             //     'timeout' => 5,
             // ],
@@ -67,7 +78,11 @@ return [
 
         'sendmail' => [
             'transport' => 'sendmail',
-            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
+
+            'path' => env(
+                'MAIL_SENDMAIL_PATH',
+                '/usr/sbin/sendmail -bs -i'
+            ),
         ],
 
         'log' => [
@@ -81,19 +96,23 @@ return [
 
         'failover' => [
             'transport' => 'failover',
+
             'mailers' => [
                 'smtp',
                 'log',
             ],
+
             'retry_after' => 60,
         ],
 
         'roundrobin' => [
             'transport' => 'roundrobin',
+
             'mailers' => [
                 'ses',
                 'postmark',
             ],
+
             'retry_after' => 60,
         ],
 
@@ -104,15 +123,36 @@ return [
     | Global "From" Address
     |--------------------------------------------------------------------------
     |
-    | You may wish for all emails sent by your application to be sent from
-    | the same address. Here you may specify a name and address that is
-    | used globally for all emails that are sent by your application.
+    | All emails sent by the application can use this address as the
+    | default sender unless a specific mailable overrides it.
     |
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'address' => env(
+            'MAIL_FROM_ADDRESS',
+            'hello@example.com'
+        ),
+
+        'name' => env(
+            'MAIL_FROM_NAME',
+            env('APP_NAME', 'Laravel')
+        ),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contact Form Recipient
+    |--------------------------------------------------------------------------
+    |
+    | All messages submitted through the public contact form are sent to
+    | this email address.
+    |
+    */
+
+    'contact_to' => env(
+        'CONTACT_MAIL_TO',
+        'mashalhussain203@gmail.com'
+    ),
 
 ];
