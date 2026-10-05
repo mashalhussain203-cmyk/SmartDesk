@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ContactConfirmationMail;
-use App\Mail\ContactReceivedMail;
+use App\Services\GmailLiveChatService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Throwable;
 
@@ -23,8 +21,10 @@ class ContactController extends Controller
     /**
      * Verwerk en verstuur het contactformulier.
      */
-    public function send(Request $request): RedirectResponse
-    {
+    public function send(
+        Request $request,
+        GmailLiveChatService $gmail
+    ): RedirectResponse {
         $validated = $request->validate(
             [
                 'first_name' => [
@@ -73,36 +73,52 @@ class ContactController extends Controller
         );
 
         $data = [
-            'first_name' => trim($validated['first_name']),
-            'last_name' => trim($validated['last_name']),
-            'email' => strtolower(trim($validated['email'])),
-            'message' => trim($validated['message']),
+            'first_name' => trim(
+                $validated['first_name']
+            ),
+
+            'last_name' => trim(
+                $validated['last_name']
+            ),
+
+            'email' => strtolower(
+                trim(
+                    $validated['email']
+                )
+            ),
+
+            'message' => trim(
+                $validated['message']
+            ),
         ];
-
-        $contactAddress = config('mail.contact_to');
-
-        if (! is_string($contactAddress) || $contactAddress === '') {
-            $contactAddress = config('mail.from.address');
-        }
 
         try {
             /*
             |--------------------------------------------------------------------------
-            | Mail naar SmartDesk / Mashal
+            | 1. Contactbericht naar Mashal / SmartDesk
             |--------------------------------------------------------------------------
+            |
+            | Dit wordt verstuurd via de Gmail API.
+            | Railway SMTP wordt dus niet gebruikt.
+            |
             */
 
-            Mail::to($contactAddress)
-                ->send(new ContactReceivedMail($data));
+            $gmail->sendContactMessage(
+                $data
+            );
 
             /*
             |--------------------------------------------------------------------------
-            | Bevestigingsmail naar de bezoeker
+            | 2. Automatische bevestiging naar bezoeker
             |--------------------------------------------------------------------------
+            |
+            | De bezoeker krijgt via dezelfde Gmail API een ontvangstbevestiging.
+            |
             */
 
-            Mail::to($data['email'])
-                ->send(new ContactConfirmationMail($data));
+            $gmail->sendContactConfirmation(
+                $data
+            );
 
             return redirect()
                 ->route('contact')
