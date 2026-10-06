@@ -11,11 +11,17 @@ use Throwable;
 
 class TikTokCounterController extends Controller
 {
+    /**
+     * Show the TikTok Live Count start page.
+     */
     public function index(): View
     {
         return view('tools.tiktok-counter');
     }
 
+    /**
+     * Accept a TikTok URL and redirect to the live counter page.
+     */
     public function lookup(
         Request $request,
         TikTokVideoStatsService $service
@@ -27,6 +33,8 @@ class TikTokCounterController extends Controller
         try {
             $video = $service->resolveVideo($validated['url']);
         } catch (Throwable $e) {
+            report($e);
+
             return back()
                 ->withInput()
                 ->withErrors([
@@ -43,12 +51,15 @@ class TikTokCounterController extends Controller
         );
     }
 
+    /**
+     * Show the live counter for one TikTok video.
+     */
     public function show(
         string $videoId,
         Request $request,
         TikTokVideoStatsService $service
     ): View|RedirectResponse {
-        $videoUrl = (string) $request->query('url', '');
+        $videoUrl = trim((string) $request->query('url', ''));
 
         if ($videoUrl === '') {
             return redirect()
@@ -61,14 +72,22 @@ class TikTokCounterController extends Controller
         try {
             $video = $service->resolveVideo($videoUrl);
         } catch (Throwable $e) {
+            report($e);
+
             return redirect()
                 ->route('tiktok-counter.index')
-                ->withInput(['url' => $videoUrl])
+                ->withInput([
+                    'url' => $videoUrl,
+                ])
                 ->withErrors([
                     'url' => $e->getMessage(),
                 ]);
         }
 
+        /*
+         * If the URL resolves to another TikTok id,
+         * redirect to the canonical counter URL.
+         */
         if ((string) $video['video_id'] !== (string) $videoId) {
             return redirect()->route(
                 'tiktok-counter.show',
@@ -85,27 +104,33 @@ class TikTokCounterController extends Controller
         ]);
     }
 
+    /**
+     * JSON endpoint called by the frontend every 4 seconds.
+     *
+     * Every request calls TikTokVideoStatsService again.
+     * Nothing is cached in this controller.
+     */
     public function stats(
         string $videoId,
         Request $request,
         TikTokVideoStatsService $service
     ): JsonResponse {
-        $videoUrl = (string) $request->query('url', '');
+        $videoUrl = trim((string) $request->query('url', ''));
 
         if ($videoUrl === '') {
             return $this->noStore(
                 response()->json([
                     'success' => false,
                     'message' => 'TikTok URL ontbreekt.',
+                    'request_id' => $request->query('_request'),
+                    'updated_at' => now()->toIso8601String(),
                 ], 422)
             );
         }
 
         try {
             /*
-             * IMPORTANT:
-             * getLiveStats() does a fresh TikTok HTTP request every time.
-             * There is intentionally no Cache::remember() here.
+             * This must perform a fresh provider request every time.
              */
             $stats = $service->getLiveStats(
                 $videoUrl,
@@ -117,40 +142,51 @@ class TikTokCounterController extends Controller
                     'success' => true,
 
                     'stats' => [
-                        'views' => $stats['views'],
-                        'likes' => $stats['likes'],
-                        'comments' => $stats['comments'],
-                        'shares' => $stats['shares'],
+                        'views' => $stats['views'] ?? null,
+                        'likes' => $stats['likes'] ?? null,
+                        'comments' => $stats['comments'] ?? null,
+                        'shares' => $stats['shares'] ?? null,
                     ],
 
                     'author_name' => $stats['author_name'] ?? null,
                     'title' => $stats['title'] ?? null,
                     'thumbnail_url' => $stats['thumbnail_url'] ?? null,
 
-                    'updated_at' => now()->toIso8601String(),
-
                     /*
-                     * These fields make it easy to verify in DevTools that
-                     * every browser poll reached Laravel again.
+                     * Useful for DevTools:
+                     * this proves each poll reached Laravel.
                      */
                     'request_id' => $request->query('_request'),
                     'fetched_fresh' => true,
+                    'updated_at' => now()->toIso8601String(),
                 ])
             );
         } catch (Throwable $e) {
             report($e);
 
+            /*
+             * IMPORTANT:
+             * We intentionally return the provider/service error message
+             * so you can see exactly why the request failed instead of only
+             * getting "Nieuwe TikTok-data kon niet worden opgehaald".
+             *
+             * Do not include secrets/tokens in exception messages.
+             */
             return $this->noStore(
                 response()->json([
                     'success' => false,
-                    'message' => 'Nieuwe TikTok-data kon niet worden opgehaald.',
-                    'updated_at' => now()->toIso8601String(),
+                    'message' => $e->getMessage(),
+                    'error_type' => class_basename($e),
                     'request_id' => $request->query('_request'),
+                    'updated_at' => now()->toIso8601String(),
                 ], 502)
             );
         }
     }
 
+    /**
+     * Disable browser/proxy caching for all live-count JSON responses.
+     */
     private function noStore(JsonResponse $response): JsonResponse
     {
         return $response
