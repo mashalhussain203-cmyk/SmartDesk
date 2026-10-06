@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'TikTok Live View Counter | Mashal Studio')
+@section('title', 'TikTok Live Count | Mashal Studio')
 @section('meta_description', 'Volg de publieke statistieken van een TikTok-video in Mashal Studio.')
 
 @push('styles')
@@ -381,7 +381,7 @@
     <div class="ttc-shell">
         <header class="ttc-hero">
             <div class="ttc-kicker">Mashal Social Tools</div>
-            <h1 class="ttc-title">TikTok Live <span>View Counter.</span></h1>
+            <h1 class="ttc-title">TikTok <span>Live Count.</span></h1>
             <p class="ttc-subtitle">Plak een openbare TikTok-video en volg views, likes, reacties en shares vanuit één live dashboard.</p>
         </header>
 
@@ -395,7 +395,7 @@
                 autocomplete="off"
                 required
             >
-            <button class="ttc-button" type="submit">Bekijk live statistieken</button>
+            <button class="ttc-button" type="submit">Start Live Count</button>
         </form>
 
         @error('url')
@@ -480,119 +480,382 @@
 
 @isset($videoId)
 @push('scripts')
-<script>
-(() => {
-    const root = document.getElementById('ttc-result');
-    if (!root) return;
+<script type="application/json" id="ttc-live-config">{!! json_encode([
+    'endpoint' => route('tiktok-counter.stats', ['videoId' => $videoId]),
+    'videoUrl' => $videoUrl,
+    'pollMs' => 4000,
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 
-    const videoId = root.dataset.videoId;
-    const videoUrl = root.dataset.videoUrl;
-    const endpoint = @json(route('tiktok-counter.stats', ['videoId' => $videoId]));
-    const number = new Intl.NumberFormat('nl-NL');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+
+    const root = document.getElementById('ttc-result');
+    const configElement = document.getElementById('ttc-live-config');
+
+    if (!root || !configElement) {
+        return;
+    }
+
+    let config;
+
+    try {
+        config = JSON.parse(configElement.textContent || '{}');
+    } catch (error) {
+        console.error('Live Count configuratie kon niet worden gelezen:', error);
+        return;
+    }
+
+    const endpoint = String(config.endpoint || '');
+    const videoUrl = String(config.videoUrl || '');
+    const pollMs = Math.max(2500, Number(config.pollMs || 4000));
+    const numberFormatter = new Intl.NumberFormat('nl-NL');
     const statKeys = ['views', 'likes', 'comments', 'shares'];
-    let first = null;
+
+    const elements = {
+        statusText: document.getElementById('ttc-status-text'),
+        statusDot: document.getElementById('ttc-status-dot'),
+        updated: document.getElementById('ttc-updated'),
+        author: document.getElementById('ttc-author'),
+        title: document.getElementById('ttc-video-title'),
+        image: document.getElementById('ttc-thumb-image'),
+        refresh: document.getElementById('ttc-refresh'),
+        copy: document.getElementById('ttc-copy'),
+        chartLine: document.getElementById('ttc-chart-line'),
+        chartArea: document.getElementById('ttc-chart-area'),
+    };
+
+    const statElements = {};
+    const deltaElements = {};
+
+    statKeys.forEach((key) => {
+        statElements[key] = document.querySelector(`[data-stat="${key}"]`);
+        deltaElements[key] = document.querySelector(`[data-delta="${key}"]`);
+    });
+
+    let sessionStart = null;
+    let lastStats = null;
     let history = [];
-    let busy = false;
+    let stopped = false;
+    let timer = null;
+    let activeController = null;
+    let requestNumber = 0;
 
     function setStatus(text, ok = true) {
-        document.getElementById('ttc-status-text').textContent = text;
-        document.getElementById('ttc-status-dot').style.background = ok ? '#74dfa7' : '#ff7c91';
+        if (elements.statusText) {
+            elements.statusText.textContent = text;
+        }
+
+        if (elements.statusDot) {
+            elements.statusDot.style.background = ok ? '#74dfa7' : '#ff7c91';
+            elements.statusDot.style.boxShadow = ok
+                ? '0 0 14px rgba(116,223,167,.65)'
+                : '0 0 14px rgba(255,124,145,.55)';
+        }
+    }
+
+    function toNumber(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function formatNumber(value) {
+        return numberFormatter.format(Number(value || 0));
+    }
+
+    function animateNumber(element, fromValue, toValue, duration = 650) {
+        if (!element) {
+            return;
+        }
+
+        const from = Number.isFinite(fromValue) ? fromValue : toValue;
+        const to = Number.isFinite(toValue) ? toValue : 0;
+        const startedAt = performance.now();
+        const difference = to - from;
+
+        function frame(now) {
+            const progress = Math.min((now - startedAt) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(from + (difference * eased));
+
+            element.textContent = formatNumber(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(frame);
+            }
+        }
+
+        requestAnimationFrame(frame);
     }
 
     function renderChart() {
-        const values = history.map(item => item.views).filter(v => Number.isFinite(v));
-        const line = document.getElementById('ttc-chart-line');
-        const area = document.getElementById('ttc-chart-area');
-        if (!values.length) return;
+        if (!elements.chartLine || !elements.chartArea) {
+            return;
+        }
+
+        const values = history
+            .map((item) => item.views)
+            .filter((value) => Number.isFinite(value));
+
+        if (!values.length) {
+            elements.chartLine.setAttribute('d', '');
+            elements.chartArea.setAttribute('d', '');
+            return;
+        }
 
         const min = Math.min(...values);
         const max = Math.max(...values);
         const spread = Math.max(max - min, 1);
         const width = 800;
         const height = 150;
-        const pad = 10;
-        const points = values.map((value, i) => {
-            const x = values.length === 1 ? 0 : (i / (values.length - 1)) * width;
-            const y = height - pad - ((value - min) / spread) * (height - pad * 2);
+        const padding = 10;
+
+        const points = values.map((value, index) => {
+            const x = values.length === 1
+                ? 0
+                : (index / (values.length - 1)) * width;
+
+            const y = height - padding
+                - ((value - min) / spread) * (height - padding * 2);
+
             return [x, y];
         });
 
-        const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' ');
-        line.setAttribute('d', d);
-        area.setAttribute('d', `${d} L ${width} ${height} L 0 ${height} Z`);
+        const linePath = points
+            .map((point, index) => {
+                const command = index === 0 ? 'M' : 'L';
+                return `${command} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`;
+            })
+            .join(' ');
+
+        elements.chartLine.setAttribute('d', linePath);
+        elements.chartArea.setAttribute(
+            'd',
+            `${linePath} L ${width} ${height} L 0 ${height} Z`
+        );
     }
 
-    function apply(data) {
-        const stats = data.stats || {};
-        if (!first) first = {...stats};
+    function updateStat(key, value) {
+        const valueElement = statElements[key];
+        const deltaElement = deltaElements[key];
 
-        statKeys.forEach(key => {
-            const el = document.querySelector(`[data-stat="${key}"]`);
-            const deltaEl = document.querySelector(`[data-delta="${key}"]`);
-            const value = stats[key];
-            el.classList.remove('ttc-loading');
-            el.textContent = Number.isFinite(value) ? number.format(value) : '—';
-
-            if (Number.isFinite(value) && Number.isFinite(first[key])) {
-                const delta = value - first[key];
-                deltaEl.textContent = `${delta >= 0 ? '+' : ''}${number.format(delta)} deze sessie`;
-                deltaEl.style.color = delta >= 0 ? '#74dfa7' : '#ff9cad';
-            } else {
-                deltaEl.textContent = 'Niet beschikbaar';
-                deltaEl.style.color = '#69727f';
-            }
-        });
-
-        document.getElementById('ttc-author').textContent = data.author_name ? `@${data.author_name.replace(/^@/, '')}` : 'TikTok video';
-        document.getElementById('ttc-video-title').textContent = data.title || 'Openbare TikTok-video';
-
-        const img = document.getElementById('ttc-thumb-image');
-        if (data.thumbnail_url) {
-            img.src = data.thumbnail_url;
-            img.hidden = false;
+        if (!valueElement) {
+            return;
         }
 
-        document.getElementById('ttc-updated').textContent = `Bijgewerkt ${new Date(data.updated_at).toLocaleTimeString('nl-NL', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}`;
-        setStatus(data.stats ? 'Live data actief' : 'Video gevonden · statistieken beperkt', !!data.stats);
+        valueElement.classList.remove('ttc-loading');
+
+        if (!Number.isFinite(value)) {
+            valueElement.textContent = '—';
+
+            if (deltaElement) {
+                deltaElement.textContent = 'Niet beschikbaar';
+                deltaElement.style.color = '#69727f';
+            }
+
+            return;
+        }
+
+        const previousValue = lastStats && Number.isFinite(lastStats[key])
+            ? lastStats[key]
+            : value;
+
+        animateNumber(valueElement, previousValue, value);
+
+        if (deltaElement && sessionStart && Number.isFinite(sessionStart[key])) {
+            const delta = value - sessionStart[key];
+            deltaElement.textContent = `${delta >= 0 ? '+' : ''}${formatNumber(delta)} deze sessie`;
+            deltaElement.style.color = delta >= 0 ? '#74dfa7' : '#ff9cad';
+        }
+    }
+
+    function applyPayload(data) {
+        const rawStats = data && typeof data.stats === 'object' && data.stats !== null
+            ? data.stats
+            : {};
+
+        const stats = {
+            views: toNumber(rawStats.views),
+            likes: toNumber(rawStats.likes),
+            comments: toNumber(rawStats.comments),
+            shares: toNumber(rawStats.shares),
+        };
+
+        if (!sessionStart) {
+            sessionStart = { ...stats };
+        }
+
+        statKeys.forEach((key) => updateStat(key, stats[key]));
+
+        if (elements.author) {
+            elements.author.textContent = data.author_name
+                ? `@${String(data.author_name).replace(/^@/, '')}`
+                : 'TikTok video';
+        }
+
+        if (elements.title) {
+            elements.title.textContent = data.title || 'Openbare TikTok-video';
+        }
+
+        if (elements.image && data.thumbnail_url) {
+            if (elements.image.src !== data.thumbnail_url) {
+                elements.image.src = data.thumbnail_url;
+            }
+
+            elements.image.hidden = false;
+        }
+
+        const updatedAt = data.updated_at ? new Date(data.updated_at) : new Date();
+
+        if (elements.updated) {
+            elements.updated.textContent = `Live bijgewerkt ${updatedAt.toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            })}`;
+        }
+
+        const availableCount = statKeys.filter((key) => Number.isFinite(stats[key])).length;
+
+        setStatus(
+            availableCount === statKeys.length
+                ? `Live Count actief · elke ${Math.round(pollMs / 1000)} sec`
+                : `Live Count actief · ${availableCount}/4 statistieken beschikbaar`,
+            availableCount > 0
+        );
 
         if (Number.isFinite(stats.views)) {
-            history.push({views: stats.views, at: Date.now()});
-            history = history.slice(-40);
+            history.push({
+                views: stats.views,
+                at: Date.now(),
+            });
+
+            history = history.slice(-60);
             renderChart();
         }
+
+        lastStats = { ...stats };
     }
 
-    async function refresh(force = false) {
-        if (busy) return;
-        busy = true;
+    function scheduleNext(delay = pollMs) {
+        if (stopped) {
+            return;
+        }
+
+        window.clearTimeout(timer);
+        timer = window.setTimeout(fetchLiveStats, delay);
+    }
+
+    async function fetchLiveStats() {
+        if (stopped || !endpoint) {
+            return;
+        }
+
+        requestNumber += 1;
+        const currentRequest = requestNumber;
+
+        if (activeController) {
+            activeController.abort();
+        }
+
+        activeController = new AbortController();
+        const abortTimer = window.setTimeout(() => {
+            activeController?.abort();
+        }, 20000);
+
+        const params = new URLSearchParams();
+        params.set('url', videoUrl);
+        params.set('_live', String(Date.now()));
+        params.set('_request', String(currentRequest));
+
+        setStatus('Nieuwe TikTok-data ophalen…', true);
+
         try {
-            const params = new URLSearchParams({url: videoUrl});
-            if (force) params.set('fresh', '1');
-            const response = await fetch(`${endpoint}?${params.toString()}`, {headers: {'Accept': 'application/json'}});
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Ophalen mislukt');
-            apply(data);
+            const response = await fetch(`${endpoint}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                },
+                cache: 'no-store',
+                credentials: 'same-origin',
+                signal: activeController.signal,
+            });
+
+            let data = null;
+
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error(`Ongeldige serverresponse (${response.status})`);
+            }
+
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || `Live Count request mislukt (${response.status})`);
+            }
+
+            applyPayload(data);
         } catch (error) {
-            setStatus(error.message || 'Ophalen mislukt', false);
-            document.getElementById('ttc-updated').textContent = 'Nieuwe poging volgt automatisch';
-            document.querySelectorAll('.ttc-loading').forEach(el => el.classList.remove('ttc-loading'));
+            if (error && error.name === 'AbortError') {
+                setStatus('Live request duurde te lang · nieuwe poging volgt', false);
+            } else {
+                console.error('TikTok Live Count fout:', error);
+                setStatus(error?.message || 'Live ophalen mislukt · nieuwe poging volgt', false);
+            }
+
+            if (elements.updated) {
+                elements.updated.textContent = 'Automatische nieuwe poging volgt';
+            }
+
+            document
+                .querySelectorAll('.ttc-loading')
+                .forEach((element) => element.classList.remove('ttc-loading'));
         } finally {
-            busy = false;
+            window.clearTimeout(abortTimer);
+            activeController = null;
+            scheduleNext();
         }
     }
 
-    document.getElementById('ttc-refresh').addEventListener('click', () => refresh(true));
-    document.getElementById('ttc-copy').addEventListener('click', async (event) => {
-        await navigator.clipboard.writeText(window.location.href);
-        const button = event.currentTarget;
-        const original = button.textContent;
-        button.textContent = '✓ Gekopieerd';
-        setTimeout(() => button.textContent = original, 1400);
+    elements.refresh?.addEventListener('click', () => {
+        window.clearTimeout(timer);
+        fetchLiveStats();
     });
 
-    refresh(true);
-    setInterval(() => refresh(true), 10000);
-})();
+    elements.copy?.addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        const originalText = button.textContent;
+
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            button.textContent = '✓ Gekopieerd';
+        } catch (error) {
+            button.textContent = 'Kopiëren mislukt';
+        }
+
+        window.setTimeout(() => {
+            button.textContent = originalText;
+        }, 1400);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            window.clearTimeout(timer);
+            fetchLiveStats();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        stopped = true;
+        window.clearTimeout(timer);
+        activeController?.abort();
+    });
+
+    // Eerste fetch direct bij het openen van de pagina.
+    fetchLiveStats();
+});
 </script>
 @endpush
 @endisset
