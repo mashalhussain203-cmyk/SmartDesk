@@ -17,7 +17,7 @@ class TikTokVideoStatsService
     ];
 
     /**
-     * Resolve a TikTok URL and return a canonical video URL + video id.
+     * Resolve a normal or short TikTok URL to a video id + final URL.
      */
     public function resolveVideo(string $input): array
     {
@@ -50,9 +50,12 @@ class TikTokVideoStatsService
     }
 
     /**
-     * Fetch TikTok again for every call.
+     * Fetch fresh TikTok stats.
      *
-     * No Laravel cache is used here on purpose.
+     * IMPORTANT:
+     * - no Laravel cache
+     * - first tries TikTok web item/detail
+     * - then falls back to the video page
      */
     public function getLiveStats(string $videoUrl, string $videoId): array
     {
@@ -62,98 +65,211 @@ class TikTokVideoStatsService
             throw new RuntimeException('De TikTok-link hoort niet bij deze video.');
         }
 
-        $freshUrl = $this->withCacheBuster($resolved['url']);
+        /*
+         * 1. Try TikTok's web item detail response first.
+         * This can expose integer counters directly when TikTok allows it.
+         */
+        $item = $this->fetchItemDetail(
+            $videoId,
+            $resolved['url']
+        );
 
-        $response = $this->requestTikTok($freshUrl);
+        if ($item !== null) {
+            return $this->normalizeVideoObject($item);
+        }
+
+        /*
+         * 2. Fallback: fetch the public video page again.
+         */
+        $item = $this->fetchVideoPage(
+            $resolved['url'],
+            $videoId
+        );
+
+        if ($item !== null) {
+            return $this->normalizeVideoObject($item);
+        }
+
+        throw new RuntimeException(
+            'TikTok gaf geen bruikbare actuele videostatistieken terug.'
+        );
+    }
+
+    /**
+     * Try TikTok web item/detail.
+     *
+     * TikTok can change or restrict this undocumented web endpoint at any time.
+     */
+    private function fetchItemDetail(
+        string $videoId,
+        string $referer
+    ): ?array {
+        $query = http_build_query([
+            'aid' => '1988',
+            'app_language' => 'en',
+            'app_name' => 'tiktok_web',
+            'browser_language' => 'en-US',
+            'browser_name' => 'Mozilla',
+            'browser_online' => 'true',
+            'browser_platform' => 'Win32',
+            'channel' => 'tiktok_web',
+            'cookie_enabled' => 'true',
+            'device_platform' => 'web_pc',
+            'focus_state' => 'true',
+            'from_page' => 'video',
+            'history_len' => '2',
+            'is_fullscreen' => 'false',
+            'is_page_visible' => 'true',
+            'itemId' => $videoId,
+            'language' => 'en',
+            'os' => 'windows',
+            'region' => 'NL',
+            'screen_height' => '1080',
+            'screen_width' => '1920',
+            'tz_name' => 'Europe/Amsterdam',
+
+            /*
+             * Prevent accidental intermediary caching.
+             */
+            '_mashal_live' => now()->valueOf().'-'.random_int(100000, 999999),
+        ]);
+
+        $url = 'https://www.tiktok.com/api/item/detail/?'.$query;
+
+        $response = $this->tiktokRequest(
+            $url,
+            [
+                'Accept' => 'application/json, text/plain, */*',
+                'Referer' => $referer,
+            ]
+        );
 
         if (!$response->successful()) {
-            throw new RuntimeException(
-                'TikTok gaf HTTP '.$response->status().'.'
-            );
+            return null;
+        }
+
+        $body = trim($response->body());
+
+        if ($body === '') {
+            return null;
+        }
+
+        $data = json_decode($body, true);
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        /*
+         * Common shapes:
+         * itemInfo.itemStruct
+         * itemStruct
+         */
+        $directCandidates = [
+            $data['itemInfo']['itemStruct'] ?? null,
+            $data['itemStruct'] ?? null,
+            $data['item_info']['item_struct'] ?? null,
+        ];
+
+        foreach ($directCandidates as $candidate) {
+            if (
+                is_array($candidate)
+                && $this->videoMatches($candidate, $videoId)
+                && $this->containsStats($candidate)
+            ) {
+                return $candidate;
+            }
+        }
+
+        return $this->findVideoRecursively(
+            $data,
+            $videoId
+        );
+    }
+
+    /**
+     * Fallback: reload the public video page and inspect hydration JSON.
+     */
+    private function fetchVideoPage(
+        string $videoUrl,
+        string $videoId
+    ): ?array {
+        $url = $this->withCacheBuster($videoUrl);
+
+        $response = $this->tiktokRequest(
+            $url,
+            [
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Referer' => 'https://www.tiktok.com/',
+            ]
+        );
+
+        if (!$response->successful()) {
+            return null;
         }
 
         $html = $response->body();
 
         if ($html === '') {
-            throw new RuntimeException('TikTok gaf een lege response terug.');
+            return null;
         }
 
-        $video = $this->extractVideoObject($html, $videoId);
-
-        if ($video === null) {
-            throw new RuntimeException(
-                'De actuele TikTok-statistieken konden niet uit de response worden gelezen.'
-            );
-        }
-
-        return $this->normalizeVideoObject($video);
+        return $this->extractVideoFromHtml(
+            $html,
+            $videoId
+        );
     }
 
-    private function requestTikTok(string $url): Response
-    {
-        return Http::withHeaders([
+    private function tiktokRequest(
+        string $url,
+        array $extraHeaders = []
+    ): Response {
+        $headers = array_merge([
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language' => 'en-US,en;q=0.9,nl;q=0.8',
             'Cache-Control' => 'no-cache, no-store, max-age=0',
             'Pragma' => 'no-cache',
             'DNT' => '1',
-            'Upgrade-Insecure-Requests' => '1',
-        ])
+        ], $extraHeaders);
+
+        /*
+         * Optional:
+         * Put a TikTok browser cookie in Railway/.env as:
+         *
+         * TIKTOK_COOKIE="..."
+         *
+         * Do not hardcode the cookie in this PHP file.
+         */
+        $cookie = trim((string) env('TIKTOK_COOKIE', ''));
+
+        if ($cookie !== '') {
+            $headers['Cookie'] = $cookie;
+        }
+
+        return Http::withHeaders($headers)
             ->timeout(20)
             ->connectTimeout(8)
             ->retry(2, 300, throw: false)
             ->get($url);
     }
 
-    private function followShortTikTokUrl(string $url): string
-    {
-        $current = $url;
+    private function extractVideoFromHtml(
+        string $html,
+        string $videoId
+    ): ?array {
+        $decodedHtml = html_entity_decode(
+            $html,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
 
-        for ($i = 0; $i < 6; $i++) {
-            if (!$this->isAllowedTikTokUrl($current)) {
-                throw new RuntimeException('TikTok redirectte naar een ongeldig domein.');
-            }
-
-            $response = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Cache-Control' => 'no-cache',
-                'Pragma' => 'no-cache',
-            ])
-                ->withoutRedirecting()
-                ->timeout(12)
-                ->connectTimeout(6)
-                ->get($current);
-
-            if ($response->redirect()) {
-                $location = $response->header('Location');
-
-                if (!$location) {
-                    break;
-                }
-
-                $current = $this->absoluteUrl($current, $location);
-                continue;
-            }
-
-            break;
-        }
-
-        return $current;
-    }
-
-    private function extractVideoObject(string $html, string $videoId): ?array
-    {
-        $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-        $scriptPatterns = [
+        $patterns = [
             '/<script[^>]*id=["\']__UNIVERSAL_DATA_FOR_REHYDRATION__["\'][^>]*>(.*?)<\/script>/is',
             '/<script[^>]*id=["\']SIGI_STATE["\'][^>]*>(.*?)<\/script>/is',
         ];
 
-        foreach ($scriptPatterns as $pattern) {
-            if (!preg_match($pattern, $html, $match)) {
+        foreach ($patterns as $pattern) {
+            if (!preg_match($pattern, $decodedHtml, $match)) {
                 continue;
             }
 
@@ -163,72 +279,52 @@ class TikTokVideoStatsService
                 continue;
             }
 
-            $decoded = json_decode($json, true);
+            $data = json_decode($json, true);
 
-            if (!is_array($decoded)) {
+            if (!is_array($data)) {
                 continue;
             }
 
-            $video = $this->findVideoRecursively($decoded, $videoId);
+            /*
+             * Current web page data commonly contains:
+             * __DEFAULT_SCOPE__.webapp.video-detail.itemInfo.itemStruct
+             */
+            $direct = $data['__DEFAULT_SCOPE__']['webapp.video-detail']['itemInfo']['itemStruct']
+                ?? $data['__DEFAULT_SCOPE__']['webapp.video-detail']['item_info']['item_struct']
+                ?? null;
 
-            if ($video !== null) {
-                return $video;
+            if (
+                is_array($direct)
+                && $this->videoMatches($direct, $videoId)
+                && $this->containsStats($direct)
+            ) {
+                return $direct;
             }
-        }
 
-        /*
-         * Fallback for TikTok page variants where the useful JSON is embedded
-         * differently. Restrict the search to an area around this exact video id.
-         */
-        $position = strpos($html, '"'.$videoId.'"');
+            $found = $this->findVideoRecursively(
+                $data,
+                $videoId
+            );
 
-        if ($position === false) {
-            $position = strpos($html, $videoId);
-        }
-
-        if ($position !== false) {
-            $start = max(0, $position - 120000);
-            $chunk = substr($html, $start, 240000);
-
-            $stats = $this->extractStatsFromText($chunk);
-
-            if ($this->hasAnyStat($stats)) {
-                return [
-                    'id' => $videoId,
-                    'stats' => [
-                        'playCount' => $stats['views'],
-                        'diggCount' => $stats['likes'],
-                        'commentCount' => $stats['comments'],
-                        'shareCount' => $stats['shares'],
-                    ],
-                ];
+            if ($found !== null) {
+                return $found;
             }
         }
 
         return null;
     }
 
-    private function findVideoRecursively(mixed $value, string $videoId): ?array
-    {
+    private function findVideoRecursively(
+        mixed $value,
+        string $videoId
+    ): ?array {
         if (!is_array($value)) {
             return null;
         }
 
-        $candidateId = null;
-
-        if (array_key_exists('id', $value)) {
-            $candidateId = (string) $value['id'];
-        } elseif (array_key_exists('aweme_id', $value)) {
-            $candidateId = (string) $value['aweme_id'];
-        }
-
         if (
-            $candidateId === (string) $videoId
-            && (
-                isset($value['stats'])
-                || isset($value['statsV2'])
-                || isset($value['statistics'])
-            )
+            $this->videoMatches($value, $videoId)
+            && $this->containsStats($value)
         ) {
             return $value;
         }
@@ -238,7 +334,10 @@ class TikTokVideoStatsService
                 continue;
             }
 
-            $found = $this->findVideoRecursively($child, $videoId);
+            $found = $this->findVideoRecursively(
+                $child,
+                $videoId
+            );
 
             if ($found !== null) {
                 return $found;
@@ -246,6 +345,27 @@ class TikTokVideoStatsService
         }
 
         return null;
+    }
+
+    private function videoMatches(
+        array $video,
+        string $videoId
+    ): bool {
+        $candidate = $video['id']
+            ?? $video['aweme_id']
+            ?? $video['itemId']
+            ?? $video['item_id']
+            ?? null;
+
+        return $candidate !== null
+            && (string) $candidate === (string) $videoId;
+    }
+
+    private function containsStats(array $video): bool
+    {
+        return is_array($video['stats'] ?? null)
+            || is_array($video['statsV2'] ?? null)
+            || is_array($video['statistics'] ?? null);
     }
 
     private function normalizeVideoObject(array $video): array
@@ -279,15 +399,29 @@ class TikTokVideoStatsService
             $stats['share_count'] ?? null,
         ]);
 
-        $author = $video['author'] ?? [];
+        /*
+         * Do not fabricate counters.
+         */
+        if (
+            $views === null
+            && $likes === null
+            && $comments === null
+            && $shares === null
+        ) {
+            throw new RuntimeException(
+                'TikTok response bevatte geen bruikbare counters.'
+            );
+        }
 
-        if (is_string($author)) {
-            $authorName = $author;
-        } elseif (is_array($author)) {
+        $author = $video['author'] ?? null;
+
+        if (is_array($author)) {
             $authorName = $author['uniqueId']
                 ?? $author['unique_id']
                 ?? $author['nickname']
                 ?? null;
+        } elseif (is_string($author)) {
+            $authorName = $author;
         } else {
             $authorName = null;
         }
@@ -301,67 +435,20 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
+
             'author_name' => $authorName,
+
             'title' => $video['desc']
                 ?? $video['description']
                 ?? $video['title']
                 ?? null,
+
             'thumbnail_url' => $videoData['cover']
                 ?? $videoData['originCover']
                 ?? $videoData['dynamicCover']
                 ?? $video['cover']
                 ?? null,
         ];
-    }
-
-    private function extractStatsFromText(string $text): array
-    {
-        return [
-            'views' => $this->matchNumber($text, [
-                'playCount',
-                'play_count',
-                'viewCount',
-                'view_count',
-            ]),
-            'likes' => $this->matchNumber($text, [
-                'diggCount',
-                'digg_count',
-                'likeCount',
-                'like_count',
-            ]),
-            'comments' => $this->matchNumber($text, [
-                'commentCount',
-                'comment_count',
-            ]),
-            'shares' => $this->matchNumber($text, [
-                'shareCount',
-                'share_count',
-            ]),
-        ];
-    }
-
-    private function matchNumber(string $text, array $keys): ?int
-    {
-        foreach ($keys as $key) {
-            $quoted = preg_quote($key, '/');
-
-            if (preg_match('/["\']'.$quoted.'["\']\s*:\s*["\']?(\d+)["\']?/i', $text, $match)) {
-                return (int) $match[1];
-            }
-        }
-
-        return null;
-    }
-
-    private function hasAnyStat(array $stats): bool
-    {
-        foreach ($stats as $value) {
-            if ($value !== null) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function firstNumber(array $values): ?int
@@ -401,16 +488,61 @@ class TikTokVideoStatsService
         return null;
     }
 
+    private function followShortTikTokUrl(string $url): string
+    {
+        $current = $url;
+
+        for ($i = 0; $i < 6; $i++) {
+            if (!$this->isAllowedTikTokUrl($current)) {
+                throw new RuntimeException(
+                    'TikTok redirectte naar een ongeldig domein.'
+                );
+            }
+
+            $response = Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Cache-Control' => 'no-cache',
+                'Pragma' => 'no-cache',
+            ])
+                ->withoutRedirecting()
+                ->timeout(12)
+                ->connectTimeout(6)
+                ->get($current);
+
+            if (!$response->redirect()) {
+                break;
+            }
+
+            $location = $response->header('Location');
+
+            if (!$location) {
+                break;
+            }
+
+            $current = $this->absoluteUrl(
+                $current,
+                $location
+            );
+        }
+
+        return $current;
+    }
+
     private function withCacheBuster(string $url): string
     {
-        $separator = str_contains($url, '?') ? '&' : '?';
+        $separator = str_contains($url, '?')
+            ? '&'
+            : '?';
 
         return $url
             .$separator
             .'_mashal_live='
-            .rawurlencode((string) now()->valueOf())
-            .'-'
-            .random_int(100000, 999999);
+            .rawurlencode(
+                now()->valueOf()
+                .'-'
+                .random_int(100000, 999999)
+            );
     }
 
     private function normalizeUrl(string $input): string
@@ -418,7 +550,9 @@ class TikTokVideoStatsService
         $url = trim($input);
 
         if ($url === '') {
-            throw new RuntimeException('TikTok URL ontbreekt.');
+            throw new RuntimeException(
+                'TikTok URL ontbreekt.'
+            );
         }
 
         if (!preg_match('~^https?://~i', $url)) {
@@ -426,7 +560,9 @@ class TikTokVideoStatsService
         }
 
         if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-            throw new RuntimeException('Gebruik een geldige TikTok URL.');
+            throw new RuntimeException(
+                'Gebruik een geldige TikTok URL.'
+            );
         }
 
         return $url;
@@ -434,7 +570,12 @@ class TikTokVideoStatsService
 
     private function isAllowedTikTokUrl(string $url): bool
     {
-        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $host = strtolower(
+            (string) parse_url(
+                $url,
+                PHP_URL_HOST
+            )
+        );
 
         if ($host === '') {
             return false;
@@ -446,7 +587,10 @@ class TikTokVideoStatsService
             }
         }
 
-        return str_ends_with($host, '.tiktok.com');
+        return str_ends_with(
+            $host,
+            '.tiktok.com'
+        );
     }
 
     private function extractVideoId(string $url): ?string
@@ -465,8 +609,10 @@ class TikTokVideoStatsService
         return null;
     }
 
-    private function absoluteUrl(string $baseUrl, string $location): string
-    {
+    private function absoluteUrl(
+        string $baseUrl,
+        string $location
+    ): string {
         if (preg_match('~^https?://~i', $location)) {
             return $location;
         }
@@ -485,8 +631,21 @@ class TikTokVideoStatsService
         }
 
         $path = $parts['path'] ?? '/';
-        $directory = rtrim(str_replace('\\', '/', dirname($path)), '/');
 
-        return $scheme.'://'.$host.$directory.'/'.$location;
+        $directory = rtrim(
+            str_replace(
+                '\\',
+                '/',
+                dirname($path)
+            ),
+            '/'
+        );
+
+        return $scheme
+            .'://'
+            .$host
+            .$directory
+            .'/'
+            .$location;
     }
 }
