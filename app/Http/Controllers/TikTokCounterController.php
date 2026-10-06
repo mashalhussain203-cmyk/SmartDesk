@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use InvalidArgumentException;
 use Throwable;
 
 class TikTokCounterController extends Controller
@@ -17,100 +16,150 @@ class TikTokCounterController extends Controller
         return view('tools.tiktok-counter');
     }
 
-    public function lookup(Request $request, TikTokVideoStatsService $service): RedirectResponse
-    {
+    public function lookup(
+        Request $request,
+        TikTokVideoStatsService $service
+    ): RedirectResponse {
         $validated = $request->validate([
             'url' => ['required', 'string', 'max:2048'],
         ]);
 
         try {
-            $video = $service->inspect($validated['url']);
-        } catch (InvalidArgumentException $exception) {
+            $video = $service->resolveVideo($validated['url']);
+        } catch (Throwable $e) {
             return back()
-                ->withErrors(['url' => $exception->getMessage()])
-                ->withInput();
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return back()
+                ->withInput()
                 ->withErrors([
-                    'url' => 'Deze TikTok-link kon nu niet worden geopend. Probeer een volledige video-URL.',
-                ])
-                ->withInput();
+                    'url' => $e->getMessage(),
+                ]);
         }
 
-        return redirect()->route('tiktok-counter.show', [
-            'videoId' => $video['video_id'],
-            'url' => $video['url'],
-        ]);
-    }
-
-    public function show(Request $request, string $videoId): View
-    {
-        abort_unless((bool) preg_match('/^\d{12,24}$/', $videoId), 404);
-
-        $url = (string) $request->query(
-            'url',
-            'https://www.tiktok.com/@_/video/'.$videoId
+        return redirect()->route(
+            'tiktok-counter.show',
+            [
+                'videoId' => $video['video_id'],
+                'url' => $video['url'],
+            ]
         );
-
-        return view('tools.tiktok-counter', [
-            'videoId' => $videoId,
-            'videoUrl' => $url,
-        ]);
     }
 
-    /**
-     * Dit endpoint wordt continu door de browser aangeroepen.
-     * Iedere request gaat opnieuw naar TikTok; er is geen applicatiecache.
-     */
-    public function stats(
-        Request $request,
+    public function show(
         string $videoId,
+        Request $request,
         TikTokVideoStatsService $service
-    ): JsonResponse {
-        abort_unless((bool) preg_match('/^\d{12,24}$/', $videoId), 404);
+    ): View|RedirectResponse {
+        $videoUrl = (string) $request->query('url', '');
 
-        $url = (string) $request->query(
-            'url',
-            'https://www.tiktok.com/@_/video/'.$videoId
-        );
+        if ($videoUrl === '') {
+            return redirect()
+                ->route('tiktok-counter.index')
+                ->withErrors([
+                    'url' => 'De TikTok URL ontbreekt. Plak de video opnieuw.',
+                ]);
+        }
 
         try {
-            $data = $service->getLive($url);
+            $video = $service->resolveVideo($videoUrl);
+        } catch (Throwable $e) {
+            return redirect()
+                ->route('tiktok-counter.index')
+                ->withInput(['url' => $videoUrl])
+                ->withErrors([
+                    'url' => $e->getMessage(),
+                ]);
+        }
 
-            if (($data['video_id'] ?? null) !== $videoId) {
-                return $this->noStoreJson([
+        if ((string) $video['video_id'] !== (string) $videoId) {
+            return redirect()->route(
+                'tiktok-counter.show',
+                [
+                    'videoId' => $video['video_id'],
+                    'url' => $video['url'],
+                ]
+            );
+        }
+
+        return view('tools.tiktok-counter', [
+            'videoId' => $video['video_id'],
+            'videoUrl' => $video['url'],
+        ]);
+    }
+
+    public function stats(
+        string $videoId,
+        Request $request,
+        TikTokVideoStatsService $service
+    ): JsonResponse {
+        $videoUrl = (string) $request->query('url', '');
+
+        if ($videoUrl === '') {
+            return $this->noStore(
+                response()->json([
                     'success' => false,
-                    'message' => 'De video-ID komt niet overeen met de opgegeven TikTok-link.',
-                ], 422);
-            }
+                    'message' => 'TikTok URL ontbreekt.',
+                ], 422)
+            );
+        }
 
-            return $this->noStoreJson([
-                'success' => true,
-                ...$data,
-            ]);
-        } catch (InvalidArgumentException $exception) {
-            return $this->noStoreJson([
-                'success' => false,
-                'message' => $exception->getMessage(),
-            ], 422);
-        } catch (Throwable $exception) {
-            report($exception);
+        try {
+            /*
+             * IMPORTANT:
+             * getLiveStats() does a fresh TikTok HTTP request every time.
+             * There is intentionally no Cache::remember() here.
+             */
+            $stats = $service->getLiveStats(
+                $videoUrl,
+                $videoId
+            );
 
-            return $this->noStoreJson([
-                'success' => false,
-                'message' => 'De TikTok-statistieken konden niet live worden opgehaald.',
-            ], 503);
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+
+                    'stats' => [
+                        'views' => $stats['views'],
+                        'likes' => $stats['likes'],
+                        'comments' => $stats['comments'],
+                        'shares' => $stats['shares'],
+                    ],
+
+                    'author_name' => $stats['author_name'] ?? null,
+                    'title' => $stats['title'] ?? null,
+                    'thumbnail_url' => $stats['thumbnail_url'] ?? null,
+
+                    'updated_at' => now()->toIso8601String(),
+
+                    /*
+                     * These fields make it easy to verify in DevTools that
+                     * every browser poll reached Laravel again.
+                     */
+                    'request_id' => $request->query('_request'),
+                    'fetched_fresh' => true,
+                ])
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Nieuwe TikTok-data kon niet worden opgehaald.',
+                    'updated_at' => now()->toIso8601String(),
+                    'request_id' => $request->query('_request'),
+                ], 502)
+            );
         }
     }
 
-    private function noStoreJson(array $payload, int $status = 200): JsonResponse
+    private function noStore(JsonResponse $response): JsonResponse
     {
-        return response()
-            ->json($payload, $status)
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        return $response
+            ->header(
+                'Cache-Control',
+                'no-store, no-cache, must-revalidate, max-age=0, private'
+            )
             ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
+            ->header('Expires', '0')
+            ->header('Surrogate-Control', 'no-store');
     }
 }
