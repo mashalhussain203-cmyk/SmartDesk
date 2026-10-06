@@ -38,6 +38,7 @@
         $hasImagesIndex = \Illuminate\Support\Facades\Route::has('images.index');
         $hasImagesUpload = \Illuminate\Support\Facades\Route::has('images.upload');
         $hasAiChat = \Illuminate\Support\Facades\Route::has('ai.chat');
+        $hasTikTokCounter = \Illuminate\Support\Facades\Route::has('tiktok-counter.index');
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
@@ -6594,6 +6595,19 @@
                         <span>Studio</span>
                     </a>
 
+                    @if ($hasTikTokCounter)
+                        <a
+                            class="expert-nav-link {{ request()->routeIs('tiktok-counter.*') ? 'active' : '' }}"
+                            href="{{ route('tiktok-counter.index') }}"
+                        >
+                            <span class="expert-nav-link-icon" aria-hidden="true">
+                                ◉
+                            </span>
+
+                            <span>Live Count</span>
+                        </a>
+                    @endif
+
                     @auth
                         @if ($hasImagesIndex)
                             <a
@@ -6938,6 +6952,21 @@
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
 
+                    @if ($hasTikTokCounter)
+                        <a
+                            class="expert-command-item"
+                            href="{{ route('tiktok-counter.index') }}"
+                            data-command-search="live count tiktok views likes comments shares statistieken"
+                        >
+                            <span class="expert-command-item-icon">◉</span>
+                            <span>
+                                <strong>Live Count</strong>
+                                <small>Volg TikTok-statistieken live</small>
+                            </span>
+                            <span class="expert-command-item-arrow">↗</span>
+                        </a>
+                    @endif
+
                     <a
                         class="expert-command-item"
                         href="{{ route('home') }}#upload"
@@ -7134,6 +7163,20 @@
                 </span>
                 <span>→</span>
             </a>
+
+            @if ($hasTikTokCounter)
+                <a
+                    class="expert-mobile-link {{ request()->routeIs('tiktok-counter.*') ? 'active' : '' }}"
+                    href="{{ route('tiktok-counter.index') }}"
+                >
+                    <span class="expert-mobile-link-icon">◉</span>
+                    <span>
+                        <strong>Live Count</strong>
+                        <small>TikTok views en statistieken live</small>
+                    </span>
+                    <span>→</span>
+                </a>
+            @endif
 
             @auth
                 @if ($hasImagesIndex)
@@ -7432,6 +7475,12 @@
                         <a href="{{ route('home') }}">
                             Home
                         </a>
+
+                        @if ($hasTikTokCounter)
+                            <a href="{{ route('tiktok-counter.index') }}">
+                                Live Count
+                            </a>
+                        @endif
 
                         <a href="{{ route('home') }}#upload">
                             Upload afbeelding

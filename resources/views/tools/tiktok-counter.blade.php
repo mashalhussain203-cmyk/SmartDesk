@@ -1,114 +1,251 @@
 @extends('layouts.site-layout')
 
-@section('title', 'TikTok Live Count | Mashal Studio')
-@section('meta_description', 'Volg publieke TikTok-statistieken live in Mashal Studio.')
+@section('title', 'Live Count | Mashal Studio')
+@section('meta_description', 'Volg publieke TikTok-statistieken live met Mashal Studio Live Count.')
 
 @push('styles')
 <style>
     .ttc-page {
-        --ttc-bg: #050609;
-        --ttc-panel: rgba(14, 17, 23, .86);
-        --ttc-line: rgba(255,255,255,.09);
-        --ttc-line-strong: rgba(255,255,255,.16);
-        --ttc-text: #f7f8fb;
-        --ttc-muted: #858d9a;
-        --ttc-accent: #7a6cff;
-        min-height: calc(100vh - 78px);
-        padding: 52px 0 90px;
+        --bg: #050608;
+        --panel: rgba(13, 16, 22, .86);
+        --panel-soft: rgba(255, 255, 255, .025);
+        --panel-hover: rgba(255, 255, 255, .045);
+        --line: rgba(255, 255, 255, .075);
+        --line-strong: rgba(255, 255, 255, .13);
+        --text: #f4f6f8;
+        --muted: #798291;
+        --muted-2: #555e6b;
+        --purple: #7b70ff;
+        --purple-2: #958cff;
+        --green: #6ee7a8;
+        --red: #ff8095;
+        --blue: #67b7ff;
+
+        min-height: calc(100vh - 72px);
+        padding: 46px 0 96px;
+        color: var(--text);
         background:
-            radial-gradient(circle at 50% -8%, rgba(122,108,255,.16), transparent 34rem),
-            radial-gradient(circle at 85% 35%, rgba(66,165,255,.06), transparent 28rem),
-            #050609;
+            radial-gradient(circle at 50% -160px, rgba(123, 112, 255, .17), transparent 460px),
+            radial-gradient(circle at 92% 25%, rgba(103, 183, 255, .055), transparent 420px),
+            linear-gradient(180deg, #06070a 0%, #050608 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ttc-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .16;
+        background-image:
+            linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: linear-gradient(to bottom, black 0%, transparent 70%);
     }
 
     .ttc-shell {
-        width: min(calc(100% - 34px), 1180px);
+        width: min(calc(100% - 32px), 1220px);
         margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .ttc-hero {
+        max-width: 780px;
+        margin: 0 auto 32px;
+        text-align: center;
+    }
+
+    .ttc-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 7px 11px;
+        border: 1px solid rgba(123,112,255,.2);
+        border-radius: 999px;
+        color: #aaa3ff;
+        background: rgba(123,112,255,.055);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .ttc-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 14px rgba(110,231,168,.75);
+    }
+
+    .ttc-title {
+        margin: 18px 0 0;
+        font-size: clamp(42px, 6vw, 72px);
+        line-height: .98;
+        letter-spacing: -.055em;
+        font-weight: 680;
+        color: #fff;
+    }
+
+    .ttc-title span {
+        color: #737b88;
+    }
+
+    .ttc-subtitle {
+        max-width: 620px;
+        margin: 17px auto 0;
+        color: #7f8896;
+        font-size: 13px;
+        line-height: 1.75;
+    }
+
+    .ttc-search-wrap {
+        max-width: 930px;
+        margin: 0 auto 28px;
+        position: relative;
+    }
+
+    .ttc-search-wrap::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 19px;
+        padding: 1px;
+        background: linear-gradient(110deg, rgba(123,112,255,.42), rgba(255,255,255,.06), rgba(103,183,255,.18));
+        -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
     }
 
     .ttc-search {
-        max-width: 910px;
-        margin: 0 auto 30px;
-        padding: 9px;
+        margin: 0;
+        padding: 8px;
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 9px;
-        border: 1px solid var(--ttc-line-strong);
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,.045);
         border-radius: 18px;
-        background: rgba(11,14,19,.88);
-        box-shadow: 0 24px 70px rgba(0,0,0,.34);
-        backdrop-filter: blur(18px);
+        background: rgba(10,12,17,.9);
+        box-shadow:
+            0 26px 70px rgba(0,0,0,.32),
+            inset 0 1px 0 rgba(255,255,255,.035);
+        backdrop-filter: blur(20px);
+    }
+
+    .ttc-input-shell {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 0 14px;
+    }
+
+    .ttc-input-icon {
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: #8c95a2;
+        background: rgba(255,255,255,.025);
+        font-size: 12px;
     }
 
     .ttc-search input {
         min-width: 0;
-        height: 56px;
-        padding: 0 16px;
+        width: 100%;
+        height: 54px;
         border: 0;
         outline: 0;
-        color: #eef1f6;
+        color: #e9edf2;
         background: transparent;
         font: inherit;
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .ttc-search input::placeholder {
-        color: #5d6572;
+        color: #525b68;
     }
 
     .ttc-button {
-        min-height: 56px;
+        min-height: 54px;
         padding: 0 22px;
-        border: 1px solid rgba(122,108,255,.45);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        border: 1px solid rgba(148,140,255,.44);
         border-radius: 12px;
         color: #fff;
-        background: linear-gradient(135deg, #7a6cff, #4d8dff);
+        background: linear-gradient(135deg, #7c70ff, #675cf2);
+        box-shadow:
+            0 12px 28px rgba(89,74,225,.22),
+            inset 0 1px 0 rgba(255,255,255,.18);
         font: inherit;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 800;
+        letter-spacing: .02em;
         cursor: pointer;
+        transition: transform .18s ease, filter .18s ease;
+    }
+
+    .ttc-button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.06);
     }
 
     .ttc-error {
-        max-width: 910px;
-        margin: -12px auto 24px;
-        padding: 12px 15px;
-        border: 1px solid rgba(255,108,128,.24);
+        max-width: 930px;
+        margin: -14px auto 24px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255,128,149,.2);
         border-radius: 12px;
-        color: #ffb6c1;
-        background: rgba(255,108,128,.06);
-        font-size: 13px;
+        color: #ffb8c4;
+        background: rgba(255,128,149,.055);
+        font-size: 12px;
     }
 
     .ttc-result {
         display: grid;
-        grid-template-columns: 310px minmax(0, 1fr);
-        gap: 18px;
+        grid-template-columns: 300px minmax(0,1fr);
+        gap: 16px;
         align-items: stretch;
     }
 
     .ttc-card {
-        border: 1px solid var(--ttc-line);
-        border-radius: 22px;
-        background: linear-gradient(180deg, rgba(18,22,30,.88), rgba(10,13,18,.88));
-        box-shadow: 0 26px 80px rgba(0,0,0,.24);
-        backdrop-filter: blur(20px);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background:
+            linear-gradient(180deg, rgba(17,20,27,.9), rgba(9,11,15,.92));
+        box-shadow:
+            0 26px 70px rgba(0,0,0,.22),
+            inset 0 1px 0 rgba(255,255,255,.025);
+        backdrop-filter: blur(18px);
     }
 
     .ttc-preview {
-        padding: 14px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
     }
 
     .ttc-thumb {
         position: relative;
-        min-height: 465px;
+        min-height: 440px;
         overflow: hidden;
-        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 14px;
         background:
-            radial-gradient(circle at 50% 25%, rgba(122,108,255,.3), transparent 28%),
-            linear-gradient(160deg, #171b26, #080a0e 62%);
+            radial-gradient(circle at 50% 20%, rgba(123,112,255,.2), transparent 34%),
+            linear-gradient(150deg, #171a22, #090a0e 62%);
     }
 
     .ttc-thumb img {
@@ -123,208 +260,320 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(4,5,8,.7), transparent 38%);
+        z-index: 1;
+        background:
+            linear-gradient(to top, rgba(4,5,8,.76), transparent 42%),
+            linear-gradient(to bottom, rgba(4,5,8,.18), transparent 28%);
         pointer-events: none;
     }
 
+    .ttc-live-chip {
+        position: absolute;
+        top: 11px;
+        left: 11px;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 9px;
+        border: 1px solid rgba(255,255,255,.11);
+        border-radius: 9px;
+        color: #e8ebef;
+        background: rgba(5,7,10,.58);
+        backdrop-filter: blur(12px);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .ttc-live-chip i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 10px rgba(110,231,168,.75);
+    }
+
     .ttc-play {
-        width: 54px;
-        height: 54px;
+        width: 52px;
+        height: 52px;
         position: absolute;
         left: 50%;
         top: 50%;
-        z-index: 2;
-        transform: translate(-50%, -50%);
+        z-index: 3;
+        transform: translate(-50%,-50%);
         display: grid;
         place-items: center;
-        border: 1px solid rgba(255,255,255,.19);
+        border: 1px solid rgba(255,255,255,.2);
         border-radius: 50%;
         color: #fff;
-        background: rgba(5,6,9,.5);
-        backdrop-filter: blur(10px);
+        background: rgba(7,8,12,.56);
+        backdrop-filter: blur(12px);
         text-decoration: none;
+        transition: transform .18s ease, background .18s ease;
+    }
+
+    .ttc-play:hover {
+        transform: translate(-50%,-50%) scale(1.05);
+        background: rgba(12,14,20,.72);
     }
 
     .ttc-video-meta {
-        padding: 16px 3px 2px;
+        padding: 14px 5px 3px;
     }
 
     .ttc-author {
-        color: #a9a1ff;
-        font-size: 12px;
+        color: #a8a1ff;
+        font-size: 11px;
         font-weight: 800;
     }
 
     .ttc-video-title {
-        margin: 7px 0 0;
-        color: #d9dde5;
-        font-size: 13px;
+        margin: 6px 0 0;
+        color: #b7bdc7;
+        font-size: 12px;
         line-height: 1.55;
     }
 
     .ttc-dashboard {
-        padding: 20px;
+        padding: 18px;
+        min-width: 0;
     }
 
     .ttc-dashboard-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 16px;
+        gap: 14px;
+        margin-bottom: 14px;
     }
 
     .ttc-status {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        color: #8f98a7;
-        font-size: 11px;
-        font-weight: 700;
+        gap: 9px;
+        min-width: 0;
+        color: #8e97a5;
+        font-size: 10px;
+        font-weight: 760;
     }
 
     .ttc-status-dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
         border-radius: 50%;
-        background: #74dfa7;
-        box-shadow: 0 0 14px rgba(116,223,167,.65);
+        background: var(--green);
+        box-shadow: 0 0 13px rgba(110,231,168,.62);
     }
 
     .ttc-updated {
-        color: #616a77;
-        font-size: 11px;
+        color: #596270;
+        font-size: 10px;
+        white-space: nowrap;
     }
 
     .ttc-stats {
         display: grid;
         grid-template-columns: repeat(2, minmax(0,1fr));
-        gap: 12px;
+        gap: 10px;
     }
 
     .ttc-stat {
-        min-height: 145px;
-        padding: 18px;
+        min-width: 0;
+        min-height: 138px;
+        padding: 17px;
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 17px;
-        background: rgba(255,255,255,.022);
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 15px;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.026), rgba(255,255,255,.012));
+        transition: border-color .18s ease, background .18s ease;
+    }
+
+    .ttc-stat:hover {
+        border-color: rgba(255,255,255,.1);
+        background: rgba(255,255,255,.035);
+    }
+
+    .ttc-stat::after {
+        content: "";
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        right: -34px;
+        top: -36px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(123,112,255,.12), transparent 68%);
+        pointer-events: none;
+    }
+
+    .ttc-stat-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .ttc-stat-label {
-        color: #747d8a;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: .12em;
+        color: #727b88;
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: .13em;
         text-transform: uppercase;
     }
 
+    .ttc-stat-badge {
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 8px;
+        color: #777f8b;
+        background: rgba(255,255,255,.02);
+        font-size: 10px;
+    }
+
     .ttc-stat-value {
-        margin-top: 13px;
+        margin-top: 14px;
         color: #fff;
-        font-size: clamp(34px, 4vw, 54px);
-        line-height: 1;
+        font-size: clamp(33px, 4vw, 52px);
+        line-height: .95;
         font-weight: 690;
-        letter-spacing: -.05em;
+        letter-spacing: -.055em;
         font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
     }
 
     .ttc-stat-delta {
-        margin-top: 10px;
-        color: #74dfa7;
-        font-size: 11px;
-        font-weight: 750;
+        margin-top: 11px;
+        color: var(--green);
+        font-size: 10px;
+        font-weight: 780;
     }
 
     .ttc-chart-wrap {
-        margin-top: 12px;
-        padding: 16px 16px 12px;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 17px;
-        background: rgba(255,255,255,.018);
+        margin-top: 10px;
+        padding: 14px 14px 10px;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 15px;
+        background: rgba(255,255,255,.014);
     }
 
     .ttc-chart-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 11px;
+        gap: 10px;
+        margin-bottom: 9px;
     }
 
     .ttc-chart-title {
-        color: #d6dae2;
-        font-size: 12px;
+        color: #d7dbe2;
+        font-size: 11px;
         font-weight: 800;
     }
 
     .ttc-chart-note {
-        color: #626b78;
-        font-size: 10px;
+        color: #596270;
+        font-size: 9px;
     }
 
     .ttc-chart {
         width: 100%;
-        height: 150px;
+        height: 140px;
         display: block;
     }
 
     .ttc-actions {
-        margin-top: 12px;
+        margin-top: 10px;
         display: grid;
         grid-template-columns: repeat(3, minmax(0,1fr));
-        gap: 10px;
+        gap: 8px;
     }
 
     .ttc-action {
-        min-height: 44px;
+        min-height: 42px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        border: 1px solid var(--ttc-line);
-        border-radius: 11px;
-        color: #aeb5c0;
-        background: rgba(255,255,255,.02);
+        gap: 7px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: #9ca5b1;
+        background: rgba(255,255,255,.018);
         text-decoration: none;
         font: inherit;
-        font-size: 11px;
-        font-weight: 760;
+        font-size: 10px;
+        font-weight: 780;
         cursor: pointer;
+        transition: .18s ease;
+    }
+
+    .ttc-action:hover {
+        color: #e8ebef;
+        border-color: var(--line-strong);
+        background: var(--panel-hover);
     }
 
     .ttc-empty {
-        max-width: 910px;
-        margin: 36px auto 0;
-        padding: 34px;
+        max-width: 930px;
+        margin: 28px auto 0;
+        padding: 40px 28px;
         text-align: center;
-        border: 1px solid var(--ttc-line);
-        border-radius: 22px;
-        background: rgba(255,255,255,.018);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(255,255,255,.015);
+    }
+
+    .ttc-empty-icon {
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 14px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(123,112,255,.17);
+        border-radius: 13px;
+        color: #aaa4ff;
+        background: rgba(123,112,255,.055);
+        font-size: 15px;
     }
 
     .ttc-empty strong {
         display: block;
         color: #dfe3e9;
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .ttc-empty span {
         display: block;
-        max-width: 560px;
+        max-width: 520px;
         margin: 8px auto 0;
-        color: #737c89;
-        font-size: 12px;
+        color: #6f7885;
+        font-size: 11px;
         line-height: 1.7;
     }
 
     .ttc-loading {
-        animation: ttcPulse 1.25s ease-in-out infinite;
+        animation: ttcPulse 1.2s ease-in-out infinite;
     }
 
     @keyframes ttcPulse {
-        50% { opacity: .45; }
+        50% { opacity: .42; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ttc-loading,
+        .ttc-button,
+        .ttc-play,
+        .ttc-action,
+        .ttc-stat {
+            animation: none !important;
+            transition: none !important;
+        }
     }
 
     @media (max-width: 900px) {
@@ -334,16 +583,33 @@
 
         .ttc-preview {
             display: grid;
-            grid-template-columns: 180px 1fr;
+            grid-template-columns: 180px minmax(0,1fr);
             gap: 16px;
         }
 
         .ttc-thumb {
-            min-height: 280px;
+            min-height: 270px;
+        }
+
+        .ttc-video-meta {
+            align-self: end;
+            padding: 0 6px 12px 0;
         }
     }
 
     @media (max-width: 640px) {
+        .ttc-page {
+            padding-top: 34px;
+        }
+
+        .ttc-hero {
+            margin-bottom: 24px;
+        }
+
+        .ttc-title {
+            font-size: 44px;
+        }
+
         .ttc-search {
             grid-template-columns: 1fr;
         }
@@ -357,20 +623,25 @@
         }
 
         .ttc-thumb {
-            min-height: 460px;
+            min-height: 430px;
+        }
+
+        .ttc-dashboard-head {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 7px;
         }
 
         .ttc-stats {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
         }
 
         .ttc-stat {
-            min-height: 118px;
-            padding: 14px;
+            min-height: 120px;
         }
 
         .ttc-stat-value {
-            font-size: 31px;
+            font-size: 38px;
         }
 
         .ttc-actions {
@@ -383,22 +654,45 @@
 @section('content')
 <section class="ttc-page">
     <div class="ttc-shell">
-        <form class="ttc-search" method="POST" action="{{ route('tiktok-counter.lookup') }}">
-            @csrf
+        <header class="ttc-hero">
+            <div class="ttc-eyebrow">
+                <span class="ttc-eyebrow-dot"></span>
+                Mashal Studio · Social Intelligence
+            </div>
 
-            <input
-                type="url"
-                name="url"
-                value="{{ old('url', $videoUrl ?? '') }}"
-                placeholder="https://www.tiktok.com/@creator/video/..."
-                autocomplete="off"
-                required
-            >
+            <h1 class="ttc-title">
+                Live <span>Count.</span>
+            </h1>
 
-            <button class="ttc-button" type="submit">
-                Start Live Count
-            </button>
-        </form>
+            <p class="ttc-subtitle">
+                Volg publieke TikTok views, likes, comments en shares in één realtime dashboard.
+                Nieuwe data wordt automatisch opnieuw opgehaald.
+            </p>
+        </header>
+
+        <div class="ttc-search-wrap">
+            <form class="ttc-search" method="POST" action="{{ route('tiktok-counter.lookup') }}">
+                @csrf
+
+                <label class="ttc-input-shell">
+                    <span class="ttc-input-icon">↗</span>
+                    <input
+                        type="url"
+                        name="url"
+                        value="{{ old('url', $videoUrl ?? '') }}"
+                        placeholder="Plak een TikTok-video URL…"
+                        autocomplete="off"
+                        required
+                        aria-label="TikTok video URL"
+                    >
+                </label>
+
+                <button class="ttc-button" type="submit">
+                    Start Live Count
+                    <span>→</span>
+                </button>
+            </form>
+        </div>
 
         @error('url')
             <div class="ttc-error">{{ $message }}</div>
@@ -415,12 +709,17 @@
                     <div class="ttc-thumb">
                         <img id="ttc-thumb-image" alt="TikTok thumbnail" hidden>
 
+                        <span class="ttc-live-chip">
+                            <i></i>
+                            Live source
+                        </span>
+
                         <a
                             class="ttc-play"
                             href="{{ $videoUrl }}"
                             target="_blank"
                             rel="noopener"
-                            aria-label="Open op TikTok"
+                            aria-label="Open video op TikTok"
                         >▶</a>
                     </div>
 
@@ -446,25 +745,37 @@
 
                     <div class="ttc-stats">
                         <div class="ttc-stat">
-                            <div class="ttc-stat-label">Views</div>
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Views</div>
+                                <div class="ttc-stat-badge">◉</div>
+                            </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="views">—</div>
                             <div class="ttc-stat-delta" data-delta="views">Sessie gestart</div>
                         </div>
 
                         <div class="ttc-stat">
-                            <div class="ttc-stat-label">Likes</div>
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Likes</div>
+                                <div class="ttc-stat-badge">♥</div>
+                            </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="likes">—</div>
                             <div class="ttc-stat-delta" data-delta="likes">Sessie gestart</div>
                         </div>
 
                         <div class="ttc-stat">
-                            <div class="ttc-stat-label">Comments</div>
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Comments</div>
+                                <div class="ttc-stat-badge">◌</div>
+                            </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="comments">—</div>
                             <div class="ttc-stat-delta" data-delta="comments">Sessie gestart</div>
                         </div>
 
                         <div class="ttc-stat">
-                            <div class="ttc-stat-label">Shares</div>
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Shares</div>
+                                <div class="ttc-stat-badge">↗</div>
+                            </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="shares">—</div>
                             <div class="ttc-stat-delta" data-delta="shares">Sessie gestart</div>
                         </div>
@@ -473,19 +784,19 @@
                     <div class="ttc-chart-wrap">
                         <div class="ttc-chart-head">
                             <div class="ttc-chart-title">View growth</div>
-                            <div class="ttc-chart-note">Deze browsersessie</div>
+                            <div class="ttc-chart-note">Laatste 60 metingen · deze sessie</div>
                         </div>
 
                         <svg
                             class="ttc-chart"
-                            viewBox="0 0 800 150"
+                            viewBox="0 0 800 140"
                             preserveAspectRatio="none"
                             aria-label="View growth chart"
                         >
                             <defs>
                                 <linearGradient id="ttcChartFill" x1="0" x2="0" y1="0" y2="1">
-                                    <stop offset="0%" stop-color="#7a6cff" stop-opacity=".28"/>
-                                    <stop offset="100%" stop-color="#7a6cff" stop-opacity="0"/>
+                                    <stop offset="0%" stop-color="#7b70ff" stop-opacity=".24"/>
+                                    <stop offset="100%" stop-color="#7b70ff" stop-opacity="0"/>
                                 </linearGradient>
                             </defs>
 
@@ -493,8 +804,8 @@
                             <path
                                 id="ttc-chart-line"
                                 fill="none"
-                                stroke="#8f84ff"
-                                stroke-width="3"
+                                stroke="#8f86ff"
+                                stroke-width="2.5"
                                 vector-effect="non-scaling-stroke"
                                 d=""
                             ></path>
@@ -523,9 +834,11 @@
             </div>
         @else
             <div class="ttc-empty">
-                <strong>Start met een TikTok-link</strong>
+                <div class="ttc-empty-icon">◉</div>
+                <strong>Start een nieuwe Live Count</strong>
                 <span>
-                    Plak een openbare TikTok-video-URL. Daarna start Live Count automatisch.
+                    Plak hierboven een openbare TikTok-video. Mashal Studio opent daarna
+                    automatisch het live dashboard.
                 </span>
             </div>
         @endisset
@@ -564,7 +877,6 @@
     const endpoint = String(config.endpoint || '');
     const videoUrl = String(config.videoUrl || '');
     const pollMs = Math.max(4000, Number(config.pollMs || 4000));
-
     const formatter = new Intl.NumberFormat('nl-NL');
     const statKeys = ['views', 'likes', 'comments', 'shares'];
 
@@ -615,10 +927,10 @@
 
         if (statusDot) {
             const success = ok !== false;
-            statusDot.style.background = success ? '#74dfa7' : '#ff7c91';
+            statusDot.style.background = success ? '#6ee7a8' : '#ff8095';
             statusDot.style.boxShadow = success
-                ? '0 0 14px rgba(116,223,167,.65)'
-                : '0 0 14px rgba(255,124,145,.55)';
+                ? '0 0 13px rgba(110,231,168,.62)'
+                : '0 0 13px rgba(255,128,149,.55)';
         }
     }
 
@@ -629,11 +941,11 @@
 
         const from = Number.isFinite(fromValue) ? fromValue : toValue;
         const difference = toValue - from;
-        const duration = 500;
-        const start = performance.now();
+        const duration = 520;
+        const startedAt = performance.now();
 
         function frame(now) {
-            const progress = Math.min((now - start) / duration, 1);
+            const progress = Math.min((now - startedAt) / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);
             const current = Math.round(from + difference * eased);
 
@@ -662,6 +974,7 @@
 
             if (deltaElement) {
                 deltaElement.textContent = 'Niet beschikbaar';
+                deltaElement.style.color = '#65707e';
             }
 
             return;
@@ -687,7 +1000,7 @@
                 ' deze sessie';
 
             deltaElement.style.color =
-                delta >= 0 ? '#74dfa7' : '#ff9cad';
+                delta >= 0 ? '#6ee7a8' : '#ff8095';
         }
     }
 
@@ -711,9 +1024,8 @@
         }
 
         const width = 800;
-        const height = 150;
-        const padding = 10;
-
+        const height = 140;
+        const padding = 9;
         const min = Math.min.apply(null, values);
         const max = Math.max.apply(null, values);
         const spread = Math.max(max - min, 1);
@@ -747,7 +1059,6 @@
             .join(' ');
 
         chartLine.setAttribute('d', linePath);
-
         chartArea.setAttribute(
             'd',
             linePath +
@@ -824,7 +1135,7 @@
 
         if (updatedElement) {
             updatedElement.textContent =
-                'Live bijgewerkt ' +
+                'Bijgewerkt ' +
                 new Date().toLocaleTimeString('nl-NL', {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -842,30 +1153,19 @@
 
         requestNumber += 1;
 
-        /*
-         * Force a new request every cycle.
-         * If an old browser request is still waiting, cancel it and use the newest one.
-         */
         if (activeController) {
             activeController.abort();
         }
 
         activeController = new AbortController();
-
         const currentController = activeController;
-        const params = new URLSearchParams();
 
+        const params = new URLSearchParams();
         params.set('url', videoUrl);
         params.set('_live', String(Date.now()));
         params.set('_request', String(requestNumber));
 
         setStatus('Nieuwe TikTok-data ophalen…', true);
-
-        const abortTimer = window.setTimeout(function () {
-            if (activeController === currentController) {
-                currentController.abort();
-            }
-        }, 3500);
 
         try {
             const response = await fetch(
@@ -884,7 +1184,13 @@
                 }
             );
 
-            const data = await response.json();
+            let data = null;
+
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error('Ongeldige serverresponse (' + response.status + ')');
+            }
 
             if (!response.ok || data.success === false) {
                 throw new Error(
@@ -895,9 +1201,6 @@
                 );
             }
 
-            /*
-             * Ignore old responses if a newer request has already started.
-             */
             if (activeController !== currentController) {
                 return;
             }
@@ -905,23 +1208,18 @@
             applyPayload(data);
         } catch (error) {
             if (error && error.name === 'AbortError') {
-                setStatus(
-                    'Nieuwe live request starten…',
-                    true
-                );
-            } else {
-                console.error('TikTok Live Count fout:', error);
-
-                setStatus(
-                    error && error.message
-                        ? error.message
-                        : 'Live ophalen mislukt',
-                    false
-                );
+                return;
             }
-        } finally {
-            window.clearTimeout(abortTimer);
 
+            console.error('TikTok Live Count fout:', error);
+
+            setStatus(
+                error && error.message
+                    ? error.message
+                    : 'Live ophalen mislukt',
+                false
+            );
+        } finally {
             if (activeController === currentController) {
                 activeController = null;
             }
