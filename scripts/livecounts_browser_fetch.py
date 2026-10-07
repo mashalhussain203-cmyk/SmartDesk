@@ -300,18 +300,22 @@ def main():
 
             page.on("response", on_response)
 
-            response = page.goto(
-                page_url,
-                wait_until="domcontentloaded",
-                timeout=15000,
-            )
+            response = None
+            try:
+                response = page.goto(
+                    page_url,
+                    wait_until="domcontentloaded",
+                    timeout=12000,
+                )
+            except Exception as nav_exc:
+                debug["navigation_warning"] = str(nav_exc)
 
             debug["page_http_status"] = response.status if response else None
             debug["final_url"] = page.url
             debug["livecounts_mode"] = "browser-network-capture"
             debug["stage"] = "wait_for_livecounts_network"
 
-            deadline = time.time() + 15
+            deadline = time.time() + 14
             body_text = ""
             fallback_stats = {}
 
