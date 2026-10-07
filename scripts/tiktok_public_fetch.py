@@ -9,6 +9,15 @@ from urllib.request import Request, build_opener, HTTPCookieProcessor
 from urllib.error import HTTPError, URLError
 import http.cookiejar
 
+try:
+    import yt_dlp
+    HAS_YTDLP = True
+    YTDLP_ERROR = None
+except Exception as exc:
+    yt_dlp = None
+    HAS_YTDLP = False
+    YTDLP_ERROR = repr(exc)
+
 
 def emit(obj, exit_code=0):
     print(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
@@ -322,6 +331,63 @@ def fetch(url):
         return None, errors
 
 
+def fetch_with_ytdlp(video_url, video_id):
+    if not HAS_YTDLP:
+        return None, {"stage": "ytdlp_import", "message": YTDLP_ERROR or "yt-dlp niet beschikbaar"}
+
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "noplaylist": True,
+        "socket_timeout": 18,
+        "retries": 1,
+        "extractor_retries": 1,
+        "http_headers": COMMON_HEADERS,
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+    except Exception as exc:
+        return None, {"stage": "ytdlp_extract", "message": repr(exc)}
+
+    if not isinstance(info, dict):
+        return None, {"stage": "ytdlp_empty", "message": "yt-dlp gaf geen video-object terug"}
+
+    found_id = str(info.get("id") or "")
+    if found_id and found_id != str(video_id):
+        return None, {"stage": "ytdlp_wrong_video", "found_id": found_id}
+
+    stats = {
+        "views": first_int(info.get("view_count")),
+        "likes": first_int(info.get("like_count")),
+        "comments": first_int(info.get("comment_count")),
+        "shares": first_int(info.get("repost_count"), info.get("share_count")),
+    }
+
+    if stats["views"] is None and stats["likes"] is None and stats["comments"] is None and stats["shares"] is None:
+        return None, {
+            "stage": "ytdlp_no_stats",
+            "available_keys": sorted([k for k in info.keys() if isinstance(k, str)])[:120],
+        }
+
+    return {
+        "success": True,
+        "stage": "success",
+        "source": "yt-dlp",
+        "stats": stats,
+        "author_name": info.get("uploader_id") or info.get("channel_id") or info.get("uploader"),
+        "title": info.get("description") or info.get("title"),
+        "thumbnail_url": info.get("thumbnail"),
+        "debug": {
+            "yt_dlp_available": True,
+            "extractor": info.get("extractor"),
+            "extractor_key": info.get("extractor_key"),
+        },
+    }, None
+
+
 def main():
     if len(sys.argv) < 3:
         emit({"success": False, "stage": "arguments", "message": "Gebruik: tiktok_public_fetch.py <url> <video_id>"}, 2)
@@ -410,6 +476,15 @@ def main():
             },
         })
 
+    ytdlp_result, ytdlp_debug = fetch_with_ytdlp(video_url, video_id)
+    attempts.append({
+        "source": "yt-dlp",
+        **(ytdlp_debug or {"stage": "success"}),
+    })
+    if isinstance(ytdlp_result, dict) and ytdlp_result.get("success") is True:
+        ytdlp_result.setdefault("debug", {})["previous_attempts"] = attempts[:-1]
+        emit(ytdlp_result)
+
     # Important: return JSON on stdout. Exit 10 makes Laravel's debug controller
     # surface a 502 with detailed diagnostics instead of pretending it succeeded.
     emit({
@@ -421,6 +496,8 @@ def main():
             "python_version": sys.version.split()[0],
             "curl_cffi_available": HAS_CURL_CFFI,
             "curl_cffi_import_error": CURL_CFFI_ERROR,
+            "yt_dlp_available": HAS_YTDLP,
+            "yt_dlp_import_error": YTDLP_ERROR,
             "attempts": attempts,
         },
     }, 10)
