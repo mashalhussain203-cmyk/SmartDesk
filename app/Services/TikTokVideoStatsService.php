@@ -16,7 +16,7 @@ class TikTokVideoStatsService
      * Your frontend polls every 4 seconds, so only the first request
      * after this window refreshes TikTok. Other visitors reuse that snapshot.
      */
-    private const FRESH_MS = 3000;
+    private const FRESH_MS = 1500;
 
     /**
      * Keep the last successful snapshot longer than the fresh window.
@@ -188,105 +188,130 @@ class TikTokVideoStatsService
         string $videoUrl,
         string $videoId
     ): array {
-        $item = $this->fetchFromPublicVideoPage(
-            $videoUrl,
-            $videoId
-        );
+        /*
+         * No TikTok developer API is used here. We try two public web surfaces:
+         * the normal video page first, then TikTok's public embed page.  Both
+         * contain the same hydration data TikTok needs to render the page.
+         */
+        $attempts = [
+            [
+                'url' => $this->canonicalVideoPageUrl($videoUrl),
+                'source' => 'tiktok-public-page',
+            ],
+            [
+                'url' => 'https://www.tiktok.com/embed/v2/'
+                    .rawurlencode($videoId)
+                    .'?lang=en-US',
+                'source' => 'tiktok-public-embed',
+            ],
+        ];
 
-        if ($item === null) {
-            throw new RuntimeException(
-                'TikTok gaf op dit moment geen bruikbare publieke videostatistieken terug.'
-            );
+        $lastProblem = null;
+
+        foreach ($attempts as $attempt) {
+            try {
+                $item = $this->fetchVideoObjectFromPublicPage(
+                    $attempt['url'],
+                    $videoId
+                );
+
+                if ($item === null) {
+                    $lastProblem = 'geen hydration-data gevonden';
+                    continue;
+                }
+
+                $normalized = $this->normalizeVideoObject($item);
+                $normalized['source'] = $attempt['source'];
+
+                return $normalized;
+            } catch (Throwable $e) {
+                $lastProblem = $e->getMessage();
+                report($e);
+            }
         }
 
-        $normalized = $this->normalizeVideoObject($item);
-        $normalized['source'] = 'tiktok-public-page';
-
-        return $normalized;
+        throw new RuntimeException(
+            'TikTok gaf geen actuele publieke videostatistieken terug'
+            .($lastProblem ? ' ('.$lastProblem.')' : '.')
+        );
     }
 
     /**
-     * Download only the normal public TikTok video page.
-     * No developer token, access token or TikTok API endpoint is used here.
+     * Read a public TikTok HTML page. This method intentionally does not call
+     * /api/item/detail, Research API, Display API or any signed TikTok endpoint.
      */
-    private function fetchFromPublicVideoPage(
-        string $videoUrl,
+    private function fetchVideoObjectFromPublicPage(
+        string $url,
         string $videoId
     ): ?array {
-        $response = $this->requestTikTok(
-            $this->withCacheBuster($videoUrl),
-            [
-                'Accept' =>
-                    'text/html,application/xhtml+xml,application/xml;q=0.9,'
-                    .'image/avif,image/webp,*/*;q=0.8',
-                'Referer' => 'https://www.tiktok.com/',
-                'Sec-Fetch-Dest' => 'document',
-                'Sec-Fetch-Mode' => 'navigate',
-                'Sec-Fetch-Site' => 'same-origin',
-                'Upgrade-Insecure-Requests' => '1',
-            ]
-        );
+        $response = $this->requestTikTok($url, [
+            'Accept' =>
+                'text/html,application/xhtml+xml,application/xml;q=0.9,'
+                .'image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Referer' => 'https://www.tiktok.com/',
+            'Sec-Fetch-Dest' => 'document',
+            'Sec-Fetch-Mode' => 'navigate',
+            'Sec-Fetch-Site' => 'same-origin',
+            'Sec-Fetch-User' => '?1',
+            'Upgrade-Insecure-Requests' => '1',
+        ]);
 
         if (!$response->successful()) {
-            return null;
-        }
-
-        $html = $response->body();
-
-        if ($html === '') {
-            return null;
-        }
-
-        /* Modern TikTok page hydration. */
-        $universal = $this->extractJsonScript(
-            $html,
-            '__UNIVERSAL_DATA_FOR_REHYDRATION__'
-        );
-
-        if (is_array($universal)) {
-            $direct =
-                $universal['__DEFAULT_SCOPE__']['webapp.video-detail']['itemInfo']['itemStruct']
-                ?? $universal['__DEFAULT_SCOPE__']['webapp.video-detail']['item_info']['item_struct']
-                ?? null;
-
-            if (
-                is_array($direct)
-                && $this->videoMatches($direct, $videoId)
-                && $this->containsStats($direct)
-            ) {
-                return $direct;
-            }
-
-            $found = $this->findVideoRecursively(
-                $universal,
-                $videoId
+            throw new RuntimeException(
+                'TikTok HTTP '.$response->status()
             );
-
-            if ($found !== null) {
-                return $found;
-            }
         }
 
-        /* Older/alternate TikTok page hydration. */
-        $sigi = $this->extractJsonScript(
-            $html,
-            'SIGI_STATE'
-        );
+        $html = (string) $response->body();
 
-        if (is_array($sigi)) {
-            $direct = $sigi['ItemModule'][$videoId] ?? null;
+        if (trim($html) === '') {
+            throw new RuntimeException('TikTok stuurde een lege HTML-pagina terug');
+        }
 
-            if (
-                is_array($direct)
-                && $this->containsStats($direct)
-            ) {
-                return $direct;
+        if ($this->looksLikeTikTokChallenge($html)) {
+            throw new RuntimeException(
+                'TikTok gaf een browser/challenge-pagina terug aan de Railway-server'
+            );
+        }
+
+        foreach ([
+            '__UNIVERSAL_DATA_FOR_REHYDRATION__',
+            'SIGI_STATE',
+            '__NEXT_DATA__',
+        ] as $scriptId) {
+            $data = $this->extractJsonScript($html, $scriptId);
+
+            if (!is_array($data)) {
+                continue;
             }
 
-            $found = $this->findVideoRecursively(
-                $sigi,
-                $videoId
-            );
+            if ($scriptId === '__UNIVERSAL_DATA_FOR_REHYDRATION__') {
+                $direct =
+                    $data['__DEFAULT_SCOPE__']['webapp.video-detail']['itemInfo']['itemStruct']
+                    ?? $data['__DEFAULT_SCOPE__']['webapp.video-detail']['item_info']['item_struct']
+                    ?? null;
+
+                if (
+                    is_array($direct)
+                    && $this->videoMatches($direct, $videoId)
+                    && $this->containsStats($direct)
+                ) {
+                    return $direct;
+                }
+            }
+
+            if ($scriptId === 'SIGI_STATE') {
+                $direct = $data['ItemModule'][$videoId] ?? null;
+
+                if (
+                    is_array($direct)
+                    && $this->containsStats($direct)
+                ) {
+                    return $direct;
+                }
+            }
+
+            $found = $this->findVideoRecursively($data, $videoId);
 
             if ($found !== null) {
                 return $found;
@@ -294,15 +319,70 @@ class TikTokVideoStatsService
         }
 
         /*
-         * Final page-only fallback. TikTok occasionally changes the script id
-         * while leaving the same counters in the HTML. We search only around
-         * the requested video id so counters from recommended videos are not
-         * accidentally returned.
+         * TikTok occasionally changes only the script element id. Search every
+         * application/json script rather than depending on a single DOM id.
          */
-        return $this->extractVideoFromHtmlWindow(
+        if (preg_match_all(
+            '/<script\\b[^>]*type=["\\\']application\\/json["\\\'][^>]*>(.*?)<\\/script>/is',
             $html,
-            $videoId
-        );
+            $matches
+        )) {
+            foreach ($matches[1] as $rawJson) {
+                $rawJson = html_entity_decode(
+                    trim((string) $rawJson),
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8'
+                );
+
+                $data = json_decode($rawJson, true);
+
+                if (!is_array($data)) {
+                    continue;
+                }
+
+                $found = $this->findVideoRecursively($data, $videoId);
+
+                if ($found !== null) {
+                    return $found;
+                }
+            }
+        }
+
+        return $this->extractVideoFromHtmlWindow($html, $videoId);
+    }
+
+    private function canonicalVideoPageUrl(string $videoUrl): string
+    {
+        $parts = parse_url($videoUrl);
+
+        if (!is_array($parts)) {
+            return $videoUrl;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+        $host = strtolower((string) ($parts['host'] ?? 'www.tiktok.com'));
+        $path = (string) ($parts['path'] ?? '/');
+
+        return $scheme.'://'.$host.$path.'?lang=en';
+    }
+
+    private function looksLikeTikTokChallenge(string $html): bool
+    {
+        $sample = strtolower(substr($html, 0, 250000));
+
+        foreach ([
+            'captcha',
+            'verify to continue',
+            'verify you are human',
+            'security verification',
+            'secsdk-captcha',
+        ] as $needle) {
+            if (str_contains($sample, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function extractVideoFromHtmlWindow(
@@ -379,25 +459,33 @@ class TikTokVideoStatsService
         string $url,
         array $extraHeaders = []
     ): Response {
-        return Http::withHeaders(
-            array_merge(
-                [
-                    'User-Agent' =>
-                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                        .'AppleWebKit/537.36 (KHTML, like Gecko) '
-                        .'Chrome/141.0.0.0 Safari/537.36',
+        $headers = array_merge([
+            'User-Agent' =>
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                .'AppleWebKit/537.36 (KHTML, like Gecko) '
+                .'Chrome/141.0.0.0 Safari/537.36',
+            'Accept-Language' => 'en-US,en;q=0.9,nl;q=0.7',
+            'Cache-Control' => 'no-cache',
+            'Pragma' => 'no-cache',
+            'DNT' => '1',
+            'Sec-CH-UA' => '"Google Chrome";v="141", "Chromium";v="141", "Not_A Brand";v="99"',
+            'Sec-CH-UA-Mobile' => '?0',
+            'Sec-CH-UA-Platform' => '"Windows"',
+        ], $extraHeaders);
 
-                    'Accept-Language' => 'en-US,en;q=0.9,nl;q=0.8',
-                    'Cache-Control' => 'no-cache, no-store, max-age=0',
-                    'Pragma' => 'no-cache',
-                    'DNT' => '1',
+        return Http::withHeaders($headers)
+            ->withOptions([
+                'allow_redirects' => [
+                    'max' => 5,
+                    'strict' => true,
+                    'referer' => true,
+                    'track_redirects' => true,
                 ],
-                $extraHeaders
-            )
-        )
-            ->connectTimeout(7)
-            ->timeout(14)
-            ->retry(1, 250, throw: false)
+                'http_errors' => false,
+            ])
+            ->connectTimeout(8)
+            ->timeout(18)
+            ->retry(2, 350, throw: false)
             ->get($url);
     }
 
