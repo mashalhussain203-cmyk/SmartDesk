@@ -313,12 +313,19 @@ class TikTokVideoStatsService
         $likes = $this->toInt($stats['likes'] ?? null);
         $comments = $this->toInt($stats['comments'] ?? null);
         $shares = $this->toInt($stats['shares'] ?? null);
+        $favorites = $this->toInt(
+            $stats['favorites']
+            ?? $stats['favoriteCount']
+            ?? $stats['collectCount']
+            ?? null
+        );
 
         if (
             $views === null
             && $likes === null
             && $comments === null
             && $shares === null
+            && $favorites === null
         ) {
             throw new RuntimeException(
                 'Livecounts gerenderde pagina bevatte geen counters.'
@@ -330,9 +337,10 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
-            'author_name' => null,
+            'favorites' => $favorites,
+            'author_name' => $payload['author_name'] ?? null,
             'title' => $payload['title'] ?? null,
-            'thumbnail_url' => null,
+            'thumbnail_url' => $payload['thumbnail_url'] ?? null,
             'source' => 'livecounts-rendered-page',
             'precision' => 'raw_integer',
             '_debug' => $payload['debug'] ?? [
@@ -407,6 +415,16 @@ class TikTokVideoStatsService
             $searchable,
             ['shareCount', 'shares', 'share_count']
         );
+        $favorites = $this->extractLivecountsCounter(
+            $searchable,
+            [
+                'favoriteCount',
+                'favorites',
+                'favouriteCount',
+                'collectCount',
+                'collect_count',
+            ]
+        );
 
         /*
          * Some Livecounts rendering code maps the four TikTok values into
@@ -437,6 +455,7 @@ class TikTokVideoStatsService
             && $likes === null
             && $comments === null
             && $shares === null
+            && $favorites === null
         ) {
             throw new RuntimeException(
                 'Livecounts pagina bevatte geen server-rendered counters.'
@@ -448,6 +467,7 @@ class TikTokVideoStatsService
             && (int) ($likes ?? 0) === 0
             && (int) ($comments ?? 0) === 0
             && (int) ($shares ?? 0) === 0
+            && (int) ($favorites ?? 0) === 0
         ) {
             throw new RuntimeException(
                 'Livecounts statische pagina bevat alleen 0-placeholders.'
@@ -486,6 +506,7 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
+            'favorites' => $favorites,
             'author_name' => null,
             'title' => $title,
             'thumbnail_url' => $thumbnailUrl,
@@ -501,6 +522,7 @@ class TikTokVideoStatsService
                     'likes' => $likes !== null,
                     'comments' => $comments !== null,
                     'shares' => $shares !== null,
+                    'favorites' => $favorites !== null,
                 ],
             ],
         ];
@@ -601,12 +623,21 @@ class TikTokVideoStatsService
             ?? $counterData['share_count']
             ?? null
         );
+        $favorites = $this->toInt(
+            $counterData['favorites']
+            ?? $counterData['favoriteCount']
+            ?? $counterData['favouriteCount']
+            ?? $counterData['collectCount']
+            ?? $counterData['collect_count']
+            ?? null
+        );
 
         if (
             $views === null
             && $likes === null
             && $comments === null
             && $shares === null
+            && $favorites === null
         ) {
             throw new RuntimeException(
                 'Livecounts-response bevat geen bruikbare counters. Keys: '
@@ -668,6 +699,7 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
+            'favorites' => $favorites,
             'author_name' => $authorName,
             'title' => $title,
             'thumbnail_url' => $thumbnailUrl,
@@ -778,6 +810,12 @@ class TikTokVideoStatsService
             'likes' => $this->toInt($stats['likes'] ?? null),
             'comments' => $this->toInt($stats['comments'] ?? null),
             'shares' => $this->toInt($stats['shares'] ?? null),
+            'favorites' => $this->toInt(
+                $stats['favorites']
+                ?? $stats['favoriteCount']
+                ?? $stats['collectCount']
+                ?? null
+            ),
             'author_name' => $payload['author_name'] ?? null,
             'title' => $payload['title'] ?? null,
             'thumbnail_url' => $payload['thumbnail_url'] ?? null,
@@ -1104,11 +1142,19 @@ class TikTokVideoStatsService
             $stats['share_count'] ?? null,
         ]);
 
+        $favorites = $this->firstInt([
+            $stats['collectCount'] ?? null,
+            $stats['collect_count'] ?? null,
+            $stats['favoriteCount'] ?? null,
+            $stats['favorites'] ?? null,
+        ]);
+
         if (
             $views === null
             && $likes === null
             && $comments === null
             && $shares === null
+            && $favorites === null
         ) {
             throw new RuntimeException(
                 'TikTok response bevatte geen bruikbare counters.'
@@ -1139,6 +1185,7 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
+            'favorites' => $favorites,
 
             'author_name' => $authorName,
 
