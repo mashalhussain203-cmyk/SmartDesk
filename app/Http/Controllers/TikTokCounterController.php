@@ -12,8 +12,11 @@ use Throwable;
 
 class TikTokCounterController extends Controller
 {
-    public function liveCountsIndex(): View
-    {
+    public function liveCountsIndex(
+        TikTokVideoStatsService $service
+    ): View {
+        $service->warmLiveFollowerSearchBrowser();
+
         return view('tools.live-counts');
     }
 
