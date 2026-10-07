@@ -1370,6 +1370,17 @@
         border-color: rgba(34,197,94,.22) !important;
     }
 
+
+    /* Remove all metric icon badge backgrounds; keep only the colored icons. */
+    .ttc-stat--views .ttc-stat-badge,
+    .ttc-stat--likes .ttc-stat-badge,
+    .ttc-stat--comments .ttc-stat-badge,
+    .ttc-stat--shares .ttc-stat-badge {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
 </style>
 @endpush
 
@@ -1424,7 +1435,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-icon-colors-v5"
+                data-ui-build="20261007-icon-nobg-v6"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
