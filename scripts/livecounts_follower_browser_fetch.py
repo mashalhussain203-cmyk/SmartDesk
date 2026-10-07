@@ -5,6 +5,7 @@ import re
 import shutil
 import sys
 import time
+from urllib.parse import quote, urlparse
 
 
 def emit(payload, code=0):
@@ -26,7 +27,6 @@ def clean_number(value):
 
 def find_near_label(lines, label):
     target = label.lower()
-
     for idx, line in enumerate(lines):
         normalized = line.strip().lower()
         if not (normalized == target or normalized.startswith(target + " ")):
@@ -44,7 +44,6 @@ def find_near_label(lines, label):
                 number = clean_number(candidate)
                 if number is not None:
                     return number
-
     return None
 
 
@@ -58,130 +57,105 @@ def parse_body_text(text):
     }
 
 
-def choose_user(search_payload, username):
-    users = None
-
-    if isinstance(search_payload, dict):
-        users = (
-            search_payload.get("userData")
-            or search_payload.get("users")
-            or search_payload.get("data")
-        )
-    elif isinstance(search_payload, list):
-        users = search_payload
-
-    if isinstance(users, dict):
-        users = (
-            users.get("userData")
-            or users.get("users")
-            or users.get("data")
-        )
-
-    if not isinstance(users, list):
-        return None
-
-    requested = username.lower().lstrip("@")
-    fallback = None
-
-    for item in users:
-        if not isinstance(item, dict):
-            continue
-
-        if fallback is None:
-            fallback = item
-
-        candidates = [
-            item.get("id"),
-            item.get("username"),
-            item.get("uniqueId"),
-            item.get("unique_id"),
-        ]
-
-        for candidate in candidates:
-            if candidate is None:
-                continue
-            if str(candidate).lower().lstrip("@") == requested:
-                return item
-
-    return fallback
-
-
-def profile_from_user(item, username):
-    if not isinstance(item, dict):
-        return {
-            "username": username,
-            "display_name": None,
-            "avatar_url": None,
-            "user_id": None,
-        }
-
-    handle = (
-        item.get("id")
-        or item.get("uniqueId")
-        or item.get("unique_id")
-        or username
-    )
-    display_name = (
-        item.get("username")
-        or item.get("displayName")
-        or item.get("display_name")
-        or handle
-    )
-    avatar_url = (
-        item.get("avatar")
-        or item.get("avatarUrl")
-        or item.get("avatar_url")
-        or item.get("thumbnail")
-    )
-    user_id = (
-        item.get("userId")
-        or item.get("user_id")
-        or item.get("uid")
-    )
-
-    return {
-        "username": str(handle).lstrip("@"),
-        "display_name": display_name,
-        "avatar_url": avatar_url,
-        "user_id": str(user_id) if user_id is not None else None,
-    }
+def extract_user_id_from_stats_url(url):
+    try:
+        path = urlparse(url).path
+        match = re.search(r"/user/stats/([^/?#]+)", path, re.I)
+        if match:
+            return match.group(1)
+    except Exception:
+        pass
+    return None
 
 
 def extract_profile_meta(page, username):
     try:
         return page.evaluate(
             """(username) => {
-              const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
-              const requested = String(username || '').toLowerCase().replace(/^@/, '');
-              const imgs = Array.from(document.querySelectorAll('img'));
+              const clean = (s) => String(s || '')
+                .replace(/\u00a0/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
 
-              let avatar = imgs.find(img => {
-                const alt = clean(img.getAttribute('alt')).toLowerCase();
-                const src = img.getAttribute('src') || '';
-                return alt.includes(requested)
-                  || alt.includes('avatar')
-                  || src.includes('avatar');
+              const requested = String(username || '')
+                .toLowerCase()
+                .replace(/^@/, '');
+
+              const visible = (el) => {
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                const st = getComputedStyle(el);
+                return r.width > 0
+                  && r.height > 0
+                  && st.display !== 'none'
+                  && st.visibility !== 'hidden';
+              };
+
+              const all = Array.from(document.querySelectorAll('body *'));
+
+              const usernameNodes = all.filter(el => {
+                if (!visible(el) || el.children.length > 3) return false;
+                const text = clean(el.textContent).toLowerCase().replace(/^@/, '');
+                return text === requested || text.includes('@' + requested);
               });
 
-              const texts = Array.from(document.querySelectorAll('h1,h2,h3,strong,p,span'))
-                .map(el => clean(el.textContent))
-                .filter(Boolean);
-
+              let avatar = null;
               let displayName = null;
 
-              for (const text of texts) {
-                const lower = text.toLowerCase();
-                if (lower === '@' + requested || lower === requested) continue;
-                if (
-                  lower === 'followers'
-                  || lower === 'likes'
-                  || lower === 'following'
-                  || lower === 'videos'
-                ) continue;
-                if (text.length > 1 && text.length < 80) {
-                  displayName = text;
-                  break;
+              for (const node of usernameNodes) {
+                let parent = node;
+
+                for (let depth = 0; parent && depth < 6; depth += 1, parent = parent.parentElement) {
+                  const imgs = Array.from(parent.querySelectorAll('img'))
+                    .filter(img => {
+                      const src = img.currentSrc || img.getAttribute('src') || '';
+                      const r = img.getBoundingClientRect();
+                      return src && r.width >= 32 && r.height >= 32;
+                    });
+
+                  if (imgs.length) {
+                    avatar = imgs[0];
+                  }
+
+                  const candidates = Array.from(parent.querySelectorAll('h1,h2,h3,strong,p,span'))
+                    .filter(el => visible(el))
+                    .map(el => clean(el.textContent))
+                    .filter(Boolean)
+                    .filter(text => {
+                      const lower = text.toLowerCase().replace(/^@/, '');
+                      if (lower === requested) return false;
+                      if (lower.includes('followers')) return false;
+                      if (lower.includes('following')) return false;
+                      if (lower.includes('likes')) return false;
+                      if (lower.includes('videos')) return false;
+                      if (text.length > 80) return false;
+                      return true;
+                    });
+
+                  if (candidates.length) {
+                    displayName = candidates[0];
+                  }
+
+                  if (avatar || displayName) break;
                 }
+
+                if (avatar || displayName) break;
+              }
+
+              if (!avatar) {
+                avatar = Array.from(document.querySelectorAll('img')).find(img => {
+                  const src = img.currentSrc || img.getAttribute('src') || '';
+                  const alt = clean(img.getAttribute('alt')).toLowerCase();
+                  const r = img.getBoundingClientRect();
+                  return src
+                    && r.width >= 40
+                    && r.height >= 40
+                    && (
+                      alt.includes(requested)
+                      || alt.includes('avatar')
+                      || src.toLowerCase().includes('avatar')
+                    );
+                }) || null;
               }
 
               return {
@@ -221,7 +195,11 @@ def main():
         or shutil.which("google-chrome")
     )
 
-    base_url = "https://livecounts.io/tiktok-live-follower-counter"
+    page_url = (
+        "https://livecounts.io/tiktok-live-follower-counter/"
+        + quote(username, safe="")
+    )
+
     debug = {
         "stage": "browser_start",
         "username": username,
@@ -259,11 +237,10 @@ def main():
 
             page = context.new_page()
 
+            # Same approach as the working video counter:
+            # preserve scripts/XHR and skip only heavy visual assets.
             def block_heavy_assets(route):
                 try:
-                    # Keep JavaScript/XHR intact. The avatar URL is obtained from
-                    # the provider's JSON, so downloading image bytes here is not
-                    # necessary for resolving the profile.
                     if route.request.resource_type in ("image", "media", "font"):
                         route.abort()
                     else:
@@ -280,33 +257,20 @@ def main():
                 "stats": None,
                 "stats_url": None,
                 "stats_status": None,
-                "search": None,
-                "search_url": None,
-                "search_status": None,
+                "user_id": None,
             }
 
             def on_response(resp):
                 try:
                     url = resp.url
-                    lower_url = url.lower()
 
-                    # Support both /user/search/{query} and /user/search?query=...
-                    if "/user/search" in lower_url:
-                        captured["search_url"] = url
-                        captured["search_status"] = resp.status
-
-                        if 200 <= resp.status < 300:
-                            payload = resp.json()
-                            if isinstance(payload, (dict, list)):
-                                captured["search"] = payload
-
-                    # Support both /user/stats/{id} and query-string variants.
-                    elif "/user/stats" in lower_url:
+                    if "/user/stats/" in url.lower():
                         captured["stats_url"] = url
                         captured["stats_status"] = resp.status
+                        captured["user_id"] = extract_user_id_from_stats_url(url)
 
-                        # Ignore 429/error bodies and keep listening. The site's
-                        # own frontend can retry without us forging any request.
+                        # Ignore 429/error bodies. Keep listening because the
+                        # provider page itself may retry.
                         if 200 <= resp.status < 300:
                             payload = resp.json()
                             if isinstance(payload, dict):
@@ -319,138 +283,32 @@ def main():
             response = None
             try:
                 response = page.goto(
-                    base_url,
-                    wait_until="domcontentloaded",
-                    timeout=12000,
+                    page_url,
+                    wait_until="commit",
+                    timeout=8000,
                 )
             except Exception as nav_exc:
                 debug["navigation_warning"] = str(nav_exc)
 
             debug["page_http_status"] = response.status if response else None
-            debug["base_final_url"] = page.url
-            debug["stage"] = "search_account"
-
-            # Reproduce the provider's own normal UI flow: search an account,
-            # allow its own JS to resolve the TikTok userId, then open the result.
-            search_input = None
-            selectors = [
-                'input[placeholder*="Search Accounts"]',
-                'input[placeholder*="Search accounts"]',
-                'input[placeholder*="Search"]',
-                'input[type="search"]',
-                'input[type="text"]',
-            ]
-
-            for selector in selectors:
-                try:
-                    locator = page.locator(selector).first
-                    if locator.count() > 0 and locator.is_visible(timeout=500):
-                        search_input = locator
-                        break
-                except Exception:
-                    pass
-
-            clicked_result = False
-
-            if search_input is not None:
-                try:
-                    search_input.fill(username)
-                    page.wait_for_timeout(900)
-                except Exception as exc:
-                    debug["search_fill_warning"] = str(exc)
-
-                # Give the provider's own debounced search request time to finish.
-                search_deadline = time.time() + 7
-                while time.time() < search_deadline:
-                    if isinstance(captured.get("search"), (dict, list)):
-                        break
-                    page.wait_for_timeout(100)
-
-                chosen_user = choose_user(captured.get("search"), username)
-                profile = profile_from_user(chosen_user, username)
-
-                try:
-                    links = page.locator('a[href*="/tiktok-live-follower-counter/"]')
-                    link_count = links.count()
-
-                    best_index = None
-                    requested = username.lower()
-
-                    for idx in range(link_count):
-                        link = links.nth(idx)
-                        href = (link.get_attribute("href") or "").lower()
-                        text = (link.inner_text(timeout=300) or "").lower()
-
-                        if requested in href or requested in text:
-                            best_index = idx
-                            break
-
-                        if profile.get("user_id") and profile["user_id"].lower() in href:
-                            best_index = idx
-                            break
-
-                    if best_index is None and link_count > 0:
-                        best_index = 0
-
-                    if best_index is not None:
-                        links.nth(best_index).click(timeout=3000)
-                        clicked_result = True
-                        page.wait_for_timeout(300)
-                except Exception as exc:
-                    debug["result_click_warning"] = str(exc)
-
-                # Some versions only submit/navigate after Enter.
-                if not clicked_result:
-                    try:
-                        search_input.press("Enter")
-                        page.wait_for_timeout(1000)
-                    except Exception:
-                        pass
-
-                    try:
-                        links = page.locator('a[href*="/tiktok-live-follower-counter/"]')
-                        if links.count() > 0:
-                            links.first.click(timeout=2500)
-                            clicked_result = True
-                            page.wait_for_timeout(300)
-                    except Exception:
-                        pass
-
-            else:
-                profile = profile_from_user(None, username)
-                debug["search_input_missing"] = True
-
-            # If the UI did not expose a clickable result, the public username
-            # route is still a normal supported provider page.
-            if not clicked_result:
-                direct_url = base_url + "/" + username
-                try:
-                    page.goto(
-                        direct_url,
-                        wait_until="commit",
-                        timeout=8000,
-                    )
-                except Exception as nav_exc:
-                    debug["direct_navigation_warning"] = str(nav_exc)
-
-            debug["counter_final_url"] = page.url
-            debug["clicked_search_result"] = clicked_result
-            debug["stage"] = "wait_for_user_stats"
+            debug["final_url"] = page.url
+            debug["livecounts_mode"] = "browser-network-capture"
+            debug["stage"] = "wait_for_livecounts_user_stats"
 
             deadline = time.time() + 14
+
+            # Hot path: exactly like the video helper. Wait only for the
+            # provider page's own successful JSON response.
             while time.time() < deadline:
                 if isinstance(captured.get("stats"), dict):
                     break
                 page.wait_for_timeout(100)
 
             stats_payload = captured.get("stats")
-            search_payload = captured.get("search")
-            chosen_user = choose_user(search_payload, username)
-            profile = profile_from_user(chosen_user, username)
-
             body_text = ""
             fallback_stats = {}
 
+            # DOM is fallback only, never the primary stats source.
             if not isinstance(stats_payload, dict):
                 try:
                     body_text = page.locator("body").inner_text(timeout=1200)
@@ -505,13 +363,16 @@ def main():
                     "video_count",
                 )
 
-                # Some Livecounts counter APIs expose the headline count plus
-                # the remaining three counters in bottomOdos.
+                # Be tolerant of the generic Livecounts response shape while
+                # still using only the provider's captured JSON.
                 bottom_odos = stats_payload.get("bottomOdos")
                 if not isinstance(bottom_odos, list):
                     for container in ("data", "stats"):
                         nested = stats_payload.get(container)
-                        if isinstance(nested, dict) and isinstance(nested.get("bottomOdos"), list):
+                        if (
+                            isinstance(nested, dict)
+                            and isinstance(nested.get("bottomOdos"), list)
+                        ):
                             bottom_odos = nested.get("bottomOdos")
                             break
 
@@ -537,25 +398,25 @@ def main():
                 }
                 source = "livecounts-follower-public-page-rendered"
 
-            display_name = profile.get("display_name")
-            avatar_url = profile.get("avatar_url")
-            resolved_user_id = profile.get("user_id")
-            resolved_username = profile.get("username") or username
-
-            if not display_name or not avatar_url:
-                meta = extract_profile_meta(page, username)
-                if isinstance(meta, dict):
-                    display_name = display_name or meta.get("display_name")
-                    avatar_url = avatar_url or meta.get("avatar_url")
+            # Profile metadata comes from the exact same public counter page.
+            # The image request itself may be blocked for speed; its src still
+            # exists in the rendered DOM and can be used by our own frontend.
+            meta = extract_profile_meta(page, username)
+            display_name = (
+                meta.get("display_name")
+                if isinstance(meta, dict)
+                else None
+            )
+            avatar_url = (
+                meta.get("avatar_url")
+                if isinstance(meta, dict)
+                else None
+            )
 
             debug["network_stats_captured"] = isinstance(stats_payload, dict)
             debug["network_stats_url"] = captured.get("stats_url")
             debug["network_stats_status"] = captured.get("stats_status")
-            debug["network_search_captured"] = isinstance(search_payload, (dict, list))
-            debug["network_search_url"] = captured.get("search_url")
-            debug["network_search_status"] = captured.get("search_status")
-            debug["resolved_user_id"] = resolved_user_id
-            debug["resolved_username"] = resolved_username
+            debug["resolved_user_id"] = captured.get("user_id")
             debug["stats_keys"] = (
                 list(stats_payload.keys())[:30]
                 if isinstance(stats_payload, dict)
@@ -572,8 +433,11 @@ def main():
             ):
                 emit({
                     "success": False,
-                    "message": "Follower counter leverde niet alle vier de tellers.",
-                    "stage": "follower_stats_incomplete",
+                    "message": (
+                        "Livecounts follower response was onvolledig; "
+                        "niet alle vier tellers zijn beschikbaar."
+                    ),
+                    "stage": "livecounts_follower_network_incomplete",
                     "stats": stats,
                     "display_name": display_name,
                     "avatar_url": avatar_url,
@@ -584,7 +448,7 @@ def main():
                 "success": True,
                 "source": source,
                 "precision": "raw_integer",
-                "username": resolved_username,
+                "username": username,
                 "display_name": display_name,
                 "avatar_url": avatar_url,
                 "stats": stats,
