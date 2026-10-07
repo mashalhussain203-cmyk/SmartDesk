@@ -220,26 +220,14 @@ class TikTokVideoStatsService
         }
 
         /*
-         * Provider 4: our existing TikTok / yt-dlp / public HTML extractor.
+         * Livecounts is intentionally required for this dashboard.
+         * Do not silently substitute rounded TikTok/yt-dlp data: if all
+         * Livecounts paths fail, surface the provider errors to the frontend.
          */
-        try {
-            $result = $this->fetchViaBrowserImpersonation(
-                $this->canonicalVideoPageUrl($videoUrl),
-                $videoId
-            );
-
-            if ($result !== null) {
-                $result['_debug']['provider_errors'] = $errors;
-                return $result;
-            }
-        } catch (Throwable $e) {
-            $errors[] = 'tiktok: '.$e->getMessage();
-        }
-
         throw new RuntimeException(
             'TIKTOK_DEBUG:'.json_encode([
                 'stage' => 'all_providers_failed',
-                'message' => 'Geen videostatistiek-provider leverde bruikbare data.',
+                'message' => 'Livecounts kon geen bruikbare live data leveren.',
                 'provider_errors' => $errors,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
