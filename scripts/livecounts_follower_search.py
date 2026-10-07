@@ -107,43 +107,92 @@ def normalize_results(payload):
     return out
 
 
-def parse_visible_results(page):
+def parse_visible_results(page, query):
     script = r"""
-    () => {
+    ({ query }) => {
       const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+      const requested = String(query || '').toLowerCase().replace(/^@/, '');
       const out = [];
       const seen = new Set();
 
-      const anchors = Array.from(
-        document.querySelectorAll('a[href*="/tiktok-live-follower-counter/"]')
-      );
+      const visible = (el) => {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        const st = getComputedStyle(el);
+        return r.width > 0
+          && r.height > 0
+          && st.display !== 'none'
+          && st.visibility !== 'hidden';
+      };
 
-      for (const a of anchors) {
-        const href = a.getAttribute('href') || '';
-        const m = href.match(/\/tiktok-live-follower-counter\/([^/?#]+)/i);
-        if (!m) continue;
+      const candidates = Array.from(document.querySelectorAll(
+        'a[href*="/tiktok-live-follower-counter/"], [role="option"], li, button'
+      )).filter(visible);
 
-        const username = decodeURIComponent(m[1] || '').replace(/^@/, '');
-        if (!/^[A-Za-z0-9._]{1,24}$/.test(username)) continue;
+      for (const el of candidates) {
+        const href = el.getAttribute('href') || '';
+        const text = clean(el.textContent);
+        const lowerText = text.toLowerCase();
+
+        if (!text || text.length > 300) continue;
+        if (
+          requested
+          && !lowerText.includes(requested)
+          && !href.toLowerCase().includes(requested)
+        ) {
+          continue;
+        }
+
+        let username = null;
+        const hrefMatch = href.match(/\/tiktok-live-follower-counter\/([^/?#]+)/i);
+        if (hrefMatch) {
+          username = decodeURIComponent(hrefMatch[1] || '').replace(/^@/, '');
+        }
+
+        if (!username) {
+          const handleMatch = text.match(/@([A-Za-z0-9._]{1,24})/);
+          if (handleMatch) {
+            username = handleMatch[1];
+          }
+        }
+
+        if (!username) {
+          const tokens = text.split(/\s+/).filter(Boolean);
+          for (const token of tokens) {
+            const cleaned = token.replace(/^@/, '').replace(/[^A-Za-z0-9._]/g, '');
+            if (
+              /^[A-Za-z0-9._]{2,24}$/.test(cleaned)
+              && cleaned.toLowerCase().includes(requested)
+            ) {
+              username = cleaned;
+              break;
+            }
+          }
+        }
+
+        if (!username || !/^[A-Za-z0-9._]{1,24}$/.test(username)) continue;
 
         const key = username.toLowerCase();
         if (seen.has(key)) continue;
         seen.add(key);
 
-        const text = clean(a.textContent);
-        const img = a.querySelector('img');
+        const img = el.querySelector('img');
         const avatar = img
           ? (img.currentSrc || img.getAttribute('src') || img.src || null)
           : null;
 
-        const texts = Array.from(a.querySelectorAll('h1,h2,h3,h4,strong,p,span'))
-          .map(el => clean(el.textContent))
+        const textNodes = Array.from(
+          el.querySelectorAll('h1,h2,h3,h4,strong,p,span,div')
+        )
+          .filter(visible)
+          .map(node => clean(node.textContent))
           .filter(Boolean);
 
         let displayName = null;
-        for (const candidate of texts) {
+        for (const candidate of textNodes) {
           const normalized = candidate.toLowerCase().replace(/^@/, '');
           if (normalized === key) continue;
+          if (candidate.includes('@' + username)) continue;
           if (candidate.length > 80) continue;
           displayName = candidate;
           break;
@@ -154,7 +203,11 @@ def parse_visible_results(page):
           username,
           display_name: displayName || username,
           avatar_url: avatar,
-          verified: /verified/i.test(text) || !!a.querySelector('[aria-label*="Verified"], [title*="Verified"]')
+          verified:
+            /verified/i.test(text)
+            || !!el.querySelector(
+              '[aria-label*="Verified"], [title*="Verified"], [data-verified="true"]'
+            )
         });
 
         if (out.length >= 8) break;
@@ -165,7 +218,7 @@ def parse_visible_results(page):
     """
 
     try:
-        results = page.evaluate(script)
+        results = page.evaluate(script, {"query": query})
         return results if isinstance(results, list) else []
     except Exception:
         return []
@@ -256,13 +309,19 @@ def main():
 
             def on_response(resp):
                 try:
+                    url = resp.url
+                    lower_url = url.lower()
+
+                    if "/user/search" in lower_url:
+                        captured["url"] = url
+                        captured["status"] = resp.status
+
                     if not (200 <= resp.status < 300):
                         return
 
                     content_type = (resp.headers.get("content-type") or "").lower()
-                    url = resp.url
 
-                    if "json" not in content_type and "tiktok.livecounts.io" not in url.lower():
+                    if "json" not in content_type and "tiktok.livecounts.io" not in lower_url:
                         return
 
                     payload = resp.json()
@@ -324,36 +383,100 @@ def main():
                     "debug": debug,
                 }, 10)
 
-            # Type like a real visitor so React/input handlers receive the
-            # same keyboard events as on the public page.
-            search_input.fill("")
+            # Give the page a moment to finish client-side hydration, then
+            # interact with the same visible Search Accounts field a visitor uses.
+            page.wait_for_timeout(700)
+
             try:
-                search_input.press_sequentially(query, delay=90)
+                search_input.click(timeout=1200)
             except Exception:
-                search_input.type(query, delay=90)
+                pass
 
-            debug["stage"] = "wait_for_search_response"
+            try:
+                search_input.press("Control+A")
+                search_input.press("Backspace")
+            except Exception:
+                try:
+                    search_input.fill("")
+                except Exception:
+                    pass
 
-            deadline = time.time() + 10
-            while time.time() < deadline:
-                if isinstance(captured.get("search"), (dict, list)):
-                    break
+            try:
+                search_input.press_sequentially(query, delay=110)
+            except Exception:
+                search_input.type(query, delay=110)
 
-                visible = parse_visible_results(page)
+            debug["stage"] = "wait_for_livecounts_search"
+
+            def current_results():
+                payload = captured.get("search")
+                normalized = normalize_results(payload)
+                if normalized:
+                    return normalized, "livecounts-follower-browser-search"
+
+                visible = parse_visible_results(page, query)
                 if visible:
-                    break
+                    return visible, "livecounts-follower-rendered-search"
 
+                return [], None
+
+            results = []
+            source = None
+
+            # First allow the site's own debounce/onChange search to fire.
+            deadline = time.time() + 4
+            while time.time() < deadline:
+                results, source = current_results()
+                if results:
+                    break
                 page.wait_for_timeout(120)
 
-            payload = captured.get("search")
-            results = normalize_results(payload)
-
-            source = "livecounts-follower-browser-search"
-
+            # Some builds only commit the search after Enter. This is still
+            # normal UI interaction; the provider page itself creates the request.
             if not results:
-                results = parse_visible_results(page)
-                if results:
-                    source = "livecounts-follower-rendered-search"
+                try:
+                    search_input.press("Enter")
+                    debug["enter_submitted"] = True
+                except Exception as exc:
+                    debug["enter_warning"] = str(exc)
+
+                deadline = time.time() + 5
+                while time.time() < deadline:
+                    results, source = current_results()
+                    if results:
+                        break
+                    page.wait_for_timeout(120)
+
+            # Last UI-only nudge for React-controlled inputs whose handler was
+            # attached after the first keystrokes during slow hydration.
+            if not results:
+                try:
+                    search_input.evaluate(
+                        """(el) => {
+                          el.dispatchEvent(new Event('input', { bubbles: true }));
+                          el.dispatchEvent(new Event('change', { bubbles: true }));
+                          el.dispatchEvent(new KeyboardEvent('keyup', {
+                            key: 'Enter',
+                            code: 'Enter',
+                            bubbles: true
+                          }));
+                        }"""
+                    )
+                    debug["events_redispatched"] = True
+                except Exception as exc:
+                    debug["event_warning"] = str(exc)
+
+                deadline = time.time() + 3
+                while time.time() < deadline:
+                    results, source = current_results()
+                    if results:
+                        break
+                    page.wait_for_timeout(120)
+
+            payload = captured.get("search")
+
+            if source is None:
+                source = "livecounts-follower-browser-search"
 
             debug["search_url"] = captured.get("url")
             debug["search_status"] = captured.get("status")
