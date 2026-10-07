@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import html as htmlmod
+import hashlib
 import json
 import re
 import sys
@@ -335,15 +336,29 @@ def fetch_with_ytdlp(video_url, video_id):
     if not HAS_YTDLP:
         return None, {"stage": "ytdlp_import", "message": YTDLP_ERROR or "yt-dlp niet beschikbaar"}
 
+    # yt-dlp can try TikTok's mobile API before falling back to the webpage
+    # when app_info is supplied. These are anonymous, stable client identifiers;
+    # no user login, API key or manually supplied TikTok token is required.
+    seed = hashlib.sha256(b"mashal-studio-tiktok-live-v2").hexdigest()
+    iid = str(int(seed[:16], 16)).zfill(19)[:19]
+    device_id = str(int(seed[16:32], 16)).zfill(19)[:19]
+
     opts = {
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
         "noplaylist": True,
+        "cachedir": False,
         "socket_timeout": 18,
         "retries": 1,
         "extractor_retries": 1,
         "http_headers": COMMON_HEADERS,
+        "extractor_args": {
+            "tiktok": {
+                "app_info": [iid],
+                "device_id": [device_id],
+            },
+        },
     }
 
     try:
@@ -385,6 +400,7 @@ def fetch_with_ytdlp(video_url, video_id):
             "yt_dlp_available": True,
             "extractor": info.get("extractor"),
             "extractor_key": info.get("extractor_key"),
+            "mode": "mobile-api-first-with-web-fallback",
         },
     }, None
 
