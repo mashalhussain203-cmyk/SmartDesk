@@ -27,7 +27,8 @@ def clean_number(value):
 def find_near_label(lines, label):
     target = label.lower()
     for idx, line in enumerate(lines):
-        if line.strip().lower() != target:
+        normalized = line.strip().lower()
+        if not (normalized == target or normalized.startswith(target + " ")):
             continue
 
         candidates = []
@@ -85,14 +86,20 @@ def parse_dom(page):
           && Number(st.opacity || 1) > 0;
       };
 
-      const numericEls = all
+      const labelMatches = (text, key) => {
+        const t = clean(text).toLowerCase();
+        return t === key
+          || t.startsWith(key + ' ')
+          || t.startsWith(key + '\u00a0');
+      };
+
+      const numericLeaves = (root) => Array.from(root.querySelectorAll('*'))
         .filter(el => visible(el) && el.children.length === 0)
         .map(el => {
           const value = parseNumber(el.textContent);
           if (value === null) return null;
           const r = el.getBoundingClientRect();
           return {
-            el,
             value,
             x: r.left + r.width / 2,
             y: r.top + r.height / 2,
@@ -101,107 +108,95 @@ def parse_dom(page):
         })
         .filter(Boolean);
 
-      const out = {};
+      const out = {
+        views: null,
+        likes: null,
+        comments: null,
+        shares: null
+      };
 
       for (const key of wanted) {
-        const labelCandidates = all.filter(el => {
-          if (!visible(el)) return false;
-          const txt = clean(el.textContent).toLowerCase();
-          if (!txt) return false;
-          if (txt === key) return true;
-          if (el.children.length <= 2 && txt === key) return true;
-          return false;
-        });
+        const labels = all.filter(el =>
+          visible(el)
+          && el.children.length <= 3
+          && labelMatches(el.textContent, key)
+        );
 
-        let best = null;
+        let winner = null;
 
-        for (const labelEl of labelCandidates) {
-          const lr = labelEl.getBoundingClientRect();
+        for (const label of labels) {
+          const lr = label.getBoundingClientRect();
           const lx = lr.left + lr.width / 2;
           const ly = lr.top + lr.height / 2;
 
-          for (const num of numericEls) {
-            const dx = num.x - lx;
-            const dy = num.y - ly;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            // Counters should be reasonably close to their label.
-            if (distance > 520) continue;
-
-            // Prefer bigger text and nearby numbers.
-            const score = distance - (num.font * 7);
-
-            if (!best || score < best.score) {
-              best = { score, value: num.value };
+          // Walk up until we hit the visual stat card containing this label.
+          let node = label;
+          for (let depth = 0; node && depth < 7; depth += 1, node = node.parentElement) {
+            const r = node.getBoundingClientRect();
+            if (
+              r.width < 80 || r.height < 45
+              || r.width > Math.min(window.innerWidth * 0.98, 1300)
+              || r.height > 420
+            ) {
+              continue;
             }
-          }
 
-          // Also inspect compact ancestor text; odometer digits can be nested.
-          let node = labelEl.parentElement;
-          for (let depth = 0; node && depth < 5; depth += 1) {
-            const lines = String(node.innerText || '')
-              .split(/\n+/)
-              .map(clean)
-              .filter(Boolean);
-            const idx = lines.findIndex(x => x.toLowerCase() === key);
+            const nums = numericLeaves(node);
+            for (const num of nums) {
+              const dx = num.x - lx;
+              const dy = num.y - ly;
+              const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (idx >= 0) {
-              for (let radius = 1; radius <= 8; radius += 1) {
-                for (const pos of [idx - radius, idx + radius]) {
-                  if (pos >= 0 && pos < lines.length) {
-                    const value = parseNumber(lines[pos]);
-                    if (value !== null) {
-                      const score = radius * 40;
-                      if (!best || score < best.score) {
-                        best = { score, value };
-                      }
-                    }
-                  }
-                }
+              // The screenshot layout puts the number directly above the label.
+              // Prefer larger text inside the same card and close to the label.
+              const score = distance - (num.font * 10);
+              if (!winner || score < winner.score) {
+                winner = {
+                  score,
+                  value: num.value,
+                  font: num.font,
+                  distance
+                };
               }
             }
 
-            node = node.parentElement;
+            // Once a plausible card has a large numeric value, don't climb into
+            // a much larger container where unrelated numbers/ads can interfere.
+            if (winner && winner.font >= 24 && winner.distance < 260) {
+              break;
+            }
           }
         }
 
-        out[key] = best ? best.value : null;
+        if (winner) {
+          out[key] = winner.value;
+        }
       }
 
-      // Official embed fallback. The TikTok embed is arranged as one
-      // large Views odometer plus three lower odometers:
-      // Likes, Comments, Shares. Use geometry only when text labels failed.
-      if (numericEls.length) {
-        const candidates = numericEls
-          .filter(x => x.font >= 14)
+      // Main Views counter can have a different layout. If its label was not
+      // found, use the largest visible numeric text in the upper counter area.
+      if (out.views === null) {
+        const candidates = all
+          .filter(el => visible(el) && el.children.length === 0)
+          .map(el => {
+            const value = parseNumber(el.textContent);
+            if (value === null) return null;
+            const r = el.getBoundingClientRect();
+            return {
+              value,
+              y: r.top + r.height / 2,
+              font: parseFloat(getComputedStyle(el).fontSize || '0')
+            };
+          })
+          .filter(Boolean)
+          .filter(x => x.value >= 1000 && x.font >= 26)
           .sort((a, b) => {
-            if (a.y !== b.y) return a.y - b.y;
-            return a.x - b.x;
+            if (b.font !== a.font) return b.font - a.font;
+            return a.y - b.y;
           });
 
-        if (out.views === null) {
-          const primary = candidates
-            .slice()
-            .sort((a, b) => {
-              if (b.font !== a.font) return b.font - a.font;
-              return a.y - b.y;
-            })[0];
-
-          if (primary) out.views = primary.value;
-        }
-
-        const primaryY = candidates.length
-          ? candidates.slice().sort((a, b) => b.font - a.font)[0].y
-          : 0;
-
-        const lower = candidates
-          .filter(x => x.y > primaryY + 20)
-          .sort((a, b) => a.x - b.x);
-
-        if (lower.length >= 3) {
-          if (out.likes === null) out.likes = lower[0].value;
-          if (out.comments === null) out.comments = lower[1].value;
-          if (out.shares === null) out.shares = lower[2].value;
+        if (candidates.length) {
+          out.views = candidates[0].value;
         }
       }
 
@@ -244,7 +239,7 @@ def main():
         "chromium": chromium,
     }
 
-    url = f"https://livecounts.io/embed/tiktok-live-view-counter/{video_id}"
+    url = f"https://livecounts.io/tiktok-live-view-counter/{video_id}"
 
     try:
         with sync_playwright() as p:
@@ -293,7 +288,7 @@ def main():
 
             debug["http_status"] = response.status if response else None
             debug["final_url"] = page.url
-            debug["livecounts_mode"] = "official-embed"
+            debug["livecounts_mode"] = "public-counter-page"
             debug["stage"] = "wait_for_render"
 
             deadline = time.time() + 8
