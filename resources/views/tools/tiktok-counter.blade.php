@@ -873,6 +873,21 @@
     var deltaElements = {};
     var sessionStart = null;
     var lastStats = null;
+    var lastRealStats = null;
+    var lastRealAt = 0;
+    var growthPerSecond = {
+        views: 0,
+        likes: 0,
+        comments: 0,
+        shares: 0
+    };
+    var displayStats = {
+        views: null,
+        likes: null,
+        comments: null,
+        shares: null
+    };
+    var animationTimer = null;
     var history = [];
     var timer = null;
     var request = null;
@@ -942,6 +957,100 @@
                 statusDot.style.boxShadow = '0 0 13px rgba(110,231,168,.62)';
             }
         }
+    }
+
+    function clampGrowth(key, rate) {
+        var limits = {
+            views: 50000,
+            likes: 10000,
+            comments: 1000,
+            shares: 2000
+        };
+        var limit = limits[key] || 1000;
+
+        if (!isFiniteNumber(rate) || rate < 0) {
+            return 0;
+        }
+
+        return Math.min(rate, limit);
+    }
+
+    function learnGrowth(stats) {
+        var now = new Date().getTime();
+        var elapsed;
+        var key;
+        var delta;
+        var rate;
+
+        if (lastRealStats && lastRealAt > 0) {
+            elapsed = Math.max((now - lastRealAt) / 1000, 0.25);
+
+            for (i = 0; i < statKeys.length; i += 1) {
+                key = statKeys[i];
+
+                if (
+                    isFiniteNumber(stats[key])
+                    && isFiniteNumber(lastRealStats[key])
+                ) {
+                    delta = stats[key] - lastRealStats[key];
+
+                    if (delta >= 0) {
+                        rate = delta / elapsed;
+
+                        if (rate > 0) {
+                            growthPerSecond[key] = clampGrowth(
+                                key,
+                                growthPerSecond[key] > 0
+                                    ? (growthPerSecond[key] * 0.65) + (rate * 0.35)
+                                    : rate
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        lastRealStats = cloneStats(stats);
+        lastRealAt = now;
+
+        for (i = 0; i < statKeys.length; i += 1) {
+            key = statKeys[i];
+            if (isFiniteNumber(stats[key])) {
+                displayStats[key] = stats[key];
+            }
+        }
+    }
+
+    function animateEstimatedCounters() {
+        var now = new Date().getTime();
+        var secondsSinceReal;
+        var key;
+        var estimated;
+
+        if (lastRealStats && lastRealAt > 0) {
+            secondsSinceReal = Math.max((now - lastRealAt) / 1000, 0);
+
+            for (i = 0; i < statKeys.length; i += 1) {
+                key = statKeys[i];
+
+                if (
+                    isFiniteNumber(lastRealStats[key])
+                    && growthPerSecond[key] > 0
+                ) {
+                    estimated = lastRealStats[key]
+                        + (growthPerSecond[key] * secondsSinceReal);
+
+                    displayStats[key] = Math.max(
+                        lastRealStats[key],
+                        Math.floor(estimated)
+                    );
+
+                    updateStat(key, displayStats[key]);
+                }
+            }
+        }
+
+        animationTimer = window.setTimeout(animateEstimatedCounters, 250);
     }
 
     function updateStat(key, value) {
@@ -1090,9 +1199,14 @@
             sessionStart = cloneStats(stats);
         }
 
+        learnGrowth(stats);
+
         for (i = 0; i < statKeys.length; i += 1) {
             key = statKeys[i];
-            updateStat(key, stats[key]);
+            updateStat(
+                key,
+                isFiniteNumber(displayStats[key]) ? displayStats[key] : stats[key]
+            );
             if (isFiniteNumber(stats[key])) {
                 available += 1;
             }
@@ -1118,9 +1232,9 @@
         if (data.stale_fallback) {
             setStatus(data.last_error ? 'Oude snapshot - ' + data.last_error : 'Oude snapshot - TikTok live refresh mislukt', false);
         } else if (data.precision === 'raw_integer') {
-            setStatus('Exacte TikTok-counters via ' + (data.source || 'raw source') + ' - elke 4 sec', true);
+            setStatus('Live teller actief · echte snapshots elke 4 sec · tussendoor geschat', true);
         } else if (available === 4) {
-            setStatus('TikTok geeft hier afgeronde publieke cijfers - elke 4 sec opnieuw gecontroleerd', false);
+            setStatus('Live teller actief · bron is afgerond · tussendoor geschat', false);
         } else {
             setStatus('Live Count actief - ' + available + '/4 beschikbaar', available > 0);
         }
@@ -1265,6 +1379,9 @@
         if (timer !== null) {
             window.clearTimeout(timer);
         }
+        if (animationTimer !== null) {
+            window.clearTimeout(animationTimer);
+        }
         if (request !== null) {
             try {
                 request.abort();
@@ -1274,6 +1391,7 @@
     });
 
     restoreSession();
+    animateEstimatedCounters();
     loadStats();
 }());
 </script>
