@@ -31,7 +31,7 @@ def find_near_label(lines, label):
             continue
 
         candidates = []
-        for distance in (1, 2, 3):
+        for distance in range(1, 9):
             if idx - distance >= 0:
                 candidates.append(lines[idx - distance])
             if idx + distance < len(lines):
@@ -58,65 +58,129 @@ def parse_body_text(text):
 def parse_dom(page):
     script = """
     () => {
-      const labels = ['Views', 'Likes', 'Comments', 'Shares'];
-      const out = {};
+      const wanted = ['views', 'likes', 'comments', 'shares'];
       const all = Array.from(document.querySelectorAll('body *'));
 
-      function parseNumber(s) {
-        const t = String(s || '').trim();
-        if (!/^[0-9][0-9\\s.,]*$/.test(t)) return null;
+      const clean = (s) => String(s || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const parseNumber = (s) => {
+        const t = clean(s);
+        if (!/^[0-9][0-9\s.,]*$/.test(t)) return null;
         const digits = t.replace(/[^0-9]/g, '');
         if (!digits) return null;
         const n = Number(digits);
         return Number.isFinite(n) ? n : null;
-      }
+      };
 
-      for (const label of labels) {
-        const key = label.toLowerCase();
-        const exact = all.filter(el =>
-          el.children.length === 0 &&
-          String(el.textContent || '').trim().toLowerCase() === key
-        );
+      const visible = (el) => {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        const st = getComputedStyle(el);
+        return r.width > 0 && r.height > 0
+          && st.display !== 'none'
+          && st.visibility !== 'hidden'
+          && Number(st.opacity || 1) > 0;
+      };
 
-        let value = null;
-        for (const el of exact) {
-          const probes = [
-            el.previousElementSibling,
-            el.nextElementSibling,
-            el.parentElement && el.parentElement.previousElementSibling,
-            el.parentElement && el.parentElement.nextElementSibling,
-          ].filter(Boolean);
+      const numericEls = all
+        .filter(el => visible(el) && el.children.length === 0)
+        .map(el => {
+          const value = parseNumber(el.textContent);
+          if (value === null) return null;
+          const r = el.getBoundingClientRect();
+          return {
+            el,
+            value,
+            x: r.left + r.width / 2,
+            y: r.top + r.height / 2,
+            font: parseFloat(getComputedStyle(el).fontSize || '0')
+          };
+        })
+        .filter(Boolean);
 
-          for (const probe of probes) {
-            value = parseNumber(probe.textContent);
-            if (value !== null) break;
-          }
+      const out = {};
 
-          if (value === null) {
-            let node = el.parentElement;
-            for (let depth = 0; node && depth < 4 && value === null; depth += 1) {
-              const lines = String(node.innerText || '')
-                .split(/\\n+/)
-                .map(x => x.trim())
-                .filter(Boolean);
-              const pos = lines.findIndex(x => x.toLowerCase() === key);
-              if (pos >= 0) {
-                for (const offset of [-1, 1, -2, 2, -3, 3]) {
-                  const i = pos + offset;
-                  if (i >= 0 && i < lines.length) {
-                    value = parseNumber(lines[i]);
-                    if (value !== null) break;
-                  }
-                }
-              }
-              node = node.parentElement;
+      for (const key of wanted) {
+        const labelCandidates = all.filter(el => {
+          if (!visible(el)) return false;
+          const txt = clean(el.textContent).toLowerCase();
+          if (!txt) return false;
+          if (txt === key) return true;
+          if (el.children.length <= 2 && txt === key) return true;
+          return false;
+        });
+
+        let best = null;
+
+        for (const labelEl of labelCandidates) {
+          const lr = labelEl.getBoundingClientRect();
+          const lx = lr.left + lr.width / 2;
+          const ly = lr.top + lr.height / 2;
+
+          for (const num of numericEls) {
+            const dx = num.x - lx;
+            const dy = num.y - ly;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Counters should be reasonably close to their label.
+            if (distance > 520) continue;
+
+            // Prefer bigger text and nearby numbers.
+            const score = distance - (num.font * 7);
+
+            if (!best || score < best.score) {
+              best = { score, value: num.value };
             }
           }
 
-          if (value !== null) break;
+          // Also inspect compact ancestor text; odometer digits can be nested.
+          let node = labelEl.parentElement;
+          for (let depth = 0; node && depth < 5; depth += 1) {
+            const lines = String(node.innerText || '')
+              .split(/\n+/)
+              .map(clean)
+              .filter(Boolean);
+            const idx = lines.findIndex(x => x.toLowerCase() === key);
+
+            if (idx >= 0) {
+              for (let radius = 1; radius <= 8; radius += 1) {
+                for (const pos of [idx - radius, idx + radius]) {
+                  if (pos >= 0 && pos < lines.length) {
+                    const value = parseNumber(lines[pos]);
+                    if (value !== null) {
+                      const score = radius * 40;
+                      if (!best || score < best.score) {
+                        best = { score, value };
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            node = node.parentElement;
+          }
         }
 
-        out[key] = value;
+        out[key] = best ? best.value : null;
+      }
+
+      // Fallback for the primary counter: Livecounts sometimes shows
+      // "Loading..." above the main Views odometer instead of the word Views.
+      if (out.views === null && numericEls.length) {
+        const candidates = numericEls
+          .filter(x => x.value >= 1000 && x.font >= 20)
+          .sort((a, b) => {
+            if (b.font !== a.font) return b.font - a.font;
+            return a.y - b.y;
+          });
+
+        if (candidates.length) {
+          out.views = candidates[0].value;
+        }
       }
 
       return out;
@@ -179,7 +243,7 @@ def main():
 
             browser = p.chromium.launch(**launch_args)
             context = browser.new_context(
-                viewport={"width": 1440, "height": 1200},
+                viewport={"width": 1440, "height": 1800},
                 locale="en-US",
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -188,13 +252,28 @@ def main():
                 ),
             )
             page = context.new_page()
-            response = page.goto(url, wait_until="domcontentloaded", timeout=18000)
+
+            def route_handler(route):
+                try:
+                    resource_type = route.request.resource_type
+                    if resource_type in ("media", "font"):
+                        route.abort()
+                    else:
+                        route.continue_()
+                except Exception:
+                    try:
+                        route.continue_()
+                    except Exception:
+                        pass
+
+            page.route("**/*", route_handler)
+            response = page.goto(url, wait_until="domcontentloaded", timeout=10000)
 
             debug["http_status"] = response.status if response else None
             debug["final_url"] = page.url
             debug["stage"] = "wait_for_render"
 
-            deadline = time.time() + 12
+            deadline = time.time() + 8
             best = {}
             body_text = ""
 
