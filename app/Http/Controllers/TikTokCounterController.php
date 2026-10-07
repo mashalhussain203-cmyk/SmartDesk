@@ -6,6 +6,7 @@ use App\Services\TikTokVideoStatsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Throwable;
 
@@ -49,7 +50,7 @@ class TikTokCounterController extends Controller
         string $videoId,
         Request $request,
         TikTokVideoStatsService $service
-    ): View|RedirectResponse {
+    ): Response|RedirectResponse {
         $videoUrl = trim((string) $request->query('url', ''));
 
         if ($videoUrl === '') {
@@ -85,10 +86,14 @@ class TikTokCounterController extends Controller
             );
         }
 
-        return view('tools.tiktok-counter', [
-            'videoId' => $video['video_id'],
-            'videoUrl' => $video['url'],
-        ]);
+        return response()
+            ->view('tools.tiktok-counter', [
+                'videoId' => $video['video_id'],
+                'videoUrl' => $video['url'],
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function livecountsCards(
