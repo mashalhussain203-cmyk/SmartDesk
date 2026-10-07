@@ -12,24 +12,33 @@ def emit(payload, code=0):
     raise SystemExit(code)
 
 
+def extract_user_list(payload):
+    if isinstance(payload, list):
+        return payload
+
+    if not isinstance(payload, dict):
+        return None
+
+    for key in ("userData", "users", "results", "items"):
+        value = payload.get(key)
+        if isinstance(value, list):
+            return value
+
+    data = payload.get("data")
+    if isinstance(data, list):
+        return data
+
+    if isinstance(data, dict):
+        for key in ("userData", "users", "results", "items"):
+            value = data.get(key)
+            if isinstance(value, list):
+                return value
+
+    return None
+
+
 def normalize_results(payload):
-    users = None
-
-    if isinstance(payload, dict):
-        users = (
-            payload.get("userData")
-            or payload.get("users")
-            or payload.get("data")
-        )
-    elif isinstance(payload, list):
-        users = payload
-
-    if isinstance(users, dict):
-        users = (
-            users.get("userData")
-            or users.get("users")
-            or users.get("data")
-        )
+    users = extract_user_list(payload)
 
     if not isinstance(users, list):
         return []
@@ -46,12 +55,14 @@ def normalize_results(payload):
             or item.get("uniqueId")
             or item.get("unique_id")
             or item.get("username")
+            or item.get("handle")
         )
+
         if not username:
             continue
 
         username = str(username).strip().lstrip("@")
-        if not username:
+        if not re.fullmatch(r"[A-Za-z0-9._]{1,24}", username):
             continue
 
         key = username.lower()
@@ -63,18 +74,23 @@ def normalize_results(payload):
             item.get("username")
             or item.get("displayName")
             or item.get("display_name")
+            or item.get("nickname")
             or username
         )
+
         avatar_url = (
             item.get("avatar")
             or item.get("avatarUrl")
             or item.get("avatar_url")
             or item.get("thumbnail")
+            or item.get("picture")
         )
+
         user_id = (
             item.get("userId")
             or item.get("user_id")
             or item.get("uid")
+            or item.get("id_str")
         )
 
         out.append({
@@ -89,6 +105,70 @@ def normalize_results(payload):
             break
 
     return out
+
+
+def parse_visible_results(page):
+    script = r"""
+    () => {
+      const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+      const out = [];
+      const seen = new Set();
+
+      const anchors = Array.from(
+        document.querySelectorAll('a[href*="/tiktok-live-follower-counter/"]')
+      );
+
+      for (const a of anchors) {
+        const href = a.getAttribute('href') || '';
+        const m = href.match(/\/tiktok-live-follower-counter\/([^/?#]+)/i);
+        if (!m) continue;
+
+        const username = decodeURIComponent(m[1] || '').replace(/^@/, '');
+        if (!/^[A-Za-z0-9._]{1,24}$/.test(username)) continue;
+
+        const key = username.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const text = clean(a.textContent);
+        const img = a.querySelector('img');
+        const avatar = img
+          ? (img.currentSrc || img.getAttribute('src') || img.src || null)
+          : null;
+
+        const texts = Array.from(a.querySelectorAll('h1,h2,h3,h4,strong,p,span'))
+          .map(el => clean(el.textContent))
+          .filter(Boolean);
+
+        let displayName = null;
+        for (const candidate of texts) {
+          const normalized = candidate.toLowerCase().replace(/^@/, '');
+          if (normalized === key) continue;
+          if (candidate.length > 80) continue;
+          displayName = candidate;
+          break;
+        }
+
+        out.push({
+          user_id: null,
+          username,
+          display_name: displayName || username,
+          avatar_url: avatar,
+          verified: /verified/i.test(text) || !!a.querySelector('[aria-label*="Verified"], [title*="Verified"]')
+        });
+
+        if (out.length >= 8) break;
+      }
+
+      return out;
+    }
+    """
+
+    try:
+        results = page.evaluate(script)
+        return results if isinstance(results, list) else []
+    except Exception:
+        return []
 
 
 def main():
@@ -171,21 +251,31 @@ def main():
                 "search": None,
                 "url": None,
                 "status": None,
+                "json_candidates": [],
             }
 
             def on_response(resp):
                 try:
-                    url = resp.url
-                    if "/user/search" not in url.lower():
+                    if not (200 <= resp.status < 300):
                         return
 
-                    captured["url"] = url
-                    captured["status"] = resp.status
+                    content_type = (resp.headers.get("content-type") or "").lower()
+                    url = resp.url
 
-                    if 200 <= resp.status < 300:
-                        payload = resp.json()
-                        if isinstance(payload, (dict, list)):
+                    if "json" not in content_type and "tiktok.livecounts.io" not in url.lower():
+                        return
+
+                    payload = resp.json()
+                    users = extract_user_list(payload)
+
+                    if isinstance(users, list):
+                        normalized = normalize_results(payload)
+
+                        if normalized:
                             captured["search"] = payload
+                            captured["url"] = url
+                            captured["status"] = resp.status
+                            captured["json_candidates"].append(url)
                 except Exception:
                     pass
 
@@ -211,14 +301,19 @@ def main():
                 'input[type="text"]',
             ]
 
-            for selector in selectors:
-                try:
-                    locator = page.locator(selector).first
-                    if locator.count() and locator.is_visible(timeout=500):
-                        search_input = locator
-                        break
-                except Exception:
-                    pass
+            input_deadline = time.time() + 10
+            while time.time() < input_deadline and search_input is None:
+                for selector in selectors:
+                    try:
+                        locator = page.locator(selector).first
+                        if locator.count() and locator.is_visible(timeout=500):
+                            search_input = locator
+                            break
+                    except Exception:
+                        pass
+
+                if search_input is None:
+                    page.wait_for_timeout(150)
 
             if search_input is None:
                 browser.close()
@@ -229,38 +324,50 @@ def main():
                     "debug": debug,
                 }, 10)
 
-            search_input.fill(query)
+            # Type like a real visitor so React/input handlers receive the
+            # same keyboard events as on the public page.
+            search_input.fill("")
+            try:
+                search_input.press_sequentially(query, delay=90)
+            except Exception:
+                search_input.type(query, delay=90)
+
             debug["stage"] = "wait_for_search_response"
 
-            deadline = time.time() + 8
+            deadline = time.time() + 10
             while time.time() < deadline:
                 if isinstance(captured.get("search"), (dict, list)):
                     break
-                page.wait_for_timeout(100)
+
+                visible = parse_visible_results(page)
+                if visible:
+                    break
+
+                page.wait_for_timeout(120)
 
             payload = captured.get("search")
             results = normalize_results(payload)
 
+            source = "livecounts-follower-browser-search"
+
+            if not results:
+                results = parse_visible_results(page)
+                if results:
+                    source = "livecounts-follower-rendered-search"
+
             debug["search_url"] = captured.get("url")
             debug["search_status"] = captured.get("status")
+            debug["json_candidates"] = captured.get("json_candidates")
             debug["result_count"] = len(results)
             debug["stage"] = "parsed"
 
             browser.close()
 
-            if not isinstance(payload, (dict, list)):
-                emit({
-                    "success": False,
-                    "message": "Livecounts gaf geen account-zoekresultaten terug.",
-                    "stage": "search_response_missing",
-                    "debug": debug,
-                }, 10)
-
             emit({
                 "success": True,
                 "query": query,
                 "results": results,
-                "source": "livecounts-follower-browser-search",
+                "source": source,
                 "debug": debug,
             })
 
