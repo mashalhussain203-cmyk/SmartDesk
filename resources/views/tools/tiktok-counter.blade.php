@@ -1435,7 +1435,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-icon-nobg-v6"
+                data-ui-build="20261007-instant-first-value-v7"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1569,20 +1569,14 @@
         }
 
         if (!element._mashalOdometer) {
-            element.textContent = '0';
+            element.textContent = String(numericValue);
 
             element._mashalOdometer = new window.Odometer({
                 el: element,
-                value: 0,
+                value: numericValue,
                 format: '(.ddd)',
                 theme: 'minimal',
-                duration: 2000
-            });
-
-            window.requestAnimationFrame(function () {
-                window.requestAnimationFrame(function () {
-                    element._mashalOdometer.update(numericValue);
-                });
+                duration: 900
             });
 
             return;
