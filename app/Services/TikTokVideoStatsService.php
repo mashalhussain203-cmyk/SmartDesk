@@ -69,11 +69,95 @@ class TikTokVideoStatsService
         ];
     }
 
+    public function resolveTikTokUsername(string $input): array
+    {
+        $value = trim($input);
+
+        if ($value === '') {
+            throw new RuntimeException('Vul een TikTok username of profiel-URL in.');
+        }
+
+        $username = null;
+
+        if (preg_match('~^https?://(?:www\.)?tiktok\.com/@([^/?#]+)~i', $value, $match)) {
+            $username = rawurldecode((string) $match[1]);
+        } else {
+            $username = ltrim($value, '@');
+        }
+
+        $username = trim((string) $username);
+
+        if (!preg_match('/^[A-Za-z0-9._]{1,24}$/', $username)) {
+            throw new RuntimeException('Gebruik een geldige TikTok username of profiel-URL.');
+        }
+
+        return [
+            'username' => $username,
+            'profile_url' => 'https://www.tiktok.com/@'.$username,
+        ];
+    }
+
     /**
      * Exact four counters shown on Livecounts' public TikTok counter page.
      * We render the public page and read its visible Views/Likes/Comments/Shares
      * cards after Livecounts' own browser-side data flow has completed.
      */
+    /**
+     * Exact four public counters used by the TikTok follower dashboard.
+     */
+    public function getLiveFollowerCardStats(string $username): array
+    {
+        $resolved = $this->resolveTikTokUsername($username);
+        $username = (string) $resolved['username'];
+
+        $cacheKey = 'tiktok-live-follower:cards:v1:'.strtolower($username);
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $lockKey = 'tiktok-live-follower:cards-lock:v1:'.strtolower($username);
+        $lock = Cache::lock($lockKey, 35);
+
+        if (!$lock->get()) {
+            for ($attempt = 0; $attempt < 80; $attempt++) {
+                usleep(250000);
+                $cached = Cache::get($cacheKey);
+
+                if (is_array($cached)) {
+                    return $cached;
+                }
+            }
+
+            throw new RuntimeException(
+                'Follower refresh draait al maar leverde nog geen snapshot.'
+            );
+        }
+
+        try {
+            $cached = Cache::get($cacheKey);
+
+            if (is_array($cached)) {
+                return $cached;
+            }
+
+            $stats = $this->fetchViaLivecountsFollowerRenderedPage($username);
+
+            foreach (['followers', 'likes', 'following', 'videos'] as $key) {
+                if (!array_key_exists($key, $stats) || $stats[$key] === null) {
+                    throw new RuntimeException('Follower counter mist teller: '.$key);
+                }
+            }
+
+            Cache::put($cacheKey, $stats, now()->addSeconds(5));
+
+            return $stats;
+        } finally {
+            $lock->release();
+        }
+    }
+
     public function getLivecountsCardStats(string $videoId): array
     {
         if (!preg_match('/^\\d{10,30}$/', $videoId)) {
@@ -399,6 +483,80 @@ class TikTokVideoStatsService
                 'provider_errors' => $errors,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
+    }
+
+    private function fetchViaLivecountsFollowerRenderedPage(string $username): array
+    {
+        $script = base_path('scripts/livecounts_follower_browser_fetch.py');
+
+        if (!is_file($script)) {
+            throw new RuntimeException(
+                'scripts/livecounts_follower_browser_fetch.py ontbreekt.'
+            );
+        }
+
+        $projectPython = base_path('.venv/bin/python');
+        $python = is_file($projectPython)
+            ? $projectPython
+            : (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
+
+        if (!is_file($python) && $python !== 'python3') {
+            $python = 'python3';
+        }
+
+        $process = new Process([
+            $python,
+            $script,
+            $username,
+        ]);
+        $process->setTimeout(28);
+        $process->setIdleTimeout(null);
+        $process->run();
+
+        $stdout = trim($process->getOutput());
+        $stderr = trim($process->getErrorOutput());
+        $payload = json_decode($stdout, true);
+
+        if (!$process->isSuccessful()) {
+            $message = is_array($payload)
+                ? (string) ($payload['message'] ?? 'Follower browser helper faalde.')
+                : 'Follower browser helper faalde.';
+
+            throw new RuntimeException(
+                $message
+                .' exit='.(string) $process->getExitCode()
+                .' stderr='.mb_substr($stderr, 0, 1200)
+            );
+        }
+
+        if (!is_array($payload) || ($payload['success'] ?? false) !== true) {
+            throw new RuntimeException(
+                is_array($payload)
+                    ? (string) ($payload['message'] ?? 'Follower browser helper gaf success=false.')
+                    : 'Follower browser helper gaf geen geldige JSON terug.'
+            );
+        }
+
+        $stats = $payload['stats'] ?? null;
+
+        if (!is_array($stats)) {
+            throw new RuntimeException('Follower browser helper bevatte geen stats.');
+        }
+
+        return [
+            'followers' => $this->toInt($stats['followers'] ?? null),
+            'likes' => $this->toInt($stats['likes'] ?? null),
+            'following' => $this->toInt($stats['following'] ?? null),
+            'videos' => $this->toInt($stats['videos'] ?? null),
+            'username' => $username,
+            'display_name' => $payload['display_name'] ?? null,
+            'avatar_url' => $payload['avatar_url'] ?? null,
+            'source' => $payload['source'] ?? 'livecounts-follower-public-page-rendered',
+            'precision' => 'raw_integer',
+            '_debug' => $payload['debug'] ?? [
+                'provider' => 'livecounts-follower-rendered-page',
+            ],
+        ];
     }
 
     private function fetchViaLivecountsRenderedPage(string $videoId): ?array
