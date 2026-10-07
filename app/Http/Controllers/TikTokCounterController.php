@@ -108,7 +108,7 @@ class TikTokCounterController extends Controller
                         'comments' => $stats['comments'] ?? null,
                         'shares' => $stats['shares'] ?? null,
                     ],
-                    'source' => $stats['source'] ?? 'livecounts-official-embed-rendered',
+                    'source' => $stats['source'] ?? 'livecounts-public-page-rendered',
                     'updated_at' => now()->toIso8601String(),
                 ])
             );
