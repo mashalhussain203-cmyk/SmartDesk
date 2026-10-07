@@ -1070,7 +1070,7 @@
         box-shadow: inset 0 0 22px rgba(150,136,255,.035);
     }
 
-    .ttc-stat-badge svg {
+    .ttc-stat-badge img {
         width: 22px;
         height: 22px;
         display: block;
@@ -1178,7 +1178,7 @@
             border-radius: 13px;
         }
 
-        .ttc-stat-badge svg {
+        .ttc-stat-badge img {
             width: 20px;
             height: 20px;
         }
@@ -1333,10 +1333,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Views</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none">
-                                        <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6S2 12 2 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                                        <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
-                                    </svg>
+                                    <img src="/icons/live-eye.svg" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
@@ -1346,9 +1343,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Likes</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 20.5S4 15.8 4 9.6C4 6.7 5.9 5 8.2 5c1.7 0 3 1 3.8 2.2C12.8 6 14.1 5 15.8 5 18.1 5 20 6.7 20 9.6c0 6.2-8 10.9-8 10.9Z"/>
-                                    </svg>
+                                    <img src="/icons/live-heart.svg" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
@@ -1358,9 +1353,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none">
-                                        <path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-5 3v-3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" fill="currentColor"/>
-                                    </svg>
+                                    <img src="/icons/live-comment.svg" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
@@ -1370,9 +1363,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Shares</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M13.5 4 21 11.5 13.5 19v-4.1c-4.9.2-8 1.8-10.5 5.1 1-6.2 4.5-10.1 10.5-10.7V4Z"/>
-                                    </svg>
+                                    <img src="/icons/live-share.svg" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
