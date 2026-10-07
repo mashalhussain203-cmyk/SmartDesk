@@ -1,1 +1,2 @@
 yt-dlp[default,curl-cffi]
+playwright>=1.55,<2
