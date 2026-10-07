@@ -4,7 +4,7 @@
 @section('meta_description', 'Volg publieke TikTok-statistieken live met Mashal Studio Live Count.')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('vendor/odometer/odometer-theme-minimal.css') }}">
+<link rel="stylesheet" href="/vendor/odometer/odometer-theme-minimal.css?v=20261007-2">
 <style>
     .ttc-page {
         --bg: #050608;
@@ -1304,6 +1304,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
+                data-ui-build="20261007-icons-odometer-v2"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1333,7 +1334,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Views</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-eye.svg" alt="">
+                                    <img src="/icons/live-eye.svg?v=20261007-2" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
@@ -1343,7 +1344,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Likes</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-heart.svg" alt="">
+                                    <img src="/icons/live-heart.svg?v=20261007-2" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
@@ -1353,7 +1354,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-comment.svg" alt="">
+                                    <img src="/icons/live-comment.svg?v=20261007-2" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
@@ -1363,7 +1364,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Shares</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-share.svg" alt="">
+                                    <img src="/icons/live-share.svg?v=20261007-2" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
@@ -1389,7 +1390,7 @@
 @isset($videoId)
 @push('scripts')
 <script>window.odometerOptions = { auto: false };</script>
-<script src="{{ asset('vendor/odometer/odometer.min.js') }}"></script>
+<script src="/vendor/odometer/odometer.min.js?v=20261007-2"></script>
 <script>
 (function () {
     'use strict';
