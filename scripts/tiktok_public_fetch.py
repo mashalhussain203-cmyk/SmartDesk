@@ -108,6 +108,60 @@ def first_int(*values):
     return None
 
 
+def raw_counter(text, keys):
+    # TikTok sometimes embeds counters in escaped JSON rather than a normal
+    # hydration script. Search both normal and backslash-escaped key forms.
+    variants = [text, htmlmod.unescape(text)]
+    variants.append(variants[-1].replace('\\\"', '"').replace('\\u0022', '"'))
+
+    for blob in variants:
+        for key in keys:
+            k = re.escape(key)
+            patterns = (
+                r'["\\\']' + k + r'["\\\']\\s*:\\s*["\\\']?([0-9]{1,20})',
+                r'\\\\["\\\']' + k + r'\\\\["\\\']\\s*:\\s*\\\\?["\\\']?([0-9]{1,20})',
+                r'\\b' + k + r'\\b\\s*[:=]\\s*["\\\']?([0-9]{1,20})',
+            )
+            for pattern in patterns:
+                m = re.search(pattern, blob, re.I)
+                if m:
+                    try:
+                        return int(m.group(1))
+                    except Exception:
+                        pass
+    return None
+
+
+def parse_raw_stats(page, video_id):
+    # Prefer a window around the requested video id so another video embedded
+    # in the page cannot accidentally win.
+    decoded = htmlmod.unescape(page)
+    decoded = decoded.replace('\\\"', '"').replace('\\u0022', '"')
+
+    windows = []
+    for blob in (page, decoded):
+        pos = blob.find(str(video_id))
+        if pos >= 0:
+            windows.append(blob[max(0, pos - 90000):pos + 180000])
+        windows.append(blob)
+
+    for blob in windows:
+        stats = {
+            "playCount": raw_counter(blob, ("playCount", "play_count", "viewCount", "view_count")),
+            "diggCount": raw_counter(blob, ("diggCount", "digg_count", "likeCount", "like_count")),
+            "commentCount": raw_counter(blob, ("commentCount", "comment_count")),
+            "shareCount": raw_counter(blob, ("shareCount", "share_count")),
+        }
+
+        found = [v for v in stats.values() if v is not None]
+        if len(found) >= 2 and stats["playCount"] is not None:
+            return {
+                "id": str(video_id),
+                "stats": stats,
+            }
+    return None
+
+
 def normalize(item):
     stats = item.get("stats") or item.get("statsV2") or item.get("statistics") or {}
     author = item.get("author")
@@ -171,6 +225,12 @@ def parse_item(page, video_id):
 
     if app_json_count:
         detected_scripts.append(f"application/json_count={app_json_count}")
+
+    raw_item = parse_raw_stats(page, video_id)
+    if raw_item is not None:
+        detected_scripts.append("raw_html_stats")
+        return raw_item, detected_scripts, "raw_html_stats"
+
     return None, detected_scripts, None
 
 
