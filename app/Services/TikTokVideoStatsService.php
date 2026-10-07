@@ -70,9 +70,9 @@ class TikTokVideoStatsService
     }
 
     /**
-     * Exact four counters shown by Livecounts' official TikTok embed.
-     * The embed itself performs Livecounts' normal browser-side data flow;
-     * we only read the rendered public values after it has loaded.
+     * Exact four counters shown on Livecounts' public TikTok counter page.
+     * We render the public page and read its visible Views/Likes/Comments/Shares
+     * cards after Livecounts' own browser-side data flow has completed.
      */
     public function getLivecountsCardStats(string $videoId): array
     {
@@ -103,7 +103,7 @@ class TikTokVideoStatsService
             }
         }
 
-        Cache::put($cacheKey, $stats, now()->addSeconds(12));
+        Cache::put($cacheKey, $stats, now()->addSeconds(5));
 
         return $stats;
     }
@@ -448,7 +448,7 @@ class TikTokVideoStatsService
             'author_name' => $payload['author_name'] ?? null,
             'title' => $payload['title'] ?? null,
             'thumbnail_url' => $payload['thumbnail_url'] ?? null,
-            'source' => $payload['source'] ?? 'livecounts-official-embed-rendered',
+            'source' => $payload['source'] ?? 'livecounts-public-page-rendered',
             'precision' => 'raw_integer',
             '_debug' => $payload['debug'] ?? [
                 'provider' => 'livecounts-rendered-page',
