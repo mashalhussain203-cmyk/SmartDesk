@@ -12,6 +12,11 @@ use Throwable;
 
 class TikTokCounterController extends Controller
 {
+    public function liveCountsIndex(): View
+    {
+        return view('tools.live-counts');
+    }
+
     public function index(): View
     {
         return view('tools.tiktok-counter');
