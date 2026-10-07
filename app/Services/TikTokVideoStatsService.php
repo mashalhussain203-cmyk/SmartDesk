@@ -18,7 +18,7 @@ class TikTokVideoStatsService
      * Your frontend polls every 4 seconds, so only the first request
      * after this window refreshes TikTok. Other visitors reuse that snapshot.
      */
-    private const FRESH_MS = 0;
+    private const FRESH_MS = 2500;
 
     /**
      * Keep the last successful snapshot longer than the fresh window.
@@ -29,7 +29,7 @@ class TikTokVideoStatsService
     /**
      * Prevent multiple visitors from refreshing the same video simultaneously.
      */
-    private const LOCK_SECONDS = 18;
+    private const LOCK_SECONDS = 30;
 
     private const ALLOWED_HOSTS = [
         'tiktok.com',
@@ -440,6 +440,17 @@ class TikTokVideoStatsService
         ) {
             throw new RuntimeException(
                 'Livecounts pagina bevatte geen server-rendered counters.'
+            );
+        }
+
+        if (
+            (int) ($views ?? 0) === 0
+            && (int) ($likes ?? 0) === 0
+            && (int) ($comments ?? 0) === 0
+            && (int) ($shares ?? 0) === 0
+        ) {
+            throw new RuntimeException(
+                'Livecounts statische pagina bevat alleen 0-placeholders.'
             );
         }
 
