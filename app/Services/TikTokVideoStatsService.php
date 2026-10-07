@@ -103,6 +103,122 @@ class TikTokVideoStatsService
      * cards after Livecounts' own browser-side data flow has completed.
      */
     /**
+     * Search TikTok accounts through the public Livecounts follower page.
+     * Its own JavaScript performs the provider request; we only capture the
+     * successful public search response and normalize it for our UI.
+     */
+    public function searchLiveFollowerUsers(string $query): array
+    {
+        $query = trim(ltrim($query, '@'));
+
+        if (mb_strlen($query) < 2 || mb_strlen($query) > 40) {
+            return [];
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/u', $query)) {
+            throw new RuntimeException('Ongeldige TikTok zoekterm.');
+        }
+
+        $cacheKey = 'tiktok-live-follower:search:v1:'
+            .sha1(mb_strtolower($query));
+
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $script = base_path('scripts/livecounts_follower_search.py');
+
+        if (!is_file($script)) {
+            throw new RuntimeException(
+                'scripts/livecounts_follower_search.py ontbreekt.'
+            );
+        }
+
+        $projectPython = base_path('.venv/bin/python');
+        $python = is_file($projectPython)
+            ? $projectPython
+            : (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
+
+        if (!is_file($python) && $python !== 'python3') {
+            $python = 'python3';
+        }
+
+        $process = new Process([
+            $python,
+            $script,
+            $query,
+        ]);
+        $process->setTimeout(18);
+        $process->setIdleTimeout(null);
+        $process->run();
+
+        $stdout = trim($process->getOutput());
+        $stderr = trim($process->getErrorOutput());
+        $payload = json_decode($stdout, true);
+
+        if (!$process->isSuccessful()) {
+            $message = is_array($payload)
+                ? (string) ($payload['message'] ?? 'Account zoeken faalde.')
+                : 'Account zoeken faalde.';
+
+            throw new RuntimeException(
+                $message
+                .' exit='.(string) $process->getExitCode()
+                .' stderr='.mb_substr($stderr, 0, 900)
+            );
+        }
+
+        if (!is_array($payload) || ($payload['success'] ?? false) !== true) {
+            throw new RuntimeException(
+                is_array($payload)
+                    ? (string) ($payload['message'] ?? 'Account zoeken gaf success=false.')
+                    : 'Account zoeken gaf geen geldige JSON terug.'
+            );
+        }
+
+        $results = $payload['results'] ?? [];
+        if (!is_array($results)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach (array_slice($results, 0, 8) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $username = trim((string) ($item['username'] ?? ''));
+
+            if (
+                $username === ''
+                || !preg_match('/^[A-Za-z0-9._]{1,24}$/', $username)
+            ) {
+                continue;
+            }
+
+            $normalized[] = [
+                'user_id' => isset($item['user_id'])
+                    ? (string) $item['user_id']
+                    : null,
+                'username' => $username,
+                'display_name' => trim(
+                    (string) ($item['display_name'] ?? $username)
+                ),
+                'avatar_url' => isset($item['avatar_url'])
+                    ? (string) $item['avatar_url']
+                    : null,
+                'verified' => (bool) ($item['verified'] ?? false),
+            ];
+        }
+
+        Cache::put($cacheKey, $normalized, now()->addSeconds(60));
+
+        return $normalized;
+    }
+
+    /**
      * Exact four public counters used by the TikTok follower dashboard.
      */
     public function getLiveFollowerCardStats(string $username): array
