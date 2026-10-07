@@ -648,6 +648,82 @@
             grid-template-columns: 1fr;
         }
     }
+    .ttc-livecounts-embed {
+        margin-top: 18px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: #080a0f;
+        box-shadow:
+            0 26px 70px rgba(0,0,0,.22),
+            inset 0 1px 0 rgba(255,255,255,.025);
+    }
+
+    .ttc-livecounts-head {
+        min-height: 52px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255,255,255,.018);
+    }
+
+    .ttc-livecounts-title {
+        color: #dfe3e9;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .ttc-livecounts-note {
+        color: #677180;
+        font-size: 9px;
+    }
+
+    .ttc-livecounts-frame-wrap {
+        position: relative;
+        width: 100%;
+        min-height: 780px;
+        background: #07090d;
+    }
+
+    .ttc-livecounts-frame {
+        width: 100%;
+        height: 780px;
+        display: block;
+        border: 0;
+        background: #07090d;
+    }
+
+    .ttc-livecounts-fallback {
+        padding: 11px 16px 14px;
+        color: #687282;
+        font-size: 10px;
+        border-top: 1px solid var(--line);
+    }
+
+    .ttc-livecounts-fallback a {
+        color: #9d96ff;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    @media (max-width: 640px) {
+        .ttc-livecounts-frame-wrap,
+        .ttc-livecounts-frame {
+            min-height: 900px;
+            height: 900px;
+        }
+
+        .ttc-livecounts-head {
+            align-items: flex-start;
+            flex-direction: column;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+    }
+
 </style>
 @endpush
 
@@ -834,6 +910,34 @@
                     </div>
                 </div>
             </div>
+
+            <section class="ttc-livecounts-embed">
+                <div class="ttc-livecounts-head">
+                    <div class="ttc-livecounts-title">Livecounts.io · TikTok Live View Counter</div>
+                    <div class="ttc-livecounts-note">Externe live teller voor video {{ $videoId }}</div>
+                </div>
+
+                <div class="ttc-livecounts-frame-wrap">
+                    <iframe
+                        class="ttc-livecounts-frame"
+                        id="ttc-livecounts-frame"
+                        src="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
+                        title="Livecounts TikTok live view counter"
+                        loading="eager"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="clipboard-read; clipboard-write"
+                    ></iframe>
+                </div>
+
+                <div class="ttc-livecounts-fallback">
+                    Als Livecounts embedding in de browser blokkeert,
+                    <a
+                        href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >open dezelfde teller rechtstreeks op Livecounts.io</a>.
+                </div>
+            </section>
         @else
             <div class="ttc-empty">
                 <div class="ttc-empty-icon">◉</div>
