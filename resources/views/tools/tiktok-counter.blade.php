@@ -859,14 +859,14 @@
 (function () {
     'use strict';
 
-    const configElement = document.getElementById('ttc-live-config');
-    const root = document.getElementById('ttc-result');
+    var configElement = document.getElementById('ttc-live-config');
+    var root = document.getElementById('ttc-result');
 
     if (!configElement || !root) {
         return;
     }
 
-    let config;
+    var config = {};
 
     try {
         config = JSON.parse(configElement.textContent || '{}');
@@ -875,59 +875,51 @@
         return;
     }
 
-    const endpoint = String(config.endpoint || '');
-    const videoUrl = String(config.videoUrl || '');
-    const videoId = String(config.videoId || '');
-    const pollMs = Math.max(4000, Number(config.pollMs || 4000));
-    const pollSeconds = Math.max(1, Math.round(pollMs / 1000));
-    const formatter = new Intl.NumberFormat('nl-NL');
-    const statKeys = ['views', 'likes', 'comments', 'shares'];
-
-    const statElements = {};
-    const deltaElements = {};
+    var endpoint = String(config.endpoint || '');
+    var videoUrl = String(config.videoUrl || '');
+    var videoId = String(config.videoId || '');
+    var pollMs = Math.max(4000, Number(config.pollMs || 4000));
+    var pollSeconds = Math.max(1, Math.round(pollMs / 1000));
+    var formatter = new Intl.NumberFormat('nl-NL');
+    var statKeys = ['views', 'likes', 'comments', 'shares'];
+    var statElements = {};
+    var deltaElements = {};
 
     statKeys.forEach(function (key) {
         statElements[key] = document.querySelector('[data-stat="' + key + '"]');
         deltaElements[key] = document.querySelector('[data-delta="' + key + '"]');
     });
 
-    const statusText = document.getElementById('ttc-status-text');
-    const statusDot = document.getElementById('ttc-status-dot');
-    const updatedElement = document.getElementById('ttc-updated');
-    const authorElement = document.getElementById('ttc-author');
-    const titleElement = document.getElementById('ttc-video-title');
-    const imageElement = document.getElementById('ttc-thumb-image');
-    const refreshButton = document.getElementById('ttc-refresh');
-    const copyButton = document.getElementById('ttc-copy');
-    const chartLine = document.getElementById('ttc-chart-line');
-    const chartArea = document.getElementById('ttc-chart-area');
+    var statusText = document.getElementById('ttc-status-text');
+    var statusDot = document.getElementById('ttc-status-dot');
+    var updatedElement = document.getElementById('ttc-updated');
+    var authorElement = document.getElementById('ttc-author');
+    var titleElement = document.getElementById('ttc-video-title');
+    var imageElement = document.getElementById('ttc-thumb-image');
+    var refreshButton = document.getElementById('ttc-refresh');
+    var copyButton = document.getElementById('ttc-copy');
+    var chartLine = document.getElementById('ttc-chart-line');
+    var chartArea = document.getElementById('ttc-chart-area');
 
-    let sessionStart = null;
-    let lastStats = null;
-    let history = [];
-    let stopped = false;
-    let requestNumber = 0;
-    let pollTimerId = null;
-    let activeController = null;
-    let requestInFlight = false;
-    const storageKey = 'mashal:tiktok-live:' + videoId;
+    var sessionStart = null;
+    var lastStats = null;
+    var history = [];
+    var stopped = false;
+    var requestNumber = 0;
+    var pollTimerId = null;
+    var requestInFlight = false;
+    var storageKey = 'mashal:tiktok-live:' + videoId;
 
     function restoreSession() {
-        if (!videoId) {
-            return;
-        }
+        if (!videoId) return;
 
         try {
-            const raw = window.localStorage.getItem(storageKey);
+            var raw = window.localStorage.getItem(storageKey);
+            if (!raw) return;
 
-            if (!raw) {
-                return;
-            }
+            var saved = JSON.parse(raw);
+            var savedAt = Number(saved.savedAt || 0);
 
-            const saved = JSON.parse(raw);
-            const savedAt = Number(saved.savedAt || 0);
-
-            // Een oude sessie na 6 uur niet opnieuw gebruiken.
             if (!savedAt || Date.now() - savedAt > 6 * 60 * 60 * 1000) {
                 window.localStorage.removeItem(storageKey);
                 return;
@@ -946,14 +938,12 @@
                 renderChart();
             }
         } catch (error) {
-            console.warn('Live Count sessie kon niet worden hersteld:', error);
+            console.warn('Live Count session restore failed:', error);
         }
     }
 
     function persistSession() {
-        if (!videoId) {
-            return;
-        }
+        if (!videoId) return;
 
         try {
             window.localStorage.setItem(storageKey, JSON.stringify({
@@ -963,16 +953,13 @@
                 history: history.slice(-60)
             }));
         } catch (error) {
-            // localStorage kan geblokkeerd zijn; Live Count blijft dan gewoon werken.
+            // Live Count blijft werken wanneer localStorage niet beschikbaar is.
         }
     }
 
     function toNumber(value) {
-        if (value === null || value === undefined || value === '') {
-            return null;
-        }
-
-        const number = Number(value);
+        if (value === null || value === undefined || value === '') return null;
+        var number = Number(value);
         return Number.isFinite(number) ? number : null;
     }
 
@@ -981,12 +968,10 @@
     }
 
     function setStatus(text, ok) {
-        if (statusText) {
-            statusText.textContent = text;
-        }
+        if (statusText) statusText.textContent = text;
 
         if (statusDot) {
-            const success = ok !== false;
+            var success = ok !== false;
             statusDot.style.background = success ? '#6ee7a8' : '#ff8095';
             statusDot.style.boxShadow = success
                 ? '0 0 13px rgba(110,231,168,.62)'
@@ -995,87 +980,62 @@
     }
 
     function animateNumber(element, fromValue, toValue) {
-        if (!element || !Number.isFinite(toValue)) {
-            return;
-        }
+        if (!element || !Number.isFinite(toValue)) return;
 
-        const from = Number.isFinite(fromValue) ? fromValue : toValue;
-        const difference = toValue - from;
-        const duration = 520;
-        const startedAt = performance.now();
+        var from = Number.isFinite(fromValue) ? fromValue : toValue;
+        var difference = toValue - from;
+        var duration = 520;
+        var startedAt = performance.now();
 
         function frame(now) {
-            const progress = Math.min((now - startedAt) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = Math.round(from + difference * eased);
-
+            var progress = Math.min((now - startedAt) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = Math.round(from + difference * eased);
             element.textContent = formatNumber(current);
 
-            if (progress < 1) {
-                requestAnimationFrame(frame);
-            }
+            if (progress < 1) requestAnimationFrame(frame);
         }
 
         requestAnimationFrame(frame);
     }
 
     function updateStat(key, value) {
-        const element = statElements[key];
-        const deltaElement = deltaElements[key];
-
-        if (!element) {
-            return;
-        }
+        var element = statElements[key];
+        var deltaElement = deltaElements[key];
+        if (!element) return;
 
         element.classList.remove('ttc-loading');
 
         if (!Number.isFinite(value)) {
-            element.textContent = '—';
-
+            element.textContent = '-';
             if (deltaElement) {
                 deltaElement.textContent = 'Niet beschikbaar';
                 deltaElement.style.color = '#65707e';
             }
-
             return;
         }
 
-        const previousValue =
-            lastStats && Number.isFinite(lastStats[key])
-                ? lastStats[key]
-                : value;
+        var previousValue = lastStats && Number.isFinite(lastStats[key])
+            ? lastStats[key]
+            : value;
 
         animateNumber(element, previousValue, value);
 
-        if (
-            deltaElement &&
-            sessionStart &&
-            Number.isFinite(sessionStart[key])
-        ) {
-            const delta = value - sessionStart[key];
-
-            deltaElement.textContent =
-                (delta >= 0 ? '+' : '') +
-                formatNumber(delta) +
-                ' deze sessie';
-
-            deltaElement.style.color =
-                delta >= 0 ? '#6ee7a8' : '#ff8095';
+        if (deltaElement && sessionStart && Number.isFinite(sessionStart[key])) {
+            var delta = value - sessionStart[key];
+            deltaElement.textContent = (delta >= 0 ? '+' : '') + formatNumber(delta) + ' deze sessie';
+            deltaElement.style.color = delta >= 0 ? '#6ee7a8' : '#ff8095';
         }
     }
 
     function renderChart() {
-        if (!chartLine || !chartArea) {
-            return;
-        }
+        if (!chartLine || !chartArea) return;
 
-        const values = history
-            .map(function (item) {
-                return item.views;
-            })
-            .filter(function (value) {
-                return Number.isFinite(value);
-            });
+        var values = history.map(function (item) {
+            return item.views;
+        }).filter(function (value) {
+            return Number.isFinite(value);
+        });
 
         if (!values.length) {
             chartLine.setAttribute('d', '');
@@ -1083,216 +1043,143 @@
             return;
         }
 
-        const width = 800;
-        const height = 140;
-        const padding = 9;
-        const min = Math.min.apply(null, values);
-        const max = Math.max.apply(null, values);
-        const spread = Math.max(max - min, 1);
+        var width = 800;
+        var height = 140;
+        var padding = 9;
+        var min = Math.min.apply(null, values);
+        var max = Math.max.apply(null, values);
+        var spread = Math.max(max - min, 1);
 
-        const points = values.map(function (value, index) {
-            const x =
-                values.length === 1
-                    ? 0
-                    : (index / (values.length - 1)) * width;
-
-            const y =
-                height -
-                padding -
-                ((value - min) / spread) * (height - padding * 2);
-
+        var points = values.map(function (value, index) {
+            var x = values.length === 1 ? 0 : (index / (values.length - 1)) * width;
+            var y = height - padding - ((value - min) / spread) * (height - padding * 2);
             return [x, y];
         });
 
-        const linePath = points
-            .map(function (point, index) {
-                const command = index === 0 ? 'M' : 'L';
-
-                return (
-                    command +
-                    ' ' +
-                    point[0].toFixed(2) +
-                    ' ' +
-                    point[1].toFixed(2)
-                );
-            })
-            .join(' ');
+        var linePath = points.map(function (point, index) {
+            var command = index === 0 ? 'M' : 'L';
+            return command + ' ' + point[0].toFixed(2) + ' ' + point[1].toFixed(2);
+        }).join(' ');
 
         chartLine.setAttribute('d', linePath);
-        chartArea.setAttribute(
-            'd',
-            linePath +
-                ' L ' +
-                width +
-                ' ' +
-                height +
-                ' L 0 ' +
-                height +
-                ' Z'
-        );
+        chartArea.setAttribute('d', linePath + ' L ' + width + ' ' + height + ' L 0 ' + height + ' Z');
     }
 
     function applyPayload(data) {
-        const rawStats =
-            data &&
-            typeof data.stats === 'object' &&
-            data.stats !== null
-                ? data.stats
-                : {};
+        var rawStats = data && typeof data.stats === 'object' && data.stats !== null
+            ? data.stats
+            : {};
 
-        const stats = {
+        var stats = {
             views: toNumber(rawStats.views),
             likes: toNumber(rawStats.likes),
             comments: toNumber(rawStats.comments),
             shares: toNumber(rawStats.shares)
         };
 
-        if (!sessionStart) {
-            sessionStart = Object.assign({}, stats);
-        }
+        if (!sessionStart) sessionStart = Object.assign({}, stats);
 
         statKeys.forEach(function (key) {
             updateStat(key, stats[key]);
         });
 
         if (authorElement && data.author_name) {
-            authorElement.textContent =
-                '@' + String(data.author_name).replace(/^@/, '');
+            authorElement.textContent = '@' + String(data.author_name).replace(/^@/, '');
         }
 
-        if (titleElement && data.title) {
-            titleElement.textContent = data.title;
-        }
+        if (titleElement && data.title) titleElement.textContent = data.title;
 
         if (imageElement && data.thumbnail_url) {
-            if (imageElement.src !== data.thumbnail_url) {
-                imageElement.src = data.thumbnail_url;
-            }
-
+            if (imageElement.src !== data.thumbnail_url) imageElement.src = data.thumbnail_url;
             imageElement.hidden = false;
         }
 
         if (Number.isFinite(stats.views)) {
-            history.push({
-                views: stats.views,
-                at: Date.now()
-            });
-
+            history.push({ views: stats.views, at: Date.now() });
             history = history.slice(-60);
             renderChart();
         }
 
-        const availableCount = statKeys.filter(function (key) {
+        var availableCount = statKeys.filter(function (key) {
             return Number.isFinite(stats[key]);
         }).length;
 
         setStatus(
             availableCount === 4
-                ? 'Live Count actief · elke ' + pollSeconds + ' sec'
-                : 'Live Count actief · ' + availableCount + '/4 beschikbaar',
+                ? 'Live Count actief - elke ' + pollSeconds + ' sec'
+                : 'Live Count actief - ' + availableCount + '/4 beschikbaar',
             availableCount > 0
         );
 
         if (updatedElement) {
-            updatedElement.textContent =
-                'Bijgewerkt ' +
-                new Date().toLocaleTimeString('nl-NL', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+            updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
 
         lastStats = Object.assign({}, stats);
         persistSession();
     }
 
-    async function fetchLiveStats(force) {
-        if (stopped || !endpoint) {
-            return;
-        }
-
-        // Belangrijk: een automatische poll mag een nog lopende TikTok-request
-        // niet afbreken. TikTok kan soms langer dan 4 seconden antwoorden.
-        if (requestInFlight && !force) {
-            return;
-        }
-
-        if (requestInFlight && force && activeController) {
-            activeController.abort();
+    function fetchLiveStats() {
+        if (stopped || !endpoint || requestInFlight) {
+            return Promise.resolve();
         }
 
         requestInFlight = true;
         requestNumber += 1;
 
-        activeController = new AbortController();
-        const currentController = activeController;
+        var separator = endpoint.indexOf('?') === -1 ? '?' : '&';
+        var requestUrl = endpoint
+            + separator
+            + 'url=' + encodeURIComponent(videoUrl)
+            + '&_live=' + encodeURIComponent(String(Date.now()))
+            + '&_request=' + encodeURIComponent(String(requestNumber));
 
-        const params = new URLSearchParams();
-        params.set('url', videoUrl);
-        params.set('_live', String(Date.now()));
-        params.set('_request', String(requestNumber));
+        setStatus('Nieuwe TikTok-data ophalen...', true);
 
-        setStatus('Nieuwe TikTok-data ophalen…', true);
+        return fetch(requestUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            cache: 'no-store',
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            return response.text().then(function (body) {
+                var data;
 
-        try {
-            const response = await fetch(
-                endpoint + '?' + params.toString(),
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    },
-                    cache: 'no-store',
-                    credentials: 'same-origin',
-                    signal: currentController.signal
+                try {
+                    data = JSON.parse(body);
+                } catch (error) {
+                    throw new Error('Ongeldige serverresponse (' + response.status + ')');
                 }
-            );
 
-            let data = null;
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || 'Live Count request mislukt (' + response.status + ')');
+                }
 
-            try {
-                data = await response.json();
-            } catch (jsonError) {
-                throw new Error('Ongeldige serverresponse (' + response.status + ')');
-            }
-
-            if (!response.ok || data.success === false) {
-                throw new Error(
-                    data.message ||
-                    'Live Count request mislukt (' +
-                    response.status +
-                    ')'
-                );
-            }
-
-            if (activeController !== currentController) {
-                return;
-            }
-
-            applyPayload(data);
-        } catch (error) {
-            if (error && error.name === 'AbortError') {
-                return;
-            }
-
+                return data;
+            });
+        })
+        .then(function (data) {
+            if (!stopped) applyPayload(data);
+        })
+        .catch(function (error) {
             console.error('TikTok Live Count fout:', error);
-
-            setStatus(
-                error && error.message
-                    ? error.message
-                    : 'Live ophalen mislukt',
-                false
-            );
-        } finally {
-            if (activeController === currentController) {
-                activeController = null;
-                requestInFlight = false;
-            }
-        }
+            setStatus(error && error.message ? error.message : 'Live ophalen mislukt', false);
+        })
+        .then(function () {
+            requestInFlight = false;
+        }, function () {
+            requestInFlight = false;
+        });
     }
 
     function clearPollTimer() {
@@ -1302,14 +1189,14 @@
         }
     }
 
-    async function pollOnce() {
+    function scheduleNextPoll() {
         clearPollTimer();
+        if (!stopped) pollTimerId = window.setTimeout(pollOnce, pollMs);
+    }
 
-        await fetchLiveStats(false);
-
-        if (!stopped) {
-            pollTimerId = window.setTimeout(pollOnce, pollMs);
-        }
+    function pollOnce() {
+        clearPollTimer();
+        fetchLiveStats().then(scheduleNextPoll);
     }
 
     function startPolling() {
@@ -1318,26 +1205,34 @@
     }
 
     if (refreshButton) {
-        refreshButton.addEventListener('click', async function () {
+        refreshButton.addEventListener('click', function () {
             clearPollTimer();
-            await fetchLiveStats(true);
 
-            if (!stopped) {
-                pollTimerId = window.setTimeout(pollOnce, pollMs);
+            if (requestInFlight) {
+                scheduleNextPoll();
+                return;
             }
+
+            fetchLiveStats().then(scheduleNextPoll);
         });
     }
 
     if (copyButton) {
-        copyButton.addEventListener('click', async function () {
-            const originalText = copyButton.textContent;
+        copyButton.addEventListener('click', function () {
+            var originalText = copyButton.textContent;
+            var copyPromise;
 
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                copyButton.textContent = '✓ Gekopieerd';
-            } catch (error) {
-                copyButton.textContent = 'Kopiëren mislukt';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                copyPromise = navigator.clipboard.writeText(window.location.href);
+            } else {
+                copyPromise = Promise.reject(new Error('Clipboard API niet beschikbaar'));
             }
+
+            copyPromise.then(function () {
+                copyButton.textContent = 'Gekopieerd';
+            }).catch(function () {
+                copyButton.textContent = 'Kopieren mislukt';
+            });
 
             window.setTimeout(function () {
                 copyButton.textContent = originalText;
@@ -1354,12 +1249,7 @@
 
     window.addEventListener('beforeunload', function () {
         stopped = true;
-
         clearPollTimer();
-
-        if (activeController) {
-            activeController.abort();
-        }
     });
 
     restoreSession();
