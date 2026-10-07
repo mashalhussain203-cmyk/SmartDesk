@@ -70,6 +70,49 @@ class TikTokVideoStatsService
     }
 
     /**
+     * Supplemental public TikTok data used next to the direct Livecounts embed.
+     * Livecounts itself supplies Views/Likes/Comments/Shares inside its iframe.
+     * TikTok's public video page is used here only for fields Livecounts does
+     * not expose in that embed, such as collectCount / Favorites.
+     */
+    public function getSupplementalTikTokStats(
+        string $videoUrl,
+        string $videoId
+    ): array {
+        $resolved = $this->resolveVideo($videoUrl);
+
+        if ((string) $resolved['video_id'] !== (string) $videoId) {
+            throw new RuntimeException('De TikTok-link hoort niet bij deze video.');
+        }
+
+        $cacheKey = 'tiktok-live-count:supplemental:v1:'.$videoId;
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $video = $this->fetchVideoObjectFromPublicPage(
+            $this->canonicalVideoPageUrl($resolved['url']),
+            $videoId
+        );
+
+        if (!is_array($video)) {
+            throw new RuntimeException(
+                'TikTok publieke videodata bevatte geen aanvullende statistieken.'
+            );
+        }
+
+        $stats = $this->normalizeVideoObject($video);
+        $stats['source'] = 'tiktok-public-video-page';
+        $stats['precision'] = 'raw_integer';
+
+        Cache::put($cacheKey, $stats, now()->addSeconds(15));
+
+        return $stats;
+    }
+
+    /**
      * Public method used by the controller.
      *
      * Result always contains real values returned by TikTok.
@@ -1033,6 +1076,10 @@ class TikTokVideoStatsService
                 'shareCount' => $this->extractCounterFromText(
                     $window,
                     ['shareCount', 'share_count']
+                ),
+                'collectCount' => $this->extractCounterFromText(
+                    $window,
+                    ['collectCount', 'collect_count', 'favoriteCount', 'favorites']
                 ),
             ];
 
