@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "python313"]
+nixPkgs = ["...", "python313", "chromium"]
 
 [phases.install]
 cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt"]
