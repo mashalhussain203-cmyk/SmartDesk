@@ -1476,6 +1476,83 @@
     }
 
     if (refreshButton) {
+        refreshButton.onclick = function () {
+            if (timer !== null) {
+                window.clearTimeout(timer);
+                timer = null;
+            }
+
+            if (request !== null) {
+                try {
+                    request.abort();
+                } catch (error) {
+                }
+                request = null;
+            }
+
+            stopped = false;
+            loadStats();
+        };
+    }
+
+    if (copyButton) {
+        copyButton.onclick = function () {
+            var originalText = copyButton.textContent;
+            var input = document.createElement('textarea');
+
+            input.value = window.location.href;
+            input.setAttribute('readonly', 'readonly');
+            input.style.position = 'fixed';
+            input.style.left = '-9999px';
+            document.body.appendChild(input);
+            input.select();
+
+            try {
+                document.execCommand('copy');
+                copyButton.textContent = 'Gekopieerd';
+            } catch (error) {
+                copyButton.textContent = 'Kopiëren mislukt';
+            }
+
+            document.body.removeChild(input);
+
+            window.setTimeout(function () {
+                copyButton.textContent = originalText;
+            }, 1400);
+        };
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && request === null) {
+            if (timer !== null) {
+                window.clearTimeout(timer);
+                timer = null;
+            }
+
+            stopped = false;
+            loadStats();
+        }
+    });
+
+    window.addEventListener('beforeunload', function () {
+        stopped = true;
+
+        if (timer !== null) {
+            window.clearTimeout(timer);
+        }
+
+        if (animationTimer !== null) {
+            window.clearTimeout(animationTimer);
+        }
+
+        if (request !== null) {
+            try {
+                request.abort();
+            } catch (error) {
+            }
+        }
+    });
+
     restoreSession();
     animateEstimatedCounters();
     loadStats();
