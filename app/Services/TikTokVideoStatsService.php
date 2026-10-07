@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -17,7 +16,7 @@ class TikTokVideoStatsService
      * Your frontend polls every 4 seconds, so only the first request
      * after this window refreshes TikTok. Other visitors reuse that snapshot.
      */
-    private const FRESH_MS = 4000;
+    private const FRESH_MS = 3000;
 
     /**
      * Keep the last successful snapshot longer than the fresh window.
@@ -181,48 +180,35 @@ class TikTokVideoStatsService
     }
 
     /**
-     * Fetch directly from TikTok without a third-party provider token.
+     * Fetch stats without TikTok API keys/tokens and without the unofficial
+     * /api/item/detail endpoint. We only download the public video webpage
+     * and read the JSON TikTok embeds in that HTML.
      */
     private function fetchFreshTikTokStats(
         string $videoUrl,
         string $videoId
     ): array {
-        /*
-         * Public page hydration is the most stable no-token path.
-         */
         $item = $this->fetchFromPublicVideoPage(
             $videoUrl,
             $videoId
         );
 
-        if ($item !== null) {
-            $normalized = $this->normalizeVideoObject($item);
-            $normalized['source'] = 'tiktok-page';
-
-            return $normalized;
+        if ($item === null) {
+            throw new RuntimeException(
+                'TikTok gaf op dit moment geen bruikbare publieke videostatistieken terug.'
+            );
         }
 
-        /*
-         * Secondary attempt. This unofficial TikTok web endpoint may require
-         * additional browser signatures at times, therefore it is only a fallback.
-         */
-        $item = $this->fetchFromItemDetail(
-            $videoId,
-            $videoUrl
-        );
+        $normalized = $this->normalizeVideoObject($item);
+        $normalized['source'] = 'tiktok-public-page';
 
-        if ($item !== null) {
-            $normalized = $this->normalizeVideoObject($item);
-            $normalized['source'] = 'tiktok-item-detail';
-
-            return $normalized;
-        }
-
-        throw new RuntimeException(
-            'TikTok gaf op dit moment geen bruikbare publieke videostatistieken terug.'
-        );
+        return $normalized;
     }
 
+    /**
+     * Download only the normal public TikTok video page.
+     * No developer token, access token or TikTok API endpoint is used here.
+     */
     private function fetchFromPublicVideoPage(
         string $videoUrl,
         string $videoId
@@ -233,8 +219,11 @@ class TikTokVideoStatsService
                 'Accept' =>
                     'text/html,application/xhtml+xml,application/xml;q=0.9,'
                     .'image/avif,image/webp,*/*;q=0.8',
-
                 'Referer' => 'https://www.tiktok.com/',
+                'Sec-Fetch-Dest' => 'document',
+                'Sec-Fetch-Mode' => 'navigate',
+                'Sec-Fetch-Site' => 'same-origin',
+                'Upgrade-Insecure-Requests' => '1',
             ]
         );
 
@@ -248,9 +237,7 @@ class TikTokVideoStatsService
             return null;
         }
 
-        /*
-         * Current/modern TikTok page hydration.
-         */
+        /* Modern TikTok page hydration. */
         $universal = $this->extractJsonScript(
             $html,
             '__UNIVERSAL_DATA_FOR_REHYDRATION__'
@@ -280,9 +267,7 @@ class TikTokVideoStatsService
             }
         }
 
-        /*
-         * Older/alternate TikTok response.
-         */
+        /* Older/alternate TikTok page hydration. */
         $sigi = $this->extractJsonScript(
             $html,
             'SIGI_STATE'
@@ -308,74 +293,86 @@ class TikTokVideoStatsService
             }
         }
 
+        /*
+         * Final page-only fallback. TikTok occasionally changes the script id
+         * while leaving the same counters in the HTML. We search only around
+         * the requested video id so counters from recommended videos are not
+         * accidentally returned.
+         */
+        return $this->extractVideoFromHtmlWindow(
+            $html,
+            $videoId
+        );
+    }
+
+    private function extractVideoFromHtmlWindow(
+        string $html,
+        string $videoId
+    ): ?array {
+        $decoded = html_entity_decode(
+            $html,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+
+        /* JSON may be embedded with escaped quotes in some page variants. */
+        $searchable = str_replace('\\"', '"', $decoded);
+        $offset = 0;
+
+        while (($position = strpos($searchable, $videoId, $offset)) !== false) {
+            $start = max(0, $position - 30000);
+            $window = substr($searchable, $start, 90000);
+
+            $stats = [
+                'playCount' => $this->extractCounterFromText(
+                    $window,
+                    ['playCount', 'play_count', 'viewCount', 'view_count']
+                ),
+                'diggCount' => $this->extractCounterFromText(
+                    $window,
+                    ['diggCount', 'digg_count', 'likeCount', 'like_count']
+                ),
+                'commentCount' => $this->extractCounterFromText(
+                    $window,
+                    ['commentCount', 'comment_count']
+                ),
+                'shareCount' => $this->extractCounterFromText(
+                    $window,
+                    ['shareCount', 'share_count']
+                ),
+            ];
+
+            if (count(array_filter($stats, static fn ($v) => $v !== null)) >= 2) {
+                return [
+                    'id' => $videoId,
+                    'stats' => $stats,
+                ];
+            }
+
+            $offset = $position + strlen($videoId);
+        }
+
         return null;
     }
 
-    private function fetchFromItemDetail(
-        string $videoId,
-        string $referer
-    ): ?array {
-        $query = http_build_query([
-            'aid' => '1988',
-            'app_language' => 'en',
-            'app_name' => 'tiktok_web',
-            'browser_language' => 'en-US',
-            'browser_name' => 'Mozilla',
-            'browser_online' => 'true',
-            'browser_platform' => 'Win32',
-            'channel' => 'tiktok_web',
-            'cookie_enabled' => 'true',
-            'device_platform' => 'web_pc',
-            'focus_state' => 'true',
-            'from_page' => 'video',
-            'history_len' => '1',
-            'is_fullscreen' => 'false',
-            'is_page_visible' => 'true',
-            'itemId' => $videoId,
-            'language' => 'en',
-            'os' => 'windows',
-            'region' => 'NL',
-            'screen_height' => '1080',
-            'screen_width' => '1920',
-            'tz_name' => 'Europe/Amsterdam',
-        ]);
+    private function extractCounterFromText(
+        string $text,
+        array $keys
+    ): ?int {
+        foreach ($keys as $key) {
+            $quotedKey = preg_quote($key, '/');
 
-        $response = $this->requestTikTok(
-            'https://www.tiktok.com/api/item/detail/?'.$query,
-            [
-                'Accept' => 'application/json, text/plain, */*',
-                'Referer' => $referer,
-            ]
-        );
-
-        if (!$response->successful()) {
-            return null;
-        }
-
-        $payload = $response->json();
-
-        if (!is_array($payload)) {
-            return null;
-        }
-
-        foreach ([
-            $payload['itemInfo']['itemStruct'] ?? null,
-            $payload['itemStruct'] ?? null,
-            $payload['item_info']['item_struct'] ?? null,
-        ] as $candidate) {
-            if (
-                is_array($candidate)
-                && $this->videoMatches($candidate, $videoId)
-                && $this->containsStats($candidate)
-            ) {
-                return $candidate;
+            foreach ([
+                '/["\']'.$quotedKey.'["\']\\s*:\\s*["\']?(\\d{1,20})["\']?/i',
+                '/\\b'.$quotedKey.'\\b\\s*[:=]\\s*["\']?(\\d{1,20})["\']?/i',
+            ] as $pattern) {
+                if (preg_match($pattern, $text, $match)) {
+                    return (int) $match[1];
+                }
             }
         }
 
-        return $this->findVideoRecursively(
-            $payload,
-            $videoId
-        );
+        return null;
     }
 
     private function requestTikTok(
