@@ -1148,7 +1148,7 @@ Route::get(
     '/api/tools/tiktok-follower-counter/search',
     [TikTokCounterController::class, 'followerSearch']
 )
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:180,1')
     ->name('tiktok-follower-counter.search');
 
 Route::get(
