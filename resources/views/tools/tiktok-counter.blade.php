@@ -929,6 +929,69 @@
         }
     }
 
+
+    .ttc-direct-livecounts {
+        margin-top: 14px;
+        min-height: 560px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(123,112,255,.08), transparent 38%),
+            #090c12;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    }
+
+    .ttc-direct-livecounts iframe {
+        display: block;
+        width: 100%;
+        height: 560px;
+        border: 0;
+        background: transparent;
+        color-scheme: dark;
+    }
+
+    .ttc-direct-note {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #697483;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .ttc-direct-note strong {
+        color: #76e6aa;
+        font-weight: 800;
+    }
+
+    .ttc-direct-note a {
+        color: #9188ff;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .ttc-preview-player {
+        width: 100%;
+        min-height: 560px;
+        border: 0;
+        border-radius: 18px;
+        background: #05070b;
+    }
+
+    @media (max-width: 980px) {
+        .ttc-direct-livecounts,
+        .ttc-direct-livecounts iframe {
+            min-height: 500px;
+            height: 500px;
+        }
+
+        .ttc-preview-player {
+            min-height: 420px;
+        }
+    }
 </style>
 @endpush
 
@@ -985,31 +1048,22 @@
                 id="ttc-result"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
-                data-stats-endpoint="{{ route('tiktok-counter.stats', ['videoId' => $videoId]) }}"
-                data-poll-ms="5000"
+                data-direct-livecounts="1"
             >
                 <aside class="ttc-card ttc-preview">
-                    <div class="ttc-thumb">
-                        <img id="ttc-thumb-image" alt="TikTok thumbnail" hidden>
-
-                        <span class="ttc-live-chip">
-                            <i></i>
-                            Live source
-                        </span>
-
-                        <a
-                            class="ttc-play"
-                            href="{{ $videoUrl }}"
-                            target="_blank"
-                            rel="noopener"
-                            aria-label="Open video op TikTok"
-                        >▶</a>
-                    </div>
+                    <iframe
+                        class="ttc-preview-player"
+                        src="https://www.tiktok.com/player/v1/{{ $videoId }}"
+                        title="TikTok video"
+                        loading="eager"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
 
                     <div class="ttc-video-meta">
-                        <div class="ttc-author" id="ttc-author">TikTok video</div>
-                        <p class="ttc-video-title" id="ttc-video-title">
-                            Video-informatie laden…
+                        <div class="ttc-author">TikTok video</div>
+                        <p class="ttc-video-title">
+                            Video ID {{ $videoId }}
                         </p>
                     </div>
                 </aside>
@@ -1018,20 +1072,11 @@
                     <div class="ttc-dashboard-head">
                         <div class="ttc-status">
                             <span class="ttc-status-dot" id="ttc-status-dot"></span>
-                            <span id="ttc-status-text">Live Count starten…</span>
+                            <span id="ttc-status-text">Directe Livecounts bron laden…</span>
                         </div>
 
-                        <div>
-                            <a
-                                id="ttc-source-credit"
-                                href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style="display:none;color:#9188ff;font-size:9px;font-weight:800;text-decoration:none;margin-right:10px"
-                            >Data via Livecounts.io</a>
-                            <span class="ttc-updated" id="ttc-updated">
-                                Nog niet bijgewerkt
-                            </span>
+                        <div class="ttc-updated" id="ttc-updated">
+                            Rechtstreeks via Livecounts.io
                         </div>
                     </div>
 
@@ -1039,113 +1084,28 @@
                         <button class="ttc-live-tool" type="button" id="ttc-change-user">⌕ Change User</button>
                         <a class="ttc-live-tool" href="https://livecounts.io/compare/tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">⇄ Compare</a>
                         <a class="ttc-live-tool" href="https://livecounts.io/spotlight?service=tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">✦ Spotlight</a>
-                        <button class="ttc-live-tool" type="button" id="ttc-settings-toggle">⚙ Customize</button>
+                        <a class="ttc-live-tool" href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">◉ Open Livecounts</a>
                         <button class="ttc-live-tool" type="button" id="ttc-share">↗ Share</button>
                         <a class="ttc-live-tool" href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer">♪ Visit TikTok</a>
                     </div>
 
-                    <div class="ttc-settings-panel" id="ttc-settings-panel">
-                        <label class="ttc-setting">
-                            <span>Geschatte tussenstappen tonen</span>
-                            <input type="checkbox" id="ttc-smooth-toggle" checked>
-                        </label>
-                        <label class="ttc-setting">
-                            <span>Live growth chart tonen</span>
-                            <input type="checkbox" id="ttc-chart-toggle" checked>
-                        </label>
+                    <div class="ttc-direct-livecounts">
+                        <iframe
+                            id="ttc-livecounts-embed"
+                            src="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
+                            title="Livecounts TikTok live view counter"
+                            loading="eager"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="clipboard-read; clipboard-write"
+                        ></iframe>
                     </div>
 
-                    <div class="ttc-stats">
-                        <div class="ttc-stat">
-                            <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Views</div>
-                                <div class="ttc-stat-badge">◉</div>
-                            </div>
-                            <div class="ttc-stat-value ttc-loading" data-stat="views">—</div>
-                            <div class="ttc-stat-delta" data-delta="views">Sessie gestart</div>
-                        </div>
-
-                        <div class="ttc-stat">
-                            <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Likes</div>
-                                <div class="ttc-stat-badge">♥</div>
-                            </div>
-                            <div class="ttc-stat-value ttc-loading" data-stat="likes">—</div>
-                            <div class="ttc-stat-delta" data-delta="likes">Sessie gestart</div>
-                        </div>
-
-                        <div class="ttc-stat">
-                            <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Comments</div>
-                                <div class="ttc-stat-badge">●</div>
-                            </div>
-                            <div class="ttc-stat-value ttc-loading" data-stat="comments">—</div>
-                            <div class="ttc-stat-delta" data-delta="comments">Sessie gestart</div>
-                        </div>
-
-                        <div class="ttc-stat">
-                            <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Shares</div>
-                                <div class="ttc-stat-badge">↗</div>
-                            </div>
-                            <div class="ttc-stat-value ttc-loading" data-stat="shares">—</div>
-                            <div class="ttc-stat-delta" data-delta="shares">Sessie gestart</div>
-                        </div>
-                    </div>
-
-                    <div class="ttc-advanced" id="ttc-advanced">
-                        <button class="ttc-advanced-toggle" type="button" id="ttc-advanced-toggle">
-                            <span>Advanced Metrics</span>
-                            <span id="ttc-advanced-arrow">＋</span>
-                        </button>
-                        <div class="ttc-advanced-body">
-                            <div class="ttc-advanced-metric">
-                                <div class="ttc-advanced-label">Views deze sessie</div>
-                                <div class="ttc-advanced-value" id="ttc-session-views">0</div>
-                            </div>
-                            <div class="ttc-advanced-metric">
-                                <div class="ttc-advanced-label">Live snelheid</div>
-                                <div class="ttc-advanced-value" id="ttc-view-rate">0 / min</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="ttc-chart-wrap">
-                        <div class="ttc-chart-head">
-                            <div class="ttc-chart-title">View growth</div>
-                            <div class="ttc-chart-note">Laatste 60 metingen · deze sessie</div>
-                        </div>
-
-                        <svg
-                            class="ttc-chart"
-                            viewBox="0 0 800 140"
-                            preserveAspectRatio="none"
-                            aria-label="View growth chart"
-                        >
-                            <defs>
-                                <linearGradient id="ttcChartFill" x1="0" x2="0" y1="0" y2="1">
-                                    <stop offset="0%" stop-color="#7b70ff" stop-opacity=".24"/>
-                                    <stop offset="100%" stop-color="#7b70ff" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-
-                            <path id="ttc-chart-area" fill="url(#ttcChartFill)" d=""></path>
-                            <path
-                                id="ttc-chart-line"
-                                fill="none"
-                                stroke="#8f86ff"
-                                stroke-width="2.5"
-                                vector-effect="non-scaling-stroke"
-                                d=""
-                            ></path>
-                        </svg>
+                    <div class="ttc-direct-note">
+                        <span><strong>DIRECT</strong> · Deze teller draait rechtstreeks vanaf Livecounts.io. Mashal kopieert of schat de cijfers niet.</span>
+                        <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
                     </div>
 
                     <div class="ttc-actions">
-                        <button class="ttc-action" type="button" id="ttc-refresh">
-                            ↻ Vernieuwen
-                        </button>
-
                         <button class="ttc-action" type="button" id="ttc-copy">
                             ⧉ Link kopiëren
                         </button>
@@ -1186,521 +1146,71 @@
         return;
     }
 
-    var endpoint = root.getAttribute('data-stats-endpoint') || '';
-    var videoUrl = root.getAttribute('data-video-url') || '';
-    var videoId = root.getAttribute('data-video-id') || '';
-    var pollMs = parseInt(root.getAttribute('data-poll-ms') || '5000', 10);
-
-    if (!pollMs || pollMs < 5000) {
-        pollMs = 5000;
-    }
-
-    var statKeys = ['views', 'likes', 'comments', 'shares'];
-    var statElements = {};
-    var deltaElements = {};
-    var sessionStart = null;
-    var lastStats = null;
-    var lastRealStats = null;
-    var lastRealAt = 0;
-    var growthPerSecond = {
-        views: 0,
-        likes: 0,
-        comments: 0,
-        shares: 0
-    };
-    var displayStats = {
-        views: null,
-        likes: null,
-        comments: null,
-        shares: null
-    };
-    var animationTimer = null;
-    var history = [];
-    var timer = null;
-    var request = null;
-    var requestNumber = 0;
-    var requestStartedAt = 0;
-    var stopped = false;
-    var storageKey = 'mashal:tiktok-live:' + videoId;
-
     var statusText = document.getElementById('ttc-status-text');
     var statusDot = document.getElementById('ttc-status-dot');
     var updatedElement = document.getElementById('ttc-updated');
-    var sourceCredit = document.getElementById('ttc-source-credit');
-    var authorElement = document.getElementById('ttc-author');
-    var titleElement = document.getElementById('ttc-video-title');
-    var imageElement = document.getElementById('ttc-thumb-image');
-    var refreshButton = document.getElementById('ttc-refresh');
-    var copyButtons = document.querySelectorAll('#ttc-copy');
-    var copyButton = copyButtons.length ? copyButtons[copyButtons.length - 1] : null;
-    var chartLine = document.getElementById('ttc-chart-line');
-    var chartArea = document.getElementById('ttc-chart-area');
+    var embed = document.getElementById('ttc-livecounts-embed');
     var changeUserButton = document.getElementById('ttc-change-user');
-    var settingsButton = document.getElementById('ttc-settings-toggle');
-    var settingsPanel = document.getElementById('ttc-settings-panel');
     var shareButton = document.getElementById('ttc-share');
-    var smoothToggle = document.getElementById('ttc-smooth-toggle');
-    var chartToggle = document.getElementById('ttc-chart-toggle');
-    var chartWrap = document.querySelector('.ttc-chart-wrap');
-    var advanced = document.getElementById('ttc-advanced');
-    var advancedToggle = document.getElementById('ttc-advanced-toggle');
-    var advancedArrow = document.getElementById('ttc-advanced-arrow');
-    var sessionViewsElement = document.getElementById('ttc-session-views');
-    var viewRateElement = document.getElementById('ttc-view-rate');
-    var smoothEnabled = true;
-    var embedMode = false;
-
-    var i;
-    for (i = 0; i < statKeys.length; i += 1) {
-        statElements[statKeys[i]] = document.querySelector('[data-stat="' + statKeys[i] + '"]');
-        deltaElements[statKeys[i]] = document.querySelector('[data-delta="' + statKeys[i] + '"]');
-    }
-
-    function isFiniteNumber(value) {
-        return typeof value === 'number' && isFinite(value);
-    }
-
-    function toNumber(value) {
-        var number;
-        if (value === null || typeof value === 'undefined' || value === '') {
-            return null;
-        }
-        number = Number(value);
-        return isFinite(number) ? number : null;
-    }
-
-    function formatNumber(value) {
-        var number = Number(value || 0);
-        try {
-            return number.toLocaleString('nl-NL');
-        } catch (error) {
-            return String(number);
-        }
-    }
-
-    function cloneStats(stats) {
-        return {
-            views: stats.views,
-            likes: stats.likes,
-            comments: stats.comments,
-            shares: stats.shares
-        };
-    }
+    var copyButton = document.getElementById('ttc-copy');
 
     function setStatus(text, ok) {
         if (statusText) {
             statusText.textContent = text;
         }
+
         if (statusDot) {
-            if (ok === false) {
-                statusDot.style.background = '#ff8095';
-                statusDot.style.boxShadow = '0 0 13px rgba(255,128,149,.55)';
-            } else {
-                statusDot.style.background = '#6ee7a8';
-                statusDot.style.boxShadow = '0 0 13px rgba(110,231,168,.62)';
-            }
+            statusDot.style.background = ok === false ? '#ff8095' : '#6ee7a8';
+            statusDot.style.boxShadow = ok === false
+                ? '0 0 13px rgba(255,128,149,.55)'
+                : '0 0 13px rgba(110,231,168,.62)';
         }
     }
 
-    function clampGrowth(key, rate) {
-        var limits = {
-            views: 50000,
-            likes: 10000,
-            comments: 1000,
-            shares: 2000
-        };
-        var limit = limits[key] || 1000;
+    function copyCurrentUrl(button) {
+        var input = document.createElement('textarea');
+        var original = button ? button.textContent : '';
 
-        if (!isFiniteNumber(rate) || rate < 0) {
-            return 0;
-        }
-
-        return Math.min(rate, limit);
-    }
-
-    function learnGrowth(stats) {
-        var now = new Date().getTime();
-        var elapsed;
-        var key;
-        var delta;
-        var rate;
-
-        if (smoothEnabled && lastRealStats && lastRealAt > 0) {
-            elapsed = Math.max((now - lastRealAt) / 1000, 0.25);
-
-            for (i = 0; i < statKeys.length; i += 1) {
-                key = statKeys[i];
-
-                if (
-                    isFiniteNumber(stats[key])
-                    && isFiniteNumber(lastRealStats[key])
-                ) {
-                    delta = stats[key] - lastRealStats[key];
-
-                    if (delta >= 0) {
-                        rate = delta / elapsed;
-
-                        if (rate > 0) {
-                            growthPerSecond[key] = clampGrowth(
-                                key,
-                                growthPerSecond[key] > 0
-                                    ? (growthPerSecond[key] * 0.65) + (rate * 0.35)
-                                    : rate
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        lastRealStats = cloneStats(stats);
-        lastRealAt = now;
-
-        for (i = 0; i < statKeys.length; i += 1) {
-            key = statKeys[i];
-            if (isFiniteNumber(stats[key])) {
-                displayStats[key] = stats[key];
-            }
-        }
-    }
-
-    function animateEstimatedCounters() {
-        var now = new Date().getTime();
-        var secondsSinceReal;
-        var key;
-        var estimated;
-
-        if (lastRealStats && lastRealAt > 0) {
-            secondsSinceReal = Math.max((now - lastRealAt) / 1000, 0);
-
-            for (i = 0; i < statKeys.length; i += 1) {
-                key = statKeys[i];
-
-                if (
-                    isFiniteNumber(lastRealStats[key])
-                    && growthPerSecond[key] > 0
-                ) {
-                    estimated = lastRealStats[key]
-                        + (growthPerSecond[key] * secondsSinceReal);
-
-                    displayStats[key] = Math.max(
-                        lastRealStats[key],
-                        Math.floor(estimated)
-                    );
-
-                    updateStat(key, displayStats[key]);
-                }
-            }
-        }
-
-        animationTimer = window.setTimeout(animateEstimatedCounters, 250);
-    }
-
-    function updateStat(key, value) {
-        var element = statElements[key];
-        var deltaElement = deltaElements[key];
-        var delta;
-
-        if (!element) {
-            return;
-        }
-
-        if (element.classList) {
-            element.classList.remove('ttc-loading');
-        }
-
-        if (!isFiniteNumber(value)) {
-            element.textContent = '-';
-            if (deltaElement) {
-                deltaElement.textContent = 'Niet beschikbaar';
-                deltaElement.style.color = '#65707e';
-            }
-            return;
-        }
-
-        element.textContent = formatNumber(value);
-
-        if (deltaElement && sessionStart && isFiniteNumber(sessionStart[key])) {
-            delta = value - sessionStart[key];
-            deltaElement.textContent = (delta >= 0 ? '+' : '') + formatNumber(delta) + ' deze sessie';
-            deltaElement.style.color = delta >= 0 ? '#6ee7a8' : '#ff8095';
-        }
-    }
-
-    function renderChart() {
-        var values = [];
-        var min;
-        var max;
-        var spread;
-        var width = 800;
-        var height = 140;
-        var padding = 9;
-        var points = [];
-        var linePath = '';
-        var x;
-        var y;
-        var j;
-
-        if (!chartLine || !chartArea) {
-            return;
-        }
-
-        for (j = 0; j < history.length; j += 1) {
-            if (isFiniteNumber(history[j].views)) {
-                values.push(history[j].views);
-            }
-        }
-
-        if (!values.length) {
-            chartLine.setAttribute('d', '');
-            chartArea.setAttribute('d', '');
-            return;
-        }
-
-        min = Math.min.apply(null, values);
-        max = Math.max.apply(null, values);
-        spread = Math.max(max - min, 1);
-
-        for (j = 0; j < values.length; j += 1) {
-            x = values.length === 1 ? 0 : (j / (values.length - 1)) * width;
-            y = height - padding - ((values[j] - min) / spread) * (height - padding * 2);
-            points.push([x, y]);
-        }
-
-        for (j = 0; j < points.length; j += 1) {
-            if (j > 0) {
-                linePath += ' ';
-            }
-            linePath += (j === 0 ? 'M ' : 'L ') + points[j][0].toFixed(2) + ' ' + points[j][1].toFixed(2);
-        }
-
-        chartLine.setAttribute('d', linePath);
-        chartArea.setAttribute('d', linePath + ' L ' + width + ' ' + height + ' L 0 ' + height + ' Z');
-    }
-
-    function persistSession() {
-        if (!videoId || !window.localStorage) {
-            return;
-        }
-        try {
-            window.localStorage.setItem(storageKey, JSON.stringify({
-                savedAt: new Date().getTime(),
-                sessionStart: sessionStart,
-                lastStats: lastStats,
-                history: history.slice(-60)
-            }));
-        } catch (error) {
-        }
-    }
-
-    function restoreSession() {
-        var raw;
-        var saved;
-        var savedAt;
-
-        if (!videoId || !window.localStorage) {
-            return;
-        }
+        input.value = window.location.href;
+        input.setAttribute('readonly', 'readonly');
+        input.style.position = 'fixed';
+        input.style.left = '-9999px';
+        document.body.appendChild(input);
+        input.select();
 
         try {
-            raw = window.localStorage.getItem(storageKey);
-            if (!raw) {
-                return;
-            }
-            saved = JSON.parse(raw);
-            savedAt = Number(saved.savedAt || 0);
-            if (!savedAt || new Date().getTime() - savedAt > 21600000) {
-                window.localStorage.removeItem(storageKey);
-                return;
-            }
-            if (saved.sessionStart) {
-                sessionStart = saved.sessionStart;
-            }
-            if (saved.lastStats) {
-                lastStats = saved.lastStats;
-            }
-            if (saved.history && saved.history.length) {
-                history = saved.history.slice(-60);
-                renderChart();
+            document.execCommand('copy');
+            if (button) {
+                button.textContent = '✓ Gekopieerd';
             }
         } catch (error) {
-        }
-    }
-
-    function applyPayload(data) {
-        var rawStats = data && data.stats ? data.stats : {};
-        var stats = {
-            views: toNumber(rawStats.views),
-            likes: toNumber(rawStats.likes),
-            comments: toNumber(rawStats.comments),
-            shares: toNumber(rawStats.shares)
-        };
-        var available = 0;
-        var key;
-
-        if (!sessionStart) {
-            sessionStart = cloneStats(stats);
-        }
-
-        learnGrowth(stats);
-
-        for (i = 0; i < statKeys.length; i += 1) {
-            key = statKeys[i];
-            updateStat(
-                key,
-                isFiniteNumber(displayStats[key]) ? displayStats[key] : stats[key]
-            );
-            if (isFiniteNumber(stats[key])) {
-                available += 1;
+            if (button) {
+                button.textContent = 'Kopiëren mislukt';
             }
         }
 
-        if (authorElement && data.author_name) {
-            authorElement.textContent = '@' + String(data.author_name).replace(/^@/, '');
-        }
-        if (titleElement && data.title) {
-            titleElement.textContent = data.title;
-        }
-        if (imageElement && data.thumbnail_url) {
-            imageElement.src = data.thumbnail_url;
-            imageElement.hidden = false;
-        }
+        document.body.removeChild(input);
 
-        if (isFiniteNumber(stats.views)) {
-            history.push({ views: stats.views, at: new Date().getTime() });
-            history = history.slice(-60);
-            renderChart();
-        }
-
-        if (
-            sessionViewsElement
-            && sessionStart
-            && isFiniteNumber(sessionStart.views)
-            && isFiniteNumber(stats.views)
-        ) {
-            sessionViewsElement.textContent = formatNumber(
-                Math.max(0, stats.views - sessionStart.views)
-            );
-        }
-
-        if (viewRateElement) {
-            viewRateElement.textContent = formatNumber(
-                Math.max(0, Math.round((growthPerSecond.views || 0) * 60))
-            ) + ' / min';
-        }
-
-        if (data.stale_fallback) {
-            setStatus(data.last_error ? 'Oude snapshot - ' + data.last_error : 'Oude snapshot - TikTok live refresh mislukt', false);
-        } else if (data.precision === 'raw_integer') {
-            setStatus(
-                'Bron: ' + (data.source || 'onbekend')
-                + ' · echte snapshots elke 5 sec · tussendoor geschat',
-                true
-            );
-        } else if (available === 4) {
-            setStatus(
-                'Bron: ' + (data.source || 'onbekend')
-                + ' · afgeronde cijfers · tussendoor geschat',
-                false
-            );
-        } else {
-            setStatus('Live Count actief - ' + available + '/4 beschikbaar', available > 0);
-        }
-
-        if (sourceCredit) {
-            sourceCredit.style.display = (
-                data.source && String(data.source).indexOf('livecounts') === 0
-            ) ? 'inline' : 'none';
-        }
-
-        if (updatedElement) {
-            updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL');
-        }
-
-        lastStats = cloneStats(stats);
-        persistSession();
-    }
-
-    function scheduleNext() {
-        var elapsed = requestStartedAt ? (new Date().getTime() - requestStartedAt) : 0;
-        var delay = Math.max(0, pollMs - elapsed);
-
-        if (timer !== null) {
-            window.clearTimeout(timer);
-        }
-        if (!stopped) {
-            timer = window.setTimeout(loadStats, delay);
+        if (button) {
+            window.setTimeout(function () {
+                button.textContent = original;
+            }, 1400);
         }
     }
 
-    function finishRequest() {
-        request = null;
-        scheduleNext();
-    }
-
-    function loadStats() {
-        var separator;
-        var requestUrl;
-
-        if (stopped || !endpoint || request !== null) {
-            return;
-        }
-
-        requestNumber += 1;
-        requestStartedAt = new Date().getTime();
-        separator = endpoint.indexOf('?') === -1 ? '?' : '&';
-        requestUrl = endpoint + separator
-            + 'url=' + encodeURIComponent(videoUrl)
-            + '&_live=' + encodeURIComponent(String(new Date().getTime()))
-            + '&_request=' + encodeURIComponent(String(requestNumber));
-
-        setStatus('Nieuwe TikTok-data ophalen...', true);
-
-        request = new XMLHttpRequest();
-        request.open('GET', requestUrl, true);
-        request.setRequestHeader('Accept', 'application/json');
-        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        request.setRequestHeader('Cache-Control', 'no-cache');
-        request.timeout = 60000;
-
-        request.onreadystatechange = function () {
-            var data;
-            var message;
-
-            if (!request || request.readyState !== 4) {
-                return;
+    if (embed) {
+        embed.addEventListener('load', function () {
+            setStatus('Livecounts direct embed actief', true);
+            if (updatedElement) {
+                updatedElement.textContent = 'Live · rechtstreeks via Livecounts.io';
             }
+        });
 
-            try {
-                data = JSON.parse(request.responseText || '{}');
-            } catch (error) {
-                setStatus('Ongeldige serverresponse (' + request.status + ')', false);
-                finishRequest();
-                return;
+        window.setTimeout(function () {
+            if (statusText && statusText.textContent.indexOf('laden') !== -1) {
+                setStatus('Livecounts embed geladen; teller initialiseert…', true);
             }
-
-            if (request.status < 200 || request.status >= 300 || data.success === false) {
-                message = data && data.message ? data.message : 'Live Count request mislukt (' + request.status + ')';
-                setStatus(message, false);
-                finishRequest();
-                return;
-            }
-
-            applyPayload(data);
-            finishRequest();
-        };
-
-        request.onerror = function () {
-            setStatus('Netwerkfout bij Live Count', false);
-            finishRequest();
-        };
-
-        request.ontimeout = function () {
-            setStatus('TikTok ophalen duurde te lang', false);
-            finishRequest();
-        };
-
-        request.send(null);
+        }, 5000);
     }
 
     if (changeUserButton) {
@@ -1711,34 +1221,7 @@
                 window.setTimeout(function () {
                     input.focus();
                     input.select();
-                }, 350);
-            }
-        };
-    }
-
-    if (settingsButton && settingsPanel) {
-        settingsButton.onclick = function () {
-            settingsPanel.classList.toggle('is-open');
-        };
-    }
-
-    if (smoothToggle) {
-        smoothToggle.onchange = function () {
-            smoothEnabled = !!smoothToggle.checked;
-        };
-    }
-
-    if (chartToggle && chartWrap) {
-        chartToggle.onchange = function () {
-            chartWrap.style.display = chartToggle.checked ? '' : 'none';
-        };
-    }
-
-    if (advancedToggle && advanced) {
-        advancedToggle.onclick = function () {
-            advanced.classList.toggle('is-open');
-            if (advancedArrow) {
-                advancedArrow.textContent = advanced.classList.contains('is-open') ? '−' : '＋';
+                }, 300);
             }
         };
     }
@@ -1754,106 +1237,15 @@
                 return;
             }
 
-            var input = document.createElement('textarea');
-            input.value = window.location.href;
-            input.setAttribute('readonly', 'readonly');
-            input.style.position = 'fixed';
-            input.style.left = '-9999px';
-            document.body.appendChild(input);
-            input.select();
-            try {
-                document.execCommand('copy');
-                shareButton.textContent = '✓ Link gekopieerd';
-                window.setTimeout(function () {
-                    shareButton.textContent = '↗ Share';
-                }, 1400);
-            } catch (error) {
-            }
-            document.body.removeChild(input);
-        };
-    }
-
-    if (refreshButton) {
-        refreshButton.onclick = function () {
-            if (timer !== null) {
-                window.clearTimeout(timer);
-                timer = null;
-            }
-
-            if (request !== null) {
-                try {
-                    request.abort();
-                } catch (error) {
-                }
-                request = null;
-            }
-
-            stopped = false;
-            loadStats();
+            copyCurrentUrl(shareButton);
         };
     }
 
     if (copyButton) {
         copyButton.onclick = function () {
-            var originalText = copyButton.textContent;
-            var input = document.createElement('textarea');
-
-            input.value = window.location.href;
-            input.setAttribute('readonly', 'readonly');
-            input.style.position = 'fixed';
-            input.style.left = '-9999px';
-            document.body.appendChild(input);
-            input.select();
-
-            try {
-                document.execCommand('copy');
-                copyButton.textContent = 'Gekopieerd';
-            } catch (error) {
-                copyButton.textContent = 'Kopiëren mislukt';
-            }
-
-            document.body.removeChild(input);
-
-            window.setTimeout(function () {
-                copyButton.textContent = originalText;
-            }, 1400);
+            copyCurrentUrl(copyButton);
         };
     }
-
-    document.addEventListener('visibilitychange', function () {
-        if (!document.hidden && request === null) {
-            if (timer !== null) {
-                window.clearTimeout(timer);
-                timer = null;
-            }
-
-            stopped = false;
-            loadStats();
-        }
-    });
-
-    window.addEventListener('beforeunload', function () {
-        stopped = true;
-
-        if (timer !== null) {
-            window.clearTimeout(timer);
-        }
-
-        if (animationTimer !== null) {
-            window.clearTimeout(animationTimer);
-        }
-
-        if (request !== null) {
-            try {
-                request.abort();
-            } catch (error) {
-            }
-        }
-    });
-
-    restoreSession();
-    animateEstimatedCounters();
-    loadStats();
 }());
 </script>
 @endpush
