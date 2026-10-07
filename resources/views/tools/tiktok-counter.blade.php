@@ -851,6 +851,7 @@
 <script type="application/json" id="ttc-live-config">{!! json_encode([
     'endpoint' => route('tiktok-counter.stats', ['videoId' => $videoId]),
     'videoUrl' => $videoUrl,
+    'videoId' => (string) $videoId,
     'pollMs' => 4000,
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 
@@ -876,7 +877,9 @@
 
     const endpoint = String(config.endpoint || '');
     const videoUrl = String(config.videoUrl || '');
+    const videoId = String(config.videoId || '');
     const pollMs = Math.max(4000, Number(config.pollMs || 4000));
+    const pollSeconds = Math.max(1, Math.round(pollMs / 1000));
     const formatter = new Intl.NumberFormat('nl-NL');
     const statKeys = ['views', 'likes', 'comments', 'shares'];
 
@@ -904,8 +907,65 @@
     let history = [];
     let stopped = false;
     let requestNumber = 0;
-    let intervalId = null;
+    let pollTimerId = null;
     let activeController = null;
+    let requestInFlight = false;
+    const storageKey = 'mashal:tiktok-live:' + videoId;
+
+    function restoreSession() {
+        if (!videoId) {
+            return;
+        }
+
+        try {
+            const raw = window.localStorage.getItem(storageKey);
+
+            if (!raw) {
+                return;
+            }
+
+            const saved = JSON.parse(raw);
+            const savedAt = Number(saved.savedAt || 0);
+
+            // Een oude sessie na 6 uur niet opnieuw gebruiken.
+            if (!savedAt || Date.now() - savedAt > 6 * 60 * 60 * 1000) {
+                window.localStorage.removeItem(storageKey);
+                return;
+            }
+
+            if (saved.sessionStart && typeof saved.sessionStart === 'object') {
+                sessionStart = saved.sessionStart;
+            }
+
+            if (saved.lastStats && typeof saved.lastStats === 'object') {
+                lastStats = saved.lastStats;
+            }
+
+            if (Array.isArray(saved.history)) {
+                history = saved.history.slice(-60);
+                renderChart();
+            }
+        } catch (error) {
+            console.warn('Live Count sessie kon niet worden hersteld:', error);
+        }
+    }
+
+    function persistSession() {
+        if (!videoId) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(storageKey, JSON.stringify({
+                savedAt: Date.now(),
+                sessionStart: sessionStart,
+                lastStats: lastStats,
+                history: history.slice(-60)
+            }));
+        } catch (error) {
+            // localStorage kan geblokkeerd zijn; Live Count blijft dan gewoon werken.
+        }
+    }
 
     function toNumber(value) {
         if (value === null || value === undefined || value === '') {
@@ -1128,7 +1188,7 @@
 
         setStatus(
             availableCount === 4
-                ? 'Live Count actief · elke 4 sec'
+                ? 'Live Count actief · elke ' + pollSeconds + ' sec'
                 : 'Live Count actief · ' + availableCount + '/4 beschikbaar',
             availableCount > 0
         );
@@ -1144,18 +1204,26 @@
         }
 
         lastStats = Object.assign({}, stats);
+        persistSession();
     }
 
-    async function fetchLiveStats() {
+    async function fetchLiveStats(force) {
         if (stopped || !endpoint) {
             return;
         }
 
-        requestNumber += 1;
+        // Belangrijk: een automatische poll mag een nog lopende TikTok-request
+        // niet afbreken. TikTok kan soms langer dan 4 seconden antwoorden.
+        if (requestInFlight && !force) {
+            return;
+        }
 
-        if (activeController) {
+        if (requestInFlight && force && activeController) {
             activeController.abort();
         }
+
+        requestInFlight = true;
+        requestNumber += 1;
 
         activeController = new AbortController();
         const currentController = activeController;
@@ -1222,25 +1290,41 @@
         } finally {
             if (activeController === currentController) {
                 activeController = null;
+                requestInFlight = false;
             }
         }
     }
 
-    function startPolling() {
-        if (intervalId !== null) {
-            window.clearInterval(intervalId);
+    function clearPollTimer() {
+        if (pollTimerId !== null) {
+            window.clearTimeout(pollTimerId);
+            pollTimerId = null;
         }
+    }
 
-        fetchLiveStats();
+    async function pollOnce() {
+        clearPollTimer();
 
-        intervalId = window.setInterval(function () {
-            fetchLiveStats();
-        }, pollMs);
+        await fetchLiveStats(false);
+
+        if (!stopped) {
+            pollTimerId = window.setTimeout(pollOnce, pollMs);
+        }
+    }
+
+    function startPolling() {
+        clearPollTimer();
+        pollOnce();
     }
 
     if (refreshButton) {
-        refreshButton.addEventListener('click', function () {
-            fetchLiveStats();
+        refreshButton.addEventListener('click', async function () {
+            clearPollTimer();
+            await fetchLiveStats(true);
+
+            if (!stopped) {
+                pollTimerId = window.setTimeout(pollOnce, pollMs);
+            }
         });
     }
 
@@ -1263,22 +1347,22 @@
 
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden) {
-            fetchLiveStats();
+            clearPollTimer();
+            pollOnce();
         }
     });
 
     window.addEventListener('beforeunload', function () {
         stopped = true;
 
-        if (intervalId !== null) {
-            window.clearInterval(intervalId);
-        }
+        clearPollTimer();
 
         if (activeController) {
             activeController.abort();
         }
     });
 
+    restoreSession();
     startPolling();
 })();
 </script>
