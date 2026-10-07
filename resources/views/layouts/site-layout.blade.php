@@ -39,6 +39,8 @@
         $hasImagesUpload = \Illuminate\Support\Facades\Route::has('images.upload');
         $hasAiChat = \Illuminate\Support\Facades\Route::has('ai.chat');
         $hasTikTokCounter = \Illuminate\Support\Facades\Route::has('tiktok-counter.index');
+        $hasTikTokFollowerCounter = \Illuminate\Support\Facades\Route::has('tiktok-follower-counter.index');
+        $hasLiveCounts = \Illuminate\Support\Facades\Route::has('live-counts.index');
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
@@ -6595,16 +6597,16 @@
                         <span>Studio</span>
                     </a>
 
-                    @if ($hasTikTokCounter)
+                    @if ($hasLiveCounts)
                         <a
-                            class="expert-nav-link {{ request()->routeIs('tiktok-counter.*') ? 'active' : '' }}"
-                            href="{{ route('tiktok-counter.index') }}"
+                            class="expert-nav-link {{ request()->routeIs('live-counts.*') || request()->routeIs('tiktok-counter.*') || request()->routeIs('tiktok-follower-counter.*') ? 'active' : '' }}"
+                            href="{{ route('live-counts.index') }}"
                         >
                             <span class="expert-nav-link-icon" aria-hidden="true">
                                 ◉
                             </span>
 
-                            <span>Live Count</span>
+                            <span>Live Counts</span>
                         </a>
                     @endif
 
@@ -6952,16 +6954,46 @@
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
 
+                    @if ($hasLiveCounts)
+                        <a
+                            class="expert-command-item"
+                            href="{{ route('live-counts.index') }}"
+                            data-command-search="live counts tiktok followers views likes comments shares statistieken"
+                        >
+                            <span class="expert-command-item-icon">◉</span>
+                            <span>
+                                <strong>Live Counts</strong>
+                                <small>Kies followers of video views</small>
+                            </span>
+                            <span class="expert-command-item-arrow">↗</span>
+                        </a>
+                    @endif
+
+                    @if ($hasTikTokFollowerCounter)
+                        <a
+                            class="expert-command-item"
+                            href="{{ route('tiktok-follower-counter.index') }}"
+                            data-command-search="tiktok live followers follower count likes following videos"
+                        >
+                            <span class="expert-command-item-icon">◎</span>
+                            <span>
+                                <strong>TikTok Live Followers</strong>
+                                <small>Volg followers, likes en profielstats</small>
+                            </span>
+                            <span class="expert-command-item-arrow">↗</span>
+                        </a>
+                    @endif
+
                     @if ($hasTikTokCounter)
                         <a
                             class="expert-command-item"
                             href="{{ route('tiktok-counter.index') }}"
-                            data-command-search="live count tiktok views likes comments shares statistieken"
+                            data-command-search="tiktok video live views likes comments shares"
                         >
                             <span class="expert-command-item-icon">◉</span>
                             <span>
-                                <strong>Live Count</strong>
-                                <small>Volg TikTok-statistieken live</small>
+                                <strong>TikTok Video Views</strong>
+                                <small>Volg views, likes, comments en shares</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7164,15 +7196,15 @@
                 <span>→</span>
             </a>
 
-            @if ($hasTikTokCounter)
+            @if ($hasLiveCounts)
                 <a
-                    class="expert-mobile-link {{ request()->routeIs('tiktok-counter.*') ? 'active' : '' }}"
-                    href="{{ route('tiktok-counter.index') }}"
+                    class="expert-mobile-link {{ request()->routeIs('live-counts.*') || request()->routeIs('tiktok-counter.*') || request()->routeIs('tiktok-follower-counter.*') ? 'active' : '' }}"
+                    href="{{ route('live-counts.index') }}"
                 >
                     <span class="expert-mobile-link-icon">◉</span>
                     <span>
-                        <strong>Live Count</strong>
-                        <small>TikTok views en statistieken live</small>
+                        <strong>Live Counts</strong>
+                        <small>Kies TikTok followers of video views</small>
                     </span>
                     <span>→</span>
                 </a>
@@ -7476,9 +7508,21 @@
                             Home
                         </a>
 
+                        @if ($hasLiveCounts)
+                            <a href="{{ route('live-counts.index') }}">
+                                Live Counts
+                            </a>
+                        @endif
+
+                        @if ($hasTikTokFollowerCounter)
+                            <a href="{{ route('tiktok-follower-counter.index') }}">
+                                TikTok Live Followers
+                            </a>
+                        @endif
+
                         @if ($hasTikTokCounter)
                             <a href="{{ route('tiktok-counter.index') }}">
-                                Live Count
+                                TikTok Video Views
                             </a>
                         @endif
 
