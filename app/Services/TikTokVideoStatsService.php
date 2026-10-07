@@ -255,10 +255,43 @@ class TikTokVideoStatsService
             throw new RuntimeException('Livecounts gaf geen geldige JSON terug.');
         }
 
-        $views = $this->toInt($data['views'] ?? null);
-        $likes = $this->toInt($data['likes'] ?? null);
-        $comments = $this->toInt($data['comments'] ?? null);
-        $shares = $this->toInt($data['shares'] ?? null);
+        /*
+         * Livecounts has used more than one public response shape over time.
+         * Older public wrappers use viewCount/likeCount/commentCount/shareCount;
+         * newer responses have also been observed as views/likes/comments/shares.
+         * Accept both, plus a few harmless nesting variants.
+         */
+        $counterData = $data;
+        foreach (['data', 'stats', 'video'] as $container) {
+            if (isset($data[$container]) && is_array($data[$container])) {
+                $counterData = array_merge($counterData, $data[$container]);
+            }
+        }
+
+        $views = $this->toInt(
+            $counterData['views']
+            ?? $counterData['viewCount']
+            ?? $counterData['view_count']
+            ?? null
+        );
+        $likes = $this->toInt(
+            $counterData['likes']
+            ?? $counterData['likeCount']
+            ?? $counterData['like_count']
+            ?? null
+        );
+        $comments = $this->toInt(
+            $counterData['comments']
+            ?? $counterData['commentCount']
+            ?? $counterData['comment_count']
+            ?? null
+        );
+        $shares = $this->toInt(
+            $counterData['shares']
+            ?? $counterData['shareCount']
+            ?? $counterData['share_count']
+            ?? null
+        );
 
         if (
             $views === null
@@ -267,8 +300,58 @@ class TikTokVideoStatsService
             && $shares === null
         ) {
             throw new RuntimeException(
-                'Livecounts-response bevat geen bruikbare counters.'
+                'Livecounts-response bevat geen bruikbare counters. Keys: '
+                .implode(',', array_slice(array_keys($data), 0, 25))
             );
+        }
+
+        /*
+         * The older public wrapper also uses /video/data/{id} for metadata.
+         * Metadata is optional; counter delivery must still succeed if it fails.
+         */
+        $authorName = null;
+        $title = null;
+        $thumbnailUrl = null;
+
+        try {
+            $metaResponse = Http::withHeaders([
+                'Accept' => 'application/json,text/plain,*/*',
+                'Origin' => 'https://livecounts.io',
+                'Referer' => 'https://livecounts.io/',
+                'User-Agent' =>
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                    .'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    .'Chrome/141.0.0.0 Safari/537.36',
+                'Cache-Control' => 'no-cache, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+            ])
+                ->connectTimeout(4)
+                ->timeout(7)
+                ->get(
+                    'https://tiktok.livecounts.io/video/data/'
+                    .rawurlencode($videoId)
+                );
+
+            if ($metaResponse->successful()) {
+                $meta = $metaResponse->json();
+
+                if (is_array($meta)) {
+                    $title = $meta['title'] ?? $meta['desc'] ?? null;
+                    $thumbnailUrl = $meta['cover'] ?? $meta['thumbnail'] ?? null;
+
+                    $author = $meta['author'] ?? null;
+                    if (is_array($author)) {
+                        $authorName = $author['id']
+                            ?? $author['username']
+                            ?? $author['uniqueId']
+                            ?? null;
+                    } elseif (is_string($author)) {
+                        $authorName = $author;
+                    }
+                }
+            }
+        } catch (Throwable $ignored) {
+            // Metadata is optional; stats remain usable.
         }
 
         return [
@@ -276,15 +359,20 @@ class TikTokVideoStatsService
             'likes' => $likes,
             'comments' => $comments,
             'shares' => $shares,
-            'author_name' => null,
-            'title' => null,
-            'thumbnail_url' => null,
+            'author_name' => $authorName,
+            'title' => $title,
+            'thumbnail_url' => $thumbnailUrl,
             'source' => 'livecounts-public-endpoint',
             'precision' => 'raw_integer',
             '_debug' => [
                 'provider' => 'livecounts',
                 'http_status' => $response->status(),
                 'endpoint' => 'tiktok.livecounts.io/video/stats/{videoId}',
+                'response_keys' => array_slice(array_keys($data), 0, 25),
+                'shape' => [
+                    'new_style' => isset($counterData['views']) || isset($counterData['likes']),
+                    'legacy_style' => isset($counterData['viewCount']) || isset($counterData['likeCount']),
+                ],
             ],
         ];
     }
