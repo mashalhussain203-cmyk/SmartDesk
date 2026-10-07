@@ -177,9 +177,22 @@ class TikTokVideoStatsService
         $errors = [];
 
         /*
-         * Provider 1: Livecounts public TikTok video stats endpoint.
-         * This is intentionally a normal public HTTP request. We do not
-         * reproduce or bypass any private/challenge authentication scheme.
+         * Provider 1: read the normal public Livecounts counter webpage itself.
+         * This keeps us on the same public page a visitor can open in a browser.
+         */
+        try {
+            $livecountsPage = $this->fetchViaLivecountsPage($videoId);
+
+            if ($livecountsPage !== null) {
+                return $livecountsPage;
+            }
+        } catch (Throwable $e) {
+            $errors[] = 'livecounts-page: '.$e->getMessage();
+        }
+
+        /*
+         * Provider 2: normal request to Livecounts' public stats endpoint.
+         * No challenge/auth bypass is attempted here.
          */
         try {
             $livecounts = $this->fetchViaLivecounts($videoId);
@@ -188,11 +201,11 @@ class TikTokVideoStatsService
                 return $livecounts;
             }
         } catch (Throwable $e) {
-            $errors[] = 'livecounts: '.$e->getMessage();
+            $errors[] = 'livecounts-endpoint: '.$e->getMessage();
         }
 
         /*
-         * Provider 2: our existing TikTok / yt-dlp / public HTML extractor.
+         * Provider 3: our existing TikTok / yt-dlp / public HTML extractor.
          */
         try {
             $result = $this->fetchViaBrowserImpersonation(
@@ -215,6 +228,180 @@ class TikTokVideoStatsService
                 'provider_errors' => $errors,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
+    }
+
+    private function fetchViaLivecountsPage(string $videoId): ?array
+    {
+        $url = 'https://livecounts.io/tiktok-live-view-counter/'
+            .rawurlencode($videoId);
+
+        $response = Http::withHeaders([
+            'Accept' =>
+                'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language' => 'en-US,en;q=0.9,nl;q=0.7',
+            'User-Agent' =>
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                .'AppleWebKit/537.36 (KHTML, like Gecko) '
+                .'Chrome/141.0.0.0 Safari/537.36',
+            'Cache-Control' => 'no-cache, no-store, max-age=0',
+            'Pragma' => 'no-cache',
+        ])
+            ->connectTimeout(6)
+            ->timeout(12)
+            ->retry(1, 300, throw: false)
+            ->get($url, [
+                '_mashal_live' => $this->nowMs(),
+            ]);
+
+        if (!$response->successful()) {
+            throw new RuntimeException(
+                'Livecounts pagina HTTP '.$response->status()
+            );
+        }
+
+        $html = (string) $response->body();
+
+        if (trim($html) === '') {
+            throw new RuntimeException('Livecounts pagina was leeg.');
+        }
+
+        /*
+         * Next/React may serialize page data with normal quotes, escaped quotes
+         * or HTML entities. Normalize those representations before scanning.
+         */
+        $searchable = html_entity_decode(
+            $html,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+        $searchable = str_replace(
+            ['\\\"', '\\"', '\\u0022', '\u0022'],
+            '"',
+            $searchable
+        );
+
+        $views = $this->extractLivecountsCounter(
+            $searchable,
+            ['viewCount', 'views', 'view_count']
+        );
+        $likes = $this->extractLivecountsCounter(
+            $searchable,
+            ['likeCount', 'likes', 'like_count']
+        );
+        $comments = $this->extractLivecountsCounter(
+            $searchable,
+            ['commentCount', 'comments', 'comment_count']
+        );
+        $shares = $this->extractLivecountsCounter(
+            $searchable,
+            ['shareCount', 'shares', 'share_count']
+        );
+
+        /*
+         * Some Livecounts rendering code maps the four TikTok values into
+         * followerCount + bottomOdos [likes, comments, shares].
+         */
+        if ($views === null) {
+            $views = $this->extractLivecountsCounter(
+                $searchable,
+                ['followerCount']
+            );
+        }
+
+        if (
+            ($likes === null || $comments === null || $shares === null)
+            && preg_match(
+                '/["\']bottomOdos["\']\s*:\s*\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]/i',
+                $searchable,
+                $bottom
+            )
+        ) {
+            $likes ??= (int) $bottom[1];
+            $comments ??= (int) $bottom[2];
+            $shares ??= (int) $bottom[3];
+        }
+
+        if (
+            $views === null
+            && $likes === null
+            && $comments === null
+            && $shares === null
+        ) {
+            throw new RuntimeException(
+                'Livecounts pagina bevatte geen server-rendered counters.'
+            );
+        }
+
+        $title = null;
+        $thumbnailUrl = null;
+
+        if (preg_match(
+            '/<meta\s+property=["\']og:title["\']\s+content=["\']([^"\']+)["\']/i',
+            $html,
+            $match
+        )) {
+            $title = html_entity_decode(
+                $match[1],
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+        }
+
+        if (preg_match(
+            '/<meta\s+property=["\']og:image["\']\s+content=["\']([^"\']+)["\']/i',
+            $html,
+            $match
+        )) {
+            $thumbnailUrl = html_entity_decode(
+                $match[1],
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+        }
+
+        return [
+            'views' => $views,
+            'likes' => $likes,
+            'comments' => $comments,
+            'shares' => $shares,
+            'author_name' => null,
+            'title' => $title,
+            'thumbnail_url' => $thumbnailUrl,
+            'source' => 'livecounts-public-page',
+            'precision' => 'raw_integer',
+            '_debug' => [
+                'provider' => 'livecounts-page',
+                'http_status' => $response->status(),
+                'endpoint' => 'livecounts.io/tiktok-live-view-counter/{videoId}',
+                'html_length' => strlen($html),
+                'found' => [
+                    'views' => $views !== null,
+                    'likes' => $likes !== null,
+                    'comments' => $comments !== null,
+                    'shares' => $shares !== null,
+                ],
+            ],
+        ];
+    }
+
+    private function extractLivecountsCounter(
+        string $text,
+        array $keys
+    ): ?int {
+        foreach ($keys as $key) {
+            $quoted = preg_quote($key, '/');
+
+            foreach ([
+                '/["\']'.$quoted.'["\']\s*:\s*["\']?(\d{1,20})["\']?/i',
+                '/\\?["\']'.$quoted.'\\?["\']\s*:\s*\\?["\']?(\d{1,20})/i',
+            ] as $pattern) {
+                if (preg_match($pattern, $text, $match)) {
+                    return (int) $match[1];
+                }
+            }
+        }
+
+        return null;
     }
 
     private function fetchViaLivecounts(string $videoId): ?array
