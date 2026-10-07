@@ -1250,6 +1250,56 @@
         }
     }
 
+
+    /* Force the real local image icons to be unmistakably visible. */
+    .ttc-stat-badge {
+        width: 54px !important;
+        height: 54px !important;
+        flex: 0 0 54px !important;
+        border-radius: 16px !important;
+        display: grid !important;
+        place-items: center !important;
+        overflow: visible !important;
+        color: transparent !important;
+        font-size: 0 !important;
+        background: linear-gradient(145deg, rgba(169,149,255,.13), rgba(112,91,235,.06)) !important;
+        border: 1px solid rgba(169,149,255,.24) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.04),
+            0 8px 28px rgba(88,68,190,.12) !important;
+    }
+
+    .ttc-stat-badge img {
+        display: block !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: none !important;
+        max-height: none !important;
+        object-fit: contain !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: static !important;
+        transform: none !important;
+        filter: drop-shadow(0 0 8px rgba(169,149,255,.22));
+    }
+
+    @media (max-width: 640px) {
+        .ttc-stat-badge {
+            width: 50px !important;
+            height: 50px !important;
+            flex-basis: 50px !important;
+        }
+
+        .ttc-stat-badge img {
+            width: 29px !important;
+            height: 29px !important;
+            min-width: 29px !important;
+            min-height: 29px !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1304,7 +1354,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-icons-odometer-v2"
+                data-ui-build="20261007-icons-odometer-v3"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1334,7 +1384,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Views</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-eye.svg?v=20261007-2" alt="">
+                                    <img src="/icons/live-eye.svg?v=20261007-3" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
@@ -1344,7 +1394,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Likes</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-heart.svg?v=20261007-2" alt="">
+                                    <img src="/icons/live-heart.svg?v=20261007-3" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
@@ -1354,7 +1404,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-comment.svg?v=20261007-2" alt="">
+                                    <img src="/icons/live-comment.svg?v=20261007-3" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
@@ -1364,7 +1414,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Shares</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-share.svg?v=20261007-2" alt="">
+                                    <img src="/icons/live-share.svg?v=20261007-3" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
