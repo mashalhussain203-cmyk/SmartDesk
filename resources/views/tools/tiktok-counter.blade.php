@@ -1117,8 +1117,10 @@
 
         if (data.stale_fallback) {
             setStatus(data.last_error ? 'Oude snapshot - ' + data.last_error : 'Oude snapshot - TikTok live refresh mislukt', false);
+        } else if (data.precision === 'raw_integer') {
+            setStatus('Exacte TikTok-counters via ' + (data.source || 'raw source') + ' - elke 4 sec', true);
         } else if (available === 4) {
-            setStatus(data.source ? 'Live via ' + data.source + ' - elke 4 sec' : 'Live Count actief - elke 4 sec', true);
+            setStatus('TikTok geeft hier afgeronde publieke cijfers - elke 4 sec opnieuw gecontroleerd', false);
         } else {
             setStatus('Live Count actief - ' + available + '/4 beschikbaar', available > 0);
         }
