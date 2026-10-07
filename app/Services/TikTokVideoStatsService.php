@@ -177,8 +177,23 @@ class TikTokVideoStatsService
         $errors = [];
 
         /*
-         * Provider 1: read the normal public Livecounts counter webpage itself.
-         * This keeps us on the same public page a visitor can open in a browser.
+         * Provider 1: render the normal public Livecounts counter webpage in
+         * Chromium, wait for its JavaScript counters, then read the visible
+         * Views/Likes/Comments/Shares values from the rendered DOM.
+         */
+        try {
+            $livecountsRendered = $this->fetchViaLivecountsRenderedPage($videoId);
+
+            if ($livecountsRendered !== null) {
+                return $livecountsRendered;
+            }
+        } catch (Throwable $e) {
+            $errors[] = 'livecounts-rendered-page: '.$e->getMessage();
+        }
+
+        /*
+         * Provider 2: static HTML fallback for Livecounts. This may only contain
+         * placeholders, but it is cheap and harmless to try.
          */
         try {
             $livecountsPage = $this->fetchViaLivecountsPage($videoId);
@@ -191,7 +206,7 @@ class TikTokVideoStatsService
         }
 
         /*
-         * Provider 2: normal request to Livecounts' public stats endpoint.
+         * Provider 3: normal request to Livecounts' public stats endpoint.
          * No challenge/auth bypass is attempted here.
          */
         try {
@@ -205,7 +220,7 @@ class TikTokVideoStatsService
         }
 
         /*
-         * Provider 3: our existing TikTok / yt-dlp / public HTML extractor.
+         * Provider 4: our existing TikTok / yt-dlp / public HTML extractor.
          */
         try {
             $result = $this->fetchViaBrowserImpersonation(
@@ -228,6 +243,102 @@ class TikTokVideoStatsService
                 'provider_errors' => $errors,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
+    }
+
+    private function fetchViaLivecountsRenderedPage(string $videoId): ?array
+    {
+        $script = base_path('scripts/livecounts_browser_fetch.py');
+
+        if (!is_file($script)) {
+            throw new RuntimeException(
+                'scripts/livecounts_browser_fetch.py ontbreekt.'
+            );
+        }
+
+        $projectPython = base_path('.venv/bin/python');
+        $python = (string) env(
+            'TIKTOK_PYTHON',
+            is_file($projectPython)
+                ? $projectPython
+                : '/opt/tiktok-venv/bin/python'
+        );
+
+        if (!is_file($python) && $python !== 'python3') {
+            $python = 'python3';
+        }
+
+        $process = new Process([
+            $python,
+            $script,
+            $videoId,
+        ]);
+        $process->setTimeout(24);
+        $process->setIdleTimeout(20);
+
+        $process->run();
+
+        $stdout = trim($process->getOutput());
+        $stderr = trim($process->getErrorOutput());
+        $payload = json_decode($stdout, true);
+
+        if (!$process->isSuccessful()) {
+            $message = is_array($payload)
+                ? (string) ($payload['message'] ?? 'Livecounts browser helper faalde.')
+                : 'Livecounts browser helper faalde.';
+
+            throw new RuntimeException(
+                $message
+                .' exit='.(string) $process->getExitCode()
+                .' stderr='.mb_substr($stderr, 0, 1200)
+            );
+        }
+
+        if (!is_array($payload) || ($payload['success'] ?? false) !== true) {
+            throw new RuntimeException(
+                is_array($payload)
+                    ? (string) ($payload['message'] ?? 'Livecounts browser helper gaf success=false.')
+                    : 'Livecounts browser helper gaf geen geldige JSON terug.'
+            );
+        }
+
+        $stats = $payload['stats'] ?? null;
+
+        if (!is_array($stats)) {
+            throw new RuntimeException(
+                'Livecounts browser helper bevatte geen stats.'
+            );
+        }
+
+        $views = $this->toInt($stats['views'] ?? null);
+        $likes = $this->toInt($stats['likes'] ?? null);
+        $comments = $this->toInt($stats['comments'] ?? null);
+        $shares = $this->toInt($stats['shares'] ?? null);
+
+        if (
+            $views === null
+            && $likes === null
+            && $comments === null
+            && $shares === null
+        ) {
+            throw new RuntimeException(
+                'Livecounts gerenderde pagina bevatte geen counters.'
+            );
+        }
+
+        return [
+            'views' => $views,
+            'likes' => $likes,
+            'comments' => $comments,
+            'shares' => $shares,
+            'author_name' => null,
+            'title' => $payload['title'] ?? null,
+            'thumbnail_url' => null,
+            'source' => 'livecounts-rendered-page',
+            'precision' => 'raw_integer',
+            '_debug' => $payload['debug'] ?? [
+                'provider' => 'livecounts-rendered-page',
+            ],
+        ];
     }
 
     private function fetchViaLivecountsPage(string $videoId): ?array
