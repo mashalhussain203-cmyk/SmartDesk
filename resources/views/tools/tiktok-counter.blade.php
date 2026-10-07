@@ -1125,6 +1125,7 @@
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
+                data-livecounts-endpoint="{{ route('tiktok-counter.livecounts-cards', ['videoId' => $videoId]) }}"
                 data-supplemental-endpoint="{{ route('tiktok-counter.supplemental', ['videoId' => $videoId]) }}"
             >
                 <aside class="ttc-card ttc-preview">
@@ -1166,27 +1167,42 @@
                         <a class="ttc-live-tool" href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer">♪ Visit TikTok</a>
                     </div>
 
-                    <div class="ttc-direct-livecounts">
-                        <iframe
-                            id="ttc-livecounts-embed"
-                            src="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
-                            title="Livecounts TikTok live view counter"
-                            loading="eager"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allow="clipboard-read; clipboard-write"
-                        ></iframe>
-                    </div>
+                    <div class="ttc-stats" id="ttc-livecounts-cards">
+                        <div class="ttc-stat">
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Views</div>
+                                <div class="ttc-stat-badge">◉</div>
+                            </div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
+                        </div>
 
-                    <div class="ttc-direct-note">
-                        <span><strong>DIRECT</strong> · Deze teller draait rechtstreeks vanaf Livecounts.io. Mashal kopieert of schat de cijfers niet.</span>
-                        <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
-                    </div>
+                        <div class="ttc-stat">
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Likes</div>
+                                <div class="ttc-stat-badge">♥</div>
+                            </div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
+                        </div>
 
-                    <div class="ttc-livecounts-fields" aria-label="Livecounts velden">
-                        <span class="ttc-livecounts-field">✓ Views</span>
-                        <span class="ttc-livecounts-field">✓ Likes</span>
-                        <span class="ttc-livecounts-field">✓ Comments</span>
-                        <span class="ttc-livecounts-field">✓ Shares</span>
+                        <div class="ttc-stat">
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Comments</div>
+                                <div class="ttc-stat-badge">●</div>
+                            </div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
+                        </div>
+
+                        <div class="ttc-stat">
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">Shares</div>
+                                <div class="ttc-stat-badge">↗</div>
+                            </div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
+                        </div>
                     </div>
 
                     <div class="ttc-supplemental">
@@ -1200,6 +1216,11 @@
                             </div>
                             <div class="ttc-supplemental-icon">★</div>
                         </div>
+                    </div>
+
+                    <div class="ttc-direct-note">
+                        <span><strong>LIVECOUNTS</strong> · Views, Likes, Comments en Shares komen uit de gerenderde officiële Livecounts-teller.</span>
+                        <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
                     </div>
 
                     <div class="ttc-actions">
@@ -1246,7 +1267,14 @@
     var statusText = document.getElementById('ttc-status-text');
     var statusDot = document.getElementById('ttc-status-dot');
     var updatedElement = document.getElementById('ttc-updated');
-    var embed = document.getElementById('ttc-livecounts-embed');
+    var livecountsEndpoint = root.getAttribute('data-livecounts-endpoint') || '';
+    var livecountsElements = {
+        views: document.querySelector('[data-livecounts-stat="views"]'),
+        likes: document.querySelector('[data-livecounts-stat="likes"]'),
+        comments: document.querySelector('[data-livecounts-stat="comments"]'),
+        shares: document.querySelector('[data-livecounts-stat="shares"]')
+    };
+    var livecountsTimer = null;
     var changeUserButton = document.getElementById('ttc-change-user');
     var shareButton = document.getElementById('ttc-share');
     var copyButton = document.getElementById('ttc-copy');
@@ -1255,6 +1283,111 @@
     var favoritesValue = document.getElementById('ttc-favorites-value');
     var favoritesSource = document.getElementById('ttc-favorites-source');
     var favoritesTimer = null;
+
+    function formatCount(value) {
+        var number = Number(value);
+        if (!isFinite(number)) {
+            return '—';
+        }
+        try {
+            return number.toLocaleString('nl-NL');
+        } catch (error) {
+            return String(number);
+        }
+    }
+
+    function scheduleLivecounts() {
+        if (livecountsTimer !== null) {
+            window.clearTimeout(livecountsTimer);
+        }
+        livecountsTimer = window.setTimeout(loadLivecountsCards, 15000);
+    }
+
+    function loadLivecountsCards() {
+        var xhr;
+
+        if (!livecountsEndpoint) {
+            return;
+        }
+
+        xhr = new XMLHttpRequest();
+        xhr.open(
+            'GET',
+            livecountsEndpoint
+                + (livecountsEndpoint.indexOf('?') === -1 ? '?' : '&')
+                + '_=' + encodeURIComponent(String(new Date().getTime())),
+            true
+        );
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+        xhr.timeout = 30000;
+
+        xhr.onreadystatechange = function () {
+            var data;
+            var stats;
+            var keys = ['views', 'likes', 'comments', 'shares'];
+            var i;
+            var key;
+            var element;
+
+            if (xhr.readyState !== 4) {
+                return;
+            }
+
+            if (xhr.status < 200 || xhr.status >= 300) {
+                setStatus('Livecounts-data kon niet worden opgehaald', false);
+                scheduleLivecounts();
+                return;
+            }
+
+            try {
+                data = JSON.parse(xhr.responseText || '{}');
+            } catch (error) {
+                setStatus('Ongeldige Livecounts-response', false);
+                scheduleLivecounts();
+                return;
+            }
+
+            if (!data || data.success === false || !data.stats) {
+                setStatus(data && data.message ? data.message : 'Livecounts gaf geen stats terug', false);
+                scheduleLivecounts();
+                return;
+            }
+
+            stats = data.stats;
+
+            for (i = 0; i < keys.length; i += 1) {
+                key = keys[i];
+                element = livecountsElements[key];
+                if (!element) {
+                    continue;
+                }
+                element.textContent = formatCount(stats[key]);
+                if (element.classList) {
+                    element.classList.remove('ttc-loading');
+                }
+            }
+
+            setStatus('Livecounts actief · Views, Likes, Comments en Shares', true);
+            if (updatedElement) {
+                updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL');
+            }
+
+            scheduleLivecounts();
+        };
+
+        xhr.onerror = function () {
+            setStatus('Netwerkfout bij Livecounts', false);
+            scheduleLivecounts();
+        };
+
+        xhr.ontimeout = function () {
+            setStatus('Livecounts ophalen duurde te lang', false);
+            scheduleLivecounts();
+        };
+
+        xhr.send(null);
+    }
 
     function loadFavorites() {
         var requestUrl;
@@ -1390,21 +1523,6 @@
         }
     }
 
-    if (embed) {
-        embed.addEventListener('load', function () {
-            setStatus('Livecounts direct embed actief', true);
-            if (updatedElement) {
-                updatedElement.textContent = 'Live · rechtstreeks via Livecounts.io';
-            }
-        });
-
-        window.setTimeout(function () {
-            if (statusText && statusText.textContent.indexOf('laden') !== -1) {
-                setStatus('Livecounts embed geladen; teller initialiseert…', true);
-            }
-        }, 5000);
-    }
-
     if (changeUserButton) {
         changeUserButton.onclick = function () {
             var input = document.querySelector('.ttc-search input[name="url"]');
@@ -1439,9 +1557,13 @@
         };
     }
 
+    loadLivecountsCards();
     loadFavorites();
 
     window.addEventListener('beforeunload', function () {
+        if (livecountsTimer !== null) {
+            window.clearTimeout(livecountsTimer);
+        }
         if (favoritesTimer !== null) {
             window.clearTimeout(favoritesTimer);
         }
