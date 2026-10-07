@@ -648,170 +648,147 @@
             grid-template-columns: 1fr;
         }
     }
-    .ttc-result.ttc-embed-mode {
-        display: block;
+
+
+    /* Photo-2 dashboard styling */
+    .ttc-result {
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 20px;
     }
 
-    .ttc-result.ttc-embed-mode > .ttc-preview,
-    .ttc-result.ttc-embed-mode > .ttc-dashboard {
-        display: none;
+    .ttc-preview {
+        padding: 14px;
+        border-radius: 24px;
     }
 
-    .ttc-embed-dashboard {
-        overflow: hidden;
-        border: 1px solid var(--line);
-        border-radius: 20px;
-        background:
-            linear-gradient(180deg, rgba(17,20,27,.92), rgba(9,11,15,.96));
-        box-shadow:
-            0 26px 70px rgba(0,0,0,.28),
-            inset 0 1px 0 rgba(255,255,255,.025);
+    .ttc-thumb {
+        min-height: 560px;
+        border-radius: 18px;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.035);
     }
 
-    .ttc-embed-dashboard-head {
-        min-height: 58px;
-        padding: 0 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(255,255,255,.018);
+    .ttc-dashboard {
+        padding: 20px;
+        border-radius: 24px;
     }
 
-    .ttc-embed-dashboard-title {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        color: #e8ebef;
+    .ttc-dashboard-head {
+        min-height: 28px;
+        margin-bottom: 18px;
+    }
+
+    .ttc-status {
+        color: #9ca6b5;
         font-size: 11px;
-        font-weight: 800;
     }
 
-    .ttc-embed-dashboard-title i {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 13px rgba(110,231,168,.65);
-    }
-
-    .ttc-embed-dashboard-meta {
-        color: #626c79;
-        font-size: 9px;
-    }
-
-    .ttc-embed-stage {
-        position: relative;
-        min-height: 720px;
-        overflow: hidden;
-        background: #07090d;
-    }
-
-    .ttc-embed-stage iframe {
-        width: 100%;
-        height: 720px;
-        display: block;
-        border: 0;
-        background: #fff;
-        filter: invert(1) hue-rotate(180deg) contrast(.94) brightness(.88);
-    }
-
-    .ttc-embed-actions {
-        padding: 12px;
-        display: grid;
+    .ttc-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        border-top: 1px solid var(--line);
+        gap: 14px;
     }
 
-    .ttc-livecounts-embed {
-        display: none;
-        margin-top: 18px;
-        overflow: hidden;
-        border: 1px solid var(--line);
-        border-radius: 20px;
-        background: #080a0f;
-        box-shadow:
-            0 26px 70px rgba(0,0,0,.22),
-            inset 0 1px 0 rgba(255,255,255,.025);
+    .ttc-stat {
+        min-height: 170px;
+        padding: 22px;
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 92% 10%, rgba(123,112,255,.13), transparent 35%),
+            linear-gradient(145deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
     }
 
-    .ttc-livecounts-head {
-        min-height: 52px;
-        padding: 0 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(255,255,255,.018);
-    }
-
-    .ttc-livecounts-title {
-        color: #dfe3e9;
+    .ttc-stat-label {
         font-size: 11px;
-        font-weight: 800;
+        letter-spacing: .12em;
     }
 
-    .ttc-livecounts-note {
-        color: #677180;
-        font-size: 9px;
+    .ttc-stat-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 15px;
+        color: #9b91ff;
+        background: rgba(123,112,255,.08);
     }
 
-    .ttc-livecounts-frame-wrap {
-        position: relative;
-        width: 100%;
-        min-height: 780px;
-        background: #07090d;
+    .ttc-stat-value {
+        margin-top: 18px;
+        font-size: clamp(42px, 5vw, 64px);
+        line-height: .92;
+        font-weight: 760;
+        letter-spacing: -.055em;
     }
 
-    .ttc-livecounts-frame {
-        width: 100%;
-        height: 780px;
-        display: block;
-        border: 0;
-        background: #07090d;
+    .ttc-stat-delta {
+        margin-top: 14px;
+        font-size: 11px;
+        color: #69e6a5;
     }
 
-    .ttc-livecounts-fallback {
-        padding: 11px 16px 14px;
-        color: #687282;
-        font-size: 10px;
-        border-top: 1px solid var(--line);
+    .ttc-chart-wrap {
+        margin-top: 16px;
+        padding: 18px;
+        border-radius: 18px;
+        min-height: 230px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.008));
     }
 
-    .ttc-livecounts-fallback a {
-        color: #9d96ff;
-        text-decoration: none;
-        font-weight: 800;
+    .ttc-chart {
+        height: 170px;
+    }
+
+    .ttc-chart-title {
+        font-size: 13px;
+    }
+
+    .ttc-actions {
+        margin-top: 16px;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 12px;
+    }
+
+    #ttc-refresh {
+        display: none !important;
+    }
+
+    .ttc-action {
+        min-height: 52px;
+        border-radius: 13px;
+        font-size: 11px;
+    }
+
+    @media (max-width: 980px) {
+        .ttc-result {
+            grid-template-columns: 1fr;
+        }
+
+        .ttc-preview {
+            display: grid;
+            grid-template-columns: 240px minmax(0,1fr);
+            gap: 18px;
+        }
+
+        .ttc-thumb {
+            min-height: 360px;
+        }
     }
 
     @media (max-width: 640px) {
-        .ttc-livecounts-frame-wrap,
-        .ttc-livecounts-frame {
-            min-height: 900px;
-            height: 900px;
+        .ttc-preview {
+            display: block;
         }
 
-        .ttc-embed-stage,
-        .ttc-embed-stage iframe {
-            min-height: 820px;
-            height: 820px;
+        .ttc-thumb {
+            min-height: 460px;
         }
 
-        .ttc-embed-dashboard-head {
-            align-items: flex-start;
-            flex-direction: column;
-            padding-top: 13px;
-            padding-bottom: 13px;
+        .ttc-stats {
+            grid-template-columns: 1fr;
         }
 
-        .ttc-livecounts-head {
-            align-items: flex-start;
-            flex-direction: column;
-            padding-top: 12px;
-            padding-bottom: 12px;
+        .ttc-stat-value {
+            font-size: 44px;
         }
     }
 
@@ -934,7 +911,7 @@
                         <div class="ttc-stat">
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
-                                <div class="ttc-stat-badge">◌</div>
+                                <div class="ttc-stat-badge">●</div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="comments">—</div>
                             <div class="ttc-stat-delta" data-delta="comments">Sessie gestart</div>
@@ -1000,72 +977,7 @@
                         </a>
                     </div>
                 </div>
-
-                <section class="ttc-embed-dashboard">
-                    <div class="ttc-embed-dashboard-head">
-                        <div class="ttc-embed-dashboard-title">
-                            <i></i>
-                            Live TikTok Counter
-                        </div>
-                        <div class="ttc-embed-dashboard-meta">
-                            Livecounts.io · video {{ $videoId }}
-                        </div>
-                    </div>
-
-                    <div class="ttc-embed-stage">
-                        <iframe
-                            id="ttc-livecounts-frame"
-                            src="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
-                            title="Live TikTok views likes comments shares"
-                            loading="eager"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allow="clipboard-read; clipboard-write"
-                        ></iframe>
-                    </div>
-
-                    <div class="ttc-embed-actions">
-                        <button class="ttc-action" type="button" id="ttc-copy">
-                            ⧉ Link kopiëren
-                        </button>
-                        <a
-                            class="ttc-action"
-                            href="{{ $videoUrl }}"
-                            target="_blank"
-                            rel="noopener"
-                        >
-                            ↗ Open TikTok
-                        </a>
-                    </div>
-                </section>
             </div>
-
-            <section class="ttc-livecounts-embed">
-                <div class="ttc-livecounts-head">
-                    <div class="ttc-livecounts-title">Livecounts.io · Embedded TikTok Live View Counter</div>
-                    <div class="ttc-livecounts-note">Externe live teller voor video {{ $videoId }}</div>
-                </div>
-
-                <div class="ttc-livecounts-frame-wrap">
-                    <iframe
-                        class="ttc-livecounts-frame"
-                        id="ttc-livecounts-frame-legacy"
-                        src="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
-                        title="Livecounts TikTok live view counter"
-                        loading="eager"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allow="clipboard-read; clipboard-write"
-                    ></iframe>
-                </div>
-
-                <div class="ttc-livecounts-fallback">
-                    Als Livecounts embedding in de browser blokkeert,
-                    <a
-                        href="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >open dezelfde teller rechtstreeks op Livecounts.io</a>.
-                </div>
-            </section>
         @else
             <div class="ttc-empty">
                 <div class="ttc-empty-icon">◉</div>
@@ -1139,12 +1051,7 @@
     var copyButton = copyButtons.length ? copyButtons[copyButtons.length - 1] : null;
     var chartLine = document.getElementById('ttc-chart-line');
     var chartArea = document.getElementById('ttc-chart-area');
-    var livecountsFrame = document.getElementById('ttc-livecounts-frame');
-    var embedMode = !!livecountsFrame;
-
-    if (embedMode && root.classList) {
-        root.classList.add('ttc-embed-mode');
-    }
+    var embedMode = false;
 
     var i;
     for (i = 0; i < statKeys.length; i += 1) {
@@ -1493,7 +1400,7 @@
         if (timer !== null) {
             window.clearTimeout(timer);
         }
-        if (!stopped && !embedMode) {
+        if (!stopped) {
             timer = window.setTimeout(loadStats, delay);
         }
     }
@@ -1505,10 +1412,6 @@
 
     function loadStats() {
         var separator;
-
-        if (embedMode) {
-            return;
-        }
         var requestUrl;
 
         if (stopped || !endpoint || request !== null) {
@@ -1573,101 +1476,9 @@
     }
 
     if (refreshButton) {
-        if (embedMode) {
-            refreshButton.style.display = 'none';
-        }
-
-        refreshButton.onclick = function () {
-            if (embedMode) {
-                return;
-            }
-            if (timer !== null) {
-                window.clearTimeout(timer);
-                timer = null;
-            }
-            if (request === null) {
-                loadStats();
-            }
-        };
-    }
-
-    if (copyButton) {
-        copyButton.onclick = function () {
-            var originalText = copyButton.textContent;
-            var input = document.createElement('textarea');
-            input.value = window.location.href;
-            input.setAttribute('readonly', 'readonly');
-            input.style.position = 'fixed';
-            input.style.left = '-9999px';
-            document.body.appendChild(input);
-            input.select();
-            try {
-                document.execCommand('copy');
-                copyButton.textContent = 'Gekopieerd';
-            } catch (error) {
-                copyButton.textContent = 'Kopieren mislukt';
-            }
-            document.body.removeChild(input);
-            window.setTimeout(function () {
-                copyButton.textContent = originalText;
-            }, 1400);
-        };
-    }
-
-    document.addEventListener('visibilitychange', function () {
-        if (!embedMode && !document.hidden && request === null) {
-            if (timer !== null) {
-                window.clearTimeout(timer);
-                timer = null;
-            }
-            loadStats();
-        }
-    });
-
-    window.addEventListener('beforeunload', function () {
-        stopped = true;
-        if (timer !== null) {
-            window.clearTimeout(timer);
-        }
-        if (animationTimer !== null) {
-            window.clearTimeout(animationTimer);
-        }
-        if (request !== null) {
-            try {
-                request.abort();
-            } catch (error) {
-            }
-        }
-    });
-
-    if (embedMode) {
-        stopped = true;
-
-        if (statusText) {
-            statusText.textContent = 'Livecounts embed actief';
-        }
-
-        if (statusDot) {
-            statusDot.style.background = '#6ee7a8';
-            statusDot.style.boxShadow = '0 0 13px rgba(110,231,168,.62)';
-        }
-
-        if (updatedElement) {
-            updatedElement.textContent = 'Externe live teller actief';
-        }
-
-        if (livecountsFrame) {
-            livecountsFrame.addEventListener('load', function () {
-                if (statusText) {
-                    statusText.textContent = 'Livecounts embed geladen';
-                }
-            });
-        }
-    } else {
-        restoreSession();
-        animateEstimatedCounters();
-        loadStats();
-    }
+    restoreSession();
+    animateEstimatedCounters();
+    loadStats();
 }());
 </script>
 @endpush
