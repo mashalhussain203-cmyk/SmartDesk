@@ -932,6 +932,88 @@
         }
     }
 
+
+    /* Final counter sizing: deliberately larger, Live Count-like. */
+    .ttc-stat {
+        min-height: 210px;
+        padding: 26px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ttc-stat-head {
+        margin-bottom: 12px;
+    }
+
+    .ttc-stat-label {
+        font-size: 12px;
+        letter-spacing: .14em;
+    }
+
+    .ttc-stat-value {
+        margin-top: 12px;
+        font-size: clamp(60px, 6.2vw, 82px) !important;
+        line-height: .9;
+        font-weight: 800;
+        letter-spacing: -.075em;
+        white-space: nowrap;
+        overflow: visible;
+    }
+
+    .ttc-odometer {
+        line-height: .9;
+        letter-spacing: -.075em;
+    }
+
+    .ttc-odo-digit {
+        width: .52em;
+        height: 1em;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            #000 10%,
+            #000 90%,
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            #000 10%,
+            #000 90%,
+            transparent 100%
+        );
+    }
+
+    .ttc-odo-separator {
+        width: .20em;
+        opacity: .72;
+        transform: translateY(-.01em);
+    }
+
+    .ttc-odo-reel {
+        transition-timing-function: cubic-bezier(.12,.78,.18,1);
+        backface-visibility: hidden;
+    }
+
+    @media (max-width: 980px) {
+        .ttc-stat-value {
+            font-size: clamp(58px, 8vw, 78px) !important;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .ttc-stat {
+            min-height: 180px;
+            padding: 22px 20px;
+        }
+
+        .ttc-stat-value {
+            font-size: clamp(54px, 15vw, 72px) !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1188,6 +1270,8 @@
         var currentDigit = Number(slot._odoDigit);
         var delta;
         var targetIndex;
+        var duration;
+        var delay;
         var reel = slot._odoReel;
 
         if (!reel || !isFinite(currentIndex)) {
@@ -1209,12 +1293,26 @@
             reel.style.transform = 'translate3d(0,' + (-currentIndex) + 'em,0)';
             reel.offsetHeight;
             reel.style.transition = '';
-            targetIndex = goingUp
-                ? currentIndex + ((newDigit - currentDigit + 10) % 10)
-                : currentIndex - ((currentDigit - newDigit + 10) % 10);
+
+            if (goingUp) {
+                delta = (newDigit - currentDigit + 10) % 10;
+                targetIndex = currentIndex + delta;
+            } else {
+                delta = (currentDigit - newDigit + 10) % 10;
+                targetIndex = currentIndex - delta;
+            }
         }
 
-        reel.style.transitionDelay = String(Math.min(180, order * 24)) + 'ms';
+        if (delta === 0) {
+            slot._odoDigit = newDigit;
+            return;
+        }
+
+        duration = 360 + Math.min(9, delta) * 78;
+        delay = Math.min(110, order * 16);
+
+        reel.style.setProperty('--odo-duration', String(duration) + 'ms');
+        reel.style.transitionDelay = String(delay) + 'ms';
         reel.style.transform = 'translate3d(0,' + (-targetIndex) + 'em,0)';
 
         slot._odoIndex = targetIndex;
@@ -1286,8 +1384,6 @@
         element.setAttribute('aria-label', formatted);
         element.classList.remove('ttc-loading');
         element.classList.remove('ttc-odo-flash');
-        element.offsetHeight;
-        element.classList.add('ttc-odo-flash');
     }
 
     function formatCount(value) {
