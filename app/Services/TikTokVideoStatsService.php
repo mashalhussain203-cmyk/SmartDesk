@@ -212,11 +212,18 @@ class TikTokVideoStatsService
             throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
-        $python = (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
+        $projectPython = base_path('.venv/bin/python');
+        $python = (string) env(
+            'TIKTOK_PYTHON',
+            is_file($projectPython) ? $projectPython : '/opt/tiktok-venv/bin/python'
+        );
+
         if (!is_file($python) && $python !== 'python3') {
             $python = 'python3';
         }
+
         $debug['python'] = $python;
+        $debug['project_venv_exists'] = is_file($projectPython);
 
         $process = new Process([$python, $script, $videoUrl, $videoId]);
         $process->setTimeout(25);
