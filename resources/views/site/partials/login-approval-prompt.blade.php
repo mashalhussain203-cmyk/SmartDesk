@@ -788,7 +788,7 @@
 
 
 
-                window\.setTimeout(
+                window.setTimeout(
 
                     hidePrompt,
 
@@ -818,7 +818,7 @@
 
 
 
-                window\.setTimeout(
+                window.setTimeout(
 
                     hidePrompt,
 
@@ -850,7 +850,7 @@
 
 
 
-                window\.setTimeout(
+                window.setTimeout(
 
                     hidePrompt,
 
@@ -880,7 +880,7 @@
 
 
 
-                window\.setTimeout(
+                window.setTimeout(
 
                     hidePrompt,
 
@@ -1072,7 +1072,7 @@
 
         if (timer) {
 
-            window\.clearTimeout(
+            window.clearTimeout(
 
                 timer
 
@@ -1084,7 +1084,7 @@
 
         timer =
 
-            window\.setTimeout(
+            window.setTimeout(
 
                 poll,
 
