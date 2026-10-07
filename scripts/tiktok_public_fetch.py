@@ -376,6 +376,7 @@ def fetch_with_ytdlp(video_url, video_id):
         "success": True,
         "stage": "success",
         "source": "yt-dlp",
+        "precision": "raw_integer",
         "stats": stats,
         "author_name": info.get("uploader_id") or info.get("channel_id") or info.get("uploader"),
         "title": info.get("description") or info.get("title"),
@@ -399,6 +400,18 @@ def main():
         ("public_embed_v2", f"https://www.tiktok.com/embed/v2/{video_id}?lang=en-US&_mashal_live={time.time_ns()}"),
     ]
     attempts = []
+
+    # Prefer yt-dlp first because it maps TikTok's raw stats object to integer
+    # view_count/like_count/comment_count/repost_count. The public HTML can
+    # sometimes contain presentation-rounded counters (e.g. 11.1M).
+    ytdlp_result, ytdlp_debug = fetch_with_ytdlp(video_url, video_id)
+    attempts.append({
+        "source": "yt-dlp",
+        **(ytdlp_debug or {"stage": "success"}),
+    })
+    if isinstance(ytdlp_result, dict) and ytdlp_result.get("success") is True:
+        ytdlp_result.setdefault("debug", {})["previous_attempts"] = []
+        emit(ytdlp_result)
 
     for source, target in targets:
         attempt = {"source": source, "target": target}
@@ -475,15 +488,6 @@ def main():
                 "attempts": attempts,
             },
         })
-
-    ytdlp_result, ytdlp_debug = fetch_with_ytdlp(video_url, video_id)
-    attempts.append({
-        "source": "yt-dlp",
-        **(ytdlp_debug or {"stage": "success"}),
-    })
-    if isinstance(ytdlp_result, dict) and ytdlp_result.get("success") is True:
-        ytdlp_result.setdefault("debug", {})["previous_attempts"] = attempts[:-1]
-        emit(ytdlp_result)
 
     # Important: return JSON on stdout. Exit 10 makes Laravel's debug controller
     # surface a 502 with detailed diagnostics instead of pretending it succeeded.
