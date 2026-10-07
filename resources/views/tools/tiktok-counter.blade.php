@@ -4,6 +4,7 @@
 @section('meta_description', 'Volg publieke TikTok-statistieken live met Mashal Studio Live Count.')
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('vendor/odometer/odometer-theme-minimal.css') }}">
 <style>
     .ttc-page {
         --bg: #050608;
@@ -1194,6 +1195,61 @@
         }
     }
 
+
+    /* HubSpot Odometer integration: same ribbon/slide engine used for the live counter feel. */
+    .ttc-stat-value.odometer {
+        display: block;
+        width: 100%;
+        position: relative;
+        vertical-align: baseline;
+        overflow: visible;
+        font-family: inherit;
+        line-height: .94;
+    }
+
+    .ttc-stat-value.odometer .odometer-inside {
+        display: inline-block;
+        white-space: nowrap;
+        font: inherit;
+        line-height: inherit;
+    }
+
+    .ttc-stat-value.odometer .odometer-digit {
+        vertical-align: baseline;
+    }
+
+    .ttc-stat-value.odometer .odometer-digit-spacer {
+        vertical-align: baseline;
+    }
+
+    .ttc-stat-value.odometer .odometer-value {
+        font: inherit;
+        line-height: inherit;
+        text-align: center;
+    }
+
+    .ttc-stat-value.odometer .odometer-formatting-mark {
+        display: inline-block;
+        margin: 0 .015em;
+        color: rgba(255,255,255,.72);
+        font-size: .72em;
+        font-weight: 800;
+        line-height: 1;
+        transform: translateY(.06em);
+    }
+
+    .ttc-stat-value.odometer.odometer-animating-up .odometer-ribbon-inner,
+    .ttc-stat-value.odometer.odometer-animating-down.odometer-animating .odometer-ribbon-inner {
+        transition-duration: 2s;
+        transition-timing-function: ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ttc-stat-value.odometer .odometer-ribbon-inner {
+            transition-duration: 0s !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1341,6 +1397,8 @@
 
 @isset($videoId)
 @push('scripts')
+<script>window.odometerOptions = { auto: false };</script>
+<script src="{{ asset('vendor/odometer/odometer.min.js') }}"></script>
 <script>
 (function () {
     'use strict';
@@ -1363,224 +1421,51 @@
     var livecountsTimer = null;
 
 
-    function odometerFormatted(value) {
-        var number = Number(value);
-
-        if (!isFinite(number)) {
-            return null;
-        }
-
-        try {
-            return Math.max(0, Math.round(number)).toLocaleString('nl-NL');
-        } catch (error) {
-            return String(Math.max(0, Math.round(number)));
-        }
-    }
-
-    function buildOdometer(element, formatted, numericValue, animateInitial) {
-        var chars = formatted.split('');
-        var digitCount = 0;
-        var fragment = document.createDocumentFragment();
-        var digitSlots = [];
-        var i;
-        var ch;
-        var slot;
-        var reel;
-        var n;
-        var startDigit;
-
-        element.textContent = '';
-        element.classList.add('ttc-odometer');
-        element.setAttribute('aria-label', formatted);
-
-        for (i = 0; i < chars.length; i += 1) {
-            ch = chars[i];
-
-            if (/\d/.test(ch)) {
-                slot = document.createElement('span');
-                slot.className = 'ttc-odo-digit';
-                slot.setAttribute('aria-hidden', 'true');
-
-                reel = document.createElement('span');
-                reel.className = 'ttc-odo-reel';
-
-                for (n = 0; n < 40; n += 1) {
-                    var digit = document.createElement('span');
-                    digit.className = 'ttc-odo-number';
-                    digit.textContent = String(n % 10);
-                    reel.appendChild(digit);
-                }
-
-                slot.appendChild(reel);
-                fragment.appendChild(slot);
-
-                startDigit = Number(ch);
-                slot._odoIndex = animateInitial ? 10 : 10 + startDigit;
-                slot._odoDigit = animateInitial ? 0 : startDigit;
-                slot._odoReel = reel;
-                slot._odoPlace = chars.length - i - 1;
-                reel.style.setProperty(
-                    '--odo-duration',
-                    String(480 + Math.min(7, digitCount) * 42) + 'ms'
-                );
-                reel.style.transform = 'translate3d(0,' + (-slot._odoIndex) + 'em,0)';
-
-                digitSlots.push({
-                    slot: slot,
-                    target: startDigit
-                });
-                digitCount += 1;
-            } else {
-                var separator = document.createElement('span');
-                separator.className = 'ttc-odo-separator';
-                separator.setAttribute('aria-hidden', 'true');
-                separator.textContent = ch;
-                fragment.appendChild(separator);
-            }
-        }
-
-        element.appendChild(fragment);
-        element._odoFormatted = formatted;
-        element._odoValue = numericValue;
-        element._odoSlots = digitSlots.map(function (item) {
-            return item.slot;
-        });
-
-        if (animateInitial) {
-            window.requestAnimationFrame(function () {
-                window.requestAnimationFrame(function () {
-                    for (var j = 0; j < digitSlots.length; j += 1) {
-                        moveOdometerDigit(
-                            digitSlots[j].slot,
-                            digitSlots[j].target,
-                            true,
-                            j
-                        );
-                    }
-                });
-            });
-        }
-    }
-
-    function moveOdometerDigit(slot, newDigit, goingUp, order) {
-        var currentIndex = Number(slot._odoIndex);
-        var currentDigit = Number(slot._odoDigit);
-        var delta;
-        var targetIndex;
-        var duration;
-        var delay;
-        var reel = slot._odoReel;
-
-        if (!reel || !isFinite(currentIndex)) {
-            return;
-        }
-
-        if (goingUp) {
-            delta = (newDigit - currentDigit + 10) % 10;
-            targetIndex = currentIndex + delta;
-        } else {
-            delta = (currentDigit - newDigit + 10) % 10;
-            targetIndex = currentIndex - delta;
-        }
-
-        if (targetIndex < 2 || targetIndex > 37) {
-            reel.style.transition = 'none';
-            currentIndex = 10 + currentDigit;
-            slot._odoIndex = currentIndex;
-            reel.style.transform = 'translate3d(0,' + (-currentIndex) + 'em,0)';
-            reel.offsetHeight;
-            reel.style.transition = '';
-
-            if (goingUp) {
-                delta = (newDigit - currentDigit + 10) % 10;
-                targetIndex = currentIndex + delta;
-            } else {
-                delta = (currentDigit - newDigit + 10) % 10;
-                targetIndex = currentIndex - delta;
-            }
-        }
-
-        if (delta === 0) {
-            slot._odoDigit = newDigit;
-            return;
-        }
-
-        duration = 300 + Math.min(9, delta) * 64;
-        delay = Math.min(84, order * 12);
-
-        reel.style.setProperty('--odo-duration', String(duration) + 'ms');
-        reel.style.transitionDelay = String(delay) + 'ms';
-        reel.style.transform = 'translate3d(0,' + (-targetIndex) + 'em,0)';
-
-        slot._odoIndex = targetIndex;
-        slot._odoDigit = newDigit;
-    }
-
     function animateOdometer(element, value) {
         var numericValue = Number(value);
         var formatted;
-        var oldFormatted;
-        var oldValue;
-        var oldDigits;
-        var newDigits;
-        var goingUp;
-        var slots;
-        var i;
 
         if (!element || !isFinite(numericValue)) {
             return;
         }
 
         numericValue = Math.max(0, Math.round(numericValue));
-        formatted = odometerFormatted(numericValue);
 
-        if (formatted === null) {
-            return;
+        try {
+            formatted = numericValue.toLocaleString('nl-NL');
+        } catch (error) {
+            formatted = String(numericValue);
         }
 
-        oldFormatted = element._odoFormatted;
-        oldValue = Number(element._odoValue);
-
-        if (!oldFormatted || !Array.isArray(element._odoSlots)) {
-            buildOdometer(element, formatted, numericValue, true);
-            element.classList.remove('ttc-loading');
-            return;
-        }
-
-        if (oldValue === numericValue) {
-            element.classList.remove('ttc-loading');
-            return;
-        }
-
-        oldDigits = oldFormatted.replace(/\D/g, '');
-        newDigits = formatted.replace(/\D/g, '');
-
-        if (oldDigits.length !== newDigits.length) {
-            buildOdometer(element, formatted, numericValue, false);
-            element.classList.remove('ttc-loading');
-            element.classList.remove('ttc-odo-flash');
-            element.offsetHeight;
-            element.classList.add('ttc-odo-flash');
-            return;
-        }
-
-        slots = element._odoSlots;
-        goingUp = !isFinite(oldValue) || numericValue >= oldValue;
-
-        for (i = 0; i < slots.length && i < newDigits.length; i += 1) {
-            moveOdometerDigit(
-                slots[i],
-                Number(newDigits.charAt(i)),
-                goingUp,
-                i
-            );
-        }
-
-        element._odoFormatted = formatted;
-        element._odoValue = numericValue;
         element.setAttribute('aria-label', formatted);
         element.classList.remove('ttc-loading');
-        element.classList.remove('ttc-odo-flash');
+
+        if (!window.Odometer) {
+            element.textContent = formatted;
+            return;
+        }
+
+        if (!element._mashalOdometer) {
+            element.textContent = '0';
+
+            element._mashalOdometer = new window.Odometer({
+                el: element,
+                value: 0,
+                format: '(.ddd)',
+                theme: 'minimal',
+                duration: 2000
+            });
+
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    element._mashalOdometer.update(numericValue);
+                });
+            });
+
+            return;
+        }
+
+        element._mashalOdometer.update(numericValue);
     }
 
     function formatCount(value) {
