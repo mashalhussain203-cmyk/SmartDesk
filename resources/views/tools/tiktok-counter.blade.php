@@ -1405,6 +1405,8 @@
         }
     }
 
+    loadLivecountsCards();
+
     window.addEventListener('beforeunload', function () {
         if (livecountsTimer !== null) {
             window.clearTimeout(livecountsTimer);
