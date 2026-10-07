@@ -96,6 +96,106 @@ class TikTokCounterController extends Controller
             ->header('Expires', '0');
     }
 
+    public function followerIndex(): View
+    {
+        return view('tools.tiktok-follower-counter');
+    }
+
+    public function followerLookup(
+        Request $request,
+        TikTokVideoStatsService $service
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'max:255'],
+        ]);
+
+        try {
+            $account = $service->resolveTikTokUsername($validated['username']);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'username' => $e->getMessage(),
+                ]);
+        }
+
+        return redirect()->route(
+            'tiktok-follower-counter.show',
+            ['username' => $account['username']]
+        );
+    }
+
+    public function followerShow(
+        string $username,
+        TikTokVideoStatsService $service
+    ): Response|RedirectResponse {
+        try {
+            $account = $service->resolveTikTokUsername($username);
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('tiktok-follower-counter.index')
+                ->withErrors([
+                    'username' => $e->getMessage(),
+                ]);
+        }
+
+        if ((string) $account['username'] !== (string) $username) {
+            return redirect()->route(
+                'tiktok-follower-counter.show',
+                ['username' => $account['username']]
+            );
+        }
+
+        return response()
+            ->view('tools.tiktok-follower-counter', [
+                'username' => $account['username'],
+                'profileUrl' => $account['profile_url'],
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    public function followerCards(
+        string $username,
+        TikTokVideoStatsService $service
+    ): JsonResponse {
+        try {
+            $stats = $service->getLiveFollowerCardStats($username);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+                    'username' => $username,
+                    'stats' => [
+                        'followers' => $stats['followers'] ?? null,
+                        'likes' => $stats['likes'] ?? null,
+                        'following' => $stats['following'] ?? null,
+                        'videos' => $stats['videos'] ?? null,
+                    ],
+                    'display_name' => $stats['display_name'] ?? null,
+                    'avatar_url' => $stats['avatar_url'] ?? null,
+                    'source' => $stats['source'] ?? 'livecounts-follower-public-page-rendered',
+                    'updated_at' => now()->toIso8601String(),
+                ])
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'updated_at' => now()->toIso8601String(),
+                ], 502)
+            );
+        }
+    }
+
     public function livecountsCards(
         string $videoId,
         TikTokVideoStatsService $service
