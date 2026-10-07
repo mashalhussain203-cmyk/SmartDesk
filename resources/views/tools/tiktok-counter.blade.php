@@ -1300,7 +1300,7 @@
         if (livecountsTimer !== null) {
             window.clearTimeout(livecountsTimer);
         }
-        livecountsTimer = window.setTimeout(loadLivecountsCards, 15000);
+        livecountsTimer = window.setTimeout(loadLivecountsCards, 5000);
     }
 
     function loadLivecountsCards() {
