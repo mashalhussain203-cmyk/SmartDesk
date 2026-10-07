@@ -118,6 +118,116 @@
         cursor: pointer;
     }
 
+    .tfc-search-field {
+        position: relative;
+        min-width: 0;
+    }
+
+    .tfc-search-field .tfc-input {
+        width: 100%;
+    }
+
+    .tfc-suggestions {
+        position: absolute;
+        z-index: 80;
+        left: 0;
+        right: 0;
+        top: calc(100% + 9px);
+        max-height: 390px;
+        overflow-y: auto;
+        padding: 7px;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 16px;
+        background: rgba(12,14,19,.985);
+        box-shadow: 0 24px 70px rgba(0,0,0,.48);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    .tfc-suggestions[hidden] {
+        display: none !important;
+    }
+
+    .tfc-suggestion {
+        width: 100%;
+        min-height: 64px;
+        padding: 8px 10px;
+        display: grid;
+        grid-template-columns: 44px minmax(0,1fr) auto;
+        align-items: center;
+        gap: 11px;
+        border: 0;
+        border-radius: 12px;
+        color: inherit;
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .tfc-suggestion:hover,
+    .tfc-suggestion.is-active {
+        background: rgba(123,112,255,.09);
+    }
+
+    .tfc-suggestion-avatar {
+        width: 44px;
+        height: 44px;
+        display: block;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,.08);
+        background: #151922;
+    }
+
+    .tfc-suggestion-copy {
+        min-width: 0;
+    }
+
+    .tfc-suggestion-name {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        color: #f2f4f7;
+        font-size: 13px;
+        font-weight: 780;
+        line-height: 1.25;
+    }
+
+    .tfc-suggestion-name span:first-child {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tfc-suggestion-verified {
+        flex: 0 0 auto;
+        color: #66a8ff;
+        font-size: 12px;
+    }
+
+    .tfc-suggestion-handle {
+        margin-top: 4px;
+        overflow: hidden;
+        color: #737d8a;
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tfc-suggestion-arrow {
+        color: #8379ff;
+        font-size: 16px;
+    }
+
+    .tfc-suggestion-state {
+        padding: 14px 12px;
+        color: #7f8895;
+        font-size: 11px;
+        text-align: center;
+    }
+
     .tfc-error {
         max-width: 900px;
         margin: -12px auto 22px;
@@ -424,18 +534,40 @@
         </header>
 
         <div class="tfc-search-wrap">
-            <form class="tfc-search" method="POST" action="{{ route('tiktok-follower-counter.lookup') }}">
+            <form
+                class="tfc-search"
+                id="tfc-search-form"
+                method="POST"
+                action="{{ route('tiktok-follower-counter.lookup') }}"
+                data-search-endpoint="{{ route('tiktok-follower-counter.search') }}"
+            >
                 @csrf
-                <input
-                    class="tfc-input"
-                    type="text"
-                    name="username"
-                    value="{{ old('username', $username ?? '') }}"
-                    placeholder="@username of TikTok profiel-URL"
-                    autocomplete="off"
-                    required
-                    aria-label="TikTok username of profiel URL"
-                >
+
+                <div class="tfc-search-field">
+                    <input
+                        class="tfc-input"
+                        id="tfc-account-search"
+                        type="text"
+                        name="username"
+                        value="{{ old('username', $username ?? '') }}"
+                        placeholder="Zoek accounts op naam of @username…"
+                        autocomplete="off"
+                        required
+                        aria-label="Zoek TikTok account"
+                        aria-autocomplete="list"
+                        aria-controls="tfc-account-suggestions"
+                        aria-expanded="false"
+                    >
+
+                    <div
+                        class="tfc-suggestions"
+                        id="tfc-account-suggestions"
+                        role="listbox"
+                        aria-label="TikTok account suggesties"
+                        hidden
+                    ></div>
+                </div>
+
                 <button class="tfc-button" type="submit">Start Live Followers →</button>
             </form>
         </div>
@@ -469,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-follower-resolve-v2"
+                data-ui-build="20261008-account-autocomplete-v3"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -533,6 +665,288 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    'use strict';
+
+    var form = document.getElementById('tfc-search-form');
+    var input = document.getElementById('tfc-account-search');
+    var list = document.getElementById('tfc-account-suggestions');
+
+    if (!form || !input || !list) {
+        return;
+    }
+
+    var endpoint = form.getAttribute('data-search-endpoint') || '';
+    var debounceTimer = null;
+    var controller = null;
+    var items = [];
+    var activeIndex = -1;
+    var lastQuery = '';
+
+    function closeList() {
+        list.hidden = true;
+        list.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        items = [];
+        activeIndex = -1;
+    }
+
+    function showState(text) {
+        list.innerHTML = '';
+        var state = document.createElement('div');
+        state.className = 'tfc-suggestion-state';
+        state.textContent = text;
+        list.appendChild(state);
+        list.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        items = [];
+        activeIndex = -1;
+    }
+
+    function setActive(index) {
+        var buttons = list.querySelectorAll('.tfc-suggestion');
+
+        if (!buttons.length) {
+            activeIndex = -1;
+            return;
+        }
+
+        if (index < 0) {
+            index = buttons.length - 1;
+        }
+        if (index >= buttons.length) {
+            index = 0;
+        }
+
+        activeIndex = index;
+
+        buttons.forEach(function (button, buttonIndex) {
+            button.classList.toggle('is-active', buttonIndex === activeIndex);
+            button.setAttribute(
+                'aria-selected',
+                buttonIndex === activeIndex ? 'true' : 'false'
+            );
+        });
+
+        buttons[activeIndex].scrollIntoView({
+            block: 'nearest'
+        });
+    }
+
+    function chooseAccount(account) {
+        if (!account || !account.username) {
+            return;
+        }
+
+        input.value = '@' + account.username;
+        closeList();
+
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            form.submit();
+        }
+    }
+
+    function renderResults(results) {
+        list.innerHTML = '';
+        items = Array.isArray(results) ? results : [];
+        activeIndex = -1;
+
+        if (!items.length) {
+            showState('Geen accounts gevonden');
+            return;
+        }
+
+        items.forEach(function (account, index) {
+            var button = document.createElement('button');
+            var avatar = document.createElement('img');
+            var copy = document.createElement('span');
+            var name = document.createElement('span');
+            var nameText = document.createElement('span');
+            var handle = document.createElement('span');
+            var arrow = document.createElement('span');
+
+            button.type = 'button';
+            button.className = 'tfc-suggestion';
+            button.setAttribute('role', 'option');
+            button.setAttribute('aria-selected', 'false');
+
+            avatar.className = 'tfc-suggestion-avatar';
+            avatar.alt = '';
+            avatar.referrerPolicy = 'no-referrer';
+            avatar.src = account.avatar_url || '/icons/follower-profile.svg?v=1';
+            avatar.onerror = function () {
+                avatar.onerror = null;
+                avatar.src = '/icons/follower-profile.svg?v=1';
+            };
+
+            copy.className = 'tfc-suggestion-copy';
+
+            name.className = 'tfc-suggestion-name';
+            nameText.textContent = account.display_name || account.username;
+            name.appendChild(nameText);
+
+            if (account.verified) {
+                var verified = document.createElement('span');
+                verified.className = 'tfc-suggestion-verified';
+                verified.textContent = '✓';
+                verified.setAttribute('aria-label', 'Verified');
+                name.appendChild(verified);
+            }
+
+            handle.className = 'tfc-suggestion-handle';
+            handle.textContent = '@' + account.username;
+
+            arrow.className = 'tfc-suggestion-arrow';
+            arrow.textContent = '→';
+            arrow.setAttribute('aria-hidden', 'true');
+
+            copy.appendChild(name);
+            copy.appendChild(handle);
+
+            button.appendChild(avatar);
+            button.appendChild(copy);
+            button.appendChild(arrow);
+
+            button.addEventListener('mouseenter', function () {
+                setActive(index);
+            });
+
+            button.addEventListener('click', function () {
+                chooseAccount(account);
+            });
+
+            list.appendChild(button);
+        });
+
+        list.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+    }
+
+    function runSearch() {
+        var query = input.value.trim().replace(/^@/, '');
+
+        if (
+            !endpoint
+            || query.length < 2
+            || query.length > 40
+            || query.indexOf('/') !== -1
+            || /^https?:/i.test(query)
+        ) {
+            closeList();
+            return;
+        }
+
+        if (query === lastQuery && !list.hidden) {
+            return;
+        }
+
+        lastQuery = query;
+
+        if (controller && typeof controller.abort === 'function') {
+            controller.abort();
+        }
+
+        controller = typeof AbortController !== 'undefined'
+            ? new AbortController()
+            : null;
+
+        showState('Accounts zoeken…');
+
+        fetch(
+            endpoint + '?q=' + encodeURIComponent(query),
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                cache: 'no-store',
+                credentials: 'same-origin',
+                signal: controller ? controller.signal : undefined
+            }
+        )
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                var current = input.value.trim().replace(/^@/, '');
+
+                if (current !== query) {
+                    return;
+                }
+
+                if (!data || data.success === false) {
+                    showState('Accounts konden niet worden geladen');
+                    return;
+                }
+
+                renderResults(data.results || []);
+            })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return;
+                }
+
+                var current = input.value.trim().replace(/^@/, '');
+                if (current === query) {
+                    showState('Accounts konden niet worden geladen');
+                }
+            });
+    }
+
+    input.addEventListener('input', function () {
+        window.clearTimeout(debounceTimer);
+        debounceTimer = window.setTimeout(runSearch, 550);
+    });
+
+    input.addEventListener('focus', function () {
+        var query = input.value.trim().replace(/^@/, '');
+        if (query.length >= 2 && items.length) {
+            list.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+        }
+    });
+
+    input.addEventListener('keydown', function (event) {
+        var buttons;
+
+        if (list.hidden) {
+            return;
+        }
+
+        buttons = list.querySelectorAll('.tfc-suggestion');
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setActive(activeIndex + 1);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setActive(activeIndex - 1);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            closeList();
+        } else if (event.key === 'Enter' && activeIndex >= 0 && buttons[activeIndex]) {
+            event.preventDefault();
+            buttons[activeIndex].click();
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!form.contains(event.target)) {
+            closeList();
+        }
+    });
+}());
+</script>
+@endpush
 
 @isset($username)
 @push('scripts')
