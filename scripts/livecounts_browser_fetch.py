@@ -300,11 +300,15 @@ def main():
                 try:
                     u = resp.url
                     if f"/video/stats/{video_id}" in u:
-                        payload = resp.json()
-                        if isinstance(payload, dict):
-                            captured["stats"] = payload
-                            captured["stats_url"] = u
-                            captured["stats_status"] = resp.status
+                        captured["stats_url"] = u
+                        captured["stats_status"] = resp.status
+
+                        # A provider rate-limit response is not counter data.
+                        # Keep listening because the page may retry on its own.
+                        if 200 <= resp.status < 300:
+                            payload = resp.json()
+                            if isinstance(payload, dict):
+                                captured["stats"] = payload
                     elif f"/video/data/{video_id}" in u:
                         payload = resp.json()
                         if isinstance(payload, dict):
