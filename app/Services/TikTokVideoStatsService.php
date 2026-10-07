@@ -174,20 +174,119 @@ class TikTokVideoStatsService
         string $videoUrl,
         string $videoId
     ): array {
-        // DEBUG BUILD: test the browser-impersonation path directly so its
-        // exact failure is visible in the JSON endpoint.
-        $result = $this->fetchViaBrowserImpersonation(
-            $this->canonicalVideoPageUrl($videoUrl),
-            $videoId
-        );
+        $errors = [];
 
-        if ($result === null) {
+        /*
+         * Provider 1: Livecounts public TikTok video stats endpoint.
+         * This is intentionally a normal public HTTP request. We do not
+         * reproduce or bypass any private/challenge authentication scheme.
+         */
+        try {
+            $livecounts = $this->fetchViaLivecounts($videoId);
+
+            if ($livecounts !== null) {
+                return $livecounts;
+            }
+        } catch (Throwable $e) {
+            $errors[] = 'livecounts: '.$e->getMessage();
+        }
+
+        /*
+         * Provider 2: our existing TikTok / yt-dlp / public HTML extractor.
+         */
+        try {
+            $result = $this->fetchViaBrowserImpersonation(
+                $this->canonicalVideoPageUrl($videoUrl),
+                $videoId
+            );
+
+            if ($result !== null) {
+                $result['_debug']['provider_errors'] = $errors;
+                return $result;
+            }
+        } catch (Throwable $e) {
+            $errors[] = 'tiktok: '.$e->getMessage();
+        }
+
+        throw new RuntimeException(
+            'TIKTOK_DEBUG:'.json_encode([
+                'stage' => 'all_providers_failed',
+                'message' => 'Geen videostatistiek-provider leverde bruikbare data.',
+                'provider_errors' => $errors,
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        );
+    }
+
+    private function fetchViaLivecounts(string $videoId): ?array
+    {
+        $url = 'https://tiktok.livecounts.io/video/stats/'.rawurlencode($videoId);
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/json,text/plain,*/*',
+            'Origin' => 'https://livecounts.io',
+            'Referer' => 'https://livecounts.io/',
+            'User-Agent' =>
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                .'AppleWebKit/537.36 (KHTML, like Gecko) '
+                .'Chrome/141.0.0.0 Safari/537.36',
+            'Cache-Control' => 'no-cache, no-store, max-age=0',
+            'Pragma' => 'no-cache',
+        ])
+            ->connectTimeout(5)
+            ->timeout(10)
+            ->retry(1, 300, throw: false)
+            ->get($url, [
+                '_mashal_live' => $this->nowMs(),
+            ]);
+
+        if ($response->status() === 429) {
+            throw new RuntimeException('Livecounts rate limit (HTTP 429).');
+        }
+
+        if (!$response->successful()) {
             throw new RuntimeException(
-                'TIKTOK_DEBUG:{"stage":"empty_result","message":"Python-helper gaf geen resultaat terug."}'
+                'Livecounts HTTP '.$response->status()
             );
         }
 
-        return $result;
+        $data = $response->json();
+
+        if (!is_array($data)) {
+            throw new RuntimeException('Livecounts gaf geen geldige JSON terug.');
+        }
+
+        $views = $this->toInt($data['views'] ?? null);
+        $likes = $this->toInt($data['likes'] ?? null);
+        $comments = $this->toInt($data['comments'] ?? null);
+        $shares = $this->toInt($data['shares'] ?? null);
+
+        if (
+            $views === null
+            && $likes === null
+            && $comments === null
+            && $shares === null
+        ) {
+            throw new RuntimeException(
+                'Livecounts-response bevat geen bruikbare counters.'
+            );
+        }
+
+        return [
+            'views' => $views,
+            'likes' => $likes,
+            'comments' => $comments,
+            'shares' => $shares,
+            'author_name' => null,
+            'title' => null,
+            'thumbnail_url' => null,
+            'source' => 'livecounts-public-endpoint',
+            'precision' => 'raw_integer',
+            '_debug' => [
+                'provider' => 'livecounts',
+                'http_status' => $response->status(),
+                'endpoint' => 'tiktok.livecounts.io/video/stats/{videoId}',
+            ],
+        ];
     }
 
     /**
