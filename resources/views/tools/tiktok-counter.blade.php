@@ -1014,6 +1014,186 @@
         }
     }
 
+    /* Final polished counter layout */
+    .ttc-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .ttc-stat {
+        min-width: 0;
+        min-height: 184px;
+        padding: 22px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 22px;
+        background:
+            radial-gradient(circle at 88% 8%, rgba(123,112,255,.14), transparent 32%),
+            linear-gradient(180deg, rgba(255,255,255,.027), rgba(255,255,255,.011));
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.025),
+            0 12px 34px rgba(0,0,0,.18);
+    }
+
+    .ttc-stat-head {
+        margin: 0 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ttc-stat-label {
+        color: #89919e;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+    }
+
+    .ttc-stat-badge {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        color: #9c8cff;
+        border: 1px solid rgba(156,140,255,.18);
+        background: rgba(132,116,255,.08);
+        box-shadow: inset 0 0 22px rgba(150,136,255,.035);
+    }
+
+    .ttc-stat-badge svg {
+        width: 22px;
+        height: 22px;
+        display: block;
+    }
+
+    .ttc-stat-value {
+        width: 100%;
+        margin: 4px 0 0;
+        color: #fff;
+        font-size: clamp(46px, 5.2vw, 70px) !important;
+        line-height: .94;
+        font-weight: 800;
+        letter-spacing: -.045em;
+        white-space: nowrap;
+        overflow: hidden;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ttc-odometer {
+        max-width: 100%;
+        display: inline-flex;
+        align-items: baseline;
+        white-space: nowrap;
+        line-height: .94;
+        letter-spacing: -.045em;
+        font: inherit;
+    }
+
+    .ttc-odo-digit {
+        width: .56em;
+        height: 1em;
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    }
+
+    .ttc-odo-reel {
+        position: absolute;
+        inset: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        backface-visibility: hidden;
+        transition-property: transform;
+        transition-duration: var(--odo-duration, 480ms);
+        transition-timing-function: cubic-bezier(.15,.82,.22,1);
+    }
+
+    .ttc-odo-number {
+        width: 100%;
+        height: 1em;
+        flex: 0 0 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    .ttc-odo-separator {
+        width: .24em;
+        height: 1em;
+        display: inline-flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: .10em;
+        font-size: .52em;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: 0;
+        opacity: .72;
+    }
+
+    @media (max-width: 900px) {
+        .ttc-stats {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .ttc-stat {
+            min-height: 156px;
+            padding: 18px 18px;
+            border-radius: 20px;
+        }
+
+        .ttc-stat-head {
+            margin-bottom: 12px;
+        }
+
+        .ttc-stat-value {
+            font-size: clamp(38px, 10.5vw, 58px) !important;
+            letter-spacing: -.035em;
+        }
+
+        .ttc-odometer {
+            letter-spacing: -.035em;
+        }
+
+        .ttc-stat-badge {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            border-radius: 13px;
+        }
+
+        .ttc-stat-badge svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .ttc-stat {
+            min-height: 148px;
+            padding: 17px 16px;
+        }
+
+        .ttc-stat-value {
+            font-size: clamp(36px, 10vw, 52px) !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1093,34 +1273,51 @@
 
                 <div class="ttc-card ttc-dashboard">
                                                             <div class="ttc-stats" id="ttc-livecounts-cards">
-                        <div class="ttc-stat">
+                        <div class="ttc-stat ttc-stat--views">
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Views</div>
-                                <div class="ttc-stat-badge">◉</div>
+                                <div class="ttc-stat-badge" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6S2 12 2 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
                         </div>
 
-                        <div class="ttc-stat">
+                        <div class="ttc-stat ttc-stat--likes">
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Likes</div>
-                                <div class="ttc-stat-badge">♥</div>
+                                <div class="ttc-stat-badge" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 20.5S4 15.8 4 9.6C4 6.7 5.9 5 8.2 5c1.7 0 3 1 3.8 2.2C12.8 6 14.1 5 15.8 5 18.1 5 20 6.7 20 9.6c0 6.2-8 10.9-8 10.9Z"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
                         </div>
 
-                        <div class="ttc-stat">
+                        <div class="ttc-stat ttc-stat--comments">
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
-                                <div class="ttc-stat-badge">●</div>
+                                <div class="ttc-stat-badge" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none">
+                                        <path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-5 3v-3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" fill="currentColor"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
                         </div>
 
-                        <div class="ttc-stat">
+                        <div class="ttc-stat ttc-stat--shares">
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Shares</div>
-                                <div class="ttc-stat-badge">↗</div>
+                                <div class="ttc-stat-badge" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M13.5 4 21 11.5 13.5 19v-4.1c-4.9.2-8 1.8-10.5 5.1 1-6.2 4.5-10.1 10.5-10.7V4Z"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
                         </div>
@@ -1308,8 +1505,8 @@
             return;
         }
 
-        duration = 360 + Math.min(9, delta) * 78;
-        delay = Math.min(110, order * 16);
+        duration = 300 + Math.min(9, delta) * 64;
+        delay = Math.min(84, order * 12);
 
         reel.style.setProperty('--odo-duration', String(duration) + 'ms');
         reel.style.transitionDelay = String(delay) + 'ms';
