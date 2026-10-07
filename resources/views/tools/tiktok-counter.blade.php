@@ -1661,7 +1661,7 @@
         request.setRequestHeader('Accept', 'application/json');
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         request.setRequestHeader('Cache-Control', 'no-cache');
-        request.timeout = 30000;
+        request.timeout = 60000;
 
         request.onreadystatechange = function () {
             var data;
