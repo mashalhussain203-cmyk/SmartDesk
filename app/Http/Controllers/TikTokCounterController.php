@@ -142,6 +142,7 @@ class TikTokCounterController extends Controller
                      * Debug / observability.
                      */
                     'source' => $stats['source'] ?? 'tiktok',
+                    'precision' => $stats['precision'] ?? 'unknown',
                     'fetched_fresh' => (bool) ($stats['fetched_fresh'] ?? false),
                     'stale_fallback' => (bool) ($stats['stale_fallback'] ?? false),
                     'snapshot_age_ms' => (int) ($stats['snapshot_age_ms'] ?? 0),
