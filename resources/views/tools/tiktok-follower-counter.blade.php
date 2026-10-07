@@ -601,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-warm-search-v5"
+                data-ui-build="20261008-search-429-fix-v6"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -681,11 +681,13 @@
 
     var endpoint = form.getAttribute('data-search-endpoint') || '';
     var debounceTimer = null;
-    var controller = null;
     var items = [];
     var cachedResults = [];
     var activeIndex = -1;
     var lastQuery = '';
+    var requestInFlight = false;
+    var inFlightQuery = '';
+    var queuedQuery = '';
 
     function closeList() {
         list.hidden = true;
@@ -752,10 +754,10 @@
         }
     }
 
-    function renderResults(results) {
+    function renderResults(results, rememberResults) {
         list.innerHTML = '';
         items = Array.isArray(results) ? results : [];
-        if (items.length) {
+        if (items.length && rememberResults !== false) {
             cachedResults = items.slice();
         }
         activeIndex = -1;
@@ -831,8 +833,21 @@
         input.setAttribute('aria-expanded', 'true');
     }
 
+    function filterAccounts(results, query) {
+        var needle = String(query || '').toLowerCase();
+
+        return (Array.isArray(results) ? results : []).filter(function (account) {
+            var username = String(account.username || '').toLowerCase();
+            var displayName = String(account.display_name || '').toLowerCase();
+
+            return username.indexOf(needle) !== -1
+                || displayName.indexOf(needle) !== -1;
+        });
+    }
+
     function runSearch() {
         var query = input.value.trim().replace(/^@/, '');
+        var queryLower = query.toLowerCase();
 
         if (
             !endpoint
@@ -845,21 +860,23 @@
             return;
         }
 
-        if (query === lastQuery && !list.hidden) {
+        if (requestInFlight) {
+            queuedQuery = query;
+            return;
+        }
+
+        if (query === lastQuery && !list.hidden && items.length) {
             return;
         }
 
         lastQuery = query;
+        requestInFlight = true;
+        inFlightQuery = queryLower;
+        queuedQuery = '';
 
-        if (controller && typeof controller.abort === 'function') {
-            controller.abort();
+        if (!cachedResults.length) {
+            showState('Accounts zoeken…');
         }
-
-        controller = typeof AbortController !== 'undefined'
-            ? new AbortController()
-            : null;
-
-        showState('Accounts zoeken…');
 
         fetch(
             endpoint + '?q=' + encodeURIComponent(query),
@@ -870,65 +887,54 @@
                     'Cache-Control': 'no-cache'
                 },
                 cache: 'no-store',
-                credentials: 'same-origin',
-                signal: controller ? controller.signal : undefined
+                credentials: 'same-origin'
             }
         )
             .then(function (response) {
                 if (!response.ok) {
-                    throw new Error('Search failed');
+                    var error = new Error('Search failed');
+                    error.status = response.status;
+                    throw error;
                 }
+
                 return response.json();
             })
             .then(function (data) {
                 var current = input.value.trim().replace(/^@/, '');
+                var currentLower = current.toLowerCase();
+                var results;
+                var filtered;
 
-                if (current !== query) {
-                    return;
-                }
-
-                if (!data || data.success === false) {
-                    showState('Accounts konden niet worden geladen');
-                    return;
-                }
-
-                renderResults(data.results || []);
-            })
-            .catch(function (error) {
-                if (error && error.name === 'AbortError') {
-                    return;
-                }
-
-                var current = input.value.trim().replace(/^@/, '');
-                if (current === query) {
-                    showState('Accounts konden niet worden geladen');
-                }
-            });
-    }
-
-    input.addEventListener('input', function () {
+               input.addEventListener('input', function () {
         var query = input.value.trim().replace(/^@/, '').toLowerCase();
         var filtered = [];
 
         window.clearTimeout(debounceTimer);
 
         if (query.length < 2) {
+            queuedQuery = '';
             closeList();
             return;
         }
 
-        if (cachedResults.length) {
-            filtered = cachedResults.filter(function (account) {
-                var username = String(account.username || '').toLowerCase();
-                var displayName = String(account.display_name || '').toLowerCase();
+        filtered = filterAccounts(cachedResults, query);
 
-                return username.indexOf(query) !== -1
-                    || displayName.indexOf(query) !== -1;
-            });
+        if (filtered.length) {
+            queuedQuery = '';
+            renderResults(filtered, false);
+            return;
+        }
 
-            if (filtered.length) {
-                renderResults(filtered);
-            }
+        // If a broader prefix is already being searched, let that one finish
+        // first. This prevents every keystroke from spawning another Chromium
+        // request on Railway and avoids 429s.
+        if (
+            requestInFlight
+            && inFlightQuery
+            && query.indexOf(inFlightQuery) === 0
+        ) {
+            queuedQuery = query;
+            return;
         }
 
         if (query.length === 2) {
