@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import html as htmlmod
-import hashlib
 import json
 import re
 import sys
@@ -336,13 +335,10 @@ def fetch_with_ytdlp(video_url, video_id):
     if not HAS_YTDLP:
         return None, {"stage": "ytdlp_import", "message": YTDLP_ERROR or "yt-dlp niet beschikbaar"}
 
-    # yt-dlp can try TikTok's mobile API before falling back to the webpage
-    # when app_info is supplied. These are anonymous, stable client identifiers;
-    # no user login, API key or manually supplied TikTok token is required.
-    seed = hashlib.sha256(b"mashal-studio-tiktok-live-v2").hexdigest()
-    iid = str(int(seed[:16], 16)).zfill(19)[:19]
-    device_id = str(int(seed[16:32], 16)).zfill(19)[:19]
-
+    # Do not pin a fake device_id. yt-dlp has its own TikTok device-id
+    # generation/reset logic and can retry when an automatically generated ID
+    # becomes unusable. A fixed synthetic ID made long-running extraction less
+    # resilient.
     opts = {
         "quiet": True,
         "no_warnings": True,
@@ -350,16 +346,25 @@ def fetch_with_ytdlp(video_url, video_id):
         "noplaylist": True,
         "cachedir": False,
         "socket_timeout": 18,
-        "retries": 1,
-        "extractor_retries": 1,
+        "retries": 3,
+        "extractor_retries": 3,
         "http_headers": COMMON_HEADERS,
-        "extractor_args": {
-            "tiktok": {
-                "app_info": [iid],
-                "device_id": [device_id],
-            },
-        },
     }
+
+    # Optional real TikTok mobile identifiers can be supplied later through
+    # Railway env vars. When absent we stay on yt-dlp's supported default path
+    # instead of fabricating a supposedly genuine identifier.
+    import os
+    real_app_info = (os.getenv("TIKTOK_APP_INFO") or "").strip()
+    real_device_id = (os.getenv("TIKTOK_DEVICE_ID") or "").strip()
+    if real_app_info or real_device_id:
+        tiktok_args = {}
+        if real_app_info:
+            tiktok_args["app_info"] = [real_app_info]
+        if real_device_id:
+            tiktok_args["device_id"] = [real_device_id]
+        opts["extractor_args"] = {"tiktok": tiktok_args}
+
 
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -400,7 +405,9 @@ def fetch_with_ytdlp(video_url, video_id):
             "yt_dlp_available": True,
             "extractor": info.get("extractor"),
             "extractor_key": info.get("extractor_key"),
-            "mode": "mobile-api-first-with-web-fallback",
+            "mode": "yt-dlp-adaptive-with-public-html-fallback",
+            "real_app_info_configured": bool((__import__("os").getenv("TIKTOK_APP_INFO") or "").strip()),
+            "real_device_id_configured": bool((__import__("os").getenv("TIKTOK_DEVICE_ID") or "").strip()),
         },
     }, None
 
