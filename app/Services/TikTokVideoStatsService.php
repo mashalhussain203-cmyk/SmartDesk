@@ -255,11 +255,14 @@ class TikTokVideoStatsService
             $seen[$key] = true;
 
             $displayName = trim((string) (
-                $item['username']
+                $item['display_name']
                 ?? $item['displayName']
-                ?? $item['display_name']
                 ?? $item['nickname']
-                ?? $username
+                ?? (
+                    isset($item['id'])
+                        ? ($item['username'] ?? $username)
+                        : $username
+                )
             ));
 
             $avatarUrl = $item['avatar']
