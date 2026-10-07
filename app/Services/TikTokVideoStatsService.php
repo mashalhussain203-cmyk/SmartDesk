@@ -18,7 +18,7 @@ class TikTokVideoStatsService
      * Your frontend polls every 4 seconds, so only the first request
      * after this window refreshes TikTok. Other visitors reuse that snapshot.
      */
-    private const FRESH_MS = 2500;
+    private const FRESH_MS = 4500;
 
     /**
      * Keep the last successful snapshot longer than the fresh window.
@@ -272,8 +272,8 @@ class TikTokVideoStatsService
             $script,
             $videoId,
         ]);
-        $process->setTimeout(24);
-        $process->setIdleTimeout(20);
+        $process->setTimeout(22);
+        $process->setIdleTimeout(null);
 
         $process->run();
 
