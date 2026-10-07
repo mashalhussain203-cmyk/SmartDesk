@@ -107,56 +107,6 @@ class TikTokVideoStatsService
      * Its own JavaScript performs the provider request; we only capture the
      * successful public search response and normalize it for our UI.
      */
-    public function warmLiveFollowerSearchBrowser(): void
-    {
-        try {
-            $health = Http::connectTimeout(0.15)
-                ->timeout(0.35)
-                ->get('http://127.0.0.1:8765/health');
-
-            if ($health->successful()) {
-                return;
-            }
-        } catch (Throwable $ignored) {
-            // Start it below.
-        }
-
-        $startingKey = 'tiktok-live-follower:search-daemon-starting:v1';
-
-        if (!Cache::add($startingKey, true, now()->addSeconds(20))) {
-            return;
-        }
-
-        try {
-            $script = base_path('scripts/livecounts_follower_search_daemon.py');
-
-            if (!is_file($script)) {
-                return;
-            }
-
-            $projectPython = base_path('.venv/bin/python');
-            $python = is_file($projectPython)
-                ? $projectPython
-                : (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
-
-            if (!is_file($python) && $python !== 'python3') {
-                $python = 'python3';
-            }
-
-            $command = sprintf(
-                'nohup %s %s >/tmp/livecounts-follower-search.log 2>&1 </dev/null &',
-                escapeshellarg($python),
-                escapeshellarg($script)
-            );
-
-            $process = new Process(['/bin/sh', '-lc', $command]);
-            $process->setTimeout(2);
-            $process->run();
-        } catch (Throwable $ignored) {
-            Cache::forget($startingKey);
-        }
-    }
-
     public function searchLiveFollowerUsers(string $query): array
     {
         $query = trim(ltrim($query, '@'));
@@ -169,7 +119,7 @@ class TikTokVideoStatsService
             throw new RuntimeException('Ongeldige TikTok zoekterm.');
         }
 
-        $cacheKey = 'tiktok-live-follower:search:v4:'
+        $cacheKey = 'tiktok-live-follower:search:v3:'
             .sha1(mb_strtolower($query));
 
         $cached = Cache::get($cacheKey);
@@ -178,49 +128,11 @@ class TikTokVideoStatsService
         }
 
         /*
-         * Fast path: reuse one warm Chromium process that is already sitting
-         * on Livecounts' public follower page. The page's own JavaScript still
-         * performs the provider request; this only removes browser startup.
-         */
-        try {
-            $response = Http::connectTimeout(0.25)
-                ->timeout(6)
-                ->acceptJson()
-                ->get('http://127.0.0.1:8765/search', [
-                    'q' => $query,
-                ]);
-
-            if ($response->successful()) {
-                $payload = $response->json();
-                $results = is_array($payload)
-                    ? ($payload['results'] ?? [])
-                    : [];
-
-                if (is_array($results)) {
-                    $normalized = $this->normalizeLiveFollowerSearchResults([
-                        'userData' => $results,
-                    ]);
-
-                    if ($normalized !== []) {
-                        Cache::put(
-                            $cacheKey,
-                            $normalized,
-                            now()->addSeconds(60)
-                        );
-
-                        return $normalized;
-                    }
-                }
-            }
-        } catch (Throwable $ignored) {
-            // Cold container or daemon restarted: fall back below.
-        }
-
-        $this->warmLiveFollowerSearchBrowser();
-
-        /*
-         * Cold-start fallback. This keeps search working even if the warm
-         * helper has not finished booting yet. No direct protected API call.
+         * Same principle as the working video counter:
+         * open Livecounts' public page, let its own JavaScript perform the
+         * protected request, and capture the successful public response.
+         * Do NOT pre-hit tiktok.livecounts.io directly here; that extra
+         * request can rate-limit the Railway IP before the page itself runs.
          */
         $script = base_path('scripts/livecounts_follower_search.py');
 
@@ -281,6 +193,8 @@ class TikTokVideoStatsService
             'userData' => $results,
         ]);
 
+        // Never cache an empty/failed search. A temporary provider delay
+        // should not make that query look empty for the next minute.
         if ($normalized !== []) {
             Cache::put($cacheKey, $normalized, now()->addSeconds(60));
         }
