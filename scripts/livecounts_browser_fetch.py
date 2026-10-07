@@ -239,7 +239,7 @@ def main():
         "chromium": chromium,
     }
 
-    url = f"https://livecounts.io/tiktok-live-view-counter/{video_id}"
+    page_url = f"https://livecounts.io/tiktok-live-view-counter/{video_id}"
 
     try:
         with sync_playwright() as p:
@@ -260,7 +260,7 @@ def main():
 
             browser = p.chromium.launch(**launch_args)
             context = browser.new_context(
-                viewport={"width": 1440, "height": 1800},
+                viewport={"width": 1280, "height": 1600},
                 locale="en-US",
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -268,112 +268,159 @@ def main():
                     "Chrome/141.0.0.0 Safari/537.36"
                 ),
             )
+
             page = context.new_page()
 
-            def route_handler(route):
+            captured = {
+                "stats": None,
+                "stats_url": None,
+                "stats_status": None,
+                "data": None,
+                "data_url": None,
+                "data_status": None,
+            }
+
+            def on_response(resp):
                 try:
-                    resource_type = route.request.resource_type
-                    if resource_type in ("media", "font"):
-                        route.abort()
-                    else:
-                        route.continue_()
+                    u = resp.url
+                    if f"/video/stats/{video_id}" in u:
+                        payload = resp.json()
+                        if isinstance(payload, dict):
+                            captured["stats"] = payload
+                            captured["stats_url"] = u
+                            captured["stats_status"] = resp.status
+                    elif f"/video/data/{video_id}" in u:
+                        payload = resp.json()
+                        if isinstance(payload, dict):
+                            captured["data"] = payload
+                            captured["data_url"] = u
+                            captured["data_status"] = resp.status
                 except Exception:
-                    try:
-                        route.continue_()
-                    except Exception:
-                        pass
+                    pass
 
-            page.route("**/*", route_handler)
-            response = page.goto(url, wait_until="domcontentloaded", timeout=10000)
+            page.on("response", on_response)
 
-            debug["http_status"] = response.status if response else None
+            response = page.goto(
+                page_url,
+                wait_until="domcontentloaded",
+                timeout=15000,
+            )
+
+            debug["page_http_status"] = response.status if response else None
             debug["final_url"] = page.url
-            debug["livecounts_mode"] = "public-counter-page"
-            debug["stage"] = "wait_for_render"
+            debug["livecounts_mode"] = "browser-network-capture"
+            debug["stage"] = "wait_for_livecounts_network"
 
-            deadline = time.time() + 8
-            best = {}
+            deadline = time.time() + 15
             body_text = ""
+            fallback_stats = {}
 
             while time.time() < deadline:
-                try:
-                    body_text = page.locator("body").inner_text(timeout=2000)
-                except Exception:
-                    body_text = ""
-
-                body_stats = parse_body_text(body_text) if body_text else {}
-                dom_stats = parse_dom(page)
-
-                merged = {}
-                for key in ("views", "likes", "comments", "shares"):
-                    merged[key] = dom_stats.get(key)
-                    if merged[key] is None:
-                        merged[key] = body_stats.get(key)
-
-                best = merged
-
-                available = sum(v is not None for v in merged.values())
-                nonzero = sum((v or 0) > 0 for v in merged.values())
-                if available >= 4 and nonzero >= 1:
+                if isinstance(captured.get("stats"), dict):
                     break
 
-                page.wait_for_timeout(500)
+                try:
+                    body_text = page.locator("body").inner_text(timeout=1500)
+                    fallback_stats = parse_body_text(body_text)
+                    dom_stats = parse_dom(page)
+                    for key in ("views", "likes", "comments", "shares"):
+                        if dom_stats.get(key) is not None:
+                            fallback_stats[key] = dom_stats.get(key)
+                except Exception:
+                    pass
 
-            title = page.title()
+                page.wait_for_timeout(350)
 
-            try:
-                meta = page.evaluate("""
-                () => {
-                  const images = Array.from(document.querySelectorAll('img'));
-                  const avatar = images.find(img =>
-                    /avatar/i.test(img.getAttribute('alt') || '')
-                  );
-                  const banner = images.find(img =>
-                    /banner/i.test(img.getAttribute('alt') || '')
-                  );
-                  const external = Array.from(document.querySelectorAll('a[href]'))
-                    .find(a => /tiktok\.com\//i.test(a.href || ''));
+            stats_payload = captured.get("stats")
+            data_payload = captured.get("data")
 
-                  return {
-                    avatar: avatar ? avatar.src : null,
-                    banner: banner ? banner.src : null,
-                    external_url: external ? external.href : null,
-                    page_title: document.title || null
-                  };
+            def pick(d, *keys):
+                if not isinstance(d, dict):
+                    return None
+                for key in keys:
+                    if key in d:
+                        val = clean_number(d.get(key))
+                        if val is not None:
+                            return val
+                return None
+
+            if isinstance(stats_payload, dict):
+                stats = {
+                    "views": pick(stats_payload, "viewCount", "views", "view_count"),
+                    "likes": pick(stats_payload, "likeCount", "likes", "like_count"),
+                    "comments": pick(stats_payload, "commentCount", "comments", "comment_count"),
+                    "shares": pick(stats_payload, "shareCount", "shares", "share_count"),
                 }
-                """)
-            except Exception:
-                meta = {}
+                source = "livecounts-browser-network"
+            else:
+                stats = {
+                    key: clean_number(fallback_stats.get(key))
+                    for key in ("views", "likes", "comments", "shares")
+                }
+                source = "livecounts-public-page-rendered"
+
+            debug["network_stats_captured"] = isinstance(stats_payload, dict)
+            debug["network_stats_url"] = captured.get("stats_url")
+            debug["network_stats_status"] = captured.get("stats_status")
+            debug["network_data_captured"] = isinstance(data_payload, dict)
+            debug["network_data_url"] = captured.get("data_url")
+            debug["network_data_status"] = captured.get("data_status")
+            debug["stats_keys"] = list(stats_payload.keys())[:30] if isinstance(stats_payload, dict) else []
+            debug["data_keys"] = list(data_payload.keys())[:30] if isinstance(data_payload, dict) else []
+            debug["body_prefix"] = body_text[:1400]
+            debug["stage"] = "parsed"
 
             browser.close()
 
-            debug["stage"] = "parsed"
-            debug["body_prefix"] = body_text[:1800]
-            debug["available"] = sum(v is not None for v in best.values())
-
-            if (
-                not best
-                or all(best.get(k) is None for k in ("views", "likes", "comments", "shares"))
-                or all((best.get(k) or 0) == 0 for k in ("views", "likes", "comments", "shares"))
-            ):
+            if all(stats.get(k) is None for k in ("views", "likes", "comments", "shares")):
                 emit({
                     "success": False,
-                    "message": "Livecounts bleef op placeholderwaarden staan; geen echte gerenderde counters gevonden.",
-                    "stage": "parse_rendered_page",
+                    "message": "Livecounts-pagina laadde, maar de eigen stats-response werd niet ontvangen.",
+                    "stage": "livecounts_network_missing",
                     "debug": debug,
                 }, 10)
 
+            if any(stats.get(k) is None for k in ("views", "likes", "comments", "shares")):
+                emit({
+                    "success": False,
+                    "message": "Livecounts-response was onvolledig; niet alle vier tellers zijn beschikbaar.",
+                    "stage": "livecounts_network_incomplete",
+                    "stats": stats,
+                    "debug": debug,
+                }, 10)
+
+            title = None
+            thumbnail_url = None
+            author_name = None
+
+            if isinstance(data_payload, dict):
+                title = (
+                    data_payload.get("title")
+                    or data_payload.get("description")
+                    or data_payload.get("desc")
+                )
+                thumbnail_url = (
+                    data_payload.get("cover")
+                    or data_payload.get("thumbnail")
+                )
+                author = data_payload.get("author")
+                if isinstance(author, dict):
+                    author_name = (
+                        author.get("uniqueId")
+                        or author.get("username")
+                        or author.get("nickname")
+                    )
+                elif isinstance(author, str):
+                    author_name = author
+
             emit({
                 "success": True,
-                "source": "livecounts-public-page-rendered",
+                "source": source,
                 "precision": "raw_integer",
-                "stats": best,
-                "title": (meta.get("page_title") if isinstance(meta, dict) else None) or title or None,
-                "thumbnail_url": (
-                    (meta.get("avatar") if isinstance(meta, dict) else None)
-                    or (meta.get("banner") if isinstance(meta, dict) else None)
-                ),
-                "external_url": meta.get("external_url") if isinstance(meta, dict) else None,
+                "stats": stats,
+                "title": title,
+                "thumbnail_url": thumbnail_url,
+                "author_name": author_name,
                 "debug": debug,
             })
 
