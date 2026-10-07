@@ -1071,6 +1071,11 @@ Route::post(
 */
 
 Route::get(
+    '/tools/live',
+    [TikTokCounterController::class, 'liveCountsIndex']
+)->name('live-counts.index');
+
+Route::get(
     '/tools/tiktok-counter',
     [TikTokCounterController::class, 'index']
 )->name('tiktok-counter.index');
