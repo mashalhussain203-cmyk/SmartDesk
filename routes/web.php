@@ -1097,6 +1097,14 @@ Route::get(
     ->middleware('throttle:60,1')
     ->name('tiktok-counter.stats');
 
+Route::get(
+    '/api/tools/tiktok-counter/{videoId}/supplemental',
+    [TikTokCounterController::class, 'supplemental']
+)
+    ->whereNumber('videoId')
+    ->middleware('throttle:30,1')
+    ->name('tiktok-counter.supplemental');
+
 /*
 
 |--------------------------------------------------------------------------
