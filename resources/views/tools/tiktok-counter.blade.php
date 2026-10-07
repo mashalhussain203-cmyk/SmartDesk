@@ -1435,7 +1435,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-comma-separators-v8"
+                data-ui-build="20261007-zero-placeholder-v9"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1468,7 +1468,7 @@
                                     <img src="/icons/live-eye.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">0</div>
                         </div>
 
                         <div class="ttc-stat ttc-stat--likes">
@@ -1478,7 +1478,7 @@
                                     <img src="/icons/live-heart.svg?v=20261007-4" width="32" height="32" alt="">
                                 </div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">0</div>
                         </div>
 
                         <div class="ttc-stat ttc-stat--comments">
@@ -1488,7 +1488,7 @@
                                     <img src="/icons/live-comment.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">0</div>
                         </div>
 
                         <div class="ttc-stat ttc-stat--shares">
@@ -1498,7 +1498,7 @@
                                     <img src="/icons/live-share.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">0</div>
                         </div>
                     </div>
 
@@ -1588,7 +1588,7 @@
     function formatCount(value) {
         var number = Number(value);
         if (!isFinite(number)) {
-            return '—';
+            return '0';
         }
         try {
             return number.toLocaleString('en-US');
