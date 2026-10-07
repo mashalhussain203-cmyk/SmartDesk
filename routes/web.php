@@ -1106,12 +1106,12 @@ Route::get(
     ->name('tiktok-counter.supplemental');
 
 Route::get(
-    '/api/tools/tiktok-counter/{videoId}/livecounts-cards',
-    [TikTokCounterController::class, 'livecountsCards']
+    '/api/tools/tiktok-counter/{videoId}/live-cards',
+    [TikTokCounterController::class, 'liveCards']
 )
     ->whereNumber('videoId')
     ->middleware('throttle:30,1')
-    ->name('tiktok-counter.livecounts-cards');
+    ->name('tiktok-counter.live-cards');
 
 /*
 
