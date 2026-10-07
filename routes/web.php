@@ -1145,6 +1145,13 @@ Route::get(
     ->name('tiktok-follower-counter.show');
 
 Route::get(
+    '/api/tools/tiktok-follower-counter/search',
+    [TikTokCounterController::class, 'followerSearch']
+)
+    ->middleware('throttle:60,1')
+    ->name('tiktok-follower-counter.search');
+
+Route::get(
     '/api/tools/tiktok-follower-counter/{username}/livecounts-cards',
     [TikTokCounterController::class, 'followerCards']
 )
