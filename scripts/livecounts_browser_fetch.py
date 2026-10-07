@@ -52,13 +52,17 @@ def parse_body_text(text):
         "likes": find_near_label(lines, "Likes"),
         "comments": find_near_label(lines, "Comments"),
         "shares": find_near_label(lines, "Shares"),
+        "favorites": (
+            find_near_label(lines, "Favorites")
+            or find_near_label(lines, "Favourites")
+        ),
     }
 
 
 def parse_dom(page):
     script = """
     () => {
-      const labels = ['Views', 'Likes', 'Comments', 'Shares'];
+      const labels = ['Views', 'Likes', 'Comments', 'Shares', 'Favorites'];
       const out = {};
       const all = Array.from(document.querySelectorAll('body *'));
 
@@ -188,6 +192,31 @@ def main():
                 ),
             )
             page = context.new_page()
+
+            captured = {
+                "stats": None,
+                "meta": None,
+                "stats_url": None,
+                "meta_url": None,
+            }
+
+            def on_response(resp):
+                try:
+                    response_url = resp.url
+                    if f"/video/stats/{video_id}" in response_url:
+                        data = resp.json()
+                        if isinstance(data, dict):
+                            captured["stats"] = data
+                            captured["stats_url"] = response_url
+                    elif f"/video/data/{video_id}" in response_url:
+                        data = resp.json()
+                        if isinstance(data, dict):
+                            captured["meta"] = data
+                            captured["meta_url"] = response_url
+                except Exception:
+                    pass
+
+            page.on("response", on_response)
             response = page.goto(url, wait_until="domcontentloaded", timeout=18000)
 
             debug["http_status"] = response.status if response else None
@@ -206,18 +235,65 @@ def main():
 
                 body_stats = parse_body_text(body_text) if body_text else {}
                 dom_stats = parse_dom(page)
+                network_stats = captured.get("stats") or {}
 
-                merged = {}
-                for key in ("views", "likes", "comments", "shares"):
-                    merged[key] = dom_stats.get(key)
-                    if merged[key] is None:
-                        merged[key] = body_stats.get(key)
+                def pick(*values):
+                    for value in values:
+                        number = clean_number(value)
+                        if number is not None:
+                            return number
+                    return None
+
+                merged = {
+                    "views": pick(
+                        network_stats.get("views"),
+                        network_stats.get("viewCount"),
+                        network_stats.get("view_count"),
+                        dom_stats.get("views"),
+                        body_stats.get("views"),
+                    ),
+                    "likes": pick(
+                        network_stats.get("likes"),
+                        network_stats.get("likeCount"),
+                        network_stats.get("like_count"),
+                        dom_stats.get("likes"),
+                        body_stats.get("likes"),
+                    ),
+                    "comments": pick(
+                        network_stats.get("comments"),
+                        network_stats.get("commentCount"),
+                        network_stats.get("comment_count"),
+                        dom_stats.get("comments"),
+                        body_stats.get("comments"),
+                    ),
+                    "shares": pick(
+                        network_stats.get("shares"),
+                        network_stats.get("shareCount"),
+                        network_stats.get("share_count"),
+                        dom_stats.get("shares"),
+                        body_stats.get("shares"),
+                    ),
+                    "favorites": pick(
+                        network_stats.get("favorites"),
+                        network_stats.get("favoriteCount"),
+                        network_stats.get("favouriteCount"),
+                        network_stats.get("collectCount"),
+                        network_stats.get("collect_count"),
+                        dom_stats.get("favorites"),
+                        body_stats.get("favorites"),
+                    ),
+                }
 
                 best = merged
 
                 available = sum(v is not None for v in merged.values())
                 nonzero = sum((v or 0) > 0 for v in merged.values())
-                if available >= 4 and nonzero >= 1:
+
+                # Prefer the full five-field network response. If favorites are
+                # not exposed, accept the four visible counters after waiting.
+                if available >= 5 and nonzero >= 1:
+                    break
+                if available >= 4 and nonzero >= 1 and time.time() > deadline - 3:
                     break
 
                 page.wait_for_timeout(500)
@@ -231,8 +307,8 @@ def main():
 
             if (
                 not best
-                or all(best.get(k) is None for k in ("views", "likes", "comments", "shares"))
-                or all((best.get(k) or 0) == 0 for k in ("views", "likes", "comments", "shares"))
+                or all(best.get(k) is None for k in ("views", "likes", "comments", "shares", "favorites"))
+                or all((best.get(k) or 0) == 0 for k in ("views", "likes", "comments", "shares", "favorites"))
             ):
                 emit({
                     "success": False,
@@ -241,12 +317,47 @@ def main():
                     "debug": debug,
                 }, 10)
 
+            meta = captured.get("meta") or {}
+            author = meta.get("author")
+            if isinstance(author, dict):
+                author_name = (
+                    author.get("uniqueId")
+                    or author.get("username")
+                    or author.get("id")
+                    or author.get("nickname")
+                )
+            elif isinstance(author, str):
+                author_name = author
+            else:
+                author_name = None
+
+            meta_title = (
+                meta.get("title")
+                or meta.get("desc")
+                or meta.get("description")
+                or title
+                or None
+            )
+            thumbnail_url = (
+                meta.get("cover")
+                or meta.get("thumbnail")
+                or meta.get("avatar")
+                or meta.get("banner")
+            )
+
+            debug["network_stats_captured"] = isinstance(captured.get("stats"), dict)
+            debug["network_meta_captured"] = isinstance(captured.get("meta"), dict)
+            debug["network_stats_keys"] = list((captured.get("stats") or {}).keys())[:30]
+            debug["network_meta_keys"] = list((captured.get("meta") or {}).keys())[:30]
+
             emit({
                 "success": True,
                 "source": "livecounts-rendered-page",
                 "precision": "raw_integer",
                 "stats": best,
-                "title": title or None,
+                "title": meta_title,
+                "author_name": author_name,
+                "thumbnail_url": thumbnail_url,
                 "debug": debug,
             })
 
