@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Throwable;
+use Symfony\Component\Process\Process;
 
 class TikTokVideoStatsService
 {
@@ -196,9 +197,31 @@ class TikTokVideoStatsService
         string $videoId
     ): array {
         /*
-         * No TikTok developer API is used here. We try two public web surfaces:
-         * the normal video page first, then TikTok's public embed page.  Both
-         * contain the same hydration data TikTok needs to render the page.
+         * First try a tiny Python helper using curl_cffi. Unlike PHP/Guzzle,
+         * curl_cffi can impersonate a real Chrome TLS/HTTP2 fingerprint. This
+         * matters on TikTok because datacenter requests can be challenged even
+         * when the HTTP headers look like Chrome. No TikTok API key or access
+         * token is used.
+         */
+        $impersonationProblem = null;
+
+        try {
+            $impersonated = $this->fetchViaBrowserImpersonation(
+                $this->canonicalVideoPageUrl($videoUrl),
+                $videoId
+            );
+
+            if ($impersonated !== null) {
+                return $impersonated;
+            }
+        } catch (Throwable $e) {
+            $impersonationProblem = $e->getMessage();
+            report($e);
+        }
+
+        /*
+         * Keep the pure-PHP public-page parser as a fallback. This still uses
+         * no TikTok developer API and no signed /api/item/detail endpoint.
          */
         $attempts = [
             [
@@ -213,7 +236,7 @@ class TikTokVideoStatsService
             ],
         ];
 
-        $lastProblem = null;
+        $lastProblem = $impersonationProblem;
 
         foreach ($attempts as $attempt) {
             try {
@@ -241,6 +264,86 @@ class TikTokVideoStatsService
             'TikTok gaf geen actuele publieke videostatistieken terug'
             .($lastProblem ? ' ('.$lastProblem.')' : '.')
         );
+    }
+
+    /**
+     * Fetch the public TikTok page through curl_cffi browser impersonation.
+     * The helper prints one JSON object to stdout. It never needs a TikTok API
+     * key/token and it does not use a third-party scraping API.
+     */
+    private function fetchViaBrowserImpersonation(
+        string $videoUrl,
+        string $videoId
+    ): ?array {
+        $script = base_path('scripts/tiktok_public_fetch.py');
+
+        if (!is_file($script)) {
+            throw new RuntimeException(
+                'TikTok browser-impersonation helper ontbreekt op de server.'
+            );
+        }
+
+        $python = (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
+
+        if (!is_file($python) && $python !== 'python3') {
+            $python = 'python3';
+        }
+
+        $process = new Process([
+            $python,
+            $script,
+            $videoUrl,
+            $videoId,
+        ]);
+
+        $process->setTimeout(22);
+        $process->setIdleTimeout(18);
+        $process->run();
+
+        $stdout = trim($process->getOutput());
+        $stderr = trim($process->getErrorOutput());
+
+        if (!$process->isSuccessful()) {
+            $message = $stderr !== '' ? $stderr : $stdout;
+            $message = trim(preg_replace('/\s+/', ' ', $message) ?? '');
+
+            throw new RuntimeException(
+                'TikTok Chrome-impersonation mislukte'
+                .($message !== '' ? ': '.mb_substr($message, 0, 350) : '.')
+            );
+        }
+
+        $payload = json_decode($stdout, true);
+
+        if (!is_array($payload)) {
+            throw new RuntimeException(
+                'TikTok Chrome-impersonation gaf ongeldige JSON terug.'
+            );
+        }
+
+        if (($payload['success'] ?? false) !== true) {
+            $message = trim((string) ($payload['message'] ?? 'onbekende fout'));
+            throw new RuntimeException(
+                'TikTok Chrome-impersonation: '.$message
+            );
+        }
+
+        $stats = $payload['stats'] ?? null;
+
+        if (!is_array($stats)) {
+            return null;
+        }
+
+        return [
+            'views' => $this->toInt($stats['views'] ?? null),
+            'likes' => $this->toInt($stats['likes'] ?? null),
+            'comments' => $this->toInt($stats['comments'] ?? null),
+            'shares' => $this->toInt($stats['shares'] ?? null),
+            'author_name' => $payload['author_name'] ?? null,
+            'title' => $payload['title'] ?? null,
+            'thumbnail_url' => $payload['thumbnail_url'] ?? null,
+            'source' => 'tiktok-chrome-impersonation',
+        ];
     }
 
     /**
