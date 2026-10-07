@@ -229,10 +229,14 @@ def main():
             debug["body_prefix"] = body_text[:1800]
             debug["available"] = sum(v is not None for v in best.values())
 
-            if not best or all(best.get(k) is None for k in ("views", "likes", "comments", "shares")):
+            if (
+                not best
+                or all(best.get(k) is None for k in ("views", "likes", "comments", "shares"))
+                or all((best.get(k) or 0) == 0 for k in ("views", "likes", "comments", "shares"))
+            ):
                 emit({
                     "success": False,
-                    "message": "Geen Livecounts-counters in gerenderde pagina gevonden.",
+                    "message": "Livecounts bleef op placeholderwaarden staan; geen echte gerenderde counters gevonden.",
                     "stage": "parse_rendered_page",
                     "debug": debug,
                 }, 10)
