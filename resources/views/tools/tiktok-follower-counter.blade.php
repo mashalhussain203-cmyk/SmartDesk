@@ -469,7 +469,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-tiktok-followers-v1"
+                data-ui-build="20261008-follower-resolve-v2"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -479,6 +479,8 @@
                             id="tfc-avatar"
                             src="/icons/follower-profile.svg?v=1"
                             alt=""
+                            referrerpolicy="no-referrer"
+                            data-fallback-src="/icons/follower-profile.svg?v=1"
                         >
                     </div>
                     <div class="tfc-profile-name" id="tfc-display-name">{{ '@'.$username }}</div>
@@ -609,6 +611,14 @@
 
         avatar = document.getElementById('tfc-avatar');
         if (avatar && data.avatar_url) {
+            avatar.referrerPolicy = 'no-referrer';
+            avatar.onerror = function () {
+                var fallback = avatar.getAttribute('data-fallback-src');
+                avatar.onerror = null;
+                if (fallback) {
+                    avatar.src = fallback;
+                }
+            };
             avatar.src = data.avatar_url;
         }
 
