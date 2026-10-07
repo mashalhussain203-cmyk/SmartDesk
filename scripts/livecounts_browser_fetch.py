@@ -271,6 +271,22 @@ def main():
 
             page = context.new_page()
 
+            # The provider's stats request only needs its JavaScript.
+            # Skip heavy visual assets so the counter API response can arrive sooner.
+            def block_heavy_assets(route):
+                try:
+                    if route.request.resource_type in ("image", "media", "font"):
+                        route.abort()
+                    else:
+                        route.continue_()
+                except Exception:
+                    try:
+                        route.continue_()
+                    except Exception:
+                        pass
+
+            page.route("**/*", block_heavy_assets)
+
             captured = {
                 "stats": None,
                 "stats_url": None,
@@ -304,8 +320,8 @@ def main():
             try:
                 response = page.goto(
                     page_url,
-                    wait_until="domcontentloaded",
-                    timeout=12000,
+                    wait_until="commit",
+                    timeout=8000,
                 )
             except Exception as nav_exc:
                 debug["navigation_warning"] = str(nav_exc)
@@ -315,16 +331,26 @@ def main():
             debug["livecounts_mode"] = "browser-network-capture"
             debug["stage"] = "wait_for_livecounts_network"
 
-            deadline = time.time() + 14
+            deadline = time.time() + 10
             body_text = ""
             fallback_stats = {}
 
+            # Fast path: do not parse the DOM while the provider's own JSON
+            # response is still in flight. This lets us return almost
+            # immediately after /video/stats/{id} arrives.
             while time.time() < deadline:
                 if isinstance(captured.get("stats"), dict):
                     break
+                page.wait_for_timeout(100)
 
+            stats_payload = captured.get("stats")
+            data_payload = captured.get("data")
+
+            # Only touch the rendered DOM if the normal network response was
+            # not captured. This is a fallback, not part of the hot path.
+            if not isinstance(stats_payload, dict):
                 try:
-                    body_text = page.locator("body").inner_text(timeout=1500)
+                    body_text = page.locator("body").inner_text(timeout=1000)
                     fallback_stats = parse_body_text(body_text)
                     dom_stats = parse_dom(page)
                     for key in ("views", "likes", "comments", "shares"):
@@ -332,11 +358,6 @@ def main():
                             fallback_stats[key] = dom_stats.get(key)
                 except Exception:
                     pass
-
-                page.wait_for_timeout(350)
-
-            stats_payload = captured.get("stats")
-            data_payload = captured.get("data")
 
             def pick(d, *keys):
                 if not isinstance(d, dict):
