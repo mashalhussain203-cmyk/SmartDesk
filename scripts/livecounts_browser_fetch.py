@@ -365,7 +365,7 @@ def main():
 
             emit({
                 "success": True,
-                "source": "livecounts-official-embed-rendered",
+                "source": "livecounts-public-page-rendered",
                 "precision": "raw_integer",
                 "stats": best,
                 "title": (meta.get("page_title") if isinstance(meta, dict) else None) or title or None,
