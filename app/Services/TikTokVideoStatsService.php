@@ -110,11 +110,34 @@ class TikTokVideoStatsService
                 return $cached;
             }
 
-            $stats = $this->fetchViaLivecountsRenderedPage($videoId);
+            $stats = null;
+
+            // Fast path: the public JSON endpoint can answer in well under a
+            // second when it is available. Never wait long here; Chromium
+            // remains the reliable fallback.
+            try {
+                $fastStats = $this->fetchViaLivecounts($videoId, true);
+
+                if (
+                    is_array($fastStats)
+                    && $fastStats['views'] !== null
+                    && $fastStats['likes'] !== null
+                    && $fastStats['comments'] !== null
+                    && $fastStats['shares'] !== null
+                ) {
+                    $stats = $fastStats;
+                }
+            } catch (Throwable $ignored) {
+                // Fall through immediately to the browser-backed source.
+            }
+
+            if (!is_array($stats)) {
+                $stats = $this->fetchViaLivecountsRenderedPage($videoId);
+            }
 
             if (!is_array($stats)) {
                 throw new RuntimeException(
-                    'Livecounts leverde geen gerenderde tellerdata.'
+                    'Livecounts leverde geen tellerdata.'
                 );
             }
 
@@ -681,7 +704,7 @@ class TikTokVideoStatsService
         return null;
     }
 
-    private function fetchViaLivecounts(string $videoId): ?array
+    private function fetchViaLivecounts(string $videoId, bool $fast = false): ?array
     {
         $url = 'https://tiktok.livecounts.io/video/stats/'.rawurlencode($videoId);
 
@@ -696,9 +719,9 @@ class TikTokVideoStatsService
             'Cache-Control' => 'no-cache, no-store, max-age=0',
             'Pragma' => 'no-cache',
         ])
-            ->connectTimeout(5)
-            ->timeout(10)
-            ->retry(1, 300, throw: false)
+            ->connectTimeout($fast ? 0.6 : 5)
+            ->timeout($fast ? 1.1 : 10)
+            ->retry(1, $fast ? 0 : 300, throw: false)
             ->get($url, [
                 '_mashal_live' => $this->nowMs(),
             ]);
@@ -786,6 +809,7 @@ class TikTokVideoStatsService
         $title = null;
         $thumbnailUrl = null;
 
+        if (!$fast) {
         try {
             $metaResponse = Http::withHeaders([
                 'Accept' => 'application/json,text/plain,*/*',
@@ -825,6 +849,7 @@ class TikTokVideoStatsService
             }
         } catch (Throwable $ignored) {
             // Metadata is optional; stats remain usable.
+        }
         }
 
         return [
