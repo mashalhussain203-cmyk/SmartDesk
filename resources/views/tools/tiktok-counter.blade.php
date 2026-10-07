@@ -796,7 +796,7 @@
     .ttc-live-tools {
         margin: 14px 0 4px;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 8px;
     }
 
@@ -949,6 +949,28 @@
         border: 0;
         background: transparent;
         color-scheme: dark;
+    }
+
+    .ttc-direct-note {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #697483;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .ttc-direct-note strong {
+        color: #76e6aa;
+        font-weight: 800;
+    }
+
+    .ttc-direct-note a {
+        color: #9188ff;
+        text-decoration: none;
+        font-weight: 800;
     }
 
     .ttc-preview-player {
@@ -1181,7 +1203,7 @@
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
-                data-live-stats-endpoint="{{ route('tiktok-counter.live-cards', ['videoId' => $videoId]) }}"
+                data-livecounts-endpoint="{{ route('tiktok-counter.livecounts-cards', ['videoId' => $videoId]) }}"
                 data-supplemental-endpoint="{{ route('tiktok-counter.supplemental', ['videoId' => $videoId]) }}"
             >
                 <aside class="ttc-card ttc-preview">
@@ -1206,7 +1228,7 @@
                     <div class="ttc-dashboard-head">
                         <div class="ttc-status">
                             <span class="ttc-status-dot" id="ttc-status-dot"></span>
-                            <span id="ttc-status-text">Live data laden…</span>
+                            <span id="ttc-status-text">Directe Livecounts bron laden…</span>
                         </div>
 
                         <div class="ttc-updated" id="ttc-updated">
@@ -1216,6 +1238,9 @@
 
                     <div class="ttc-live-tools">
                         <button class="ttc-live-tool" type="button" id="ttc-change-user">⌕ Change User</button>
+                        <a class="ttc-live-tool" href="https://livecounts.io/compare/tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">⇄ Compare</a>
+                        <a class="ttc-live-tool" href="https://livecounts.io/spotlight?service=tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">✦ Spotlight</a>
+                        <a class="ttc-live-tool" href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">◉ Open Livecounts</a>
                         <button class="ttc-live-tool" type="button" id="ttc-share">↗ Share</button>
                         <a class="ttc-live-tool" href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer">♪ Visit TikTok</a>
                     </div>
@@ -1226,8 +1251,8 @@
                                 <div class="ttc-stat-label">Views</div>
                                 <div class="ttc-stat-badge">◉</div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-live-stat="views">—</div>
-                            <div class="ttc-stat-delta">Realtime</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1235,8 +1260,8 @@
                                 <div class="ttc-stat-label">Likes</div>
                                 <div class="ttc-stat-badge">♥</div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-live-stat="likes">—</div>
-                            <div class="ttc-stat-delta">Realtime</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1244,8 +1269,8 @@
                                 <div class="ttc-stat-label">Comments</div>
                                 <div class="ttc-stat-badge">●</div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-live-stat="comments">—</div>
-                            <div class="ttc-stat-delta">Realtime</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1253,8 +1278,8 @@
                                 <div class="ttc-stat-label">Shares</div>
                                 <div class="ttc-stat-badge">↗</div>
                             </div>
-                            <div class="ttc-stat-value ttc-loading" data-live-stat="shares">—</div>
-                            <div class="ttc-stat-delta">Realtime</div>
+                            <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
+                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
                     </div>
 
@@ -1271,7 +1296,12 @@
                         </div>
                     </div>
 
-<div class="ttc-actions">
+                    <div class="ttc-direct-note">
+                        <span><strong>LIVECOUNTS</strong> · Views, Likes, Comments en Shares komen uit de gerenderde officiële Livecounts-teller.</span>
+                        <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
+                    </div>
+
+                    <div class="ttc-actions">
                         <button class="ttc-action" type="button" id="ttc-copy">
                             ⧉ Link kopiëren
                         </button>
@@ -1315,14 +1345,14 @@
     var statusText = document.getElementById('ttc-status-text');
     var statusDot = document.getElementById('ttc-status-dot');
     var updatedElement = document.getElementById('ttc-updated');
-    var statsEndpoint = root.getAttribute('data-live-stats-endpoint') || '';
-    var statElements = {
-        views: document.querySelector('[data-live-stat="views"]'),
-        likes: document.querySelector('[data-live-stat="likes"]'),
-        comments: document.querySelector('[data-live-stat="comments"]'),
-        shares: document.querySelector('[data-live-stat="shares"]')
+    var livecountsEndpoint = root.getAttribute('data-livecounts-endpoint') || '';
+    var livecountsElements = {
+        views: document.querySelector('[data-livecounts-stat="views"]'),
+        likes: document.querySelector('[data-livecounts-stat="likes"]'),
+        comments: document.querySelector('[data-livecounts-stat="comments"]'),
+        shares: document.querySelector('[data-livecounts-stat="shares"]')
     };
-    var statsTimer = null;
+    var livecountsTimer = null;
     var changeUserButton = document.getElementById('ttc-change-user');
     var shareButton = document.getElementById('ttc-share');
     var copyButton = document.getElementById('ttc-copy');
@@ -1551,25 +1581,25 @@
         }
     }
 
-    function scheduleStats() {
-        if (statsTimer !== null) {
-            window.clearTimeout(statsTimer);
+    function scheduleLivecounts() {
+        if (livecountsTimer !== null) {
+            window.clearTimeout(livecountsTimer);
         }
-        statsTimer = window.setTimeout(loadStatsCards, 5000);
+        livecountsTimer = window.setTimeout(loadLivecountsCards, 5000);
     }
 
-    function loadStatsCards() {
+    function loadLivecountsCards() {
         var xhr;
 
-        if (!statsEndpoint) {
+        if (!livecountsEndpoint) {
             return;
         }
 
         xhr = new XMLHttpRequest();
         xhr.open(
             'GET',
-            statsEndpoint
-                + (statsEndpoint.indexOf('?') === -1 ? '?' : '&')
+            livecountsEndpoint
+                + (livecountsEndpoint.indexOf('?') === -1 ? '?' : '&')
                 + '_=' + encodeURIComponent(String(new Date().getTime())),
             true
         );
@@ -1590,22 +1620,22 @@
             }
 
             if (xhr.status < 200 || xhr.status >= 300) {
-                setStatus('Live data kon niet worden opgehaald', false);
-                scheduleStats();
+                setStatus('Livecounts-data kon niet worden opgehaald', false);
+                scheduleLivecounts();
                 return;
             }
 
             try {
                 data = JSON.parse(xhr.responseText || '{}');
             } catch (error) {
-                setStatus('Ongeldige live data-response', false);
-                scheduleStats();
+                setStatus('Ongeldige Livecounts-response', false);
+                scheduleLivecounts();
                 return;
             }
 
             if (!data || data.success === false || !data.stats) {
-                setStatus(data && data.message ? data.message : 'Geen live statistieken ontvangen', false);
-                scheduleStats();
+                setStatus(data && data.message ? data.message : 'Livecounts gaf geen stats terug', false);
+                scheduleLivecounts();
                 return;
             }
 
@@ -1613,29 +1643,29 @@
 
             for (i = 0; i < keys.length; i += 1) {
                 key = keys[i];
-                element = statElements[key];
+                element = livecountsElements[key];
                 if (!element) {
                     continue;
                 }
                 animateOdometer(element, stats[key]);
             }
 
-            setStatus('Live data actief · Views, Likes, Comments en Shares', true);
+            setStatus('Livecounts actief · Views, Likes, Comments en Shares', true);
             if (updatedElement) {
                 updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL');
             }
 
-            scheduleStats();
+            scheduleLivecounts();
         };
 
         xhr.onerror = function () {
-            setStatus('Netwerkfout bij live data', false);
-            scheduleStats();
+            setStatus('Netwerkfout bij Livecounts', false);
+            scheduleLivecounts();
         };
 
         xhr.ontimeout = function () {
-            setStatus('Live data ophalen duurde te lang', false);
-            scheduleStats();
+            setStatus('Livecounts ophalen duurde te lang', false);
+            scheduleLivecounts();
         };
 
         xhr.send(null);
@@ -1805,12 +1835,12 @@
         };
     }
 
-    loadStatsCards();
+    loadLivecountsCards();
     loadFavorites();
 
     window.addEventListener('beforeunload', function () {
-        if (statsTimer !== null) {
-            window.clearTimeout(statsTimer);
+        if (livecountsTimer !== null) {
+            window.clearTimeout(livecountsTimer);
         }
         if (favoritesTimer !== null) {
             window.clearTimeout(favoritesTimer);
