@@ -132,6 +132,7 @@ class TikTokCounterController extends Controller
                         'likes' => $stats['likes'] ?? null,
                         'comments' => $stats['comments'] ?? null,
                         'shares' => $stats['shares'] ?? null,
+                        'favorites' => $stats['favorites'] ?? null,
                     ],
 
                     'author_name' => $stats['author_name'] ?? null,
