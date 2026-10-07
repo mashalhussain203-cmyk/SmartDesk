@@ -1320,7 +1320,7 @@
         );
         xhr.setRequestHeader('Accept', 'application/json');
         xhr.setRequestHeader('Cache-Control', 'no-cache');
-        xhr.timeout = 30000;
+        xhr.timeout = 40000;
 
         xhr.onreadystatechange = function () {
             var data;
