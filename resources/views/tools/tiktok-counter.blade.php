@@ -1068,6 +1068,84 @@
         letter-spacing: .06em;
         text-transform: uppercase;
     }
+
+    /* Livecounts-style rolling number animation. */
+    .ttc-odometer {
+        display: inline-flex;
+        align-items: baseline;
+        white-space: nowrap;
+        font: inherit;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ttc-odo-digit {
+        width: .62em;
+        height: 1em;
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+    }
+
+    .ttc-odo-reel {
+        position: absolute;
+        inset: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+        transition-property: transform;
+        transition-duration: var(--odo-duration, 620ms);
+        transition-timing-function: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .ttc-odo-number {
+        width: 100%;
+        height: 1em;
+        flex: 0 0 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    .ttc-odo-separator {
+        width: .34em;
+        height: 1em;
+        display: inline-flex;
+        align-items: flex-end;
+        justify-content: center;
+        line-height: 1;
+        opacity: .82;
+    }
+
+    .ttc-odo-flash {
+        animation: ttcOdoFlash .72s ease-out;
+    }
+
+    @keyframes ttcOdoFlash {
+        0% {
+            text-shadow: 0 0 0 rgba(149,140,255,0);
+        }
+        35% {
+            text-shadow: 0 0 18px rgba(149,140,255,.38);
+        }
+        100% {
+            text-shadow: 0 0 0 rgba(149,140,255,0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ttc-odo-reel {
+            transition: none !important;
+        }
+
+        .ttc-odo-flash {
+            animation: none !important;
+        }
+    }
+
 </style>
 @endpush
 
@@ -1284,6 +1362,213 @@
     var favoritesSource = document.getElementById('ttc-favorites-source');
     var favoritesTimer = null;
 
+
+    function odometerFormatted(value) {
+        var number = Number(value);
+
+        if (!isFinite(number)) {
+            return null;
+        }
+
+        try {
+            return Math.max(0, Math.round(number)).toLocaleString('nl-NL');
+        } catch (error) {
+            return String(Math.max(0, Math.round(number)));
+        }
+    }
+
+    function buildOdometer(element, formatted, numericValue, animateInitial) {
+        var chars = formatted.split('');
+        var digitCount = 0;
+        var fragment = document.createDocumentFragment();
+        var digitSlots = [];
+        var i;
+        var ch;
+        var slot;
+        var reel;
+        var n;
+        var startDigit;
+
+        element.textContent = '';
+        element.classList.add('ttc-odometer');
+        element.setAttribute('aria-label', formatted);
+
+        for (i = 0; i < chars.length; i += 1) {
+            ch = chars[i];
+
+            if (/\d/.test(ch)) {
+                slot = document.createElement('span');
+                slot.className = 'ttc-odo-digit';
+                slot.setAttribute('aria-hidden', 'true');
+
+                reel = document.createElement('span');
+                reel.className = 'ttc-odo-reel';
+
+                for (n = 0; n < 40; n += 1) {
+                    var digit = document.createElement('span');
+                    digit.className = 'ttc-odo-number';
+                    digit.textContent = String(n % 10);
+                    reel.appendChild(digit);
+                }
+
+                slot.appendChild(reel);
+                fragment.appendChild(slot);
+
+                startDigit = Number(ch);
+                slot._odoIndex = animateInitial ? 10 : 10 + startDigit;
+                slot._odoDigit = animateInitial ? 0 : startDigit;
+                slot._odoReel = reel;
+                slot._odoPlace = chars.length - i - 1;
+                reel.style.setProperty(
+                    '--odo-duration',
+                    String(480 + Math.min(7, digitCount) * 42) + 'ms'
+                );
+                reel.style.transform = 'translate3d(0,' + (-slot._odoIndex) + 'em,0)';
+
+                digitSlots.push({
+                    slot: slot,
+                    target: startDigit
+                });
+                digitCount += 1;
+            } else {
+                var separator = document.createElement('span');
+                separator.className = 'ttc-odo-separator';
+                separator.setAttribute('aria-hidden', 'true');
+                separator.textContent = ch;
+                fragment.appendChild(separator);
+            }
+        }
+
+        element.appendChild(fragment);
+        element._odoFormatted = formatted;
+        element._odoValue = numericValue;
+        element._odoSlots = digitSlots.map(function (item) {
+            return item.slot;
+        });
+
+        if (animateInitial) {
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    for (var j = 0; j < digitSlots.length; j += 1) {
+                        moveOdometerDigit(
+                            digitSlots[j].slot,
+                            digitSlots[j].target,
+                            true,
+                            j
+                        );
+                    }
+                });
+            });
+        }
+    }
+
+    function moveOdometerDigit(slot, newDigit, goingUp, order) {
+        var currentIndex = Number(slot._odoIndex);
+        var currentDigit = Number(slot._odoDigit);
+        var delta;
+        var targetIndex;
+        var reel = slot._odoReel;
+
+        if (!reel || !isFinite(currentIndex)) {
+            return;
+        }
+
+        if (goingUp) {
+            delta = (newDigit - currentDigit + 10) % 10;
+            targetIndex = currentIndex + delta;
+        } else {
+            delta = (currentDigit - newDigit + 10) % 10;
+            targetIndex = currentIndex - delta;
+        }
+
+        if (targetIndex < 2 || targetIndex > 37) {
+            reel.style.transition = 'none';
+            currentIndex = 10 + currentDigit;
+            slot._odoIndex = currentIndex;
+            reel.style.transform = 'translate3d(0,' + (-currentIndex) + 'em,0)';
+            reel.offsetHeight;
+            reel.style.transition = '';
+            targetIndex = goingUp
+                ? currentIndex + ((newDigit - currentDigit + 10) % 10)
+                : currentIndex - ((currentDigit - newDigit + 10) % 10);
+        }
+
+        reel.style.transitionDelay = String(Math.min(180, order * 24)) + 'ms';
+        reel.style.transform = 'translate3d(0,' + (-targetIndex) + 'em,0)';
+
+        slot._odoIndex = targetIndex;
+        slot._odoDigit = newDigit;
+    }
+
+    function animateOdometer(element, value) {
+        var numericValue = Number(value);
+        var formatted;
+        var oldFormatted;
+        var oldValue;
+        var oldDigits;
+        var newDigits;
+        var goingUp;
+        var slots;
+        var i;
+
+        if (!element || !isFinite(numericValue)) {
+            return;
+        }
+
+        numericValue = Math.max(0, Math.round(numericValue));
+        formatted = odometerFormatted(numericValue);
+
+        if (formatted === null) {
+            return;
+        }
+
+        oldFormatted = element._odoFormatted;
+        oldValue = Number(element._odoValue);
+
+        if (!oldFormatted || !Array.isArray(element._odoSlots)) {
+            buildOdometer(element, formatted, numericValue, true);
+            element.classList.remove('ttc-loading');
+            return;
+        }
+
+        if (oldValue === numericValue) {
+            element.classList.remove('ttc-loading');
+            return;
+        }
+
+        oldDigits = oldFormatted.replace(/\D/g, '');
+        newDigits = formatted.replace(/\D/g, '');
+
+        if (oldDigits.length !== newDigits.length) {
+            buildOdometer(element, formatted, numericValue, false);
+            element.classList.remove('ttc-loading');
+            element.classList.remove('ttc-odo-flash');
+            element.offsetHeight;
+            element.classList.add('ttc-odo-flash');
+            return;
+        }
+
+        slots = element._odoSlots;
+        goingUp = !isFinite(oldValue) || numericValue >= oldValue;
+
+        for (i = 0; i < slots.length && i < newDigits.length; i += 1) {
+            moveOdometerDigit(
+                slots[i],
+                Number(newDigits.charAt(i)),
+                goingUp,
+                i
+            );
+        }
+
+        element._odoFormatted = formatted;
+        element._odoValue = numericValue;
+        element.setAttribute('aria-label', formatted);
+        element.classList.remove('ttc-loading');
+        element.classList.remove('ttc-odo-flash');
+        element.offsetHeight;
+        element.classList.add('ttc-odo-flash');
+    }
+
     function formatCount(value) {
         var number = Number(value);
         if (!isFinite(number)) {
@@ -1362,10 +1647,7 @@
                 if (!element) {
                     continue;
                 }
-                element.textContent = formatCount(stats[key]);
-                if (element.classList) {
-                    element.classList.remove('ttc-loading');
-                }
+                animateOdometer(element, stats[key]);
             }
 
             setStatus('Livecounts actief · Views, Likes, Comments en Shares', true);
@@ -1438,11 +1720,7 @@
             value = data && data.stats ? Number(data.stats.favorites) : NaN;
 
             if (isFinite(value)) {
-                try {
-                    favoritesValue.textContent = value.toLocaleString('nl-NL');
-                } catch (error) {
-                    favoritesValue.textContent = String(value);
-                }
+                animateOdometer(favoritesValue, value);
 
                 if (favoritesSource) {
                     favoritesSource.textContent = 'TikTok public · collectCount · elke 15 sec';
