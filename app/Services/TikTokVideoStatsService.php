@@ -119,12 +119,53 @@ class TikTokVideoStatsService
             throw new RuntimeException('Ongeldige TikTok zoekterm.');
         }
 
-        $cacheKey = 'tiktok-live-follower:search:v1:'
+        $cacheKey = 'tiktok-live-follower:search:v2:'
             .sha1(mb_strtolower($query));
 
         $cached = Cache::get($cacheKey);
         if (is_array($cached)) {
             return $cached;
+        }
+
+        /*
+         * Fast path: ordinary public Livecounts search request.
+         * No challenge headers or bypass logic are used. If the provider
+         * refuses/rate-limits it, immediately fall back to the browser page
+         * so its own JavaScript can perform the request.
+         */
+        try {
+            $response = Http::withHeaders([
+                'Accept' => 'application/json,text/plain,*/*',
+                'Origin' => 'https://livecounts.io',
+                'Referer' => 'https://livecounts.io/tiktok-live-follower-counter',
+                'User-Agent' =>
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                    .'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    .'Chrome/141.0.0.0 Safari/537.36',
+                'Cache-Control' => 'no-cache',
+            ])
+                ->connectTimeout(1.5)
+                ->timeout(3)
+                ->get(
+                    'https://tiktok.livecounts.io/user/search/'
+                    .rawurlencode($query)
+                );
+
+            if ($response->successful()) {
+                $payload = $response->json();
+
+                if (is_array($payload)) {
+                    $results = $this->normalizeLiveFollowerSearchResults($payload);
+
+                    if ($results !== []) {
+                        Cache::put($cacheKey, $results, now()->addSeconds(60));
+
+                        return $results;
+                    }
+                }
+            }
+        } catch (Throwable $ignored) {
+            // Browser fallback below.
         }
 
         $script = base_path('scripts/livecounts_follower_search.py');
@@ -149,7 +190,10 @@ class TikTokVideoStatsService
             $script,
             $query,
         ]);
-        $process->setTimeout(18);
+
+        // Chromium startup + the provider's debounced account search can take
+        // longer on a cold Railway container. Do not kill it at 18 seconds.
+        $process->setTimeout(34);
         $process->setIdleTimeout(null);
         $process->run();
 
@@ -182,14 +226,53 @@ class TikTokVideoStatsService
             return [];
         }
 
-        $normalized = [];
+        $normalized = $this->normalizeLiveFollowerSearchResults([
+            'userData' => $results,
+        ]);
 
-        foreach (array_slice($results, 0, 8) as $item) {
+        Cache::put($cacheKey, $normalized, now()->addSeconds(60));
+
+        return $normalized;
+    }
+
+    private function normalizeLiveFollowerSearchResults(array $payload): array
+    {
+        $items = $payload['userData']
+            ?? $payload['users']
+            ?? $payload['results']
+            ?? $payload['items']
+            ?? $payload['data']
+            ?? [];
+
+        if (is_array($items) && isset($items['userData']) && is_array($items['userData'])) {
+            $items = $items['userData'];
+        } elseif (is_array($items) && isset($items['users']) && is_array($items['users'])) {
+            $items = $items['users'];
+        } elseif (is_array($items) && isset($items['results']) && is_array($items['results'])) {
+            $items = $items['results'];
+        }
+
+        if (!is_array($items)) {
+            return [];
+        }
+
+        $normalized = [];
+        $seen = [];
+
+        foreach ($items as $item) {
             if (!is_array($item)) {
                 continue;
             }
 
-            $username = trim((string) ($item['username'] ?? ''));
+            $username = trim((string) (
+                $item['id']
+                ?? $item['uniqueId']
+                ?? $item['unique_id']
+                ?? $item['handle']
+                ?? $item['username']
+                ?? ''
+            ));
+            $username = ltrim($username, '@');
 
             if (
                 $username === ''
@@ -198,22 +281,46 @@ class TikTokVideoStatsService
                 continue;
             }
 
+            $key = mb_strtolower($username);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+
+            $displayName = trim((string) (
+                $item['username']
+                ?? $item['displayName']
+                ?? $item['display_name']
+                ?? $item['nickname']
+                ?? $username
+            ));
+
+            $avatarUrl = $item['avatar']
+                ?? $item['avatarUrl']
+                ?? $item['avatar_url']
+                ?? $item['thumbnail']
+                ?? $item['picture']
+                ?? null;
+
+            $userId = $item['userId']
+                ?? $item['user_id']
+                ?? $item['uid']
+                ?? null;
+
             $normalized[] = [
-                'user_id' => isset($item['user_id'])
-                    ? (string) $item['user_id']
-                    : null,
+                'user_id' => $userId !== null ? (string) $userId : null,
                 'username' => $username,
-                'display_name' => trim(
-                    (string) ($item['display_name'] ?? $username)
-                ),
-                'avatar_url' => isset($item['avatar_url'])
-                    ? (string) $item['avatar_url']
+                'display_name' => $displayName !== '' ? $displayName : $username,
+                'avatar_url' => is_string($avatarUrl) && $avatarUrl !== ''
+                    ? $avatarUrl
                     : null,
                 'verified' => (bool) ($item['verified'] ?? false),
             ];
-        }
 
-        Cache::put($cacheKey, $normalized, now()->addSeconds(60));
+            if (count($normalized) >= 8) {
+                break;
+            }
+        }
 
         return $normalized;
     }
