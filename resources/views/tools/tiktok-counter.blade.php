@@ -1435,7 +1435,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-instant-first-value-v7"
+                data-ui-build="20261007-comma-separators-v8"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1555,7 +1555,7 @@
         numericValue = Math.max(0, Math.round(numericValue));
 
         try {
-            formatted = numericValue.toLocaleString('nl-NL');
+            formatted = numericValue.toLocaleString('en-US');
         } catch (error) {
             formatted = String(numericValue);
         }
@@ -1574,7 +1574,7 @@
             element._mashalOdometer = new window.Odometer({
                 el: element,
                 value: numericValue,
-                format: '(.ddd)',
+                format: '(,ddd)',
                 theme: 'minimal',
                 duration: 900
             });
@@ -1591,7 +1591,7 @@
             return '—';
         }
         try {
-            return number.toLocaleString('nl-NL');
+            return number.toLocaleString('en-US');
         } catch (error) {
             return String(number);
         }
