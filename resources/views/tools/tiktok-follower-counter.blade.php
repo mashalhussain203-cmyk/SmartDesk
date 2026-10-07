@@ -601,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-account-autocomplete-v3"
+                data-ui-build="20261008-account-search-v4"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -683,6 +683,7 @@
     var debounceTimer = null;
     var controller = null;
     var items = [];
+    var cachedResults = [];
     var activeIndex = -1;
     var lastQuery = '';
 
@@ -754,6 +755,9 @@
     function renderResults(results) {
         list.innerHTML = '';
         items = Array.isArray(results) ? results : [];
+        if (items.length) {
+            cachedResults = items.slice();
+        }
         activeIndex = -1;
 
         if (!items.length) {
@@ -903,7 +907,30 @@
     }
 
     input.addEventListener('input', function () {
+        var query = input.value.trim().replace(/^@/, '').toLowerCase();
+        var filtered = [];
+
         window.clearTimeout(debounceTimer);
+
+        if (query.length < 2) {
+            closeList();
+            return;
+        }
+
+        if (cachedResults.length) {
+            filtered = cachedResults.filter(function (account) {
+                var username = String(account.username || '').toLowerCase();
+                var displayName = String(account.display_name || '').toLowerCase();
+
+                return username.indexOf(query) !== -1
+                    || displayName.indexOf(query) !== -1;
+            });
+
+            if (filtered.length) {
+                renderResults(filtered);
+            }
+        }
+
         debounceTimer = window.setTimeout(runSearch, 550);
     });
 
