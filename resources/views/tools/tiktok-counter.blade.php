@@ -1352,6 +1352,24 @@
         }
     }
 
+
+    /* Requested icon color refinements. */
+    .ttc-stat--views .ttc-stat-badge {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .ttc-stat--comments .ttc-stat-badge {
+        background: rgba(47,128,237,.10) !important;
+        border-color: rgba(47,128,237,.22) !important;
+    }
+
+    .ttc-stat--shares .ttc-stat-badge {
+        background: rgba(34,197,94,.10) !important;
+        border-color: rgba(34,197,94,.22) !important;
+    }
+
 </style>
 @endpush
 
@@ -1406,7 +1424,7 @@
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-real-icons-v4"
+                data-ui-build="20261007-icon-colors-v5"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1436,7 +1454,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Views</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-eye.svg?v=20261007-4" width="32" height="32" alt="">
+                                    <img src="/icons/live-eye.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
@@ -1456,7 +1474,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Comments</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-comment.svg?v=20261007-4" width="32" height="32" alt="">
+                                    <img src="/icons/live-comment.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
@@ -1466,7 +1484,7 @@
                             <div class="ttc-stat-head">
                                 <div class="ttc-stat-label">Shares</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
-                                    <img src="/icons/live-share.svg?v=20261007-4" width="32" height="32" alt="">
+                                    <img src="/icons/live-share.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
