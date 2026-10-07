@@ -174,17 +174,34 @@ def main():
                 "stats": None,
                 "stats_url": None,
                 "stats_status": None,
+                "search": None,
+                "search_url": None,
+                "search_status": None,
             }
 
             def on_response(resp):
                 try:
                     url = resp.url
-                    if "/user/stats/" in url:
-                        payload = resp.json()
-                        if isinstance(payload, dict):
-                            captured["stats"] = payload
-                            captured["stats_url"] = url
-                            captured["stats_status"] = resp.status
+
+                    if "/user/search/" in url:
+                        captured["search_url"] = url
+                        captured["search_status"] = resp.status
+
+                        if 200 <= resp.status < 300:
+                            payload = resp.json()
+                            if isinstance(payload, dict):
+                                captured["search"] = payload
+
+                    elif "/user/stats/" in url:
+                        captured["stats_url"] = url
+                        captured["stats_status"] = resp.status
+
+                        # Ignore 429/error bodies and keep listening for the
+                        # page's own next successful stats response.
+                        if 200 <= resp.status < 300:
+                            payload = resp.json()
+                            if isinstance(payload, dict):
+                                captured["stats"] = payload
                 except Exception:
                     pass
 
@@ -241,10 +258,10 @@ def main():
 
             if isinstance(stats_payload, dict):
                 stats = {
-                    "followers": pick(stats_payload, "followers", "followerCount", "follower_count"),
-                    "likes": pick(stats_payload, "likes", "heartCount", "heart_count"),
-                    "following": pick(stats_payload, "following", "followingCount", "following_count"),
-                    "videos": pick(stats_payload, "videos", "videoCount", "video_count"),
+                    "followers": pick(stats_payload, "followerCount", "followers", "follower_count"),
+                    "likes": pick(stats_payload, "likeCount", "likes", "like_count"),
+                    "following": pick(stats_payload, "followingCount", "following", "following_count"),
+                    "videos": pick(stats_payload, "videoCount", "videos", "video_count"),
                 }
                 source = "livecounts-follower-browser-network"
             else:
@@ -254,11 +271,49 @@ def main():
                 }
                 source = "livecounts-follower-public-page-rendered"
 
-            meta = extract_profile_meta(page, username)
+            display_name = None
+            avatar_url = None
+            resolved_user_id = None
+
+            search_payload = captured.get("search")
+            if isinstance(search_payload, dict):
+                users = search_payload.get("userData")
+                if isinstance(users, list):
+                    requested = username.lower()
+                    chosen = None
+
+                    for item in users:
+                        if not isinstance(item, dict):
+                            continue
+                        candidate = str(item.get("id") or "").lstrip("@").lower()
+                        if candidate == requested:
+                            chosen = item
+                            break
+
+                    if chosen is None:
+                        for item in users:
+                            if isinstance(item, dict):
+                                chosen = item
+                                break
+
+                    if isinstance(chosen, dict):
+                        resolved_user_id = chosen.get("userId")
+                        display_name = chosen.get("username") or chosen.get("id")
+                        avatar_url = chosen.get("avatar")
+
+            if not display_name or not avatar_url:
+                meta = extract_profile_meta(page, username)
+                if isinstance(meta, dict):
+                    display_name = display_name or meta.get("display_name")
+                    avatar_url = avatar_url or meta.get("avatar_url")
 
             debug["network_stats_captured"] = isinstance(stats_payload, dict)
             debug["network_stats_url"] = captured.get("stats_url")
             debug["network_stats_status"] = captured.get("stats_status")
+            debug["network_search_captured"] = isinstance(search_payload, dict)
+            debug["network_search_url"] = captured.get("search_url")
+            debug["network_search_status"] = captured.get("search_status")
+            debug["resolved_user_id"] = resolved_user_id
             debug["stats_keys"] = list(stats_payload.keys())[:30] if isinstance(stats_payload, dict) else []
             debug["body_prefix"] = body_text[:1000]
             debug["stage"] = "parsed"
@@ -279,8 +334,8 @@ def main():
                 "source": source,
                 "precision": "raw_integer",
                 "username": username,
-                "display_name": meta.get("display_name") if isinstance(meta, dict) else None,
-                "avatar_url": meta.get("avatar_url") if isinstance(meta, dict) else None,
+                "display_name": display_name,
+                "avatar_url": avatar_url,
                 "stats": stats,
                 "debug": debug,
             })
