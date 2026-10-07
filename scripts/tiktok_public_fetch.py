@@ -5,22 +5,26 @@ import re
 import sys
 import time
 from urllib.parse import urlsplit, urlunsplit, urlencode, parse_qsl
+from urllib.request import Request, build_opener, HTTPCookieProcessor
+from urllib.error import HTTPError, URLError
+import http.cookiejar
 
 
 def emit(obj, exit_code=0):
-    print(json.dumps(obj, ensure_ascii=False))
+    print(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
     raise SystemExit(exit_code)
 
+
+# curl_cffi is preferred, but the helper must not crash when Railway did not
+# install it. In that case we still try a normal browser-like HTTPS request.
 try:
-    from curl_cffi import requests
+    from curl_cffi import requests as curl_requests
+    HAS_CURL_CFFI = True
+    CURL_CFFI_ERROR = None
 except Exception as exc:
-    emit({
-        "success": False,
-        "stage": "import_curl_cffi",
-        "message": f"curl_cffi kon niet worden geïmporteerd: {exc}",
-        "python": sys.executable,
-        "python_version": sys.version.split()[0],
-    }, 3)
+    curl_requests = None
+    HAS_CURL_CFFI = False
+    CURL_CFFI_ERROR = repr(exc)
 
 
 def add_buster(url):
@@ -32,8 +36,10 @@ def add_buster(url):
 
 
 def script_json(page, script_id):
+    # IMPORTANT: use \b, not \\b. The previous build accidentally searched for
+    # literal backslashes and therefore missed TikTok's hydration scripts.
     pattern = re.compile(
-        r'<script\\b[^>]*\\bid=["\\\']' + re.escape(script_id) + r'["\\\'][^>]*>(.*?)</script>',
+        r'<script\b[^>]*\bid=["\']' + re.escape(script_id) + r'["\'][^>]*>(.*?)</script>',
         re.I | re.S,
     )
     m = pattern.search(page)
@@ -51,7 +57,10 @@ def has_stats(obj):
         return False
     stats = obj.get("stats") or obj.get("statsV2") or obj.get("statistics")
     return isinstance(stats, dict) and any(
-        k in stats for k in ("playCount", "play_count", "viewCount", "view_count", "diggCount", "likeCount")
+        k in stats for k in (
+            "playCount", "play_count", "viewCount", "view_count",
+            "diggCount", "digg_count", "likeCount", "like_count",
+        )
     )
 
 
@@ -68,7 +77,7 @@ def recursive_find(node, video_id, depth=0):
     if isinstance(node, dict):
         if has_stats(node) and video_matches(node, video_id):
             return node
-        direct = node.get(video_id)
+        direct = node.get(str(video_id))
         if isinstance(direct, dict) and has_stats(direct):
             return direct
         for value in node.values():
@@ -89,6 +98,9 @@ def first_int(*values):
     for v in values:
         if v is None or isinstance(v, bool):
             continue
+        if isinstance(v, dict):
+            # statsV2 sometimes wraps numbers in {"value":"123"}
+            v = v.get("value") or v.get("count")
         try:
             return int(str(v).replace(",", "").strip())
         except Exception:
@@ -104,6 +116,7 @@ def normalize(item):
         author_name = author.get("uniqueId") or author.get("unique_id") or author.get("username") or author.get("nickname")
     elif isinstance(author, str):
         author_name = author
+
     video = item.get("video") if isinstance(item.get("video"), dict) else {}
     thumb = video.get("cover") or video.get("originCover") or video.get("origin_cover") or video.get("dynamicCover")
     if isinstance(thumb, dict):
@@ -111,6 +124,7 @@ def normalize(item):
         thumb = urls[0] if isinstance(urls, list) and urls else thumb.get("url")
     if isinstance(thumb, list):
         thumb = thumb[0] if thumb else None
+
     return {
         "views": first_int(stats.get("playCount"), stats.get("play_count"), stats.get("viewCount"), stats.get("view_count")),
         "likes": first_int(stats.get("diggCount"), stats.get("digg_count"), stats.get("likeCount"), stats.get("like_count")),
@@ -123,14 +137,15 @@ def parse_item(page, video_id):
     detected_scripts = []
     for sid in ("SIGI_STATE", "__UNIVERSAL_DATA_FOR_REHYDRATION__", "__NEXT_DATA__"):
         data = script_json(page, sid)
-        if isinstance(data, dict):
-            detected_scripts.append(sid)
-        else:
+        if not isinstance(data, dict):
             continue
+        detected_scripts.append(sid)
+
         if sid == "SIGI_STATE":
-            direct = (data.get("ItemModule") or {}).get(video_id)
+            direct = (data.get("ItemModule") or {}).get(str(video_id))
             if isinstance(direct, dict) and has_stats(direct):
                 return direct, detected_scripts, sid
+
         if sid == "__UNIVERSAL_DATA_FOR_REHYDRATION__":
             scope = data.get("__DEFAULT_SCOPE__") or data.get("DEFAULT_SCOPE") or {}
             detail = scope.get("webapp.video-detail") or {}
@@ -138,12 +153,13 @@ def parse_item(page, video_id):
                       or (detail.get("item_info") or {}).get("item_struct"))
             if isinstance(direct, dict) and has_stats(direct) and video_matches(direct, video_id):
                 return direct, detected_scripts, sid
+
         found = recursive_find(data, video_id)
         if found is not None:
             return found, detected_scripts, sid
 
     app_json_count = 0
-    for raw in re.findall(r'<script\\b[^>]*type=["\\\']application/json["\\\'][^>]*>(.*?)</script>', page, re.I | re.S):
+    for raw in re.findall(r'<script\b[^>]*type=["\']application/json["\'][^>]*>(.*?)</script>', page, re.I | re.S):
         app_json_count += 1
         try:
             data = json.loads(htmlmod.unescape(raw).strip())
@@ -152,19 +168,98 @@ def parse_item(page, video_id):
         found = recursive_find(data, video_id)
         if found is not None:
             return found, detected_scripts + [f"application/json:{app_json_count}"], "application/json"
-    return None, detected_scripts + ([f"application/json_count={app_json_count}"] if app_json_count else []), None
+
+    if app_json_count:
+        detected_scripts.append(f"application/json_count={app_json_count}")
+    return None, detected_scripts, None
 
 
 def challenge_reason(page):
     sample = page[:350000].lower()
-    needles = (
+    for needle in (
         "secsdk-captcha", "verify to continue", "verify you are human",
-        "security verification", "captcha", "access denied", "robot",
-    )
-    for needle in needles:
+        "security verification", "captcha", "access denied", "robot check",
+    ):
         if needle in sample:
             return needle
     return None
+
+
+COMMON_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9,nl;q=0.7",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+    "Referer": "https://www.tiktok.com/",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
+def fetch_with_curl_cffi(url):
+    started = time.monotonic()
+    r = curl_requests.get(
+        url,
+        headers=COMMON_HEADERS,
+        timeout=15,
+        allow_redirects=True,
+        impersonate="chrome",
+    )
+    return {
+        "status": int(r.status_code),
+        "url": str(r.url),
+        "content_type": r.headers.get("content-type"),
+        "text": r.text or "",
+        "bytes": len(r.content or b""),
+        "elapsed_ms": int((time.monotonic() - started) * 1000),
+        "transport": "curl_cffi",
+    }
+
+
+def fetch_with_stdlib(url):
+    started = time.monotonic()
+    jar = http.cookiejar.CookieJar()
+    opener = build_opener(HTTPCookieProcessor(jar))
+    req = Request(url, headers=COMMON_HEADERS, method="GET")
+    try:
+        with opener.open(req, timeout=15) as r:
+            raw = r.read()
+            charset = r.headers.get_content_charset() or "utf-8"
+            text = raw.decode(charset, errors="replace")
+            return {
+                "status": int(getattr(r, "status", 200)),
+                "url": str(r.geturl()),
+                "content_type": r.headers.get("content-type"),
+                "text": text,
+                "bytes": len(raw),
+                "elapsed_ms": int((time.monotonic() - started) * 1000),
+                "transport": "urllib",
+            }
+    except HTTPError as e:
+        raw = e.read() if hasattr(e, "read") else b""
+        return {
+            "status": int(e.code),
+            "url": str(e.geturl() if hasattr(e, "geturl") else url),
+            "content_type": e.headers.get("content-type") if e.headers else None,
+            "text": raw.decode("utf-8", errors="replace"),
+            "bytes": len(raw),
+            "elapsed_ms": int((time.monotonic() - started) * 1000),
+            "transport": "urllib",
+        }
+
+
+def fetch(url):
+    errors = []
+    if HAS_CURL_CFFI:
+        try:
+            return fetch_with_curl_cffi(url), errors
+        except Exception as exc:
+            errors.append("curl_cffi: " + repr(exc))
+    try:
+        return fetch_with_stdlib(url), errors
+    except (URLError, OSError, Exception) as exc:
+        errors.append("urllib: " + repr(exc))
+        return None, errors
 
 
 def main():
@@ -172,14 +267,7 @@ def main():
         emit({"success": False, "stage": "arguments", "message": "Gebruik: tiktok_public_fetch.py <url> <video_id>"}, 2)
 
     video_url = sys.argv[1]
-    video_id = sys.argv[2]
-    session = requests.Session(impersonate="chrome")
-    headers = {
-        "Accept-Language": "en-US,en;q=0.9,nl;q=0.7",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-        "Referer": "https://www.tiktok.com/",
-    }
+    video_id = str(sys.argv[2])
     targets = [
         ("public_video_page", add_buster(video_url)),
         ("public_embed_v2", f"https://www.tiktok.com/embed/v2/{video_id}?lang=en-US&_mashal_live={time.time_ns()}"),
@@ -188,30 +276,28 @@ def main():
 
     for source, target in targets:
         attempt = {"source": source, "target": target}
-        started = time.monotonic()
-        try:
-            r = session.get(target, headers=headers, timeout=15, allow_redirects=True)
-            attempt.update({
-                "request_ok": True,
-                "http_status": int(r.status_code),
-                "final_url": str(r.url),
-                "content_type": r.headers.get("content-type"),
-                "content_length": len(r.content or b""),
-                "elapsed_ms": int((time.monotonic() - started) * 1000),
-            })
-        except Exception as exc:
-            attempt.update({
-                "request_ok": False,
-                "stage": "http_request",
-                "error": repr(exc),
-                "elapsed_ms": int((time.monotonic() - started) * 1000),
-            })
+        result, transport_errors = fetch(target)
+        if transport_errors:
+            attempt["transport_errors"] = transport_errors
+
+        if result is None:
+            attempt.update({"stage": "http_request", "message": "Alle HTTP transports faalden"})
             attempts.append(attempt)
             continue
 
-        page = r.text or ""
-        if not (200 <= r.status_code < 400):
-            attempt.update({"stage": "http_status", "message": f"TikTok HTTP {r.status_code}"})
+        page = result.pop("text")
+        attempt.update({
+            "request_ok": True,
+            "http_status": result["status"],
+            "final_url": result["url"],
+            "content_type": result["content_type"],
+            "content_length": result["bytes"],
+            "elapsed_ms": result["elapsed_ms"],
+            "transport": result["transport"],
+        })
+
+        if not (200 <= result["status"] < 400):
+            attempt.update({"stage": "http_status", "message": f"TikTok HTTP {result['status']}"})
             attempts.append(attempt)
             continue
         if not page.strip():
@@ -221,7 +307,7 @@ def main():
 
         reason = challenge_reason(page)
         if reason:
-            attempt.update({"stage": "challenge", "challenge": reason, "html_prefix": page[:180]})
+            attempt.update({"stage": "challenge", "challenge": reason, "html_prefix": re.sub(r"\s+", " ", page[:180])})
             attempts.append(attempt)
             continue
 
@@ -231,7 +317,7 @@ def main():
             attempt.update({
                 "stage": "parse_hydration",
                 "message": "Geen video-object met stats gevonden",
-                "html_prefix": re.sub(r"\\s+", " ", page[:220]),
+                "html_prefix": re.sub(r"\s+", " ", page[:220]),
             })
             attempts.append(attempt)
             continue
@@ -253,27 +339,31 @@ def main():
             "author_name": author,
             "title": title,
             "thumbnail_url": thumb,
-            "http_status": int(r.status_code),
-            "final_url": str(r.url),
+            "http_status": result["status"],
+            "final_url": result["url"],
             "debug": {
                 "python": sys.executable,
                 "python_version": sys.version.split()[0],
-                "curl_cffi": getattr(__import__("curl_cffi"), "__version__", "unknown"),
+                "curl_cffi_available": HAS_CURL_CFFI,
+                "curl_cffi_import_error": CURL_CFFI_ERROR,
                 "attempts": attempts,
             },
-        }, 0)
+        })
 
+    # Important: return JSON on stdout. Exit 10 makes Laravel's debug controller
+    # surface a 502 with detailed diagnostics instead of pretending it succeeded.
     emit({
         "success": False,
-        "stage": attempts[-1].get("stage", "unknown") if attempts else "no_attempts",
-        "message": "TikTok gaf geen bruikbare publieke data terug",
+        "stage": attempts[-1].get("stage", "all_sources_failed") if attempts else "all_sources_failed",
+        "message": attempts[-1].get("message", "Geen publieke TikTok-bron leverde bruikbare stats") if attempts else "Geen publieke TikTok-bron leverde bruikbare stats",
         "debug": {
             "python": sys.executable,
             "python_version": sys.version.split()[0],
-            "curl_cffi": getattr(__import__("curl_cffi"), "__version__", "unknown"),
+            "curl_cffi_available": HAS_CURL_CFFI,
+            "curl_cffi_import_error": CURL_CFFI_ERROR,
             "attempts": attempts,
         },
-    }, 2)
+    }, 10)
 
 
 if __name__ == "__main__":
