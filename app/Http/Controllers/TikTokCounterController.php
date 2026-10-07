@@ -91,6 +91,56 @@ class TikTokCounterController extends Controller
         ]);
     }
 
+    public function supplemental(
+        string $videoId,
+        Request $request,
+        TikTokVideoStatsService $service
+    ): JsonResponse {
+        $videoUrl = trim((string) $request->query('url', ''));
+
+        if ($videoUrl === '') {
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'TikTok URL ontbreekt.',
+                ], 422)
+            );
+        }
+
+        try {
+            $stats = $service->getSupplementalTikTokStats(
+                $videoUrl,
+                $videoId
+            );
+
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+                    'video_id' => $videoId,
+                    'stats' => [
+                        'views' => $stats['views'] ?? null,
+                        'likes' => $stats['likes'] ?? null,
+                        'comments' => $stats['comments'] ?? null,
+                        'shares' => $stats['shares'] ?? null,
+                        'favorites' => $stats['favorites'] ?? null,
+                    ],
+                    'source' => $stats['source'] ?? 'tiktok-public-video-page',
+                    'updated_at' => now()->toIso8601String(),
+                ])
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'updated_at' => now()->toIso8601String(),
+                ], 502)
+            );
+        }
+    }
+
     /**
      * Live JSON endpoint.
      *
