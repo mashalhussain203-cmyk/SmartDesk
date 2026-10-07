@@ -285,7 +285,8 @@ class TikTokVideoStatsService
             'author_name' => $payload['author_name'] ?? null,
             'title' => $payload['title'] ?? null,
             'thumbnail_url' => $payload['thumbnail_url'] ?? null,
-            'source' => 'tiktok-chrome-impersonation',
+            'source' => $payload['source'] ?? 'tiktok-public-html',
+            'precision' => $payload['precision'] ?? 'unknown',
             '_debug' => $payload['debug'] ?? $debug,
         ];
     }
