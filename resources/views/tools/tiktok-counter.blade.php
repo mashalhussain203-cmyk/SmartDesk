@@ -796,7 +796,7 @@
     .ttc-live-tools {
         margin: 14px 0 4px;
         display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px;
     }
 
@@ -1232,15 +1232,12 @@
                         </div>
 
                         <div class="ttc-updated" id="ttc-updated">
-                            Rechtstreeks via Livecounts.io
+                            Realtime bron actief
                         </div>
                     </div>
 
                     <div class="ttc-live-tools">
                         <button class="ttc-live-tool" type="button" id="ttc-change-user">⌕ Change User</button>
-                        <a class="ttc-live-tool" href="https://livecounts.io/compare/tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">⇄ Compare</a>
-                        <a class="ttc-live-tool" href="https://livecounts.io/spotlight?service=tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">✦ Spotlight</a>
-                        <a class="ttc-live-tool" href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">◉ Open Livecounts</a>
                         <button class="ttc-live-tool" type="button" id="ttc-share">↗ Share</button>
                         <a class="ttc-live-tool" href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer">♪ Visit TikTok</a>
                     </div>
@@ -1294,7 +1291,6 @@
 
                     <div class="ttc-direct-note">
                         <span>Views, Likes, Comments en Shares worden realtime bijgewerkt.</span>
-                        <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
                     </div>
 
                     <div class="ttc-actions">
