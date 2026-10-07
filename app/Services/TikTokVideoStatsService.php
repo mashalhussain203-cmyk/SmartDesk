@@ -87,25 +87,51 @@ class TikTokVideoStatsService
             return $cached;
         }
 
-        $stats = $this->fetchViaLivecountsRenderedPage($videoId);
+        $lockKey = 'tiktok-live-count:livecounts-cards-lock:v1:'.$videoId;
+        $lock = Cache::lock($lockKey, 40);
 
-        if (!is_array($stats)) {
+        if (!$lock->get()) {
+            for ($attempt = 0; $attempt < 80; $attempt++) {
+                usleep(250000);
+                $cached = Cache::get($cacheKey);
+                if (is_array($cached)) {
+                    return $cached;
+                }
+            }
+
             throw new RuntimeException(
-                'Livecounts leverde geen gerenderde tellerdata.'
+                'Livecounts refresh draait al maar leverde nog geen snapshot.'
             );
         }
 
-        foreach (['views', 'likes', 'comments', 'shares'] as $key) {
-            if (!array_key_exists($key, $stats) || $stats[$key] === null) {
+        try {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+
+            $stats = $this->fetchViaLivecountsRenderedPage($videoId);
+
+            if (!is_array($stats)) {
                 throw new RuntimeException(
-                    'Livecounts mist teller: '.$key
+                    'Livecounts leverde geen gerenderde tellerdata.'
                 );
             }
+
+            foreach (['views', 'likes', 'comments', 'shares'] as $key) {
+                if (!array_key_exists($key, $stats) || $stats[$key] === null) {
+                    throw new RuntimeException(
+                        'Livecounts mist teller: '.$key
+                    );
+                }
+            }
+
+            Cache::put($cacheKey, $stats, now()->addSeconds(5));
+
+            return $stats;
+        } finally {
+            $lock->release();
         }
-
-        Cache::put($cacheKey, $stats, now()->addSeconds(5));
-
-        return $stats;
     }
 
     /**
@@ -379,7 +405,7 @@ class TikTokVideoStatsService
             $script,
             $videoId,
         ]);
-        $process->setTimeout(22);
+        $process->setTimeout(34);
         $process->setIdleTimeout(null);
 
         $process->run();
