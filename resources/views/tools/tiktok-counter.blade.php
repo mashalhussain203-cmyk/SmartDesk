@@ -913,7 +913,7 @@
 
             <section class="ttc-livecounts-embed">
                 <div class="ttc-livecounts-head">
-                    <div class="ttc-livecounts-title">Livecounts.io · TikTok Live View Counter</div>
+                    <div class="ttc-livecounts-title">Livecounts.io · Embedded TikTok Live View Counter</div>
                     <div class="ttc-livecounts-note">Externe live teller voor video {{ $videoId }}</div>
                 </div>
 
@@ -921,7 +921,7 @@
                     <iframe
                         class="ttc-livecounts-frame"
                         id="ttc-livecounts-frame"
-                        src="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
+                        src="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
                         title="Livecounts TikTok live view counter"
                         loading="eager"
                         referrerpolicy="strict-origin-when-cross-origin"
@@ -932,7 +932,7 @@
                 <div class="ttc-livecounts-fallback">
                     Als Livecounts embedding in de browser blokkeert,
                     <a
-                        href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
+                        href="https://livecounts.io/embed/tiktok-live-view-counter/{{ $videoId }}"
                         target="_blank"
                         rel="noopener noreferrer"
                     >open dezelfde teller rechtstreeks op Livecounts.io</a>.
