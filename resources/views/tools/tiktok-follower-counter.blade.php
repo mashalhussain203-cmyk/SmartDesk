@@ -601,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-search-429-fix-v6"
+                data-ui-build="20261008-autocomplete-js-fix-v7"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -681,32 +681,44 @@
 
     var endpoint = form.getAttribute('data-search-endpoint') || '';
     var debounceTimer = null;
-    var items = [];
-    var cachedResults = [];
+    var controller = null;
     var activeIndex = -1;
-    var lastQuery = '';
-    var requestInFlight = false;
-    var inFlightQuery = '';
-    var queuedQuery = '';
+    var currentItems = [];
+    var cachedResults = [];
+    var cachedQuery = '';
 
     function closeList() {
         list.hidden = true;
         list.innerHTML = '';
         input.setAttribute('aria-expanded', 'false');
-        items = [];
+        currentItems = [];
         activeIndex = -1;
     }
 
     function showState(text) {
         list.innerHTML = '';
+
         var state = document.createElement('div');
         state.className = 'tfc-suggestion-state';
         state.textContent = text;
+
         list.appendChild(state);
         list.hidden = false;
         input.setAttribute('aria-expanded', 'true');
-        items = [];
+        currentItems = [];
         activeIndex = -1;
+    }
+
+    function filterResults(results, query) {
+        var needle = String(query || '').toLowerCase();
+
+        return (Array.isArray(results) ? results : []).filter(function (account) {
+            var username = String(account.username || '').toLowerCase();
+            var displayName = String(account.display_name || '').toLowerCase();
+
+            return username.indexOf(needle) !== -1
+                || displayName.indexOf(needle) !== -1;
+        });
     }
 
     function setActive(index) {
@@ -720,6 +732,7 @@
         if (index < 0) {
             index = buttons.length - 1;
         }
+
         if (index >= buttons.length) {
             index = 0;
         }
@@ -727,16 +740,15 @@
         activeIndex = index;
 
         buttons.forEach(function (button, buttonIndex) {
-            button.classList.toggle('is-active', buttonIndex === activeIndex);
-            button.setAttribute(
-                'aria-selected',
-                buttonIndex === activeIndex ? 'true' : 'false'
-            );
+            var selected = buttonIndex === activeIndex;
+
+            button.classList.toggle('is-active', selected);
+            button.setAttribute('aria-selected', selected ? 'true' : 'false');
         });
 
-        buttons[activeIndex].scrollIntoView({
-            block: 'nearest'
-        });
+        if (buttons[activeIndex]) {
+            buttons[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
     }
 
     function chooseAccount(account) {
@@ -754,20 +766,17 @@
         }
     }
 
-    function renderResults(results, rememberResults) {
+    function renderResults(results) {
         list.innerHTML = '';
-        items = Array.isArray(results) ? results : [];
-        if (items.length && rememberResults !== false) {
-            cachedResults = items.slice();
-        }
+        currentItems = Array.isArray(results) ? results : [];
         activeIndex = -1;
 
-        if (!items.length) {
+        if (!currentItems.length) {
             showState('Geen accounts gevonden');
             return;
         }
 
-        items.forEach(function (account, index) {
+        currentItems.forEach(function (account, index) {
             var button = document.createElement('button');
             var avatar = document.createElement('img');
             var copy = document.createElement('span');
@@ -833,61 +842,42 @@
         input.setAttribute('aria-expanded', 'true');
     }
 
-    function filterAccounts(results, query) {
-        var needle = String(query || '').toLowerCase();
-
-        return (Array.isArray(results) ? results : []).filter(function (account) {
-            var username = String(account.username || '').toLowerCase();
-            var displayName = String(account.display_name || '').toLowerCase();
-
-            return username.indexOf(needle) !== -1
-                || displayName.indexOf(needle) !== -1;
-        });
-    }
-
-    function runSearch() {
-        var query = input.value.trim().replace(/^@/, '');
-        var queryLower = query.toLowerCase();
+    function runSearch(query) {
+        var requestedQuery = String(query || '').trim().replace(/^@/, '');
 
         if (
             !endpoint
-            || query.length < 2
-            || query.length > 40
-            || query.indexOf('/') !== -1
-            || /^https?:/i.test(query)
+            || requestedQuery.length < 2
+            || requestedQuery.length > 40
+            || requestedQuery.indexOf('/') !== -1
+            || /^https?:/i.test(requestedQuery)
         ) {
             closeList();
             return;
         }
 
-        if (requestInFlight) {
-            queuedQuery = query;
-            return;
+        if (controller && typeof controller.abort === 'function') {
+            controller.abort();
         }
 
-        if (query === lastQuery && !list.hidden && items.length) {
-            return;
-        }
-
-        lastQuery = query;
-        requestInFlight = true;
-        inFlightQuery = queryLower;
-        queuedQuery = '';
+        controller = typeof AbortController !== 'undefined'
+            ? new AbortController()
+            : null;
 
         if (!cachedResults.length) {
             showState('Accounts zoeken…');
         }
 
         fetch(
-            endpoint + '?q=' + encodeURIComponent(query),
+            endpoint + '?q=' + encodeURIComponent(requestedQuery),
             {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache'
+                    'Accept': 'application/json'
                 },
                 cache: 'no-store',
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                signal: controller ? controller.signal : undefined
             }
         )
             .then(function (response) {
@@ -900,56 +890,99 @@
                 return response.json();
             })
             .then(function (data) {
-                var current = input.value.trim().replace(/^@/, '');
-                var currentLower = current.toLowerCase();
+                var currentQuery = input.value.trim().replace(/^@/, '');
                 var results;
                 var filtered;
 
-               input.addEventListener('input', function () {
-        var query = input.value.trim().replace(/^@/, '').toLowerCase();
-        var filtered = [];
+                if (!data || data.success === false) {
+                    if (currentQuery === requestedQuery) {
+                        showState('Accounts konden niet worden geladen');
+                    }
+                    return;
+                }
+
+                results = Array.isArray(data.results) ? data.results : [];
+                cachedResults = results.slice();
+                cachedQuery = requestedQuery.toLowerCase();
+
+                filtered = filterResults(results, currentQuery);
+
+                if (filtered.length) {
+                    renderResults(filtered);
+                    return;
+                }
+
+                if (currentQuery === requestedQuery) {
+                    renderResults([]);
+                    return;
+                }
+
+                window.clearTimeout(debounceTimer);
+                debounceTimer = window.setTimeout(function () {
+                    runSearch(currentQuery);
+                }, 180);
+            })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return;
+                }
+
+                var currentQuery = input.value.trim().replace(/^@/, '');
+
+                if (currentQuery !== requestedQuery) {
+                    return;
+                }
+
+                if (error && error.status === 429) {
+                    showState('Even te veel zoekopdrachten — probeer opnieuw');
+                } else {
+                    showState('Accounts konden niet worden geladen');
+                }
+            });
+    }
+
+    input.addEventListener('input', function () {
+        var query = input.value.trim().replace(/^@/, '');
+        var lowerQuery = query.toLowerCase();
+        var localMatches = [];
 
         window.clearTimeout(debounceTimer);
 
         if (query.length < 2) {
-            queuedQuery = '';
             closeList();
             return;
         }
 
-        filtered = filterAccounts(cachedResults, query);
-
-        if (filtered.length) {
-            queuedQuery = '';
-            renderResults(filtered, false);
-            return;
-        }
-
-        // If a broader prefix is already being searched, let that one finish
-        // first. This prevents every keystroke from spawning another Chromium
-        // request on Railway and avoids 429s.
         if (
-            requestInFlight
-            && inFlightQuery
-            && query.indexOf(inFlightQuery) === 0
+            cachedResults.length
+            && cachedQuery
+            && lowerQuery.indexOf(cachedQuery) === 0
         ) {
-            queuedQuery = query;
-            return;
+            localMatches = filterResults(cachedResults, lowerQuery);
+
+            if (localMatches.length) {
+                renderResults(localMatches);
+                return;
+            }
         }
 
-        if (query.length === 2) {
-            runSearch();
-            return;
-        }
-
-        debounceTimer = window.setTimeout(runSearch, 220);
+        debounceTimer = window.setTimeout(function () {
+            runSearch(query);
+        }, query.length === 2 ? 80 : 260);
     });
 
     input.addEventListener('focus', function () {
         var query = input.value.trim().replace(/^@/, '');
-        if (query.length >= 2 && items.length) {
-            list.hidden = false;
-            input.setAttribute('aria-expanded', 'true');
+        var matches;
+
+        if (query.length < 2 || !cachedResults.length) {
+            return;
+        }
+
+        matches = filterResults(cachedResults, query);
+
+        if (matches.length) {
+            renderResults(matches);
         }
     });
 
@@ -971,7 +1004,11 @@
         } else if (event.key === 'Escape') {
             event.preventDefault();
             closeList();
-        } else if (event.key === 'Enter' && activeIndex >= 0 && buttons[activeIndex]) {
+        } else if (
+            event.key === 'Enter'
+            && activeIndex >= 0
+            && buttons[activeIndex]
+        ) {
             event.preventDefault();
             buttons[activeIndex].click();
         }
