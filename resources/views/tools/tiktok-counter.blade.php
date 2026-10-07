@@ -884,8 +884,17 @@
                             <span id="ttc-status-text">Live Count starten…</span>
                         </div>
 
-                        <div class="ttc-updated" id="ttc-updated">
-                            Nog niet bijgewerkt
+                        <div>
+                            <a
+                                id="ttc-source-credit"
+                                href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="display:none;color:#9188ff;font-size:9px;font-weight:800;text-decoration:none;margin-right:10px"
+                            >Data via Livecounts.io</a>
+                            <span class="ttc-updated" id="ttc-updated">
+                                Nog niet bijgewerkt
+                            </span>
                         </div>
                     </div>
 
@@ -1043,6 +1052,7 @@
     var statusText = document.getElementById('ttc-status-text');
     var statusDot = document.getElementById('ttc-status-dot');
     var updatedElement = document.getElementById('ttc-updated');
+    var sourceCredit = document.getElementById('ttc-source-credit');
     var authorElement = document.getElementById('ttc-author');
     var titleElement = document.getElementById('ttc-video-title');
     var imageElement = document.getElementById('ttc-thumb-image');
@@ -1391,6 +1401,12 @@
             );
         } else {
             setStatus('Live Count actief - ' + available + '/4 beschikbaar', available > 0);
+        }
+
+        if (sourceCredit) {
+            sourceCredit.style.display = (
+                data.source && String(data.source).indexOf('livecounts') === 0
+            ) ? 'inline' : 'none';
         }
 
         if (updatedElement) {
