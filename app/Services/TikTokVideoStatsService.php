@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -136,10 +137,16 @@ class TikTokVideoStatsService
                     if ($this->isUsableSnapshot($stale)) {
                         report($e);
 
-                        return $this->snapshotResult(
-                            $stale,
-                            false,
-                            true
+                        return array_merge(
+                            $this->snapshotResult(
+                                $stale,
+                                false,
+                                true
+                            ),
+                            [
+                                'warning' => 'TikTok live refresh mislukte; laatste echte snapshot wordt getoond.',
+                                'last_error' => $e->getMessage(),
+                            ]
                         );
                     }
 
@@ -195,13 +202,13 @@ class TikTokVideoStatsService
          */
         $attempts = [
             [
-                'url' => $this->canonicalVideoPageUrl($videoUrl),
+                'url' => $this->withCacheBuster($this->canonicalVideoPageUrl($videoUrl)),
                 'source' => 'tiktok-public-page',
             ],
             [
                 'url' => 'https://www.tiktok.com/embed/v2/'
                     .rawurlencode($videoId)
-                    .'?lang=en-US',
+                    .'?lang=en-US&_mashal_live='.rawurlencode((string) $this->nowMs()),
                 'source' => 'tiktok-public-embed',
             ],
         ];
@@ -459,22 +466,36 @@ class TikTokVideoStatsService
         string $url,
         array $extraHeaders = []
     ): Response {
+        /*
+         * Keep one stable guest cookie identity between polls. TikTok often sets
+         * ttwid/guest cookies on the first public page request and expects those
+         * cookies again on later requests. Without a cookie jar Railway looked
+         * like a brand-new bot every four seconds.
+         */
+        $cookieValues = Cache::get('tiktok-live-count:guest-cookies:v1', []);
+        $jar = new CookieJar();
+
+        if (is_array($cookieValues) && $cookieValues !== []) {
+            $jar = CookieJar::fromArray($cookieValues, '.tiktok.com');
+        }
+
         $headers = array_merge([
             'User-Agent' =>
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                 .'AppleWebKit/537.36 (KHTML, like Gecko) '
-                .'Chrome/141.0.0.0 Safari/537.36',
+                .'Chrome/154.0.0.0 Safari/537.36',
             'Accept-Language' => 'en-US,en;q=0.9,nl;q=0.7',
-            'Cache-Control' => 'no-cache',
+            'Cache-Control' => 'no-cache, no-store, max-age=0',
             'Pragma' => 'no-cache',
             'DNT' => '1',
-            'Sec-CH-UA' => '"Google Chrome";v="141", "Chromium";v="141", "Not_A Brand";v="99"',
+            'Sec-CH-UA' => '"Chromium";v="154", "Google Chrome";v="154", "Not_A Brand";v="99"',
             'Sec-CH-UA-Mobile' => '?0',
             'Sec-CH-UA-Platform' => '"Windows"',
         ], $extraHeaders);
 
-        return Http::withHeaders($headers)
+        $response = Http::withHeaders($headers)
             ->withOptions([
+                'cookies' => $jar,
                 'allow_redirects' => [
                     'max' => 5,
                     'strict' => true,
@@ -485,8 +506,27 @@ class TikTokVideoStatsService
             ])
             ->connectTimeout(8)
             ->timeout(18)
-            ->retry(2, 350, throw: false)
+            ->retry(1, 450, throw: false)
             ->get($url);
+
+        $persist = [];
+        foreach ($jar->toArray() as $cookie) {
+            $name = (string) ($cookie['Name'] ?? '');
+            $value = (string) ($cookie['Value'] ?? '');
+            if ($name !== '' && $value !== '') {
+                $persist[$name] = $value;
+            }
+        }
+
+        if ($persist !== []) {
+            Cache::put(
+                'tiktok-live-count:guest-cookies:v1',
+                $persist,
+                now()->addHours(12)
+            );
+        }
+
+        return $response;
     }
 
     private function normalizeVideoObject(array $video): array
@@ -646,23 +686,26 @@ class TikTokVideoStatsService
             return null;
         }
 
-        $json = trim(
-            html_entity_decode(
-                $match[1] ?? '',
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            )
-        );
+        $json = trim((string) ($match[1] ?? ''));
 
         if ($json === '') {
             return null;
         }
 
+        // Parse the script text exactly as TikTok emitted it first.
         $decoded = json_decode($json, true);
 
-        return is_array($decoded)
-            ? $decoded
-            : null;
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        // Some alternate page variants HTML-encode the script body.
+        $decoded = json_decode(
+            html_entity_decode($json, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            true
+        );
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     private function findVideoRecursively(

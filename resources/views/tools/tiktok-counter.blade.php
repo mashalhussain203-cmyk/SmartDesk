@@ -1114,8 +1114,10 @@
             renderChart();
         }
 
-        if (available === 4) {
-            setStatus('Live Count actief - elke 4 sec', true);
+        if (data.stale_fallback) {
+            setStatus(data.last_error ? 'Oude snapshot - ' + data.last_error : 'Oude snapshot - TikTok live refresh mislukt', false);
+        } else if (available === 4) {
+            setStatus(data.source ? 'Live via ' + data.source + ' - elke 4 sec' : 'Live Count actief - elke 4 sec', true);
         } else {
             setStatus('Live Count actief - ' + available + '/4 beschikbaar', available > 0);
         }

@@ -145,6 +145,8 @@ class TikTokCounterController extends Controller
                     'fetched_fresh' => (bool) ($stats['fetched_fresh'] ?? false),
                     'stale_fallback' => (bool) ($stats['stale_fallback'] ?? false),
                     'snapshot_age_ms' => (int) ($stats['snapshot_age_ms'] ?? 0),
+                    'warning' => $stats['warning'] ?? null,
+                    'last_error' => $stats['last_error'] ?? null,
 
                     'request_id' => $request->query('_request'),
                     'updated_at' => now()->toIso8601String(),
