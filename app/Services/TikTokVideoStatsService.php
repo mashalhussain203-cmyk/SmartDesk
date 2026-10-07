@@ -128,29 +128,7 @@ class TikTokVideoStatsService
 
                     return $this->snapshotResult($snapshot, true);
                 } catch (Throwable $e) {
-                    /*
-                     * TikTok can temporarily block or change web responses.
-                     * If we have a previous real snapshot, return it instead of
-                     * inventing data or taking the whole counter offline.
-                     */
-                    $stale = Cache::get($cacheKey);
-
-                    if ($this->isUsableSnapshot($stale)) {
-                        report($e);
-
-                        return array_merge(
-                            $this->snapshotResult(
-                                $stale,
-                                false,
-                                true
-                            ),
-                            [
-                                'warning' => 'TikTok live refresh mislukte; laatste echte snapshot wordt getoond.',
-                                'last_error' => $e->getMessage(),
-                            ]
-                        );
-                    }
-
+                    // DEBUG BUILD: expose the real refresh error instead of hiding it behind stale cache.
                     throw $e;
                 }
             } finally {
@@ -196,74 +174,20 @@ class TikTokVideoStatsService
         string $videoUrl,
         string $videoId
     ): array {
-        /*
-         * First try a tiny Python helper using curl_cffi. Unlike PHP/Guzzle,
-         * curl_cffi can impersonate a real Chrome TLS/HTTP2 fingerprint. This
-         * matters on TikTok because datacenter requests can be challenged even
-         * when the HTTP headers look like Chrome. No TikTok API key or access
-         * token is used.
-         */
-        $impersonationProblem = null;
-
-        try {
-            $impersonated = $this->fetchViaBrowserImpersonation(
-                $this->canonicalVideoPageUrl($videoUrl),
-                $videoId
-            );
-
-            if ($impersonated !== null) {
-                return $impersonated;
-            }
-        } catch (Throwable $e) {
-            $impersonationProblem = $e->getMessage();
-            report($e);
-        }
-
-        /*
-         * Keep the pure-PHP public-page parser as a fallback. This still uses
-         * no TikTok developer API and no signed /api/item/detail endpoint.
-         */
-        $attempts = [
-            [
-                'url' => $this->withCacheBuster($this->canonicalVideoPageUrl($videoUrl)),
-                'source' => 'tiktok-public-page',
-            ],
-            [
-                'url' => 'https://www.tiktok.com/embed/v2/'
-                    .rawurlencode($videoId)
-                    .'?lang=en-US&_mashal_live='.rawurlencode((string) $this->nowMs()),
-                'source' => 'tiktok-public-embed',
-            ],
-        ];
-
-        $lastProblem = $impersonationProblem;
-
-        foreach ($attempts as $attempt) {
-            try {
-                $item = $this->fetchVideoObjectFromPublicPage(
-                    $attempt['url'],
-                    $videoId
-                );
-
-                if ($item === null) {
-                    $lastProblem = 'geen hydration-data gevonden';
-                    continue;
-                }
-
-                $normalized = $this->normalizeVideoObject($item);
-                $normalized['source'] = $attempt['source'];
-
-                return $normalized;
-            } catch (Throwable $e) {
-                $lastProblem = $e->getMessage();
-                report($e);
-            }
-        }
-
-        throw new RuntimeException(
-            'TikTok gaf geen actuele publieke videostatistieken terug'
-            .($lastProblem ? ' ('.$lastProblem.')' : '.')
+        // DEBUG BUILD: test the browser-impersonation path directly so its
+        // exact failure is visible in the JSON endpoint.
+        $result = $this->fetchViaBrowserImpersonation(
+            $this->canonicalVideoPageUrl($videoUrl),
+            $videoId
         );
+
+        if ($result === null) {
+            throw new RuntimeException(
+                'TIKTOK_DEBUG:{"stage":"empty_result","message":"Python-helper gaf geen resultaat terug."}'
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -276,62 +200,74 @@ class TikTokVideoStatsService
         string $videoId
     ): ?array {
         $script = base_path('scripts/tiktok_public_fetch.py');
+        $debug = [
+            'stage' => 'python_prepare',
+            'script' => $script,
+            'script_exists' => is_file($script),
+            'video_id' => $videoId,
+        ];
 
         if (!is_file($script)) {
-            throw new RuntimeException(
-                'TikTok browser-impersonation helper ontbreekt op de server.'
-            );
+            $debug['message'] = 'scripts/tiktok_public_fetch.py ontbreekt op Railway.';
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
         $python = (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
-
         if (!is_file($python) && $python !== 'python3') {
             $python = 'python3';
         }
+        $debug['python'] = $python;
 
-        $process = new Process([
-            $python,
-            $script,
-            $videoUrl,
-            $videoId,
-        ]);
+        $process = new Process([$python, $script, $videoUrl, $videoId]);
+        $process->setTimeout(25);
+        $process->setIdleTimeout(20);
 
-        $process->setTimeout(22);
-        $process->setIdleTimeout(18);
-        $process->run();
+        try {
+            $process->run();
+        } catch (Throwable $e) {
+            $debug['stage'] = 'python_start';
+            $debug['message'] = $e->getMessage();
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
 
         $stdout = trim($process->getOutput());
         $stderr = trim($process->getErrorOutput());
-
-        if (!$process->isSuccessful()) {
-            $message = $stderr !== '' ? $stderr : $stdout;
-            $message = trim(preg_replace('/\s+/', ' ', $message) ?? '');
-
-            throw new RuntimeException(
-                'TikTok Chrome-impersonation mislukte'
-                .($message !== '' ? ': '.mb_substr($message, 0, 350) : '.')
-            );
-        }
-
         $payload = json_decode($stdout, true);
 
+        $debug['stage'] = 'python_finished';
+        $debug['exit_code'] = $process->getExitCode();
+        $debug['successful_process'] = $process->isSuccessful();
+        $debug['stderr'] = mb_substr($stderr, 0, 2000);
+        $debug['stdout'] = mb_substr($stdout, 0, 6000);
+
+        if (is_array($payload)) {
+            $debug['python_payload'] = $payload;
+            $debug['stage'] = (string) ($payload['stage'] ?? $debug['stage']);
+        }
+
+        if (!$process->isSuccessful()) {
+            $debug['message'] = is_array($payload)
+                ? (string) ($payload['message'] ?? 'Python-helper eindigde met een fout.')
+                : 'Python-helper eindigde met een fout.';
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
+
         if (!is_array($payload)) {
-            throw new RuntimeException(
-                'TikTok Chrome-impersonation gaf ongeldige JSON terug.'
-            );
+            $debug['stage'] = 'decode_python_json';
+            $debug['message'] = 'Python gaf geen geldige JSON terug.';
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
         if (($payload['success'] ?? false) !== true) {
-            $message = trim((string) ($payload['message'] ?? 'onbekende fout'));
-            throw new RuntimeException(
-                'TikTok Chrome-impersonation: '.$message
-            );
+            $debug['message'] = (string) ($payload['message'] ?? 'Python gaf success=false terug.');
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
         $stats = $payload['stats'] ?? null;
-
         if (!is_array($stats)) {
-            return null;
+            $debug['stage'] = 'missing_stats';
+            $debug['message'] = 'Python-response bevat geen stats-object.';
+            throw new RuntimeException('TIKTOK_DEBUG:'.json_encode($debug, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
         return [
@@ -343,6 +279,7 @@ class TikTokVideoStatsService
             'title' => $payload['title'] ?? null,
             'thumbnail_url' => $payload['thumbnail_url'] ?? null,
             'source' => 'tiktok-chrome-impersonation',
+            '_debug' => $payload['debug'] ?? $debug,
         ];
     }
 

@@ -147,6 +147,7 @@ class TikTokCounterController extends Controller
                     'snapshot_age_ms' => (int) ($stats['snapshot_age_ms'] ?? 0),
                     'warning' => $stats['warning'] ?? null,
                     'last_error' => $stats['last_error'] ?? null,
+                    'debug' => $stats['_debug'] ?? null,
 
                     'request_id' => $request->query('_request'),
                     'updated_at' => now()->toIso8601String(),
@@ -155,11 +156,25 @@ class TikTokCounterController extends Controller
         } catch (Throwable $e) {
             report($e);
 
+            $message = $e->getMessage();
+            $debug = null;
+
+            if (str_starts_with($message, 'TIKTOK_DEBUG:')) {
+                $debugJson = substr($message, strlen('TIKTOK_DEBUG:'));
+                $decoded = json_decode($debugJson, true);
+
+                if (is_array($decoded)) {
+                    $debug = $decoded;
+                    $message = (string) ($decoded['message'] ?? 'TikTok debug-fout.');
+                }
+            }
+
             return $this->noStore(
                 response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
+                    'message' => $message,
                     'error_type' => class_basename($e),
+                    'debug' => $debug,
                     'request_id' => $request->query('_request'),
                     'updated_at' => now()->toIso8601String(),
                 ], 502)
