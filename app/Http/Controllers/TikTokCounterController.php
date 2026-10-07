@@ -91,7 +91,7 @@ class TikTokCounterController extends Controller
         ]);
     }
 
-    public function livecountsCards(
+    public function liveCards(
         string $videoId,
         TikTokVideoStatsService $service
     ): JsonResponse {
@@ -108,7 +108,7 @@ class TikTokCounterController extends Controller
                         'comments' => $stats['comments'] ?? null,
                         'shares' => $stats['shares'] ?? null,
                     ],
-                    'source' => $stats['source'] ?? 'livecounts-public-page-rendered',
+                    'source' => 'live-provider',
                     'updated_at' => now()->toIso8601String(),
                 ])
             );
