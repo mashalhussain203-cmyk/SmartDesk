@@ -1432,10 +1432,31 @@
         @enderror
 
         @isset($videoId)
+            <script>
+                window.__ttcInitialStatsPromise = fetch(
+                    @json(route('tiktok-counter.livecounts-cards', ['videoId' => $videoId]))
+                        + '?_=' + encodeURIComponent(String(Date.now())),
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        cache: 'no-store',
+                        credentials: 'same-origin'
+                    }
+                ).then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Initial stats request failed');
+                    }
+                    return response.json();
+                });
+            </script>
+
             <div
                 class="ttc-result"
                 id="ttc-result"
-                data-ui-build="20261007-zero-to-live-roll-v10"
+                data-ui-build="20261007-earliest-stats-fetch-v11"
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
@@ -1610,6 +1631,39 @@
         livecountsTimer = window.setTimeout(loadLivecountsCards, 5000);
     }
 
+    function applyLivecountsPayload(data) {
+        var stats;
+        var keys = ['views', 'likes', 'comments', 'shares'];
+        var i;
+        var key;
+        var element;
+
+        if (!data || data.success === false || !data.stats) {
+            return false;
+        }
+
+        stats = data.stats;
+
+        for (i = 0; i < keys.length; i += 1) {
+            key = keys[i];
+            element = livecountsElements[key];
+
+            if (!element) {
+                continue;
+            }
+
+            animateOdometer(element, stats[key]);
+        }
+
+        setStatus('Livecounts actief · Views, Likes, Comments en Shares', true);
+
+        if (updatedElement) {
+            updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL');
+        }
+
+        return true;
+    }
+
     function loadLivecountsCards() {
         var xhr;
 
@@ -1655,26 +1709,8 @@
                 return;
             }
 
-            if (!data || data.success === false || !data.stats) {
+            if (!applyLivecountsPayload(data)) {
                 setStatus(data && data.message ? data.message : 'Livecounts gaf geen stats terug', false);
-                scheduleLivecounts();
-                return;
-            }
-
-            stats = data.stats;
-
-            for (i = 0; i < keys.length; i += 1) {
-                key = keys[i];
-                element = livecountsElements[key];
-                if (!element) {
-                    continue;
-                }
-                animateOdometer(element, stats[key]);
-            }
-
-            setStatus('Livecounts actief · Views, Likes, Comments en Shares', true);
-            if (updatedElement) {
-                updatedElement.textContent = 'Bijgewerkt ' + new Date().toLocaleTimeString('nl-NL');
             }
 
             scheduleLivecounts();
@@ -1706,7 +1742,25 @@
         }
     }
 
-    loadLivecountsCards();
+    if (
+        window.__ttcInitialStatsPromise
+        && typeof window.__ttcInitialStatsPromise.then === 'function'
+    ) {
+        window.__ttcInitialStatsPromise
+            .then(function (data) {
+                if (applyLivecountsPayload(data)) {
+                    scheduleLivecounts();
+                    return;
+                }
+
+                loadLivecountsCards();
+            })
+            .catch(function () {
+                loadLivecountsCards();
+            });
+    } else {
+        loadLivecountsCards();
+    }
 
     window.addEventListener('beforeunload', function () {
         if (livecountsTimer !== null) {
