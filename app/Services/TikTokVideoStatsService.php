@@ -196,7 +196,7 @@ class TikTokVideoStatsService
         // Never cache an empty/failed search. A temporary provider delay
         // should not make that query look empty for the next minute.
         if ($normalized !== []) {
-            Cache::put($cacheKey, $normalized, now()->addSeconds(60));
+            Cache::put($cacheKey, $normalized, now()->addMinutes(5));
         }
 
         return $normalized;
