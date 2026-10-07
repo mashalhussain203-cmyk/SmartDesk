@@ -877,6 +877,7 @@
     var timer = null;
     var request = null;
     var requestNumber = 0;
+    var requestStartedAt = 0;
     var stopped = false;
     var storageKey = 'mashal:tiktok-live:' + videoId;
 
@@ -1131,11 +1132,14 @@
     }
 
     function scheduleNext() {
+        var elapsed = requestStartedAt ? (new Date().getTime() - requestStartedAt) : 0;
+        var delay = Math.max(0, pollMs - elapsed);
+
         if (timer !== null) {
             window.clearTimeout(timer);
         }
         if (!stopped) {
-            timer = window.setTimeout(loadStats, pollMs);
+            timer = window.setTimeout(loadStats, delay);
         }
     }
 
@@ -1153,6 +1157,7 @@
         }
 
         requestNumber += 1;
+        requestStartedAt = new Date().getTime();
         separator = endpoint.indexOf('?') === -1 ? '?' : '&';
         requestUrl = endpoint + separator
             + 'url=' + encodeURIComponent(videoUrl)
