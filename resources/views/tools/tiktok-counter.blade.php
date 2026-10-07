@@ -1252,7 +1252,6 @@
                                 <div class="ttc-stat-badge">◉</div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="views">—</div>
-                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1261,7 +1260,6 @@
                                 <div class="ttc-stat-badge">♥</div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="likes">—</div>
-                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1270,7 +1268,6 @@
                                 <div class="ttc-stat-badge">●</div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="comments">—</div>
-                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
 
                         <div class="ttc-stat">
@@ -1279,7 +1276,6 @@
                                 <div class="ttc-stat-badge">↗</div>
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">—</div>
-                            <div class="ttc-stat-delta">Livecounts.io</div>
                         </div>
                     </div>
 
@@ -1297,7 +1293,7 @@
                     </div>
 
                     <div class="ttc-direct-note">
-                        <span><strong>LIVECOUNTS</strong> · Views, Likes, Comments en Shares komen uit de gerenderde officiële Livecounts-teller.</span>
+                        <span>Views, Likes, Comments en Shares worden realtime bijgewerkt.</span>
                         <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
                     </div>
 
