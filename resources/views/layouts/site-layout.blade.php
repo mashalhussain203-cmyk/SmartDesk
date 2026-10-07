@@ -7198,41 +7198,13 @@
 
             @if ($hasLiveCounts)
                 <a
-                    class="expert-mobile-link {{ request()->routeIs('live-counts.*') ? 'active' : '' }}"
+                    class="expert-mobile-link {{ request()->routeIs('live-counts.*') || request()->routeIs('tiktok-counter.*') || request()->routeIs('tiktok-follower-counter.*') ? 'active' : '' }}"
                     href="{{ route('live-counts.index') }}"
                 >
                     <span class="expert-mobile-link-icon">◉</span>
                     <span>
                         <strong>Live Counts</strong>
-                        <small>Alle live counters</small>
-                    </span>
-                    <span>→</span>
-                </a>
-            @endif
-
-            @if ($hasTikTokFollowerCounter)
-                <a
-                    class="expert-mobile-link {{ request()->routeIs('tiktok-follower-counter.*') ? 'active' : '' }}"
-                    href="{{ route('tiktok-follower-counter.index') }}"
-                >
-                    <span class="expert-mobile-link-icon">◎</span>
-                    <span>
-                        <strong>TikTok Live Followers</strong>
-                        <small>Followers, likes, following en videos</small>
-                    </span>
-                    <span>→</span>
-                </a>
-            @endif
-
-            @if ($hasTikTokCounter)
-                <a
-                    class="expert-mobile-link {{ request()->routeIs('tiktok-counter.*') ? 'active' : '' }}"
-                    href="{{ route('tiktok-counter.index') }}"
-                >
-                    <span class="expert-mobile-link-icon">◉</span>
-                    <span>
-                        <strong>TikTok Video Views</strong>
-                        <small>Views, likes, comments en shares</small>
+                        <small>Kies je live counter</small>
                     </span>
                     <span>→</span>
                 </a>
