@@ -168,18 +168,40 @@ def parse_dom(page):
         out[key] = best ? best.value : null;
       }
 
-      // Fallback for the primary counter: Livecounts sometimes shows
-      // "Loading..." above the main Views odometer instead of the word Views.
-      if (out.views === null && numericEls.length) {
+      // Official embed fallback. The TikTok embed is arranged as one
+      // large Views odometer plus three lower odometers:
+      // Likes, Comments, Shares. Use geometry only when text labels failed.
+      if (numericEls.length) {
         const candidates = numericEls
-          .filter(x => x.value >= 1000 && x.font >= 20)
+          .filter(x => x.font >= 14)
           .sort((a, b) => {
-            if (b.font !== a.font) return b.font - a.font;
-            return a.y - b.y;
+            if (a.y !== b.y) return a.y - b.y;
+            return a.x - b.x;
           });
 
-        if (candidates.length) {
-          out.views = candidates[0].value;
+        if (out.views === null) {
+          const primary = candidates
+            .slice()
+            .sort((a, b) => {
+              if (b.font !== a.font) return b.font - a.font;
+              return a.y - b.y;
+            })[0];
+
+          if (primary) out.views = primary.value;
+        }
+
+        const primaryY = candidates.length
+          ? candidates.slice().sort((a, b) => b.font - a.font)[0].y
+          : 0;
+
+        const lower = candidates
+          .filter(x => x.y > primaryY + 20)
+          .sort((a, b) => a.x - b.x);
+
+        if (lower.length >= 3) {
+          if (out.likes === null) out.likes = lower[0].value;
+          if (out.comments === null) out.comments = lower[1].value;
+          if (out.shares === null) out.shares = lower[2].value;
         }
       }
 
@@ -222,7 +244,7 @@ def main():
         "chromium": chromium,
     }
 
-    url = f"https://livecounts.io/tiktok-live-view-counter/{video_id}"
+    url = f"https://livecounts.io/embed/tiktok-live-view-counter/{video_id}"
 
     try:
         with sync_playwright() as p:
@@ -271,6 +293,7 @@ def main():
 
             debug["http_status"] = response.status if response else None
             debug["final_url"] = page.url
+            debug["livecounts_mode"] = "official-embed"
             debug["stage"] = "wait_for_render"
 
             deadline = time.time() + 8
@@ -347,7 +370,7 @@ def main():
 
             emit({
                 "success": True,
-                "source": "livecounts-rendered-page",
+                "source": "livecounts-official-embed-rendered",
                 "precision": "raw_integer",
                 "stats": best,
                 "title": (meta.get("page_title") if isinstance(meta, dict) else None) or title or None,
