@@ -986,7 +986,7 @@
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-stats-endpoint="{{ route('tiktok-counter.stats', ['videoId' => $videoId]) }}"
-                data-poll-ms="4000"
+                data-poll-ms="5000"
             >
                 <aside class="ttc-card ttc-preview">
                     <div class="ttc-thumb">
@@ -1189,10 +1189,10 @@
     var endpoint = root.getAttribute('data-stats-endpoint') || '';
     var videoUrl = root.getAttribute('data-video-url') || '';
     var videoId = root.getAttribute('data-video-id') || '';
-    var pollMs = parseInt(root.getAttribute('data-poll-ms') || '4000', 10);
+    var pollMs = parseInt(root.getAttribute('data-poll-ms') || '5000', 10);
 
-    if (!pollMs || pollMs < 4000) {
-        pollMs = 4000;
+    if (!pollMs || pollMs < 5000) {
+        pollMs = 5000;
     }
 
     var statKeys = ['views', 'likes', 'comments', 'shares'];
@@ -1594,7 +1594,7 @@
         } else if (data.precision === 'raw_integer') {
             setStatus(
                 'Bron: ' + (data.source || 'onbekend')
-                + ' · echte snapshots elke 4 sec · tussendoor geschat',
+                + ' · echte snapshots elke 5 sec · tussendoor geschat',
                 true
             );
         } else if (available === 4) {
