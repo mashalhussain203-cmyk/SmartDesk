@@ -70,6 +70,45 @@ class TikTokVideoStatsService
     }
 
     /**
+     * Exact four counters shown by Livecounts' official TikTok embed.
+     * The embed itself performs Livecounts' normal browser-side data flow;
+     * we only read the rendered public values after it has loaded.
+     */
+    public function getLivecountsCardStats(string $videoId): array
+    {
+        if (!preg_match('/^\\d{10,30}$/', $videoId)) {
+            throw new RuntimeException('Ongeldig TikTok video-ID.');
+        }
+
+        $cacheKey = 'tiktok-live-count:livecounts-cards:v1:'.$videoId;
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $stats = $this->fetchViaLivecountsRenderedPage($videoId);
+
+        if (!is_array($stats)) {
+            throw new RuntimeException(
+                'Livecounts leverde geen gerenderde tellerdata.'
+            );
+        }
+
+        foreach (['views', 'likes', 'comments', 'shares'] as $key) {
+            if (!array_key_exists($key, $stats) || $stats[$key] === null) {
+                throw new RuntimeException(
+                    'Livecounts mist teller: '.$key
+                );
+            }
+        }
+
+        Cache::put($cacheKey, $stats, now()->addSeconds(12));
+
+        return $stats;
+    }
+
+    /**
      * Supplemental public TikTok data used next to the direct Livecounts embed.
      * Livecounts itself supplies Views/Likes/Comments/Shares inside its iframe.
      * TikTok's public video page is used here only for fields Livecounts does
