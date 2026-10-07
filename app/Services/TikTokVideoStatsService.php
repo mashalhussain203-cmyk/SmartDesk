@@ -147,10 +147,11 @@ class TikTokVideoStatsService
         }
 
         /*
-         * First-ever request and somebody else owns the refresh lock.
-         * Wait briefly for their snapshot instead of sending another TikTok fetch.
+         * First-ever request and another worker owns the refresh lock.
+         * The Livecounts Chromium render can take 10-20 seconds on a cold
+         * Railway container. Wait for that worker instead of failing after 2s.
          */
-        for ($attempt = 0; $attempt < 8; $attempt++) {
+        for ($attempt = 0; $attempt < 96; $attempt++) {
             usleep(250000);
 
             $snapshot = Cache::get($cacheKey);
@@ -160,8 +161,44 @@ class TikTokVideoStatsService
             }
         }
 
+        /*
+         * Recovery path: the previous worker may have crashed while holding
+         * the lock. After ~24s, try once more to become the refresher.
+         */
+        $recoveryLock = Cache::lock($lockKey, self::LOCK_SECONDS);
+
+        if ($recoveryLock->get()) {
+            try {
+                $snapshot = Cache::get($cacheKey);
+
+                if ($this->isUsableSnapshot($snapshot)) {
+                    return $this->snapshotResult($snapshot, false);
+                }
+
+                $stats = $this->fetchFreshTikTokStats(
+                    $resolved['url'],
+                    $videoId
+                );
+
+                $snapshot = [
+                    'stats' => $stats,
+                    'fetched_at_ms' => $this->nowMs(),
+                ];
+
+                Cache::put(
+                    $cacheKey,
+                    $snapshot,
+                    now()->addSeconds(self::SNAPSHOT_TTL_SECONDS)
+                );
+
+                return $this->snapshotResult($snapshot, true);
+            } finally {
+                $recoveryLock->release();
+            }
+        }
+
         throw new RuntimeException(
-            'De eerste TikTok Live Count snapshot wordt nog opgehaald. Probeer opnieuw.'
+            'Livecounts refresh is nog bezig en heeft na 24 seconden nog geen snapshot opgeleverd.'
         );
     }
 
