@@ -490,6 +490,7 @@ def main():
             "success": True,
             "stage": "success",
             "source": source,
+            "precision": "public_display_value",
             "stats": stats,
             "author_name": author,
             "title": title,
