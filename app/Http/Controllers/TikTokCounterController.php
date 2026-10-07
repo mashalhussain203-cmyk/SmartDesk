@@ -12,11 +12,8 @@ use Throwable;
 
 class TikTokCounterController extends Controller
 {
-    public function liveCountsIndex(
-        TikTokVideoStatsService $service
-    ): View {
-        $service->warmLiveFollowerSearchBrowser();
-
+    public function liveCountsIndex(): View
+    {
         return view('tools.live-counts');
     }
 
@@ -104,11 +101,8 @@ class TikTokCounterController extends Controller
             ->header('Expires', '0');
     }
 
-    public function followerIndex(
-        TikTokVideoStatsService $service
-    ): View {
-        $service->warmLiveFollowerSearchBrowser();
-
+    public function followerIndex(): View
+    {
         return view('tools.tiktok-follower-counter');
     }
 
@@ -191,8 +185,6 @@ class TikTokCounterController extends Controller
         string $username,
         TikTokVideoStatsService $service
     ): Response|RedirectResponse {
-        $service->warmLiveFollowerSearchBrowser();
-
         try {
             $account = $service->resolveTikTokUsername($username);
         } catch (Throwable $e) {
