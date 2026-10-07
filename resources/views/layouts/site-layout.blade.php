@@ -6653,9 +6653,10 @@
                     <a
                         class="expert-new-project"
                         href="{{ route('home') }}#upload"
+                        aria-label="Nieuwe afbeelding"
+                        title="Nieuwe afbeelding"
                     >
                         <span aria-hidden="true">＋</span>
-                        <span>New image</span>
                     </a>
 
                     @guest
