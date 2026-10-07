@@ -1010,6 +1010,8 @@
     var copyButton = document.getElementById('ttc-copy');
     var chartLine = document.getElementById('ttc-chart-line');
     var chartArea = document.getElementById('ttc-chart-area');
+    var livecountsFrame = document.getElementById('ttc-livecounts-frame');
+    var embedMode = !!livecountsFrame;
 
     var i;
     for (i = 0; i < statKeys.length; i += 1) {
@@ -1358,7 +1360,7 @@
         if (timer !== null) {
             window.clearTimeout(timer);
         }
-        if (!stopped) {
+        if (!stopped && !embedMode) {
             timer = window.setTimeout(loadStats, delay);
         }
     }
@@ -1370,6 +1372,10 @@
 
     function loadStats() {
         var separator;
+
+        if (embedMode) {
+            return;
+        }
         var requestUrl;
 
         if (stopped || !endpoint || request !== null) {
@@ -1434,7 +1440,14 @@
     }
 
     if (refreshButton) {
+        if (embedMode) {
+            refreshButton.style.display = 'none';
+        }
+
         refreshButton.onclick = function () {
+            if (embedMode) {
+                return;
+            }
             if (timer !== null) {
                 window.clearTimeout(timer);
                 timer = null;
@@ -1469,7 +1482,7 @@
     }
 
     document.addEventListener('visibilitychange', function () {
-        if (!document.hidden && request === null) {
+        if (!embedMode && !document.hidden && request === null) {
             if (timer !== null) {
                 window.clearTimeout(timer);
                 timer = null;
@@ -1494,9 +1507,34 @@
         }
     });
 
-    restoreSession();
-    animateEstimatedCounters();
-    loadStats();
+    if (embedMode) {
+        stopped = true;
+
+        if (statusText) {
+            statusText.textContent = 'Livecounts embed actief';
+        }
+
+        if (statusDot) {
+            statusDot.style.background = '#6ee7a8';
+            statusDot.style.boxShadow = '0 0 13px rgba(110,231,168,.62)';
+        }
+
+        if (updatedElement) {
+            updatedElement.textContent = 'Externe live teller actief';
+        }
+
+        if (livecountsFrame) {
+            livecountsFrame.addEventListener('load', function () {
+                if (statusText) {
+                    statusText.textContent = 'Livecounts embed geladen';
+                }
+            });
+        }
+    } else {
+        restoreSession();
+        animateEstimatedCounters();
+        loadStats();
+    }
 }());
 </script>
 @endpush
