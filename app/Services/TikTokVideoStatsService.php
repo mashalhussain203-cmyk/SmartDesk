@@ -177,8 +177,8 @@ class TikTokVideoStatsService
         $errors = [];
 
         /*
-         * Provider 1: render the normal public Livecounts counter webpage in
-         * Chromium, wait for its JavaScript counters, then read the visible
+         * Provider 1: render Livecounts' official TikTok embed in Chromium,
+         * wait for its JavaScript counters, then read the visible
          * Views/Likes/Comments/Shares values from the rendered DOM.
          */
         try {
@@ -329,7 +329,7 @@ class TikTokVideoStatsService
             'author_name' => $payload['author_name'] ?? null,
             'title' => $payload['title'] ?? null,
             'thumbnail_url' => $payload['thumbnail_url'] ?? null,
-            'source' => 'livecounts-rendered-page',
+            'source' => $payload['source'] ?? 'livecounts-official-embed-rendered',
             'precision' => 'raw_integer',
             '_debug' => $payload['debug'] ?? [
                 'provider' => 'livecounts-rendered-page',
