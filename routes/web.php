@@ -1113,6 +1113,40 @@ Route::get(
     ->middleware('throttle:30,1')
     ->name('tiktok-counter.livecounts-cards');
 
+
+/*
+|--------------------------------------------------------------------------
+| TikTok Live Follower Counter
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/tools/tiktok-follower-counter',
+    [TikTokCounterController::class, 'followerIndex']
+)->name('tiktok-follower-counter.index');
+
+Route::post(
+    '/tools/tiktok-follower-counter',
+    [TikTokCounterController::class, 'followerLookup']
+)
+    ->middleware('throttle:20,1')
+    ->name('tiktok-follower-counter.lookup');
+
+Route::get(
+    '/tools/tiktok-follower-counter/{username}',
+    [TikTokCounterController::class, 'followerShow']
+)
+    ->where('username', '[A-Za-z0-9._]{1,24}')
+    ->name('tiktok-follower-counter.show');
+
+Route::get(
+    '/api/tools/tiktok-follower-counter/{username}/livecounts-cards',
+    [TikTokCounterController::class, 'followerCards']
+)
+    ->where('username', '[A-Za-z0-9._]{1,24}')
+    ->middleware('throttle:30,1')
+    ->name('tiktok-follower-counter.livecounts-cards');
+
 /*
 
 |--------------------------------------------------------------------------
