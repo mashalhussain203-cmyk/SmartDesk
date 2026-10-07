@@ -792,6 +792,143 @@
         }
     }
 
+
+    .ttc-live-tools {
+        margin: 14px 0 4px;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .ttc-live-tool {
+        min-height: 40px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: #929ba8;
+        background: rgba(255,255,255,.018);
+        text-decoration: none;
+        font: inherit;
+        font-size: 9px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+    .ttc-live-tool:hover {
+        color: #f3f5f7;
+        border-color: rgba(123,112,255,.34);
+        background: rgba(123,112,255,.07);
+    }
+
+    .ttc-advanced {
+        margin-top: 14px;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(255,255,255,.012);
+    }
+
+    .ttc-advanced-toggle {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 0;
+        color: #cfd4dc;
+        background: transparent;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .ttc-advanced-body {
+        display: none;
+        padding: 0 14px 14px;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 10px;
+    }
+
+    .ttc-advanced.is-open .ttc-advanced-body {
+        display: grid;
+    }
+
+    .ttc-advanced-metric {
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255,255,255,.014);
+    }
+
+    .ttc-advanced-label {
+        color: #626d7b;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .ttc-advanced-value {
+        margin-top: 7px;
+        color: #f4f6f8;
+        font-size: 22px;
+        font-weight: 720;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ttc-settings-panel {
+        display: none;
+        margin-top: 10px;
+        padding: 12px 14px;
+        border: 1px solid rgba(123,112,255,.16);
+        border-radius: 12px;
+        background: rgba(123,112,255,.035);
+    }
+
+    .ttc-settings-panel.is-open {
+        display: block;
+    }
+
+    .ttc-setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #8e98a6;
+        font-size: 10px;
+    }
+
+    .ttc-setting + .ttc-setting {
+        margin-top: 9px;
+    }
+
+    .ttc-setting input {
+        accent-color: #7b70ff;
+    }
+
+    @media (max-width: 900px) {
+        .ttc-live-tools {
+            grid-template-columns: repeat(3, minmax(0,1fr));
+        }
+    }
+
+    @media (max-width: 560px) {
+        .ttc-live-tools {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+        .ttc-advanced-body {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
 @endpush
 
@@ -898,6 +1035,26 @@
                         </div>
                     </div>
 
+                    <div class="ttc-live-tools">
+                        <button class="ttc-live-tool" type="button" id="ttc-change-user">⌕ Change User</button>
+                        <a class="ttc-live-tool" href="https://livecounts.io/compare/tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">⇄ Compare</a>
+                        <a class="ttc-live-tool" href="https://livecounts.io/spotlight?service=tiktok-live-view-counter" target="_blank" rel="noopener noreferrer">✦ Spotlight</a>
+                        <button class="ttc-live-tool" type="button" id="ttc-settings-toggle">⚙ Customize</button>
+                        <button class="ttc-live-tool" type="button" id="ttc-share">↗ Share</button>
+                        <a class="ttc-live-tool" href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer">♪ Visit TikTok</a>
+                    </div>
+
+                    <div class="ttc-settings-panel" id="ttc-settings-panel">
+                        <label class="ttc-setting">
+                            <span>Geschatte tussenstappen tonen</span>
+                            <input type="checkbox" id="ttc-smooth-toggle" checked>
+                        </label>
+                        <label class="ttc-setting">
+                            <span>Live growth chart tonen</span>
+                            <input type="checkbox" id="ttc-chart-toggle" checked>
+                        </label>
+                    </div>
+
                     <div class="ttc-stats">
                         <div class="ttc-stat">
                             <div class="ttc-stat-head">
@@ -933,6 +1090,23 @@
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-stat="shares">—</div>
                             <div class="ttc-stat-delta" data-delta="shares">Sessie gestart</div>
+                        </div>
+                    </div>
+
+                    <div class="ttc-advanced" id="ttc-advanced">
+                        <button class="ttc-advanced-toggle" type="button" id="ttc-advanced-toggle">
+                            <span>Advanced Metrics</span>
+                            <span id="ttc-advanced-arrow">＋</span>
+                        </button>
+                        <div class="ttc-advanced-body">
+                            <div class="ttc-advanced-metric">
+                                <div class="ttc-advanced-label">Views deze sessie</div>
+                                <div class="ttc-advanced-value" id="ttc-session-views">0</div>
+                            </div>
+                            <div class="ttc-advanced-metric">
+                                <div class="ttc-advanced-label">Live snelheid</div>
+                                <div class="ttc-advanced-value" id="ttc-view-rate">0 / min</div>
+                            </div>
                         </div>
                     </div>
 
@@ -1061,6 +1235,19 @@
     var copyButton = copyButtons.length ? copyButtons[copyButtons.length - 1] : null;
     var chartLine = document.getElementById('ttc-chart-line');
     var chartArea = document.getElementById('ttc-chart-area');
+    var changeUserButton = document.getElementById('ttc-change-user');
+    var settingsButton = document.getElementById('ttc-settings-toggle');
+    var settingsPanel = document.getElementById('ttc-settings-panel');
+    var shareButton = document.getElementById('ttc-share');
+    var smoothToggle = document.getElementById('ttc-smooth-toggle');
+    var chartToggle = document.getElementById('ttc-chart-toggle');
+    var chartWrap = document.querySelector('.ttc-chart-wrap');
+    var advanced = document.getElementById('ttc-advanced');
+    var advancedToggle = document.getElementById('ttc-advanced-toggle');
+    var advancedArrow = document.getElementById('ttc-advanced-arrow');
+    var sessionViewsElement = document.getElementById('ttc-session-views');
+    var viewRateElement = document.getElementById('ttc-view-rate');
+    var smoothEnabled = true;
     var embedMode = false;
 
     var i;
@@ -1138,7 +1325,7 @@
         var delta;
         var rate;
 
-        if (lastRealStats && lastRealAt > 0) {
+        if (smoothEnabled && lastRealStats && lastRealAt > 0) {
             elapsed = Math.max((now - lastRealAt) / 1000, 0.25);
 
             for (i = 0; i < statKeys.length; i += 1) {
@@ -1385,6 +1572,23 @@
             renderChart();
         }
 
+        if (
+            sessionViewsElement
+            && sessionStart
+            && isFiniteNumber(sessionStart.views)
+            && isFiniteNumber(stats.views)
+        ) {
+            sessionViewsElement.textContent = formatNumber(
+                Math.max(0, stats.views - sessionStart.views)
+            );
+        }
+
+        if (viewRateElement) {
+            viewRateElement.textContent = formatNumber(
+                Math.max(0, Math.round((growthPerSecond.views || 0) * 60))
+            ) + ' / min';
+        }
+
         if (data.stale_fallback) {
             setStatus(data.last_error ? 'Oude snapshot - ' + data.last_error : 'Oude snapshot - TikTok live refresh mislukt', false);
         } else if (data.precision === 'raw_integer') {
@@ -1497,6 +1701,76 @@
         };
 
         request.send(null);
+    }
+
+    if (changeUserButton) {
+        changeUserButton.onclick = function () {
+            var input = document.querySelector('.ttc-search input[name="url"]');
+            if (input) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                window.setTimeout(function () {
+                    input.focus();
+                    input.select();
+                }, 350);
+            }
+        };
+    }
+
+    if (settingsButton && settingsPanel) {
+        settingsButton.onclick = function () {
+            settingsPanel.classList.toggle('is-open');
+        };
+    }
+
+    if (smoothToggle) {
+        smoothToggle.onchange = function () {
+            smoothEnabled = !!smoothToggle.checked;
+        };
+    }
+
+    if (chartToggle && chartWrap) {
+        chartToggle.onchange = function () {
+            chartWrap.style.display = chartToggle.checked ? '' : 'none';
+        };
+    }
+
+    if (advancedToggle && advanced) {
+        advancedToggle.onclick = function () {
+            advanced.classList.toggle('is-open');
+            if (advancedArrow) {
+                advancedArrow.textContent = advanced.classList.contains('is-open') ? '−' : '＋';
+            }
+        };
+    }
+
+    if (shareButton) {
+        shareButton.onclick = function () {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'TikTok Live Count',
+                    url: window.location.href
+                }).catch(function () {});
+                return;
+            }
+
+            var input = document.createElement('textarea');
+            input.value = window.location.href;
+            input.setAttribute('readonly', 'readonly');
+            input.style.position = 'fixed';
+            input.style.left = '-9999px';
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                shareButton.textContent = '✓ Link gekopieerd';
+                window.setTimeout(function () {
+                    shareButton.textContent = '↗ Share';
+                }, 1400);
+            } catch (error) {
+            }
+            document.body.removeChild(input);
+        };
     }
 
     if (refreshButton) {
