@@ -932,7 +932,7 @@
 
     .ttc-direct-livecounts {
         margin-top: 14px;
-        min-height: 560px;
+        min-height: 760px;
         overflow: hidden;
         border: 1px solid rgba(255,255,255,.07);
         border-radius: 18px;
@@ -945,7 +945,7 @@
     .ttc-direct-livecounts iframe {
         display: block;
         width: 100%;
-        height: 560px;
+        height: 760px;
         border: 0;
         background: transparent;
         color-scheme: dark;
@@ -984,13 +984,89 @@
     @media (max-width: 980px) {
         .ttc-direct-livecounts,
         .ttc-direct-livecounts iframe {
-            min-height: 500px;
-            height: 500px;
+            min-height: 680px;
+            height: 680px;
         }
 
         .ttc-preview-player {
             min-height: 420px;
         }
+    }
+
+    .ttc-supplemental {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .ttc-supplemental-card {
+        min-height: 120px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px;
+        background:
+            radial-gradient(circle at 92% 10%, rgba(123,112,255,.12), transparent 38%),
+            rgba(255,255,255,.015);
+    }
+
+    .ttc-supplemental-label {
+        color: #7e8998;
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .ttc-supplemental-value {
+        margin-top: 7px;
+        color: #f3f5f8;
+        font-size: clamp(34px, 4vw, 52px);
+        line-height: 1;
+        font-weight: 780;
+        letter-spacing: -.045em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ttc-supplemental-source {
+        margin-top: 8px;
+        color: #65707e;
+        font-size: 9px;
+    }
+
+    .ttc-supplemental-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        color: #aaa4ff;
+        background: rgba(123,112,255,.09);
+        font-size: 18px;
+    }
+
+    .ttc-livecounts-fields {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .ttc-livecounts-field {
+        padding: 6px 9px;
+        border: 1px solid rgba(110,231,168,.13);
+        border-radius: 999px;
+        color: #7f8b98;
+        background: rgba(110,231,168,.025);
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
     }
 </style>
 @endpush
@@ -1049,6 +1125,7 @@
                 data-video-id="{{ $videoId }}"
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
+                data-supplemental-endpoint="{{ route('tiktok-counter.supplemental', ['videoId' => $videoId]) }}"
             >
                 <aside class="ttc-card ttc-preview">
                     <iframe
@@ -1105,6 +1182,26 @@
                         <a href="https://livecounts.io/tiktok-live-view-counter/{{ $videoId }}" target="_blank" rel="noopener noreferrer">Bron openen ↗</a>
                     </div>
 
+                    <div class="ttc-livecounts-fields" aria-label="Livecounts velden">
+                        <span class="ttc-livecounts-field">✓ Views</span>
+                        <span class="ttc-livecounts-field">✓ Likes</span>
+                        <span class="ttc-livecounts-field">✓ Comments</span>
+                        <span class="ttc-livecounts-field">✓ Shares</span>
+                    </div>
+
+                    <div class="ttc-supplemental">
+                        <div class="ttc-supplemental-card">
+                            <div>
+                                <div class="ttc-supplemental-label">Favorites</div>
+                                <div class="ttc-supplemental-value" id="ttc-favorites-value">—</div>
+                                <div class="ttc-supplemental-source" id="ttc-favorites-source">
+                                    TikTok publieke videodata laden…
+                                </div>
+                            </div>
+                            <div class="ttc-supplemental-icon">★</div>
+                        </div>
+                    </div>
+
                     <div class="ttc-actions">
                         <button class="ttc-action" type="button" id="ttc-copy">
                             ⧉ Link kopiëren
@@ -1153,6 +1250,101 @@
     var changeUserButton = document.getElementById('ttc-change-user');
     var shareButton = document.getElementById('ttc-share');
     var copyButton = document.getElementById('ttc-copy');
+    var supplementalEndpoint = root.getAttribute('data-supplemental-endpoint') || '';
+    var videoUrl = root.getAttribute('data-video-url') || '';
+    var favoritesValue = document.getElementById('ttc-favorites-value');
+    var favoritesSource = document.getElementById('ttc-favorites-source');
+    var favoritesTimer = null;
+
+    function loadFavorites() {
+        var requestUrl;
+        var separator;
+        var xhr;
+
+        if (!supplementalEndpoint || !videoUrl || !favoritesValue) {
+            return;
+        }
+
+        separator = supplementalEndpoint.indexOf('?') === -1 ? '?' : '&';
+        requestUrl = supplementalEndpoint + separator
+            + 'url=' + encodeURIComponent(videoUrl)
+            + '&_=' + encodeURIComponent(String(new Date().getTime()));
+
+        xhr = new XMLHttpRequest();
+        xhr.open('GET', requestUrl, true);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+        xhr.timeout = 20000;
+
+        xhr.onreadystatechange = function () {
+            var data;
+            var value;
+
+            if (xhr.readyState !== 4) {
+                return;
+            }
+
+            if (xhr.status < 200 || xhr.status >= 300) {
+                if (favoritesSource) {
+                    favoritesSource.textContent = 'Favorites tijdelijk niet beschikbaar';
+                }
+                scheduleFavorites();
+                return;
+            }
+
+            try {
+                data = JSON.parse(xhr.responseText || '{}');
+            } catch (error) {
+                if (favoritesSource) {
+                    favoritesSource.textContent = 'Ongeldige Favorites-response';
+                }
+                scheduleFavorites();
+                return;
+            }
+
+            value = data && data.stats ? Number(data.stats.favorites) : NaN;
+
+            if (isFinite(value)) {
+                try {
+                    favoritesValue.textContent = value.toLocaleString('nl-NL');
+                } catch (error) {
+                    favoritesValue.textContent = String(value);
+                }
+
+                if (favoritesSource) {
+                    favoritesSource.textContent = 'TikTok public · collectCount · elke 15 sec';
+                }
+            } else if (favoritesSource) {
+                favoritesSource.textContent = 'TikTok public geeft geen Favorites voor deze video';
+            }
+
+            scheduleFavorites();
+        };
+
+        xhr.onerror = function () {
+            if (favoritesSource) {
+                favoritesSource.textContent = 'Favorites netwerkfout';
+            }
+            scheduleFavorites();
+        };
+
+        xhr.ontimeout = function () {
+            if (favoritesSource) {
+                favoritesSource.textContent = 'Favorites ophalen duurde te lang';
+            }
+            scheduleFavorites();
+        };
+
+        xhr.send(null);
+    }
+
+    function scheduleFavorites() {
+        if (favoritesTimer !== null) {
+            window.clearTimeout(favoritesTimer);
+        }
+
+        favoritesTimer = window.setTimeout(loadFavorites, 15000);
+    }
 
     function setStatus(text, ok) {
         if (statusText) {
@@ -1246,6 +1438,14 @@
             copyCurrentUrl(copyButton);
         };
     }
+
+    loadFavorites();
+
+    window.addEventListener('beforeunload', function () {
+        if (favoritesTimer !== null) {
+            window.clearTimeout(favoritesTimer);
+        }
+    });
 }());
 </script>
 @endpush
