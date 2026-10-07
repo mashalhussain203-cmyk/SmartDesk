@@ -132,6 +132,55 @@ class TikTokCounterController extends Controller
         );
     }
 
+    public function followerSearch(
+        Request $request,
+        TikTokVideoStatsService $service
+    ): JsonResponse {
+        $query = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($query) < 2) {
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+                    'query' => $query,
+                    'results' => [],
+                ])
+            );
+        }
+
+        if (mb_strlen($query) > 40) {
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Zoekterm is te lang.',
+                    'results' => [],
+                ], 422)
+            );
+        }
+
+        try {
+            $results = $service->searchLiveFollowerUsers($query);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+                    'query' => $query,
+                    'results' => $results,
+                ])
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Accounts konden niet worden gezocht.',
+                    'results' => [],
+                ], 502)
+            );
+        }
+    }
+
     public function followerShow(
         string $username,
         TikTokVideoStatsService $service
