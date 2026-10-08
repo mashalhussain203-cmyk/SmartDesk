@@ -3048,28 +3048,28 @@ document.addEventListener('DOMContentLoaded', function () {
             mode === 'color' &&
             !backgroundColor?.value.trim()
         ) {
-            return 'Kies eerst een achtergrondkleur.';
+            return @json(__('Kies eerst een achtergrondkleur.'));
         }
 
         if (
             mode === 'url' &&
             !backgroundUrl?.value.trim()
         ) {
-            return 'Vul eerst een URL van een achtergrondafbeelding in.';
+            return @json(__('Vul eerst een URL van een achtergrondafbeelding in.'));
         }
 
         if (
             mode === 'upload' &&
             !backgroundImage?.files?.length
         ) {
-            return 'Kies eerst een achtergrondafbeelding om te uploaden.';
+            return @json(__('Kies eerst een achtergrondafbeelding om te uploaden.'));
         }
 
         if (
             mode === 'transparent' &&
             backgroundFormat?.value === 'jpg'
         ) {
-            return 'Kies PNG of WebP voor een transparante achtergrond.';
+            return @json(__('Kies PNG of WebP voor een transparante achtergrond.'));
         }
 
         return '';
@@ -3081,7 +3081,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ) {
         if (!form) {
             throw new Error(
-                'Het editorformulier kon niet worden gevonden.'
+                @json(__('Het editorformulier kon niet worden gevonden.'))
             );
         }
 
@@ -3092,7 +3092,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!activePanel) {
             throw new Error(
-                'De gekozen editorbewerking is niet beschikbaar.'
+                @json(__('De gekozen editorbewerking is niet beschikbaar.'))
             );
         }
 
@@ -3343,7 +3343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         setStatus(
-            'AI-preview wordt automatisch voorbereid…'
+            @json(__('AI-preview wordt automatisch voorbereid…'))
         );
 
         if (requestingBackgroundPreview) {
@@ -3413,7 +3413,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus(
                 error instanceof Error
                     ? error.message
-                    : 'De AI-preview kon niet worden voorbereid.',
+                    : @json(__('De AI-preview kon niet worden voorbereid.')),
                 true
             );
 
@@ -3429,14 +3429,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const originalLabel =
             backgroundLivePreviewButton?.textContent ||
-            'AI-preview uitvoeren';
+            @json(__('AI-preview uitvoeren'));
 
         if (backgroundLivePreviewButton) {
             backgroundLivePreviewButton.disabled =
                 true;
 
             backgroundLivePreviewButton.textContent =
-                'AI-preview maken…';
+                @json(__('AI-preview maken…'));
         }
 
         setLoading(
@@ -3444,7 +3444,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         setStatus(
-            'AI-achtergrond wordt verwerkt. Het resultaat verschijnt direct op dezelfde foto…'
+            @json(__('AI-achtergrond wordt verwerkt. Het resultaat verschijnt direct op dezelfde foto…'))
         );
 
         try {
@@ -5815,7 +5815,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 rotate: 'Rotatie',
                 flip: 'Spiegelen',
                 enhance: 'Fotoverbetering',
-                passport: 'Pasfoto / ID-foto',
+                passport: @json(__('Pasfoto / ID-foto')),
                 background: 'Achtergrond',
                 compress: 'Compressie',
                 convert: 'Conversie',
@@ -5882,7 +5882,7 @@ document.addEventListener('DOMContentLoaded', function () {
          * Ze worden op de eerstvolgende animation frame getekend.
          */
         setStatus(
-            'Live preview wordt bijgewerkt…'
+            @json(__('Live preview wordt bijgewerkt…'))
         );
 
         try {
@@ -5911,7 +5911,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus(
                 error instanceof Error
                     ? error.message
-                    : 'De live preview kon niet worden gemaakt.',
+                    : @json(__('De live preview kon niet worden gemaakt.')),
                 true
             );
         }
@@ -5991,7 +5991,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 function () {
                     reject(
                         new Error(
-                            'De gekozen bronafbeelding kon niet worden geladen.'
+                            @json(__('De gekozen bronafbeelding kon niet worden geladen.'))
                         )
                     );
                 };
@@ -6117,7 +6117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!nextUrl) {
             setStatus(
-                'De gekozen bron heeft geen previewbestand.',
+                @json(__('De gekozen bron heeft geen previewbestand.')),
                 true
             );
             return;
@@ -6166,7 +6166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         setStatus(
-            'Bronafbeelding laden…'
+            @json(__('Bronafbeelding laden…'))
         );
 
         try {
@@ -6225,7 +6225,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus(
                 error instanceof Error
                     ? error.message
-                    : 'De bronafbeelding kon niet worden geladen.',
+                    : @json(__('De bronafbeelding kon niet worden geladen.')),
                 true
             );
         }
@@ -6352,7 +6352,7 @@ document.addEventListener('DOMContentLoaded', function () {
             showVisualCrop();
 
             setStatus(
-                'Pasfotoformaat gewijzigd. Positioneer de persoon opnieuw indien nodig.'
+                @json(__('Pasfotoformaat gewijzigd. Positioneer de persoon opnieuw indien nodig.'))
             );
         }
     );
@@ -6528,7 +6528,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             setStatus(
                 file
-                    ? 'Nieuwe achtergrond geselecteerd: ' + file.name
+                    ? @json(__('Nieuwe achtergrond geselecteerd: ')) + file.name
                     : backgroundModeStatus()
             );
 
@@ -6578,7 +6578,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 showVisualCrop();
 
                 setStatus(
-                    'Cropgebied is opnieuw ingesteld. Sleep het kader op de afbeelding.'
+                    @json(__('Cropgebied is opnieuw ingesteld. Sleep het kader op de afbeelding.'))
                 );
 
                 return;
@@ -6590,7 +6590,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 showVisualCrop();
 
                 setStatus(
-                    'Pasfoto-kader is opnieuw gecentreerd.'
+                    @json(__('Pasfoto-kader is opnieuw gecentreerd.'))
                 );
 
                 return;
@@ -6617,7 +6617,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             setStatus(
-                'Preview-instellingen zijn teruggezet naar de bron.'
+                @json(__('Preview-instellingen zijn teruggezet naar de bron.'))
             );
         }
     );
@@ -6691,7 +6691,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const confirmed =
                         window.confirm(
-                            'Deze versie verwijderen? Het origineel blijft behouden.'
+                            @json(__('Deze versie verwijderen? Het origineel blijft behouden.'))
                         );
 
                     if (!confirmed) {
@@ -6725,7 +6725,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!operation) {
                 setStatus(
-                    'Kies eerst een bewerking.',
+                    @json(__('Kies eerst een bewerking.')),
                     true
                 );
 
@@ -6748,7 +6748,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     cropRect.height < 1
                 ) {
                     setStatus(
-                        'Kies eerst een geldig cropgebied op de afbeelding.',
+                        @json(__('Kies eerst een geldig cropgebied op de afbeelding.')),
                         true
                     );
 
@@ -6781,7 +6781,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setStatus(
                     error instanceof Error
                         ? error.message
-                        : 'De bewerking kon niet worden voorbereid.',
+                        : @json(__('De bewerking kon niet worden voorbereid.')),
                     true
                 );
 
@@ -6795,7 +6795,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const originalLabel =
                 submitButton?.textContent ||
-                'Opslaan als versie';
+                @json(__('Opslaan als versie'));
 
             savingOperation =
                 true;
@@ -6805,7 +6805,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     true;
 
                 submitButton.textContent =
-                    'Versie opslaan…';
+                    @json(__('Versie opslaan…'));
             }
 
             setLoading(
@@ -6813,7 +6813,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             setStatus(
-                'De live preview wordt nu definitief als nieuwe versie opgeslagen…'
+                @json(__('De live preview wordt nu definitief als nieuwe versie opgeslagen…'))
             );
 
             try {
@@ -6848,15 +6848,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         responseErrorMessage(
                             payload,
                             response.status === 419
-                                ? 'Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw.'
-                                : 'De versie kon niet worden opgeslagen.'
+                                ? @json(__('Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw.'))
+                                : @json(__('De versie kon niet worden opgeslagen.'))
                         )
                     );
                 }
 
                 if (!payload.version) {
                     throw new Error(
-                        'De server heeft de versie opgeslagen maar geen versiegegevens teruggestuurd.'
+                        @json(__('De server heeft de versie opgeslagen maar geen versiegegevens teruggestuurd.'))
                     );
                 }
 
@@ -6869,7 +6869,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setStatus(
                     (
                         payload.message ||
-                        'De nieuwe versie is opgeslagen.'
+                        @json(__('De nieuwe versie is opgeslagen.'))
                     ) +
                     ' De nieuwe versie is direct actief; je hoeft niet handmatig te wisselen.'
                 );
@@ -6877,7 +6877,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setStatus(
                     error instanceof Error
                         ? error.message
-                        : 'De versie kon niet worden opgeslagen.',
+                        : @json(__('De versie kon niet worden opgeslagen.')),
                     true
                 );
             } finally {
