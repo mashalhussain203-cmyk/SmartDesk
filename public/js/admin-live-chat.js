@@ -231,8 +231,8 @@
     const replyPreviewClose = document.createElement('button');
     replyPreviewClose.type = 'button';
     replyPreviewClose.textContent = '×';
-    replyPreviewClose.title = 'Antwoord annuleren';
-    replyPreviewClose.setAttribute('aria-label', 'Antwoord annuleren');
+    replyPreviewClose.title = (window.smartDeskTranslate ? window.smartDeskTranslate("Antwoord annuleren") : "Antwoord annuleren");
+    replyPreviewClose.setAttribute('aria-label', (window.smartDeskTranslate ? window.smartDeskTranslate("Antwoord annuleren") : "Antwoord annuleren"));
     replyPreviewClose.style.flex = '0 0 auto';
     replyPreviewClose.style.width = '30px';
     replyPreviewClose.style.height = '30px';
@@ -348,7 +348,7 @@
 
         return {
 
-            waiting: 'Wacht op een medewerker',
+            waiting: (window.smartDeskTranslate ? window.smartDeskTranslate("Wacht op een medewerker") : "Wacht op een medewerker"),
 
             open: 'In gesprek',
 
@@ -484,7 +484,7 @@
 
         return payload?.message
 
-            || 'De invoer is ongeldig.';
+            || (window.smartDeskTranslate ? window.smartDeskTranslate("De invoer is ongeldig.") : "De invoer is ongeldig.");
 
     }
 
@@ -590,7 +590,7 @@
 
                 throw new Error(
 
-                    'De server reageert te langzaam. Probeer opnieuw.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("De server reageert te langzaam. Probeer opnieuw.") : "De server reageert te langzaam. Probeer opnieuw.")
 
                 );
 
@@ -600,7 +600,7 @@
 
                 throw new Error(
 
-                    'Je internetverbinding is weggevallen.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Je internetverbinding is weggevallen.") : "Je internetverbinding is weggevallen.")
 
                 );
 
@@ -608,7 +608,7 @@
 
             throw new Error(
 
-                'Geen verbinding met de live chat. Probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Geen verbinding met de live chat. Probeer opnieuw.") : "Geen verbinding met de live chat. Probeer opnieuw.")
 
             );
 
@@ -641,7 +641,7 @@
             )
         ) {
             throw new Error(
-                'Ondersteunende live-chatstatus kon niet worden bijgewerkt.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Ondersteunende live-chatstatus kon niet worden bijgewerkt.") : "Ondersteunende live-chatstatus kon niet worden bijgewerkt.")
             );
         }
 
@@ -665,7 +665,7 @@
 
             nameNode.textContent =
 
-                'Sessie beëindigd';
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Sessie beëindigd") : "Sessie beëindigd");
 
             emailNode.textContent =
 
@@ -677,7 +677,7 @@
 
             throw new Error(
 
-                'Geen toegang meer. Vernieuw de pagina en log opnieuw in als admin.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Geen toegang meer. Vernieuw de pagina en log opnieuw in als admin.") : "Geen toegang meer. Vernieuw de pagina en log opnieuw in als admin.")
 
             );
 
@@ -699,7 +699,7 @@
 
                 payload?.message
 
-                || 'Dit gesprek is gewijzigd. Vernieuw de status en probeer opnieuw.'
+                || (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek is gewijzigd. Vernieuw de status en probeer opnieuw.") : "Dit gesprek is gewijzigd. Vernieuw de status en probeer opnieuw.")
 
             );
 
@@ -709,7 +709,7 @@
 
             throw new Error(
 
-                'Even wachten: de verzoeklimiet is bereikt.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Even wachten: de verzoeklimiet is bereikt.") : "Even wachten: de verzoeklimiet is bereikt.")
 
             );
 
@@ -721,7 +721,7 @@
 
                 payload?.message
 
-                || 'Dit gesprek bestaat niet meer.'
+                || (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek bestaat niet meer.") : "Dit gesprek bestaat niet meer.")
 
             );
 
@@ -731,7 +731,7 @@
 
             payload?.message
 
-            || 'Geen verbinding met de live chat. Probeer opnieuw.'
+            || (window.smartDeskTranslate ? window.smartDeskTranslate("Geen verbinding met de live chat. Probeer opnieuw.") : "Geen verbinding met de live chat. Probeer opnieuw.")
 
         );
 
@@ -1127,7 +1127,7 @@
 
                 ? '↩ Terug naar live chat'
 
-                : '✉ Verder via e-mail';
+                : (window.smartDeskTranslate ? window.smartDeskTranslate("✉ Verder via e-mail") : "✉ Verder via e-mail");
 
         emailSettingsButton.hidden =
 
@@ -1442,7 +1442,7 @@
 
                 message.attachment_name
 
-                || 'Bestand openen'
+                || (window.smartDeskTranslate ? window.smartDeskTranslate("Bestand openen") : "Bestand openen")
 
             }`;
 
@@ -1616,7 +1616,7 @@
         });
         if (message.sender === 'admin' && message.body) {
             actions.append(miniButton('✎', 'Bericht bewerken (max. 5 minuten)', async () => {
-                const body = window.prompt('Bericht bewerken:', message.body);
+                const body = window.prompt((window.smartDeskTranslate ? window.smartDeskTranslate("Bericht bewerken:") : "Bericht bewerken:"), message.body);
                 if (body === null || !body.trim()) return;
                 try {
                     await api(`${root.dataset.base}/${selected.id}/messages/${id}`, 'PATCH', {body: body.trim()});
@@ -1625,7 +1625,7 @@
             }));
         }
         if (message.attachment_url) {
-            actions.append(miniButton('⛶', 'Media fullscreen openen', () => window.open(message.attachment_url, '_blank', 'noopener')));
+            actions.append(miniButton('⛶', (window.smartDeskTranslate ? window.smartDeskTranslate("Media fullscreen openen") : "Media fullscreen openen"), () => window.open(message.attachment_url, '_blank', 'noopener')));
         }
         const status = document.createElement('span');
         status.style.fontSize = '11px';
@@ -1637,7 +1637,7 @@
         if (message.sender === 'visitor' && id > lastNotificationId) {
             lastNotificationId = id;
             if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-                new Notification(selected?.name || 'Nieuw chatbericht', {body: message.body || message.attachment_name || 'Nieuwe bijlage'});
+                new Notification(selected?.name || (window.smartDeskTranslate ? window.smartDeskTranslate("Nieuw chatbericht") : "Nieuw chatbericht"), {body: message.body || message.attachment_name || (window.smartDeskTranslate ? window.smartDeskTranslate("Nieuwe bijlage") : "Nieuwe bijlage")});
             }
             if (document.hidden) {
                 try { const ctx = new AudioContext(); const o = ctx.createOscillator(); o.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .08); } catch {}
@@ -1726,7 +1726,7 @@
 
                 throw new Error(
 
-                    'Het gesprek kon niet worden geladen.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Het gesprek kon niet worden geladen.") : "Het gesprek kon niet worden geladen.")
 
                 );
 
@@ -1818,7 +1818,7 @@
 
                         )
 
-                    : 'Gast · geen accountgegevens';
+                    : (window.smartDeskTranslate ? window.smartDeskTranslate("Gast · geen accountgegevens") : "Gast · geen accountgegevens");
 
             syncVisitorTyping(data);
 
@@ -1874,7 +1874,7 @@
 
             && !window.confirm(
 
-                'Je hebt een niet-verstuurd antwoord. Ander gesprek openen?'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Je hebt een niet-verstuurd antwoord. Ander gesprek openen?") : "Je hebt een niet-verstuurd antwoord. Ander gesprek openen?")
 
             )
 
@@ -1918,7 +1918,7 @@
 
             item.email
 
-            || 'Gast · geen accountgegevens';
+            || (window.smartDeskTranslate ? window.smartDeskTranslate("Gast · geen accountgegevens") : "Gast · geen accountgegevens");
 
         list
 
@@ -2227,7 +2227,7 @@
 
                     empty.textContent =
 
-                        'Geen gesprekken in dit overzicht.';
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Geen gesprekken in dit overzicht.") : "Geen gesprekken in dit overzicht.");
 
                     empty.style.padding =
 
@@ -2529,7 +2529,7 @@
 
                 fail(
 
-                    'Bericht is opgeslagen, maar de e-mail kon niet worden verstuurd: '
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Bericht is opgeslagen, maar de e-mail kon niet worden verstuurd: ") : "Bericht is opgeslagen, maar de e-mail kon niet worden verstuurd: ")
 
                     + result.email_error
 
@@ -2854,7 +2854,7 @@
 
             fail(
 
-                'De opname bevat geen geluid. Probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("De opname bevat geen geluid. Probeer opnieuw.") : "De opname bevat geen geluid. Probeer opnieuw.")
 
             );
 
@@ -2888,7 +2888,7 @@
 
             fail(
 
-                'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Het spraakbericht is te groot. Maximaal 15 MB toegestaan.") : "Het spraakbericht is te groot. Maximaal 15 MB toegestaan.")
 
             );
 
@@ -2946,7 +2946,7 @@
 
             fail(
 
-                'Spraakopname wordt niet ondersteund in deze browser.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Spraakopname wordt niet ondersteund in deze browser.") : "Spraakopname wordt niet ondersteund in deze browser.")
 
             );
 
@@ -3072,7 +3072,7 @@
 
                     fail(
 
-                        'Er ging iets mis tijdens de spraakopname.'
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Er ging iets mis tijdens de spraakopname.") : "Er ging iets mis tijdens de spraakopname.")
 
                     );
 
@@ -3124,7 +3124,7 @@
 
             fail(
 
-                'Opname gestart. Klik opnieuw om te stoppen en te versturen.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Opname gestart. Klik opnieuw om te stoppen en te versturen.") : "Opname gestart. Klik opnieuw om te stoppen en te versturen.")
 
             );
 
@@ -3174,7 +3174,7 @@
 
                 fail(
 
-                    'Microfoontoegang is geweigerd. Sta microfoontoegang toe in de browser.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Microfoontoegang is geweigerd. Sta microfoontoegang toe in de browser.") : "Microfoontoegang is geweigerd. Sta microfoontoegang toe in de browser.")
 
                 );
 
@@ -3192,7 +3192,7 @@
 
                 fail(
 
-                    'Er is geen microfoon gevonden.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Er is geen microfoon gevonden.") : "Er is geen microfoon gevonden.")
 
                 );
 
@@ -3202,7 +3202,7 @@
 
             fail(
 
-                'Microfoontoegang is niet beschikbaar.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Microfoontoegang is niet beschikbaar.") : "Microfoontoegang is niet beschikbaar.")
 
             );
 
@@ -3353,7 +3353,7 @@
                 }
             }
         }
-        throw lastError || new Error('Een videodeel kon niet worden geüpload.');
+        throw lastError || new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Een videodeel kon niet worden geüpload.") : "Een videodeel kon niet worden geüpload."));
     }
 
     async function uploadVideoInChunks(file) {
@@ -3390,7 +3390,7 @@
                 });
                 uploadId = String(started.upload_id || '');
                 if (!uploadId) {
-                    throw new Error('De video-upload kon niet worden gestart.');
+                    throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("De video-upload kon niet worden gestart.") : "De video-upload kon niet worden gestart."));
                 }
                 window.localStorage.setItem(storageKey, uploadId);
                 state = await api(adminUploadUrl(`/${uploadId}`));
@@ -3417,7 +3417,7 @@
                 fail(`Video uploaden… ${percent}%`);
             }
 
-            fail('Video verwerken…');
+            fail((window.smartDeskTranslate ? window.smartDeskTranslate("Video verwerken…") : "Video verwerken…"));
             const result = await api(adminUploadUrl(`/${uploadId}/complete`), 'POST', { parent_message_id: parentMessageId });
             window.localStorage.removeItem(storageKey);
 
@@ -3426,14 +3426,14 @@
             await inbox();
 
             if (result?.email_sent === false && result?.email_skipped !== true && result?.email_error) {
-                fail('Video is opgeslagen, maar de e-mail kon niet worden verstuurd: ' + result.email_error);
+                fail((window.smartDeskTranslate ? window.smartDeskTranslate("Video is opgeslagen, maar de e-mail kon niet worden verstuurd: ") : "Video is opgeslagen, maar de e-mail kon niet worden verstuurd: ") + result.email_error);
             } else {
                 fail('');
             }
 
             return true;
         } catch (error) {
-            fail(error?.message || 'De video kon niet worden verstuurd.');
+            fail(error?.message || (window.smartDeskTranslate ? window.smartDeskTranslate("De video kon niet worden verstuurd.") : "De video kon niet worden verstuurd."));
             return false;
         } finally {
             busy = false;
@@ -3448,7 +3448,7 @@
             const video = isVideoFile(file);
             const maxBytes = video ? CONFIG.maxVideoBytes : CONFIG.maxFileBytes;
             if (file.size > maxBytes) {
-                fail(video ? 'De video is te groot. Maximaal 1 GB toegestaan.' : 'Het bestand is te groot. Maximaal 20 MB toegestaan.');
+                fail(video ? (window.smartDeskTranslate ? window.smartDeskTranslate("De video is te groot. Maximaal 1 GB toegestaan.") : "De video is te groot. Maximaal 1 GB toegestaan.") : (window.smartDeskTranslate ? window.smartDeskTranslate("Het bestand is te groot. Maximaal 20 MB toegestaan.") : "Het bestand is te groot. Maximaal 20 MB toegestaan."));
                 continue;
             }
             if (video) {
@@ -3531,7 +3531,7 @@
     function defaultEmailTitle(conversation) {
         return String(
             conversation?.email_title
-            || 'Mashal Support'
+            || (window.smartDeskTranslate ? window.smartDeskTranslate("Mashal Support") : "Mashal Support")
         ).trim();
     }
 
@@ -3552,7 +3552,7 @@
 
         email = String(
             window.prompt(
-                'E-mailadres van de klant:',
+                (window.smartDeskTranslate ? window.smartDeskTranslate("E-mailadres van de klant:") : "E-mailadres van de klant:"),
                 email
             ) || ''
         ).trim();
@@ -3571,7 +3571,7 @@
         if (!subjectLocked) {
             subject = String(
                 window.prompt(
-                    'E-mailonderwerp voor deze thread:',
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("E-mailonderwerp voor deze thread:") : "E-mailonderwerp voor deze thread:"),
                     subject
                 ) || ''
             ).trim();
@@ -3585,13 +3585,13 @@
             window.prompt(
                 subjectLocked
                     ? 'Titel in de e-mail. Deze mag je blijven wijzigen; het echte onderwerp blijft vast zodat Gmail dezelfde thread behoudt:'
-                    : 'Titel boven het bericht in de e-mail:',
+                    : (window.smartDeskTranslate ? window.smartDeskTranslate("Titel boven het bericht in de e-mail:") : "Titel boven het bericht in de e-mail:"),
                 defaultEmailTitle(selected)
             ) || ''
         ).trim();
 
         if (!title) {
-            title = 'Mashal Support';
+            title = (window.smartDeskTranslate ? window.smartDeskTranslate("Mashal Support") : "Mashal Support");
         }
 
         const confirmation = subjectLocked
@@ -3643,7 +3643,7 @@
                 && result?.email_error
             ) {
                 fail(
-                    'E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: '
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: ") : "E-mailmodus is geactiveerd, maar de eerste e-mail kon niet worden verstuurd: ")
                     + result.email_error
                 );
             }
@@ -3679,7 +3679,7 @@
 
             if (
                 !window.confirm(
-                    'Dit gesprek terugzetten naar normale live-chat? De Gmail-thread blijft bewaard, zodat je later in dezelfde e-mailthread verder kunt gaan.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek terugzetten naar normale live-chat? De Gmail-thread blijft bewaard, zodat je later in dezelfde e-mailthread verder kunt gaan.") : "Dit gesprek terugzetten naar normale live-chat? De Gmail-thread blijft bewaard, zodat je later in dezelfde e-mailthread verder kunt gaan.")
                 )
             ) {
                 return;
@@ -3924,7 +3924,7 @@
 
             fail(
 
-                'Je internetverbinding is weggevallen.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Je internetverbinding is weggevallen.") : "Je internetverbinding is weggevallen.")
 
             );
 
