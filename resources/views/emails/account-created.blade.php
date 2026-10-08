@@ -20,7 +20,7 @@
     >
 
     <title>
-        Welkom bij Mashal Automotive
+        {{ __('Welkom bij Mashal Automotive') }}
     </title>
 </head>
 
@@ -202,7 +202,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Welcome
+                                                    {{ __('Welcome') }}
                                                 </span>
                                             </td>
 
@@ -274,7 +274,7 @@
                                 text-transform: uppercase;
                             "
                         >
-                            Welcome to Mashal
+                            {{ __('Welcome to Mashal') }}
                         </div>
 
 
@@ -289,7 +289,7 @@
                                 text-align: center;
                             "
                         >
-                            Welkom bij Mashal Automotive
+                            {{ __('Welkom bij Mashal Automotive') }}
                         </h1>
 
 
@@ -303,9 +303,7 @@
                                 text-align: center;
                             "
                         >
-                            Een Mashal-beheerder heeft een account voor je aangemaakt.
-                            Hieronder vind je je accountinformatie en de stappen
-                            die nodig zijn om veilig te starten.
+                            {{ __('Een Mashal-beheerder heeft een account voor je aangemaakt. Hieronder vind je je accountinformatie en de stappen die nodig zijn om veilig te starten.') }}
                         </p>
 
                     </td>
@@ -331,7 +329,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $user->name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
 
@@ -343,10 +341,8 @@
                                 line-height: 1.75;
                             "
                         >
-                            Je account is aangemaakt met het e-mailadres
-                            <strong>{{ $user->email }}</strong>.
-                            Controleer hieronder wat je nog moet doen
-                            voordat je het account volledig gebruikt.
+                            {{ __('Je account is aangemaakt met het e-mailadres') }}
+                            <strong>{{ $user->email }}</strong>{{ __('. Controleer hieronder wat je nog moet doen voordat je het account volledig gebruikt.') }}
                         </p>
 
                     </td>
@@ -373,7 +369,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Je accountgegevens
+                            {{ __('Je accountgegevens') }}
                         </div>
 
 
@@ -409,7 +405,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -508,7 +504,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            Jouw verificatiecode
+                                            {{ __('Jouw verificatiecode') }}
                                         </div>
 
                                         <div
@@ -546,7 +542,7 @@
                                                 font-weight: 700;
                                             "
                                         >
-                                            Geldig gedurende 15 minuten
+                                            {{ __('Geldig gedurende 15 minuten') }}
                                         </span>
                                     </td>
                                 </tr>
@@ -571,9 +567,7 @@
                                     line-height: 1.75;
                                 "
                             >
-                                Vul deze code in op de verificatiepagina
-                                om je e-mailadres te bevestigen.
-                                Is de code verlopen, vraag dan een nieuwe code aan.
+                                {{ __('Vul deze code in op de verificatiepagina om je e-mailadres te bevestigen. Is de code verlopen, vraag dan een nieuwe code aan.') }}
                             </p>
 
 
@@ -611,7 +605,7 @@
                                                 text-decoration: none;
                                             "
                                         >
-                                            E-mailadres bevestigen →
+                                            {{ __('E-mailadres bevestigen →') }}
                                         </a>
                                     </td>
                                 </tr>
@@ -684,7 +678,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            E-mailadres al geverifieerd
+                                            {{ __('E-mailadres al geverifieerd') }}
                                         </div>
 
                                         <div
@@ -694,9 +688,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            De beheerder heeft je e-mailadres
-                                            al als geverifieerd gemarkeerd.
-                                            Je hoeft daarom geen verificatiecode in te voeren.
+                                            {{ __('De beheerder heeft je e-mailadres al als geverifieerd gemarkeerd. Je hoeft daarom geen verificatiecode in te voeren.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -747,7 +739,7 @@
                                                 text-decoration: none;
                                             "
                                         >
-                                            Inloggen bij Mashal →
+                                            {{ __('Inloggen bij Mashal →') }}
                                         </a>
                                     </td>
                                 </tr>
@@ -779,7 +771,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Zo start je veilig
+                            {{ __('Zo start je veilig') }}
                         </div>
 
 
@@ -830,7 +822,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of je naam en e-mailadres correct zijn.
+                                    {{ __('Controleer of je naam en e-mailadres correct zijn.') }}
                                 </td>
                             </tr>
 
@@ -914,8 +906,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Log in zodra je toegang hebt en controleer
-                                    je persoonlijke accountgegevens.
+                                    {{ __('Log in zodra je toegang hebt en controleer je persoonlijke accountgegevens.') }}
                                 </td>
                             </tr>
 
@@ -991,7 +982,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Geen wachtwoord per e-mail
+                                        {{ __('Geen wachtwoord per e-mail') }}
                                     </div>
 
                                     <div
@@ -1001,10 +992,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Om veiligheidsredenen verstuurt Mashal
-                                        geen wachtwoorden per e-mail.
-                                        Ken je je wachtwoord niet,
-                                        dan kun je zelf een resetlink aanvragen.
+                                        {{ __('Om veiligheidsredenen verstuurt Mashal geen wachtwoorden per e-mail. Ken je je wachtwoord niet, dan kun je zelf een resetlink aanvragen.') }}
                                     </div>
 
 
@@ -1099,7 +1087,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Had je dit account niet verwacht?
+                                        {{ __('Had je dit account niet verwacht?') }}
                                     </div>
 
                                     <div
@@ -1109,8 +1097,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Neem dan contact op met de Mashal-beheerder
-                                        voordat je het account gebruikt.
+                                        {{ __('Neem dan contact op met de Mashal-beheerder voordat je het account gebruikt.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -1186,7 +1173,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Bescherm je account
+                                        {{ __('Bescherm je account') }}
                                     </div>
 
                                     <div
@@ -1196,9 +1183,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Deel je wachtwoord of verificatiecode nooit met anderen.
-                                        Mashal zal nooit vragen om deze gegevens via e-mail,
-                                        chat of telefoon door te geven.
+                                        {{ __('Deel je wachtwoord of verificatiecode nooit met anderen. Mashal zal nooit vragen om deze gegevens via e-mail, chat of telefoon door te geven.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -1227,8 +1212,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Zodra je verificatie en toegang geregeld zijn,
-                            kun je je Mashal-account normaal gebruiken.
+                            {{ __('Zodra je verificatie en toegang geregeld zijn, kun je je Mashal-account normaal gebruiken.') }}
                         </p>
 
 
@@ -1248,7 +1232,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -1279,8 +1263,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat een Mashal-beheerder een account voor je heeft aangemaakt.
+                            {{ __('Deze e-mail is automatisch verzonden nadat een Mashal-beheerder een account voor je heeft aangemaakt.') }}
                         </div>
 
 
@@ -1311,8 +1294,7 @@
                     text-align: center;
                 "
             >
-                Accountmelding van Mashal Automotive.
-                Bewaar je inloggegevens privé en controleer onverwachte accountactiviteit direct.
+                {{ __('Accountmelding van Mashal Automotive. Bewaar je inloggegevens privé en controleer onverwachte accountactiviteit direct.') }}
             </div>
 
         </td>
