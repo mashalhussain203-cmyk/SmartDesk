@@ -2105,11 +2105,11 @@
 
             <div class="brand-copy">
                 <div class="brand-name">
-                    Mashal Mail
+                    {{ __('Mashal Mail') }}
                 </div>
 
                 <div class="brand-description">
-                    Je Gmail, rechtstreeks in Mashal Studio
+                    {{ __('Je Gmail, rechtstreeks in Mashal Studio') }}
                 </div>
             </div>
         </a>
@@ -2142,7 +2142,7 @@
                         for="gmail-search"
                         class="sr-only"
                     >
-                        Zoeken in Gmail
+                        {{ __('Zoeken in Gmail') }}
                     </label>
 
                     <input
@@ -2182,7 +2182,7 @@
                 href="{{ route('home') }}"
                 class="header-button"
             >
-                ← Studio
+                {{ __('← Studio') }}
             </a>
 
             @auth
@@ -2232,7 +2232,7 @@
                             ✎
                         </span>
 
-                        Nieuw bericht
+                        {{ __('Nieuw bericht') }}
                     </button>
 
                 @endif
@@ -2241,7 +2241,7 @@
                 <nav class="side-nav">
 
                     <div class="side-nav-section-title">
-                        Mailbox
+                        {{ __('Mailbox') }}
                     </div>
 
                     @foreach($folders as $folderKey => $folderData)
@@ -2295,11 +2295,11 @@
                     <section class="connection-card">
 
                         <div class="connection-label">
-                            Google-account
+                            {{ __('Google-account') }}
                         </div>
 
                         <h2 class="connection-title">
-                            Gmail gekoppeld
+                            {{ __('Gmail gekoppeld') }}
                         </h2>
 
                         <div class="connection-email">
@@ -2308,7 +2308,7 @@
 
                         <div class="connection-status">
                             <span class="status-dot"></span>
-                            Verbonden
+                            {{ __('Verbonden') }}
                         </div>
 
                         <form
@@ -2323,7 +2323,7 @@
                                 type="submit"
                                 class="disconnect-button"
                             >
-                                Gmail ontkoppelen
+                                {{ __('Gmail ontkoppelen') }}
                             </button>
                         </form>
 
@@ -2429,7 +2429,7 @@
 
                             <div>
                                 <strong>
-                                    Gmail kon niet worden geladen.
+                                    {{ __('Gmail kon niet worden geladen.') }}
                                 </strong>
 
                                 <br>
@@ -2491,14 +2491,11 @@
                     @if($isGmailAccount)
 
                         <h1 class="state-title">
-                            Verbind je Gmail met Mashal Mail
+                            {{ __('Verbind je Gmail met Mashal Mail') }}
                         </h1>
 
                         <p class="state-text">
-                            Na het koppelen kun je je Gmail-inbox
-                            rechtstreeks op deze website bekijken,
-                            berichten openen en nieuwe e-mails
-                            versturen zonder Gmail zelf te openen.
+                            {{ __('Na het koppelen kun je je Gmail-inbox rechtstreeks op deze website bekijken, berichten openen en nieuwe e-mails versturen zonder Gmail zelf te openen.') }}
                         </p>
 
                         <div class="state-actions">
@@ -2507,14 +2504,14 @@
                                 href="{{ route('gmail.connect') }}"
                                 class="primary-button"
                             >
-                                Google Gmail koppelen
+                                {{ __('Google Gmail koppelen') }}
                             </a>
 
                             <a
                                 href="{{ route('home') }}"
                                 class="tool-button"
                             >
-                                Terug naar Studio
+                                {{ __('Terug naar Studio') }}
                             </a>
 
                         </div>
@@ -2522,13 +2519,11 @@
                     @else
 
                         <h1 class="state-title">
-                            Gmail is niet beschikbaar voor dit account
+                            {{ __('Gmail is niet beschikbaar voor dit account') }}
                         </h1>
 
                         <p class="state-text">
-                            Deze functie is alleen zichtbaar voor
-                            Mashal Studio-accounts waarvan het
-                            geregistreerde e-mailadres eindigt op
+                            {{ __('Deze functie is alleen zichtbaar voor Mashal Studio-accounts waarvan het geregistreerde e-mailadres eindigt op') }}
                             <strong>@gmail.com</strong>.
                         </p>
 
@@ -2538,7 +2533,7 @@
                                 href="{{ route('home') }}"
                                 class="primary-button"
                             >
-                                Terug naar Mashal Studio
+                                {{ __('Terug naar Mashal Studio') }}
                             </a>
 
                         </div>
@@ -2595,7 +2590,7 @@
                             </span>
 
                             <span class="desktop-label">
-                                Vernieuwen
+                                {{ __('Vernieuwen') }}
                             </span>
                         </a>
 
@@ -2743,7 +2738,7 @@
                                 ) }}"
                                 class="next-page-button"
                             >
-                                Volgende berichten
+                                {{ __('Volgende berichten') }}
                                 <span aria-hidden="true">
                                     →
                                 </span>
@@ -2768,12 +2763,11 @@
                         @if(!empty($query))
 
                             <h2 class="state-title">
-                                Geen berichten gevonden
+                                {{ __('Geen berichten gevonden') }}
                             </h2>
 
                             <p class="state-text">
-                                Er zijn geen Gmail-berichten gevonden
-                                die overeenkomen met
+                                {{ __('Er zijn geen Gmail-berichten gevonden die overeenkomen met') }}
                                 <strong>{{ $query }}</strong>.
                             </p>
 
@@ -2805,7 +2799,7 @@
                                     class="primary-button"
                                     data-compose-open
                                 >
-                                    Nieuw bericht
+                                    {{ __('Nieuw bericht') }}
                                 </button>
 
                             </div>
@@ -2848,7 +2842,7 @@
                 {{ $currentFolder['icon'] }}
             </span>
 
-            Mappen
+            {{ __('Mappen') }}
         </button>
 
 
@@ -2864,7 +2858,7 @@
                 ✎
             </span>
 
-            Schrijven
+            {{ __('Schrijven') }}
         </button>
 
 
@@ -2907,14 +2901,14 @@
 
             <div>
                 <div class="folder-sheet-eyebrow">
-                    Mashal Mail
+                    {{ __('Mashal Mail') }}
                 </div>
 
                 <h2
                     id="folder-menu-title"
                     class="folder-sheet-title"
                 >
-                    Gmail-mappen
+                    {{ __('Gmail-mappen') }}
                 </h2>
             </div>
 
@@ -3002,7 +2996,7 @@
                 id="compose-title"
                 class="compose-heading"
             >
-                Nieuw bericht
+                {{ __('Nieuw bericht') }}
             </h2>
 
             <button
@@ -3028,7 +3022,7 @@
                 for="compose-to"
                 class="sr-only"
             >
-                Ontvanger
+                {{ __('Ontvanger') }}
             </label>
 
             <input
@@ -3049,7 +3043,7 @@
                 for="compose-subject"
                 class="sr-only"
             >
-                Onderwerp
+                {{ __('Onderwerp') }}
             </label>
 
             <input
@@ -3067,7 +3061,7 @@
                 for="compose-body"
                 class="sr-only"
             >
-                Bericht
+                {{ __('Bericht') }}
             </label>
 
             <textarea
@@ -3086,7 +3080,7 @@
                     type="submit"
                     class="send-button"
                 >
-                    Verzenden
+                    {{ __('Verzenden') }}
                 </button>
 
                 <div
