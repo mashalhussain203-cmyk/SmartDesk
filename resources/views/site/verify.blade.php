@@ -2496,7 +2496,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 message ||
 
-                'Er ging iets mis.'
+                @json(__('Er ging iets mis.'))
 
             );
 
