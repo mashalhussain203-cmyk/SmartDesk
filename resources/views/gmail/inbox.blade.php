@@ -2098,7 +2098,7 @@
         <a
             href="{{ route('home') }}"
             class="brand"
-            aria-label="Terug naar Mashal Studio"
+            aria-label="{{ __('Terug naar Mashal Studio') }}"
         >
             <div class="brand-logo">
                 M
@@ -2682,8 +2682,8 @@
                                         @if($isUnread)
                                             <span
                                                 class="unread-dot"
-                                                aria-label="Ongelezen"
-                                                title="Ongelezen"
+                                                aria-label="{{ __('Ongelezen') }}"
+                                                title="{{ __('Ongelezen') }}"
                                             ></span>
                                         @endif
                                     </div>
@@ -3032,7 +3032,7 @@
                 name="to"
                 class="compose-input"
                 value="{{ old('to') }}"
-                placeholder="Aan"
+                placeholder="{{ __('Aan') }}"
                 required
                 maxlength="254"
                 autocomplete="email"
@@ -3053,7 +3053,7 @@
                 name="subject"
                 class="compose-input"
                 value="{{ old('subject') }}"
-                placeholder="Onderwerp"
+                placeholder="{{ __('Onderwerp') }}"
                 maxlength="998"
             >
 
