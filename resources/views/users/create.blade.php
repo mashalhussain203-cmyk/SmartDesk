@@ -1910,7 +1910,7 @@
 
                                     name="password"
 
-                                    placeholder="Minimaal 8 tekens"
+                                    placeholder="{{ __('Minimaal 8 tekens') }}"
 
                                     autocomplete="new-password"
 
@@ -1930,7 +1930,7 @@
 
                                     data-toggle-password="password"
 
-                                    aria-label="Wachtwoord tonen of verbergen"
+                                    aria-label="{{ __('Wachtwoord tonen of verbergen') }}"
 
                                 >
 
@@ -2306,7 +2306,7 @@
 
                     >
 
-                        Annuleren
+                        {{ __('Annuleren') }}
 
                     </a>
 
@@ -2404,7 +2404,7 @@
 
                         <span id="previewEmail">
 
-                            naam@example.com
+                            {{ __('naam@example.com') }}
 
                         </span>
 
