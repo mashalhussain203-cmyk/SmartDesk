@@ -1100,6 +1100,13 @@ Route::get(
     ->name('tiktok-engagement.show');
 
 Route::get(
+    '/api/tools/tiktok-engagement/services',
+    [TikTokCounterController::class, 'engagementServices']
+)
+    ->middleware('throttle:20,1')
+    ->name('tiktok-engagement.services');
+
+Route::get(
     '/api/tools/tiktok-engagement/{videoId}',
     [TikTokCounterController::class, 'engagementStats']
 )
