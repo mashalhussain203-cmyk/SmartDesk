@@ -1338,11 +1338,9 @@
 
                 <h2>
 
-                    Bijna klaar.
+                    {{ __('Bijna klaar. Nog één') }}
 
-                    Nog één
-
-                    <span>veilige stap.</span>
+                    <span>{{ __('veilige stap.') }}</span>
 
                 </h2>
 
@@ -1350,11 +1348,7 @@
 
                 <p>
 
-                    Je TikTok-account is succesvol herkend.
-
-                    Vul alleen nog je e-mailadres in om je Mashal-account
-
-                    veilig aan te maken en je login af te ronden.
+                    {{ __('Je TikTok-account is succesvol herkend. Vul alleen nog je e-mailadres in om je Mashal-account veilig aan te maken en je login af te ronden.') }}
 
                 </p>
 
@@ -1444,7 +1438,7 @@
 
                 <span class="tiktok-complete-kicker">
 
-                    TikTok login
+                    {{ __('TikTok login') }}
 
                 </span>
 
@@ -1452,7 +1446,7 @@
 
                 <h1 class="tiktok-complete-title">
 
-                    Account afronden
+                    {{ __('Account afronden') }}
 
                 </h1>
 
@@ -1460,9 +1454,7 @@
 
                 <p class="tiktok-complete-subtitle">
 
-                    TikTok heeft je identiteit bevestigd.
-
-                    Voor Mashal Automotive hebben we nog een geldig e-mailadres nodig.
+                    {{ __('TikTok heeft je identiteit bevestigd. Voor Mashal Automotive hebben we nog een geldig e-mailadres nodig.') }}
 
                 </p>
 
@@ -1510,7 +1502,7 @@
 
                         <small>
 
-                            TikTok-account
+                            {{ __('TikTok-account') }}
 
                         </small>
 
@@ -1598,7 +1590,7 @@
 
                         <strong>
 
-                            Je account kon nog niet worden afgerond.
+                            {{ __('Je account kon nog niet worden afgerond.') }}
 
                         </strong>
 
@@ -1724,11 +1716,11 @@
 
                         <div class="tiktok-complete-help">
 
-                            Gebruik een e-mailadres waar je toegang toe hebt.
+                            {{ __('Gebruik een e-mailadres waar je toegang toe hebt.') }}
 
                             <strong>
 
-                                Bestaande Mashal-accounts worden niet automatisch gekoppeld.
+                                {{ __('Bestaande Mashal-accounts worden niet automatisch gekoppeld.') }}
 
                             </strong>
 
@@ -1748,7 +1740,7 @@
 
                     >
 
-                        TikTok-account afronden
+                        {{ __('TikTok-account afronden') }}
 
                     </button>
 
@@ -1784,11 +1776,7 @@
 
                     <span>
 
-                        Mashal Automotive ontvangt nooit je TikTok-wachtwoord.
-
-                        Je TikTok-ID, weergavenaam en profielfoto worden alleen gebruikt
-
-                        voor het herkennen en tonen van je account binnen Mashal Automotive.
+                        {{ __('Mashal Automotive ontvangt nooit je TikTok-wachtwoord. Je TikTok-ID, weergavenaam en profielfoto worden alleen gebruikt voor het herkennen en tonen van je account binnen Mashal Automotive.') }}
 
                     </span>
 
