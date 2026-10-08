@@ -42,7 +42,7 @@
                     <td style="padding:18px 30px;">
                         <div style="padding:20px;border:1px solid #4d4822;border-radius:14px;background:#17170d;text-align:center;">
                             <div style="font-size:11px;color:#9d975d;text-transform:uppercase;letter-spacing:.14em;">
-                                Verificatiecode
+                                {{ __('Verificatiecode') }}
                             </div>
 
                             <div style="margin-top:10px;color:#f4ee1f;font-size:36px;font-weight:900;letter-spacing:.20em;">
