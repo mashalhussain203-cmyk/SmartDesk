@@ -20,7 +20,7 @@
     >
 
     <title>
-        Je Mashal-account is aangemaakt
+        {{ __('Je Mashal-account is aangemaakt') }}
     </title>
 </head>
 
@@ -205,7 +205,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Account created
+                                                    {{ __('Account created') }}
                                                 </span>
 
                                             </td>
@@ -307,9 +307,7 @@
                                 text-align: center;
                             "
                         >
-                            Een Mashal-administrator heeft een account voor je aangemaakt.
-                            Hieronder vind je de belangrijkste accountgegevens
-                            en eventuele vervolgstappen.
+                            {{ __('Een Mashal-administrator heeft een account voor je aangemaakt. Hieronder vind je de belangrijkste accountgegevens en eventuele vervolgstappen.') }}
                         </p>
 
                     </td>
@@ -347,9 +345,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Je Mashal-account is succesvol aangemaakt.
-                            Controleer de gegevens hieronder en rond indien nodig
-                            de verificatie van je e-mailadres af.
+                            {{ __('Je Mashal-account is succesvol aangemaakt. Controleer de gegevens hieronder en rond indien nodig de verificatie van je e-mailadres af.') }}
                         </p>
 
                     </td>
@@ -490,7 +486,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accounttype
+                                        {{ __('Accounttype') }}
                                     </div>
 
                                     <div
@@ -557,7 +553,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Nog niet geverifieerd
+                                            {{ __('Nog niet geverifieerd') }}
                                         </div>
 
                                     @endif
@@ -584,7 +580,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Aangemaakt op
+                                        {{ __('Aangemaakt op') }}
                                     </div>
 
                                     <div
@@ -676,7 +672,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Administratoraccount
+                                            {{ __('Administratoraccount') }}
                                         </div>
 
                                         <div
@@ -686,9 +682,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Dit account heeft toegang tot beheerfuncties.
-                                            Gebruik deze rechten zorgvuldig en deel je
-                                            inloggegevens nooit met anderen.
+                                            {{ __('Dit account heeft toegang tot beheerfuncties. Gebruik deze rechten zorgvuldig en deel je inloggegevens nooit met anderen.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -752,7 +746,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Gebruikersaccount
+                                            {{ __('Gebruikersaccount') }}
                                         </div>
 
                                         <div
@@ -762,8 +756,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Met dit account kun je je persoonlijke gegevens,
-                                            verificatie en bestellingen binnen Mashal beheren.
+                                            {{ __('Met dit account kun je je persoonlijke gegevens, verificatie en bestellingen binnen Mashal beheren.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -844,7 +837,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            E-mailverificatie is nog vereist
+                                            {{ __('E-mailverificatie is nog vereist') }}
                                         </div>
 
                                         <div
@@ -854,9 +847,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Je ontvangt een aparte e-mail met een verificatiecode.
-                                            Gebruik die code om je e-mailadres te bevestigen
-                                            en je account volledig te activeren.
+                                            {{ __('Je ontvangt een aparte e-mail met een verificatiecode. Gebruik die code om je e-mailadres te bevestigen en je account volledig te activeren.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -920,7 +911,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            E-mailadres is al geverifieerd
+                                            {{ __('E-mailadres is al geverifieerd') }}
                                         </div>
 
                                         <div
@@ -930,8 +921,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Je hoeft voor de verificatiestatus
-                                            geen aanvullende actie uit te voeren.
+                                            {{ __('Je hoeft voor de verificatiestatus geen aanvullende actie uit te voeren.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -963,7 +953,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat kun je nu doen?
+                            {{ __('Wat kun je nu doen?') }}
                         </div>
 
 
@@ -1098,8 +1088,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Gebruik een sterk, uniek wachtwoord
-                                    en deel je inloggegevens nooit met anderen.
+                                    {{ __('Gebruik een sterk, uniek wachtwoord en deel je inloggegevens nooit met anderen.') }}
                                 </td>
                             </tr>
 
@@ -1186,10 +1175,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Om veiligheidsredenen wordt je wachtwoord
-                                        nooit per e-mail verzonden of weergegeven.
-                                        Mashal vraagt je ook nooit om je wachtwoord
-                                        of verificatiecode met iemand te delen.
+                                        {{ __('Om veiligheidsredenen wordt je wachtwoord nooit per e-mail verzonden of weergegeven. Mashal vraagt je ook nooit om je wachtwoord of verificatiecode met iemand te delen.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -1276,9 +1262,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Neem dan contact op met de Mashal-beheerder.
-                                        Gebruik het account niet totdat je zeker weet
-                                        waarom het voor jou is aangemaakt.
+                                        {{ __('Neem dan contact op met de Mashal-beheerder. Gebruik het account niet totdat je zeker weet waarom het voor jou is aangemaakt.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -1307,9 +1291,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Zodra je accountgegevens en verificatiestatus in orde zijn,
-                            kun je Mashal gebruiken volgens de rechten die aan
-                            je account zijn toegekend.
+                            {{ __('Zodra je accountgegevens en verificatiestatus in orde zijn, kun je Mashal gebruiken volgens de rechten die aan je account zijn toegekend.') }}
                         </p>
 
 
@@ -1360,8 +1342,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat een Mashal-administrator je account heeft aangemaakt.
+                            {{ __('Deze e-mail is automatisch verzonden nadat een Mashal-administrator je account heeft aangemaakt.') }}
                         </div>
 
 
@@ -1396,9 +1377,7 @@
                     text-align: center;
                 "
             >
-                Accountmelding van Mashal Automotive.
-                Bewaar je accountgegevens veilig en deel nooit je wachtwoord
-                of verificatiecode met anderen.
+                {{ __('Accountmelding van Mashal Automotive. Bewaar je accountgegevens veilig en deel nooit je wachtwoord of verificatiecode met anderen.') }}
             </div>
 
         </td>
