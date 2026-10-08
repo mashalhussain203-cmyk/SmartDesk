@@ -277,7 +277,7 @@
                                 text-align: center;
                             "
                         >
-                            Stel een nieuw wachtwoord in
+                            {{ __('Stel een nieuw wachtwoord in') }}
                         </h1>
 
 
@@ -291,8 +291,7 @@
                                 text-align: center;
                             "
                         >
-                            We hebben een verzoek ontvangen om het wachtwoord
-                            van je Mashal-account opnieuw in te stellen.
+                            {{ __('We hebben een verzoek ontvangen om het wachtwoord van je Mashal-account opnieuw in te stellen.') }}
                         </p>
 
                     </td>
@@ -318,7 +317,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Beste <strong>{{ $user->name }}</strong>,
+                            {{ __('Beste') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
 
@@ -330,9 +329,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Klik op de onderstaande beveiligde knop
-                            om een nieuw wachtwoord te kiezen.
-                            Deze resetlink is tijdelijk geldig.
+                            {{ __('Klik op de onderstaande beveiligde knop om een nieuw wachtwoord te kiezen. Deze resetlink is tijdelijk geldig.') }}
                         </p>
 
                     </td>
@@ -387,7 +384,7 @@
                                             text-decoration: none;
                                         "
                                     >
-                                        Nieuw wachtwoord instellen →
+                                        {{ __('Nieuw wachtwoord instellen →') }}
                                     </a>
 
                                 </td>
@@ -470,7 +467,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Resetlink 60 minuten geldig
+                                        {{ __('Resetlink 60 minuten geldig') }}
                                     </div>
 
                                     <div
@@ -480,9 +477,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Na 60 minuten verloopt deze link.
-                                        Vraag daarna een nieuwe resetlink aan
-                                        via de wachtwoord-herstelpagina.
+                                        {{ __('Na 60 minuten verloopt deze link. Vraag daarna een nieuwe resetlink aan via de wachtwoord-herstelpagina.') }}
                                     </div>
 
                                 </td>
@@ -514,7 +509,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Zo herstel je veilig je account
+                            {{ __('Zo herstel je veilig je account') }}
                         </div>
 
 
@@ -569,7 +564,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Open de beveiligde resetlink via de knop hierboven.
+                                    {{ __('Open de beveiligde resetlink via de knop hierboven.') }}
                                 </td>
 
                             </tr>
@@ -614,7 +609,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Vul je e-mailadres in en kies een nieuw wachtwoord.
+                                    {{ __('Vul je e-mailadres in en kies een nieuw wachtwoord.') }}
                                 </td>
 
                             </tr>
@@ -659,7 +654,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Sla het nieuwe wachtwoord op en log daarna opnieuw in.
+                                    {{ __('Sla het nieuwe wachtwoord op en log daarna opnieuw in.') }}
                                 </td>
 
                             </tr>
@@ -689,8 +684,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Werkt de knop niet?
-                            Kopieer dan deze link en plak hem in je browser:
+                            {{ __('Werkt de knop niet? Kopieer dan deze link en plak hem in je browser:') }}
                         </div>
 
 
@@ -744,7 +738,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Accountgegevens
+                            {{ __('Accountgegevens') }}
                         </div>
 
 
@@ -783,7 +777,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -915,7 +909,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Heb jij dit niet aangevraagd?
+                                        {{ __('Heb jij dit niet aangevraagd?') }}
                                     </div>
 
                                     <div
@@ -925,9 +919,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Dan hoef je niets te doen.
-                                        Je huidige wachtwoord blijft actief
-                                        zolang je deze resetlink niet gebruikt.
+                                        {{ __('Dan hoef je niets te doen. Je huidige wachtwoord blijft actief zolang je deze resetlink niet gebruikt.') }}
                                     </div>
 
                                 </td>
@@ -1011,7 +1003,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Veilig omgaan met resetlinks
+                                        {{ __('Veilig omgaan met resetlinks') }}
                                     </div>
 
                                     <div
@@ -1021,10 +1013,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Deel deze link nooit met anderen.
-                                        Mashal vraagt je nooit om je wachtwoord
-                                        of resetlink via e-mail, chat of telefoon
-                                        met iemand te delen.
+                                        {{ __('Deel deze link nooit met anderen. Mashal vraagt je nooit om je wachtwoord of resetlink via e-mail, chat of telefoon met iemand te delen.') }}
                                     </div>
 
                                 </td>
@@ -1055,8 +1044,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Na het opslaan van je nieuwe wachtwoord
-                            kun je het oude wachtwoord niet meer gebruiken.
+                            {{ __('Na het opslaan van je nieuwe wachtwoord kun je het oude wachtwoord niet meer gebruiken.') }}
                         </p>
 
 
@@ -1076,7 +1064,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -1107,9 +1095,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            omdat wachtwoordherstel voor je Mashal-account
-                            is aangevraagd.
+                            {{ __('Deze e-mail is automatisch verzonden omdat wachtwoordherstel voor je Mashal-account is aangevraagd.') }}
                         </div>
 
 
@@ -1144,9 +1130,7 @@
                     text-align: center;
                 "
             >
-                Ontvang je onverwacht meerdere resetmails?
-                Wijzig dan je wachtwoord zodra je weer toegang hebt
-                en controleer je accountgegevens.
+                {{ __('Ontvang je onverwacht meerdere resetmails? Wijzig dan je wachtwoord zodra je weer toegang hebt en controleer je accountgegevens.') }}
             </div>
 
         </td>
