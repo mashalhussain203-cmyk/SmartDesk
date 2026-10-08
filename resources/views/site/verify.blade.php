@@ -1786,7 +1786,7 @@
 
                                     placeholder="naam@example.com"
 
-                                    aria-label="E-mailadres"
+                                    aria-label="{{ __('E-mailadres') }}"
 
                                     required
 
@@ -1872,7 +1872,7 @@
 
                                 role="group"
 
-                                aria-label="6-cijferige verificatiecode"
+                                aria-label="{{ __('6-cijferige verificatiecode') }}"
 
                             >
 
