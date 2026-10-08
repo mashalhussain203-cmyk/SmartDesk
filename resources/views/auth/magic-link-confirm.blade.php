@@ -920,7 +920,7 @@
 
             <a href="{{ route('login') }}">
 
-                ← Terug naar inloggen
+                {{ __('← Terug naar inloggen') }}
 
             </a>
 
