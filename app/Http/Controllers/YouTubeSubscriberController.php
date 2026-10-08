@@ -15,6 +15,18 @@ class YouTubeSubscriberController extends Controller
         return view('tools.youtube-subscribers');
     }
 
+    public function show(string $channelId): View
+    {
+        abort_unless(
+            preg_match('/^UC[A-Za-z0-9_-]{22}$/', $channelId) === 1,
+            404
+        );
+
+        return view('tools.youtube-subscribers', [
+            'initialChannelId' => $channelId,
+        ]);
+    }
+
     public function lookup(
         Request $request,
         YouTubeLiveCountsService $service
