@@ -20,7 +20,7 @@
     >
 
     <title>
-        Je Mashal-account is gewijzigd
+        {{ __('Je Mashal-account is gewijzigd') }}
     </title>
 </head>
 
@@ -293,7 +293,7 @@
                                 text-align: center;
                             "
                         >
-                            Je account is gewijzigd
+                            {{ __('Je account is gewijzigd') }}
                         </h1>
 
 
@@ -307,9 +307,7 @@
                                 text-align: center;
                             "
                         >
-                            Een Mashal-administrator heeft één of meerdere
-                            accountgegevens gewijzigd. Hieronder zie je
-                            precies welke wijzigingen zijn uitgevoerd.
+                            {{ __('Een Mashal-administrator heeft één of meerdere accountgegevens gewijzigd. Hieronder zie je precies welke wijzigingen zijn uitgevoerd.') }}
                         </p>
 
                     </td>
@@ -361,7 +359,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Overzicht van de wijzigingen
+                            {{ __('Overzicht van de wijzigingen') }}
                         </div>
 
                         <div
@@ -372,8 +370,7 @@
                                 line-height: 1.7;
                             "
                         >
-                            Alleen onderdelen die daadwerkelijk zijn aangepast,
-                            worden hieronder weergegeven.
+                            {{ __('Alleen onderdelen die daadwerkelijk zijn aangepast, worden hieronder weergegeven.') }}
                         </div>
 
                     </td>
@@ -452,7 +449,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Gebruikersnaam gewijzigd
+                                            {{ __('Gebruikersnaam gewijzigd') }}
                                         </div>
 
 
@@ -476,7 +473,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Oud
+                                                    {{ __('Oud') }}
                                                 </td>
 
                                                 <td
@@ -503,7 +500,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Nieuw
+                                                    {{ __('Nieuw') }}
                                                 </td>
 
                                                 <td
@@ -744,7 +741,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Wachtwoord gewijzigd
+                                            {{ __('Wachtwoord gewijzigd') }}
                                         </div>
 
                                         <div
@@ -754,9 +751,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Een administrator heeft het wachtwoord van je account gewijzigd.
-                                            Om veiligheidsredenen wordt het wachtwoord nooit
-                                            in een e-mail weergegeven.
+                                            {{ __('Een administrator heeft het wachtwoord van je account gewijzigd. Om veiligheidsredenen wordt het wachtwoord nooit in een e-mail weergegeven.') }}
                                         </div>
 
                                     </td>
@@ -842,7 +837,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Accountrol gewijzigd
+                                            {{ __('Accountrol gewijzigd') }}
                                         </div>
 
 
@@ -866,7 +861,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Oude rol
+                                                    {{ __('Oude rol') }}
                                                 </td>
 
                                                 <td
@@ -893,7 +888,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Nieuwe rol
+                                                    {{ __('Nieuwe rol') }}
                                                 </td>
 
                                                 <td
@@ -995,7 +990,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            E-mailverificatiestatus gewijzigd
+                                            {{ __('E-mailverificatiestatus gewijzigd') }}
                                         </div>
 
 
@@ -1019,7 +1014,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Oude status
+                                                    {{ __('Oude status') }}
                                                 </td>
 
                                                 <td
@@ -1046,7 +1041,7 @@
                                                         font-size: 11px;
                                                     "
                                                 >
-                                                    Nieuwe status
+                                                    {{ __('Nieuwe status') }}
                                                 </td>
 
                                                 <td
@@ -1114,7 +1109,7 @@
                                             line-height: 1.6;
                                         "
                                     >
-                                        Wijziging geregistreerd op
+                                        {{ __('Wijziging geregistreerd op') }}
                                     </td>
 
 
@@ -1161,7 +1156,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Waarom ontvang je deze e-mail?
+                            {{ __('Waarom ontvang je deze e-mail?') }}
                         </div>
 
 
@@ -1214,8 +1209,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Mashal stuurt deze melding zodat belangrijke
-                                    accountwijzigingen niet onopgemerkt blijven.
+                                    {{ __('Mashal stuurt deze melding zodat belangrijke accountwijzigingen niet onopgemerkt blijven.') }}
                                 </td>
 
                             </tr>
@@ -1258,8 +1252,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer altijd of de wijzigingen overeenkomen
-                                    met wat je verwachtte.
+                                    {{ __('Controleer altijd of de wijzigingen overeenkomen met wat je verwachtte.') }}
                                 </td>
 
                             </tr>
@@ -1302,8 +1295,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Als de wijziging onverwacht is,
-                                    behandel dit bericht dan als een beveiligingswaarschuwing.
+                                    {{ __('Als de wijziging onverwacht is, behandel dit bericht dan als een beveiligingswaarschuwing.') }}
                                 </td>
 
                             </tr>
@@ -1394,10 +1386,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Wijzig dan zo snel mogelijk je wachtwoord
-                                        en neem contact op met de Mashal-beheerder.
-                                        Controleer daarnaast je naam, e-mailadres,
-                                        verificatiestatus en accountrol.
+                                        {{ __('Wijzig dan zo snel mogelijk je wachtwoord en neem contact op met de Mashal-beheerder. Controleer daarnaast je naam, e-mailadres, verificatiestatus en accountrol.') }}
                                     </div>
 
                                 </td>
@@ -1489,9 +1478,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Mashal zal nooit vragen om je wachtwoord
-                                        of verificatiecode via e-mail, chat of telefoon
-                                        met iemand te delen.
+                                        {{ __('Mashal zal nooit vragen om je wachtwoord of verificatiecode via e-mail, chat of telefoon met iemand te delen.') }}
                                     </div>
 
                                 </td>
@@ -1522,8 +1509,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Als deze wijzigingen verwacht zijn,
-                            hoef je verder niets te doen.
+                            {{ __('Als deze wijzigingen verwacht zijn, hoef je verder niets te doen.') }}
                         </p>
 
 
@@ -1574,9 +1560,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat een administrator wijzigingen
-                            aan je Mashal-account heeft uitgevoerd.
+                            {{ __('Deze e-mail is automatisch verzonden nadat een administrator wijzigingen aan je Mashal-account heeft uitgevoerd.') }}
                         </div>
 
 
@@ -1611,8 +1595,7 @@
                     text-align: center;
                 "
             >
-                Automatische beveiligingsmelding van Mashal Automotive.
-                Controleer onverwachte accountwijzigingen altijd direct.
+                {{ __('Automatische beveiligingsmelding van Mashal Automotive. Controleer onverwachte accountwijzigingen altijd direct.') }}
             </div>
 
         </td>
