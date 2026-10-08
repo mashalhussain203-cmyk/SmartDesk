@@ -1,0 +1,346 @@
+/*
+ * Mashal AI Workspace / 2026
+ * Original SmartDesk look inspired by modern conversational tools.
+ * Scoped to the existing Blade AI page: no copied assets or account UI.
+ */
+html.mashal-chat-page .mashal-chat-app {
+    --mashal-bg: #141720;
+    --mashal-sidebar: #10141d;
+    --mashal-sidebar-hover: #232a38;
+    --mashal-panel: #262d3c;
+    --mashal-panel-hover: #31394c;
+    --mashal-border: rgba(208, 218, 247, .13);
+    --mashal-text: #f5f6fa;
+    --mashal-muted: #b2bdd0;
+    --mashal-subtle: #8e99ac;
+    --mashal-user: #2b3550;
+    --mashal-accent: #a899ff;
+    --mashal-radius: 22px;
+    isolation: isolate;
+    color: var(--mashal-text);
+    background: var(--mashal-bg);
+    border: 1px solid rgba(183,190,227,.12);
+    border-radius: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+html.mashal-chat-page .mashal-chat-app :is(button,a,input,select,textarea):focus-visible {
+    outline: 2px solid #b6a7ff;
+    outline-offset: 3px;
+}
+.mashal-chat-app .chat-sidebar {
+    background: linear-gradient(170deg,#171b29,#10141d 78%);
+    border-inline-end: 1px solid rgba(188,194,232,.12);
+    border-right: 0;
+}
+.mashal-chat-app .chat-sidebar-head {
+    padding: 18px 13px 10px;
+}
+.mashal-chat-app .chat-new-button {
+    min-height: 54px;
+    padding-inline: 12px;
+    border: 1px solid rgba(165,149,249,.27);
+    border-radius: 16px;
+    color: #f7f7ff;
+    background: linear-gradient(120deg,rgba(141,117,235,.20),rgba(83,116,197,.11));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.055);
+    font-size: 13px;
+    font-weight: 730;
+}
+.mashal-chat-app .chat-new-button:hover {
+    background: linear-gradient(110deg,rgba(154,133,255,.30),rgba(84,122,216,.15));
+    border-color: rgba(171,157,255,.5);
+}
+.mashal-chat-app .chat-new-button .brand-dot,
+.mashal-chat-app .ai-welcome-mark {
+    border: 1px solid rgba(229,224,255,.35);
+    background: linear-gradient(135deg,#9275e9,#667ff2);
+    color: white;
+}
+.mashal-chat-app .studio-dashboard-link {
+    min-height: 42px;
+    border: 1px solid rgba(179,184,223,.13);
+    border-radius: 13px;
+    color: #d5d9ed;
+    background: rgba(255,255,255,.04);
+}
+.mashal-chat-app .chat-search-wrap { padding: 7px 13px 9px; }
+.mashal-chat-app .chat-search {
+    min-height: 44px;
+    padding: 0 13px;
+    border: 1px solid rgba(191,195,229,.13);
+    border-radius: 13px;
+    color: #edf1ff;
+    background: #1b2030;
+    font-size: 13px;
+}
+.mashal-chat-app .chat-search:focus { border-color:#9c91e9; background:#22283a; }
+.mashal-chat-app .chat-search::placeholder { color:#9aa6bc; }
+.mashal-chat-app .chat-sidebar-label {
+    padding: 18px 19px 8px;
+    color: #9eabc4;
+    font-size: 10px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+.mashal-chat-app .chat-list { padding-inline: 11px; }
+.mashal-chat-app .chat-row { margin: 3px 0; }
+.mashal-chat-app .chat-row-main {
+    min-height: 45px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: #ccd4e8;
+    font-size: 12px;
+}
+.mashal-chat-app .chat-row-main:hover {
+    background: #252c40;
+}
+.mashal-chat-app .chat-row.active .chat-row-main {
+    border-color: rgba(178,158,255,.25);
+    background: linear-gradient(95deg,rgba(150,119,238,.17),rgba(101,133,219,.07));
+    color:#fff;
+}
+.mashal-chat-app .chat-row-delete { opacity: .65; }
+.mashal-chat-app .chat-row-delete:hover { background: #424861; }
+.mashal-chat-app .chat-sidebar-footer {
+    padding: 11px;
+    border-top: 1px solid rgba(195,201,231,.11);
+}
+.mashal-chat-app .chat-sidebar-button {
+    min-height: 58px;
+    border-radius: 14px;
+    background:rgba(217,224,255,.045);
+}
+.mashal-chat-app .chat-sidebar-button strong { font-size: 13px; color:#f8f8ff; }
+.mashal-chat-app .chat-sidebar-button span { color:#a5b0c5; }
+.mashal-chat-app .workspace-panel {
+    border: 1px solid rgba(178,182,235,.18);
+    border-radius: 15px;
+    background: rgba(106,108,166,.085);
+}
+.mashal-chat-app .workspace-panel-title { color:#d0caf9; }
+.mashal-chat-app :is(.workspace-select,.workspace-action) {
+    border-color: rgba(190,186,232,.18);
+    border-radius: 11px;
+    background:#22283a;
+    color:#eef0ff;
+}
+.mashal-chat-app .workspace-action.primary { background:#aaa0ff; color:#141425; }
+.mashal-chat-app .chat-main {
+    min-width: 0;
+    background:
+        radial-gradient(ellipse at 77% 0,rgba(103,86,170,.075),transparent 36%),
+        #141720;
+}
+.mashal-chat-app .chat-topbar {
+    min-height: 64px;
+    padding-inline: clamp(12px,2vw,30px);
+    border-bottom: 1px solid rgba(202,208,239,.09);
+    background: rgba(20,23,32,.92);
+    backdrop-filter:blur(18px);
+}
+.mashal-chat-app .chat-current-title {
+    color: #f3f4ff;
+    font-size: 15px;
+    font-weight:760;
+}
+.mashal-chat-app .chat-model-pill {
+    padding:5px 9px;
+    border:1px solid rgba(177,172,239,.19);
+    border-radius:10px;
+    color:#d8d0ff;
+    background:rgba(150,119,239,.12);
+    font-size:10px;
+}
+.mashal-chat-app .chat-topbar-button {
+    min-width:40px;
+    height:40px;
+    border-radius:12px;
+    color:#c1cae2;
+}
+.mashal-chat-app .chat-topbar-button:hover { background:rgba(178,184,234,.10); }
+.mashal-chat-app .chat-network-pill { color:#a6e3c2; }
+.mashal-chat-app .chat-scroll-inner { padding-top:24px; }
+.mashal-chat-app .ai-welcome {
+    margin-top: clamp(20px,9vh,105px);
+    max-width: 720px;
+}
+.mashal-chat-app .ai-welcome-brand { margin-bottom: 21px; }
+.mashal-chat-app .ai-welcome-mark {
+    width:54px;
+    height:54px;
+    border-radius: 19px;
+    box-shadow:0 14px 35px rgba(50,41,129,.34);
+    font-size: 14px;
+}
+.mashal-chat-app .ai-welcome h1 {
+    color: #fbfaff;
+    font-size: clamp(27px,3.4vw,38px);
+    font-weight:770;
+    letter-spacing:-.045em;
+    line-height:1.17;
+}
+.mashal-chat-app .ai-welcome p { color:#aeb8d0; font-size:14px; }
+.mashal-chat-app .ai-suggestions { gap:11px; margin-top:34px; }
+.mashal-chat-app .ai-suggestion {
+    min-height:95px;
+    padding:17px 18px;
+    border:1px solid rgba(176,183,230,.15);
+    border-radius:17px;
+    color:#cad4ec;
+    background: linear-gradient(145deg,rgba(51,59,82,.6),rgba(31,37,54,.48));
+    box-shadow:0 12px 26px rgba(0,0,0,.09);
+    transition: background .17s,border-color .17s,transform .17s;
+}
+.mashal-chat-app .ai-suggestion:hover {
+    transform:translateY(-2px);
+    border-color:rgba(177,159,255,.44);
+    background:rgba(98,87,151,.18);
+}
+.mashal-chat-app .ai-suggestion strong { font-size:13px; color:#f2efff; }
+.mashal-chat-app .ai-suggestion span { color:#aab7d0; font-size:11px; }
+.mashal-chat-app .ai-message { margin-bottom:27px; }
+.mashal-chat-app .ai-message-bubble {
+    color: #e9edf9;
+    font-size:15px;
+    line-height:1.75;
+}
+.mashal-chat-app .ai-message.assistant .ai-message-meta { color:#bdc3da; }
+.mashal-chat-app .ai-message.user .ai-message-bubble {
+    max-width: min(83%,620px);
+    padding:13px 17px;
+    border:1px solid rgba(193,189,248,.16);
+    border-radius:20px 20px 5px 20px;
+    background:#2c3550;
+    box-shadow:0 9px 24px rgba(0,0,0,.12);
+}
+.mashal-chat-app .ai-message.assistant .ai-message-meta::before {
+    border:1px solid rgba(225,221,255,.18);
+    background:linear-gradient(145deg,#8a76da,#5279e0);
+}
+.mashal-chat-app .composer-shell {
+    padding-bottom:max(13px,env(safe-area-inset-bottom));
+    background:linear-gradient(to bottom,transparent,#141720 18%,#141720 100%);
+}
+.mashal-chat-app .ai-input-wrap {
+    border:1px solid rgba(184,175,237,.28);
+    border-radius:24px;
+    background:linear-gradient(145deg,#2a3245,#252d3e);
+    box-shadow:0 16px 45px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05);
+}
+.mashal-chat-app .ai-input-wrap:focus-within {
+    border-color:rgba(174,155,255,.72);
+    box-shadow:0 0 0 3px rgba(164,142,248,.11),0 16px 45px rgba(0,0,0,.27);
+}
+.mashal-chat-app .ai-input { min-height:59px; padding:18px 19px 9px; color:#f9f9ff; font-size:16px; }
+.mashal-chat-app .ai-input::placeholder { color:#bdc5d5; }
+.mashal-chat-app .composer-bottom { min-height:57px; padding:5px 10px 10px; }
+.mashal-chat-app :is(.composer-icon-button,.ai-file-button) {
+    min-height:40px;
+    min-width:40px;
+    border-radius:14px;
+    color:#d7dcee;
+    font-size:12px;
+}
+.mashal-chat-app :is(.composer-icon-button,.ai-file-button):hover { background:rgba(211,199,255,.11); }
+.mashal-chat-app .ai-send {
+    width:42px;height:42px;
+    border-radius:15px;
+    border:1px solid rgba(237,233,255,.23);
+    color:#fff;
+    background:linear-gradient(130deg,#9b82eb,#6b87ed);
+    box-shadow:0 8px 19px rgba(89,76,192,.2);
+}
+.mashal-chat-app .ai-mode-select {
+    min-height:40px;
+    border:1px solid rgba(203,199,237,.22);
+    border-radius:13px;
+    color:#f0ecff;
+    background-color:#31394f;
+}
+.mashal-chat-app .ai-mode-select option { background:#222a3b; }
+.mashal-chat-app .composer-note { color:#9ca9bf; }
+.mashal-chat-app .ai-file-chip { background:#323a50; border-color:rgba(176,181,231,.22); }
+.mashal-chat-app .ai-error { background:rgba(129,34,45,.14); }
+.mashal-chat-app .ai-workspace-tools {
+    display:flex;
+    align-items:center;
+    gap:7px;
+    min-width:0;
+    padding:0 3px 12px;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+.mashal-chat-app .ai-workspace-tools::-webkit-scrollbar { display:none; }
+.mashal-chat-app .ai-workspace-tools-label {
+    flex:0 0 auto;
+    margin-inline-end:3px;
+    color:#a6b1ca;
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+.mashal-chat-app .ai-workspace-mode {
+    flex:0 0 auto;
+    min-height:34px;
+    padding:5px 13px;
+    border:1px solid rgba(180,187,230,.15);
+    border-radius:999px;
+    color:#c1cbe0;
+    background:rgba(255,255,255,.045);
+    font-family:inherit;
+    font-size:11px;
+    font-weight:650;
+    line-height:1.3;
+    cursor:pointer;
+    transition: background .17s,border-color .17s,color .17s;
+}
+.mashal-chat-app .ai-workspace-mode[aria-pressed="true"] {
+    border-color:rgba(183,157,255,.49);
+    color:#eeeaff;
+    background:rgba(155,123,241,.25);
+}
+.mashal-chat-app .ai-workspace-mode:hover { color:#fff; border-color:rgba(183,166,255,.5); }
+html[dir="rtl"] .mashal-chat-app :is(.chat-sidebar,.chat-main,.chat-sidebar-button) { min-width:0; }
+html[dir="rtl"] .mashal-chat-app .chat-sidebar {
+    border-inline-end:1px solid rgba(188,194,232,.12);
+}
+html[dir="rtl"] .mashal-chat-app .chat-new-button,
+html[dir="rtl"] .mashal-chat-app .chat-row-main { text-align:start; }
+html[dir="rtl"] .mashal-chat-app .ai-message.user .ai-message-bubble { border-radius:20px 20px 20px 5px; }
+html[dir="rtl"] .mashal-chat-app .ai-input,
+html[dir="rtl"] .mashal-chat-app .ai-message-bubble { overflow-wrap:anywhere; }
+@media(max-width:860px) {
+    html.mashal-chat-page .mashal-chat-app { height:var(--mashal-runtime-height,calc(100dvh - 68px)); min-height:0; max-width:100%; }
+    .mashal-chat-app .chat-topbar { min-height:54px; padding-inline:11px; }
+    .mashal-chat-app .chat-sidebar { width:min(310px,88vw); }
+    .mashal-chat-app .ai-welcome { margin-top:clamp(14px,6vh,58px); }
+    .mashal-chat-app .ai-suggestions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .mashal-chat-app .chat-scroll-inner { padding-inline:clamp(10px,3vw,20px); }
+    .mashal-chat-app .composer-shell { padding-inline:10px; }
+    .mashal-chat-app .ai-workspace-tools { padding-inline:1px; }
+}
+@media(max-width:560px) {
+    .mashal-chat-app .ai-welcome h1 { font-size:clamp(25px,7vw,31px); }
+    .mashal-chat-app .ai-welcome p { font-size:12px; }
+    .mashal-chat-app .ai-suggestions { gap:8px; margin-top:22px; }
+    .mashal-chat-app .ai-suggestion { min-height:79px; padding:13px 12px; border-radius:14px; }
+    .mashal-chat-app .ai-input-wrap { border-radius:20px; }
+    .mashal-chat-app .ai-input { min-height:49px; padding:12px 14px 7px; font-size:16px; }
+    .mashal-chat-app .composer-bottom { padding:4px 7px 7px; gap:3px; }
+    .mashal-chat-app .composer-left { min-width:0; gap:3px; }
+    .mashal-chat-app .ai-mode-select { max-width:120px; }
+    .mashal-chat-app .ai-workspace-mode { min-height:36px; }
+    .mashal-chat-app .ai-message.user .ai-message-bubble { max-width:90%; }
+    .mashal-chat-app .chat-current-title { max-width:42vw; }
+}
+@media(max-width:370px) {
+    .mashal-chat-app .ai-suggestions { grid-template-columns:minmax(0,1fr); }
+    .mashal-chat-app .ai-workspace-tools-label { display:none; }
+    .mashal-chat-app .ai-workspace-mode { padding-inline:10px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .mashal-chat-app .ai-suggestion,
+    .mashal-chat-app .ai-workspace-mode { transition:none; }
+    .mashal-chat-app .ai-suggestion:hover { transform:none; }
+}

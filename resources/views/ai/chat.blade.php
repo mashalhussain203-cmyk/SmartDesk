@@ -2936,6 +2936,7 @@
     }
 
 </style>
+<link rel="stylesheet" href="{{ asset('css/mashal-ai-workspace.css') }}?v=20261008-1">
 @endpush
 
 @section('content')
@@ -3164,6 +3165,15 @@
 
         <div class="composer-shell">
             <div class="mashal-ai-composer">
+
+                <div class="ai-workspace-tools" role="group" aria-label="{{ __('AI-functies') }}">
+                    <span class="ai-workspace-tools-label">{{ __('Gereedschap') }}</span>
+                    <button class="ai-workspace-mode" type="button" data-ai-quick-mode="auto" aria-pressed="true">{{ __('Auto') }}</button>
+                    <button class="ai-workspace-mode" type="button" data-ai-quick-mode="web" aria-pressed="false">{{ __('Internet') }}</button>
+                    <button class="ai-workspace-mode" type="button" data-ai-quick-mode="research" aria-pressed="false">{{ __('Research') }}</button>
+                    <button class="ai-workspace-mode" type="button" data-ai-quick-mode="code" aria-pressed="false">{{ __('Code') }}</button>
+                    <button class="ai-workspace-mode" type="button" data-ai-quick-mode="plain" aria-pressed="false">{{ __('Alleen chat') }}</button>
+                </div>
                 <div
                     id="ai-error"
                     class="ai-error"
@@ -3531,6 +3541,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
     }
+
+    const quickModeButtons = Array.from(
+        document.querySelectorAll('[data-ai-quick-mode]')
+    );
+
+    function syncQuickModeButtons() {
+        const current = currentAiMode();
+        quickModeButtons.forEach(function (button) {
+            button.setAttribute(
+                'aria-pressed',
+                String(button.dataset.aiQuickMode === current)
+            );
+        });
+    }
+
+    quickModeButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const mode = button.dataset.aiQuickMode;
+            if (!aiModeSelect || !allowedAiModes.includes(mode)) {
+                return;
+            }
+            aiModeSelect.value = mode;
+            aiModeSelect.dispatchEvent(
+                new Event('change', { bubbles: true })
+            );
+        });
+    });
+
+    aiModeSelect?.addEventListener('change', syncQuickModeButtons);
+    syncQuickModeButtons();
 
     function aiModeStatusCopy(mode) {
         return {
