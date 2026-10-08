@@ -120,6 +120,35 @@ class LiveChatService
 
 
     /**
+     * Maak het bezoekergesprek aan wanneer iemand direct belt, zonder dat
+     * daarvoor eerst een tekstbericht moet worden verzonden.
+     */
+    public function ensureVisitorConversationForCall(Request $request): stdClass
+    {
+        $owner = $this->ownerKey($request);
+
+        DB::table('live_chat_conversations')->insertOrIgnore([
+            'owner_key' => $owner,
+            'user_id' => $request->user()?->getAuthIdentifier(),
+            'status' => 'waiting',
+            'visitor_ip_hash' => hash('sha256', (string) $request->ip()),
+            'visitor_last_seen_at' => $request->user() ? null : now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $conversation = DB::table('live_chat_conversations')
+            ->where('owner_key', $owner)
+            ->first();
+
+        abort_unless($conversation, 503);
+
+        $this->markGuestActive($request, $conversation);
+
+        return $conversation;
+    }
+
+    /**
 
      * Controleert of er momenteel een admin/medewerker online is.
 

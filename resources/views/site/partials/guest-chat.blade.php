@@ -3322,7 +3322,7 @@
 
             <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
 
-            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>{{ __('Online') }}</span></div><p class="gc-subtitle">{{ __('Slimme hulp, direct in je workspace') }}</p></div>
+            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal Support</h2><span class="gc-live-pill"><i></i>{{ __('Online') }}</span></div><p class="gc-subtitle">{{ __('Chat, spraak- en videobellen met een medewerker') }}</p></div>
 
             <div class="gc-actions">
 
@@ -4366,4 +4366,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script src="{{ asset('js/live-chat.js') }}?v=20" defer></script>
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=5" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=6" defer></script>

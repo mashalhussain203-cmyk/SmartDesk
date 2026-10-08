@@ -24,6 +24,7 @@ class LiveChatCallController extends Controller
         LiveChatCallService $calls
     ): JsonResponse {
         $conversation = $chat->visitorConversation($request);
+        $chat->markGuestActive($request, $conversation);
 
         return response()->json([
             'call' => $conversation
@@ -41,12 +42,6 @@ class LiveChatCallController extends Controller
     ): JsonResponse {
         $conversation = $chat->visitorConversation($request);
 
-        if (! $conversation) {
-            return response()->json([
-                'message' => 'Start eerst een live-chatgesprek voordat je belt.',
-            ], 409);
-        }
-
         if (! $chat->online()) {
             return response()->json([
                 'message' => 'Er is momenteel geen medewerker beschikbaar om op te nemen.',
@@ -59,17 +54,27 @@ class LiveChatCallController extends Controller
             ], 403);
         }
 
-        if (($conversation->delivery_channel ?? 'live') === 'email') {
-            return response()->json([
-                'message' => 'Dit gesprek loopt momenteel via e-mail.',
-            ], 409);
-        }
-
         $data = $request->validate([
             'mode' => ['required', Rule::in(['audio', 'video'])],
             'offer.type' => ['required', 'string', 'in:offer'],
             'offer.sdp' => ['required', 'string', 'max:200000'],
         ]);
+
+        // A guest can call immediately, even before sending a chat message.
+        $conversation ??= $chat->ensureVisitorConversationForCall($request);
+        $chat->markGuestActive($request, $conversation);
+
+        if (($conversation->status ?? '') === 'closed') {
+            return response()->json([
+                'message' => 'Dit gesprek is gesloten. Open de chat opnieuw voordat je belt.',
+            ], 409);
+        }
+
+        if (($conversation->delivery_channel ?? 'live') === 'email') {
+            return response()->json([
+                'message' => 'Dit gesprek loopt momenteel via e-mail.',
+            ], 409);
+        }
 
         try {
             $call = $calls->start(

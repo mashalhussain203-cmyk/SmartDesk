@@ -60,6 +60,7 @@ class LiveChatTest extends TestCase
                 'database/migrations/2026_09_30_000002_add_gmail_threading_to_live_chat.php',
                 'database/migrations/2026_09_30_000003_add_email_title_to_live_chat.php',
                 'database/migrations/2026_10_03_200000_upgrade_live_chat_features.php',
+                'database/migrations/2026_10_03_220000_create_live_chat_calls_table.php',
                 'database/migrations/2026_10_08_210000_add_guest_presence_to_live_chat_conversations.php',
 
             ],
@@ -1021,6 +1022,117 @@ class LiveChatTest extends TestCase
             ->assertJsonCount(1, 'items')
             ->assertJsonPath('items.0.kind', 'account')
             ->assertJsonPath('items.0.name', 'Account Bezoeker');
+    }
+
+
+
+    public function test_guest_can_start_audio_call_without_sending_a_message(): void
+    {
+        $this->freezeTime();
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->postJson('/admin/live-chat/presence', ['online' => true])
+            ->assertOk();
+
+        auth()->logout();
+
+        $token = str_repeat('v', 64);
+
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson('/live-chat/calls', [
+                'mode' => 'audio',
+                'offer' => ['type' => 'offer', 'sdp' => "v=0\\r\\n"],
+            ])
+            ->assertCreated()
+            ->assertJsonPath('call.initiated_by', 'visitor')
+            ->assertJsonPath('call.mode', 'audio')
+            ->assertJsonPath('call.status', 'ringing');
+
+        $this->assertDatabaseCount('live_chat_messages', 0);
+        $conversation = DB::table('live_chat_conversations')->whereNull('user_id')->first();
+        $this->assertNotNull($conversation);
+        $this->assertNotNull($conversation->visitor_last_seen_at);
+
+        $this->actingAs($admin)
+            ->getJson('/admin/live-chat/conversations/'.$conversation->id.'/calls/current')
+            ->assertOk()
+            ->assertJsonPath('call.initiated_by', 'visitor')
+            ->assertJsonPath('call.status', 'ringing');
+
+        $this->actingAs($admin)
+            ->getJson('/admin/live-chat/calls/incoming')
+            ->assertOk()
+            ->assertJsonPath('call.initiated_by', 'visitor')
+            ->assertJsonPath('call.mode', 'audio')
+            ->assertJsonPath('call.caller_name', 'Gast #'.$conversation->id);
+    }
+
+    public function test_guest_can_start_video_call_and_admin_can_answer(): void
+    {
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+        $this->actingAs($admin)
+            ->postJson('/admin/live-chat/presence', ['online' => true])
+            ->assertOk();
+        auth()->logout();
+
+        $token = str_repeat('w', 64);
+        $response = $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson('/live-chat/calls', [
+                'mode' => 'video',
+                'offer' => ['type' => 'offer', 'sdp' => "v=0\\r\\n"],
+            ])
+            ->assertCreated()
+            ->assertJsonPath('call.mode', 'video');
+
+        $callId = (string) $response->json('call.id');
+        $conversationId = (int) $response->json('call.conversation_id');
+        $this->assertNotSame('', $callId);
+
+        $this->actingAs($admin)
+            ->postJson('/admin/live-chat/conversations/'.$conversationId.'/calls/'.$callId.'/answer', [
+                'answer' => ['type' => 'answer', 'sdp' => "v=0\\r\\n"],
+            ])
+            ->assertOk()
+            ->assertJsonPath('call.status', 'accepted');
+
+        auth()->logout();
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->getJson('/live-chat/calls/current')
+            ->assertOk()
+            ->assertJsonPath('call.id', $callId)
+            ->assertJsonPath('call.mode', 'video')
+            ->assertJsonPath('call.status', 'accepted');
+    }
+
+    public function test_guest_cannot_start_call_if_admin_is_offline(): void
+    {
+        $this->withSession(['live_chat.guest_token' => str_repeat('x', 64)])
+            ->postJson('/live-chat/calls', [
+                'mode' => 'audio',
+                'offer' => ['type' => 'offer', 'sdp' => "v=0\\r\\n"],
+            ])
+            ->assertStatus(409);
+
+        $this->assertDatabaseCount('live_chat_conversations', 0);
+        $this->assertDatabaseCount('live_chat_calls', 0);
+    }
+
+    public function test_guest_call_buttons_are_shown_in_human_support_mode(): void
+    {
+        $callsScript = file_get_contents(public_path('js/live-chat-calls.js'));
+        $chatScript = file_get_contents(public_path('js/live-chat.js'));
+        $guestView = file_get_contents(resource_path('views/site/partials/guest-chat.blade.php'));
+
+        $this->assertIsString($callsScript);
+        $this->assertIsString($chatScript);
+        $this->assertIsString($guestView);
+        $this->assertStringContainsString("const live = root.dataset.mode === 'human';", $callsScript);
+        $this->assertStringContainsString('lc-call-actions', $callsScript);
+        $this->assertStringContainsString('Spraakoproep', $callsScript);
+        $this->assertStringContainsString('Videogesprek', $callsScript);
+        $this->assertStringContainsString("'human'", $chatScript);
+        $this->assertStringContainsString('js/live-chat-calls.js', $guestView);
     }
 
 

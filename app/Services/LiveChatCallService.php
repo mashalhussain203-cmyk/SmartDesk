@@ -117,17 +117,24 @@ class LiveChatCallService
                 'updated_at' => now(),
             ]);
 
-        return DB::table('live_chat_calls as c')
+        $call = DB::table('live_chat_calls as c')
             ->join('live_chat_conversations as lc', 'lc.id', '=', 'c.conversation_id')
             ->leftJoin('users as u', 'u.id', '=', 'lc.user_id')
             ->where('c.status', 'ringing')
             ->where('c.initiated_by', 'visitor')
             ->orderByDesc('c.created_at')
-            ->select(
-                'c.*',
-                DB::raw("COALESCE(NULLIF(u.name, ''), CONCAT('Gast #', lc.id)) as caller_name")
-            )
+            ->select('c.*', 'u.name as caller_name', 'lc.id as guest_number')
             ->first();
+
+        if ($call) {
+            // Keep incoming-call discovery compatible with SQLite in tests
+            // and MySQL/PostgreSQL in production.
+            $name = trim((string) ($call->caller_name ?? ''));
+            $call->caller_name = $name !== '' ? $name : 'Gast #'.$call->guest_number;
+            unset($call->guest_number);
+        }
+
+        return $call;
     }
 
     public function findForConversation(string $callId, int $conversationId): ?stdClass
