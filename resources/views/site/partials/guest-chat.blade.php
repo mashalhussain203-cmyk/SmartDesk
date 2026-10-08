@@ -3368,7 +3368,7 @@
 
         <div class="gc-bottom">
 
-            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen ↗</a><a href="{{ route('privacy') }}">Privacy</a></nav>
+            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen ↗</a><a href="{{ route('privacy') }}">{{ __('Privacy') }}</a></nav>
 
             <form class="guest-chat__form">
 
@@ -3464,7 +3464,7 @@
         </span>
 
         <span>
-            <strong>Nieuw bericht</strong>
+            <strong>{{ __('Nieuw bericht') }}</strong>
             <span data-chat-toast-text>Je hebt een nieuw bericht ontvangen.</span>
         </span>
 
