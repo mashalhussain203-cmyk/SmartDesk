@@ -53,22 +53,22 @@ class ContactController extends Controller
                 ],
             ],
             [
-                'first_name.required' => 'Vul uw voornaam in.',
-                'first_name.string' => 'Uw voornaam is ongeldig.',
-                'first_name.max' => 'Uw voornaam mag maximaal 100 tekens bevatten.',
+                'first_name.required' => __('Vul uw voornaam in.'),
+                'first_name.string' => __('Uw voornaam is ongeldig.'),
+                'first_name.max' => __('Uw voornaam mag maximaal 100 tekens bevatten.'),
 
-                'last_name.required' => 'Vul uw achternaam in.',
-                'last_name.string' => 'Uw achternaam is ongeldig.',
-                'last_name.max' => 'Uw achternaam mag maximaal 100 tekens bevatten.',
+                'last_name.required' => __('Vul uw achternaam in.'),
+                'last_name.string' => __('Uw achternaam is ongeldig.'),
+                'last_name.max' => __('Uw achternaam mag maximaal 100 tekens bevatten.'),
 
-                'email.required' => 'Vul uw e-mailadres in.',
-                'email.email' => 'Vul een geldig e-mailadres in.',
-                'email.max' => 'Uw e-mailadres mag maximaal 255 tekens bevatten.',
+                'email.required' => __('Vul uw e-mailadres in.'),
+                'email.email' => __('Vul een geldig e-mailadres in.'),
+                'email.max' => __('Uw e-mailadres mag maximaal 255 tekens bevatten.'),
 
-                'message.required' => 'Vul een toelichting in.',
-                'message.string' => 'Uw toelichting is ongeldig.',
-                'message.min' => 'Uw toelichting moet minimaal 10 tekens bevatten.',
-                'message.max' => 'Uw toelichting mag maximaal 5000 tekens bevatten.',
+                'message.required' => __('Vul een toelichting in.'),
+                'message.string' => __('Uw toelichting is ongeldig.'),
+                'message.min' => __('Uw toelichting moet minimaal 10 tekens bevatten.'),
+                'message.max' => __('Uw toelichting mag maximaal 5000 tekens bevatten.'),
             ]
         );
 
@@ -124,7 +124,7 @@ class ContactController extends Controller
                 ->route('contact')
                 ->with(
                     'success',
-                    'Bedankt voor uw bericht. We hebben uw aanvraag ontvangen en nemen zo snel mogelijk contact met u op.'
+                    __('Bedankt voor uw bericht. We hebben uw aanvraag ontvangen en nemen zo snel mogelijk contact met u op.')
                 );
         } catch (Throwable $exception) {
             report($exception);
@@ -133,7 +133,7 @@ class ContactController extends Controller
                 ->withInput()
                 ->with(
                     'error',
-                    'Uw bericht kon op dit moment niet worden verzonden. Probeer het later opnieuw.'
+                    __('Uw bericht kon op dit moment niet worden verzonden. Probeer het later opnieuw.')
                 );
         }
     }
