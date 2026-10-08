@@ -193,7 +193,7 @@
     <meta name="color-scheme" content="dark light">
     <meta name="supported-color-schemes" content="dark light">
 
-    <title>Nieuwe login gedetecteerd</title>
+    <title>{{ __('Nieuwe login gedetecteerd') }}</title>
 
     <style>
         html,
@@ -490,9 +490,9 @@
                                     letter-spacing: -0.7px;
                                 "
                             >
-                                Nieuwe login
+                                {{ __('Nieuwe login') }}
                                 <span style="color: #cfa557;">
-                                    gedetecteerd
+                                    {{ __('gedetecteerd') }}
                                 </span>
                             </h1>
                         </td>
@@ -570,7 +570,7 @@
                                                     text-transform: uppercase;
                                                 "
                                             >
-                                                Apparaat
+                                                {{ __('Apparaat') }}
                                             </div>
 
                                             <div
@@ -640,7 +640,7 @@
                                                     text-transform: uppercase;
                                                 "
                                             >
-                                                Loginmethode
+                                                {{ __('Loginmethode') }}
                                             </div>
 
                                             <div
@@ -710,7 +710,7 @@
                                                     text-transform: uppercase;
                                                 "
                                             >
-                                                Tijdstip
+                                                {{ __('Tijdstip') }}
                                             </div>
 
                                             <div
@@ -769,7 +769,7 @@
                                     text-transform: uppercase;
                                 "
                             >
-                                Netwerk en geschatte locatie
+                                {{ __('Netwerk en geschatte locatie') }}
                             </div>
                         </td>
                     </tr>
@@ -806,7 +806,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            IP-adres
+                                            {{ __('IP-adres') }}
                                         </div>
 
                                         <div
@@ -835,7 +835,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            Geschatte locatie
+                                            {{ __('Geschatte locatie') }}
                                         </div>
 
                                         <div
@@ -861,15 +861,15 @@
                                                 line-height: 1.7;
                                             "
                                         >
-                                            <strong style="color:#ffffff;">Stad:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Stad:') }}</strong>
                                             {{ $cityLabel }}
                                             <br>
 
-                                            <strong style="color:#ffffff;">Regio:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Regio:') }}</strong>
                                             {{ $regionLabel }}
                                             <br>
 
-                                            <strong style="color:#ffffff;">Land:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Land:') }}</strong>
                                             {{ $countryDisplay }}
                                         </div>
                                     </td>
@@ -884,15 +884,15 @@
                                                 line-height: 1.7;
                                             "
                                         >
-                                            <strong style="color:#ffffff;">Locatiebron:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Locatiebron:') }}</strong>
                                             {{ $locationSourceLabel }}
                                             <br>
 
-                                            <strong style="color:#ffffff;">Browser-timezone:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Browser-timezone:') }}</strong>
                                             {{ $browserTimezone }}
                                             <br>
 
-                                            <strong style="color:#ffffff;">IP-timezone:</strong>
+                                            <strong style="color:#ffffff;">{{ __('IP-timezone:') }}</strong>
                                             {{ $ipTimezone }}
                                         </div>
                                     </td>
@@ -920,7 +920,7 @@
                                     text-transform: uppercase;
                                 "
                             >
-                                Precieze browserlocatie
+                                {{ __('Precieze browserlocatie') }}
                             </div>
                         </td>
                     </tr>
@@ -954,7 +954,7 @@
                                                 line-height: 1.8;
                                             "
                                         >
-                                            <strong style="color:#ffffff;">Locatietoestemming:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Locatietoestemming:') }}</strong>
                                             <span
                                                 style="
                                                     display: inline-block;
@@ -970,17 +970,17 @@
 
                                             <br>
 
-                                            <strong style="color:#ffffff;">GPS-coördinaten:</strong>
+                                            <strong style="color:#ffffff;">{{ __('GPS-coördinaten:') }}</strong>
                                             {{ $coordinatesLabel }}
 
                                             <br>
 
-                                            <strong style="color:#ffffff;">GPS-nauwkeurigheid:</strong>
+                                            <strong style="color:#ffffff;">{{ __('GPS-nauwkeurigheid:') }}</strong>
                                             {{ $accuracyLabel }}
 
                                             <br>
 
-                                            <strong style="color:#ffffff;">Vastgelegd op:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Vastgelegd op:') }}</strong>
                                             {{ $preciseCapturedAt }}
                                         </div>
                                     </td>
@@ -1008,7 +1008,7 @@
                                     text-transform: uppercase;
                                 "
                             >
-                                Technische informatie
+                                {{ __('Technische informatie') }}
                             </div>
                         </td>
                     </tr>
@@ -1042,7 +1042,7 @@
                                                 line-height: 1.7;
                                             "
                                         >
-                                            <strong style="color:#ffffff;">Onthouden:</strong>
+                                            <strong style="color:#ffffff;">{{ __('Onthouden:') }}</strong>
                                             {{ $rememberLabel }}
                                         </div>
 
@@ -1093,7 +1093,7 @@
                                     letter-spacing: 0.2px;
                                 "
                             >
-                                Bekijk loginactiviteit →
+                                {{ __('Bekijk loginactiviteit →') }}
                             </a>
                         </td>
                     </tr>
@@ -1129,7 +1129,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Was jij dit?
+                                            {{ __('Was jij dit?') }}
                                         </div>
 
                                         <div
@@ -1140,8 +1140,7 @@
                                                 line-height: 1.65;
                                             "
                                         >
-                                            Dan hoef je niets te doen. Herken je deze login niet,
-                                            wijzig dan direct je wachtwoord en controleer je account.
+                                            {{ __('Dan hoef je niets te doen. Herken je deze login niet, wijzig dan direct je wachtwoord en controleer je account.') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -1180,8 +1179,7 @@
                                     line-height: 1.7;
                                 "
                             >
-                                Let op: deze e-mail kan gevoelige beveiligingsinformatie
-                                bevatten. Deel hem niet met anderen.
+                                {{ __('Let op: deze e-mail kan gevoelige beveiligingsinformatie bevatten. Deel hem niet met anderen.') }}
                             </p>
                         </td>
                     </tr>
