@@ -1022,9 +1022,9 @@
 
             <h1 class="recovery-verify-title">
 
-                Bevestig je
+                {{ __('Bevestig je') }}
 
-                <span>hersteladres</span>
+                <span>{{ __('hersteladres') }}</span>
 
             </h1>
 
@@ -1326,7 +1326,7 @@
 
                     >
 
-                        Nieuwe code sturen
+                        {{ __('Nieuwe code sturen') }}
 
                     </button>
 
@@ -1338,9 +1338,7 @@
 
             <p class="recovery-verify-note">
 
-                De code is tijdelijk geldig. Na meerdere onjuiste pogingen
-
-                moet de verificatie opnieuw worden gestart.
+                {{ __('De code is tijdelijk geldig. Na meerdere onjuiste pogingen moet de verificatie opnieuw worden gestart.') }}
 
             </p>
 
@@ -1356,7 +1354,7 @@
 
                 >
 
-                    ← Terug naar account
+                    {{ __('← Terug naar account') }}
 
                 </a>
 
