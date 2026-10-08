@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ur' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
 
@@ -3757,6 +3757,9 @@
 
 
                         <div class="admin-topbar-actions">
+                            <div class="standalone-language-switcher" aria-label="{{ __('Taal kiezen') }}">
+                                @include('partials.language-switcher')
+                            </div>
 
                             <button
                                 class="admin-mobile-toggle"
