@@ -1,115 +1,833 @@
 @extends('layouts.site-layout')
 
 @section('title', 'YouTube Live Subscribers | Mashal Studio')
-@section('meta_description', 'Volg publieke YouTube-kanaalstatistieken met een automatisch vernieuwende abonneeteller.')
+@section('meta_description', 'Volg publieke YouTube subscriber-, view- en videostatistieken live met Mashal Studio.')
 
 @push('styles')
+<link rel="stylesheet" href="/vendor/odometer/odometer-theme-minimal.css?v=20261007-2">
 <style>
-.yts-page{min-height:calc(100vh - 72px);padding:45px 16px 90px;background:radial-gradient(circle at 50% -190px,rgba(255,59,73,.14),transparent 520px),#06080c;color:#f7f8fa}
-.yts-shell{max-width:1080px;margin:auto}.yts-back{color:#929eaf;text-decoration:none;font-size:13px}
-.yts-heading{text-align:center;margin:40px 0 28px}.yts-tag{display:inline-block;padding:7px 13px;border:1px solid #433036;border-radius:25px;color:#ff9ea5;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-.yts-heading h1{font-size:clamp(36px,6vw,66px);letter-spacing:-.055em;margin:15px 0 9px;line-height:1.08}.yts-heading h1 span{color:#ff525f}.yts-heading p{font-size:13px;color:#8894a4}
-.yts-search{display:flex;gap:10px;max-width:770px;margin:0 auto 28px}.yts-search input{flex:1;min-width:0;border:1px solid #303846;border-radius:15px;background:#11151e;padding:17px;color:#fff;outline:none}.yts-search input:focus{border-color:#fd5d67}.yts-btn{border:0;border-radius:15px;background:#f44352;color:#fff;padding:0 23px;font-size:13px;font-weight:800;cursor:pointer}.yts-btn:disabled{opacity:.5;cursor:wait}
-.yts-results{max-width:770px;margin:-10px auto 24px;display:grid;gap:8px}.yts-result{width:100%;text-align:left;display:flex;align-items:center;gap:14px;background:#121720;color:white;border:1px solid #2c333e;border-radius:12px;padding:12px;cursor:pointer}.yts-result:hover{border-color:#f44352}.yts-result img{width:42px;height:42px;border-radius:50%}.yts-result small{display:block;color:#8d98a9;margin-top:4px}
-.yts-panel{border:1px solid #282e38;border-radius:28px;background:linear-gradient(160deg,#161b24,#0b0e14);padding:clamp(20px,4vw,46px);box-shadow:0 26px 75px #0006}
-.yts-channel{display:flex;align-items:center;justify-content:center;gap:16px;text-align:left}.yts-avatar{width:68px;height:68px;border-radius:50%;object-fit:cover;background:#242b36}.yts-name{font-size:clamp(19px,3vw,26px);font-weight:800}.yts-channel a{font-size:12px;color:#adb8cb}.yts-sub-label{text-align:center;color:#9ca8b6;letter-spacing:.15em;font-weight:800;text-transform:uppercase;font-size:11px;margin-top:48px}
-.yts-number{font-variant-numeric:tabular-nums;text-align:center;font-size:clamp(53px,10vw,115px);letter-spacing:-.065em;font-weight:850;line-height:1.3;transition:opacity .18s}.yts-status{text-align:center;font-size:12px;color:#8b96a5;margin-bottom:40px}.yts-status::before{content:'';display:inline-block;background:#5dd79c;width:7px;height:7px;border-radius:50%;margin-right:8px}
-.yts-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.yts-stat{border:1px solid #27303b;border-radius:17px;background:#10151c;text-align:center;padding:22px 10px}.yts-stat span{display:block;font-size:11px;color:#929dac;margin-bottom:7px}.yts-stat strong{font-size:clamp(17px,3vw,26px);font-variant-numeric:tabular-nums}.yts-note{color:#7c8797;text-align:center;font-size:11px;line-height:1.7;margin:20px auto;max-width:700px}
-.yts-error{color:#ff9da5;text-align:center;font-size:13px;min-height:21px;margin:0 auto 16px}
-@media(max-width:600px){.yts-search{flex-direction:column}.yts-btn{min-height:48px}.yts-stats{grid-template-columns:1fr}.yts-channel{flex-wrap:wrap;text-align:center}.yts-heading{margin-top:25px}}
+    .yts-page {
+        --yts-panel: rgba(13,16,22,.88);
+        --yts-line: rgba(255,255,255,.075);
+        --yts-text: #f4f6f8;
+        --yts-muted: #7a8492;
+        --yts-red: #ff5363;
+        --yts-green: #6ee7a8;
+
+        min-height: calc(100vh - 72px);
+        padding: 46px 0 96px;
+        color: var(--yts-text);
+        background:
+            radial-gradient(circle at 50% -170px, rgba(255,73,87,.13), transparent 470px),
+            radial-gradient(circle at 90% 20%, rgba(123,112,255,.055), transparent 390px),
+            linear-gradient(180deg, #06070a 0%, #050608 100%);
+    }
+
+    .yts-shell {
+        width: min(calc(100% - 32px), 1180px);
+        margin: 0 auto;
+    }
+
+    .yts-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #7e8795;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 760;
+    }
+
+    .yts-hero {
+        max-width: 780px;
+        margin: 26px auto 32px;
+        text-align: center;
+    }
+
+    .yts-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 11px;
+        border: 1px solid rgba(255,83,99,.2);
+        border-radius: 999px;
+        color: #ff9ba4;
+        background: rgba(255,83,99,.045);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .yts-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--yts-green);
+        box-shadow: 0 0 12px rgba(110,231,168,.7);
+    }
+
+    .yts-title {
+        margin: 18px 0 0;
+        color: #fff;
+        font-size: clamp(42px, 6vw, 72px);
+        line-height: .98;
+        font-weight: 720;
+        letter-spacing: -.055em;
+    }
+
+    .yts-title span {
+        color: #737b88;
+    }
+
+    .yts-copy {
+        max-width: 620px;
+        margin: 17px auto 0;
+        color: var(--yts-muted);
+        font-size: 13px;
+        line-height: 1.75;
+    }
+
+    .yts-search-wrap {
+        max-width: 900px;
+        margin: 0 auto 16px;
+    }
+
+    .yts-search {
+        padding: 8px;
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto;
+        gap: 8px;
+        border: 1px solid var(--yts-line);
+        border-radius: 18px;
+        background: rgba(10,12,17,.91);
+        box-shadow:
+            0 26px 70px rgba(0,0,0,.28),
+            inset 0 1px 0 rgba(255,255,255,.025);
+    }
+
+    .yts-input-shell {
+        min-width: 0;
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .yts-input-icon {
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 8px;
+        color: #ff6a77;
+        background: rgba(255,255,255,.02);
+        font-size: 11px;
+    }
+
+    .yts-input {
+        min-width: 0;
+        width: 100%;
+        height: 54px;
+        border: 0;
+        outline: 0;
+        color: #edf0f4;
+        background: transparent;
+        font-size: 13px;
+    }
+
+    .yts-input::placeholder {
+        color: #525b68;
+    }
+
+    .yts-button {
+        min-height: 54px;
+        padding: 0 22px;
+        border: 1px solid rgba(255,83,99,.42);
+        border-radius: 12px;
+        color: #fff;
+        background: linear-gradient(135deg, #f34c5c, #d83d4c);
+        font-size: 11px;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .yts-button:disabled {
+        opacity: .6;
+        cursor: wait;
+    }
+
+    .yts-message {
+        min-height: 18px;
+        max-width: 900px;
+        margin: 0 auto 10px;
+        color: #f29aa2;
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .yts-results {
+        max-width: 900px;
+        margin: 0 auto 26px;
+        display: grid;
+        gap: 7px;
+    }
+
+    .yts-result {
+        width: 100%;
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 13px;
+        color: inherit;
+        background: rgba(14,17,23,.93);
+        text-align: left;
+        cursor: pointer;
+        transition: transform .16s ease, border-color .16s ease;
+    }
+
+    .yts-result:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255,83,99,.25);
+    }
+
+    .yts-result-avatar {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #1b2028;
+    }
+
+    .yts-result-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .yts-result-title {
+        overflow: hidden;
+        color: #edf0f4;
+        font-size: 11px;
+        font-weight: 820;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .yts-result-id {
+        margin-top: 3px;
+        overflow: hidden;
+        color: #68717e;
+        font-size: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .yts-result-arrow {
+        color: #ff7782;
+        font-size: 17px;
+    }
+
+    .yts-panel {
+        max-width: 1040px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 280px minmax(0,1fr);
+        gap: 16px;
+    }
+
+    .yts-card {
+        border: 1px solid var(--yts-line);
+        border-radius: 24px;
+        background:
+            radial-gradient(circle at 100% 0%, rgba(255,83,99,.07), transparent 38%),
+            linear-gradient(180deg, rgba(15,18,24,.95), rgba(9,11,15,.97));
+        box-shadow: 0 24px 64px rgba(0,0,0,.22);
+    }
+
+    .yts-profile {
+        min-height: 360px;
+        padding: 24px 18px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .yts-avatar {
+        width: 112px;
+        height: 112px;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 50%;
+        object-fit: cover;
+        background: #181d25;
+        box-shadow: 0 18px 45px rgba(0,0,0,.28);
+    }
+
+    .yts-channel-name {
+        width: 100%;
+        margin-top: 18px;
+        overflow: hidden;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 820;
+        letter-spacing: -.03em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .yts-channel-id {
+        width: 100%;
+        margin-top: 5px;
+        overflow: hidden;
+        color: #697281;
+        font-size: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .yts-channel-link {
+        margin-top: 18px;
+        color: #ff8992;
+        font-size: 9px;
+        font-weight: 760;
+        text-decoration: none;
+    }
+
+    .yts-dashboard {
+        padding: 22px;
+    }
+
+    .yts-status {
+        min-height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #697281;
+        font-size: 9px;
+    }
+
+    .yts-status strong {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #7adea4;
+        font-weight: 850;
+    }
+
+    .yts-status strong::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #6ee7a8;
+        box-shadow: 0 0 10px rgba(110,231,168,.65);
+    }
+
+    .yts-main {
+        padding: 28px 0 24px;
+        text-align: center;
+        border-bottom: 1px solid var(--yts-line);
+    }
+
+    .yts-main-label {
+        color: #78818e;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+    }
+
+    .yts-main-value {
+        margin-top: 7px;
+        color: #fff;
+        font-size: clamp(52px, 8vw, 82px);
+        line-height: 1;
+        font-weight: 780;
+        letter-spacing: -.055em;
+    }
+
+    .yts-stats {
+        padding-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 10px;
+    }
+
+    .yts-stat {
+        min-height: 126px;
+        padding: 15px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 16px;
+        background: rgba(255,255,255,.016);
+    }
+
+    .yts-stat-label {
+        color: #737c89;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .yts-stat-value {
+        margin-top: 26px;
+        color: #f4f6f8;
+        font-size: clamp(25px, 3vw, 38px);
+        line-height: 1;
+        font-weight: 760;
+        letter-spacing: -.04em;
+    }
+
+    .yts-loading {
+        opacity: .56;
+    }
+
+    .yts-empty {
+        max-width: 900px;
+        margin: 12px auto 0;
+        padding: 34px 20px;
+        border: 1px dashed rgba(255,255,255,.08);
+        border-radius: 20px;
+        color: #697281;
+        text-align: center;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .odometer {
+        font: inherit !important;
+        line-height: inherit !important;
+    }
+
+    @media (max-width: 780px) {
+        .yts-search {
+            grid-template-columns: 1fr;
+        }
+
+        .yts-button {
+            width: 100%;
+        }
+
+        .yts-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .yts-profile {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 620px) {
+        .yts-page {
+            padding-top: 34px;
+        }
+
+        .yts-stats {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
 <section class="yts-page">
- <div class="yts-shell">
-  <a class="yts-back" href="{{ route('live-counts.index') }}">← Terug naar Live Counts</a>
-  <header class="yts-heading">
-   <div class="yts-tag">YouTube • Live Counts</div>
-   <h1>Live <span>Subscribers.</span></h1>
-   <p>Zoek een kanaal of plak een YouTube-kanaallink om de publieke statistieken te volgen.</p>
-  </header>
-  <form id="yts-search" class="yts-search">
-   <input id="yts-query" type="text" maxlength="255" placeholder="Kanaalnaam, @handle of YouTube-kanaal URL" required autocomplete="off" aria-label="YouTube-kanaal zoeken">
-   <button id="yts-submit" class="yts-btn" type="submit">Zoek kanaal</button>
-  </form>
-  <p id="yts-error" class="yts-error" role="alert" aria-live="polite"></p>
-  <div id="yts-results" class="yts-results" aria-live="polite"></div>
-  <div class="yts-panel" id="yts-panel" hidden>
-   <div class="yts-channel"><img id="yts-avatar" class="yts-avatar" alt=""><div><div id="yts-name" class="yts-name"></div><a id="yts-link" href="#" target="_blank" rel="noopener noreferrer">Open op YouTube ↗</a></div></div>
-   <div class="yts-sub-label">Subscribers</div>
-   <div id="yts-subscribers" class="yts-number" aria-live="polite">—</div>
-   <div id="yts-status" class="yts-status">Ophalen…</div>
-   <div class="yts-stats">
-    <div class="yts-stat"><span>Total Views</span><strong id="yts-views">—</strong></div>
-    <div class="yts-stat"><span>Videos</span><strong id="yts-videos">—</strong></div>
-    <div class="yts-stat"><span>Volgende mijlpaal</span><strong id="yts-goal">—</strong></div>
-   </div>
-  </div>
-  <p class="yts-note">De cijfers komen uit de officiële YouTube Data API en vernieuwen maximaal één keer per minuut. YouTube rondt openbare abonnee-aantallen af: de teller kan daarom niet elk individueel abonnement weergeven.</p>
- </div>
+    <div class="yts-shell">
+        <a class="yts-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
+
+        <header class="yts-hero">
+            <div class="yts-eyebrow">
+                <span class="yts-eyebrow-dot"></span>
+                Mashal Studio · YouTube Live
+            </div>
+
+            <h1 class="yts-title">Live <span>Subscribers.</span></h1>
+
+            <p class="yts-copy">
+                Zoek een YouTube-kanaal en volg subscribers, totale views,
+                video's en de volgende goal automatisch.
+            </p>
+        </header>
+
+        <div class="yts-search-wrap">
+            <form class="yts-search" id="yts-search">
+                <div class="yts-input-shell">
+                    <span class="yts-input-icon" aria-hidden="true">▶</span>
+                    <input
+                        class="yts-input"
+                        id="yts-query"
+                        type="text"
+                        maxlength="255"
+                        placeholder="Kanaalnaam, @handle of YouTube-kanaal URL…"
+                        autocomplete="off"
+                        required
+                        aria-label="YouTube kanaal zoeken"
+                    >
+                </div>
+
+                <button class="yts-button" id="yts-submit" type="submit">
+                    Zoek kanaal →
+                </button>
+            </form>
+        </div>
+
+        <div class="yts-message" id="yts-message" role="status" aria-live="polite"></div>
+        <div class="yts-results" id="yts-results" aria-live="polite"></div>
+
+        <div class="yts-panel" id="yts-panel" hidden>
+            <aside class="yts-card yts-profile">
+                <img
+                    class="yts-avatar"
+                    id="yts-avatar"
+                    src="/icons/follower-profile.svg?v=1"
+                    alt=""
+                    referrerpolicy="no-referrer"
+                >
+                <div class="yts-channel-name" id="yts-name">YouTube channel</div>
+                <div class="yts-channel-id" id="yts-channel-id"></div>
+                <a
+                    class="yts-channel-link"
+                    id="yts-link"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >Open op YouTube ↗</a>
+            </aside>
+
+            <div class="yts-card yts-dashboard">
+                <div class="yts-status">
+                    <span>Public channel statistics</span>
+                    <strong id="yts-status">Live</strong>
+                </div>
+
+                <div class="yts-main">
+                    <div class="yts-main-label">Subscribers</div>
+                    <div class="yts-main-value yts-loading" id="yts-subscribers">0</div>
+                </div>
+
+                <div class="yts-stats">
+                    <div class="yts-stat">
+                        <div class="yts-stat-label">Channel Views</div>
+                        <div class="yts-stat-value yts-loading" id="yts-views">0</div>
+                    </div>
+
+                    <div class="yts-stat">
+                        <div class="yts-stat-label">Videos</div>
+                        <div class="yts-stat-value yts-loading" id="yts-videos">0</div>
+                    </div>
+
+                    <div class="yts-stat">
+                        <div class="yts-stat-label">Goal</div>
+                        <div class="yts-stat-value yts-loading" id="yts-goal">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="yts-empty" id="yts-empty">
+            Zoek een kanaal en kies het juiste resultaat. Daarna blijven de
+            publieke cijfers automatisch verversen.
+        </div>
+    </div>
 </section>
 @endsection
 
 @push('scripts')
+<script src="/vendor/odometer/odometer.min.js?v=20261007-2"></script>
 <script>
-(() => {
- const lookupUrl = @json(route('youtube-subscribers.lookup'));
- const statsBase = @json(url('/api/tools/youtube-subscribers'));
- const form=document.getElementById('yts-search'), input=document.getElementById('yts-query');
- const error=document.getElementById('yts-error'),results=document.getElementById('yts-results'),panel=document.getElementById('yts-panel');
- const submit=document.getElementById('yts-submit');
- let channelId=null, timer=null, lastCount=null;
- const fmt=n=>n===null||n===undefined?'—':new Intl.NumberFormat('nl-NL').format(n);
- const goal=n=>{if(n===null||n===undefined)return '—';let step=n<100?10:n<1000?100:n<10000?1000:n<100000?10000:n<1000000?100000:1000000;return fmt((Math.floor(n/step)+1)*step)};
- const setError=msg=>error.textContent=msg||'';
- const safeImage=url=>{try{const u=new URL(url);return u.protocol==='https:'?u.href:''}catch(e){return ''}};
- function display(data){
-   panel.hidden=false;document.getElementById('yts-name').textContent=data.title;
-   document.getElementById('yts-avatar').src=safeImage(data.avatar)||'';
-   document.getElementById('yts-link').href='https://www.youtube.com/channel/'+encodeURIComponent(data.id);
-   const el=document.getElementById('yts-subscribers'),next=data.hidden?null:data.subscribers;
-   if(lastCount!==null&&next!==null&&lastCount!==next){el.style.opacity='.55';setTimeout(()=>{el.textContent=fmt(next);el.style.opacity='1'},140)}
-   else{el.textContent=fmt(next)}
-   lastCount=next;
-   document.getElementById('yts-views').textContent=fmt(data.views);
-   document.getElementById('yts-videos').textContent=fmt(data.videos);
-   document.getElementById('yts-goal').textContent=goal(next);
-   document.getElementById('yts-status').textContent=data.hidden?'Abonnees zijn verborgen':'YouTube API • elke 60 seconden bijgewerkt';
- }
- async function fetchJSON(url,options={}){
-   const response=await fetch(url,{headers:{Accept:'application/json'},...options});
-   const data=await response.json();
-   if(!response.ok)throw Error(data.message||'Er is iets misgegaan');
-   return data;
- }
- async function refresh(){
-   if(!channelId||document.hidden)return;
-   try{const data=await fetchJSON(statsBase+'/'+encodeURIComponent(channelId));if(data.id===channelId){display(data);setError('')}}catch(e){setError(e.message)}
- }
- function select(data){
-   if(timer)clearInterval(timer);
-   channelId=data.id;lastCount=null;results.replaceChildren();display(data);setError('');
-   history.replaceState(null,'',location.pathname+'?channel='+encodeURIComponent(channelId));
-   timer=setInterval(refresh,60000);
- }
- form.addEventListener('submit',async event=>{
-   event.preventDefault();setError('');results.replaceChildren();submit.disabled=true;submit.textContent='Zoeken…';
-   try{
-     const data=await fetchJSON(lookupUrl+'?'+new URLSearchParams({query:input.value.trim()}));
-     if(!data.channels.length){setError('Geen kanaal gevonden. Probeer een kanaallink of @handle.');return}
-     if(data.channels.length===1){select(data.channels[0]);return}
-     data.channels.forEach(ch=>{
-       const button=document.createElement('button');button.type='button';button.className='yts-result';
-       const avatar=document.createElement('img');avatar.src=safeImage(ch.avatar)||'';avatar.alt='';
-       const box=document.createElement('span');box.textContent=ch.title;
-       const detail=document.createElement('small');detail.textContent=fmt(ch.subscribers)+' abonnees';box.appendChild(detail);
-       button.append(avatar,box);button.addEventListener('click',()=>select(ch));results.appendChild(button);
-     });
-   }catch(e){setError(e.message)}finally{submit.disabled=false;submit.textContent='Zoek kanaal'}
- });
- const initial=new URLSearchParams(location.search).get('channel');
- if(initial&&/^UC[A-Za-z0-9_-]{22}$/.test(initial)){channelId=initial;refresh();timer=setInterval(refresh,60000)}
-})();
+(function () {
+    'use strict';
+
+    var lookupUrl = @json(route('youtube-subscribers.lookup'));
+    var statsBase = @json(url('/api/tools/youtube-subscribers'));
+    var form = document.getElementById('yts-search');
+    var input = document.getElementById('yts-query');
+    var submit = document.getElementById('yts-submit');
+    var message = document.getElementById('yts-message');
+    var results = document.getElementById('yts-results');
+    var panel = document.getElementById('yts-panel');
+    var empty = document.getElementById('yts-empty');
+    var status = document.getElementById('yts-status');
+    var avatar = document.getElementById('yts-avatar');
+    var name = document.getElementById('yts-name');
+    var channelIdEl = document.getElementById('yts-channel-id');
+    var channelLink = document.getElementById('yts-link');
+    var currentChannel = null;
+    var refreshTimer = null;
+    var odometers = {};
+
+    function safeImage(url) {
+        try {
+            var parsed = new URL(String(url || ''));
+            return parsed.protocol === 'https:' ? parsed.href : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function setMessage(text) {
+        message.textContent = text || '';
+    }
+
+    function ensureOdometer(key, element) {
+        if (!element || typeof window.Odometer !== 'function') {
+            return null;
+        }
+
+        if (!odometers[key]) {
+            element.textContent = '0';
+            odometers[key] = new window.Odometer({
+                el: element,
+                value: 0,
+                format: '(,ddd)',
+                duration: 900
+            });
+        }
+
+        return odometers[key];
+    }
+
+    function updateNumber(key, value) {
+        var element = document.getElementById('yts-' + key);
+        var number = Number(value);
+
+        if (!element || !Number.isFinite(number)) {
+            return;
+        }
+
+        element.classList.remove('yts-loading');
+        number = Math.max(0, Math.trunc(number));
+
+        var odometer = ensureOdometer(key, element);
+
+        if (odometer) {
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    odometer.update(number);
+                });
+            });
+        } else {
+            element.textContent = number.toLocaleString('en-US');
+        }
+    }
+
+    function fetchJson(url) {
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            cache: 'no-store',
+            credentials: 'same-origin'
+        }).then(function (response) {
+            return response.json().catch(function () {
+                return {};
+            }).then(function (data) {
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || 'Ophalen mislukt');
+                }
+
+                return data;
+            });
+        });
+    }
+
+    function renderChannel(channel) {
+        if (!channel || !channel.id) {
+            return;
+        }
+
+        panel.hidden = false;
+        empty.hidden = true;
+        currentChannel = channel.id;
+
+        if (channel.title) {
+            name.textContent = channel.title;
+        }
+
+        channelIdEl.textContent = channel.id;
+        channelLink.href = channel.url
+            || ('https://www.youtube.com/channel/' + encodeURIComponent(channel.id));
+
+        var image = safeImage(channel.avatar);
+        if (image) {
+            avatar.src = image;
+        }
+
+        if (channel.subscribers !== undefined) {
+            updateNumber('subscribers', channel.subscribers);
+        }
+        if (channel.views !== undefined) {
+            updateNumber('views', channel.views);
+        }
+        if (channel.videos !== undefined) {
+            updateNumber('videos', channel.videos);
+        }
+        if (channel.goal !== undefined) {
+            updateNumber('goal', channel.goal);
+        }
+    }
+
+    function renderResults(channels) {
+        results.innerHTML = '';
+
+        if (!Array.isArray(channels) || !channels.length) {
+            setMessage('Geen kanaal gevonden.');
+            return;
+        }
+
+        channels.forEach(function (channel) {
+            var button = document.createElement('button');
+            var img = document.createElement('img');
+            var copy = document.createElement('span');
+            var title = document.createElement('span');
+            var id = document.createElement('span');
+            var arrow = document.createElement('span');
+
+            button.type = 'button';
+            button.className = 'yts-result';
+
+            img.className = 'yts-result-avatar';
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            img.src = safeImage(channel.avatar)
+                || '/icons/follower-profile.svg?v=1';
+            img.onerror = function () {
+                img.onerror = null;
+                img.src = '/icons/follower-profile.svg?v=1';
+            };
+
+            copy.className = 'yts-result-copy';
+
+            title.className = 'yts-result-title';
+            title.textContent = channel.title || 'YouTube-kanaal';
+
+            id.className = 'yts-result-id';
+            id.textContent = channel.id || '';
+
+            arrow.className = 'yts-result-arrow';
+            arrow.textContent = '→';
+            arrow.setAttribute('aria-hidden', 'true');
+
+            copy.appendChild(title);
+            copy.appendChild(id);
+            button.appendChild(img);
+            button.appendChild(copy);
+            button.appendChild(arrow);
+
+            button.addEventListener('click', function () {
+                selectChannel(channel);
+            });
+
+            results.appendChild(button);
+        });
+    }
+
+    function loadStats() {
+        if (!currentChannel || document.hidden) {
+            return Promise.resolve();
+        }
+
+        status.textContent = 'Refreshing…';
+
+        return fetchJson(
+            statsBase
+                + '/'
+                + encodeURIComponent(currentChannel)
+                + '?_='
+                + encodeURIComponent(String(Date.now()))
+        )
+            .then(function (data) {
+                if (data.id !== currentChannel) {
+                    return;
+                }
+
+                renderChannel(data);
+                status.textContent = 'Live';
+                setMessage('');
+            })
+            .catch(function () {
+                status.textContent = 'Retrying…';
+            });
+    }
+
+    function selectChannel(channel) {
+        if (refreshTimer) {
+            window.clearInterval(refreshTimer);
+        }
+
+        results.innerHTML = '';
+        setMessage('');
+        renderChannel(channel);
+
+        history.replaceState(
+            null,
+            '',
+            location.pathname + '?channel=' + encodeURIComponent(channel.id)
+        );
+
+        loadStats();
+        refreshTimer = window.setInterval(loadStats, 5000);
+    }
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var query = input.value.trim();
+
+        if (query.length < 2) {
+            setMessage('Vul minimaal 2 tekens in.');
+            return;
+        }
+
+        submit.disabled = true;
+        submit.textContent = 'Zoeken…';
+        setMessage('Kanalen zoeken…');
+        results.innerHTML = '';
+
+        fetchJson(
+            lookupUrl + '?' + new URLSearchParams({ query: query }).toString()
+        )
+            .then(function (data) {
+                var channels = Array.isArray(data.channels)
+                    ? data.channels
+                    : [];
+
+                setMessage('');
+                renderResults(channels);
+
+                if (channels.length === 1) {
+                    selectChannel(channels[0]);
+                }
+            })
+            .catch(function () {
+                setMessage('Kanalen konden niet worden geladen.');
+            })
+            .finally(function () {
+                submit.disabled = false;
+                submit.textContent = 'Zoek kanaal →';
+            });
+    });
+
+    var initial = new URLSearchParams(location.search).get('channel');
+
+    if (initial && /^UC[A-Za-z0-9_-]{22}$/.test(initial)) {
+        currentChannel = initial;
+        renderChannel({
+            id: initial,
+            title: 'YouTube channel',
+            avatar: '/icons/follower-profile.svg?v=1'
+        });
+        loadStats();
+        refreshTimer = window.setInterval(loadStats, 5000);
+    }
+}());
 </script>
 @endpush
