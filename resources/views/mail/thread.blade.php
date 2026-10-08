@@ -392,7 +392,7 @@
 
                                         >
 
-                                            Mashal Support
+                                            {{ __('Mashal Support') }}
 
                                         </strong>
 
@@ -660,7 +660,7 @@
 
                                                     >
 
-                                                        Mashal Support
+                                                        {{ __('Mashal Support') }}
 
                                                     </div>
 
@@ -1683,7 +1683,7 @@
 
                                                         <strong>
 
-                                                            Beantwoorden
+                                                            {{ __('Beantwoorden') }}
 
                                                         </strong>
 
@@ -2222,7 +2222,7 @@
 
                                                     >
 
-                                                        Mashal Support
+                                                        {{ __('Mashal Support') }}
 
                                                     </div>
 
@@ -2354,7 +2354,7 @@
 
                                 >
 
-                                    Mashal Support
+                                    {{ __('Mashal Support') }}
 
                                 </strong>.
 
