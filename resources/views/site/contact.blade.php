@@ -392,6 +392,12 @@
                 {{ __('Vul je gegevens en toelichting in. Na het verzenden ontvang je automatisch een bevestiging op het opgegeven e-mailadres.') }}
             </p>
 
+            @if (request()->query('session_expired') === '1')
+                <div class="contact-alert contact-alert-error" role="alert">
+                    {{ __('Je sessie was verlopen. Het bericht is niet verzonden. Vul het formulier opnieuw in en probeer het nog een keer.') }}
+                </div>
+            @endif
+
             @if (session('success'))
                 <div class="contact-alert contact-alert-success">
                     {{ session('success') }}
