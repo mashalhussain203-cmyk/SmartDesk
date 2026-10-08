@@ -205,7 +205,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Order confirmed
+                                                    {{ __('Order confirmed') }}
                                                 </span>
 
                                             </td>
@@ -278,7 +278,7 @@
                                 text-align: center;
                             "
                         >
-                            Order confirmation
+                            {{ __('Order confirmation') }}
                         </div>
 
 
@@ -293,7 +293,7 @@
                                 text-align: center;
                             "
                         >
-                            Je bestelling is ontvangen
+                            {{ __('Je bestelling is ontvangen') }}
                         </h1>
 
 
@@ -307,8 +307,7 @@
                                 text-align: center;
                             "
                         >
-                            Bedankt voor je bestelling bij Mashal Automotive.
-                            Hieronder vind je een volledig overzicht van je bestelling.
+                            {{ __('Bedankt voor je bestelling bij Mashal Automotive. Hieronder vind je een volledig overzicht van je bestelling.') }}
                         </p>
 
                     </td>
@@ -334,7 +333,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $user->name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
                     </td>
@@ -388,7 +387,7 @@
                                             letter-spacing: 1.8px;
                                         "
                                     >
-                                        Bestelnummer
+                                        {{ __('Bestelnummer') }}
                                     </div>
 
 
@@ -449,7 +448,7 @@
                                                     font-size: 11px;
                                                 "
                                             >
-                                                Totaalbedrag
+                                                {{ __('Totaalbedrag') }}
                                             </td>
 
 
@@ -499,7 +498,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Je bestelling
+                            {{ __('Je bestelling') }}
                         </div>
 
 
@@ -722,7 +721,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat gebeurt er nu?
+                            {{ __('Wat gebeurt er nu?') }}
                         </div>
 
 
@@ -775,7 +774,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Je bestelling is geregistreerd in je Mashal-account.
+                                    {{ __('Je bestelling is geregistreerd in je Mashal-account.') }}
                                 </td>
 
                             </tr>
@@ -818,8 +817,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Mashal neemt zo snel mogelijk contact met je op
-                                    over de verdere afhandeling.
+                                    {{ __('Mashal neemt zo snel mogelijk contact met je op over de verdere afhandeling.') }}
                                 </td>
 
                             </tr>
@@ -862,7 +860,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Bewaar deze e-mail voor je administratie.
+                                    {{ __('Bewaar deze e-mail voor je administratie.') }}
                                 </td>
 
                             </tr>
@@ -893,7 +891,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Bestelgegevens
+                            {{ __('Bestelgegevens') }}
                         </div>
 
 
@@ -933,7 +931,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Klant
+                                        {{ __('Klant') }}
                                     </div>
 
                                     <div
@@ -1011,7 +1009,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Bestelnummer
+                                        {{ __('Bestelnummer') }}
                                     </div>
 
                                     <div
@@ -1105,7 +1103,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Gekoppeld aan je Mashal-account
+                                        {{ __('Gekoppeld aan je Mashal-account') }}
                                     </div>
 
                                     <div
@@ -1115,8 +1113,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Deze bestelling blijft gekoppeld aan je account,
-                                        zodat je hem later kunt terugvinden op je accountpagina.
+                                        {{ __('Deze bestelling blijft gekoppeld aan je account, zodat je hem later kunt terugvinden op je accountpagina.') }}
                                     </div>
 
                                 </td>
@@ -1198,7 +1195,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Herken je deze bestelling niet?
+                                        {{ __('Herken je deze bestelling niet?') }}
                                     </div>
 
                                     <div
@@ -1208,9 +1205,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Controleer dan direct de beveiliging
-                                        van je Mashal-account en neem contact op
-                                        als je vermoedt dat iemand anders toegang heeft gehad.
+                                        {{ __('Controleer dan direct de beveiliging van je Mashal-account en neem contact op als je vermoedt dat iemand anders toegang heeft gehad.') }}
                                     </div>
 
                                 </td>
@@ -1241,8 +1236,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Bedankt voor je bestelling
-                            en voor je vertrouwen in Mashal Automotive.
+                            {{ __('Bedankt voor je bestelling en voor je vertrouwen in Mashal Automotive.') }}
                         </p>
 
 
@@ -1262,7 +1256,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -1293,8 +1287,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat je bestelling bij Mashal Automotive is geplaatst.
+                            {{ __('Deze e-mail is automatisch verzonden nadat je bestelling bij Mashal Automotive is geplaatst.') }}
                         </div>
 
 
@@ -1306,7 +1299,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Bewaar dit bericht voor je administratie.
+                            {{ __('Bewaar dit bericht voor je administratie.') }}
                         </div>
 
 
@@ -1341,9 +1334,7 @@
                     text-align: center;
                 "
             >
-                Orderbevestiging van Mashal Automotive.
-                Gebruik het bestelnummer hierboven wanneer je contact opneemt
-                over deze bestelling.
+                {{ __('Orderbevestiging van Mashal Automotive. Gebruik het bestelnummer hierboven wanneer je contact opneemt over deze bestelling.') }}
             </div>
 
         </td>
