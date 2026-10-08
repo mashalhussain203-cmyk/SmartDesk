@@ -540,6 +540,179 @@
         white-space: pre-line;
     }
 
+    .yts-counter-actions {
+        max-width: 1040px;
+        margin: 14px auto 0;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .yts-action-button {
+        min-height: 40px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 11px;
+        color: #a4abb5;
+        background: rgba(255,255,255,.025);
+        font-size: 9px;
+        font-weight: 820;
+        cursor: pointer;
+    }
+
+    .yts-action-button:hover {
+        border-color: rgba(255,83,99,.24);
+        color: #f0f2f5;
+    }
+
+    .yts-tool-panel {
+        max-width: 1040px;
+        margin: 14px auto 0;
+        padding: 18px;
+        border: 1px solid var(--yts-line);
+        border-radius: 18px;
+        background: rgba(12,15,20,.92);
+    }
+
+    .yts-tool-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 13px;
+    }
+
+    .yts-tool-panel-head strong {
+        color: #eef1f5;
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    .yts-tool-panel-head span {
+        color: #68717e;
+        font-size: 8px;
+    }
+
+    .yts-compare-search {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto;
+        gap: 8px;
+    }
+
+    .yts-compare-input,
+    .yts-embed-code {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 12px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 11px;
+        outline: 0;
+        color: #e9edf2;
+        background: rgba(255,255,255,.02);
+        font-size: 10px;
+    }
+
+    .yts-compare-results {
+        margin-top: 9px;
+        display: grid;
+        gap: 6px;
+    }
+
+    .yts-compare-result {
+        width: 100%;
+        min-height: 50px;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 11px;
+        color: #dfe3e8;
+        background: rgba(255,255,255,.015);
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .yts-compare-result img {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #171c24;
+    }
+
+    .yts-compare-result strong {
+        display: block;
+        font-size: 10px;
+    }
+
+    .yts-compare-result small {
+        display: block;
+        margin-top: 2px;
+        color: #697281;
+        font-size: 7px;
+    }
+
+    .yts-compare-board {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 10px;
+    }
+
+    .yts-compare-side {
+        min-width: 0;
+        padding: 14px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 14px;
+        background: rgba(255,255,255,.015);
+    }
+
+    .yts-compare-side span {
+        display: block;
+        overflow: hidden;
+        color: #7a8491;
+        font-size: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .yts-compare-side strong {
+        display: block;
+        margin-top: 8px;
+        color: #fff;
+        font-size: clamp(24px, 4vw, 38px);
+        line-height: 1;
+        letter-spacing: -.04em;
+    }
+
+    .yts-compare-delta {
+        margin-top: 10px;
+        color: #7adea4;
+        font-size: 9px;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .yts-embed-row {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto;
+        gap: 8px;
+    }
+
+    .yts-embed-code {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        resize: vertical;
+        min-height: 72px;
+        line-height: 1.45;
+    }
+
     @media (max-width: 780px) {
         .yts-search {
             grid-template-columns: 1fr;
@@ -550,6 +723,12 @@
         }
 
         .yts-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .yts-compare-search,
+        .yts-embed-row,
+        .yts-compare-board {
             grid-template-columns: 1fr;
         }
 
@@ -677,6 +856,61 @@
             </div>
         </div>
 
+        <div class="yts-counter-actions" id="yts-counter-actions" hidden>
+            <button class="yts-action-button" id="yts-change-user" type="button">↺ Change User</button>
+            <button class="yts-action-button" id="yts-compare-toggle" type="button">⇄ Compare</button>
+            <button class="yts-action-button" id="yts-embed-toggle" type="button">&lt;/&gt; Embed</button>
+        </div>
+
+        <section class="yts-tool-panel" id="yts-compare-panel" hidden>
+            <div class="yts-tool-panel-head">
+                <strong>Compare channels</strong>
+                <span>Live subscriber counts</span>
+            </div>
+
+            <div class="yts-compare-search">
+                <input
+                    class="yts-compare-input"
+                    id="yts-compare-query"
+                    type="text"
+                    maxlength="255"
+                    placeholder="Zoek tweede kanaal…"
+                    autocomplete="off"
+                >
+                <button class="yts-action-button" id="yts-compare-search" type="button">
+                    Zoek →
+                </button>
+            </div>
+
+            <div class="yts-compare-results" id="yts-compare-results"></div>
+
+            <div class="yts-compare-board" id="yts-compare-board" hidden>
+                <div class="yts-compare-side">
+                    <span id="yts-compare-a-name">Current channel</span>
+                    <strong id="yts-compare-a-count">0</strong>
+                </div>
+                <div class="yts-compare-side">
+                    <span id="yts-compare-b-name">Second channel</span>
+                    <strong id="yts-compare-b-count">0</strong>
+                </div>
+            </div>
+            <div class="yts-compare-delta" id="yts-compare-delta"></div>
+        </section>
+
+        <section class="yts-tool-panel" id="yts-embed-panel" hidden>
+            <div class="yts-tool-panel-head">
+                <strong>Embed live subscriber count</strong>
+                <span>Gebruik je eigen Mashal counter</span>
+            </div>
+
+            <div class="yts-embed-row">
+                <textarea class="yts-embed-code" id="yts-embed-code" readonly></textarea>
+                <button class="yts-action-button" id="yts-embed-copy" type="button">
+                    Copy
+                </button>
+            </div>
+        </section>
+
         <div class="yts-extras" id="yts-extras" hidden>
             <div class="yts-card yts-extra-card">
                 <div class="yts-extra-head">
@@ -767,6 +1001,23 @@
     var gainedEl = document.getElementById('yts-gained');
     var perMinuteEl = document.getElementById('yts-per-minute');
     var samplesEl = document.getElementById('yts-samples');
+    var counterActions = document.getElementById('yts-counter-actions');
+    var changeUserButton = document.getElementById('yts-change-user');
+    var compareToggle = document.getElementById('yts-compare-toggle');
+    var embedToggle = document.getElementById('yts-embed-toggle');
+    var comparePanel = document.getElementById('yts-compare-panel');
+    var compareQuery = document.getElementById('yts-compare-query');
+    var compareSearchButton = document.getElementById('yts-compare-search');
+    var compareResults = document.getElementById('yts-compare-results');
+    var compareBoard = document.getElementById('yts-compare-board');
+    var compareAName = document.getElementById('yts-compare-a-name');
+    var compareACount = document.getElementById('yts-compare-a-count');
+    var compareBName = document.getElementById('yts-compare-b-name');
+    var compareBCount = document.getElementById('yts-compare-b-count');
+    var compareDelta = document.getElementById('yts-compare-delta');
+    var embedPanel = document.getElementById('yts-embed-panel');
+    var embedCode = document.getElementById('yts-embed-code');
+    var embedCopy = document.getElementById('yts-embed-copy');
 
     var currentChannel = null;
     var refreshTimer = null;
@@ -778,6 +1029,8 @@
     var historyPoints = [];
     var sessionStartedAt = null;
     var firstSubscriberValue = null;
+    var compareChannel = null;
+    var compareTimer = null;
 
     function safeImage(url) {
         try {
@@ -952,6 +1205,147 @@
         drawChart();
     }
 
+    function buildEmbedCode(channelId) {
+        if (!channelId) {
+            return '';
+        }
+
+        var src = window.location.origin
+            + '/embed/youtube-subscribers/'
+            + encodeURIComponent(channelId);
+
+        return '<iframe src="' + src
+            + '" width="720" height="240" frameborder="0"'
+            + ' loading="lazy" allowtransparency="true"></iframe>';
+    }
+
+    function updateCompareDelta(a, b) {
+        var left = Number(a);
+        var right = Number(b);
+
+        if (!Number.isFinite(left) || !Number.isFinite(right)) {
+            compareDelta.textContent = '';
+            return;
+        }
+
+        var difference = Math.abs(Math.trunc(left - right));
+
+        compareDelta.textContent = difference.toLocaleString('en-US')
+            + ' subscribers verschil';
+    }
+
+    function loadCompareStats() {
+        if (!currentChannel || !compareChannel || document.hidden) {
+            return Promise.resolve();
+        }
+
+        return Promise.all([
+            fetchJson(
+                statsBase + '/' + encodeURIComponent(currentChannel)
+                    + '?_=' + encodeURIComponent(String(Date.now()))
+            ),
+            fetchJson(
+                statsBase + '/' + encodeURIComponent(compareChannel.id)
+                    + '?_=' + encodeURIComponent(String(Date.now()))
+            )
+        ]).then(function (pair) {
+            var first = pair[0];
+            var second = pair[1];
+
+            compareAName.textContent = first.title || name.textContent || currentChannel;
+            compareBName.textContent = second.title
+                || compareChannel.title
+                || compareChannel.id;
+            compareACount.textContent = Number(first.subscribers || 0)
+                .toLocaleString('en-US');
+            compareBCount.textContent = Number(second.subscribers || 0)
+                .toLocaleString('en-US');
+            updateCompareDelta(first.subscribers, second.subscribers);
+            compareBoard.hidden = false;
+        }).catch(function () {});
+    }
+
+    function selectCompareChannel(channel) {
+        if (!channel || !channel.id || channel.id === currentChannel) {
+            return;
+        }
+
+        compareChannel = channel;
+        compareResults.innerHTML = '';
+        compareBName.textContent = channel.title || channel.id;
+        compareBoard.hidden = false;
+
+        if (compareTimer) {
+            window.clearInterval(compareTimer);
+        }
+
+        loadCompareStats();
+        compareTimer = window.setInterval(loadCompareStats, 5000);
+    }
+
+    function renderCompareResults(channels) {
+        compareResults.innerHTML = '';
+
+        (Array.isArray(channels) ? channels : []).forEach(function (channel) {
+            if (!channel || !channel.id || channel.id === currentChannel) {
+                return;
+            }
+
+            var button = document.createElement('button');
+            var image = document.createElement('img');
+            var copy = document.createElement('span');
+            var title = document.createElement('strong');
+            var id = document.createElement('small');
+
+            button.type = 'button';
+            button.className = 'yts-compare-result';
+
+            image.alt = '';
+            image.referrerPolicy = 'no-referrer';
+            image.src = safeImage(channel.avatar)
+                || '/icons/follower-profile.svg?v=1';
+
+            title.textContent = channel.title || 'YouTube channel';
+            id.textContent = channel.id;
+
+            copy.appendChild(title);
+            copy.appendChild(id);
+            button.appendChild(image);
+            button.appendChild(copy);
+
+            button.addEventListener('click', function () {
+                selectCompareChannel(channel);
+            });
+
+            compareResults.appendChild(button);
+        });
+    }
+
+    function searchCompareChannel() {
+        var query = compareQuery.value.trim();
+
+        if (query.length < 2) {
+            return;
+        }
+
+        compareSearchButton.disabled = true;
+        compareSearchButton.textContent = 'Zoeken…';
+
+        fetchJson(
+            lookupUrl + '?' + new URLSearchParams({ query: query }).toString()
+        )
+            .then(function (data) {
+                renderCompareResults(data.channels || []);
+            })
+            .catch(function () {
+                compareResults.innerHTML = '';
+            })
+            .finally(function () {
+                compareSearchButton.disabled = false;
+                compareSearchButton.textContent = 'Zoek →';
+            });
+    }
+
     function renderChannel(channel) {
         if (!channel || !channel.id) {
             return;
@@ -961,6 +1355,14 @@
         extras.hidden = false;
         empty.hidden = true;
         currentChannel = channel.id;
+        counterActions.hidden = false;
+        embedCode.value = buildEmbedCode(channel.id);
+
+        if (compareChannel && compareChannel.id === channel.id) {
+            compareChannel = null;
+            compareBoard.hidden = true;
+            compareDelta.textContent = '';
+        }
 
         if (channel.title) {
             name.textContent = channel.title;
@@ -1219,9 +1621,76 @@
         }, 420);
     });
 
+    changeUserButton.addEventListener('click', function () {
+        input.focus();
+        input.select();
+        window.scrollTo({
+            top: Math.max(0, input.getBoundingClientRect().top + window.scrollY - 120),
+            behavior: 'smooth'
+        });
+    });
+
+    compareToggle.addEventListener('click', function () {
+        comparePanel.hidden = !comparePanel.hidden;
+        embedPanel.hidden = true;
+
+        if (!comparePanel.hidden) {
+            compareQuery.focus();
+            if (compareChannel) {
+                loadCompareStats();
+            }
+        }
+    });
+
+    embedToggle.addEventListener('click', function () {
+        embedPanel.hidden = !embedPanel.hidden;
+        comparePanel.hidden = true;
+
+        if (!embedPanel.hidden && currentChannel) {
+            embedCode.value = buildEmbedCode(currentChannel);
+        }
+    });
+
+    compareSearchButton.addEventListener('click', searchCompareChannel);
+
+    compareQuery.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            searchCompareChannel();
+        }
+    });
+
+    embedCopy.addEventListener('click', function () {
+        if (!embedCode.value) {
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(embedCode.value)
+                .then(function () {
+                    embedCopy.textContent = 'Copied';
+                    window.setTimeout(function () {
+                        embedCopy.textContent = 'Copy';
+                    }, 1200);
+                })
+                .catch(function () {
+                    embedCode.focus();
+                    embedCode.select();
+                });
+            return;
+        }
+
+        embedCode.focus();
+        embedCode.select();
+    });
+
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden && currentChannel) {
             loadStats();
+
+            if (compareChannel) {
+                loadCompareStats();
+            }
         }
     });
 
