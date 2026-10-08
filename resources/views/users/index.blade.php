@@ -3080,7 +3080,7 @@
 
 
 
-                Gebruikersbeheer
+                {{ __('Gebruikersbeheer') }}
 
 
 
@@ -3092,15 +3092,7 @@
 
 
 
-                Bekijk en beheer alle geregistreerde Mashal-accounts,
-
-
-
-                controleer loginmethodes en verificatiestatussen, pas rollen aan
-
-
-
-                en open individuele accounts voor verdere wijzigingen.
+                {{ __('Bekijk en beheer alle geregistreerde Mashal-accounts, controleer loginmethodes en verificatiestatussen, pas rollen aan en open individuele accounts voor verdere wijzigingen.') }}
 
 
 
@@ -3158,7 +3150,7 @@
 
                     <div class="users-hero-side-label">
 
-                        Beheeromgeving
+                        {{ __('Beheeromgeving') }}
 
                     </div>
 
@@ -3170,9 +3162,7 @@
 
                     <span>
 
-                        Beheer profielen, profielfoto's, loginmethodes,
-
-                        verificatie en rollen vanuit één centrale omgeving.
+                        {{ __('Beheer profielen, profielfoto\'s, loginmethodes, verificatie en rollen vanuit één centrale omgeving.') }}
 
                     </span>
 
@@ -3202,7 +3192,7 @@
 
 
 
-                    + Nieuwe gebruiker
+                    {{ __('+ Nieuwe gebruiker') }}
 
 
 
@@ -3226,7 +3216,7 @@
 
 
 
-                    Dashboard
+                    {{ __('Dashboard') }}
 
 
 
@@ -3286,7 +3276,7 @@
 
 
 
-                Totaal gebruikers
+                {{ __('Totaal gebruikers') }}
 
 
 
@@ -3310,7 +3300,7 @@
 
 
 
-                Alle geregistreerde Mashal-accounts
+                {{ __('Alle geregistreerde Mashal-accounts') }}
 
 
 
@@ -3346,7 +3336,7 @@
 
 
 
-                Geverifieerd
+                {{ __('Geverifieerd') }}
 
 
 
@@ -3370,7 +3360,7 @@
 
 
 
-                Accounts met bevestigd e-mailadres
+                {{ __('Accounts met bevestigd e-mailadres') }}
 
 
 
@@ -3406,7 +3396,7 @@
 
 
 
-                Niet geverifieerd
+                {{ __('Niet geverifieerd') }}
 
 
 
@@ -3430,7 +3420,7 @@
 
 
 
-                Accounts waarvoor verificatie nog openstaat
+                {{ __('Accounts waarvoor verificatie nog openstaat') }}
 
 
 
@@ -3466,7 +3456,7 @@
 
 
 
-                Administrators
+                {{ __('Administrators') }}
 
 
 
@@ -3490,7 +3480,7 @@
 
 
 
-                Accounts met toegang tot beheerfuncties
+                {{ __('Accounts met toegang tot beheerfuncties') }}
 
 
 
@@ -3510,7 +3500,7 @@
 
 
 
-                Profielfoto's
+                {{ __('Profielfoto\'s') }}
 
 
 
@@ -3534,7 +3524,7 @@
 
 
 
-                Accounts met een eigen geüploade profielfoto
+                {{ __('Accounts met een eigen geüploade profielfoto') }}
 
 
 
@@ -3670,7 +3660,7 @@
 
 
 
-                Alles
+                {{ __('Alles') }}
 
 
 
@@ -3698,7 +3688,7 @@
 
 
 
-                Geverifieerd
+                {{ __('Geverifieerd') }}
 
 
 
@@ -3726,7 +3716,7 @@
 
 
 
-                Niet geverifieerd
+                {{ __('Niet geverifieerd') }}
 
 
 
@@ -3754,7 +3744,7 @@
 
 
 
-                Admins
+                {{ __('Admins') }}
 
 
 
@@ -3826,7 +3816,7 @@
 
 
 
-                Wachtwoord
+                {{ __('Wachtwoord') }}
 
 
 
@@ -3838,7 +3828,7 @@
 
 
 
-                Met profielfoto
+                {{ __('Met profielfoto') }}
 
 
 
@@ -3850,7 +3840,7 @@
 
 
 
-                Social avatar
+                {{ __('Social avatar') }}
 
 
 
@@ -3914,31 +3904,31 @@
 
 
 
-                        <th>Gebruiker</th>
+                        <th>{{ __('Gebruiker') }}</th>
 
 
 
-                        <th>E-mailadres</th>
+                        <th>{{ __('E-mailadres') }}</th>
 
 
 
-                        <th>Login via</th>
+                        <th>{{ __('Login via') }}</th>
 
 
 
-                        <th>Rol</th>
+                        <th>{{ __('Rol') }}</th>
 
 
 
-                        <th>Verificatie</th>
+                        <th>{{ __('Verificatie') }}</th>
 
 
 
-                        <th>Toegevoegd</th>
+                        <th>{{ __('Toegevoegd') }}</th>
 
 
 
-                        <th>Acties</th>
+                        <th>{{ __('Acties') }}</th>
 
 
 
@@ -4102,7 +4092,7 @@
 
 
 
-                                                Eigen profielfoto
+                                                {{ __('Eigen profielfoto') }}
 
 
 
@@ -4118,7 +4108,7 @@
 
 
 
-                                                Social avatar
+                                                {{ __('Social avatar') }}
 
 
 
@@ -4134,7 +4124,7 @@
 
 
 
-                                                Initialen
+                                                {{ __('Initialen') }}
 
 
 
@@ -4170,7 +4160,7 @@
 
 
 
-                                                Dit ben jij
+                                                {{ __('Dit ben jij') }}
 
 
 
@@ -4434,7 +4424,7 @@
 
 
 
-                                        Administrator
+                                        {{ __('Administrator') }}
 
 
 
@@ -4450,7 +4440,7 @@
 
 
 
-                                        Gebruiker
+                                        {{ __('Gebruiker') }}
 
 
 
@@ -4498,7 +4488,7 @@
 
 
 
-                                        Geverifieerd
+                                        {{ __('Geverifieerd') }}
 
 
 
@@ -4526,7 +4516,7 @@
 
 
 
-                                        Niet geverifieerd
+                                        {{ __('Niet geverifieerd') }}
 
 
 
@@ -4662,7 +4652,7 @@
 
 
 
-                                        Wijzigen
+                                        {{ __('Wijzigen') }}
 
 
 
@@ -4758,7 +4748,7 @@
 
 
 
-                                            Eigen account
+                                            {{ __('Eigen account') }}
 
 
 
@@ -4826,7 +4816,7 @@
 
 
 
-                                        Nog geen gebruikers
+                                        {{ __('Nog geen gebruikers') }}
 
 
 
@@ -4910,7 +4900,7 @@
 
 
 
-                Zichtbaar:
+                {{ __('Zichtbaar:') }}
 
 
 
@@ -4962,7 +4952,7 @@
 
 
 
-            Geen gebruikers gevonden met deze zoekopdracht of filter.
+            {{ __('Geen gebruikers gevonden met deze zoekopdracht of filter.') }}
 
 
 
@@ -5026,7 +5016,7 @@
 
 
 
-                Beheerrechten
+                {{ __('Beheerrechten') }}
 
 
 
