@@ -5,26 +5,30 @@ namespace App\Http\Controllers;
 use App\Services\YouTubeLiveCountsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 use Throwable;
 
 class YouTubeSubscriberController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
-        return view('tools.youtube-subscribers');
+        return $this->noStorePage(
+            response()->view('tools.youtube-subscribers')
+        );
     }
 
-    public function show(string $channelId): View
+    public function show(string $channelId): Response
     {
         abort_unless(
             preg_match('/^UC[A-Za-z0-9_-]{22}$/', $channelId) === 1,
             404
         );
 
-        return view('tools.youtube-subscribers', [
-            'initialChannelId' => $channelId,
-        ]);
+        return $this->noStorePage(
+            response()->view('tools.youtube-subscribers', [
+                'initialChannelId' => $channelId,
+            ])
+        );
     }
 
     public function lookup(
@@ -116,6 +120,18 @@ class YouTubeSubscriberController extends Controller
                 ], 502)
             );
         }
+    }
+
+    private function noStorePage(Response $response): Response
+    {
+        return $response
+            ->header(
+                'Cache-Control',
+                'no-store, no-cache, must-revalidate, max-age=0, private'
+            )
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0')
+            ->header('Surrogate-Control', 'no-store');
     }
 
     private function noStore(JsonResponse $response): JsonResponse
