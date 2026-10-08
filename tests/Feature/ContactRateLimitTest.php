@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\GmailLiveChatService;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
@@ -16,6 +17,9 @@ class ContactRateLimitTest extends TestCase
             'session.driver' => 'array',
             'app.locale' => 'nl',
         ]);
+
+        // Avoid contacting Gmail when the controller is resolved during tests.
+        $this->mock(GmailLiveChatService::class);
     }
 
     public function test_contact_page_is_accessible_to_guests_without_a_get_rate_limit(): void
