@@ -1751,7 +1751,7 @@
 
     <main class="glass-stage">
         <h1 class="glass-poster-title">
-            Glassy Login
+            {{ __('Glassy Login') }}
             <span>Mashal Studio</span>
         </h1>
 
@@ -1768,7 +1768,7 @@
                         </div>
 
                         <h2 class="glass-heading">
-                            {{ __('Secure') }} <strong>Access</strong>
+                            {{ __('Secure') }} <strong>{{ __('Access') }}</strong>
                         </h2>
 
                         <p class="glass-description">
