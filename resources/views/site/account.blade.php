@@ -2267,7 +2267,7 @@
                         </article>
 
                         <article class="security-card">
-                            <small>Password</small>
+                            <small>{{ __('Password') }}</small>
                             <strong>{{ __('Persoonlijk wachtwoord') }}</strong>
                             <p>
                                 {{ __('Je kunt je wachtwoord hierboven wijzigen zonder afbeeldingsprojecten of versies kwijt te raken.') }}
