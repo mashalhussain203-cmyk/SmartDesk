@@ -1488,7 +1488,7 @@ let identity = null;
 
 
 
-            : 'De invoer is ongeldig.';
+            : (window.smartDeskTranslate ? window.smartDeskTranslate("De invoer is ongeldig.") : "De invoer is ongeldig.");
 
 
 
@@ -1672,7 +1672,7 @@ let identity = null;
 
 
 
-                    'De verbinding duurt te lang. Probeer opnieuw.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("De verbinding duurt te lang. Probeer opnieuw.") : "De verbinding duurt te lang. Probeer opnieuw.")
 
 
 
@@ -1712,7 +1712,7 @@ let identity = null;
 
 
 
-                    'Je internetverbinding is weggevallen.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Je internetverbinding is weggevallen.") : "Je internetverbinding is weggevallen.")
 
 
 
@@ -1732,7 +1732,7 @@ let identity = null;
 
 
 
-                'Live chat kon geen verbinding maken met de server.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Live chat kon geen verbinding maken met de server.") : "Live chat kon geen verbinding maken met de server.")
 
 
 
@@ -1832,7 +1832,7 @@ let identity = null;
 
 
 
-                'Je sessie is verlopen. Vernieuw de pagina voordat je verdergaat.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Je sessie is verlopen. Vernieuw de pagina voordat je verdergaat.") : "Je sessie is verlopen. Vernieuw de pagina voordat je verdergaat.")
 
 
 
@@ -1884,7 +1884,7 @@ let identity = null;
 
 
 
-                'Dit gesprek is gesloten of gewijzigd.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek is gesloten of gewijzigd.") : "Dit gesprek is gesloten of gewijzigd.")
 
 
 
@@ -1908,7 +1908,7 @@ let identity = null;
 
 
 
-                'Te veel verzoeken. Wacht even en probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Te veel verzoeken. Wacht even en probeer opnieuw.") : "Te veel verzoeken. Wacht even en probeer opnieuw.")
 
 
 
@@ -1936,7 +1936,7 @@ let identity = null;
 
 
 
-                'Dit gesprek of bericht bestaat niet meer.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek of bericht bestaat niet meer.") : "Dit gesprek of bericht bestaat niet meer.")
 
 
 
@@ -1960,7 +1960,7 @@ let identity = null;
 
 
 
-            'Live chat is tijdelijk niet bereikbaar. Probeer opnieuw.'
+            (window.smartDeskTranslate ? window.smartDeskTranslate("Live chat is tijdelijk niet bereikbaar. Probeer opnieuw.") : "Live chat is tijdelijk niet bereikbaar. Probeer opnieuw.")
 
 
 
@@ -2399,7 +2399,7 @@ let identity = null;
 
 
 
-            'Bestand openen';
+            (window.smartDeskTranslate ? window.smartDeskTranslate("Bestand openen") : "Bestand openen");
 
 
 
@@ -2933,7 +2933,7 @@ let identity = null;
         };
         actions.append(actionButton('↩','Beantwoorden',()=>{
             replyTarget={id,label:message.body||message.attachment_name||'bericht'};
-            input.focus(); setStatus('Je antwoordt op: '+replyTarget.label);
+            input.focus(); setStatus((window.smartDeskTranslate ? window.smartDeskTranslate("Je antwoordt op: ") : "Je antwoordt op: ")+replyTarget.label);
         }));
         ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji=>{
             const count=Number(message.reactions?.[emoji]||0);
@@ -2951,7 +2951,7 @@ let identity = null;
         if (message.sender === 'visitor') {
             if (message.body) {
                 actions.append(actionButton('Bewerken','Bericht bewerken (max. 5 minuten)',async()=>{
-                    const body=window.prompt('Bericht bewerken:',message.body);
+                    const body=window.prompt((window.smartDeskTranslate ? window.smartDeskTranslate("Bericht bewerken:") : "Bericht bewerken:"),message.body);
                     if(body===null||!body.trim())return;
                     try{await api(`${live.dataset.store}/${id}`,'PATCH',{body:body.trim()});lastMessageId=0;seen.clear();log.replaceChildren();await poll(true);}catch(e){showError(e.message);}
                 }));
@@ -3316,7 +3316,7 @@ let identity = null;
 
 
 
-                    'Je huidige gesprek wordt geladen…'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Je huidige gesprek wordt geladen…") : "Je huidige gesprek wordt geladen…")
 
 
 
@@ -3520,7 +3520,7 @@ let identity = null;
 
 
 
-                    'Dit gesprek gaat verder via e-mail'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek gaat verder via e-mail") : "Dit gesprek gaat verder via e-mail")
 
 
 
@@ -3560,7 +3560,7 @@ let identity = null;
 
 
 
-                    'Dit gesprek is afgesloten. Je kunt het opnieuw openen.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Dit gesprek is afgesloten. Je kunt het opnieuw openen.") : "Dit gesprek is afgesloten. Je kunt het opnieuw openen.")
 
 
 
@@ -3576,7 +3576,7 @@ let identity = null;
 
 
 
-                    'Er is een medewerker beschikbaar. Stuur gerust je bericht.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Er is een medewerker beschikbaar. Stuur gerust je bericht.") : "Er is een medewerker beschikbaar. Stuur gerust je bericht.")
 
 
 
@@ -3592,7 +3592,7 @@ let identity = null;
 
 
 
-                    'Er is nu geen medewerker beschikbaar. Laat een bericht achter en kom later terug in deze chat.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Er is nu geen medewerker beschikbaar. Laat een bericht achter en kom later terug in deze chat.") : "Er is nu geen medewerker beschikbaar. Laat een bericht achter en kom later terug in deze chat.")
 
 
 
@@ -3676,7 +3676,7 @@ let identity = null;
 
 
 
-                'Live chat kon niet worden bijgewerkt.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Live chat kon niet worden bijgewerkt.") : "Live chat kon niet worden bijgewerkt.")
 
 
 
@@ -4024,7 +4024,7 @@ let identity = null;
 
 
 
-                    ? 'Geen bevestiging ontvangen. Probeer opnieuw.'
+                    ? (window.smartDeskTranslate ? window.smartDeskTranslate("Geen bevestiging ontvangen. Probeer opnieuw.") : "Geen bevestiging ontvangen. Probeer opnieuw.")
 
 
 
@@ -4032,7 +4032,7 @@ let identity = null;
 
 
 
-                      'Het bericht kon niet worden verstuurd.'
+                      (window.smartDeskTranslate ? window.smartDeskTranslate("Het bericht kon niet worden verstuurd.") : "Het bericht kon niet worden verstuurd.")
 
 
 
@@ -4226,7 +4226,7 @@ let identity = null;
 
 
 
-                'Mashal support';
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Mashal support") : "Mashal support");
 
 
 
@@ -4246,7 +4246,7 @@ let identity = null;
 
 
 
-                'Live contact met een medewerker';
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Live contact met een medewerker") : "Live contact met een medewerker");
 
 
 
@@ -4388,7 +4388,7 @@ let identity = null;
 
 
 
-                'Het gekozen bestand is ongeldig.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Het gekozen bestand is ongeldig.") : "Het gekozen bestand is ongeldig.")
 
 
 
@@ -4412,7 +4412,7 @@ let identity = null;
 
 
 
-                'Het gekozen bestand is leeg.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Het gekozen bestand is leeg.") : "Het gekozen bestand is leeg.")
 
 
 
@@ -4438,8 +4438,8 @@ let identity = null;
         if (file.size > maxSize) {
             throw new Error(
                 video
-                    ? 'De video is te groot. Maximaal 1 GB toegestaan.'
-                    : 'Het bestand is te groot. Maximaal 20 MB toegestaan.'
+                    ? (window.smartDeskTranslate ? window.smartDeskTranslate("De video is te groot. Maximaal 1 GB toegestaan.") : "De video is te groot. Maximaal 1 GB toegestaan.")
+                    : (window.smartDeskTranslate ? window.smartDeskTranslate("Het bestand is te groot. Maximaal 20 MB toegestaan.") : "Het bestand is te groot. Maximaal 20 MB toegestaan.")
             );
         }
 
@@ -5053,7 +5053,7 @@ let identity = null;
 
 
 
-            'Spraakbericht opnemen';
+            (window.smartDeskTranslate ? window.smartDeskTranslate("Spraakbericht opnemen") : "Spraakbericht opnemen");
 
 
 
@@ -5381,7 +5381,7 @@ let identity = null;
 
 
 
-                'De opname bevat geen gegevens. Probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("De opname bevat geen gegevens. Probeer opnieuw.") : "De opname bevat geen gegevens. Probeer opnieuw.")
 
 
 
@@ -5445,7 +5445,7 @@ let identity = null;
 
 
 
-                'Het spraakbericht is leeg. Probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Het spraakbericht is leeg. Probeer opnieuw.") : "Het spraakbericht is leeg. Probeer opnieuw.")
 
 
 
@@ -5489,7 +5489,7 @@ let identity = null;
 
 
 
-                'Het spraakbericht is te groot. Maximaal 15 MB toegestaan.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Het spraakbericht is te groot. Maximaal 15 MB toegestaan.") : "Het spraakbericht is te groot. Maximaal 15 MB toegestaan.")
 
 
 
@@ -5697,7 +5697,7 @@ let identity = null;
 
 
 
-                'Spraakopname wordt niet ondersteund in deze browser.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Spraakopname wordt niet ondersteund in deze browser.") : "Spraakopname wordt niet ondersteund in deze browser.")
 
 
 
@@ -5997,7 +5997,7 @@ let identity = null;
 
 
 
-                        'Er ging iets mis tijdens de spraakopname.'
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Er ging iets mis tijdens de spraakopname.") : "Er ging iets mis tijdens de spraakopname.")
 
 
 
@@ -6121,7 +6121,7 @@ let identity = null;
 
 
 
-                'Opname stoppen en versturen';
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Opname stoppen en versturen") : "Opname stoppen en versturen");
 
 
 
@@ -6261,7 +6261,7 @@ let identity = null;
 
 
 
-                    'Microfoontoegang is geweigerd. Sta microfoontoegang toe in je browser.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Microfoontoegang is geweigerd. Sta microfoontoegang toe in je browser.") : "Microfoontoegang is geweigerd. Sta microfoontoegang toe in je browser.")
 
 
 
@@ -6305,7 +6305,7 @@ let identity = null;
 
 
 
-                    'Er is geen microfoon gevonden.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Er is geen microfoon gevonden.") : "Er is geen microfoon gevonden.")
 
 
 
@@ -6349,7 +6349,7 @@ let identity = null;
 
 
 
-                    'De microfoon kan momenteel niet worden gebruikt.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("De microfoon kan momenteel niet worden gebruikt.") : "De microfoon kan momenteel niet worden gebruikt.")
 
 
 
@@ -6377,7 +6377,7 @@ let identity = null;
 
 
 
-                'Microfoontoegang is niet beschikbaar.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Microfoontoegang is niet beschikbaar.") : "Microfoontoegang is niet beschikbaar.")
 
 
 
@@ -6768,7 +6768,7 @@ let identity = null;
                 }
             }
         }
-        throw lastError || new Error('Een videodeel kon niet worden geüpload.');
+        throw lastError || new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Een videodeel kon niet worden geüpload.") : "Een videodeel kon niet worden geüpload."));
     }
 
     async function uploadVideoInChunks(file) {
@@ -6804,7 +6804,7 @@ let identity = null;
                 });
                 uploadId = String(started.upload_id || '');
                 if (!uploadId) {
-                    throw new Error('De video-upload kon niet worden gestart.');
+                    throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("De video-upload kon niet worden gestart.") : "De video-upload kon niet worden gestart."));
                 }
                 window.localStorage.setItem(storageKey, uploadId);
                 state = await api(visitorUploadUrl(`/${uploadId}`));
@@ -6831,14 +6831,14 @@ let identity = null;
                 setStatus(`Video uploaden… ${percent}%`);
             }
 
-            setStatus('Video verwerken…');
+            setStatus((window.smartDeskTranslate ? window.smartDeskTranslate("Video verwerken…") : "Video verwerken…"));
             await api(visitorUploadUrl(`/${uploadId}/complete`), 'POST', {});
             window.localStorage.removeItem(storageKey);
             await poll(true);
-            setStatus('Video verstuurd.');
+            setStatus((window.smartDeskTranslate ? window.smartDeskTranslate("Video verstuurd.") : "Video verstuurd."));
             return true;
         } catch (exception) {
-            showError(exception?.message || 'De video kon niet worden verstuurd.');
+            showError(exception?.message || (window.smartDeskTranslate ? window.smartDeskTranslate("De video kon niet worden verstuurd.") : "De video kon niet worden verstuurd."));
             return false;
         } finally {
             sending = false;
@@ -6877,7 +6877,7 @@ let identity = null;
     cameraButton.addEventListener('click',()=>cameraInput.click());
     cameraInput.addEventListener('change',async()=>{const f=cameraInput.files?.[0];cameraInput.value='';if(f)await handleSelectedFiles([f]);});
     const pauseUploadButton=document.createElement('button'); pauseUploadButton.type='button'; pauseUploadButton.className='lc-tool'; pauseUploadButton.textContent='⏸'; pauseUploadButton.title='Video-upload pauzeren/hervatten'; voiceButton.parentElement?.insertBefore(pauseUploadButton,voiceButton);
-    pauseUploadButton.addEventListener('click',()=>{uploadPaused=!uploadPaused;pauseUploadButton.textContent=uploadPaused?'▶':'⏸';setStatus(uploadPaused?'Video-upload gepauzeerd.':'Video-upload hervat.');});
+    pauseUploadButton.addEventListener('click',()=>{uploadPaused=!uploadPaused;pauseUploadButton.textContent=uploadPaused?'▶':'⏸';setStatus(uploadPaused?'Video-upload gepauzeerd.':(window.smartDeskTranslate ? window.smartDeskTranslate("Video-upload hervat.") : "Video-upload hervat."));});
 
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(SpeechRecognition){
@@ -7169,7 +7169,7 @@ let identity = null;
 
 
 
-                    'Live medewerker kon niet worden geopend.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Live medewerker kon niet worden geopend.") : "Live medewerker kon niet worden geopend.")
 
 
 
@@ -7381,7 +7381,7 @@ let identity = null;
 
 
 
-                    'Verbinding hersteld. Gesprek wordt bijgewerkt…'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("Verbinding hersteld. Gesprek wordt bijgewerkt…") : "Verbinding hersteld. Gesprek wordt bijgewerkt…")
 
 
 
@@ -7437,7 +7437,7 @@ let identity = null;
 
 
 
-                'Je bent offline. Controleer je internetverbinding.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("Je bent offline. Controleer je internetverbinding.") : "Je bent offline. Controleer je internetverbinding.")
 
 
 
