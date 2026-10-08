@@ -8,7 +8,7 @@
         data-verify="{{ route($passkeyMode === 'login' ? 'passkeys.login.verify' : 'passkeys.register.verify', [], false) }}"
         data-list="{{ route('passkeys.index', [], false) }}"
         @if ($passkeyMode === 'login') hidden @endif
-        aria-label="Passkeys"
+        aria-label="{{ __('Passkeys') }}"
     >
         @if ($passkeyMode === 'manage')
             <h2>Face ID &amp; passkeys</h2>
