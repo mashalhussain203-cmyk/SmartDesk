@@ -1884,7 +1884,7 @@
 
     <main class="glass-stage">
         <h1 class="glass-poster-title">
-            Glassy Register
+            {{ __('Glassy Register') }}
             <span>Mashal Studio</span>
         </h1>
 
@@ -1902,7 +1902,7 @@
                         </div>
 
                         <h2 class="glass-heading">
-                            {{ __('Secure') }} <strong>Register</strong>
+                            {{ __('Secure') }} <strong>{{ __('Register') }}</strong>
                         </h2>
 
                         <p class="glass-description">
