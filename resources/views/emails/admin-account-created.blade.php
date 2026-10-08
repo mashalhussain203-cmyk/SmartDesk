@@ -452,7 +452,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        E-mailadres
+                                        {{ __('E-mailadres') }}
                                     </div>
 
                                     <div
@@ -531,7 +531,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        E-mailstatus
+                                        {{ __('E-mailstatus') }}
                                     </div>
 
                                     @if ($isVerified)
@@ -544,7 +544,7 @@
                                                 font-weight: 800;
                                             "
                                         >
-                                            Geverifieerd
+                                            {{ __('Geverifieerd') }}
                                         </div>
 
                                     @else
@@ -1321,7 +1321,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong
