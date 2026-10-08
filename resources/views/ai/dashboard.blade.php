@@ -146,15 +146,13 @@
 
             <div>
 
-                <div class="studio-kicker">Mashal AI Studio</div>
+                <div class="studio-kicker">{{ __('Mashal AI Studio') }}</div>
 
-                <h1>Alles op één plek</h1>
+                <h1>{{ __('Alles op één plek') }}</h1>
 
                 <p>
 
-                    Start een AI-taak, open een project, zoek door je chats en bestanden
-
-                    of controleer welke AI-functies beschikbaar zijn.
+                    {{ __('Start een AI-taak, open een project, zoek door je chats en bestanden of controleer welke AI-functies beschikbaar zijn.') }}
 
                 </p>
 
@@ -166,13 +164,13 @@
 
                 <a href="{{ route('ai.chat') }}" class="studio-primary">
 
-                    + Nieuwe AI-chat
+                    {{ __('+ Nieuwe AI-chat') }}
 
                 </a>
 
                 <button type="button" id="install-ai-app" class="install-button">
 
-                    Installeer app
+                    {{ __('Installeer app') }}
 
                 </button>
 
@@ -188,7 +186,7 @@
 
                 <strong>{{ $stats['conversations'] }}</strong>
 
-                <span>Chats</span>
+                <span>{{ __('Chats') }}</span>
 
             </div>
 
@@ -196,7 +194,7 @@
 
                 <strong>{{ $stats['projects'] }}</strong>
 
-                <span>Projecten</span>
+                <span>{{ __('Projecten') }}</span>
 
             </div>
 
@@ -204,7 +202,7 @@
 
                 <strong>{{ $stats['documents'] }}</strong>
 
-                <span>Projectbestanden</span>
+                <span>{{ __('Projectbestanden') }}</span>
 
             </div>
 
@@ -212,7 +210,7 @@
 
                 <strong>{{ $stats['runs_30d'] }}</strong>
 
-                <span>AI-runs laatste 30 dagen</span>
+                <span>{{ __('AI-runs laatste 30 dagen') }}</span>
 
             </div>
 
@@ -224,9 +222,9 @@
 
             <div class="studio-section-head">
 
-                <h2>Zoeken</h2>
+                <h2>{{ __('Zoeken') }}</h2>
 
-                <span>Chats + documenten</span>
+                <span>{{ __('Chats + documenten') }}</span>
 
             </div>
 
@@ -248,7 +246,7 @@
 
                 >
 
-                <button type="submit">Zoeken</button>
+                <button type="submit">{{ __('Zoeken') }}</button>
 
             </form>
 
@@ -260,7 +258,7 @@
 
                     <div class="panel">
 
-                        <div class="panel-head">Gevonden chats</div>
+                        <div class="panel-head">{{ __('Gevonden chats') }}</div>
 
                         @forelse(($searchResults['conversations'] ?? []) as $conversation)
 
@@ -274,13 +272,13 @@
 
                                 </div>
 
-                                <span class="badge">Chat</span>
+                                <span class="badge">{{ __('Chat') }}</span>
 
                             </a>
 
                         @empty
 
-                            <div class="empty">Geen chats gevonden.</div>
+                            <div class="empty">{{ __('Geen chats gevonden.') }}</div>
 
                         @endforelse
 
@@ -290,7 +288,7 @@
 
                     <div class="panel">
 
-                        <div class="panel-head">Gevonden bestanden</div>
+                        <div class="panel-head">{{ __('Gevonden bestanden') }}</div>
 
                         @forelse(($searchResults['documents'] ?? []) as $document)
 
@@ -304,13 +302,13 @@
 
                                 </div>
 
-                                <span class="badge">Bestand</span>
+                                <span class="badge">{{ __('Bestand') }}</span>
 
                             </div>
 
                         @empty
 
-                            <div class="empty">Geen bestanden gevonden.</div>
+                            <div class="empty">{{ __('Geen bestanden gevonden.') }}</div>
 
                         @endforelse
 
@@ -328,7 +326,7 @@
 
             <div class="studio-section-head">
 
-                <h2>AI Templates</h2>
+                <h2>{{ __('AI Templates') }}</h2>
 
                 <span>{{ count($templates) }} snelle starts</span>
 
@@ -370,7 +368,7 @@
 
             <div class="studio-section-head">
 
-                <h2>Recente activiteit</h2>
+                <h2>{{ __('Recente activiteit') }}</h2>
 
                 <span>
 
@@ -394,7 +392,7 @@
 
                 <div class="panel">
 
-                    <div class="panel-head">Recente chats</div>
+                    <div class="panel-head">{{ __('Recente chats') }}</div>
 
                     @forelse($recentConversations as $conversation)
 
@@ -414,7 +412,7 @@
 
                             @if($conversation->pinned)
 
-                                <span class="badge">Vastgezet</span>
+                                <span class="badge">{{ __('Vastgezet') }}</span>
 
                             @else
 
@@ -426,7 +424,7 @@
 
                     @empty
 
-                        <div class="empty">Nog geen opgeslagen gesprekken.</div>
+                        <div class="empty">{{ __('Nog geen opgeslagen gesprekken.') }}</div>
 
                     @endforelse
 
@@ -436,7 +434,7 @@
 
                 <div class="panel">
 
-                    <div class="panel-head">Projecten</div>
+                    <div class="panel-head">{{ __('Projecten') }}</div>
 
                     @forelse($projects as $project)
 
@@ -456,13 +454,13 @@
 
                             </div>
 
-                            <span class="badge">Project</span>
+                            <span class="badge">{{ __('Project') }}</span>
 
                         </a>
 
                     @empty
 
-                        <div class="empty">Nog geen projecten.</div>
+                        <div class="empty">{{ __('Nog geen projecten.') }}</div>
 
                     @endforelse
 
@@ -478,9 +476,9 @@
 
             <div class="studio-section-head">
 
-                <h2>Systeemstatus</h2>
+                <h2>{{ __('Systeemstatus') }}</h2>
 
-                <span>Configuratie van jouw AI-stack</span>
+                <span>{{ __('Configuratie van jouw AI-stack') }}</span>
 
             </div>
 
@@ -518,9 +516,9 @@
 
             <div class="studio-section-head">
 
-                <h2>Recente bestanden</h2>
+                <h2>{{ __('Recente bestanden') }}</h2>
 
-                <span>Projectkennis</span>
+                <span>{{ __('Projectkennis') }}</span>
 
             </div>
 

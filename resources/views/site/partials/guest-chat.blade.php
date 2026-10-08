@@ -3322,7 +3322,7 @@
 
             <span class="gc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z"/></svg></span>
 
-            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>Online</span></div><p class="gc-subtitle">Slimme hulp, direct in je workspace</p></div>
+            <div class="gc-title-wrap"><div class="gc-title-row"><h2 id="guest-chat-title">Mashal AI</h2><span class="gc-live-pill"><i></i>{{ __('Online') }}</span></div><p class="gc-subtitle">{{ __('Slimme hulp, direct in je workspace') }}</p></div>
 
             <div class="gc-actions">
 
@@ -3336,27 +3336,27 @@
 
         </header>
 
-        <div class="gc-reset-confirm" hidden><span>Dit gesprek wissen?</span><button type="button" data-reset-confirm>Wissen</button><button type="button" data-reset-cancel>Annuleren</button></div>
+        <div class="gc-reset-confirm" hidden><span>{{ __('Dit gesprek wissen?') }}</span><button type="button" data-reset-confirm>{{ __('Wissen') }}</button><button type="button" data-reset-cancel>{{ __('Annuleren') }}</button></div>
 
         <div class="gc-body">
 
             <div class="gc-welcome">
 
-                <p class="gc-eyebrow">MASHAL INTELLIGENCE</p>
+                <p class="gc-eyebrow">{{ __('MASHAL INTELLIGENCE') }}</p>
 
-                <h3>Wat wil je<br>bereiken?</h3>
+                <h3>{{ __('Wat wil je') }}<br>{{ __('bereiken?') }}</h3>
 
-                <p>Vraag iets, werk een idee uit of krijg direct hulp met Mashal Studio.</p>
+                <p>{{ __('Vraag iets, werk een idee uit of krijg direct hulp met Mashal Studio.') }}</p>
 
                 <div class="guest-chat__suggestions" aria-label="Voorbeeldvragen">
 
-                    <button type="button" data-question="Hoe kan ik een afbeelding uploaden en bewerken op Mashal Studio?"><span class="gc-topic">AFBEELDINGEN</span>Maak meer van je foto</button>
+                    <button type="button" data-question="Hoe kan ik een afbeelding uploaden en bewerken op Mashal Studio?"><span class="gc-topic">{{ __('AFBEELDINGEN') }}</span>{{ __('Maak meer van je foto') }}</button>
 
-                    <button type="button" data-question="Help mij een professionele e-mail schrijven."><span class="gc-topic">SCHRIJVEN</span>Vind de juiste woorden</button>
+                    <button type="button" data-question="Help mij een professionele e-mail schrijven."><span class="gc-topic">{{ __('SCHRIJVEN') }}</span>{{ __('Vind de juiste woorden') }}</button>
 
-                    <button type="button" data-question="Ik heb hulp nodig bij het inloggen op Mashal Studio."><span class="gc-topic">ACCOUNT</span>Hulp bij het inloggen</button>
+                    <button type="button" data-question="Ik heb hulp nodig bij het inloggen op Mashal Studio."><span class="gc-topic">{{ __('ACCOUNT') }}</span>{{ __('Hulp bij het inloggen') }}</button>
 
-                    <button type="button" data-question="Wat kan ik allemaal doen met Mashal Studio?"><span class="gc-topic">ONTDEKKEN</span>Leer de website kennen</button>
+                    <button type="button" data-question="Wat kan ik allemaal doen met Mashal Studio?"><span class="gc-topic">{{ __('ONTDEKKEN') }}</span>{{ __('Leer de website kennen') }}</button>
 
                 </div>
 
@@ -3368,7 +3368,7 @@
 
         <div class="gc-bottom">
 
-            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">Contact opnemen ↗</a><a href="{{ route('privacy') }}">Privacy</a></nav>
+            <nav class="gc-links" aria-label="Handige pagina's"><a href="{{ route('contact') }}">{{ __('Contact opnemen ↗') }}</a><a href="{{ route('privacy') }}">{{ __('Privacy') }}</a></nav>
 
             <form class="guest-chat__form">
 
@@ -3378,7 +3378,7 @@
 
             </form>
 
-            <p class="guest-chat__notice">AI kan fouten maken. Controleer belangrijke informatie.</p>
+            <p class="guest-chat__notice">{{ __('AI kan fouten maken. Controleer belangrijke informatie.') }}</p>
 
         </div>
 
@@ -3388,13 +3388,13 @@
 
                 data-show="{{ route('live-chat.show') }}" data-store="{{ route('live-chat.store') }}" data-reopen="{{ route('live-chat.reopen') }}">
 
-                <p class="lc-status" role="status">Beschikbaarheid controleren…</p>
+                <p class="lc-status" role="status">{{ __('Beschikbaarheid controleren…') }}</p>
 
                 <div class="lc-log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Gesprek met medewerker"></div>
 
                 <p class="lc-error" role="status" hidden></p>
 
-                <button type="button" class="lc-reopen" hidden>Gesprek opnieuw openen</button>
+                <button type="button" class="lc-reopen" hidden>{{ __('Gesprek opnieuw openen') }}</button>
 
                 <form class="guest-chat__form lc-form">
 
@@ -3436,8 +3436,8 @@
         </span>
 
         <span class="gc-launch-copy">
-            <strong>Mashal Support</strong>
-            <small>Stel een vraag of start live chat</small>
+            <strong>{{ __('Mashal Support') }}</strong>
+            <small>{{ __('Stel een vraag of start live chat') }}</small>
         </span>
 
         <span class="gc-launch-status" aria-hidden="true"></span>
@@ -3464,8 +3464,8 @@
         </span>
 
         <span>
-            <strong>Nieuw bericht</strong>
-            <span data-chat-toast-text>Je hebt een nieuw bericht ontvangen.</span>
+            <strong>{{ __('Nieuw bericht') }}</strong>
+            <span data-chat-toast-text>{{ __('Je hebt een nieuw bericht ontvangen.') }}</span>
         </span>
 
         <span class="gc-incoming-toast__dot" aria-hidden="true"></span>

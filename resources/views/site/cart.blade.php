@@ -843,9 +843,7 @@
                 </h1>
 
                 <p class="cart-description">
-                    Bekijk de modellen die je hebt geselecteerd,
-                    controleer aantallen en totaalbedrag
-                    en ga daarna veilig verder naar de Mashal-checkout.
+                    {{ __('Bekijk de modellen die je hebt geselecteerd, controleer aantallen en totaalbedrag en ga daarna veilig verder naar de Mashal-checkout.') }}
                 </p>
 
             </div>
@@ -910,7 +908,7 @@
                 </span>
 
                 <span>
-                    Checkout
+                    {{ __('Checkout') }}
                 </span>
 
             </div>
@@ -979,9 +977,7 @@
                 </h2>
 
                 <p>
-                    Je hebt nog geen auto toegevoegd.
-                    Ontdek de Mashal-collectie en kies een model
-                    dat past bij jouw stijl, route en volgende hoofdstuk.
+                    {{ __('Je hebt nog geen auto toegevoegd. Ontdek de Mashal-collectie en kies een model dat past bij jouw stijl, route en volgende hoofdstuk.') }}
                 </p>
 
                 <a
@@ -1131,12 +1127,11 @@
                                     <div class="readiness-copy">
 
                                         <strong>
-                                            Je account is klaar voor checkout.
+                                            {{ __('Je account is klaar voor checkout.') }}
                                         </strong>
 
                                         <p>
-                                            Je bent ingelogd en je e-mailadres is geverifieerd.
-                                            Je kunt direct doorgaan naar de volgende stap.
+                                            {{ __('Je bent ingelogd en je e-mailadres is geverifieerd. Je kunt direct doorgaan naar de volgende stap.') }}
                                         </p>
 
                                     </div>
@@ -1154,13 +1149,11 @@
                                     <div class="readiness-copy">
 
                                         <strong>
-                                            Verifieer eerst je e-mailadres.
+                                            {{ __('Verifieer eerst je e-mailadres.') }}
                                         </strong>
 
                                         <p>
-                                            Je account is ingelogd,
-                                            maar e-mailverificatie is nog vereist
-                                            voordat je een bestelling kunt plaatsen.
+                                            {{ __('Je account is ingelogd, maar e-mailverificatie is nog vereist voordat je een bestelling kunt plaatsen.') }}
                                         </p>
 
                                     </div>
@@ -1180,13 +1173,11 @@
                                 <div class="readiness-copy">
 
                                     <strong>
-                                        Log in om verder te gaan.
+                                        {{ __('Log in om verder te gaan.') }}
                                     </strong>
 
                                     <p>
-                                        Je selectie blijft zichtbaar,
-                                        maar je hebt een Mashal-account nodig
-                                        om de checkout te kunnen afronden.
+                                        {{ __('Je selectie blijft zichtbaar, maar je hebt een Mashal-account nodig om de checkout te kunnen afronden.') }}
                                     </p>
 
                                 </div>
@@ -1279,7 +1270,7 @@
 
 
                     <div class="summary-caption">
-                        Dit is het totaal van je huidige Mashal-selectie.
+                        {{ __('Dit is het totaal van je huidige Mashal-selectie.') }}
                     </div>
 
 
@@ -1339,8 +1330,7 @@
                         </span>
 
                         <span>
-                            Bestellingen worden gekoppeld
-                            aan je beveiligde Mashal-account.
+                            {{ __('Bestellingen worden gekoppeld aan je beveiligde Mashal-account.') }}
                         </span>
 
                     </div>
@@ -1361,7 +1351,7 @@
             <div class="benefit">
 
                 <small>
-                    Curated
+                    {{ __('Curated') }}
                 </small>
 
                 <strong>
@@ -1369,7 +1359,7 @@
                 </strong>
 
                 <span>
-                    Alleen modellen uit de huidige Mashal-collectie.
+                    {{ __('Alleen modellen uit de huidige Mashal-collectie.') }}
                 </span>
 
             </div>
@@ -1378,7 +1368,7 @@
             <div class="benefit">
 
                 <small>
-                    Verified
+                    {{ __('Verified') }}
                 </small>
 
                 <strong>
@@ -1386,7 +1376,7 @@
                 </strong>
 
                 <span>
-                    E-mailverificatie voordat een bestelling wordt geplaatst.
+                    {{ __('E-mailverificatie voordat een bestelling wordt geplaatst.') }}
                 </span>
 
             </div>
@@ -1395,7 +1385,7 @@
             <div class="benefit">
 
                 <small>
-                    Confirmation
+                    {{ __('Confirmation') }}
                 </small>
 
                 <strong>
@@ -1403,7 +1393,7 @@
                 </strong>
 
                 <span>
-                    Na checkout ontvang je automatisch een overzicht per e-mail.
+                    {{ __('Na checkout ontvang je automatisch een overzicht per e-mail.') }}
                 </span>
 
             </div>

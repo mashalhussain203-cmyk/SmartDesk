@@ -1930,11 +1930,11 @@
 
                 <h1 class="hero-title">
 
-                    Drive
+                    {{ __('Drive') }}
 
-                    <span class="line-soft">beyond</span>
+                    <span class="line-soft">{{ __('beyond') }}</span>
 
-                    <span class="line-gold">ordinary.</span>
+                    <span class="line-gold">{{ __('ordinary.') }}</span>
 
                 </h1>
 
@@ -1942,13 +1942,7 @@
 
                 <p class="hero-description">
 
-                    Geen gewone autowebsite.
-
-                    Mashal brengt premium modellen, persoonlijk accountbeheer
-
-                    en een verfijnde digitale aankoopervaring samen
-
-                    in één exclusief platform.
+                    {{ __('Geen gewone autowebsite. Mashal brengt premium modellen, persoonlijk accountbeheer en een verfijnde digitale aankoopervaring samen in één exclusief platform.') }}
 
                 </p>
 
@@ -1968,7 +1962,7 @@
 
                     >
 
-                        Ontdek de collectie
+                        {{ __('Ontdek de collectie') }}
 
                         <span aria-hidden="true">→</span>
 
@@ -1988,7 +1982,7 @@
 
                         >
 
-                            Word onderdeel van Mashal
+                            {{ __('Word onderdeel van Mashal') }}
 
                         </a>
 
@@ -2006,7 +2000,7 @@
 
                         >
 
-                            Open mijn account
+                            {{ __('Open mijn account') }}
 
                         </a>
 
@@ -2034,7 +2028,7 @@
 
                     <small>
 
-                        Curated collection
+                        {{ __('Curated collection') }}
 
                     </small>
 
@@ -2042,7 +2036,7 @@
 
                     <strong>
 
-                        04 premium
+                        {{ __('04 premium') }}
 
                     </strong>
 
@@ -2050,7 +2044,7 @@
 
                     <span>
 
-                        Zorgvuldig geselecteerde modellen
+                        {{ __('Zorgvuldig geselecteerde modellen') }}
 
                     </span>
 
@@ -2064,7 +2058,7 @@
 
                     <small>
 
-                        Digital experience
+                        {{ __('Digital experience') }}
 
                     </small>
 
@@ -2072,7 +2066,7 @@
 
                     <strong>
 
-                        100% online
+                        {{ __('100% online') }}
 
                     </strong>
 
@@ -2080,7 +2074,7 @@
 
                     <span>
 
-                        Van selectie tot bestelling
+                        {{ __('Van selectie tot bestelling') }}
 
                     </span>
 
@@ -2094,7 +2088,7 @@
 
                     <small>
 
-                        Mashal account
+                        {{ __('Mashal account') }}
 
                     </small>
 
@@ -2102,7 +2096,7 @@
 
                     <strong>
 
-                        Secure
+                        {{ __('Secure') }}
 
                     </strong>
 
@@ -2110,7 +2104,7 @@
 
                     <span>
 
-                        Met e-mailverificatie en beveiligd beheer
+                        {{ __('Met e-mailverificatie en beveiligd beheer') }}
 
                     </span>
 
@@ -2130,7 +2124,7 @@
 
         <div class="hero-scroll">
 
-            Scroll to explore
+            {{ __('Scroll to explore') }}
 
         </div>
 
@@ -2222,7 +2216,7 @@
 
                 <span class="section-label">
 
-                    The Mashal standard
+                    {{ __('The Mashal standard') }}
 
                 </span>
 
@@ -2230,9 +2224,7 @@
 
                 <h2 class="intro-heading">
 
-                    Meer dan auto's.
-
-                    Een complete ervaring.
+                    {{ __('Meer dan auto\'s. Een complete ervaring.') }}
 
                 </h2>
 
@@ -2250,11 +2242,7 @@
 
                 <p class="lead">
 
-                    Mashal is ontworpen voor mensen
-
-                    die waarde hechten aan uitstraling,
-
-                    eenvoud en vertrouwen.
+                    {{ __('Mashal is ontworpen voor mensen die waarde hechten aan uitstraling, eenvoud en vertrouwen.') }}
 
                 </p>
 
@@ -2262,15 +2250,7 @@
 
                 <p>
 
-                    Ontdek voertuigen in een rustige, luxe omgeving.
-
-                    Vergelijk modellen, voeg jouw keuze toe aan de winkelwagen
-
-                    en beheer alles vanuit één persoonlijk account.
-
-                    Elk onderdeel is ontworpen om premium aan te voelen,
-
-                    zonder het proces ingewikkeld te maken.
+                    {{ __('Ontdek voertuigen in een rustige, luxe omgeving. Vergelijk modellen, voeg jouw keuze toe aan de winkelwagen en beheer alles vanuit één persoonlijk account. Elk onderdeel is ontworpen om premium aan te voelen, zonder het proces ingewikkeld te maken.') }}
 
                 </p>
 
@@ -2316,7 +2296,7 @@
 
                     <div class="experience-number">
 
-                        01 / DISCOVER
+                        {{ __('01 / DISCOVER') }}
 
                     </div>
 
@@ -2324,7 +2304,7 @@
 
                     <h3>
 
-                        Ontdek zonder afleiding.
+                        {{ __('Ontdek zonder afleiding.') }}
 
                     </h3>
 
@@ -2332,9 +2312,7 @@
 
                     <p>
 
-                        Premium modellen gepresenteerd met duidelijke
-
-                        specificaties, prijzen en een sterke visuele ervaring.
+                        {{ __('Premium modellen gepresenteerd met duidelijke specificaties, prijzen en een sterke visuele ervaring.') }}
 
                     </p>
 
@@ -2360,7 +2338,7 @@
 
                     <div class="experience-number">
 
-                        02 / SELECT
+                        {{ __('02 / SELECT') }}
 
                     </div>
 
@@ -2368,7 +2346,7 @@
 
                     <h3>
 
-                        Kies met vertrouwen.
+                        {{ __('Kies met vertrouwen.') }}
 
                     </h3>
 
@@ -2376,9 +2354,7 @@
 
                     <p>
 
-                        Voeg jouw favoriete model toe aan je winkelwagen
-
-                        en houd jouw selectie overzichtelijk bij.
+                        {{ __('Voeg jouw favoriete model toe aan je winkelwagen en houd jouw selectie overzichtelijk bij.') }}
 
                     </p>
 
@@ -2404,7 +2380,7 @@
 
                     <div class="experience-number">
 
-                        03 / EXPERIENCE
+                        {{ __('03 / EXPERIENCE') }}
 
                     </div>
 
@@ -2412,7 +2388,7 @@
 
                     <h3>
 
-                        Alles vanuit één account.
+                        {{ __('Alles vanuit één account.') }}
 
                     </h3>
 
@@ -2420,9 +2396,7 @@
 
                     <p>
 
-                        Beheer gegevens, beveiliging en bestellingen
-
-                        vanuit jouw persoonlijke Mashal-omgeving.
+                        {{ __('Beheer gegevens, beveiliging en bestellingen vanuit jouw persoonlijke Mashal-omgeving.') }}
 
                     </p>
 
@@ -2474,7 +2448,7 @@
 
                 <span class="section-label">
 
-                    Selected for Mashal
+                    {{ __('Selected for Mashal') }}
 
                 </span>
 
@@ -2482,7 +2456,7 @@
 
                 <h2>
 
-                    Een collectie met karakter.
+                    {{ __('Een collectie met karakter.') }}
 
                 </h2>
 
@@ -2494,9 +2468,7 @@
 
             <p>
 
-                Vier verschillende auto's.
-
-                Eén standaard: uitstraling, kwaliteit en rijbeleving.
+                {{ __('Vier verschillende auto\'s. Eén standaard: uitstraling, kwaliteit en rijbeleving.') }}
 
             </p>
 
@@ -2522,7 +2494,7 @@
 
                     <span class="car-badge">
 
-                        Premium hybrid
+                        {{ __('Premium hybrid') }}
 
                     </span>
 
@@ -2566,9 +2538,7 @@
 
                     <p>
 
-                        Premium comfort voor dagelijks rijden
-
-                        en lange reizen.
+                        {{ __('Premium comfort voor dagelijks rijden en lange reizen.') }}
 
                     </p>
 
@@ -2582,7 +2552,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -2682,9 +2652,7 @@
 
                     <p>
 
-                        Ruimte, stijl en krachtige prestaties
-
-                        voor iedere route.
+                        {{ __('Ruimte, stijl en krachtige prestaties voor iedere route.') }}
 
                     </p>
 
@@ -2698,7 +2666,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -2798,9 +2766,7 @@
 
                     <p>
 
-                        Sportieve stijl voor dagelijks gebruik
-
-                        en de weekendtrip.
+                        {{ __('Sportieve stijl voor dagelijks gebruik en de weekendtrip.') }}
 
                     </p>
 
@@ -2814,7 +2780,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -2876,7 +2842,7 @@
 
             >
 
-                Bekijk de volledige collectie
+                {{ __('Bekijk de volledige collectie') }}
 
             </a>
 
@@ -2914,7 +2880,7 @@
 
                 <span class="section-label">
 
-                    Simple by design
+                    {{ __('Simple by design') }}
 
                 </span>
 
@@ -2922,9 +2888,7 @@
 
                 <h2>
 
-                    Van eerste blik
-
-                    tot bestelling.
+                    {{ __('Van eerste blik tot bestelling.') }}
 
                 </h2>
 
@@ -2932,9 +2896,7 @@
 
                 <p>
 
-                    Een premium ervaring hoeft niet ingewikkeld te zijn.
-
-                    Mashal houdt iedere stap duidelijk en beheersbaar.
+                    {{ __('Een premium ervaring hoeft niet ingewikkeld te zijn. Mashal houdt iedere stap duidelijk en beheersbaar.') }}
 
                 </p>
 
@@ -2964,7 +2926,7 @@
 
                     <h3>
 
-                        Ontdek jouw model
+                        {{ __('Ontdek jouw model') }}
 
                     </h3>
 
@@ -2972,11 +2934,7 @@
 
                     <p>
 
-                        Bekijk de collectie en open een voertuig
-
-                        voor uitgebreide informatie over model,
-
-                        bouwjaar, brandstof en prijs.
+                        {{ __('Bekijk de collectie en open een voertuig voor uitgebreide informatie over model, bouwjaar, brandstof en prijs.') }}
 
                     </p>
 
@@ -3002,7 +2960,7 @@
 
                     <h3>
 
-                        Bouw jouw selectie
+                        {{ __('Bouw jouw selectie') }}
 
                     </h3>
 
@@ -3010,9 +2968,7 @@
 
                     <p>
 
-                        Voeg een auto toe aan je winkelwagen
-
-                        en controleer jouw keuze voordat je verdergaat.
+                        {{ __('Voeg een auto toe aan je winkelwagen en controleer jouw keuze voordat je verdergaat.') }}
 
                     </p>
 
@@ -3038,7 +2994,7 @@
 
                     <h3>
 
-                        Beveilig jouw account
+                        {{ __('Beveilig jouw account') }}
 
                     </h3>
 
@@ -3046,9 +3002,7 @@
 
                     <p>
 
-                        Bevestig je e-mailadres met de unieke
-
-                        verificatiecode van Mashal.
+                        {{ __('Bevestig je e-mailadres met de unieke verificatiecode van Mashal.') }}
 
                     </p>
 
@@ -3074,7 +3028,7 @@
 
                     <h3>
 
-                        Plaats je bestelling
+                        {{ __('Plaats je bestelling') }}
 
                     </h3>
 
@@ -3082,11 +3036,7 @@
 
                     <p>
 
-                        Rond de checkout af en ontvang automatisch
-
-                        een bestelbevestiging met je bestelnummer
-
-                        en volledige overzicht.
+                        {{ __('Rond de checkout af en ontvang automatisch een bestelbevestiging met je bestelnummer en volledige overzicht.') }}
 
                     </p>
 
@@ -3132,7 +3082,7 @@
 
                 <span class="section-label">
 
-                    Your next drive
+                    {{ __('Your next drive') }}
 
                 </span>
 
@@ -3144,9 +3094,7 @@
 
                     <h2>
 
-                        Jouw volgende
-
-                        hoofdstuk begint hier.
+                        {{ __('Jouw volgende hoofdstuk begint hier.') }}
 
                     </h2>
 
@@ -3154,11 +3102,7 @@
 
                     <p>
 
-                        Maak je Mashal-account aan,
-
-                        verifieer je e-mailadres
-
-                        en ontdek de volledige collectie.
+                        {{ __('Maak je Mashal-account aan, verifieer je e-mailadres en ontdek de volledige collectie.') }}
 
                     </p>
 
@@ -3178,7 +3122,7 @@
 
                         >
 
-                            Account aanmaken
+                            {{ __('Account aanmaken') }}
 
                             <span aria-hidden="true">→</span>
 
@@ -3194,7 +3138,7 @@
 
                         >
 
-                            Eerst de collectie bekijken
+                            {{ __('Eerst de collectie bekijken') }}
 
                         </a>
 
@@ -3220,9 +3164,7 @@
 
                     <p>
 
-                        Ontdek de collectie of open je account
-
-                        om je gegevens en bestellingen te beheren.
+                        {{ __('Ontdek de collectie of open je account om je gegevens en bestellingen te beheren.') }}
 
                     </p>
 
@@ -3242,7 +3184,7 @@
 
                         >
 
-                            Ontdek de collectie
+                            {{ __('Ontdek de collectie') }}
 
                             <span aria-hidden="true">→</span>
 
@@ -3258,7 +3200,7 @@
 
                         >
 
-                            Mijn account
+                            {{ __('Mijn account') }}
 
                         </a>
 

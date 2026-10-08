@@ -1378,7 +1378,7 @@
 
             <div class="reset-eyebrow">
 
-                Secure recovery
+                {{ __('Secure recovery') }}
 
             </div>
 
@@ -1386,7 +1386,7 @@
 
             <h1 class="reset-title">
 
-                Nieuw wachtwoord
+                {{ __('Nieuw wachtwoord') }}
 
                 <span>Mashal Studio</span>
 
@@ -1396,11 +1396,7 @@
 
             <p class="reset-lead">
 
-                Stel een nieuw, sterk wachtwoord in. Je projecten,
-
-                afbeeldingen en opgeslagen versies blijven gewoon
-
-                gekoppeld aan hetzelfde account.
+                {{ __('Stel een nieuw, sterk wachtwoord in. Je projecten, afbeeldingen en opgeslagen versies blijven gewoon gekoppeld aan hetzelfde account.') }}
 
             </p>
 
@@ -1446,7 +1442,7 @@
 
                     <h2 class="reset-heading" id="resetHeading">
 
-                        Secure <strong>Reset</strong>
+                        {{ __('Secure') }} <strong>{{ __('Reset') }}</strong>
 
                     </h2>
 
@@ -1454,9 +1450,7 @@
 
                     <p class="reset-description">
 
-                        Bevestig je e-mailadres en kies daarna een nieuw
-
-                        wachtwoord voor je Mashal Studio-account.
+                        {{ __('Bevestig je e-mailadres en kies daarna een nieuw wachtwoord voor je Mashal Studio-account.') }}
 
                     </p>
 
@@ -1492,7 +1486,7 @@
 
                             <strong>
 
-                                Wachtwoord wijzigen is niet gelukt.
+                                {{ __('Wachtwoord wijzigen is niet gelukt.') }}
 
                             </strong>
 
@@ -1534,7 +1528,7 @@
 
                                 <label for="email">
 
-                                    E-mailadres
+                                    {{ __('E-mailadres') }}
 
                                 </label>
 
@@ -1592,7 +1586,7 @@
 
                                 <label for="password">
 
-                                    Nieuw wachtwoord
+                                    {{ __('Nieuw wachtwoord') }}
 
                                 </label>
 
@@ -1650,7 +1644,7 @@
 
                                 >
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
                                 </button>
 
@@ -1676,11 +1670,11 @@
 
                                 <div class="reset-strength-copy">
 
-                                    <span>Wachtwoordsterkte</span>
+                                    <span>{{ __('Wachtwoordsterkte') }}</span>
 
                                     <span id="passwordStrengthLabel">
 
-                                        Nog niet ingevuld
+                                        {{ __('Nog niet ingevuld') }}
 
                                     </span>
 
@@ -1698,7 +1692,7 @@
 
                                 <label for="password_confirmation">
 
-                                    Wachtwoord bevestigen
+                                    {{ __('Wachtwoord bevestigen') }}
 
                                 </label>
 
@@ -1756,7 +1750,7 @@
 
                                 >
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
                                 </button>
 
@@ -1784,7 +1778,7 @@
 
                                 <small>
 
-                                    Password security
+                                    {{ __('Password security') }}
 
                                 </small>
 
@@ -1792,7 +1786,7 @@
 
                                 <strong>
 
-                                    Gebruik een uniek wachtwoord
+                                    {{ __('Gebruik een uniek wachtwoord') }}
 
                                 </strong>
 
@@ -1800,9 +1794,7 @@
 
                                 <p>
 
-                                    Kies bij voorkeur een lang wachtwoord dat
-
-                                    je nergens anders gebruikt.
+                                    {{ __('Kies bij voorkeur een lang wachtwoord dat je nergens anders gebruikt.') }}
 
                                 </p>
 
@@ -1814,7 +1806,7 @@
 
                                 <small>
 
-                                    Recovery link
+                                    {{ __('Recovery link') }}
 
                                 </small>
 
@@ -1822,7 +1814,7 @@
 
                                 <strong>
 
-                                    Tijdelijke resetlink
+                                    {{ __('Tijdelijke resetlink') }}
 
                                 </strong>
 
@@ -1830,9 +1822,7 @@
 
                                 <p>
 
-                                    Is je link verlopen? Vraag dan een nieuwe
-
-                                    resetlink aan.
+                                    {{ __('Is je link verlopen? Vraag dan een nieuwe resetlink aan.') }}
 
                                 </p>
 
@@ -1852,7 +1842,7 @@
 
                         >
 
-                            Nieuw wachtwoord opslaan
+                            {{ __('Nieuw wachtwoord opslaan') }}
 
                         </button>
 
@@ -1862,7 +1852,7 @@
 
                     <div class="reset-divider">
 
-                        Klaar om terug te keren?
+                        {{ __('Klaar om terug te keren?') }}
 
                     </div>
 
@@ -1874,7 +1864,7 @@
 
                             <strong>
 
-                                Terug naar inloggen
+                                {{ __('Terug naar inloggen') }}
 
                             </strong>
 
@@ -1882,9 +1872,7 @@
 
                             <span>
 
-                                Na een succesvolle reset log je in met je
-
-                                nieuwe wachtwoord.
+                                {{ __('Na een succesvolle reset log je in met je nieuwe wachtwoord.') }}
 
                             </span>
 
@@ -1900,7 +1888,7 @@
 
                         >
 
-                            Inloggen
+                            {{ __('Inloggen') }}
 
                         </a>
 
@@ -1926,11 +1914,7 @@
 
                         <span>
 
-                            Deel je resetlink of nieuwe wachtwoord nooit
-
-                            met anderen. Mashal Studio vraagt je nooit via
-
-                            chat of telefoon om je wachtwoord.
+                            {{ __('Deel je resetlink of nieuwe wachtwoord nooit met anderen. Mashal Studio vraagt je nooit via chat of telefoon om je wachtwoord.') }}
 
                         </span>
 

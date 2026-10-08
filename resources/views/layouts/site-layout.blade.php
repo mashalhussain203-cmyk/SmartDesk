@@ -6852,7 +6852,7 @@
                                     </strong>
 
                                     <small>
-                                        Workspace
+                                        {{ __('Workspace') }}
                                     </small>
                                 </span>
 
@@ -6892,13 +6892,13 @@
                                     </div>
 
                                     <span class="expert-plan-chip">
-                                        Workspace
+                                        {{ __('Workspace') }}
                                     </span>
                                 </div>
 
                                 <div class="expert-account-section">
                                     <div class="expert-account-section-label">
-                                        Workspace
+                                        {{ __('Workspace') }}
                                     </div>
 
                                     @if ($hasImagesIndex)
@@ -6940,7 +6940,7 @@
 
                                 <div class="expert-account-section">
                                     <div class="expert-account-section-label">
-                                        Account
+                                        {{ __('Account') }}
                                     </div>
 
                                     @if ($hasAccount)
@@ -7198,7 +7198,7 @@
                 @auth
                     <div class="expert-command-group">
                         <div class="expert-command-group-label">
-                            Account
+                            {{ __('Account') }}
                         </div>
 
                         @if ($hasAccount)
@@ -7209,7 +7209,7 @@
                             >
                                 <span class="expert-command-item-icon">○</span>
                                 <span>
-                                    <strong>Account</strong>
+                                    <strong>{{ __('Account') }}</strong>
                                     <small>{{ __('Profiel en voorkeuren') }}</small>
                                 </span>
                                 <span class="expert-command-item-arrow">↗</span>
@@ -7339,7 +7339,7 @@
 
         <nav class="expert-mobile-nav">
             <div class="expert-mobile-label">
-                Workspace
+                {{ __('Workspace') }}
             </div>
 
             <a
@@ -7398,7 +7398,7 @@
                 @endif
 
                 <div class="expert-mobile-label">
-                    Account
+                    {{ __('Account') }}
                 </div>
 
                 @if ($hasAccount)
@@ -7408,7 +7408,7 @@
                     >
                         <span class="expert-mobile-link-icon">○</span>
                         <span>
-                            <strong>Account</strong>
+                            <strong>{{ __('Account') }}</strong>
                             <small>{{ __('Profiel en voorkeuren') }}</small>
                         </span>
                         <span>→</span>
@@ -7703,7 +7703,7 @@
 
                 <div class="studio-footer-column">
                     <h3>
-                        Account
+                        {{ __('Account') }}
                     </h3>
 
                     <div class="studio-footer-links">
@@ -7733,7 +7733,7 @@
 
                 <div class="studio-footer-column">
                     <h3>
-                        Workspace
+                        {{ __('Workspace') }}
                     </h3>
 
                     <div class="studio-footer-links">
@@ -7780,25 +7780,25 @@
                         <div class="studio-footer-links">
                             @if ($hasAbout)
                                 <a href="{{ route('about') }}">
-                                    Over ons
+                                    {{ __('Over ons') }}
                                 </a>
                             @endif
 
                             @if ($hasContact)
                                 <a href="{{ route('contact') }}">
-                                    Contact
+                                    {{ __('Contact') }}
                                 </a>
                             @endif
 
                             @if ($hasPrivacy)
                                 <a href="{{ route('privacy') }}">
-                                    Privacy
+                                    {{ __('Privacy') }}
                                 </a>
                             @endif
 
                             @if ($hasTerms)
                                 <a href="{{ route('terms') }}">
-                                    Voorwaarden
+                                    {{ __('Voorwaarden') }}
                                 </a>
                             @endif
                         </div>
@@ -7814,13 +7814,13 @@
                 <div class="studio-footer-bottom-links">
                     @if ($hasPrivacy)
                         <a href="{{ route('privacy') }}">
-                            Privacy
+                            {{ __('Privacy') }}
                         </a>
                     @endif
 
                     @if ($hasTerms)
                         <a href="{{ route('terms') }}">
-                            Voorwaarden
+                            {{ __('Voorwaarden') }}
                         </a>
                     @endif
 

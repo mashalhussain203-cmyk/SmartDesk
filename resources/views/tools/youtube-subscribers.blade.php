@@ -789,7 +789,7 @@
 @section('content')
 <section class="yts-page" data-ui-build="20261008-youtube-livecounts-v2">
     <div class="yts-shell">
-        <a class="yts-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
+        <a class="yts-back" href="{{ route('live-counts.index') }}">{{ __('← Live Counts') }}</a>
 
         <header class="yts-hero">
             <div class="yts-eyebrow">
@@ -797,11 +797,10 @@
                 Mashal Studio · YouTube Live
             </div>
 
-            <h1 class="yts-title">Live <span>Subscribers.</span></h1>
+            <h1 class="yts-title">{{ __('Live') }} <span>{{ __('Subscribers.') }}</span></h1>
 
             <p class="yts-copy">
-                Zoek een YouTube-kanaal en volg subscribers, totale views,
-                video's en de volgende goal automatisch.
+                {{ __('Zoek een YouTube-kanaal en volg subscribers, totale views, video\'s en de volgende goal automatisch.') }}
             </p>
         </header>
 
@@ -822,7 +821,7 @@
                 </div>
 
                 <button class="yts-button" id="yts-submit" type="submit">
-                    Zoek kanaal →
+                    {{ __('Zoek kanaal →') }}
                 </button>
             </form>
         </div>
@@ -843,7 +842,7 @@
                     alt=""
                     referrerpolicy="no-referrer"
                 >
-                <div class="yts-channel-name" id="yts-name">YouTube channel</div>
+                <div class="yts-channel-name" id="yts-name">{{ __('YouTube channel') }}</div>
                 <div class="yts-channel-id" id="yts-channel-id"></div>
                 <a
                     class="yts-channel-link"
@@ -851,55 +850,55 @@
                     href="#"
                     target="_blank"
                     rel="noopener noreferrer"
-                >Open op YouTube ↗</a>
+                >{{ __('Open op YouTube ↗') }}</a>
             </aside>
 
             <div class="yts-card yts-dashboard">
                 <div class="yts-status">
-                    <span>Public channel statistics</span>
-                    <strong id="yts-status">Live</strong>
+                    <span>{{ __('Public channel statistics') }}</span>
+                    <strong id="yts-status">{{ __('Live') }}</strong>
                 </div>
 
                 <div class="yts-main">
-                    <div class="yts-main-label">Subscribers</div>
+                    <div class="yts-main-label">{{ __('Subscribers') }}</div>
                     <div class="yts-main-value yts-loading" id="yts-subscribers">0</div>
                 </div>
 
                 <div class="yts-stats">
                     <div class="yts-stat">
-                        <div class="yts-stat-label">Channel Views</div>
+                        <div class="yts-stat-label">{{ __('Channel Views') }}</div>
                         <div class="yts-stat-value yts-loading" id="yts-views">0</div>
                     </div>
 
                     <div class="yts-stat">
-                        <div class="yts-stat-label">Videos</div>
+                        <div class="yts-stat-label">{{ __('Videos') }}</div>
                         <div class="yts-stat-value yts-loading" id="yts-videos">0</div>
                     </div>
 
                     <div class="yts-stat">
-                        <div class="yts-stat-label">Goal</div>
+                        <div class="yts-stat-label">{{ __('Goal') }}</div>
                         <div class="yts-stat-value yts-loading" id="yts-goal">0</div>
                     </div>
                 </div>
 
                 <div class="yts-status" style="margin-top:16px">
-                    <span>Remaining to goal</span>
+                    <span>{{ __('Remaining to goal') }}</span>
                     <strong id="yts-remaining">0</strong>
                 </div>
             </div>
         </div>
 
         <div class="yts-counter-actions" id="yts-counter-actions" hidden>
-            <button class="yts-action-button" id="yts-change-user" type="button">↺ Change User</button>
-            <button class="yts-action-button" id="yts-compare-toggle" type="button">⇄ Compare</button>
-            <button class="yts-action-button" id="yts-embed-toggle" type="button">&lt;/&gt; Embed</button>
-            <button class="yts-action-button" id="yts-advanced-toggle" type="button" aria-pressed="false">▦ Advanced Metrics</button>
+            <button class="yts-action-button" id="yts-change-user" type="button">{{ __('↺ Change User') }}</button>
+            <button class="yts-action-button" id="yts-compare-toggle" type="button">{{ __('⇄ Compare') }}</button>
+            <button class="yts-action-button" id="yts-embed-toggle" type="button">{{ __('</> Embed') }}</button>
+            <button class="yts-action-button" id="yts-advanced-toggle" type="button" aria-pressed="false">{{ __('▦ Advanced Metrics') }}</button>
         </div>
 
         <section class="yts-tool-panel" id="yts-compare-panel" hidden>
             <div class="yts-tool-panel-head">
-                <strong>Compare channels</strong>
-                <span>Live subscriber counts</span>
+                <strong>{{ __('Compare channels') }}</strong>
+                <span>{{ __('Live subscriber counts') }}</span>
             </div>
 
             <div class="yts-compare-search">
@@ -912,7 +911,7 @@
                     autocomplete="off"
                 >
                 <button class="yts-action-button" id="yts-compare-search" type="button">
-                    Zoek →
+                    {{ __('Zoek →') }}
                 </button>
             </div>
 
@@ -920,11 +919,11 @@
 
             <div class="yts-compare-board" id="yts-compare-board" hidden>
                 <div class="yts-compare-side">
-                    <span id="yts-compare-a-name">Current channel</span>
+                    <span id="yts-compare-a-name">{{ __('Current channel') }}</span>
                     <strong id="yts-compare-a-count">0</strong>
                 </div>
                 <div class="yts-compare-side">
-                    <span id="yts-compare-b-name">Second channel</span>
+                    <span id="yts-compare-b-name">{{ __('Second channel') }}</span>
                     <strong id="yts-compare-b-count">0</strong>
                 </div>
             </div>
@@ -933,27 +932,27 @@
 
         <section class="yts-tool-panel" id="yts-embed-panel" hidden>
             <div class="yts-tool-panel-head">
-                <strong>Embed live subscriber count</strong>
-                <span>Website of OBS Browser Source</span>
+                <strong>{{ __('Embed live subscriber count') }}</strong>
+                <span>{{ __('Website of OBS Browser Source') }}</span>
             </div>
 
             <div class="yts-embed-stack">
                 <div class="yts-embed-group">
-                    <span class="yts-embed-label">Website embed</span>
+                    <span class="yts-embed-label">{{ __('Website embed') }}</span>
                     <div class="yts-embed-row">
                         <textarea class="yts-embed-code" id="yts-embed-code" readonly></textarea>
                         <button class="yts-action-button" id="yts-embed-copy" type="button">
-                            Copy
+                            {{ __('Copy') }}
                         </button>
                     </div>
                 </div>
 
                 <div class="yts-embed-group">
-                    <span class="yts-embed-label">OBS / Browser Source URL</span>
+                    <span class="yts-embed-label">{{ __('OBS / Browser Source URL') }}</span>
                     <div class="yts-embed-row">
                         <input class="yts-embed-code" id="yts-embed-url" type="text" readonly>
                         <button class="yts-action-button" id="yts-embed-url-copy" type="button">
-                            Copy
+                            {{ __('Copy') }}
                         </button>
                     </div>
                 </div>
@@ -963,8 +962,8 @@
         <div class="yts-extras is-basic" id="yts-extras" hidden>
             <div class="yts-card yts-extra-card">
                 <div class="yts-extra-head">
-                    <strong>Subscriber history</strong>
-                    <span>Live samples from this session</span>
+                    <strong>{{ __('Subscriber history') }}</strong>
+                    <span>{{ __('Live samples from this session') }}</span>
                 </div>
                 <svg
                     class="yts-chart"
@@ -979,26 +978,26 @@
                     <polyline class="yts-chart-line" id="yts-chart-line" points=""></polyline>
                 </svg>
                 <div class="yts-chart-empty" id="yts-chart-empty">
-                    Wachten op live samples…
+                    {{ __('Wachten op live samples…') }}
                 </div>
             </div>
 
             <div class="yts-card yts-extra-card" id="yts-advanced-card" hidden>
                 <div class="yts-extra-head">
-                    <strong>Advanced Metrics</strong>
-                    <span>Current session</span>
+                    <strong>{{ __('Advanced Metrics') }}</strong>
+                    <span>{{ __('Current session') }}</span>
                 </div>
                 <div class="yts-advanced">
                     <div class="yts-advanced-row">
-                        <span>Gained</span>
+                        <span>{{ __('Gained') }}</span>
                         <strong id="yts-gained">0</strong>
                     </div>
                     <div class="yts-advanced-row">
-                        <span>Per minute</span>
+                        <span>{{ __('Per minute') }}</span>
                         <strong id="yts-per-minute">0</strong>
                     </div>
                     <div class="yts-advanced-row">
-                        <span>Samples</span>
+                        <span>{{ __('Samples') }}</span>
                         <strong id="yts-samples">0</strong>
                     </div>
                 </div>
@@ -1006,13 +1005,12 @@
         </div>
 
         <div class="yts-card yts-about" id="yts-about" hidden>
-            <h3 id="yts-about-title">About this channel</h3>
+            <h3 id="yts-about-title">{{ __('About this channel') }}</h3>
             <p id="yts-about-copy"></p>
         </div>
 
         <div class="yts-empty" id="yts-empty">
-            Zoek een kanaal en kies het juiste resultaat. Daarna blijven de
-            publieke cijfers automatisch verversen.
+            {{ __('Zoek een kanaal en kies het juiste resultaat. Daarna blijven de publieke cijfers automatisch verversen.') }}
         </div>
     </div>
 </section>

@@ -440,7 +440,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        E-mailadres
+                                        {{ __('E-mailadres') }}
                                     </div>
 
                                     <div
@@ -1022,7 +1022,7 @@
                                                 text-decoration: underline;
                                             "
                                         >
-                                            Wachtwoord herstellen
+                                            {{ __('Wachtwoord herstellen') }}
                                         </a>
                                     </div>
                                 </td>
@@ -1240,7 +1240,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong

@@ -66,7 +66,7 @@
                     width:140px;
                 "
             >
-                Voornaam
+                {{ __('Voornaam') }}
             </td>
 
             <td style="padding:10px 0;">
@@ -81,7 +81,7 @@
                     font-weight:bold;
                 "
             >
-                Achternaam
+                {{ __('Achternaam') }}
             </td>
 
             <td style="padding:10px 0;">
@@ -96,7 +96,7 @@
                     font-weight:bold;
                 "
             >
-                E-mailadres
+                {{ __('E-mailadres') }}
             </td>
 
             <td style="padding:10px 0;">
@@ -123,7 +123,7 @@
         "
     >
         <strong>
-            Toelichting
+            {{ __('Toelichting') }}
         </strong>
 
         <div

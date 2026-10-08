@@ -42,6 +42,8 @@ Developer identifiers, route names, input names, brand names and programming log
 
 **The test suite has not been executed in the GitHub connector environment.**
 
-**This is still a partial translation, not the entire application.** Some other pages, emails, dynamic JavaScript messages and controller responses remain Dutch or English. Untranslated Laravel keys render their original text.
+**This remains a partial localization of the application even after the expanded Urdu pass.** The updated `lang/ur.json` includes more than 1,200 Dutch/English-to-Urdu messages and over 60 Blade templates now reference the translations, including home, accounts, checkout, image editor, AI dashboards, social counters and many system emails. However, JavaScript-generated UI, some email paragraphs, controller messages, form attributes and other dynamic strings may still be Dutch or English. Untranslated Laravel keys render their original text.
+
+The Urdu language selector is available on desktop and in the phone header and mobile menu. To check what is translated, choose `اردو` and reload your page. Cache invalidation may be required after deployment.
 
 Before merging, check the UI on narrow mobile widths, validate the right-to-left layout, run the Laravel test suite, and have legal/privacy translations reviewed as appropriate.

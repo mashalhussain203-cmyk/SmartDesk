@@ -302,7 +302,7 @@
 
         <div class="login-approval-prompt-kicker">
 
-            Beveiligingscontrole
+            {{ __('Beveiligingscontrole') }}
 
         </div>
 
@@ -316,7 +316,7 @@
 
         >
 
-            Nieuwe loginpoging
+            {{ __('Nieuwe loginpoging') }}
 
         </h2>
 
@@ -364,7 +364,7 @@
 
         >
 
-            Nee, ik ben dit niet
+            {{ __('Nee, ik ben dit niet') }}
 
         </button>
 

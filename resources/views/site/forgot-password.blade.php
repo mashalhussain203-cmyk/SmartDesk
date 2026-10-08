@@ -1899,7 +1899,7 @@
 
                 <span class="recovery-kicker">
 
-                    Mashal Studio security
+                    {{ __('Mashal Studio security') }}
 
                 </span>
 
@@ -1907,11 +1907,9 @@
 
                 <h2>
 
-                    Herstel toegang.
+                    {{ __('Herstel toegang. Behoud') }}
 
-                    Behoud
-
-                    <span>controle.</span>
+                    <span>{{ __('controle.') }}</span>
 
                 </h2>
 
@@ -1919,13 +1917,7 @@
 
                 <p>
 
-                    Ben je je wachtwoord vergeten? Vraag veilig een
-
-                    resetlink aan via het e-mailadres van je account.
-
-                    Je afbeeldingsprojecten en opgeslagen versies blijven
-
-                    gewoon aan hetzelfde account gekoppeld.
+                    {{ __('Ben je je wachtwoord vergeten? Vraag veilig een resetlink aan via het e-mailadres van je account. Je afbeeldingsprojecten en opgeslagen versies blijven gewoon aan hetzelfde account gekoppeld.') }}
 
                 </p>
 
@@ -1941,7 +1933,7 @@
 
                     <span class="recovery-trust">
 
-                        Secure reset
+                        {{ __('Secure reset') }}
 
                     </span>
 
@@ -1949,7 +1941,7 @@
 
                     <span class="recovery-trust">
 
-                        Private account
+                        {{ __('Private account') }}
 
                     </span>
 
@@ -1957,7 +1949,7 @@
 
                     <span class="recovery-trust">
 
-                        E-mail verification
+                        {{ __('E-mail verification') }}
 
                     </span>
 
@@ -1971,7 +1963,7 @@
 
                         <small>
 
-                            Stap 01
+                            {{ __('Stap 01') }}
 
                         </small>
 
@@ -1979,7 +1971,7 @@
 
                         <strong>
 
-                            Vul je e-mail in
+                            {{ __('Vul je e-mail in') }}
 
                         </strong>
 
@@ -1991,7 +1983,7 @@
 
                         <small>
 
-                            Stap 02
+                            {{ __('Stap 02') }}
 
                         </small>
 
@@ -1999,7 +1991,7 @@
 
                         <strong>
 
-                            Open de resetlink
+                            {{ __('Open de resetlink') }}
 
                         </strong>
 
@@ -2011,7 +2003,7 @@
 
                         <small>
 
-                            Stap 03
+                            {{ __('Stap 03') }}
 
                         </small>
 
@@ -2019,7 +2011,7 @@
 
                         <strong>
 
-                            Kies nieuw wachtwoord
+                            {{ __('Kies nieuw wachtwoord') }}
 
                         </strong>
 
@@ -2067,7 +2059,7 @@
 
                         <span>
 
-                            Account recovery
+                            {{ __('Account recovery') }}
 
                         </span>
 
@@ -2079,7 +2071,7 @@
 
                 <span class="recovery-section-kicker">
 
-                    Password recovery
+                    {{ __('Password recovery') }}
 
                 </span>
 
@@ -2087,7 +2079,7 @@
 
                 <h1 class="recovery-title">
 
-                    Wachtwoord herstellen
+                    {{ __('Wachtwoord herstellen') }}
 
                 </h1>
 
@@ -2095,11 +2087,7 @@
 
                 <p class="recovery-subtitle">
 
-                    Vul het e-mailadres van je Mashal Studio-account in.
-
-                    Als het adres bij een account hoort, kan de bestaande
-
-                    herstelprocedure een resetlink versturen.
+                    {{ __('Vul het e-mailadres van je Mashal Studio-account in. Als het adres bij een account hoort, kan de bestaande herstelprocedure een resetlink versturen.') }}
 
                 </p>
 
@@ -2117,7 +2105,7 @@
 
                         <strong>
 
-                            Gelukt
+                            {{ __('Gelukt') }}
 
                         </strong>
 
@@ -2143,7 +2131,7 @@
 
                         <strong>
 
-                            Controleer je inbox
+                            {{ __('Controleer je inbox') }}
 
                         </strong>
 
@@ -2169,7 +2157,7 @@
 
                         <strong>
 
-                            Er ging iets mis
+                            {{ __('Er ging iets mis') }}
 
                         </strong>
 
@@ -2195,7 +2183,7 @@
 
                         <strong>
 
-                            Controleer je gegevens
+                            {{ __('Controleer je gegevens') }}
 
                         </strong>
 
@@ -2243,7 +2231,7 @@
 
                             <label for="email">
 
-                                E-mailadres
+                                {{ __('E-mailadres') }}
 
                             </label>
 
@@ -2323,7 +2311,7 @@
 
                         >
 
-                            Gebruik hetzelfde e-mailadres waarmee je je account hebt aangemaakt.
+                            {{ __('Gebruik hetzelfde e-mailadres waarmee je je account hebt aangemaakt.') }}
 
                         </div>
 
@@ -2351,7 +2339,7 @@
 
                             <strong>
 
-                                Hoe werkt het?
+                                {{ __('Hoe werkt het?') }}
 
                             </strong>
 
@@ -2359,9 +2347,7 @@
 
                             <p>
 
-                                Na het verzenden volg je de resetlink uit de
-
-                                herstelmail. Deel die link nooit met iemand anders.
+                                {{ __('Na het verzenden volg je de resetlink uit de herstelmail. Deel die link nooit met iemand anders.') }}
 
                             </p>
 
@@ -2381,7 +2367,7 @@
 
                     >
 
-                        Verstuur resetlink
+                        {{ __('Verstuur resetlink') }}
 
                     </button>
 
@@ -2409,7 +2395,7 @@
 
                         <h3>
 
-                            Jouw veiligheid staat voorop
+                            {{ __('Jouw veiligheid staat voorop') }}
 
                         </h3>
 
@@ -2417,11 +2403,7 @@
 
                         <p>
 
-                            Mashal Studio vraagt je nooit om je wachtwoord
-
-                            of een persoonlijke resetlink met iemand te delen
-
-                            via chat, telefoon of social media.
+                            {{ __('Mashal Studio vraagt je nooit om je wachtwoord of een persoonlijke resetlink met iemand te delen via chat, telefoon of social media.') }}
 
                         </p>
 
@@ -2443,7 +2425,7 @@
 
 
 
-                        Terug naar inloggen
+                        {{ __('Terug naar inloggen') }}
 
                     </a>
 
@@ -2453,9 +2435,7 @@
 
                 <div class="recovery-help">
 
-                    Heb je nog toegang tot je account? Gebruik dan je
-
-                    accountinstellingen om je wachtwoord direct te wijzigen.
+                    {{ __('Heb je nog toegang tot je account? Gebruik dan je accountinstellingen om je wachtwoord direct te wijzigen.') }}
 
                 </div>
 

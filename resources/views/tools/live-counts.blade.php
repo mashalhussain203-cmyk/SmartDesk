@@ -289,32 +289,31 @@
                 Mashal Studio · Live Social Analytics
             </div>
 
-            <h1 class="livehub-title">Live <span>Counts.</span></h1>
+            <h1 class="livehub-title">{{ __('Live') }} <span>{{ __('Counts.') }}</span></h1>
 
             <p class="livehub-copy">
-                Kies een live counter en volg publieke TikTok- en YouTube-statistieken zonder handmatig te refreshen.
-                De cijfers bewegen automatisch zodra nieuwe data binnenkomt.
+                {{ __('Kies een live counter en volg publieke TikTok- en YouTube-statistieken zonder handmatig te refreshen. De cijfers bewegen automatisch zodra nieuwe data binnenkomt.') }}
             </p>
         </header>
 
         <div class="livehub-features">
             <div class="livehub-feature">
-                <strong>Exacte cijfers</strong>
-                <span>Volledige publieke waarden in plaats van afgeronde miljoenen.</span>
+                <strong>{{ __('Exacte cijfers') }}</strong>
+                <span>{{ __('Volledige publieke waarden in plaats van afgeronde miljoenen.') }}</span>
             </div>
             <div class="livehub-feature">
-                <strong>Automatisch live</strong>
-                <span>Nieuwe snapshots worden vanzelf opgehaald en geanimeerd.</span>
+                <strong>{{ __('Automatisch live') }}</strong>
+                <span>{{ __('Nieuwe snapshots worden vanzelf opgehaald en geanimeerd.') }}</span>
             </div>
             <div class="livehub-feature">
-                <strong>Rustige interface</strong>
-                <span>Donkere Mashal UI met de belangrijkste statistieken voorop.</span>
+                <strong>{{ __('Rustige interface') }}</strong>
+                <span>{{ __('Donkere Mashal UI met de belangrijkste statistieken voorop.') }}</span>
             </div>
         </div>
 
         <div class="livehub-section-head">
-            <h2>Choose a live counter</h2>
-            <p>TikTok &amp; YouTube tools</p>
+            <h2>{{ __('Choose a live counter') }}</h2>
+            <p>{{ __('TikTok & YouTube tools') }}</p>
         </div>
 
         <div class="livehub-grid">
@@ -323,15 +322,15 @@
                     <div class="livehub-icon-wrap">
                         <span style="font-size:31px;color:#ff4656;font-weight:900" aria-hidden="true">▶</span>
                     </div>
-                    <div class="livehub-live"><i></i> Live</div>
+                    <div class="livehub-live"><i></i> {{ __('Live') }}</div>
                 </div>
-                <h3>YouTube Live Subscribers</h3>
-                <p>Zoek een YouTube-kanaal en volg abonnees, weergaven en video's met een automatisch vernieuwende teller.</p>
+                <h3>{{ __('YouTube Live Subscribers') }}</h3>
+                <p>{{ __('Zoek een YouTube-kanaal en volg abonnees, weergaven en video\'s met een automatisch vernieuwende teller.') }}</p>
                 <div class="livehub-metrics">
-                    <span>Subscribers</span>
-                    <span>Views</span>
-                    <span>Videos</span>
-                    <span>Goal</span>
+                    <span>{{ __('Subscribers') }}</span>
+                    <span>{{ __('Views') }}</span>
+                    <span>{{ __('Videos') }}</span>
+                    <span>{{ __('Goal') }}</span>
                 </div>
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
@@ -341,18 +340,17 @@
                     <div class="livehub-icon-wrap">
                         <span style="font-size:31px;color:#ff4656;font-weight:900" aria-hidden="true">▶</span>
                     </div>
-                    <div class="livehub-live"><i></i> Live</div>
+                    <div class="livehub-live"><i></i> {{ __('Live') }}</div>
                 </div>
-                <h3>YouTube Live Views</h3>
+                <h3>{{ __('YouTube Live Views') }}</h3>
                 <p>
-                    Zoek een YouTube-video of plak de URL en volg views, likes,
-                    dislikes en comments met een automatisch vernieuwende teller.
+                    {{ __('Zoek een YouTube-video of plak de URL en volg views, likes, dislikes en comments met een automatisch vernieuwende teller.') }}
                 </p>
                 <div class="livehub-metrics">
-                    <span>Views</span>
-                    <span>Likes</span>
-                    <span>Dislikes</span>
-                    <span>Comments</span>
+                    <span>{{ __('Views') }}</span>
+                    <span>{{ __('Likes') }}</span>
+                    <span>{{ __('Dislikes') }}</span>
+                    <span>{{ __('Comments') }}</span>
                 </div>
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
@@ -362,20 +360,19 @@
                     <div class="livehub-icon-wrap">
                         <img src="/icons/follower-followers.svg?v=1" alt="">
                     </div>
-                    <div class="livehub-live"><i></i> Live</div>
+                    <div class="livehub-live"><i></i> {{ __('Live') }}</div>
                 </div>
 
                 <h3>TikTok Live Followers</h3>
                 <p>
-                    Volg de follower count van een publiek TikTok-account samen met
-                    likes, following en het aantal videos.
+                    {{ __('Volg de follower count van een publiek TikTok-account samen met likes, following en het aantal videos.') }}
                 </p>
 
                 <div class="livehub-metrics">
-                    <span>Followers</span>
-                    <span>Likes</span>
-                    <span>Following</span>
-                    <span>Videos</span>
+                    <span>{{ __('Followers') }}</span>
+                    <span>{{ __('Likes') }}</span>
+                    <span>{{ __('Following') }}</span>
+                    <span>{{ __('Videos') }}</span>
                 </div>
 
                 <span class="livehub-arrow" aria-hidden="true">→</span>
@@ -386,20 +383,19 @@
                     <div class="livehub-icon-wrap">
                         <img src="/icons/live-eye.svg?v=20261007-5" alt="">
                     </div>
-                    <div class="livehub-live"><i></i> Live</div>
+                    <div class="livehub-live"><i></i> {{ __('Live') }}</div>
                 </div>
 
-                <h3>TikTok Video Live Views</h3>
+                <h3>{{ __('TikTok Video Live Views') }}</h3>
                 <p>
-                    Open een publieke TikTok-video en volg views, likes, comments
-                    en shares met de live odometer.
+                    {{ __('Open een publieke TikTok-video en volg views, likes, comments en shares met de live odometer.') }}
                 </p>
 
                 <div class="livehub-metrics">
-                    <span>Views</span>
-                    <span>Likes</span>
-                    <span>Comments</span>
-                    <span>Shares</span>
+                    <span>{{ __('Views') }}</span>
+                    <span>{{ __('Likes') }}</span>
+                    <span>{{ __('Comments') }}</span>
+                    <span>{{ __('Shares') }}</span>
                 </div>
 
                 <span class="livehub-arrow" aria-hidden="true">→</span>

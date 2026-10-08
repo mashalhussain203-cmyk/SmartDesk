@@ -1428,7 +1428,7 @@
 
             <h2>
 
-                Nieuwe gebruiker aanmaken
+                {{ __('Nieuwe gebruiker aanmaken') }}
 
             </h2>
 
@@ -1436,11 +1436,7 @@
 
             <p>
 
-                Maak handmatig een nieuw Mashal-account aan,
-
-                bepaal direct de verificatiestatus
-
-                en geef alleen indien nodig administratorrechten.
+                {{ __('Maak handmatig een nieuw Mashal-account aan, bepaal direct de verificatiestatus en geef alleen indien nodig administratorrechten.') }}
 
             </p>
 
@@ -1460,7 +1456,7 @@
 
         >
 
-            ← Terug naar gebruikers
+            {{ __('← Terug naar gebruikers') }}
 
         </a>
 
@@ -1490,7 +1486,7 @@
 
             <strong>
 
-                Gebruiker aangemaakt.
+                {{ __('Gebruiker aangemaakt.') }}
 
             </strong>
 
@@ -1520,7 +1516,7 @@
 
             <strong>
 
-                De gebruiker kon niet worden aangemaakt.
+                {{ __('De gebruiker kon niet worden aangemaakt.') }}
 
             </strong>
 
@@ -1618,7 +1614,7 @@
 
                         <h3>
 
-                            Persoonlijke gegevens
+                            {{ __('Persoonlijke gegevens') }}
 
                         </h3>
 
@@ -1626,9 +1622,7 @@
 
                         <p>
 
-                            Vul de basisgegevens in waarmee
-
-                            de gebruiker toegang krijgt tot Mashal.
+                            {{ __('Vul de basisgegevens in waarmee de gebruiker toegang krijgt tot Mashal.') }}
 
                         </p>
 
@@ -1658,7 +1652,7 @@
 
                                 <label for="name">
 
-                                    Naam
+                                    {{ __('Naam') }}
 
                                 </label>
 
@@ -1742,7 +1736,7 @@
 
                                 <label for="email">
 
-                                    E-mailadres
+                                    {{ __('E-mailadres') }}
 
                                 </label>
 
@@ -1844,7 +1838,7 @@
 
                         <h3>
 
-                            Toegang & wachtwoord
+                            {{ __('Toegang & wachtwoord') }}
 
                         </h3>
 
@@ -1852,9 +1846,7 @@
 
                         <p>
 
-                            Stel een sterk tijdelijk of definitief wachtwoord in
-
-                            en bevestig het voordat het account wordt opgeslagen.
+                            {{ __('Stel een sterk tijdelijk of definitief wachtwoord in en bevestig het voordat het account wordt opgeslagen.') }}
 
                         </p>
 
@@ -1880,7 +1872,7 @@
 
                                 <label for="password">
 
-                                    Wachtwoord
+                                    {{ __('Wachtwoord') }}
 
                                 </label>
 
@@ -1942,7 +1934,7 @@
 
                                 >
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
                                 </button>
 
@@ -1988,7 +1980,7 @@
 
                                 >
 
-                                    Gebruik minimaal 8 tekens.
+                                    {{ __('Gebruik minimaal 8 tekens.') }}
 
                                 </div>
 
@@ -2014,7 +2006,7 @@
 
                                 <label for="password_confirmation">
 
-                                    Wachtwoord bevestigen
+                                    {{ __('Wachtwoord bevestigen') }}
 
                                 </label>
 
@@ -2076,7 +2068,7 @@
 
                                 >
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
                                 </button>
 
@@ -2126,7 +2118,7 @@
 
                         <h3>
 
-                            Verificatie & rechten
+                            {{ __('Verificatie & rechten') }}
 
                         </h3>
 
@@ -2134,9 +2126,7 @@
 
                         <p>
 
-                            Kies bewust welke status en rechten
-
-                            het nieuwe account direct krijgt.
+                            {{ __('Kies bewust welke status en rechten het nieuwe account direct krijgt.') }}
 
                         </p>
 
@@ -2192,7 +2182,7 @@
 
                                     <strong>
 
-                                        E-mailadres direct verifiëren
+                                        {{ __('E-mailadres direct verifiëren') }}
 
                                     </strong>
 
@@ -2200,9 +2190,7 @@
 
                                     <span>
 
-                                        Indien uitgeschakeld moet de gebruiker
-
-                                        het e-mailadres zelf bevestigen.
+                                        {{ __('Indien uitgeschakeld moet de gebruiker het e-mailadres zelf bevestigen.') }}
 
                                     </span>
 
@@ -2262,7 +2250,7 @@
 
                                     <strong>
 
-                                        Administratorrechten
+                                        {{ __('Administratorrechten') }}
 
                                     </strong>
 
@@ -2270,9 +2258,7 @@
 
                                     <span>
 
-                                        Geeft toegang tot beheertaken
-
-                                        en gevoelige gebruikersfuncties.
+                                        {{ __('Geeft toegang tot beheertaken en gevoelige gebruikersfuncties.') }}
 
                                     </span>
 
@@ -2336,7 +2322,7 @@
 
                     >
 
-                        Gebruiker aanmaken
+                        {{ __('Gebruiker aanmaken') }}
 
                         <span aria-hidden="true">→</span>
 
@@ -2380,7 +2366,7 @@
 
                 <span class="aside-kicker">
 
-                    Live preview
+                    {{ __('Live preview') }}
 
                 </span>
 
@@ -2410,7 +2396,7 @@
 
                         <strong id="previewName">
 
-                            Nieuwe gebruiker
+                            {{ __('Nieuwe gebruiker') }}
 
                         </strong>
 
@@ -2446,7 +2432,7 @@
 
                     >
 
-                        Niet geverifieerd
+                        {{ __('Niet geverifieerd') }}
 
                     </span>
 
@@ -2460,7 +2446,7 @@
 
                     >
 
-                        Gebruiker
+                        {{ __('Gebruiker') }}
 
                     </span>
 
@@ -2494,7 +2480,7 @@
 
                 <h3>
 
-                    Wat gebeurt er daarna?
+                    {{ __('Wat gebeurt er daarna?') }}
 
                 </h3>
 
@@ -2502,9 +2488,7 @@
 
                 <p>
 
-                    Na aanmaken wordt het account direct opgeslagen
-
-                    en kan Mashal de bijbehorende accountmail verzenden.
+                    {{ __('Na aanmaken wordt het account direct opgeslagen en kan Mashal de bijbehorende accountmail verzenden.') }}
 
                 </p>
 
@@ -2530,9 +2514,7 @@
 
                         <span>
 
-                            Naam, e-mail en wachtwoord
-
-                            worden opgeslagen.
+                            {{ __('Naam, e-mail en wachtwoord worden opgeslagen.') }}
 
                         </span>
 
@@ -2558,9 +2540,7 @@
 
                         <span>
 
-                            De gekozen verificatiestatus
-
-                            wordt toegepast.
+                            {{ __('De gekozen verificatiestatus wordt toegepast.') }}
 
                         </span>
 
@@ -2586,9 +2566,7 @@
 
                         <span>
 
-                            Administratorrechten worden
-
-                            alleen toegekend indien aangevinkt.
+                            {{ __('Administratorrechten worden alleen toegekend indien aangevinkt.') }}
 
                         </span>
 
@@ -2618,7 +2596,7 @@
 
                 <span class="aside-kicker">
 
-                    Security notice
+                    {{ __('Security notice') }}
 
                 </span>
 
@@ -2626,7 +2604,7 @@
 
                 <h3>
 
-                    Let op met adminrechten
+                    {{ __('Let op met adminrechten') }}
 
                 </h3>
 
@@ -2634,13 +2612,7 @@
 
                 <p>
 
-                    Geef administratorrechten alleen aan personen
-
-                    die beheerrechten daadwerkelijk nodig hebben.
-
-                    Een administrator kan gebruikersgegevens wijzigen
-
-                    en accounts verwijderen.
+                    {{ __('Geef administratorrechten alleen aan personen die beheerrechten daadwerkelijk nodig hebben. Een administrator kan gebruikersgegevens wijzigen en accounts verwijderen.') }}
 
                 </p>
 

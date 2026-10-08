@@ -14,13 +14,12 @@
             <h2>Face ID &amp; passkeys</h2>
 
             <p>
-                Stel op je iPhone een passkey in.
-                Daarmee log je de volgende keer snel in.
+                {{ __('Stel op je iPhone een passkey in. Daarmee log je de volgende keer snel in.') }}
             </p>
 
             <div data-passkey-enroll hidden>
                 <label for="passkey-name">
-                    Naam van je passkey
+                    {{ __('Naam van je passkey') }}
                 </label>
 
                 <input
@@ -35,12 +34,12 @@
                     type="button"
                     data-passkey-start
                 >
-                    Passkey instellen
+                    {{ __('Passkey instellen') }}
                 </button>
             </div>
 
             <p data-passkey-device-note hidden>
-                Open deze pagina op je iPhone om een passkey in te stellen.
+                {{ __('Open deze pagina op je iPhone om een passkey in te stellen.') }}
             </p>
 
             <ul
@@ -49,25 +48,23 @@
             ></ul>
 
             <p>
-                Voor toevoegen of verwijderen moet je in de afgelopen
-                tien minuten opnieuw zijn ingelogd.
+                {{ __('Voor toevoegen of verwijderen moet je in de afgelopen tien minuten opnieuw zijn ingelogd.') }}
             </p>
         @else
             <button
                 type="button"
                 data-passkey-start
             >
-                Inloggen met Face ID / passkey
+                {{ __('Inloggen met Face ID / passkey') }}
             </button>
 
             <p>
-                Nog geen passkey? Log eerst op je gebruikelijke manier in
-                en stel er één in bij Accountbeveiliging.
+                {{ __('Nog geen passkey? Log eerst op je gebruikelijke manier in en stel er één in bij Accountbeveiliging.') }}
             </p>
         @endif
 
         <p class="mashal-passkey-detail">
-            Je iPhone bevestigt met Face ID, Touch ID of je toestelcode.
+            {{ __('Je iPhone bevestigt met Face ID, Touch ID of je toestelcode.') }}
         </p>
 
         <p

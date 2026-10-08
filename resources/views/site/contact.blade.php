@@ -577,14 +577,11 @@
             <h2>{{ __('Account en inloggen') }}</h2>
 
             <p>
-                Heb je problemen met inloggen, het aanmaken van een account
-                of het gebruiken van een externe inlogmethode zoals TikTok?
-                Beschrijf het probleem dan zo duidelijk mogelijk in het formulier.
+                {{ __('Heb je problemen met inloggen, het aanmaken van een account of het gebruiken van een externe inlogmethode zoals TikTok? Beschrijf het probleem dan zo duidelijk mogelijk in het formulier.') }}
             </p>
 
             <p>
-                Deel daarbij nooit je wachtwoord, Authenticator-code,
-                recoverycode of andere geheime beveiligingsgegevens.
+                {{ __('Deel daarbij nooit je wachtwoord, Authenticator-code, recoverycode of andere geheime beveiligingsgegevens.') }}
             </p>
         </section>
 
@@ -592,9 +589,7 @@
             <h2>{{ __('Privacy- en gegevensverzoeken') }}</h2>
 
             <p>
-                Voor vragen over je persoonsgegevens, inzage, correctie,
-                verwijdering van gegevens of andere privacygerelateerde verzoeken
-                kun je het contactformulier gebruiken of e-mailen naar
+                {{ __('Voor vragen over je persoonsgegevens, inzage, correctie, verwijdering van gegevens of andere privacygerelateerde verzoeken kun je het contactformulier gebruiken of e-mailen naar') }}
                 <a
                     class="legal-link"
                     href="mailto:mashalhussain203@gmail.com"
@@ -604,8 +599,7 @@
             </p>
 
             <p>
-                Meer informatie over hoe Mashal Studio persoonsgegevens verwerkt,
-                vind je in ons
+                {{ __('Meer informatie over hoe Mashal Studio persoonsgegevens verwerkt, vind je in ons') }}
                 <a
                     class="legal-link"
                     href="{{ route('privacy') }}"
@@ -619,15 +613,11 @@
             <h2>{{ __('Beveiligingsmeldingen') }}</h2>
 
             <p>
-                Denk je dat er sprake is van ongeautoriseerde toegang,
-                misbruik, een kwetsbaarheid of een ander beveiligingsprobleem
-                binnen Mashal Studio? Neem dan zo snel mogelijk contact met ons op.
+                {{ __('Denk je dat er sprake is van ongeautoriseerde toegang, misbruik, een kwetsbaarheid of een ander beveiligingsprobleem binnen Mashal Studio? Neem dan zo snel mogelijk contact met ons op.') }}
             </p>
 
             <p>
-                Beschrijf zo duidelijk mogelijk wat je hebt waargenomen.
-                Deel geen wachtwoorden, verificatiecodes, recoverycodes
-                of andere vertrouwelijke inloggegevens.
+                {{ __('Beschrijf zo duidelijk mogelijk wat je hebt waargenomen. Deel geen wachtwoorden, verificatiecodes, recoverycodes of andere vertrouwelijke inloggegevens.') }}
             </p>
         </section>
 
@@ -635,14 +625,14 @@
             <h2>{{ __('Juridische informatie') }}</h2>
 
             <p>
-                Bekijk voor meer informatie ook ons
+                {{ __('Bekijk voor meer informatie ook ons') }}
                 <a
                     class="legal-link"
                     href="{{ route('privacy') }}"
                 >
                     {{ __('Privacybeleid') }}
                 </a>
-                en onze
+                {{ __('en onze') }}
                 <a
                     class="legal-link"
                     href="{{ route('terms') }}"
@@ -656,15 +646,11 @@
             <h2>{{ __('Reactietijd') }}</h2>
 
             <p>
-                We proberen vragen en verzoeken zo snel mogelijk te beoordelen
-                en te beantwoorden. De reactietijd kan verschillen afhankelijk
-                van het onderwerp, de complexiteit van het verzoek
-                en de beschikbaarheid van ondersteuning.
+                {{ __('We proberen vragen en verzoeken zo snel mogelijk te beoordelen en te beantwoorden. De reactietijd kan verschillen afhankelijk van het onderwerp, de complexiteit van het verzoek en de beschikbaarheid van ondersteuning.') }}
             </p>
 
             <p class="contact-note">
-                Na het verzenden van het formulier ontvang je automatisch
-                een bevestigingsmail op het opgegeven e-mailadres.
+                {{ __('Na het verzenden van het formulier ontvang je automatisch een bevestigingsmail op het opgegeven e-mailadres.') }}
             </p>
         </section>
 

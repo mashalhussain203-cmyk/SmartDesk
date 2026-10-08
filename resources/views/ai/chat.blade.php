@@ -2948,7 +2948,7 @@
                 data-new-chat
             >
                 <span class="brand-dot" aria-hidden="true">M</span>
-                <span>Nieuwe chat</span>
+                <span>{{ __('Nieuwe chat') }}</span>
 
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="margin-left:auto">
                     <path d="M12 5v14M5 12h14"/>
@@ -2961,7 +2961,7 @@
             class="studio-dashboard-link"
         >
             <span aria-hidden="true">◫</span>
-            <span>AI Dashboard</span>
+            <span>{{ __('AI Dashboard') }}</span>
         </a>
 
         <div class="chat-search-wrap">
@@ -2977,30 +2977,30 @@
 
         @if(($workspaceEnabled ?? false))
         <div class="workspace-panel" id="workspace-panel">
-            <div class="workspace-panel-title">Workspace</div>
+            <div class="workspace-panel-title">{{ __('Workspace') }}</div>
             <div class="workspace-row">
                 <select id="workspace-project-select" class="workspace-select" aria-label="Project">
-                    <option value="">Geen project</option>
+                    <option value="">{{ __('Geen project') }}</option>
                 </select>
                 <button type="button" class="workspace-action primary" id="workspace-project-add" title="Nieuw project">+</button>
             </div>
             <div class="workspace-row">
-                <button type="button" class="workspace-action" id="workspace-project-files">📚 Bestanden</button>
-                <button type="button" class="workspace-action" id="workspace-memory-add">🧠 Onthoud</button>
+                <button type="button" class="workspace-action" id="workspace-project-files">{{ __('📚 Bestanden') }}</button>
+                <button type="button" class="workspace-action" id="workspace-memory-add">{{ __('🧠 Onthoud') }}</button>
             </div>
             <div class="workspace-row">
-                <button type="button" class="workspace-action" id="workspace-share-chat">↗ Delen</button>
-                <button type="button" class="workspace-action" id="workspace-export-chat">↓ Export</button>
+                <button type="button" class="workspace-action" id="workspace-share-chat">{{ __('↗ Delen') }}</button>
+                <button type="button" class="workspace-action" id="workspace-export-chat">{{ __('↓ Export') }}</button>
             </div>
             <input type="file" id="workspace-project-file-input" hidden>
             <div class="workspace-file-panel" id="workspace-file-panel"></div>
             <div class="workspace-status" id="workspace-status">
-                Chats worden veilig op je account gesynchroniseerd.
+                {{ __('Chats worden veilig op je account gesynchroniseerd.') }}
             </div>
         </div>
         @endif
 
-        <div class="chat-sidebar-label">Chats</div>
+        <div class="chat-sidebar-label">{{ __('Chats') }}</div>
 
         <div
             class="chat-list"
@@ -3106,7 +3106,7 @@
                         <div class="ai-welcome-mark" aria-hidden="true">M</div>
                     </div>
 
-                    <h1>Waar kan ik je mee helpen?</h1>
+                    <h1>{{ __('Waar kan ik je mee helpen?') }}</h1>
 
                     <p>
                         Praat met Mashal AI, upload foto's of documenten, laat informatie
@@ -3116,34 +3116,34 @@
 
                     <div class="ai-suggestions">
                         <button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit.">
-                            <strong>Document begrijpen</strong>
-                            <span>Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.</span>
+                            <strong>{{ __('Document begrijpen') }}</strong>
+                            <span>{{ __('Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.') }}</span>
                         </button>
 
                         <button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is.">
-                            <strong>Afbeelding analyseren</strong>
-                            <span>Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.</span>
+                            <strong>{{ __('Afbeelding analyseren') }}</strong>
+                            <span>{{ __('Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.') }}</span>
                         </button>
 
                         <button type="button" class="ai-suggestion" data-prompt="Help me stap voor stap met mijn vraag.">
-                            <strong>Stap voor stap helpen</strong>
-                            <span>Vraag uitleg, code, planning of praktisch advies.</span>
+                            <strong>{{ __('Stap voor stap helpen') }}</strong>
+                            <span>{{ __('Vraag uitleg, code, planning of praktisch advies.') }}</span>
                         </button>
 
                         <button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen.">
-                            <strong>Samenvatten</strong>
-                            <span>Maak lange tekst of documenten snel begrijpelijk.</span>
+                            <strong>{{ __('Samenvatten') }}</strong>
+                            <span>{{ __('Maak lange tekst of documenten snel begrijpelijk.') }}</span>
                         </button>
 
 
                         <button type="button" class="ai-suggestion" data-prompt="Zoek dit op internet en geef mij de nieuwste betrouwbare informatie met bronnen.">
-                            <strong>Internet zoeken</strong>
-                            <span>Actuele informatie zoeken en bronnen bij het antwoord tonen.</span>
+                            <strong>{{ __('Internet zoeken') }}</strong>
+                            <span>{{ __('Actuele informatie zoeken en bronnen bij het antwoord tonen.') }}</span>
                         </button>
 
                         <button type="button" class="ai-suggestion" data-prompt="Onderzoek dit uitgebreid, vergelijk meerdere bronnen en geef een duidelijke conclusie.">
-                            <strong>Deep Research</strong>
-                            <span>Meerdere webbronnen vergelijken en een onderbouwd antwoord maken.</span>
+                            <strong>{{ __('Deep Research') }}</strong>
+                            <span>{{ __('Meerdere webbronnen vergelijken en een onderbouwd antwoord maken.') }}</span>
                         </button>
                     </div>
                 </div>
@@ -3197,7 +3197,7 @@
                                         <path d="M12 5v14M5 12h14"/>
                                     </svg>
 
-                                    <span class="label">Bestand</span>
+                                    <span class="label">{{ __('Bestand') }}</span>
                                 </label>
 
                                 <input
@@ -3218,7 +3218,7 @@
                                         <path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/>
                                         <circle cx="12" cy="13" r="3.2"/>
                                     </svg>
-                                    <span class="label">Camera</span>
+                                    <span class="label">{{ __('Camera') }}</span>
                                 </label>
 
                                 <input
@@ -3240,7 +3240,7 @@
                                         <rect x="9" y="3" width="6" height="12" rx="3"/>
                                         <path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>
                                     </svg>
-                                    <span class="label">Live</span>
+                                    <span class="label">{{ __('Live') }}</span>
                                 </button>
 
 
@@ -3251,11 +3251,11 @@
                                         aria-label="AI modus"
                                         title="Kies hoe Mashal AI tools gebruikt"
                                     >
-                                        <option value="auto">✨ Auto</option>
-                                        <option value="web">🌐 Internet</option>
-                                        <option value="research">🔎 Research</option>
-                                        <option value="code">🧮 Code</option>
-                                        <option value="plain">💬 Alleen chat</option>
+                                        <option value="auto">{{ __('✨ Auto') }}</option>
+                                        <option value="web">{{ __('🌐 Internet') }}</option>
+                                        <option value="research">{{ __('🔎 Research') }}</option>
+                                        <option value="code">{{ __('🧮 Code') }}</option>
+                                        <option value="plain">{{ __('💬 Alleen chat') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -3305,7 +3305,7 @@
 >
     <div class="live-voice-top">
         <div class="live-voice-title">
-            Mashal AI <span>Live</span>
+            Mashal AI <span>{{ __('Live') }}</span>
         </div>
 
         <button
@@ -3313,7 +3313,7 @@
             class="voice-control"
             id="voice-type"
         >
-            ⌨ Typen
+            {{ __('⌨ Typen') }}
         </button>
     </div>
 
@@ -3329,15 +3329,15 @@
 
             <div class="live-voice-status" aria-live="polite">
                 <strong id="voice-status-title">
-                    Klaar
+                    {{ __('Klaar') }}
                 </strong>
 
                 <span id="voice-status-detail">
-                    Praat Nederlands, English of اردو.
+                    {{ __('Praat Nederlands, English of اردو.') }}
                 </span>
 
                 <div class="voice-device-hint" id="voice-device-hint">
-                    Op telefoon: houd je mediavolume aan en geef microfoontoegang.
+                    {{ __('Op telefoon: houd je mediavolume aan en geef microfoontoegang.') }}
                 </div>
             </div>
         </div>
@@ -3350,7 +3350,7 @@
             role="group"
             aria-label="Live Voice taal"
         >
-            <button type="button" class="voice-language-option active" data-voice-language="auto">🌐 Auto</button>
+            <button type="button" class="voice-language-option active" data-voice-language="auto">{{ __('🌐 Auto') }}</button>
             <button type="button" class="voice-language-option" data-voice-language="nl">NL</button>
             <button type="button" class="voice-language-option" data-voice-language="en">EN</button>
             <button type="button" class="voice-language-option" data-voice-language="ur">اردو</button>

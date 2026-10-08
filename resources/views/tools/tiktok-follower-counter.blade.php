@@ -526,10 +526,10 @@
                 Mashal Studio · Social Intelligence
             </div>
 
-            <h1 class="tfc-title">Live <span>Followers.</span></h1>
+            <h1 class="tfc-title">{{ __('Live') }} <span>{{ __('Followers.') }}</span></h1>
 
             <p class="tfc-subtitle">
-                Volg publieke TikTok followers, likes, following en videos live in één dashboard.
+                {{ __('Volg publieke TikTok followers, likes, following en videos live in één dashboard.') }}
             </p>
         </header>
 
@@ -568,7 +568,7 @@
                     ></div>
                 </div>
 
-                <button class="tfc-button" type="submit">Start Live Followers →</button>
+                <button class="tfc-button" type="submit">{{ __('Start Live Followers →') }}</button>
             </form>
         </div>
 
@@ -617,13 +617,13 @@
                     </div>
                     <div class="tfc-profile-name" id="tfc-display-name">{{ '@'.$username }}</div>
                     <div class="tfc-profile-handle">{{ '@'.$username }}</div>
-                    <div class="tfc-profile-chip">Live TikTok profile</div>
+                    <div class="tfc-profile-chip">{{ __('Live TikTok profile') }}</div>
                 </aside>
 
                 <div class="tfc-card tfc-dashboard">
                     <div class="tfc-followers">
                         <div class="tfc-stat-head">
-                            <div class="tfc-label">Followers</div>
+                            <div class="tfc-label">{{ __('Followers') }}</div>
                             <img class="tfc-icon" src="/icons/follower-followers.svg?v=1" alt="">
                         </div>
                         <div class="tfc-main-value tfc-loading" data-follower-stat="followers">0</div>
@@ -632,7 +632,7 @@
                     <div class="tfc-secondary">
                         <div class="tfc-stat">
                             <div class="tfc-stat-head">
-                                <div class="tfc-label">Likes</div>
+                                <div class="tfc-label">{{ __('Likes') }}</div>
                                 <img class="tfc-icon" src="/icons/live-heart.svg?v=20261007-4" alt="">
                             </div>
                             <div class="tfc-value tfc-loading" data-follower-stat="likes">0</div>
@@ -640,7 +640,7 @@
 
                         <div class="tfc-stat">
                             <div class="tfc-stat-head">
-                                <div class="tfc-label">Following</div>
+                                <div class="tfc-label">{{ __('Following') }}</div>
                                 <img class="tfc-icon" src="/icons/follower-following.svg?v=1" alt="">
                             </div>
                             <div class="tfc-value tfc-loading" data-follower-stat="following">0</div>
@@ -648,7 +648,7 @@
 
                         <div class="tfc-stat">
                             <div class="tfc-stat-head">
-                                <div class="tfc-label">Videos</div>
+                                <div class="tfc-label">{{ __('Videos') }}</div>
                                 <img class="tfc-icon" src="/icons/follower-videos.svg?v=1" alt="">
                             </div>
                             <div class="tfc-value tfc-loading" data-follower-stat="videos">0</div>
@@ -658,8 +658,8 @@
             </div>
         @else
             <div class="tfc-empty">
-                <strong>Start een TikTok Live Follower Count</strong>
-                <span>Vul een publieke TikTok username of profiel-URL in.</span>
+                <strong>{{ __('Start een TikTok Live Follower Count') }}</strong>
+                <span>{{ __('Vul een publieke TikTok username of profiel-URL in.') }}</span>
             </div>
         @endisset
     </div>

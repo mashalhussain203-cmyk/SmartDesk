@@ -866,7 +866,7 @@
 
             <span aria-hidden="true">←</span>
 
-            <span>Terug naar accountbeveiliging</span>
+            <span>{{ __('Terug naar accountbeveiliging') }}</span>
 
         </a>
 
@@ -878,7 +878,7 @@
 
                 <span class="status-dot active"></span>
 
-                Authenticator actief
+                {{ __('Authenticator actief') }}
 
             </span>
 
@@ -888,7 +888,7 @@
 
                 <span class="status-dot pending"></span>
 
-                Instellen bezig
+                {{ __('Instellen bezig') }}
 
             </span>
 
@@ -898,7 +898,7 @@
 
                 <span class="status-dot"></span>
 
-                Niet ingesteld
+                {{ __('Niet ingesteld') }}
 
             </span>
 
@@ -910,17 +910,13 @@
 
     <section class="hero">
 
-        <h1>Authenticator-beveiliging</h1>
+        <h1>{{ __('Authenticator-beveiliging') }}</h1>
 
 
 
         <p>
 
-            Beveilig je Mashal Studio-account met een Authenticator-app.
-
-            Na het scannen van de QR-code genereert je app steeds een
-
-            nieuwe 6-cijferige verificatiecode.
+            {{ __('Beveilig je Mashal Studio-account met een Authenticator-app. Na het scannen van de QR-code genereert je app steeds een nieuwe 6-cijferige verificatiecode.') }}
 
         </p>
 
@@ -956,7 +952,7 @@
 
         <div class="alert alert-error">
 
-            <strong>Controleer de ingevoerde gegevens.</strong>
+            <strong>{{ __('Controleer de ingevoerde gegevens.') }}</strong>
 
 
 
@@ -988,11 +984,9 @@
 
                 <div class="alert alert-warning">
 
-                    <strong>Bewaar deze herstelcodes nu.</strong><br>
+                    <strong>{{ __('Bewaar deze herstelcodes nu.') }}</strong><br>
 
-                    Ze worden na het verlaten of vernieuwen van deze pagina
-
-                    niet opnieuw in deze vorm getoond.
+                    {{ __('Ze worden na het verlaten of vernieuwen van deze pagina niet opnieuw in deze vorm getoond.') }}
 
                 </div>
 
@@ -1000,7 +994,7 @@
 
                 <h2 class="section-title">
 
-                    Herstelcodes
+                    {{ __('Herstelcodes') }}
 
                 </h2>
 
@@ -1008,9 +1002,7 @@
 
                 <p class="section-subtitle">
 
-                    Gebruik één herstelcode wanneer je tijdelijk geen toegang
-
-                    hebt tot je Authenticator-app.
+                    {{ __('Gebruik één herstelcode wanneer je tijdelijk geen toegang hebt tot je Authenticator-app.') }}
 
                 </p>
 
@@ -1034,9 +1026,7 @@
 
                 <p class="muted small" style="margin-top: 16px;">
 
-                    Bewaar deze codes op een veilige plek, bijvoorbeeld in een
-
-                    wachtwoordmanager.
+                    {{ __('Bewaar deze codes op een veilige plek, bijvoorbeeld in een wachtwoordmanager.') }}
 
                 </p>
 
@@ -1068,7 +1058,7 @@
 
                     <h2 class="section-title">
 
-                        Authenticator instellen
+                        {{ __('Authenticator instellen') }}
 
                     </h2>
 
@@ -1076,11 +1066,7 @@
 
                     <p class="section-subtitle">
 
-                        Gebruik bijvoorbeeld Google Authenticator,
-
-                        Microsoft Authenticator, 1Password of een andere
-
-                        TOTP-compatibele app.
+                        {{ __('Gebruik bijvoorbeeld Google Authenticator, Microsoft Authenticator, 1Password of een andere TOTP-compatibele app.') }}
 
                     </p>
 
@@ -1088,9 +1074,7 @@
 
                     <div class="alert alert-warning" style="margin-top: 20px;">
 
-                        Authenticator wordt pas actief nadat je de eerste
-
-                        6-cijferige code succesvol hebt bevestigd.
+                        {{ __('Authenticator wordt pas actief nadat je de eerste 6-cijferige code succesvol hebt bevestigd.') }}
 
                     </div>
 
@@ -1118,7 +1102,7 @@
 
                             >
 
-                                Authenticator instellen
+                                {{ __('Authenticator instellen') }}
 
                             </button>
 
@@ -1146,7 +1130,7 @@
 
                     <h2 class="section-title">
 
-                        Scan de QR-code
+                        {{ __('Scan de QR-code') }}
 
                     </h2>
 
@@ -1154,7 +1138,7 @@
 
                     <p class="section-subtitle">
 
-                        Open je Authenticator-app en voeg een nieuw account toe.
+                        {{ __('Open je Authenticator-app en voeg een nieuw account toe.') }}
 
                     </p>
 
@@ -1186,9 +1170,7 @@
 
                                 <div class="alert alert-error">
 
-                                    De QR-code kon niet worden geladen.
-
-                                    Annuleer de setup en probeer opnieuw.
+                                    {{ __('De QR-code kon niet worden geladen. Annuleer de setup en probeer opnieuw.') }}
 
                                 </div>
 
@@ -1202,7 +1184,7 @@
 
                                     <span class="secret-label">
 
-                                        Handmatige sleutel
+                                        {{ __('Handmatige sleutel') }}
 
                                     </span>
 
@@ -1220,9 +1202,7 @@
 
                                 <p class="muted small">
 
-                                    Werkt scannen niet? Voeg Mashal Studio
-
-                                    handmatig toe met deze sleutel.
+                                    {{ __('Werkt scannen niet? Voeg Mashal Studio handmatig toe met deze sleutel.') }}
 
                                 </p>
 
@@ -1240,13 +1220,13 @@
 
                             <ol class="steps">
 
-                                <li>Open je Authenticator-app.</li>
+                                <li>{{ __('Open je Authenticator-app.') }}</li>
 
-                                <li>Kies voor account toevoegen of QR-code scannen.</li>
+                                <li>{{ __('Kies voor account toevoegen of QR-code scannen.') }}</li>
 
-                                <li>Scan de QR-code.</li>
+                                <li>{{ __('Scan de QR-code.') }}</li>
 
-                                <li>Vul de actuele 6-cijferige code hieronder in.</li>
+                                <li>{{ __('Vul de actuele 6-cijferige code hieronder in.') }}</li>
 
                             </ol>
 
@@ -1274,7 +1254,7 @@
 
                                 >
 
-                                    6-cijferige verificatiecode
+                                    {{ __('6-cijferige verificatiecode') }}
 
                                 </label>
 
@@ -1334,7 +1314,7 @@
 
                                     >
 
-                                        Code bevestigen
+                                        {{ __('Code bevestigen') }}
 
                                     </button>
 
@@ -1366,7 +1346,7 @@
 
                                 >
 
-                                    Instellen annuleren
+                                    {{ __('Instellen annuleren') }}
 
                                 </button>
 
@@ -1404,7 +1384,7 @@
 
                 <h2 class="section-title">
 
-                    Authenticator is ingeschakeld
+                    {{ __('Authenticator is ingeschakeld') }}
 
                 </h2>
 
@@ -1412,9 +1392,7 @@
 
                 <p class="section-subtitle">
 
-                    Je Mashal Studio-account heeft nu een gekoppelde
-
-                    Authenticator-sleutel.
+                    {{ __('Je Mashal Studio-account heeft nu een gekoppelde Authenticator-sleutel.') }}
 
                 </p>
 
@@ -1422,7 +1400,7 @@
 
                 <div class="alert alert-success" style="margin-top: 20px;">
 
-                    <strong>Actief sinds:</strong>
+                    <strong>{{ __('Actief sinds:') }}</strong>
 
                     {{ optional($user->two_factor_confirmed_at)->format('d-m-Y H:i') }}
 
@@ -1456,7 +1434,7 @@
 
                 <h2 class="section-title">
 
-                    Nieuwe herstelcodes
+                    {{ __('Nieuwe herstelcodes') }}
 
                 </h2>
 
@@ -1464,9 +1442,7 @@
 
                 <p class="section-subtitle">
 
-                    Genereer een nieuwe set wanneer je huidige codes kwijt zijn
-
-                    of mogelijk zijn uitgelekt. De oude set wordt daarna ongeldig.
+                    {{ __('Genereer een nieuwe set wanneer je huidige codes kwijt zijn of mogelijk zijn uitgelekt. De oude set wordt daarna ongeldig.') }}
 
                 </p>
 
@@ -1498,7 +1474,7 @@
 
                             >
 
-                                Huidig wachtwoord
+                                {{ __('Huidig wachtwoord') }}
 
                             </label>
 
@@ -1526,7 +1502,7 @@
 
                         <div class="muted small">
 
-                            Je account heeft geen lokaal wachtwoord.
+                            {{ __('Je account heeft geen lokaal wachtwoord.') }}
 
                         </div>
 
@@ -1544,7 +1520,7 @@
 
                     >
 
-                        Nieuwe codes maken
+                        {{ __('Nieuwe codes maken') }}
 
                     </button>
 
@@ -1568,7 +1544,7 @@
 
                 <h2 class="section-title">
 
-                    Authenticator uitschakelen
+                    {{ __('Authenticator uitschakelen') }}
 
                 </h2>
 
@@ -1576,9 +1552,7 @@
 
                 <p class="section-subtitle">
 
-                    Hierdoor worden je Authenticator-sleutel en herstelcodes
-
-                    uit Mashal Studio verwijderd.
+                    {{ __('Hierdoor worden je Authenticator-sleutel en herstelcodes uit Mashal Studio verwijderd.') }}
 
                 </p>
 
@@ -1586,9 +1560,7 @@
 
                 <div class="alert alert-warning" style="margin-top: 20px;">
 
-                    Na het uitschakelen beschermt Authenticator je account
-
-                    niet meer.
+                    {{ __('Na het uitschakelen beschermt Authenticator je account niet meer.') }}
 
                 </div>
 
@@ -1624,7 +1596,7 @@
 
                             >
 
-                                Huidig wachtwoord
+                                {{ __('Huidig wachtwoord') }}
 
                             </label>
 
@@ -1652,7 +1624,7 @@
 
                         <div class="muted small">
 
-                            Je account heeft geen lokaal wachtwoord.
+                            {{ __('Je account heeft geen lokaal wachtwoord.') }}
 
                         </div>
 
@@ -1670,7 +1642,7 @@
 
                     >
 
-                        Authenticator uitschakelen
+                        {{ __('Authenticator uitschakelen') }}
 
                     </button>
 
@@ -1692,9 +1664,7 @@
 
     <p class="footer-note">
 
-        Mashal Studio gebruikt standaard TOTP-codes.
-
-        Deel je QR-code, geheime sleutel en herstelcodes nooit met anderen.
+        {{ __('Mashal Studio gebruikt standaard TOTP-codes. Deel je QR-code, geheime sleutel en herstelcodes nooit met anderen.') }}
 
     </p>
 

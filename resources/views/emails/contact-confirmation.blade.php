@@ -88,7 +88,7 @@
                                 color:#ffffff;
                             "
                         >
-                            We hebben uw bericht ontvangen
+                            {{ __('We hebben uw bericht ontvangen') }}
                         </h1>
 
                     </td>
@@ -120,7 +120,7 @@
                                 color:#555555;
                             "
                         >
-                            Bedankt dat u contact heeft opgenomen met SmartDesk.
+                            {{ __('Bedankt dat u contact heeft opgenomen met SmartDesk.') }}
                         </p>
 
                         <p
@@ -131,8 +131,7 @@
                                 color:#555555;
                             "
                         >
-                            Uw bericht is succesvol ontvangen.
-                            We nemen zo snel mogelijk contact met u op via
+                            {{ __('Uw bericht is succesvol ontvangen. We nemen zo snel mogelijk contact met u op via') }}
                             <strong
                                 style="
                                     color:#222222;
@@ -172,7 +171,7 @@
                                             font-weight:800;
                                         "
                                     >
-                                        Uw bericht
+                                        {{ __('Uw bericht') }}
                                     </div>
 
                                     <div
@@ -198,8 +197,7 @@
                                 color:#555555;
                             "
                         >
-                            U hoeft uw bericht niet opnieuw te versturen.
-                            Wij hebben uw aanvraag ontvangen.
+                            {{ __('U hoeft uw bericht niet opnieuw te versturen. Wij hebben uw aanvraag ontvangen.') }}
                         </p>
 
                         <p
@@ -210,7 +208,7 @@
                                 color:#555555;
                             "
                         >
-                            We doen ons best om zo snel mogelijk te reageren.
+                            {{ __('We doen ons best om zo snel mogelijk te reageren.') }}
                         </p>
 
                         <p
@@ -221,7 +219,7 @@
                                 color:#222222;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
                             <strong>
                                 SmartDesk
@@ -248,8 +246,7 @@
                                 text-align:center;
                             "
                         >
-                            Deze e-mail is automatisch verzonden ter bevestiging
-                            van uw contactaanvraag bij SmartDesk.
+                            {{ __('Deze e-mail is automatisch verzonden ter bevestiging van uw contactaanvraag bij SmartDesk.') }}
                         </div>
 
                     </td>

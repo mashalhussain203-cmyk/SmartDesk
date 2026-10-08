@@ -1394,12 +1394,11 @@
             </div>
 
             <h1 class="ttc-title">
-                Live <span>Count.</span>
+                {{ __('Live') }} <span>{{ __('Count.') }}</span>
             </h1>
 
             <p class="ttc-subtitle">
-                Volg publieke TikTok views, likes, comments en shares in één realtime dashboard.
-                Nieuwe data wordt automatisch opnieuw opgehaald.
+                {{ __('Volg publieke TikTok views, likes, comments en shares in één realtime dashboard. Nieuwe data wordt automatisch opnieuw opgehaald.') }}
             </p>
         </header>
 
@@ -1421,7 +1420,7 @@
                 </label>
 
                 <button class="ttc-button" type="submit">
-                    Start Live Count
+                    {{ __('Start Live Count') }}
                     <span>→</span>
                 </button>
             </form>
@@ -1473,7 +1472,7 @@
                     ></iframe>
 
                     <div class="ttc-video-meta">
-                        <div class="ttc-author">TikTok video</div>
+                        <div class="ttc-author">{{ __('TikTok video') }}</div>
                         <p class="ttc-video-title">
                             Video ID {{ $videoId }}
                         </p>
@@ -1484,7 +1483,7 @@
                                                             <div class="ttc-stats" id="ttc-livecounts-cards">
                         <div class="ttc-stat ttc-stat--views">
                             <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Views</div>
+                                <div class="ttc-stat-label">{{ __('Views') }}</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
                                     <img src="/icons/live-eye.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
@@ -1494,7 +1493,7 @@
 
                         <div class="ttc-stat ttc-stat--likes">
                             <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Likes</div>
+                                <div class="ttc-stat-label">{{ __('Likes') }}</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
                                     <img src="/icons/live-heart.svg?v=20261007-4" width="32" height="32" alt="">
                                 </div>
@@ -1504,7 +1503,7 @@
 
                         <div class="ttc-stat ttc-stat--comments">
                             <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Comments</div>
+                                <div class="ttc-stat-label">{{ __('Comments') }}</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
                                     <img src="/icons/live-comment.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
@@ -1514,7 +1513,7 @@
 
                         <div class="ttc-stat ttc-stat--shares">
                             <div class="ttc-stat-head">
-                                <div class="ttc-stat-label">Shares</div>
+                                <div class="ttc-stat-label">{{ __('Shares') }}</div>
                                 <div class="ttc-stat-badge" aria-hidden="true">
                                     <img src="/icons/live-share.svg?v=20261007-5" width="32" height="32" alt="">
                                 </div>
@@ -1528,10 +1527,9 @@
         @else
             <div class="ttc-empty">
                 <div class="ttc-empty-icon">◉</div>
-                <strong>Start een nieuwe Live Count</strong>
+                <strong>{{ __('Start een nieuwe Live Count') }}</strong>
                 <span>
-                    Plak hierboven een openbare TikTok-video. Mashal Studio opent daarna
-                    automatisch het live dashboard.
+                    {{ __('Plak hierboven een openbare TikTok-video. Mashal Studio opent daarna automatisch het live dashboard.') }}
                 </span>
             </div>
         @endisset

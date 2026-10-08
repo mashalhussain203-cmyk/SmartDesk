@@ -581,20 +581,18 @@
                 </span>
 
                 <h1 class="favorites-title">
-                    Mijn
-                    <span>favorieten.</span>
+                    {{ __('Mijn') }}
+                    <span>{{ __('favorieten.') }}</span>
                 </h1>
 
                 <p class="favorites-copy">
-                    Bewaar modellen die je interesseren en vergelijk je selectie
-                    op je eigen tempo. Vanuit hier kun je direct het model openen,
-                    aan je winkelwagen toevoegen of uit je favorieten verwijderen.
+                    {{ __('Bewaar modellen die je interesseren en vergelijk je selectie op je eigen tempo. Vanuit hier kun je direct het model openen, aan je winkelwagen toevoegen of uit je favorieten verwijderen.') }}
                 </p>
             </div>
 
             <div class="favorites-counter">
                 <small>
-                    Opgeslagen
+                    {{ __('Opgeslagen') }}
                 </small>
 
                 <strong>
@@ -610,7 +608,7 @@
             </span>
 
             <a href="{{ route('catalog') }}">
-                + Meer modellen bekijken
+                {{ __('+ Meer modellen bekijken') }}
             </a>
         </div>
 
@@ -621,13 +619,11 @@
                 </div>
 
                 <h2>
-                    Nog geen favorieten
+                    {{ __('Nog geen favorieten') }}
                 </h2>
 
                 <p>
-                    Je hebt nog geen auto opgeslagen.
-                    Open de Mashal-collectie en klik op het hartje
-                    bij een model dat je wilt bewaren.
+                    {{ __('Je hebt nog geen auto opgeslagen. Open de Mashal-collectie en klik op het hartje bij een model dat je wilt bewaren.') }}
                 </p>
 
                 <a
@@ -748,31 +744,31 @@
         <div class="favorites-assurance">
             <div>
                 <small>
-                    Persoonlijk
+                    {{ __('Persoonlijk') }}
                 </small>
 
                 <strong>
-                    Favorieten zijn gekoppeld aan jouw account
+                    {{ __('Favorieten zijn gekoppeld aan jouw account') }}
                 </strong>
             </div>
 
             <div>
                 <small>
-                    Bewaard
+                    {{ __('Bewaard') }}
                 </small>
 
                 <strong>
-                    Je selectie blijft beschikbaar na uitloggen
+                    {{ __('Je selectie blijft beschikbaar na uitloggen') }}
                 </strong>
             </div>
 
             <div>
                 <small>
-                    Flexibel
+                    {{ __('Flexibel') }}
                 </small>
 
                 <strong>
-                    Verwijder of voeg een model op ieder moment toe
+                    {{ __('Verwijder of voeg een model op ieder moment toe') }}
                 </strong>
             </div>
         </div>

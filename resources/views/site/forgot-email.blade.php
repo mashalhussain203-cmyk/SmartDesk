@@ -1806,9 +1806,9 @@
 
                         >
 
-                            E-mailadres
+                            {{ __('E-mailadres') }}
 
-                            <strong>vergeten?</strong>
+                            <strong>{{ __('vergeten?') }}</strong>
 
                         </h2>
 
@@ -1816,11 +1816,7 @@
 
                         <p class="forgot-email-description">
 
-                            Vul je naam en herstel-e-mailadres in.
-
-                            Als de gegevens overeenkomen met een account,
-
-                            sturen we een 6-cijferige verificatiecode.
+                            {{ __('Vul je naam en herstel-e-mailadres in. Als de gegevens overeenkomen met een account, sturen we een 6-cijferige verificatiecode.') }}
 
                         </p>
 
@@ -1856,7 +1852,7 @@
 
                                 <strong>
 
-                                    Controleer de ingevulde gegevens.
+                                    {{ __('Controleer de ingevulde gegevens.') }}
 
                                 </strong>
 
@@ -1902,7 +1898,7 @@
 
                                     <label for="first_name">
 
-                                        Voornaam
+                                        {{ __('Voornaam') }}
 
                                     </label>
 
@@ -1956,7 +1952,7 @@
 
                                     <label for="last_name">
 
-                                        Achternaam
+                                        {{ __('Achternaam') }}
 
                                     </label>
 
@@ -2008,7 +2004,7 @@
 
                                     <label for="recovery_email">
 
-                                        Herstel-e-mailadres
+                                        {{ __('Herstel-e-mailadres') }}
 
                                     </label>
 
@@ -2070,7 +2066,7 @@
 
                             >
 
-                                Account zoeken →
+                                {{ __('Account zoeken →') }}
 
                             </button>
 
@@ -2080,11 +2076,7 @@
 
                         <p class="forgot-email-note">
 
-                            Uit veiligheid vertellen we vóór verificatie
-
-                            niet of een account bestaat. Alleen na een juiste
-
-                            herstelcode wordt het gekoppelde e-mailadres getoond.
+                            {{ __('Uit veiligheid vertellen we vóór verificatie niet of een account bestaat. Alleen na een juiste herstelcode wordt het gekoppelde e-mailadres getoond.') }}
 
                         </p>
 
@@ -2100,7 +2092,7 @@
 
                             >
 
-                                ← Terug naar inloggen
+                                {{ __('← Terug naar inloggen') }}
 
                             </a>
 

@@ -1726,7 +1726,7 @@
 
                 <span class="library-kicker">
 
-                    Private image library
+                    {{ __('Private image library') }}
 
                 </span>
 
@@ -1734,9 +1734,9 @@
 
                 <h1>
 
-                    Mijn
+                    {{ __('Mijn') }}
 
-                    <span>afbeeldingen.</span>
+                    <span>{{ __('afbeeldingen.') }}</span>
 
                 </h1>
 
@@ -1744,13 +1744,7 @@
 
                 <p>
 
-                    Beheer hier alle afbeeldingen die aan jouw account zijn
-
-                    gekoppeld. Open een project in de editor, download het
-
-                    origineel of verwijder een compleet project inclusief
-
-                    alle opgeslagen bewerkingen.
+                    {{ __('Beheer hier alle afbeeldingen die aan jouw account zijn gekoppeld. Open een project in de editor, download het origineel of verwijder een compleet project inclusief alle opgeslagen bewerkingen.') }}
 
                 </p>
 
@@ -1768,7 +1762,7 @@
 
                 >
 
-                    ← Home
+                    {{ __('← Home') }}
 
                 </a>
 
@@ -1782,7 +1776,7 @@
 
                 >
 
-                    + Nieuwe afbeelding
+                    {{ __('+ Nieuwe afbeelding') }}
 
                 </a>
 
@@ -1824,7 +1818,7 @@
 
                     <strong>
 
-                        Gelukt
+                        {{ __('Gelukt') }}
 
                     </strong>
 
@@ -1864,7 +1858,7 @@
 
                     <strong>
 
-                        Er ging iets mis
+                        {{ __('Er ging iets mis') }}
 
                     </strong>
 
@@ -1908,7 +1902,7 @@
 
                     <div class="library-summary-item">
 
-                        Projecten
+                        {{ __('Projecten') }}
 
 
 
@@ -1924,7 +1918,7 @@
 
                     <div class="library-summary-item">
 
-                        Deze pagina
+                        {{ __('Deze pagina') }}
 
 
 
@@ -1940,7 +1934,7 @@
 
                     <div class="library-summary-item">
 
-                        Pagina
+                        {{ __('Pagina') }}
 
 
 
@@ -1962,7 +1956,7 @@
 
                 <div class="library-summary-right">
 
-                    Alleen jij kunt deze bestanden bekijken.
+                    {{ __('Alleen jij kunt deze bestanden bekijken.') }}
 
                 </div>
 
@@ -2218,7 +2212,7 @@
 
                                     <small>
 
-                                        Formaat
+                                        {{ __('Formaat') }}
 
                                     </small>
 
@@ -2240,7 +2234,7 @@
 
                                     <small>
 
-                                        Bestandsgrootte
+                                        {{ __('Bestandsgrootte') }}
 
                                     </small>
 
@@ -2262,7 +2256,7 @@
 
                                     <small>
 
-                                        Afmetingen
+                                        {{ __('Afmetingen') }}
 
                                     </small>
 
@@ -2284,7 +2278,7 @@
 
                                     <small>
 
-                                        Bewerkingen
+                                        {{ __('Bewerkingen') }}
 
                                     </small>
 
@@ -2328,7 +2322,7 @@
 
                                 >
 
-                                    Open editor
+                                    {{ __('Open editor') }}
 
                                 </a>
 
@@ -2346,9 +2340,7 @@
 
                                 >
 
-                                    ↓
-
-                                    Download
+                                    {{ __('↓ Download') }}
 
                                 </a>
 
@@ -2394,7 +2386,7 @@
 
                                     >
 
-                                        Verwijderen
+                                        {{ __('Verwijderen') }}
 
                                     </button>
 
@@ -2476,7 +2468,7 @@
 
                 <h2>
 
-                    Je bibliotheek is nog leeg.
+                    {{ __('Je bibliotheek is nog leeg.') }}
 
                 </h2>
 
@@ -2484,13 +2476,7 @@
 
                 <p>
 
-                    Upload je eerste afbeelding om een nieuw project te
-
-                    starten. Na het uploaden wordt het origineel privé aan
-
-                    jouw account gekoppeld en kun je het openen in de editor,
-
-                    bewerken en als meerdere versies opslaan.
+                    {{ __('Upload je eerste afbeelding om een nieuw project te starten. Na het uploaden wordt het origineel privé aan jouw account gekoppeld en kun je het openen in de editor, bewerken en als meerdere versies opslaan.') }}
 
                 </p>
 
@@ -2504,7 +2490,7 @@
 
                 >
 
-                    + Eerste afbeelding uploaden
+                    {{ __('+ Eerste afbeelding uploaden') }}
 
                 </a>
 

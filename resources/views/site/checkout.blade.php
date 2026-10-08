@@ -800,15 +800,12 @@
                 </span>
 
                 <h1 class="checkout-title">
-                    Controleer.
-                    Bevestig.
-                    <span>Rijd verder.</span>
+                    {{ __('Controleer. Bevestig.') }}
+                    <span>{{ __('Rijd verder.') }}</span>
                 </h1>
 
                 <p class="checkout-subtitle">
-                    Controleer je account, voertuigen en totaalbedrag
-                    voordat je de bestelling definitief plaatst.
-                    Alles wordt gekoppeld aan jouw persoonlijke Mashal-account.
+                    {{ __('Controleer je account, voertuigen en totaalbedrag voordat je de bestelling definitief plaatst. Alles wordt gekoppeld aan jouw persoonlijke Mashal-account.') }}
                 </p>
 
             </div>
@@ -819,11 +816,11 @@
                 <div class="checkout-status">
 
                     <small>
-                        Accountstatus
+                        {{ __('Accountstatus') }}
                     </small>
 
                     <strong>
-                        ✓ Klaar voor bestelling
+                        {{ __('✓ Klaar voor bestelling') }}
                     </strong>
 
                 </div>
@@ -937,12 +934,11 @@
                 </div>
 
                 <h2>
-                    Je selectie is nog leeg.
+                    {{ __('Je selectie is nog leeg.') }}
                 </h2>
 
                 <p>
-                    Voeg eerst een model toe aan je winkelwagen
-                    voordat je de Mashal-checkout kunt afronden.
+                    {{ __('Voeg eerst een model toe aan je winkelwagen voordat je de Mashal-checkout kunt afronden.') }}
                 </p>
 
                 <a
@@ -973,12 +969,11 @@
                         </span>
 
                         <h2>
-                            Jouw gegevens
+                            {{ __('Jouw gegevens') }}
                         </h2>
 
                         <p class="checkout-section-intro">
-                            Deze gegevens worden gebruikt
-                            voor je bestelling en bestelbevestiging.
+                            {{ __('Deze gegevens worden gebruikt voor je bestelling en bestelbevestiging.') }}
                         </p>
 
 
@@ -1019,8 +1014,7 @@
                             </span>
 
                             <span>
-                                Je e-mailadres is geverifieerd.
-                                Dit account kan de bestelling plaatsen.
+                                {{ __('Je e-mailadres is geverifieerd. Dit account kan de bestelling plaatsen.') }}
                             </span>
 
                         </div>
@@ -1037,12 +1031,11 @@
                         </span>
 
                         <h2>
-                            Jouw bestelling
+                            {{ __('Jouw bestelling') }}
                         </h2>
 
                         <p class="checkout-section-intro">
-                            Controleer de geselecteerde auto's en aantallen
-                            voordat je verdergaat.
+                            {{ __('Controleer de geselecteerde auto\'s en aantallen voordat je verdergaat.') }}
                         </p>
 
 
@@ -1128,12 +1121,11 @@
                         </span>
 
                         <h2>
-                            Laatste controle
+                            {{ __('Laatste controle') }}
                         </h2>
 
                         <p class="checkout-section-intro">
-                            Zodra je de bestelling plaatst,
-                            wordt deze definitief opgeslagen.
+                            {{ __('Zodra je de bestelling plaatst, wordt deze definitief opgeslagen.') }}
                         </p>
 
 
@@ -1146,13 +1138,12 @@
                             <div>
 
                                 <strong>
-                                    Bestelbevestiging
+                                    {{ __('Bestelbevestiging') }}
                                 </strong>
 
                                 <p>
-                                    De bevestiging wordt verzonden naar
-                                    <strong>{{ Auth::user()->email }}</strong>.
-                                    Controleer daarom nog één keer of alles klopt.
+                                    {{ __('De bevestiging wordt verzonden naar') }}
+                                    <strong>{{ Auth::user()->email }}</strong>{{ __('. Controleer daarom nog één keer of alles klopt.') }}
                                 </p>
 
                             </div>
@@ -1171,11 +1162,11 @@
                 <aside class="checkout-summary-card">
 
                     <span class="summary-kicker">
-                        Order summary
+                        {{ __('Order summary') }}
                     </span>
 
                     <h2 class="summary-title">
-                        Besteloverzicht
+                        {{ __('Besteloverzicht') }}
                     </h2>
 
 
@@ -1184,7 +1175,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Verschillende auto's
+                                {{ __('Verschillende auto\'s') }}
                             </span>
 
                             <strong>
@@ -1214,7 +1205,7 @@
                             </span>
 
                             <strong>
-                                Geverifieerd
+                                {{ __('Geverifieerd') }}
                             </strong>
 
                         </div>
@@ -1239,8 +1230,7 @@
 
 
                     <div class="summary-note">
-                        Je ziet hier het volledige totaal
-                        van de huidige winkelwagen.
+                        {{ __('Je ziet hier het volledige totaal van de huidige winkelwagen.') }}
                     </div>
 
 
@@ -1258,7 +1248,7 @@
                                     class="checkout-submit"
                                     type="submit"
                                 >
-                                    Bestelling plaatsen
+                                    {{ __('Bestelling plaatsen') }}
                                     <span aria-hidden="true">→</span>
                                 </button>
 
@@ -1267,7 +1257,7 @@
                                     class="checkout-back"
                                     href="{{ route('cart') }}"
                                 >
-                                    ← Terug naar winkelwagen
+                                    {{ __('← Terug naar winkelwagen') }}
                                 </a>
 
                             </div>
@@ -1282,8 +1272,7 @@
                             </span>
 
                             <span>
-                                Je bestelling wordt opgeslagen
-                                onder je beveiligde Mashal-account.
+                                {{ __('Je bestelling wordt opgeslagen onder je beveiligde Mashal-account.') }}
                             </span>
 
                         </div>
@@ -1306,11 +1295,11 @@
             <div class="checkout-trust-item">
 
                 <small>
-                    Verified
+                    {{ __('Verified') }}
                 </small>
 
                 <strong>
-                    Alleen geverifieerde accounts kunnen bestellen
+                    {{ __('Alleen geverifieerde accounts kunnen bestellen') }}
                 </strong>
 
             </div>
@@ -1319,11 +1308,11 @@
             <div class="checkout-trust-item">
 
                 <small>
-                    Confirmation
+                    {{ __('Confirmation') }}
                 </small>
 
                 <strong>
-                    Automatische bevestiging na plaatsing
+                    {{ __('Automatische bevestiging na plaatsing') }}
                 </strong>
 
             </div>
@@ -1332,11 +1321,11 @@
             <div class="checkout-trust-item">
 
                 <small>
-                    Mashal account
+                    {{ __('Mashal account') }}
                 </small>
 
                 <strong>
-                    Bestellingen blijven gekoppeld aan jouw account
+                    {{ __('Bestellingen blijven gekoppeld aan jouw account') }}
                 </strong>
 
             </div>

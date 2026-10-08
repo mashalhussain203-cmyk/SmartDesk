@@ -1208,7 +1208,7 @@
 
                 <h1 class="security-title">
 
-                    Login <span>beveiliging.</span>
+                    {{ __('Login') }} <span>{{ __('beveiliging.') }}</span>
 
                 </h1>
 
@@ -1216,13 +1216,7 @@
 
                 <p class="security-copy">
 
-                    Bekijk je recente logins met apparaat, browser, besturingssysteem,
-
-                    loginmethode, IP-adres, geschatte IP-locatie, browser-timezone en,
-
-                    wanneer je daarvoor toestemming hebt gegeven, de precieze
-
-                    browserlocatie met GPS-nauwkeurigheid.
+                    {{ __('Bekijk je recente logins met apparaat, browser, besturingssysteem, loginmethode, IP-adres, geschatte IP-locatie, browser-timezone en, wanneer je daarvoor toestemming hebt gegeven, de precieze browserlocatie met GPS-nauwkeurigheid.') }}
 
                 </p>
 
@@ -1232,7 +1226,7 @@
 
             <aside class="security-summary">
 
-                <small>Opgeslagen loginactiviteit</small>
+                <small>{{ __('Opgeslagen loginactiviteit') }}</small>
 
 
 
@@ -1272,15 +1266,13 @@
 
                     <div class="security-action-copy">
 
-                        <h2>Authenticator-app</h2>
+                        <h2>{{ __('Authenticator-app') }}</h2>
 
 
 
                         <p>
 
-                            Beveilig je account met een 6-cijferige code uit Google Authenticator,
-
-                            Microsoft Authenticator of een andere TOTP-app.
+                            {{ __('Beveilig je account met een 6-cijferige code uit Google Authenticator, Microsoft Authenticator of een andere TOTP-app.') }}
 
                         </p>
 
@@ -1324,15 +1316,13 @@
 
                     <div class="security-action-copy">
 
-                        <h2>Passkeys</h2>
+                        <h2>{{ __('Passkeys') }}</h2>
 
 
 
                         <p>
 
-                            Gebruik biometrie of je apparaatcode om zonder wachtwoord veilig
-
-                            in te loggen op ondersteunde apparaten.
+                            {{ __('Gebruik biometrie of je apparaatcode om zonder wachtwoord veilig in te loggen op ondersteunde apparaten.') }}
 
                         </p>
 
@@ -1350,7 +1340,7 @@
 
                 >
 
-                    Passkeys beheren
+                    {{ __('Passkeys beheren') }}
 
                 </a>
 
@@ -1364,11 +1354,11 @@
 
             <div class="security-stat">
 
-                <span>Bekende apparaten</span>
+                <span>{{ __('Bekende apparaten') }}</span>
 
                 <strong>{{ $knownDeviceCount ?? 0 }}</strong>
 
-                <small>Logins die niet als nieuw apparaat zijn gemarkeerd.</small>
+                <small>{{ __('Logins die niet als nieuw apparaat zijn gemarkeerd.') }}</small>
 
             </div>
 
@@ -1376,11 +1366,11 @@
 
             <div class="security-stat">
 
-                <span>Precieze locaties</span>
+                <span>{{ __('Precieze locaties') }}</span>
 
                 <strong>{{ $preciseLocationCount ?? 0 }}</strong>
 
-                <small>GPS/browserlocaties die met toestemming zijn opgeslagen.</small>
+                <small>{{ __('GPS/browserlocaties die met toestemming zijn opgeslagen.') }}</small>
 
             </div>
 
@@ -1388,11 +1378,11 @@
 
             <div class="security-stat">
 
-                <span>Beveiligingsmails</span>
+                <span>{{ __('Beveiligingsmails') }}</span>
 
                 <strong>{{ $notificationSentCount ?? 0 }}</strong>
 
-                <small>Succesvol via Brevo verzonden.</small>
+                <small>{{ __('Succesvol via Brevo verzonden.') }}</small>
 
             </div>
 
@@ -1400,11 +1390,11 @@
 
             <div class="security-stat">
 
-                <span>Mailfouten</span>
+                <span>{{ __('Mailfouten') }}</span>
 
                 <strong>{{ $notificationFailedCount ?? 0 }}</strong>
 
-                <small>Mislukte beveiligingsmeldingen in deze lijst.</small>
+                <small>{{ __('Mislukte beveiligingsmeldingen in deze lijst.') }}</small>
 
             </div>
 
@@ -1476,7 +1466,7 @@
 
                     >
 
-                        Geschiedenis wissen
+                        {{ __('Geschiedenis wissen') }}
 
                     </button>
 
@@ -1496,17 +1486,13 @@
 
 
 
-                <h2>Nog geen loginhistorie</h2>
+                <h2>{{ __('Nog geen loginhistorie') }}</h2>
 
 
 
                 <p>
 
-                    Na je volgende succesvolle login verschijnt hier het apparaat,
-
-                    de browser, het besturingssysteem, de loginmethode, het IP-adres,
-
-                    de lokale tijd en beschikbare locatie-informatie.
+                    {{ __('Na je volgende succesvolle login verschijnt hier het apparaat, de browser, het besturingssysteem, de loginmethode, het IP-adres, de lokale tijd en beschikbare locatie-informatie.') }}
 
                 </p>
 
@@ -1612,7 +1598,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>IP-adres</small>
+                                    <small>{{ __('IP-adres') }}</small>
 
                                     <strong>{{ $activity->ip_address ?: 'Onbekend' }}</strong>
 
@@ -1622,7 +1608,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Stad</small>
+                                    <small>{{ __('Stad') }}</small>
 
                                     <strong>{{ $activity->city ?: 'Onbekend' }}</strong>
 
@@ -1632,7 +1618,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Regio</small>
+                                    <small>{{ __('Regio') }}</small>
 
                                     <strong>{{ $activity->region ?: 'Onbekend' }}</strong>
 
@@ -1642,7 +1628,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Land</small>
+                                    <small>{{ __('Land') }}</small>
 
 
 
@@ -1666,7 +1652,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Locatiebron</small>
+                                    <small>{{ __('Locatiebron') }}</small>
 
                                     <strong>{{ $locationSource }}</strong>
 
@@ -1676,7 +1662,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Locatietoestemming</small>
+                                    <small>{{ __('Locatietoestemming') }}</small>
 
 
 
@@ -1692,7 +1678,7 @@
 
                                 <div class="login-detail login-detail-wide">
 
-                                    <small>GPS-coördinaten</small>
+                                    <small>{{ __('GPS-coördinaten') }}</small>
 
 
 
@@ -1708,7 +1694,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>GPS-nauwkeurigheid</small>
+                                    <small>{{ __('GPS-nauwkeurigheid') }}</small>
 
                                     <strong>{{ $accuracy ?: 'Niet beschikbaar' }}</strong>
 
@@ -1718,7 +1704,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Browser-timezone</small>
+                                    <small>{{ __('Browser-timezone') }}</small>
 
                                     <strong>{{ $activity->browser_timezone ?: 'Niet meegestuurd' }}</strong>
 
@@ -1728,7 +1714,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>IP-timezone</small>
+                                    <small>{{ __('IP-timezone') }}</small>
 
                                     <strong>{{ $activity->timezone ?: 'Onbekend' }}</strong>
 
@@ -1738,7 +1724,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Gebruikte timezone</small>
+                                    <small>{{ __('Gebruikte timezone') }}</small>
 
                                     <strong class="is-gold">{{ $effectiveTimezone }}</strong>
 
@@ -1748,7 +1734,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Loginmethode</small>
+                                    <small>{{ __('Loginmethode') }}</small>
 
                                     <strong>{{ $activity->providerLabel() }}</strong>
 
@@ -1758,7 +1744,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Apparaatstatus</small>
+                                    <small>{{ __('Apparaatstatus') }}</small>
 
 
 
@@ -1774,7 +1760,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Onthouden</small>
+                                    <small>{{ __('Onthouden') }}</small>
 
                                     <strong>{{ $activity->remember ? 'Ja' : 'Nee' }}</strong>
 
@@ -1784,7 +1770,7 @@
 
                                 <div class="login-detail login-detail-wide">
 
-                                    <small>Beveiligingsmail</small>
+                                    <small>{{ __('Beveiligingsmail') }}</small>
 
 
 
@@ -1800,7 +1786,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Mail verzonden</small>
+                                    <small>{{ __('Mail verzonden') }}</small>
 
 
 
@@ -1824,7 +1810,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Mailfout</small>
+                                    <small>{{ __('Mailfout') }}</small>
 
 
 
@@ -1848,7 +1834,7 @@
 
                                 <div class="login-detail login-detail-wide">
 
-                                    <small>User-Agent</small>
+                                    <small>{{ __('User-Agent') }}</small>
 
                                     <strong>{{ $activity->user_agent ?: 'Niet beschikbaar' }}</strong>
 
@@ -1874,7 +1860,7 @@
 
                                 <span class="new-device-badge">
 
-                                    Nieuw apparaat
+                                    {{ __('Nieuw apparaat') }}
 
                                 </span>
 
@@ -1928,7 +1914,7 @@
 
         <div class="security-note">
 
-            <strong>Privacy en nauwkeurigheid.</strong>
+            <strong>{{ __('Privacy en nauwkeurigheid.') }}</strong>
 
             Een IP-locatie is een technische schatting en kan bijvoorbeeld de
 

@@ -733,7 +733,7 @@
             </span>
 
             <a href="{{ route('catalog') }}">
-                Collectie
+                {{ __('Collectie') }}
             </a>
 
             <span class="breadcrumb-separator">
@@ -758,7 +758,7 @@
                 style="margin-bottom: 24px;"
             >
                 <strong>
-                    Gelukt.
+                    {{ __('Gelukt.') }}
                 </strong>
 
                 {{ session('success') }}
@@ -774,7 +774,7 @@
                 style="margin-bottom: 24px;"
             >
                 <strong>
-                    Er ging iets mis.
+                    {{ __('Er ging iets mis.') }}
                 </strong>
 
                 <ul
@@ -860,7 +860,7 @@
                 <div>
 
                     <span class="vehicle-kicker">
-                        Premium automotive
+                        {{ __('Premium automotive') }}
                     </span>
 
                     <h1 class="vehicle-title">
@@ -880,7 +880,7 @@
                         <div class="vehicle-spec-row">
 
                             <span>
-                                Merk
+                                {{ __('Merk') }}
                             </span>
 
                             <strong>
@@ -893,7 +893,7 @@
                         <div class="vehicle-spec-row">
 
                             <span>
-                                Model
+                                {{ __('Model') }}
                             </span>
 
                             <strong>
@@ -906,7 +906,7 @@
                         <div class="vehicle-spec-row">
 
                             <span>
-                                Bouwjaar
+                                {{ __('Bouwjaar') }}
                             </span>
 
                             <strong>
@@ -919,7 +919,7 @@
                         <div class="vehicle-spec-row">
 
                             <span>
-                                Carrosserie
+                                {{ __('Carrosserie') }}
                             </span>
 
                             <strong>
@@ -932,7 +932,7 @@
                         <div class="vehicle-spec-row">
 
                             <span>
-                                Aandrijving
+                                {{ __('Aandrijving') }}
                             </span>
 
                             <strong>
@@ -947,7 +947,7 @@
                     <div class="vehicle-price-box">
 
                         <small>
-                            Mashal prijs
+                            {{ __('Mashal prijs') }}
                         </small>
 
                         <strong>
@@ -955,7 +955,7 @@
                         </strong>
 
                         <div class="vehicle-price-note">
-                            Prijs zoals weergegeven in de huidige Mashal-collectie.
+                            {{ __('Prijs zoals weergegeven in de huidige Mashal-collectie.') }}
                         </div>
 
                     </div>
@@ -975,7 +975,7 @@
                             class="vehicle-buy-btn"
                             type="submit"
                         >
-                            Toevoegen aan winkelwagen
+                            {{ __('Toevoegen aan winkelwagen') }}
                             <span aria-hidden="true">→</span>
                         </button>
                     </form>
@@ -985,7 +985,7 @@
                         class="vehicle-back-btn"
                         href="{{ route('catalog') }}"
                     >
-                        ← Terug naar collectie
+                        {{ __('← Terug naar collectie') }}
                     </a>
 
                 </div>
@@ -1008,12 +1008,11 @@
                 </div>
 
                 <h3>
-                    Duidelijke selectie
+                    {{ __('Duidelijke selectie') }}
                 </h3>
 
                 <p>
-                    Bekijk alle voertuiggegevens en de actuele prijs
-                    voordat je een keuze maakt.
+                    {{ __('Bekijk alle voertuiggegevens en de actuele prijs voordat je een keuze maakt.') }}
                 </p>
 
             </div>
@@ -1026,12 +1025,11 @@
                 </div>
 
                 <h3>
-                    Veilig account
+                    {{ __('Veilig account') }}
                 </h3>
 
                 <p>
-                    Bestellen verloopt via je persoonlijke
-                    en geverifieerde Mashal-account.
+                    {{ __('Bestellen verloopt via je persoonlijke en geverifieerde Mashal-account.') }}
                 </p>
 
             </div>
@@ -1044,12 +1042,11 @@
                 </div>
 
                 <h3>
-                    Direct bevestigd
+                    {{ __('Direct bevestigd') }}
                 </h3>
 
                 <p>
-                    Na een voltooide bestelling ontvang je automatisch
-                    een bevestiging per e-mail.
+                    {{ __('Na een voltooide bestelling ontvang je automatisch een bevestiging per e-mail.') }}
                 </p>
 
             </div>
@@ -1068,22 +1065,18 @@
                 <div>
 
                     <span class="experience-label">
-                        The Mashal experience
+                        {{ __('The Mashal experience') }}
                     </span>
 
                     <h2>
-                        Rustig kiezen.
-                        Zeker bestellen.
+                        {{ __('Rustig kiezen. Zeker bestellen.') }}
                     </h2>
 
                 </div>
 
 
                 <p>
-                    Deze pagina is ontworpen om één ding goed te doen:
-                    je precies de informatie geven die je nodig hebt
-                    zonder onnodige afleiding. Van voertuiggegevens
-                    tot prijs en bestelling blijft iedere stap overzichtelijk.
+                    {{ __('Deze pagina is ontworpen om één ding goed te doen: je precies de informatie geven die je nodig hebt zonder onnodige afleiding. Van voertuiggegevens tot prijs en bestelling blijft iedere stap overzichtelijk.') }}
                 </p>
 
             </div>
@@ -1098,12 +1091,11 @@
                     </div>
 
                     <h3>
-                        Alles op één plek
+                        {{ __('Alles op één plek') }}
                     </h3>
 
                     <p>
-                        Merk, model, bouwjaar, carrosserie,
-                        brandstof en prijs zijn direct zichtbaar.
+                        {{ __('Merk, model, bouwjaar, carrosserie, brandstof en prijs zijn direct zichtbaar.') }}
                     </p>
 
                 </article>
@@ -1116,12 +1108,11 @@
                     </div>
 
                     <h3>
-                        Persoonlijk & beveiligd
+                        {{ __('Persoonlijk & beveiligd') }}
                     </h3>
 
                     <p>
-                        Je bestelling wordt gekoppeld aan jouw
-                        persoonlijke Mashal-account.
+                        {{ __('Je bestelling wordt gekoppeld aan jouw persoonlijke Mashal-account.') }}
                     </p>
 
                 </article>
@@ -1134,12 +1125,11 @@
                     </div>
 
                     <h3>
-                        Van keuze naar checkout
+                        {{ __('Van keuze naar checkout') }}
                     </h3>
 
                     <p>
-                        Voeg het voertuig toe aan je winkelwagen
-                        en rond je selectie daarna veilig af.
+                        {{ __('Voeg het voertuig toe aan je winkelwagen en rond je selectie daarna veilig af.') }}
                     </p>
 
                 </article>
@@ -1162,10 +1152,7 @@
                 </h2>
 
                 <p>
-                    Voeg het model toe aan je winkelwagen
-                    of bekijk eerst de rest van de Mashal-collectie.
-                    Je kunt je selectie altijd controleren
-                    voordat je de bestelling afrondt.
+                    {{ __('Voeg het model toe aan je winkelwagen of bekijk eerst de rest van de Mashal-collectie. Je kunt je selectie altijd controleren voordat je de bestelling afrondt.') }}
                 </p>
 
             </div>
@@ -1184,7 +1171,7 @@
                         class="primary-btn"
                         type="submit"
                     >
-                        Toevoegen
+                        {{ __('Toevoegen') }}
                     </button>
                 </form>
 
@@ -1193,7 +1180,7 @@
                     class="secondary-btn"
                     href="{{ route('catalog') }}"
                 >
-                    Meer modellen
+                    {{ __('Meer modellen') }}
                 </a>
 
             </div>

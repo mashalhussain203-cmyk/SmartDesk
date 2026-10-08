@@ -3186,11 +3186,7 @@
 
                 <p>
 
-                    Wijzig profielgegevens, accountbeveiliging,
-
-                    e-mailverificatie en administratorrechten
-
-                    vanuit één overzichtelijke beheeromgeving.
+                    {{ __('Wijzig profielgegevens, accountbeveiliging, e-mailverificatie en administratorrechten vanuit één overzichtelijke beheeromgeving.') }}
 
                 </p>
 
@@ -3198,15 +3194,15 @@
 
                 @if ($user->hasProfilePhoto())
 
-                    <span class="edit-avatar-source custom">Eigen profielfoto</span>
+                    <span class="edit-avatar-source custom">{{ __('Eigen profielfoto') }}</span>
 
                 @elseif ($user->socialAvatar())
 
-                    <span class="edit-avatar-source social">Social avatar</span>
+                    <span class="edit-avatar-source social">{{ __('Social avatar') }}</span>
 
                 @else
 
-                    <span class="edit-avatar-source">Initialen</span>
+                    <span class="edit-avatar-source">{{ __('Initialen') }}</span>
 
                 @endif
 
@@ -3236,7 +3232,7 @@
 
 
 
-            ← Terug naar gebruikers
+            {{ __('← Terug naar gebruikers') }}
 
 
 
@@ -3276,7 +3272,7 @@
 
 
 
-                User ID
+                {{ __('User ID') }}
 
 
 
@@ -3312,7 +3308,7 @@
 
 
 
-                E-mailstatus
+                {{ __('E-mailstatus') }}
 
 
 
@@ -3348,7 +3344,7 @@
 
 
 
-                Rol
+                {{ __('Rol') }}
 
 
 
@@ -3384,7 +3380,7 @@
 
 
 
-                Laatste wijziging
+                {{ __('Laatste wijziging') }}
 
 
 
@@ -3410,7 +3406,7 @@
 
         <div class="edit-status-item">
 
-            <small>Laatste login via</small>
+            <small>{{ __('Laatste login via') }}</small>
 
             <strong>{{ $user->loginProviderLabel() }}</strong>
 
@@ -3450,7 +3446,7 @@
 
 
 
-                Wijzigingen opgeslagen.
+                {{ __('Wijzigingen opgeslagen.') }}
 
 
 
@@ -3486,7 +3482,7 @@
 
 
 
-                De wijzigingen konden niet worden opgeslagen.
+                {{ __('De wijzigingen konden niet worden opgeslagen.') }}
 
 
 
@@ -3622,7 +3618,7 @@
 
 
 
-                            Persoonlijke gegevens
+                            {{ __('Persoonlijke gegevens') }}
 
 
 
@@ -3634,7 +3630,7 @@
 
 
 
-                            Werk de naam en het e-mailadres van deze gebruiker bij.
+                            {{ __('Werk de naam en het e-mailadres van deze gebruiker bij.') }}
 
 
 
@@ -3670,7 +3666,7 @@
 
 
 
-                                    Naam
+                                    {{ __('Naam') }}
 
 
 
@@ -3790,7 +3786,7 @@
 
 
 
-                                    E-mailadres
+                                    {{ __('E-mailadres') }}
 
 
 
@@ -3934,7 +3930,7 @@
 
 
 
-                            Wachtwoord wijzigen
+                            {{ __('Wachtwoord wijzigen') }}
 
 
 
@@ -3946,11 +3942,7 @@
 
 
 
-                            Laat beide velden leeg als het huidige wachtwoord
-
-
-
-                            behouden moet blijven.
+                            {{ __('Laat beide velden leeg als het huidige wachtwoord behouden moet blijven.') }}
 
 
 
@@ -3982,7 +3974,7 @@
 
 
 
-                                    Nieuw wachtwoord
+                                    {{ __('Nieuw wachtwoord') }}
 
 
 
@@ -4082,7 +4074,7 @@
 
 
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
 
 
@@ -4158,7 +4150,7 @@
 
 
 
-                                    Optioneel. Minimaal 8 tekens wanneer ingevuld.
+                                    {{ __('Optioneel. Minimaal 8 tekens wanneer ingevuld.') }}
 
 
 
@@ -4190,7 +4182,7 @@
 
 
 
-                                    Nieuw wachtwoord bevestigen
+                                    {{ __('Nieuw wachtwoord bevestigen') }}
 
 
 
@@ -4270,7 +4262,7 @@
 
 
 
-                                    Tonen
+                                    {{ __('Tonen') }}
 
 
 
@@ -4334,7 +4326,7 @@
 
 
 
-                            Verificatie & administratorrechten
+                            {{ __('Verificatie & administratorrechten') }}
 
 
 
@@ -4346,15 +4338,7 @@
 
 
 
-                            Pas de status zorgvuldig aan.
-
-
-
-                            Wijzigingen hier kunnen direct invloed hebben
-
-
-
-                            op toegang tot checkout en beheer.
+                            {{ __('Pas de status zorgvuldig aan. Wijzigingen hier kunnen direct invloed hebben op toegang tot checkout en beheer.') }}
 
 
 
@@ -4446,7 +4430,7 @@
 
 
 
-                                        E-mailadres geverifieerd
+                                        {{ __('E-mailadres geverifieerd') }}
 
 
 
@@ -4458,11 +4442,7 @@
 
 
 
-                                        Schakel uit om het account opnieuw
-
-
-
-                                        als niet-geverifieerd te markeren.
+                                        {{ __('Schakel uit om het account opnieuw als niet-geverifieerd te markeren.') }}
 
 
 
@@ -4590,7 +4570,7 @@
 
 
 
-                                        Administratorrechten
+                                        {{ __('Administratorrechten') }}
 
 
 
@@ -4602,11 +4582,7 @@
 
 
 
-                                        Geeft toegang tot beheerfuncties
-
-
-
-                                        en gevoelige gebruikersacties.
+                                        {{ __('Geeft toegang tot beheerfuncties en gevoelige gebruikersacties.') }}
 
 
 
@@ -4654,11 +4630,7 @@
 
 
 
-                                    Je kunt je eigen administratorrechten
-
-
-
-                                    niet uitschakelen.
+                                    {{ __('Je kunt je eigen administratorrechten niet uitschakelen.') }}
 
 
 
@@ -4770,7 +4742,7 @@
 
 
 
-                        Wijzigingen opslaan
+                        {{ __('Wijzigingen opslaan') }}
 
 
 
@@ -4826,7 +4798,7 @@
 
 
 
-                    Live account preview
+                    {{ __('Live account preview') }}
 
 
 
@@ -4882,15 +4854,15 @@
 
                         @if ($user->hasProfilePhoto())
 
-                            <span class="preview-source">Eigen profielfoto</span>
+                            <span class="preview-source">{{ __('Eigen profielfoto') }}</span>
 
                         @elseif ($user->socialAvatar())
 
-                            <span class="preview-source">Social avatar</span>
+                            <span class="preview-source">{{ __('Social avatar') }}</span>
 
                         @else
 
-                            <span class="preview-source">Initialen</span>
+                            <span class="preview-source">{{ __('Initialen') }}</span>
 
                         @endif
 
@@ -4980,7 +4952,7 @@
 
 
 
-                    Account history
+                    {{ __('Account history') }}
 
 
 
@@ -4992,7 +4964,7 @@
 
 
 
-                    Accountinformatie
+                    {{ __('Accountinformatie') }}
 
 
 
@@ -5020,7 +4992,7 @@
 
 
 
-                            ID
+                            {{ __('ID') }}
 
 
 
@@ -5032,7 +5004,7 @@
 
 
 
-                            Gebruikers-ID:
+                            {{ __('Gebruikers-ID:') }}
 
 
 
@@ -5072,7 +5044,7 @@
 
 
 
-                            Geregistreerd:
+                            {{ __('Geregistreerd:') }}
 
 
 
@@ -5120,7 +5092,7 @@
 
 
 
-                            Laatst gewijzigd:
+                            {{ __('Laatst gewijzigd:') }}
 
 
 
@@ -5172,7 +5144,7 @@
 
 
 
-                        Protected admin account
+                        {{ __('Protected admin account') }}
 
 
 
@@ -5184,7 +5156,7 @@
 
 
 
-                        Dit is jouw eigen account
+                        {{ __('Dit is jouw eigen account') }}
 
 
 
@@ -5196,15 +5168,7 @@
 
 
 
-                        Om te voorkomen dat je jezelf uit het beheer sluit,
-
-
-
-                        kun je via deze pagina je eigen administratorrechten
-
-
-
-                        niet uitschakelen of je eigen account verwijderen.
+                        {{ __('Om te voorkomen dat je jezelf uit het beheer sluit, kun je via deze pagina je eigen administratorrechten niet uitschakelen of je eigen account verwijderen.') }}
 
 
 
@@ -5228,7 +5192,7 @@
 
 
 
-                        Change impact
+                        {{ __('Change impact') }}
 
 
 
@@ -5240,7 +5204,7 @@
 
 
 
-                        Controleer wijzigingen
+                        {{ __('Controleer wijzigingen') }}
 
 
 
@@ -5252,15 +5216,7 @@
 
 
 
-                        Het wijzigen van e-mail, verificatie of rechten
-
-
-
-                        kan direct invloed hebben op wat deze gebruiker
-
-
-
-                        binnen Mashal kan doen.
+                        {{ __('Het wijzigen van e-mail, verificatie of rechten kan direct invloed hebben op wat deze gebruiker binnen Mashal kan doen.') }}
 
 
 
@@ -5320,7 +5276,7 @@
 
 
 
-                        Danger zone
+                        {{ __('Danger zone') }}
 
 
 
@@ -5332,7 +5288,7 @@
 
 
 
-                        Gebruiker definitief verwijderen
+                        {{ __('Gebruiker definitief verwijderen') }}
 
 
 
@@ -5416,7 +5372,7 @@
 
 
 
-                        Gebruiker verwijderen
+                        {{ __('Gebruiker verwijderen') }}
 
 
 
@@ -5460,7 +5416,7 @@
 
 
 
-                Verwijderen geblokkeerd
+                {{ __('Verwijderen geblokkeerd') }}
 
 
 
@@ -5472,11 +5428,7 @@
 
 
 
-                Je eigen administratoraccount kan via deze pagina
-
-
-
-                niet worden verwijderd.
+                {{ __('Je eigen administratoraccount kan via deze pagina niet worden verwijderd.') }}
 
 
 

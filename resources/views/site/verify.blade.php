@@ -1602,7 +1602,7 @@
 
             <h1 class="verify-title">
 
-                E-mail verifiëren
+                {{ __('E-mail verifiëren') }}
 
                 <span>Mashal Studio</span>
 
@@ -1612,9 +1612,7 @@
 
             <p class="verify-lead">
 
-                Vul de 6-cijferige beveiligingscode uit je e-mail in
-
-                om je account veilig te activeren.
+                {{ __('Vul de 6-cijferige beveiligingscode uit je e-mail in om je account veilig te activeren.') }}
 
             </p>
 
@@ -1676,9 +1674,7 @@
 
                         <p class="verify-description">
 
-                            Controleer je e-mailadres en voer daarna de
-
-                            6-cijferige code in.
+                            {{ __('Controleer je e-mailadres en voer daarna de 6-cijferige code in.') }}
 
                         </p>
 
@@ -1714,7 +1710,7 @@
 
                                 <strong>
 
-                                    Verificatie is niet gelukt.
+                                    {{ __('Verificatie is niet gelukt.') }}
 
                                 </strong>
 
@@ -1808,7 +1804,7 @@
 
                                 >
 
-                                    Stuur code
+                                    {{ __('Stuur code') }}
 
                                 </button>
 
@@ -1862,7 +1858,7 @@
 
                             <span class="verify-code-label">
 
-                                6-cijferige verificatiecode
+                                {{ __('6-cijferige verificatiecode') }}
 
                             </span>
 
@@ -1912,7 +1908,7 @@
 
                                 <div class="verify-resend">
 
-                                    Geen code ontvangen?
+                                    {{ __('Geen code ontvangen?') }}
 
 
 
@@ -1924,7 +1920,7 @@
 
                                     >
 
-                                        Opnieuw sturen
+                                        {{ __('Opnieuw sturen') }}
 
                                     </button>
 
@@ -1946,7 +1942,7 @@
 
                                 >
 
-                                    Verifieer &amp; ga verder →
+                                    {{ __('Verifieer & ga verder →') }}
 
                                 </button>
 
@@ -2000,7 +1996,7 @@
 
                         <h2 class="verify-heading">
 
-                            Code <strong>controleren</strong>
+                            {{ __('Code') }} <strong>{{ __('controleren') }}</strong>
 
                         </h2>
 
@@ -2018,7 +2014,7 @@
 
                         <p class="verify-loading-copy">
 
-                            Een moment. We controleren je beveiligingscode.
+                            {{ __('Een moment. We controleren je beveiligingscode.') }}
 
                         </p>
 
@@ -2068,7 +2064,7 @@
 
                         <h2 class="verify-heading success">
 
-                            Verified <strong>Successfully</strong>
+                            {{ __('Verified') }} <strong>Successfully</strong>
 
                         </h2>
 
@@ -2102,9 +2098,7 @@
 
                         <p class="verify-success-copy">
 
-                            Je e-mailadres is veilig bevestigd.
-
-                            Je wordt direct doorgestuurd.
+                            {{ __('Je e-mailadres is veilig bevestigd. Je wordt direct doorgestuurd.') }}
 
                         </p>
 
@@ -2114,7 +2108,7 @@
 
                     <div class="verify-divider">
 
-                        Accountbeveiliging
+                        {{ __('Accountbeveiliging') }}
 
                     </div>
 
@@ -2126,7 +2120,7 @@
 
                             <strong>
 
-                                Terug naar inloggen
+                                {{ __('Terug naar inloggen') }}
 
                             </strong>
 
@@ -2134,9 +2128,7 @@
 
                             <span>
 
-                                Gebruik alleen codes die je zelf van
-
-                                Mashal Studio hebt aangevraagd.
+                                {{ __('Gebruik alleen codes die je zelf van Mashal Studio hebt aangevraagd.') }}
 
                             </span>
 
@@ -2152,7 +2144,7 @@
 
                         >
 
-                            Inloggen
+                            {{ __('Inloggen') }}
 
                         </a>
 
@@ -2178,9 +2170,7 @@
 
                         <span>
 
-                            Deel je verificatiecode nooit met anderen.
-
-                            Mashal Studio vraagt je code niet via chat of telefoon.
+                            {{ __('Deel je verificatiecode nooit met anderen. Mashal Studio vraagt je code niet via chat of telefoon.') }}
 
                         </span>
 
