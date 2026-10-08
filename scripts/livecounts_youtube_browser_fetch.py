@@ -297,8 +297,9 @@ def main():
 
             page.on("response", on_response)
 
+            response = None
             try:
-                page.goto(
+                response = page.goto(
                     "https://livecounts.io/youtube-live-subscriber-counter/"
                     + channel_id,
                     wait_until="commit",
