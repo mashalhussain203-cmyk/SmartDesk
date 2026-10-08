@@ -664,7 +664,7 @@
 
                 <h1>
 
-                    Beveiligingscontrole
+                    {{ __('Beveiligingscontrole') }}
 
                 </h1>
 
@@ -742,7 +742,7 @@
 
                         <strong>
 
-                            Controleer de ingevoerde gegevens.
+                            {{ __('Controleer de ingevoerde gegevens.') }}
 
                         </strong>
 
@@ -1044,7 +1044,7 @@
 
                     >
 
-                        Login annuleren
+                        {{ __('Login annuleren') }}
 
                     </button>
 
