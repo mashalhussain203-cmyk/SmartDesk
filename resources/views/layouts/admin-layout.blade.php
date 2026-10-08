@@ -4835,5 +4835,6 @@
 
     @stack('scripts')
 
+    <script src="{{ asset('js/smartdesk-urdu.js') }}" defer></script>
 </body>
 </html>
