@@ -436,7 +436,7 @@
 
             <h1 class="legal-title">
 
-                Privacy<span>{{ __('beleid.') }}</span>
+                {{ __('Privacy') }}<span>{{ __('beleid.') }}</span>
 
             </h1>
 
@@ -980,7 +980,7 @@
 
                 >
 
-                    E-mail sturen
+                    {{ __('E-mail sturen') }}
 
                 </a>
 
@@ -1000,7 +1000,7 @@
 
                 >
 
-                    contactpagina
+                    {{ __('contactpagina') }}
 
                 </a>
 
@@ -1014,7 +1014,7 @@
 
                 >
 
-                    Gebruiksvoorwaarden
+                    {{ __('Gebruiksvoorwaarden') }}
 
                 </a>
 
@@ -1028,7 +1028,7 @@
 
         <p class="legal-meta">
 
-            Laatst bijgewerkt: 26 september 2026.
+            {{ __('Laatst bijgewerkt: 26 september 2026.') }}
 
         </p>
 
