@@ -435,7 +435,7 @@
                             value="{{ old('first_name', auth()->user()?->first_name ?? auth()->user()?->name) }}"
                             maxlength="100"
                             autocomplete="given-name"
-                            placeholder="Je voornaam"
+                            placeholder="{{ __('Je voornaam') }}"
                             required
                         >
 
@@ -462,7 +462,7 @@
                             value="{{ old('last_name', auth()->user()?->last_name) }}"
                             maxlength="100"
                             autocomplete="family-name"
-                            placeholder="Je achternaam"
+                            placeholder="{{ __('Je achternaam') }}"
                             required
                         >
 
