@@ -740,7 +740,7 @@
 
             <div class="approval-wait-kicker">
 
-                Login approval
+                {{ __('Login approval') }}
 
             </div>
 
@@ -778,11 +778,11 @@
 
             <p class="approval-wait-copy">
 
-                Open Mashal Studio op je tablet, telefoon of computer waar
+                {{ __('Open Mashal Studio op je tablet, telefoon of computer waar') }}
 
                 <strong>{{ $maskedEmail ?: 'dit account' }}</strong>
 
-                al is ingelogd. Kies daar hetzelfde nummer als hieronder.
+                {{ __('al is ingelogd. Kies daar hetzelfde nummer als hieronder.') }}
 
             </p>
 
