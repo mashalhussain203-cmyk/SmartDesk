@@ -787,7 +787,7 @@
 @endpush
 
 @section('content')
-<section class="yts-page">
+<section class="yts-page" data-ui-build="20261008-youtube-livecounts-v2">
     <div class="yts-shell">
         <a class="yts-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
 
