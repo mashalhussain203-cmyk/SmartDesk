@@ -5668,7 +5668,7 @@
 
 
 
-                        : 'Niet geverifieerd';
+                        : @json(__('Niet geverifieerd'));
 
 
 
@@ -6016,7 +6016,7 @@
 
 
 
-                        'Optioneel. Minimaal 8 tekens wanneer ingevuld.';
+                        @json(__('Optioneel. Minimaal 8 tekens wanneer ingevuld.'));
 
 
 
