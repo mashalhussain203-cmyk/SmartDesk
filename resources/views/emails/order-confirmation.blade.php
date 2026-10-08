@@ -536,7 +536,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Auto
+                                        {{ __('Auto') }}
                                     </th>
 
 
@@ -553,7 +553,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Aantal
+                                        {{ __('Aantal') }}
                                     </th>
 
 
@@ -570,7 +570,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Subtotaal
+                                        {{ __('Subtotaal') }}
                                     </th>
 
                                 </tr>
@@ -678,7 +678,7 @@
                                         font-weight: 700;
                                     "
                                 >
-                                    Totaal
+                                    {{ __('Totaal') }}
                                 </td>
 
 
@@ -972,7 +972,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        E-mailadres
+                                        {{ __('E-mailadres') }}
                                     </div>
 
                                     <div
@@ -1254,7 +1254,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong
