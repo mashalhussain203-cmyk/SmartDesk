@@ -44,6 +44,22 @@ class MobileResponsiveStylesTest extends TestCase
         $this->assertStringContainsString('width: 100%', $css);
     }
 
+
+    public function test_homepage_stays_within_phone_viewport_including_rtl(): void
+    {
+        $css = file_get_contents($this->projectRoot().'/public/css/mobile-responsive.css');
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('@media (max-width: 1180px)', $css);
+        $this->assertStringContainsString('.ms-home .ms-hero-grid', $css);
+        $this->assertStringContainsString('grid-template-columns: minmax(0, 1fr)', $css);
+        $this->assertStringContainsString('.ms-home .ms-shell', $css);
+        $this->assertStringContainsString('inline-size: calc(100% - 24px)', $css);
+        $this->assertStringContainsString('html[dir="rtl"] .ms-home .ms-hero-copy', $css);
+        $this->assertStringContainsString('html[dir="rtl"] .ms-home .ms-hero-title', $css);
+        $this->assertStringContainsString('overflow-x: clip', $css);
+    }
+
     public function test_all_web_layouts_load_mobile_rules_after_their_page_styles(): void
     {
         $paths = [

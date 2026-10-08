@@ -54,3 +54,14 @@ Controleer handmatig een verlopen contactformulier op een telefoon en test indie
 `php artisan test --filter=ContactFormReliabilityTest`
 
 `php artisan test --filter=MobileResponsiveStylesTest`
+
+## 2026-10: Home overflow bij uitzoomen op iPhone / Urdu
+
+- Voor tablet/mobile t/m 1180px krijgen de hero en uploadkaart een enkele, krimpbare gridkolom in plaats van intrinsieke brede kolommen.
+- Op telefoons t/m 767px blijven het document, de main-wrapper, de hero en de uploadkaarten binnen de schermbreedte; onbedoelde horizontale paginascroll wordt afgeknipt.
+- RTL/Urdu behoudt leesrichting en tekstuitlijning; mobiele hero-titels gebruiken normale letterafstand voor Urdu-vormgeving.
+- Extra compacte uploadtoolbar en padding op 480px of smaller.
+- Mobiele CSS-cacheversie bijgewerkt, zodat Safari na deployment de nieuwe regels ontvangt.
+- Het contactformulier en de 419-/CSRF-logica zijn niet gewijzigd.
+
+Controleer na deployment met Safari bij 100% én na uitzoomen op iPhone (NL en Urdu); de automatisering controleert CSS-regels, niet de visuele rendering op een fysiek toestel.

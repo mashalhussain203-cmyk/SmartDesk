@@ -415,3 +415,131 @@ html[dir="rtl"] :is(input[type="email"], input[type="url"], input[type="tel"]) {
         min-height: 44px;
     }
 }
+
+
+/*
+ * Narrow-screen homepage repair (including RTL/Urdu + Safari page zoom).
+ * Grid children are explicitly constrained to the viewport so the uploader
+ * cannot create a wide RTL scroll area with empty space on the left.
+ */
+@media (max-width: 1180px) {
+    .ms-home .ms-hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+        min-inline-size: 0;
+    }
+
+    .ms-home .ms-hero-copy,
+    .ms-home .ms-studio-wrap {
+        inline-size: 100%;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    html,
+    body {
+        max-inline-size: 100%;
+        overflow-x: clip;
+    }
+
+    .studio-main,
+    .ms-home {
+        box-sizing: border-box;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        inline-size: 100%;
+        overflow-x: clip;
+    }
+
+    .ms-home .ms-hero {
+        display: block;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        inline-size: 100%;
+        overflow-x: clip;
+    }
+
+    .ms-home .ms-shell {
+        box-sizing: border-box;
+        inline-size: calc(100% - 24px);
+        max-inline-size: 100%;
+        min-inline-size: 0;
+        margin-inline: auto;
+    }
+
+    .ms-home .ms-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: clamp(28px, 8vw, 48px);
+        inline-size: 100%;
+        min-inline-size: 0;
+    }
+
+    .ms-home :is(
+        .ms-hero-copy,
+        .ms-studio-wrap,
+        .ms-studio-card,
+        .ms-studio-window,
+        .ms-window-body,
+        .ms-dropzone,
+        .ms-hero-actions,
+        .ms-preview-actions
+    ) {
+        box-sizing: border-box;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+
+    .ms-home :is(.ms-studio-wrap, .ms-studio-card, .ms-studio-window, .ms-window-body) {
+        inline-size: 100%;
+    }
+
+    .ms-home .ms-hero-title,
+    .ms-home .ms-hero-lead,
+    .ms-home .ms-window-secure {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .ms-home .ms-hero-title {
+        font-size: clamp(36px, 9vw, 58px);
+        line-height: 1.12;
+    }
+
+    html[dir="rtl"] .ms-home .ms-hero-copy {
+        direction: rtl;
+        text-align: right;
+    }
+
+    html[dir="rtl"] .ms-home .ms-hero-title {
+        letter-spacing: normal;
+    }
+
+    .ms-home .ms-studio-glow {
+        max-inline-size: 100%;
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .ms-home .ms-hero {
+        padding-block: 44px 60px;
+    }
+
+    .ms-home .ms-hero-title {
+        font-size: clamp(34px, 9vw, 46px);
+    }
+
+    .ms-home .ms-windowbar {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 8px;
+        padding-inline: 10px;
+    }
+
+    .ms-home .ms-dropzone {
+        padding-inline: 10px;
+        min-height: 270px;
+    }
+}
