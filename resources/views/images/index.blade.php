@@ -1726,7 +1726,7 @@
 
                 <span class="library-kicker">
 
-                    Private image library
+                    {{ __('Private image library') }}
 
                 </span>
 
@@ -1744,13 +1744,7 @@
 
                 <p>
 
-                    Beheer hier alle afbeeldingen die aan jouw account zijn
-
-                    gekoppeld. Open een project in de editor, download het
-
-                    origineel of verwijder een compleet project inclusief
-
-                    alle opgeslagen bewerkingen.
+                    {{ __('Beheer hier alle afbeeldingen die aan jouw account zijn gekoppeld. Open een project in de editor, download het origineel of verwijder een compleet project inclusief alle opgeslagen bewerkingen.') }}
 
                 </p>
 
@@ -2392,7 +2386,7 @@
 
                                     >
 
-                                        Verwijderen
+                                        {{ __('Verwijderen') }}
 
                                     </button>
 
@@ -2482,13 +2476,7 @@
 
                 <p>
 
-                    Upload je eerste afbeelding om een nieuw project te
-
-                    starten. Na het uploaden wordt het origineel privé aan
-
-                    jouw account gekoppeld en kun je het openen in de editor,
-
-                    bewerken en als meerdere versies opslaan.
+                    {{ __('Upload je eerste afbeelding om een nieuw project te starten. Na het uploaden wordt het origineel privé aan jouw account gekoppeld en kun je het openen in de editor, bewerken en als meerdere versies opslaan.') }}
 
                 </p>
 
