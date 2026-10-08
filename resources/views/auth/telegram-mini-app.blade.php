@@ -958,7 +958,7 @@
 
             >
 
-                Opnieuw proberen
+                {{ __('Opnieuw proberen') }}
 
             </button>
 
