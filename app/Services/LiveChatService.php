@@ -81,6 +81,30 @@ class LiveChatService
 
      */
 
+    /**
+     * Guests are shown to operators only while their browser continues
+     * contacting the website. Account conversations remain permanent.
+     */
+    public const GUEST_ACTIVE_SECONDS = 45;
+
+    public function markGuestActive(Request $request, ?stdClass $conversation): void
+    {
+        if ($request->user() || ! $conversation || $conversation->user_id) {
+            return;
+        }
+
+        // The page's existing live-chat poll runs every few seconds. Do not
+        // write to the database for every request: one update / 10s is enough.
+        DB::table('live_chat_conversations')
+            ->where('id', (int) $conversation->id)
+            ->whereNull('user_id')
+            ->where(function ($query): void {
+                $query->whereNull('visitor_last_seen_at')
+                    ->orWhere('visitor_last_seen_at', '<', now()->subSeconds(10));
+            })
+            ->update(['visitor_last_seen_at' => now()]);
+    }
+
     public function visitorConversation(Request $request): ?stdClass
 
     {

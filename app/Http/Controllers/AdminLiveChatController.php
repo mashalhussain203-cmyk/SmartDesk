@@ -202,6 +202,16 @@ class AdminLiveChatController extends Controller
 
 
 
+        // Only signed-in accounts stay in the inbox after leaving.
+        // Guest conversations remain stored but are listed only while
+        // the visitor's browser has checked in during the past 45 seconds.
+        $query->where(function ($visible): void {
+            $visible->whereNotNull('c.user_id')
+                ->orWhere('c.visitor_last_seen_at', '>=', now()->subSeconds(
+                    LiveChatService::GUEST_ACTIVE_SECONDS
+                ));
+        });
+
         if (
 
             ($data['filter'] ?? 'active')

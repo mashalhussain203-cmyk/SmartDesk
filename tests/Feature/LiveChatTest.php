@@ -59,6 +59,8 @@ class LiveChatTest extends TestCase
                 'database/migrations/2026_09_30_000001_add_email_handoff_to_live_chat.php',
                 'database/migrations/2026_09_30_000002_add_gmail_threading_to_live_chat.php',
                 'database/migrations/2026_09_30_000003_add_email_title_to_live_chat.php',
+                'database/migrations/2026_10_03_200000_upgrade_live_chat_features.php',
+                'database/migrations/2026_10_08_210000_add_guest_presence_to_live_chat_conversations.php',
 
             ],
 
@@ -942,6 +944,83 @@ class LiveChatTest extends TestCase
             ->assertOk()
             ->assertSee('id="admin-live-chat-launcher"', false)
             ->assertDontSee('id="guest-chat"', false);
+    }
+
+
+
+    public function test_guest_chat_disappears_from_admin_after_leaving_but_messages_remain(): void
+    {
+        $this->freezeTime();
+
+        $token = str_repeat('g', 64);
+
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson('/live-chat/messages', $this->message('Gast online'))
+            ->assertOk();
+
+        $guest = DB::table('live_chat_conversations')->whereNull('user_id')->first();
+
+        $this->assertNotNull($guest);
+        $this->assertNotNull($guest->visitor_last_seen_at);
+
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->getJson('/admin/live-chat/conversations')
+            ->assertOk()
+            ->assertJsonCount(1, 'items')
+            ->assertJsonPath('items.0.kind', 'guest');
+
+        // Guests disappear without deleting messages or their conversation.
+        $this->travel(46)->seconds();
+
+        $this->getJson('/admin/live-chat/conversations')
+            ->assertOk()
+            ->assertJsonCount(0, 'items');
+
+        $this->assertDatabaseHas('live_chat_messages', [
+            'conversation_id' => $guest->id,
+            'body' => 'Gast online',
+        ]);
+
+        // Returning in the same browser/session makes the guest visible again.
+        auth()->logout();
+
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->getJson('/live-chat')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->getJson('/admin/live-chat/conversations')
+            ->assertOk()
+            ->assertJsonCount(1, 'items')
+            ->assertJsonPath('items.0.kind', 'guest');
+    }
+
+    public function test_real_account_chat_remains_in_admin_after_visitor_goes_offline(): void
+    {
+        $this->freezeTime();
+
+        $account = UserFactory::new()->create([
+            'name' => 'Account Bezoeker',
+            'email' => 'account-bezoeker@example.test',
+            'is_admin' => false,
+        ]);
+
+        $this->actingAs($account)
+            ->postJson('/live-chat/messages', $this->message('Account bericht'))
+            ->assertOk();
+
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+
+        $this->travel(120)->seconds();
+
+        $this->actingAs($admin)
+            ->getJson('/admin/live-chat/conversations')
+            ->assertOk()
+            ->assertJsonCount(1, 'items')
+            ->assertJsonPath('items.0.kind', 'account')
+            ->assertJsonPath('items.0.name', 'Account Bezoeker');
     }
 
 

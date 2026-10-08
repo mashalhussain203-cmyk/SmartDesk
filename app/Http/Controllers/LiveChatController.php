@@ -20,10 +20,12 @@ class LiveChatController extends Controller
             'after' => ['sometimes', 'integer', 'min:0'],
         ]);
 
+        $conversation = $chat->visitorConversation($request);
+        $chat->markGuestActive($request, $conversation);
         $chat->markVisitorRead($request);
 
         $payload = $chat->payload(
-            $chat->visitorConversation($request),
+            $conversation,
             (int) ($data['after'] ?? 0)
         ) + [
             'identity' => hash(
@@ -165,6 +167,8 @@ class LiveChatController extends Controller
             $attachment
         );
 
+        $chat->markGuestActive($request, $conversation);
+
         // Zodra het bericht is verstuurd is de bezoeker niet meer "aan het typen".
         $chat->setVisitorTyping($request, false);
 
@@ -270,6 +274,7 @@ class LiveChatController extends Controller
                 null,
                 $attachment
             );
+            $chat->markGuestActive($request, $conversation);
             $chat->setVisitorTyping($request, false);
 
             return response()->json([

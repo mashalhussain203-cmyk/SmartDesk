@@ -2316,6 +2316,32 @@
 
                     controls();
 
+                } else if (
+                    selected.kind === 'guest'
+                    && requestedPage === 1
+                    && requestedFilter === 'active'
+                    && !inboxSearch
+                ) {
+                    // An anonymous visitor has left the website. Keep
+                    // their messages in storage, but clear the stale panel.
+                    selectionGeneration += 1;
+                    selected = null;
+                    lastMessageId = 0;
+                    seen.clear();
+                    clearReplyTarget();
+                    input.value = '';
+                    autoResizeInput();
+                    log.replaceChildren();
+
+                    const empty = document.createElement('p');
+                    empty.className = 'lca-list-empty';
+                    empty.textContent = 'De gast heeft de website verlaten. Kies een ander gesprek.';
+                    log.append(empty);
+
+                    nameNode.textContent = 'Kies een gesprek';
+                    emailNode.textContent = 'De gast is niet meer online.';
+                    if (typingIndicator) typingIndicator.hidden = true;
+                    controls();
                 }
 
             }
