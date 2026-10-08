@@ -319,16 +319,16 @@
     <section class="md-hero">
         <div class="md-hero-grid">
             <div>
-                <span class="md-eyebrow">Mashal Control Center</span>
+                <span class="md-eyebrow">{{ __('Mashal Control Center') }}</span>
                 <h1>
-                    Automotive beheer,
-                    <span>professioneel geregeld.</span>
+                    {{ __('Automotive beheer,') }}
+                    <span>{{ __('professioneel geregeld.') }}</span>
                 </h1>
-                <p class="md-hero-copy">Beheer gebruikers, verificaties en administratorrechten vanuit één centraal dashboard. De bestaande Mashal-catalogus en website zijn direct bereikbaar vanuit deze omgeving.</p>
+                <p class="md-hero-copy">{{ __('Beheer gebruikers, verificaties en administratorrechten vanuit één centraal dashboard. De bestaande Mashal-catalogus en website zijn direct bereikbaar vanuit deze omgeving.') }}</p>
                 <div class="md-hero-actions">
-                    <a href="{{ route('users.create') }}" class="md-btn" >+ Nieuwe gebruiker</a>
-                    <a href="{{ route('users.index') }}" class="md-btn secondary" >Gebruikersbeheer</a>
-                    <a href="{{ route('home') }}" class="md-btn secondary" >Website bekijken</a>
+                    <a href="{{ route('users.create') }}" class="md-btn" >{{ __('+ Nieuwe gebruiker') }}</a>
+                    <a href="{{ route('users.index') }}" class="md-btn secondary" >{{ __('Gebruikersbeheer') }}</a>
+                    <a href="{{ route('home') }}" class="md-btn secondary" >{{ __('Website bekijken') }}</a>
                 </div>
             </div>
             <aside class="md-hero-admin">
@@ -344,7 +344,7 @@
                     </div>
                     <div class="md-hero-admin-identity">
                         <div class="md-hero-admin-label">
-                            Huidige administrator
+                            {{ __('Huidige administrator') }}
                         </div>
                         <div class="md-hero-admin-name">
                             {{ auth()->user()->name }}
@@ -353,15 +353,15 @@
                             {{ auth()->user()->email }}
                         </div>
                         @if (auth()->user()->hasProfilePhoto())
-                            <span class="md-hero-admin-photo-source">Eigen profielfoto</span>
+                            <span class="md-hero-admin-photo-source">{{ __('Eigen profielfoto') }}</span>
                         @elseif (auth()->user()->socialAvatar())
-                            <span class="md-hero-admin-photo-source">Social avatar</span>
+                            <span class="md-hero-admin-photo-source">{{ __('Social avatar') }}</span>
                         @else
-                            <span class="md-hero-admin-photo-source">Initialen</span>
+                            <span class="md-hero-admin-photo-source">{{ __('Initialen') }}</span>
                         @endif
                     </div>
                 </div>
-                <span class="md-admin-badge">Administrator actief</span>
+                <span class="md-admin-badge">{{ __('Administrator actief') }}</span>
                 <div class="md-current-provider">
                     @php
                         $currentProvider = auth()->user()->loginProvider();
@@ -421,62 +421,62 @@
     <section class="md-stats">
         <article class="md-stat-card">
             <div class="md-stat-top">
-                <span class="md-stat-label">Gebruikers</span>
+                <span class="md-stat-label">{{ __('Gebruikers') }}</span>
                 <span class="md-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-11"></use></svg></span>
             </div>
             <div class="md-stat-number">
                 {{ $totalUsers ?? $users->count() }}
             </div>
             <div class="md-stat-foot">
-                Totaal geregistreerde accounts
+                {{ __('Totaal geregistreerde accounts') }}
             </div>
         </article>
         <article class="md-stat-card">
             <div class="md-stat-top">
-                <span class="md-stat-label">Geverifieerd</span>
+                <span class="md-stat-label">{{ __('Geverifieerd') }}</span>
                 <span class="md-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-12"></use></svg></span>
             </div>
             <div class="md-stat-number">
                 {{ $verifiedUsers ?? $users->whereNotNull('email_verified_at')->count() }}
             </div>
             <div class="md-stat-foot">
-                Accounts met bevestigd e-mailadres
+                {{ __('Accounts met bevestigd e-mailadres') }}
             </div>
         </article>
         <article class="md-stat-card">
             <div class="md-stat-top">
-                <span class="md-stat-label">Administrators</span>
+                <span class="md-stat-label">{{ __('Administrators') }}</span>
                 <span class="md-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-13"></use></svg></span>
             </div>
             <div class="md-stat-number">
                 {{ $adminUsers ?? $users->where('is_admin', true)->count() }}
             </div>
             <div class="md-stat-foot">
-                Accounts met beheerrechten
+                {{ __('Accounts met beheerrechten') }}
             </div>
         </article>
         <article class="md-stat-card">
             <div class="md-stat-top">
-                <span class="md-stat-label">Bestellingen</span>
+                <span class="md-stat-label">{{ __('Bestellingen') }}</span>
                 <span class="md-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-14"></use></svg></span>
             </div>
             <div class="md-stat-number">
                 {{ $totalOrders ?? 0 }}
             </div>
             <div class="md-stat-foot">
-                Totaal geplaatste bestellingen
+                {{ __('Totaal geplaatste bestellingen') }}
             </div>
         </article>
         <article class="md-stat-card">
             <div class="md-stat-top">
-                <span class="md-stat-label">Profielfoto's</span>
+                <span class="md-stat-label">{{ __('Profielfoto\'s') }}</span>
                 <span class="md-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-15"></use></svg></span>
             </div>
             <div class="md-stat-number">
                 {{ $profilePhotoUsers }}
             </div>
             <div class="md-stat-foot">
-                Accounts met een eigen geüploade profielfoto
+                {{ __('Accounts met een eigen geüploade profielfoto') }}
             </div>
         </article>
     </section>
@@ -486,35 +486,35 @@
     <section class="md-panel">
         <div class="md-section-head">
             <div>
-                <span class="md-section-kicker">Quick actions</span>
-                <h2>Snel beheren</h2>
-                <p>Open direct de onderdelen die je het vaakst nodig hebt binnen Mashal.</p>
+                <span class="md-section-kicker">{{ __('Quick actions') }}</span>
+                <h2>{{ __('Snel beheren') }}</h2>
+                <p>{{ __('Open direct de onderdelen die je het vaakst nodig hebt binnen Mashal.') }}</p>
             </div>
         </div>
         <div class="md-actions-grid">
             <article class="md-action-card">
                 <span class="md-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-11"></use></svg></span>
-                <h3>Gebruikers beheren</h3>
-                <p>Bekijk bestaande accounts, wijzig accountgegevens en beheer verificatie- en administratorstatussen.</p>
-                <a class="md-btn secondary" href="{{ route('users.index') }}" >Naar gebruikers</a>
+                <h3>{{ __('Gebruikers beheren') }}</h3>
+                <p>{{ __('Bekijk bestaande accounts, wijzig accountgegevens en beheer verificatie- en administratorstatussen.') }}</p>
+                <a class="md-btn secondary" href="{{ route('users.index') }}" >{{ __('Naar gebruikers') }}</a>
             </article>
             <article class="md-action-card">
                 <span class="md-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-16"></use></svg></span>
-                <h3>Nieuwe gebruiker</h3>
-                <p>Maak handmatig een nieuw gebruikers- of administratoraccount aan.</p>
-                <a class="md-btn" href="{{ route('users.create') }}" >Gebruiker toevoegen</a>
+                <h3>{{ __('Nieuwe gebruiker') }}</h3>
+                <p>{{ __('Maak handmatig een nieuw gebruikers- of administratoraccount aan.') }}</p>
+                <a class="md-btn" href="{{ route('users.create') }}" >{{ __('Gebruiker toevoegen') }}</a>
             </article>
             <article class="md-action-card">
                 <span class="md-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-17"></use></svg></span>
-                <h3>Catalogus bekijken</h3>
-                <p>Open de actuele Mashal Automotive-collectie zoals deze op de website beschikbaar is.</p>
-                <a class="md-btn secondary" href="{{ route('catalog') }}" >Naar catalogus</a>
+                <h3>{{ __('Catalogus bekijken') }}</h3>
+                <p>{{ __('Open de actuele Mashal Automotive-collectie zoals deze op de website beschikbaar is.') }}</p>
+                <a class="md-btn secondary" href="{{ route('catalog') }}" >{{ __('Naar catalogus') }}</a>
             </article>
             <article class="md-action-card">
                 <span class="md-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-18"></use></svg></span>
-                <h3>Website openen</h3>
-                <p>Bekijk de publieke Mashal-website zoals bezoekers en klanten die ervaren.</p>
-                <a class="md-btn secondary" href="{{ route('home') }}" >Naar website</a>
+                <h3>{{ __('Website openen') }}</h3>
+                <p>{{ __('Bekijk de publieke Mashal-website zoals bezoekers en klanten die ervaren.') }}</p>
+                <a class="md-btn secondary" href="{{ route('home') }}" >{{ __('Naar website') }}</a>
             </article>
         </div>
     </section>
@@ -524,11 +524,11 @@
     <section class="md-panel">
         <div class="md-section-head">
             <div>
-                <span class="md-section-kicker">User management</span>
-                <h2>Gebruikersoverzicht</h2>
-                <p>Controleer accounts, rollen, verificatiestatus en registratiedatum vanuit één overzicht.</p>
+                <span class="md-section-kicker">{{ __('User management') }}</span>
+                <h2>{{ __('Gebruikersoverzicht') }}</h2>
+                <p>{{ __('Controleer accounts, rollen, verificatiestatus en registratiedatum vanuit één overzicht.') }}</p>
             </div>
-            <a class="md-btn" href="{{ route('users.create') }}" >+ Gebruiker toevoegen</a>
+            <a class="md-btn" href="{{ route('users.create') }}" >{{ __('+ Gebruiker toevoegen') }}</a>
         </div>
         @if ($users->isNotEmpty())
             <div class="md-table-tools">
@@ -536,10 +536,10 @@
                     <input id="dashboardUserSearch" aria-label="Zoek gebruikers" type="search" placeholder="Zoek op naam, e-mailadres, ID of loginmethode..." autocomplete="off" >
                 </div>
                 <div class="md-filter-bar">
-                    <button class="md-filter active" type="button" data-filter="all" >Alle</button>
-                    <button class="md-filter" type="button" data-filter="verified" >Geverifieerd</button>
-                    <button class="md-filter" type="button" data-filter="pending" >Niet geverifieerd</button>
-                    <button class="md-filter" type="button" data-filter="admin" >Administrators</button>
+                    <button class="md-filter active" type="button" data-filter="all" >{{ __('Alle') }}</button>
+                    <button class="md-filter" type="button" data-filter="verified" >{{ __('Geverifieerd') }}</button>
+                    <button class="md-filter" type="button" data-filter="pending" >{{ __('Niet geverifieerd') }}</button>
+                    <button class="md-filter" type="button" data-filter="admin" >{{ __('Administrators') }}</button>
                     <button class="md-filter" type="button" data-filter="google">
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-1"></use></svg></span>
                         Google
@@ -586,10 +586,10 @@
                     </button>
                     <button class="md-filter" type="button" data-filter="password">
                         <span class="md-filter-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-9"></use></svg></span>
-                        Wachtwoord
+                        {{ __('Wachtwoord') }}
                     </button>
-                    <button class="md-filter" type="button" data-filter="photo">Met profielfoto</button>
-                    <button class="md-filter" type="button" data-filter="social_avatar">Social avatar</button>
+                    <button class="md-filter" type="button" data-filter="photo">{{ __('Met profielfoto') }}</button>
+                    <button class="md-filter" type="button" data-filter="social_avatar">{{ __('Social avatar') }}</button>
                 </div>
             </div>
         @endif
@@ -597,13 +597,13 @@
             <table class="md-table" role="table">
                 <thead role="rowgroup">
                     <tr role="row">
-                        <th scope="col" role="columnheader">Gebruiker</th>
-                        <th scope="col" role="columnheader">E-mailadres</th>
-                        <th scope="col" role="columnheader">Login via</th>
-                        <th scope="col" role="columnheader">Rol</th>
-                        <th scope="col" role="columnheader">Verificatie</th>
-                        <th scope="col" role="columnheader">Toegevoegd</th>
-                        <th scope="col" role="columnheader">Acties</th>
+                        <th scope="col" role="columnheader">{{ __('Gebruiker') }}</th>
+                        <th scope="col" role="columnheader">{{ __('E-mailadres') }}</th>
+                        <th scope="col" role="columnheader">{{ __('Login via') }}</th>
+                        <th scope="col" role="columnheader">{{ __('Rol') }}</th>
+                        <th scope="col" role="columnheader">{{ __('Verificatie') }}</th>
+                        <th scope="col" role="columnheader">{{ __('Toegevoegd') }}</th>
+                        <th scope="col" role="columnheader">{{ __('Acties') }}</th>
                     </tr>
                 </thead>
                 <tbody id="dashboardUsersBody" role="rowgroup">
@@ -619,7 +619,7 @@
                         >
                             {{-- USER --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Gebruiker</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Gebruiker') }}</span>
                                 <div class="md-user">
                                     @if ($user->avatarUrl())
                                         <span class="md-avatar has-image">
@@ -635,26 +635,26 @@
                                         <strong>{{ $user->name }}</strong>
                                         <small>ID #{{ $user->id }}</small>
                                         @if ($user->hasProfilePhoto())
-                                            <span class="md-photo-source custom">Eigen profielfoto</span>
+                                            <span class="md-photo-source custom">{{ __('Eigen profielfoto') }}</span>
                                         @elseif ($user->socialAvatar())
-                                            <span class="md-photo-source social">Social avatar</span>
+                                            <span class="md-photo-source social">{{ __('Social avatar') }}</span>
                                         @else
-                                            <span class="md-photo-source">Initialen</span>
+                                            <span class="md-photo-source">{{ __('Initialen') }}</span>
                                         @endif
                                         @if (auth()->id() === $user->id)
-                                            <small class="md-self">Dit ben jij</small>
+                                            <small class="md-self">{{ __('Dit ben jij') }}</small>
                                         @endif
                                     </div>
                                 </div>
                             </td>
                             {{-- EMAIL --}}
                             <td role="cell" style=" word-break: break-word; " >
-                                <span class="md-cell-label" aria-hidden="true">E-mailadres</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('E-mailadres') }}</span>
                                 {{ $user->email }}
                             </td>
                             {{-- LOGIN PROVIDER --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Login via</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Login via') }}</span>
                                 @php
                                     $provider = $user->loginProvider();
                                 @endphp
@@ -707,33 +707,33 @@
                             </td>
                             {{-- ROLE --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Rol</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Rol') }}</span>
                                 @if ($user->is_admin)
-                                    <span class="md-badge admin">Administrator</span>
+                                    <span class="md-badge admin">{{ __('Administrator') }}</span>
                                 @else
-                                    <span class="md-badge">Gebruiker</span>
+                                    <span class="md-badge">{{ __('Gebruiker') }}</span>
                                 @endif
                             </td>
                             {{-- VERIFICATION --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Verificatie</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Verificatie') }}</span>
                                 @if ($user->email_verified_at)
-                                    <span class="md-badge verified">✓ Geverifieerd</span>
+                                    <span class="md-badge verified">{{ __('✓ Geverifieerd') }}</span>
                                 @else
-                                    <span class="md-badge pending">Niet geverifieerd</span>
+                                    <span class="md-badge pending">{{ __('Niet geverifieerd') }}</span>
                                 @endif
                             </td>
                             {{-- CREATED --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Toegevoegd</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Toegevoegd') }}</span>
                                 <strong style=" display: block; color: #e5e2dc; font-size: 10px; " >{{ optional($user->created_at)->format('d-m-Y') }}</strong>
                                 <small style=" display: block; margin-top: 4px; color: var(--m-muted-2); font-size: 8px; " >{{ optional($user->created_at)->format('H:i') }}</small>
                             </td>
                             {{-- ACTIONS --}}
                             <td role="cell">
-                                <span class="md-cell-label" aria-hidden="true">Acties</span>
+                                <span class="md-cell-label" aria-hidden="true">{{ __('Acties') }}</span>
                                 <div class="md-row-actions">
-                                    <a class="md-btn secondary" href="{{ route('users.edit', $user) }}" >Wijzigen</a>
+                                    <a class="md-btn secondary" href="{{ route('users.edit', $user) }}" >{{ __('Wijzigen') }}</a>
                                     @if (auth()->id() !== $user->id)
                                         <form method="POST" action="{{ route('users.destroy', $user) }}" style="margin: 0;" data-confirm="Weet je zeker dat je {{ $user->name }} definitief wilt verwijderen?"
                                             onsubmit="return confirm(this.dataset.confirm);"
@@ -743,7 +743,7 @@
                                             <button class="md-btn danger" type="submit" >Verwijderen</button>
                                         </form>
                                     @else
-                                        <span class="md-self-lock">Eigen account</span>
+                                        <span class="md-self-lock">{{ __('Eigen account') }}</span>
                                     @endif
                                 </div>
                             </td>
@@ -753,9 +753,9 @@
                             <td role="cell" colspan="7">
                                 <div class="md-empty">
                                     <div class="md-empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#md-icon-11"></use></svg></div>
-                                    <h3>Nog geen gebruikers</h3>
-                                    <p>Er zijn momenteel nog geen gebruikers geregistreerd. Maak het eerste account aan om te beginnen.</p>
-                                    <a class="md-btn" href="{{ route('users.create') }}" >+ Eerste gebruiker aanmaken</a>
+                                    <h3>{{ __('Nog geen gebruikers') }}</h3>
+                                    <p>{{ __('Er zijn momenteel nog geen gebruikers geregistreerd. Maak het eerste account aan om te beginnen.') }}</p>
+                                    <a class="md-btn" href="{{ route('users.create') }}" >{{ __('+ Eerste gebruiker aanmaken') }}</a>
                                 </div>
                             </td>
                         </tr>
@@ -765,11 +765,11 @@
         </div>
         @if ($users->isNotEmpty())
             <div id="dashboardNoResults" class="md-no-results" >
-                Geen gebruikers gevonden voor deze zoekopdracht of filter.
+                {{ __('Geen gebruikers gevonden voor deze zoekopdracht of filter.') }}
             </div>
             <div class="md-table-footer">
                 <span id="dashboardVisibleCount" class="md-visible-count" >{{ $users->count() }} gebruikers zichtbaar</span>
-                <a class="md-btn secondary" href="{{ route('users.index') }}" >Volledig gebruikersbeheer</a>
+                <a class="md-btn secondary" href="{{ route('users.index') }}" >{{ __('Volledig gebruikersbeheer') }}</a>
             </div>
         @endif
     </section>
@@ -791,7 +791,7 @@
                 <p>Actieve beheerder van deze sessie.</p>
             </article>
             <article class="md-info-card">
-                <small>E-mailadres</small>
+                <small>{{ __('E-mailadres') }}</small>
                 <strong>{{ auth()->user()->email }}</strong>
                 <p>Gekoppeld aan je administratoraccount.</p>
             </article>
