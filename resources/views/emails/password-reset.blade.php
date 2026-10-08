@@ -206,7 +206,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Secure reset
+                                                    {{ __('Secure reset') }}
                                                 </span>
 
                                             </td>
