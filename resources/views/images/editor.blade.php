@@ -1569,15 +1569,15 @@
 
             <div class="editor-top-actions">
                 <a class="editor-link" href="{{ route('images.index') }}">
-                    Mijn afbeeldingen
+                    {{ __('Mijn afbeeldingen') }}
                 </a>
 
                 <a class="editor-link" href="{{ route('images.download', $image) }}">
-                    Origineel downloaden
+                    {{ __('Origineel downloaden') }}
                 </a>
 
                 <a class="editor-link primary" href="{{ route('home') }}#upload">
-                    Nieuwe upload
+                    {{ __('Nieuwe upload') }}
                 </a>
             </div>
         </div>
@@ -1596,7 +1596,7 @@
 
         @if ($errors->any())
             <div class="editor-alert error" role="alert">
-                <strong>De bewerking kon niet worden uitgevoerd.</strong>
+                <strong>{{ __('De bewerking kon niet worden uitgevoerd.') }}</strong>
 
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -1609,57 +1609,57 @@
         <div class="editor-workspace">
 
             <aside class="editor-sidebar">
-                <div class="editor-sidebar-label">Editor tools</div>
+                <div class="editor-sidebar-label">{{ __('Editor tools') }}</div>
 
                 <div class="editor-tool-list" role="tablist" aria-label="Editor tools">
                     <button type="button" class="editor-tool active" data-operation="resize" role="tab" aria-selected="true">
                         <span class="tool-icon">↔</span>
-                        Resize
+                        {{ __('Resize') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="crop" role="tab" aria-selected="false">
                         <span class="tool-icon">⌗</span>
-                        Crop
+                        {{ __('Crop') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="rotate" role="tab" aria-selected="false">
                         <span class="tool-icon">↻</span>
-                        Rotate
+                        {{ __('Rotate') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="flip" role="tab" aria-selected="false">
                         <span class="tool-icon">↔</span>
-                        Flip
+                        {{ __('Flip') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="enhance" role="tab" aria-selected="false">
                         <span class="tool-icon">✦</span>
-                        Enhance
+                        {{ __('Enhance') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="passport" role="tab" aria-selected="false">
                         <span class="tool-icon">▣</span>
-                        Pasfoto
+                        {{ __('Pasfoto') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="background" role="tab" aria-selected="false">
                         <span class="tool-icon">◉</span>
-                        Achtergrond
+                        {{ __('Achtergrond') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="compress" role="tab" aria-selected="false">
                         <span class="tool-icon">↓</span>
-                        Compress
+                        {{ __('Compress') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="convert" role="tab" aria-selected="false">
                         <span class="tool-icon">◇</span>
-                        Convert
+                        {{ __('Convert') }}
                     </button>
 
                     <button type="button" class="editor-tool" data-operation="versions" role="tab" aria-selected="false">
                         <span class="tool-icon">▦</span>
-                        Versions
+                        {{ __('Versions') }}
                     </button>
                 </div>
             </aside>
@@ -1686,7 +1686,7 @@
                             aria-controls="editor-properties-sidebar"
                             aria-expanded="false"
                         >
-                            Instellingen
+                            {{ __('Instellingen') }}
                         </button>
 
                         <button
@@ -1694,7 +1694,7 @@
                             class="canvas-small-action"
                             type="button"
                         >
-                            Passend
+                            {{ __('Passend') }}
                         </button>
 
                         <button
@@ -1710,7 +1710,7 @@
                             class="canvas-small-action"
                             type="button"
                         >
-                            Reset preview
+                            {{ __('Reset preview') }}
                         </button>
 
                         <a
@@ -1718,14 +1718,14 @@
                             class="canvas-small-action"
                             href="{{ route('images.download', $image) }}"
                         >
-                            Download bron
+                            {{ __('Download bron') }}
                         </a>
                     </div>
                 </div>
 
                 <div class="editor-stage" id="editor-stage">
                     <div class="editor-stage-loading">
-                        Afbeelding laden…
+                        {{ __('Afbeelding laden…') }}
                     </div>
 
                     <div class="editor-stage-inner">
@@ -1772,7 +1772,7 @@
                                     >
                                         <div class="passport-head-guide"></div>
                                         <div class="passport-eye-line">
-                                            <span>ogenlijn</span>
+                                            <span>{{ __('ogenlijn') }}</span>
                                         </div>
                                         <div class="passport-center-line"></div>
                                     </div>
@@ -1800,7 +1800,7 @@
                 aria-label="Editor instellingen"
             >
                 <div class="editor-properties-heading">
-                    <div class="editor-sidebar-label">Instellingen</div>
+                    <div class="editor-sidebar-label">{{ __('Instellingen') }}</div>
 
                     <button
                         id="mobile-properties-close"
@@ -1808,7 +1808,7 @@
                         type="button"
                         aria-label="Instellingen sluiten"
                     >
-                        Gereed
+                        {{ __('Gereed') }}
                     </button>
                 </div>
 
@@ -1828,14 +1828,14 @@
                     >
 
                     <div class="property-card">
-                        <h3>Bronbestand</h3>
+                        <h3>{{ __('Bronbestand') }}</h3>
 
                         <p>
-                            Kies het origineel of een eerder gemaakte versie als bron voor de volgende bewerking.
+                            {{ __('Kies het origineel of een eerder gemaakte versie als bron voor de volgende bewerking.') }}
                         </p>
 
                         <label class="editor-field">
-                            <span>Bron</span>
+                            <span>{{ __('Bron') }}</span>
 
                             <select
                                 id="source-version"
@@ -1874,7 +1874,7 @@
                         </label>
 
                         <div class="editor-source-note">
-                            De gekozen bron wordt direct in het midden geladen. Na opslaan wordt de nieuwe versie automatisch de actieve bron; je hoeft niet meer handmatig te wisselen.
+                            {{ __('De gekozen bron wordt direct in het midden geladen. Na opslaan wordt de nieuwe versie automatisch de actieve bron; je hoeft niet meer handmatig te wisselen.') }}
                         </div>
 
                         <div
@@ -1883,7 +1883,7 @@
                             role="status"
                             aria-live="polite"
                         >
-                            Live preview gereed.
+                            {{ __('Live preview gereed.') }}
                         </div>
                     </div>
 
@@ -1892,15 +1892,15 @@
                         data-panel="resize"
                     >
                         <div class="property-card">
-                            <h3>Resize</h3>
+                            <h3>{{ __('Resize') }}</h3>
 
                             <p>
-                                Geef één of beide afmetingen op. Met aspect ratio ingeschakeld blijft de verhouding behouden.
+                                {{ __('Geef één of beide afmetingen op. Met aspect ratio ingeschakeld blijft de verhouding behouden.') }}
                             </p>
 
                             <div class="editor-field-grid">
                                 <label class="editor-field">
-                                    <span>Breedte</span>
+                                    <span>{{ __('Breedte') }}</span>
                                     <input
                                         id="resize-width"
                                         type="number"
@@ -1913,7 +1913,7 @@
                                 </label>
 
                                 <label class="editor-field">
-                                    <span>Hoogte</span>
+                                    <span>{{ __('Hoogte') }}</span>
                                     <input
                                         id="resize-height"
                                         type="number"
@@ -1934,15 +1934,15 @@
                                     value="1"
                                     @checked(old('keep_aspect', true))
                                 >
-                                <span>Beeldverhouding behouden</span>
+                                <span>{{ __('Beeldverhouding behouden') }}</span>
                             </label>
 
                             <div class="editor-live-resize-status" id="editorLiveResizeStatus">
-                                Live preview gebruikt de huidige bronafmetingen.
+                                {{ __('Live preview gebruikt de huidige bronafmetingen.') }}
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -1953,17 +1953,14 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Crop</h3>
+                            <h3>{{ __('Crop') }}</h3>
 
                             <p>
-                                Pas het uitsnijgebied rechtstreeks op de afbeelding aan.
-                                Sleep het kader om te verplaatsen en gebruik de witte handgrepen
-                                om het groter of kleiner te maken.
+                                {{ __('Pas het uitsnijgebied rechtstreeks op de afbeelding aan. Sleep het kader om te verplaatsen en gebruik de witte handgrepen om het groter of kleiner te maken.') }}
                             </p>
 
                             <div class="crop-instructions">
-                                Geen nummering nodig. Alles gebeurt visueel op de afbeelding.
-                                De exacte waarden worden automatisch op de achtergrond bijgehouden.
+                                {{ __('Geen nummering nodig. Alles gebeurt visueel op de afbeelding. De exacte waarden worden automatisch op de achtergrond bijgehouden.') }}
                             </div>
 
                             <input id="crop-x" type="hidden" name="crop_x" value="{{ old('crop_x', 0) }}">
@@ -1972,7 +1969,7 @@
                             <input id="crop-height" type="hidden" name="crop_height" value="{{ old('crop_height', $image->height) }}">
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -1983,10 +1980,10 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Rotate</h3>
+                            <h3>{{ __('Rotate') }}</h3>
 
                             <p>
-                                Kies de gewenste rotatiehoek.
+                                {{ __('Kies de gewenste rotatiehoek.') }}
                             </p>
 
                             <div class="editor-choice-grid">
@@ -2005,7 +2002,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2016,10 +2013,10 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Flip</h3>
+                            <h3>{{ __('Flip') }}</h3>
 
                             <p>
-                                Spiegel de afbeelding horizontaal of verticaal.
+                                {{ __('Spiegel de afbeelding horizontaal of verticaal.') }}
                             </p>
 
                             <div class="editor-choice-grid">
@@ -2031,7 +2028,7 @@
                                         @checked(old('flip_direction', 'horizontal') === 'horizontal')
                                     >
 
-                                    <span>Horizontaal</span>
+                                    <span>{{ __('Horizontaal') }}</span>
                                 </label>
 
                                 <label class="editor-choice">
@@ -2042,12 +2039,12 @@
                                         @checked(old('flip_direction') === 'vertical')
                                     >
 
-                                    <span>Verticaal</span>
+                                    <span>{{ __('Verticaal') }}</span>
                                 </label>
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2058,16 +2055,15 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Enhance</h3>
+                            <h3>{{ __('Enhance') }}</h3>
 
                             <p>
-                                Verbeter de foto live. De preview verandert direct terwijl je schuift.
-                                Opslaan maakt daarna een echte nieuwe versie op de server.
+                                {{ __('Verbeter de foto live. De preview verandert direct terwijl je schuift. Opslaan maakt daarna een echte nieuwe versie op de server.') }}
                             </p>
 
                             <label class="editor-field">
                                 <span>
-                                    Helderheid:
+                                    {{ __('Helderheid:') }}
                                     <strong id="enhance-brightness-value">0</strong>
                                 </span>
 
@@ -2083,7 +2079,7 @@
 
                             <label class="editor-field">
                                 <span>
-                                    Contrast:
+                                    {{ __('Contrast:') }}
                                     <strong id="enhance-contrast-value">0</strong>
                                 </span>
 
@@ -2099,7 +2095,7 @@
 
                             <label class="editor-field">
                                 <span>
-                                    Blur:
+                                    {{ __('Blur:') }}
                                     <strong id="enhance-blur-value">0</strong>
                                 </span>
 
@@ -2122,7 +2118,7 @@
                                     value="1"
                                 >
 
-                                <span>Zwart-wit</span>
+                                <span>{{ __('Zwart-wit') }}</span>
                             </label>
 
                             <label class="editor-checkbox">
@@ -2133,15 +2129,15 @@
                                     value="1"
                                 >
 
-                                <span>Sepia / warme klassieke look</span>
+                                <span>{{ __('Sepia / warme klassieke look') }}</span>
                             </label>
 
                             <div class="editor-source-note">
-                                Tip: combineer lichte contrast- en helderheidsaanpassingen voor een natuurlijk resultaat.
+                                {{ __('Tip: combineer lichte contrast- en helderheidsaanpassingen voor een natuurlijk resultaat.') }}
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2152,15 +2148,14 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Pasfoto / ID-foto</h3>
+                            <h3>{{ __('Pasfoto / ID-foto') }}</h3>
 
                             <p>
-                                Kies een formaat en positioneer de persoon rechtstreeks in het kader.
-                                Het kader behoudt automatisch de juiste verhouding.
+                                {{ __('Kies een formaat en positioneer de persoon rechtstreeks in het kader. Het kader behoudt automatisch de juiste verhouding.') }}
                             </p>
 
                             <label class="editor-field">
-                                <span>Formaat</span>
+                                <span>{{ __('Formaat') }}</span>
 
                                 <select
                                     id="passport-preset"
@@ -2188,9 +2183,7 @@
                             ></div>
 
                             <div class="crop-instructions">
-                                Sleep het kader over de foto en gebruik de hoekhandgrepen.
-                                De gestippelde hoofdvorm en ogenlijn zijn visuele hulpmiddelen,
-                                geen automatische officiële goedkeuring.
+                                {{ __('Sleep het kader over de foto en gebruik de hoekhandgrepen. De gestippelde hoofdvorm en ogenlijn zijn visuele hulpmiddelen, geen automatische officiële goedkeuring.') }}
                             </div>
 
                             <input id="passport-crop-x" type="hidden" name="crop_x" value="0">
@@ -2199,11 +2192,11 @@
                             <input id="passport-crop-height" type="hidden" name="crop_height" value="{{ $image->height }}">
 
                             <div class="editor-source-note">
-                                Controleer altijd de actuele officiële foto-eisen van het document waarvoor je exporteert.
+                                {{ __('Controleer altijd de actuele officiële foto-eisen van het document waarvoor je exporteert.') }}
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2214,7 +2207,7 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Achtergrond</h3>
+                            <h3>{{ __('Achtergrond') }}</h3>
 
                             <p>
                                 Verwijder de bestaande achtergrond met remove.bg en exporteer transparant,
@@ -2229,7 +2222,7 @@
                                         value="transparent"
                                         checked
                                     >
-                                    <span>Transparant</span>
+                                    <span>{{ __('Transparant') }}</span>
                                 </label>
 
                                 <label class="editor-choice">
@@ -2238,7 +2231,7 @@
                                         name="background_mode"
                                         value="white"
                                     >
-                                    <span>Wit</span>
+                                    <span>{{ __('Wit') }}</span>
                                 </label>
 
                                 <label class="editor-choice">
@@ -2247,7 +2240,7 @@
                                         name="background_mode"
                                         value="color"
                                     >
-                                    <span>Eigen kleur</span>
+                                    <span>{{ __('Eigen kleur') }}</span>
                                 </label>
 
                                 <label class="editor-choice">
@@ -2256,7 +2249,7 @@
                                         name="background_mode"
                                         value="url"
                                     >
-                                    <span>Afbeelding-URL</span>
+                                    <span>{{ __('Afbeelding-URL') }}</span>
                                 </label>
 
                                 <label class="editor-choice">
@@ -2265,7 +2258,7 @@
                                         name="background_mode"
                                         value="upload"
                                     >
-                                    <span>Upload achtergrond</span>
+                                    <span>{{ __('Upload achtergrond') }}</span>
                                 </label>
                             </div>
 
@@ -2276,7 +2269,7 @@
                             >
                                 <div class="background-color-row">
                                     <label class="editor-field">
-                                        <span>Kleur</span>
+                                        <span>{{ __('Kleur') }}</span>
                                         <input
                                             id="background-color-picker"
                                             type="color"
@@ -2286,7 +2279,7 @@
                                     </label>
 
                                     <label class="editor-field">
-                                        <span>Hexkleur</span>
+                                        <span>{{ __('Hexkleur') }}</span>
                                         <input
                                             id="background-color"
                                             type="text"
@@ -2306,7 +2299,7 @@
                                 hidden
                             >
                                 <label class="editor-field">
-                                    <span>URL van nieuwe achtergrond</span>
+                                    <span>{{ __('URL van nieuwe achtergrond') }}</span>
                                     <input
                                         id="background-url"
                                         type="url"
@@ -2324,7 +2317,7 @@
                                 hidden
                             >
                                 <label class="editor-field">
-                                    <span>Nieuwe achtergrond uploaden</span>
+                                    <span>{{ __('Nieuwe achtergrond uploaden') }}</span>
                                     <input
                                         id="background-image"
                                         type="file"
@@ -2336,7 +2329,7 @@
 
                             <div class="editor-field-grid">
                                 <label class="editor-field">
-                                    <span>Outputformaat</span>
+                                    <span>{{ __('Outputformaat') }}</span>
 
                                     <select
                                         id="background-format"
@@ -2349,22 +2342,22 @@
                                 </label>
 
                                 <label class="editor-field">
-                                    <span>API-resolutie</span>
+                                    <span>{{ __('API-resolutie') }}</span>
 
                                     <select
                                         id="background-size"
                                         name="background_size"
                                     >
-                                        <option value="auto" selected>Auto</option>
-                                        <option value="preview">Preview</option>
-                                        <option value="full">Full</option>
-                                        <option value="50mp">Tot 50 MP</option>
+                                        <option value="auto" selected>{{ __('Auto') }}</option>
+                                        <option value="preview">{{ __('Preview') }}</option>
+                                        <option value="full">{{ __('Full') }}</option>
+                                        <option value="50mp">{{ __('Tot 50 MP') }}</option>
                                     </select>
                                 </label>
                             </div>
 
                             <div class="background-api-note">
-                                <strong>Automatische AI-preview:</strong>
+                                <strong>{{ __('Automatische AI-preview:') }}</strong>
                                 zodra je deze tool of een achtergrondoptie wijzigt, start de preview automatisch.
                                 Er is geen aparte previewknop nodig. Kleur- en URL-wijzigingen worden kort gebundeld
                                 zodat de editor snel blijft en de externe background-API niet bij iedere toetsaanslag wordt aangeroepen.
@@ -2379,7 +2372,7 @@
 
                             <div class="editor-action-stack">
                                 <button class="editor-submit" type="submit">
-                                    Opslaan als versie
+                                    {{ __('Opslaan als versie') }}
                                 </button>
                             </div>
                         </div>
@@ -2391,15 +2384,15 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Compress</h3>
+                            <h3>{{ __('Compress') }}</h3>
 
                             <p>
-                                Maak een nieuwe versie met een andere exportkwaliteit.
+                                {{ __('Maak een nieuwe versie met een andere exportkwaliteit.') }}
                             </p>
 
                             <label class="editor-field">
                                 <span>
-                                    Kwaliteit:
+                                    {{ __('Kwaliteit:') }}
                                     <strong id="compress-quality-value">
                                         {{ old('quality', 82) }}
                                     </strong>%
@@ -2416,11 +2409,11 @@
                             </label>
 
                             <div class="editor-source-note">
-                                De preview wordt tijdens het schuiven opnieuw gecodeerd. De uiteindelijke server-export kan enkele bytes verschillen.
+                                {{ __('De preview wordt tijdens het schuiven opnieuw gecodeerd. De uiteindelijke server-export kan enkele bytes verschillen.') }}
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2431,14 +2424,14 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Convert</h3>
+                            <h3>{{ __('Convert') }}</h3>
 
                             <p>
-                                Exporteer de gekozen bron als JPG, PNG of WEBP.
+                                {{ __('Exporteer de gekozen bron als JPG, PNG of WEBP.') }}
                             </p>
 
                             <label class="editor-field">
-                                <span>Doelformaat</span>
+                                <span>{{ __('Doelformaat') }}</span>
 
                                 <select id="convert-format" name="format">
                                     <option value="jpg" @selected(old('format') === 'jpg')>JPG</option>
@@ -2449,7 +2442,7 @@
 
                             <label class="editor-field">
                                 <span>
-                                    Kwaliteit:
+                                    {{ __('Kwaliteit:') }}
                                     <strong id="convert-quality-value">
                                         {{ old('quality', 88) }}
                                     </strong>%
@@ -2470,7 +2463,7 @@
                             </div>
 
                             <button class="editor-submit" type="submit">
-                                Opslaan als versie
+                                {{ __('Opslaan als versie') }}
                             </button>
                         </div>
                     </section>
@@ -2519,7 +2512,7 @@
                                         </button>
 
                                         <a href="{{ route('images.download', $image) }}">
-                                            Download
+                                            {{ __('Download') }}
                                         </a>
                                     </div>
                                 </article>
@@ -2563,7 +2556,7 @@
                                             </button>
 
                                             <a href="{{ route('images.versions.download', [$image, $version]) }}">
-                                                Download
+                                                {{ __('Download') }}
                                             </a>
 
                                             <button
