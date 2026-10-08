@@ -162,7 +162,7 @@
 
             copy.type = 'button';
             copy.className = 'gc-copy';
-            copy.textContent = 'Kopieer antwoord';
+            copy.textContent = (window.smartDeskTranslate ? window.smartDeskTranslate("Kopieer antwoord") : "Kopieer antwoord");
 
             copy.addEventListener(
                 'click',
@@ -172,13 +172,13 @@
                         copy.textContent = 'Gekopieerd';
                     } catch {
                         copy.textContent =
-                            'Selecteer de tekst om te kopiëren';
+                            (window.smartDeskTranslate ? window.smartDeskTranslate("Selecteer de tekst om te kopiëren") : "Selecteer de tekst om te kopiëren");
                     }
 
                     window.setTimeout(
                         () => {
                             copy.textContent =
-                                'Kopieer antwoord';
+                                (window.smartDeskTranslate ? window.smartDeskTranslate("Kopieer antwoord") : "Kopieer antwoord");
                         },
                         2500
                     );
@@ -278,7 +278,7 @@
             !chat.dataset.endpoint
         ) {
             appendMessage(
-                'De chat kon niet starten. Vernieuw de pagina en probeer opnieuw.'
+                (window.smartDeskTranslate ? window.smartDeskTranslate("De chat kon niet starten. Vernieuw de pagina en probeer opnieuw.") : "De chat kon niet starten. Vernieuw de pagina en probeer opnieuw.")
             );
 
             return;
@@ -303,7 +303,7 @@
             'gc-pending';
 
         pending.textContent =
-            'Mashal AI denkt mee…';
+            (window.smartDeskTranslate ? window.smartDeskTranslate("Mashal AI denkt mee…") : "Mashal AI denkt mee…");
 
         messages.append(pending);
 
@@ -345,18 +345,18 @@
             if (!response.ok) {
                 const errors = {
                     404:
-                        'De chat is nog niet goed ingesteld. Neem contact op via de contactpagina.',
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("De chat is nog niet goed ingesteld. Neem contact op via de contactpagina.") : "De chat is nog niet goed ingesteld. Neem contact op via de contactpagina."),
                     419:
-                        'Je sessie is verlopen. Vernieuw de pagina en stel je vraag opnieuw.',
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Je sessie is verlopen. Vernieuw de pagina en stel je vraag opnieuw.") : "Je sessie is verlopen. Vernieuw de pagina en stel je vraag opnieuw."),
                     422:
-                        'Je bericht kon niet worden verwerkt. Maak het korter en probeer opnieuw.',
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Je bericht kon niet worden verwerkt. Maak het korter en probeer opnieuw.") : "Je bericht kon niet worden verwerkt. Maak het korter en probeer opnieuw."),
                     429:
-                        'Het is even te druk. Wacht een minuut en probeer opnieuw.',
+                        (window.smartDeskTranslate ? window.smartDeskTranslate("Het is even te druk. Wacht een minuut en probeer opnieuw.") : "Het is even te druk. Wacht een minuut en probeer opnieuw."),
                 };
 
                 throw new Error(
                     errors[response.status]
-                    || 'De AI is tijdelijk niet beschikbaar. Probeer het straks opnieuw.'
+                    || (window.smartDeskTranslate ? window.smartDeskTranslate("De AI is tijdelijk niet beschikbaar. Probeer het straks opnieuw.") : "De AI is tijdelijk niet beschikbaar. Probeer het straks opnieuw.")
                 );
             }
 
@@ -368,7 +368,7 @@
                 || !result.message.trim()
             ) {
                 throw new Error(
-                    'De AI gaf geen antwoord. Probeer je vraag opnieuw.'
+                    (window.smartDeskTranslate ? window.smartDeskTranslate("De AI gaf geen antwoord. Probeer je vraag opnieuw.") : "De AI gaf geen antwoord. Probeer je vraag opnieuw.")
                 );
             }
 
@@ -402,14 +402,14 @@
 
             const message =
                 error?.name === 'AbortError'
-                    ? 'Het antwoord duurde te lang. Probeer opnieuw.'
+                    ? (window.smartDeskTranslate ? window.smartDeskTranslate("Het antwoord duurde te lang. Probeer opnieuw.") : "Het antwoord duurde te lang. Probeer opnieuw.")
                     : error instanceof TypeError
-                        ? 'Geen verbinding met de chat. Controleer je internet en probeer opnieuw.'
+                        ? (window.smartDeskTranslate ? window.smartDeskTranslate("Geen verbinding met de chat. Controleer je internet en probeer opnieuw.") : "Geen verbinding met de chat. Controleer je internet en probeer opnieuw.")
                         : error instanceof SyntaxError
-                            ? 'De server stuurde geen geldig antwoord. Probeer het later opnieuw.'
+                            ? (window.smartDeskTranslate ? window.smartDeskTranslate("De server stuurde geen geldig antwoord. Probeer het later opnieuw.") : "De server stuurde geen geldig antwoord. Probeer het later opnieuw.")
                             : (
                                 error?.message
-                                || 'Er ging iets mis. Probeer opnieuw.'
+                                || (window.smartDeskTranslate ? window.smartDeskTranslate("Er ging iets mis. Probeer opnieuw.") : "Er ging iets mis. Probeer opnieuw.")
                             );
 
             appendMessage(message);
@@ -465,14 +465,14 @@
             expand.setAttribute(
                 'aria-label',
                 expanded
-                    ? 'Chat verkleinen'
-                    : 'Chat vergroten'
+                    ? (window.smartDeskTranslate ? window.smartDeskTranslate("Chat verkleinen") : "Chat verkleinen")
+                    : (window.smartDeskTranslate ? window.smartDeskTranslate("Chat vergroten") : "Chat vergroten")
             );
 
             expand.title =
                 expanded
-                    ? 'Chat verkleinen'
-                    : 'Chat vergroten';
+                    ? (window.smartDeskTranslate ? window.smartDeskTranslate("Chat verkleinen") : "Chat verkleinen")
+                    : (window.smartDeskTranslate ? window.smartDeskTranslate("Chat vergroten") : "Chat vergroten");
         }
     );
 
