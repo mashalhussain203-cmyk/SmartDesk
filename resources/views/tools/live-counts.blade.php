@@ -124,7 +124,7 @@
 
     .livehub-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0,1fr));
+        grid-template-columns: repeat(2, minmax(0,1fr));
         gap: 16px;
     }
 
@@ -332,6 +332,27 @@
                     <span>Views</span>
                     <span>Videos</span>
                     <span>Goal</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a class="livehub-tool" href="{{ route('youtube-views.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <span style="font-size:31px;color:#ff4656;font-weight:900" aria-hidden="true">▶</span>
+                    </div>
+                    <div class="livehub-live"><i></i> Live</div>
+                </div>
+                <h3>YouTube Live Views</h3>
+                <p>
+                    Zoek een YouTube-video of plak de URL en volg views, likes,
+                    dislikes en comments met een automatisch vernieuwende teller.
+                </p>
+                <div class="livehub-metrics">
+                    <span>Views</span>
+                    <span>Likes</span>
+                    <span>Dislikes</span>
+                    <span>Comments</span>
                 </div>
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
