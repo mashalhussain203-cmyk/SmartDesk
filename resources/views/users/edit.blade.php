@@ -4066,7 +4066,7 @@
 
 
 
-                                    aria-label="Wachtwoord tonen of verbergen"
+                                    aria-label="{{ __('Wachtwoord tonen of verbergen') }}"
 
 
 
@@ -4714,7 +4714,7 @@
 
 
 
-                        Annuleren
+                        {{ __('Annuleren') }}
 
 
 
