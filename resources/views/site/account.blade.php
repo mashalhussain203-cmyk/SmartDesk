@@ -1262,15 +1262,12 @@
                 </span>
 
                 <h1 class="account-title">
-                    Welkom terug,
+                    {{ __('Welkom terug,') }}
                     <span>{{ $user->name }}.</span>
                 </h1>
 
                 <p class="account-intro">
-                    Beheer je profiel, beveiliging en persoonlijke
-                    afbeeldingsprojecten vanuit één centrale workspace.
-                    Je originelen en opgeslagen bewerkingsversies blijven
-                    gekoppeld aan jouw account.
+                    {{ __('Beheer je profiel, beveiliging en persoonlijke afbeeldingsprojecten vanuit één centrale workspace. Je originelen en opgeslagen bewerkingsversies blijven gekoppeld aan jouw account.') }}
                 </p>
             </div>
 
@@ -1279,7 +1276,7 @@
                     class="account-action primary"
                     href="{{ route('home') }}#upload"
                 >
-                    + Nieuwe afbeelding
+                    {{ __('+ Nieuwe afbeelding') }}
                 </a>
 
                 @if ($hasImagesIndex)
@@ -1316,19 +1313,19 @@
 
         <div class="account-stats studio-reveal">
             <article class="stat-card">
-                <small>Afbeeldingen</small>
+                <small>{{ __('Afbeeldingen') }}</small>
                 <div class="stat-value">{{ number_format($imageCount) }}</div>
-                <div class="stat-foot">Originelen gekoppeld aan jouw account</div>
+                <div class="stat-foot">{{ __('Originelen gekoppeld aan jouw account') }}</div>
             </article>
 
             <article class="stat-card">
-                <small>Opgeslagen versies</small>
+                <small>{{ __('Opgeslagen versies') }}</small>
                 <div class="stat-value">{{ number_format($versionCount) }}</div>
-                <div class="stat-foot">Bewerkte uitvoeringen van je projecten</div>
+                <div class="stat-foot">{{ __('Bewerkte uitvoeringen van je projecten') }}</div>
             </article>
 
             <article class="stat-card">
-                <small>E-mailstatus</small>
+                <small>{{ __('E-mailstatus') }}</small>
                 <div class="stat-value compact">
                     {{ $user->email_verified_at ? 'Verified' : 'Pending' }}
                 </div>
@@ -1376,22 +1373,22 @@
 
                     <div class="profile-meta">
                         <div class="profile-meta-row">
-                            <span>Projecten</span>
+                            <span>{{ __('Projecten') }}</span>
                             <strong>{{ $imageCount }}</strong>
                         </div>
 
                         <div class="profile-meta-row">
-                            <span>Versies</span>
+                            <span>{{ __('Versies') }}</span>
                             <strong>{{ $versionCount }}</strong>
                         </div>
 
                         <div class="profile-meta-row">
-                            <span>Login</span>
+                            <span>{{ __('Login') }}</span>
                             <strong>{{ $accountProviderLabel }}</strong>
                         </div>
 
                         <div class="profile-meta-row">
-                            <span>Recovery</span>
+                            <span>{{ __('Recovery') }}</span>
                             <strong>
                                 @if ($hasVerifiedRecoveryEmail)
                                     Verified
@@ -1404,7 +1401,7 @@
                         </div>
 
                         <div class="profile-meta-row">
-                            <span>Account ID</span>
+                            <span>{{ __('Account ID') }}</span>
                             <strong>#{{ $user->id }}</strong>
                         </div>
                     </div>
@@ -1412,22 +1409,22 @@
 
                 <section class="account-nav-card studio-reveal">
                     <div class="account-nav-title">
-                        Account navigatie
+                        {{ __('Account navigatie') }}
                     </div>
 
                     <nav class="account-nav">
                         <a class="account-nav-link" href="#profile">
-                            <span>Profielgegevens</span>
+                            <span>{{ __('Profielgegevens') }}</span>
                             <span>→</span>
                         </a>
 
                         <a class="account-nav-link" href="#verification">
-                            <span>E-mailverificatie</span>
+                            <span>{{ __('E-mailverificatie') }}</span>
                             <span>→</span>
                         </a>
 
                         <a class="account-nav-link" href="#recovery">
-                            <span>Herstel-e-mailadres</span>
+                            <span>{{ __('Herstel-e-mailadres') }}</span>
                             <span>→</span>
                         </a>
 
@@ -1437,12 +1434,12 @@
                         </a>
 
                         <a class="account-nav-link" href="#overview">
-                            <span>Accountinformatie</span>
+                            <span>{{ __('Accountinformatie') }}</span>
                             <span>→</span>
                         </a>
 
                         <a class="account-nav-link" href="#library">
-                            <span>Recente afbeeldingen</span>
+                            <span>{{ __('Recente afbeeldingen') }}</span>
                             <span>{{ $imageCount }}</span>
                         </a>
 
@@ -1467,13 +1464,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Profielgegevens
+                                {{ __('Profielgegevens') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Beheer je naam, e-mailadres en profielfoto.
-                                Deze gegevens worden gebruikt binnen je
-                                persoonlijke Mashal Studio-workspace.
+                                {{ __('Beheer je naam, e-mailadres en profielfoto. Deze gegevens worden gebruikt binnen je persoonlijke Mashal Studio-workspace.') }}
                             </p>
                         </div>
 
@@ -1509,13 +1504,11 @@
 
                             <div class="photo-copy">
                                 <h3>
-                                    Profielfoto
+                                    {{ __('Profielfoto') }}
                                 </h3>
 
                                 <p>
-                                    Upload een JPG, PNG of WEBP-afbeelding van
-                                    maximaal 5 MB. De nieuwe afbeelding wordt
-                                    vooraf lokaal in je browser weergegeven.
+                                    {{ __('Upload een JPG, PNG of WEBP-afbeelding van maximaal 5 MB. De nieuwe afbeelding wordt vooraf lokaal in je browser weergegeven.') }}
                                 </p>
 
                                 <div class="photo-actions">
@@ -1523,7 +1516,7 @@
                                         class="photo-button"
                                         for="profile_photo"
                                     >
-                                        + Kies profielfoto
+                                        {{ __('+ Kies profielfoto') }}
                                     </label>
 
                                     <input
@@ -1545,7 +1538,7 @@
                                             >
 
                                             <span>
-                                                Eigen profielfoto verwijderen
+                                                {{ __('Eigen profielfoto verwijderen') }}
                                             </span>
                                         </label>
                                     @endif
@@ -1555,7 +1548,7 @@
                                     class="photo-filename"
                                     id="profilePhotoFilename"
                                 >
-                                    Geen nieuw bestand geselecteerd.
+                                    {{ __('Geen nieuw bestand geselecteerd.') }}
                                 </div>
 
                                 @error('profile_photo')
@@ -1620,8 +1613,7 @@
                                     <span class="form-note-mark">i</span>
 
                                     <span>
-                                        Als je je e-mailadres wijzigt, kan het nieuwe
-                                        adres opnieuw geverifieerd moeten worden.
+                                        {{ __('Als je je e-mailadres wijzigt, kan het nieuwe adres opnieuw geverifieerd moeten worden.') }}
                                     </span>
                                 </div>
                             </div>
@@ -1631,7 +1623,7 @@
                             class="account-submit"
                             type="submit"
                         >
-                            Profiel opslaan
+                            {{ __('Profiel opslaan') }}
                             <span aria-hidden="true">→</span>
                         </button>
                     </form>
@@ -1648,12 +1640,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                E-mailverificatie
+                                {{ __('E-mailverificatie') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Een bevestigd e-mailadres helpt je accounttoegang
-                                betrouwbaar en controleerbaar te houden.
+                                {{ __('Een bevestigd e-mailadres helpt je accounttoegang betrouwbaar en controleerbaar te houden.') }}
                             </p>
                         </div>
 
@@ -1669,7 +1660,7 @@
 
                                 <div class="verification-copy">
                                     <strong>
-                                        E-mailadres bevestigd
+                                        {{ __('E-mailadres bevestigd') }}
                                     </strong>
 
                                     <p>
@@ -1691,12 +1682,11 @@
 
                                 <div class="verification-copy">
                                     <strong>
-                                        Verificatie nog vereist
+                                        {{ __('Verificatie nog vereist') }}
                                     </strong>
 
                                     <p>
-                                        Bevestig je e-mailadres om je accountstatus
-                                        volledig te activeren.
+                                        {{ __('Bevestig je e-mailadres om je accountstatus volledig te activeren.') }}
                                     </p>
                                 </div>
                             </div>
@@ -1706,7 +1696,7 @@
                                     class="account-action"
                                     href="{{ route('verification.notice') }}"
                                 >
-                                    Nu verifiëren
+                                    {{ __('Nu verifiëren') }}
                                 </a>
                             @endif
                         </div>
@@ -1724,14 +1714,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Herstel-e-mailadres
+                                {{ __('Herstel-e-mailadres') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Een hersteladres wordt pas actief nadat je de
-                                6-cijferige verificatiecode hebt bevestigd.
-                                Zo kan alleen een e-mailadres waar jij toegang
-                                toe hebt worden gebruikt voor account recovery.
+                                {{ __('Een hersteladres wordt pas actief nadat je de 6-cijferige verificatiecode hebt bevestigd. Zo kan alleen een e-mailadres waar jij toegang toe hebt worden gebruikt voor account recovery.') }}
                             </p>
                         </div>
 
@@ -1857,7 +1844,7 @@
                                 class="account-action"
                                 type="submit"
                             >
-                                Herstel-e-mailadres verwijderen
+                                {{ __('Herstel-e-mailadres verwijderen') }}
                             </button>
                         </form>
                     @endif
@@ -1874,12 +1861,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Wachtwoord wijzigen
+                                {{ __('Wachtwoord wijzigen') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Gebruik een sterk en uniek wachtwoord voor je
-                                Mashal Studio-account.
+                                {{ __('Gebruik een sterk en uniek wachtwoord voor je Mashal Studio-account.') }}
                             </p>
                         </div>
 
@@ -1899,7 +1885,7 @@
                             <div class="field full">
                                 <div class="field-label">
                                     <label for="current_password">
-                                        Huidig wachtwoord
+                                        {{ __('Huidig wachtwoord') }}
                                     </label>
 
                                     @error('current_password')
@@ -1932,7 +1918,7 @@
                             <div class="field">
                                 <div class="field-label">
                                     <label for="password">
-                                        Nieuw wachtwoord
+                                        {{ __('Nieuw wachtwoord') }}
                                     </label>
 
                                     @error('password')
@@ -2007,7 +1993,7 @@
                             class="account-submit"
                             type="submit"
                         >
-                            Wachtwoord bijwerken
+                            {{ __('Wachtwoord bijwerken') }}
                             <span aria-hidden="true">→</span>
                         </button>
                     </form>
@@ -2024,12 +2010,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Accountinformatie
+                                {{ __('Accountinformatie') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Een compact overzicht van je huidige account,
-                                loginmethode en registratiestatus.
+                                {{ __('Een compact overzicht van je huidige account, loginmethode en registratiestatus.') }}
                             </p>
                         </div>
                     </div>
@@ -2050,12 +2035,12 @@
                         </div>
 
                         <div class="overview-card">
-                            <small>Loginmethode</small>
+                            <small>{{ __('Loginmethode') }}</small>
                             <strong>{{ $accountProviderLabel }}</strong>
                         </div>
 
                         <div class="overview-card">
-                            <small>Recovery</small>
+                            <small>{{ __('Recovery') }}</small>
                             <strong
                                 title="{{ $hasRecoveryEmail ? $recoveryEmail : 'Niet ingesteld' }}"
                             >
@@ -2070,7 +2055,7 @@
                         </div>
 
                         <div class="overview-card">
-                            <small>Aangemaakt</small>
+                            <small>{{ __('Aangemaakt') }}</small>
                             <strong>
                                 {{ optional($user->created_at)->format('d-m-Y H:i') ?? 'Onbekend' }}
                             </strong>
@@ -2089,12 +2074,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Recente afbeeldingen
+                                {{ __('Recente afbeeldingen') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Je zes meest recente afbeeldingsprojecten,
-                                inclusief echte private previews en opgeslagen versies.
+                                {{ __('Je zes meest recente afbeeldingsprojecten, inclusief echte private previews en opgeslagen versies.') }}
                             </p>
                         </div>
 
@@ -2182,7 +2166,7 @@
                                                     class="project-link"
                                                     href="{{ route('images.download', $image) }}"
                                                 >
-                                                    Download
+                                                    {{ __('Download') }}
                                                 </a>
                                             @endif
                                         </div>
@@ -2197,7 +2181,7 @@
                                     class="account-action"
                                     href="{{ route('images.index') }}"
                                 >
-                                    Bekijk volledige bibliotheek
+                                    {{ __('Bekijk volledige bibliotheek') }}
                                     <span aria-hidden="true">→</span>
                                 </a>
                             </div>
@@ -2209,20 +2193,18 @@
                             </div>
 
                             <strong>
-                                Nog geen afbeeldingsprojecten
+                                {{ __('Nog geen afbeeldingsprojecten') }}
                             </strong>
 
                             <p>
-                                Upload je eerste afbeelding vanaf de Studio-homepage.
-                                Na het uploaden verschijnt het project automatisch
-                                in jouw persoonlijke bibliotheek.
+                                {{ __('Upload je eerste afbeelding vanaf de Studio-homepage. Na het uploaden verschijnt het project automatisch in jouw persoonlijke bibliotheek.') }}
                             </p>
 
                             <a
                                 class="account-action primary"
                                 href="{{ route('home') }}#upload"
                             >
-                                Eerste afbeelding uploaden
+                                {{ __('Eerste afbeelding uploaden') }}
                             </a>
                         </div>
                     @endif
@@ -2239,12 +2221,11 @@
                             </span>
 
                             <h2 class="panel-title">
-                                Accountbeveiliging
+                                {{ __('Accountbeveiliging') }}
                             </h2>
 
                             <p class="panel-copy">
-                                Je account vormt de toegangspoort tot je persoonlijke
-                                originelen en opgeslagen bewerkingsversies.
+                                {{ __('Je account vormt de toegangspoort tot je persoonlijke originelen en opgeslagen bewerkingsversies.') }}
                             </p>
                         </div>
 
@@ -2253,14 +2234,14 @@
                                 class="account-action"
                                 href="{{ route('security.index') }}"
                             >
-                                Open security
+                                {{ __('Open security') }}
                             </a>
                         @endif
                     </div>
 
                     <div class="security-grid">
                         <article class="security-card">
-                            <small>Recovery</small>
+                            <small>{{ __('Recovery') }}</small>
                             <strong>
                                 {{ $hasVerifiedRecoveryEmail
                                     ? 'Hersteladres geverifieerd'
@@ -2274,33 +2255,30 @@
                         </article>
 
                         <article class="security-card">
-                            <small>Verification</small>
+                            <small>{{ __('Verification') }}</small>
                             <strong>
                                 {{ $user->email_verified_at
                                     ? 'E-mail bevestigd'
                                     : 'Verificatie vereist' }}
                             </strong>
                             <p>
-                                Je e-mailstatus wordt gebruikt als extra controle
-                                voor de betrouwbaarheid van je account.
+                                {{ __('Je e-mailstatus wordt gebruikt als extra controle voor de betrouwbaarheid van je account.') }}
                             </p>
                         </article>
 
                         <article class="security-card">
                             <small>Password</small>
-                            <strong>Persoonlijk wachtwoord</strong>
+                            <strong>{{ __('Persoonlijk wachtwoord') }}</strong>
                             <p>
-                                Je kunt je wachtwoord hierboven wijzigen zonder
-                                afbeeldingsprojecten of versies kwijt te raken.
+                                {{ __('Je kunt je wachtwoord hierboven wijzigen zonder afbeeldingsprojecten of versies kwijt te raken.') }}
                             </p>
                         </article>
 
                         <article class="security-card">
                             <small>Image ownership</small>
-                            <strong>Projecten gekoppeld aan jouw account</strong>
+                            <strong>{{ __('Projecten gekoppeld aan jouw account') }}</strong>
                             <p>
-                                Afbeeldingen en bewerkingsversies blijven gekoppeld
-                                aan de ingelogde gebruiker.
+                                {{ __('Afbeeldingen en bewerkingsversies blijven gekoppeld aan de ingelogde gebruiker.') }}
                             </p>
                         </article>
                     </div>
