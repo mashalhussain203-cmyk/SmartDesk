@@ -3374,7 +3374,7 @@
 
                 <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AI…" maxlength="2000" required></textarea>
 
-                <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
+                <button type="submit" class="guest-chat__send" aria-label="{{ __('Bericht versturen') }}"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
 
             </form>
 
