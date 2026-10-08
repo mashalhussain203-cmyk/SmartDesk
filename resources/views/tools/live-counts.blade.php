@@ -366,28 +366,6 @@
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
 
-            <a class="livehub-tool" href="{{ route('tiktok-engagement.index') }}">
-                <div class="livehub-tool-top">
-                    <div class="livehub-icon-wrap">
-                        <img src="/icons/live-heart.svg?v=20261007-4" alt="">
-                    </div>
-                    <div class="livehub-live"><i></i> Public</div>
-                </div>
-
-                <h3>TikTok Engagement</h3>
-                <p>
-                    Open een publieke TikTok-video en bekijk hearts, comments
-                    en favorites in dezelfde rustige live interface.
-                </p>
-
-                <div class="livehub-metrics">
-                    <span>Hearts</span>
-                    <span>Comments</span>
-                    <span>Favorites</span>
-                </div>
-
-                <span class="livehub-arrow" aria-hidden="true">→</span>
-            </a>
         </div>
     </div>
 </section>
