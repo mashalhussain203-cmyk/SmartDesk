@@ -6692,7 +6692,7 @@
                     <a
                         class="expert-brand"
                         href="{{ route('home') }}"
-                        aria-label="Mashal Studio home"
+                        aria-label="{{ __('Mashal Studio home') }}"
                     >
                         <span class="expert-brand-mark" aria-hidden="true">
                             <span class="expert-brand-glyph">M</span>
@@ -6732,7 +6732,7 @@
 
                 <nav
                     class="expert-nav-center"
-                    aria-label="Hoofdnavigatie"
+                    aria-label="{{ __('Hoofdnavigatie') }}"
                 >
                     <a
                         class="expert-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
@@ -6754,7 +6754,7 @@
                                 ◉
                             </span>
 
-                            <span>Live Counts</span>
+                            <span>{{ __('Live Counts') }}</span>
                         </a>
                     @endif
 
@@ -6768,7 +6768,7 @@
                                     ▦
                                 </span>
 
-                                <span>Library</span>
+                                <span>{{ __('Library') }}</span>
 
                                 @if ($layoutImageCount !== null)
                                     <span class="expert-nav-badge">
@@ -6803,8 +6803,8 @@
                     <a
                         class="expert-new-project"
                         href="{{ route('home') }}#upload"
-                        aria-label="Nieuwe afbeelding"
-                        title="Nieuwe afbeelding"
+                        aria-label="{{ __('Nieuwe afbeelding') }}"
+                        title="{{ __('Nieuwe afbeelding') }}"
                     >
                         <span aria-hidden="true">＋</span>
                     </a>
@@ -7020,7 +7020,7 @@
                         class="studio-menu-toggle expert-menu-toggle"
                         id="studioMenuToggle"
                         type="button"
-                        aria-label="Menu openen"
+                        aria-label="{{ __('Menu openen') }}"
                         aria-expanded="false"
                         aria-controls="studioMobileDrawer"
                     >
@@ -7055,7 +7055,7 @@
             <div class="expert-command-head">
                 <div>
                     <span class="expert-command-kicker">
-                        Navigation
+                        {{ __('Navigation') }}
                     </span>
 
                     <strong id="studioCommandTitle">
@@ -7067,7 +7067,7 @@
                     class="expert-command-close"
                     id="studioCommandClose"
                     type="button"
-                    aria-label="Command menu sluiten"
+                    aria-label="{{ __('Command menu sluiten') }}"
                 >
                     ×
                 </button>
@@ -7079,7 +7079,7 @@
                 <input
                     id="studioCommandInput"
                     type="search"
-                    placeholder="Zoek in Mashal Studio…"
+                    placeholder="{{ __('Zoek in Mashal Studio…') }}"
                     autocomplete="off"
                 >
 
@@ -7113,8 +7113,8 @@
                         >
                             <span class="expert-command-item-icon">◉</span>
                             <span>
-                                <strong>Live Counts</strong>
-                                <small>Kies followers of video views</small>
+                                <strong>{{ __('Live Counts') }}</strong>
+                                <small>{{ __('Kies followers of video views') }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7129,7 +7129,7 @@
                             <span class="expert-command-item-icon">◎</span>
                             <span>
                                 <strong>TikTok Live Followers</strong>
-                                <small>Volg followers, likes en profielstats</small>
+                                <small>{{ __('Volg followers, likes en profielstats') }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7143,8 +7143,8 @@
                         >
                             <span class="expert-command-item-icon">◉</span>
                             <span>
-                                <strong>TikTok Video Views</strong>
-                                <small>Volg views, likes, comments en shares</small>
+                                <strong>{{ __('TikTok Video Views') }}</strong>
+                                <small>{{ __('Volg views, likes, comments en shares') }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7158,7 +7158,7 @@
                         <span class="expert-command-item-icon">＋</span>
                         <span>
                             <strong>{{ __('Nieuwe afbeelding') }}</strong>
-                            <small>Upload JPG, PNG of WEBP</small>
+                            <small>{{ __('Upload JPG, PNG of WEBP') }}</small>
                         </span>
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
@@ -7239,17 +7239,17 @@
                 <span>
                     <kbd>↑</kbd>
                     <kbd>↓</kbd>
-                    navigeren
+                    {{ __('navigeren') }}
                 </span>
 
                 <span>
                     <kbd>↵</kbd>
-                    openen
+                    {{ __('openen') }}
                 </span>
 
                 <span>
                     <kbd>ESC</kbd>
-                    sluiten
+                    {{ __('sluiten') }}
                 </span>
             </div>
         </div>
@@ -7265,7 +7265,7 @@
         class="studio-mobile-drawer expert-mobile-drawer"
         id="studioMobileDrawer"
         aria-hidden="true"
-        aria-label="Mobiele navigatie"
+        aria-label="{{ __('Mobiele navigatie') }}"
     >
         <div class="expert-mobile-head">
             <a
@@ -7279,7 +7279,7 @@
 
                 <span>
                     <strong>Mashal Studio</strong>
-                    <small>Image workspace</small>
+                    <small>{{ __('Image workspace') }}</small>
                 </span>
             </a>
 
@@ -7287,7 +7287,7 @@
                 class="expert-mobile-close"
                 id="studioMobileClose"
                 type="button"
-                aria-label="Menu sluiten"
+                aria-label="{{ __('Menu sluiten') }}"
             >
                 ×
             </button>
@@ -7309,7 +7309,7 @@
 
             <span>
                 <strong>{{ __('Nieuwe afbeelding') }}</strong>
-                <small>JPG, PNG of WEBP uploaden</small>
+                <small>{{ __('JPG, PNG of WEBP uploaden') }}</small>
             </span>
 
             <span>↗</span>
@@ -7362,7 +7362,7 @@
                 >
                     <span class="expert-mobile-link-icon">◉</span>
                     <span>
-                        <strong>Live Counts</strong>
+                        <strong>{{ __('Live Counts') }}</strong>
                         <small>{{ __('Kies je live counter') }}</small>
                     </span>
                     <span>→</span>
@@ -7392,7 +7392,7 @@
                         <span class="expert-mobile-link-icon">✦</span>
                         <span>
                             <strong>Mashal AI</strong>
-                            <small>AI workspace</small>
+                            <small>{{ __('AI workspace') }}</small>
                         </span>
                         <span class="expert-mobile-ai">AI</span>
                     </a>
@@ -7507,7 +7507,7 @@
                     <button
                         class="studio-flash-close"
                         type="button"
-                        aria-label="Melding sluiten"
+                        aria-label="{{ __('Melding sluiten') }}"
                         data-flash-close
                     >
                         ×
@@ -7527,7 +7527,7 @@
                     <button
                         class="studio-flash-close"
                         type="button"
-                        aria-label="Melding sluiten"
+                        aria-label="{{ __('Melding sluiten') }}"
                         data-flash-close
                     >
                         ×
@@ -7547,7 +7547,7 @@
                     <button
                         class="studio-flash-close"
                         type="button"
-                        aria-label="Melding sluiten"
+                        aria-label="{{ __('Melding sluiten') }}"
                         data-flash-close
                     >
                         ×
@@ -7567,7 +7567,7 @@
                     <button
                         class="studio-flash-close"
                         type="button"
-                        aria-label="Melding sluiten"
+                        aria-label="{{ __('Melding sluiten') }}"
                         data-flash-close
                     >
                         ×
@@ -7597,7 +7597,7 @@
                     <button
                         class="studio-flash-close"
                         type="button"
-                        aria-label="Melding sluiten"
+                        aria-label="{{ __('Melding sluiten') }}"
                         data-flash-close
                     >
                         ×
@@ -7640,7 +7640,7 @@
                             </strong>
 
                             <small>
-                                Image workspace
+                                {{ __('Image workspace') }}
                             </small>
                         </span>
                     </a>
@@ -7661,12 +7661,12 @@
 
                     <div class="studio-footer-links">
                         <a href="{{ route('home') }}">
-                            Home
+                            {{ __('Home') }}
                         </a>
 
                         @if ($hasLiveCounts)
                             <a href="{{ route('live-counts.index') }}">
-                                Live Counts
+                                {{ __('Live Counts') }}
                             </a>
                         @endif
 
@@ -7678,7 +7678,7 @@
 
                         @if ($hasTikTokCounter)
                             <a href="{{ route('tiktok-counter.index') }}">
-                                TikTok Video Views
+                                {{ __('TikTok Video Views') }}
                             </a>
                         @endif
 
@@ -7826,7 +7826,7 @@
                     @endif
 
                     <span>
-                        Private image & AI workspace
+                        {{ __('Private image & AI workspace') }}
                     </span>
 
                     <span>
