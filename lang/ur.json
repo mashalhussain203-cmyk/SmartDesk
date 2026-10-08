@@ -107,7 +107,6 @@
   "Onthoud mij": "مجھے یاد رکھیں",
   "Wachtwoord vergeten?": "پاس ورڈ بھول گئے؟",
   "E-mailadres vergeten?": "ای میل پتہ بھول گئے؟",
-  "Inloggen &amp; doorgaan →": "لاگ اِن کریں اور آگے بڑھیں ←",
   "Eenmalige e-mailcode": "ایک بار استعمال ہونے والا ای میل کوڈ",
   "Ontvang een tijdelijke 6-cijferige code. Geen wachtwoord nodig.": "چھ ہندسوں کا عارضی کوڈ حاصل کریں۔ پاس ورڈ کی ضرورت نہیں۔",
   "Stuur code": "کوڈ بھیجیں",
@@ -339,5 +338,6 @@
   "Bekijk model": "ماڈل دیکھیں",
   "Toevoegen": "شامل کریں",
   "Bestelling": "آرڈر",
-  "Bevestigen": "تصدیق کریں"
+  "Bevestigen": "تصدیق کریں",
+  "Inloggen & doorgaan →": "لاگ اِن کریں اور آگے بڑھیں ←"
 }
