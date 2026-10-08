@@ -37,7 +37,6 @@
 
         $hasImagesIndex = \Illuminate\Support\Facades\Route::has('images.index');
         $hasImagesUpload = \Illuminate\Support\Facades\Route::has('images.upload');
-        $hasAiChat = \Illuminate\Support\Facades\Route::has('ai.chat');
         $hasTikTokCounter = \Illuminate\Support\Facades\Route::has('tiktok-counter.index');
         $hasTikTokFollowerCounter = \Illuminate\Support\Facades\Route::has('tiktok-follower-counter.index');
         $hasLiveCounts = \Illuminate\Support\Facades\Route::has('live-counts.index');
@@ -6778,22 +6777,6 @@
                             </a>
                         @endif
 
-                        @if ($hasAiChat)
-                            <a
-                                class="expert-nav-link expert-nav-link-ai {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
-                                href="{{ route('ai.chat') }}"
-                            >
-                                <span class="expert-nav-link-icon" aria-hidden="true">
-                                    ✦
-                                </span>
-
-                                <span>Mashal AI</span>
-
-                                <span class="expert-nav-ai-badge">
-                                    AI
-                                </span>
-                            </a>
-                        @endif
                     @endauth
                 </nav>
 
@@ -6920,23 +6903,6 @@
                                         </a>
                                     @endif
 
-                                    @if ($hasAiChat)
-                                        <a
-                                            class="expert-account-item"
-                                            href="{{ route('ai.chat') }}"
-                                        >
-                                            <span class="expert-account-item-icon">✦</span>
-
-                                            <span class="expert-account-item-copy">
-                                                <strong>Mashal AI</strong>
-                                                <small>{{ __('Open je AI workspace') }}</small>
-                                            </span>
-
-                                            <span class="expert-account-item-meta">
-                                                AI
-                                            </span>
-                                        </a>
-                                    @endif
                                 </div>
 
                                 <div class="expert-account-section">
@@ -7179,20 +7145,6 @@
                             </a>
                         @endif
 
-                        @if ($hasAiChat)
-                            <a
-                                class="expert-command-item"
-                                href="{{ route('ai.chat') }}"
-                                data-command-search="mashal ai chat assistant"
-                            >
-                                <span class="expert-command-item-icon">✦</span>
-                                <span>
-                                    <strong>Mashal AI</strong>
-                                    <small>{{ __('Open de AI-workspace') }}</small>
-                                </span>
-                                <span class="expert-command-item-arrow">↗</span>
-                            </a>
-                        @endif
                     @endauth
                 </div>
 
@@ -7384,19 +7336,6 @@
                     </a>
                 @endif
 
-                @if ($hasAiChat)
-                    <a
-                        class="expert-mobile-link {{ request()->routeIs('ai.chat*') ? 'active' : '' }}"
-                        href="{{ route('ai.chat') }}"
-                    >
-                        <span class="expert-mobile-link-icon">✦</span>
-                        <span>
-                            <strong>Mashal AI</strong>
-                            <small>AI workspace</small>
-                        </span>
-                        <span class="expert-mobile-ai">AI</span>
-                    </a>
-                @endif
 
                 <div class="expert-mobile-label">
                     {{ __('Account') }}
@@ -7646,7 +7585,7 @@
                     </a>
 
                     <p>
-                        {{ __('Een persoonlijke omgeving voor afbeeldingen en AI: upload, bewerk en bewaar je projecten vanuit je eigen workspace en gebruik Mashal AI als aparte assistent onder hetzelfde account.') }}
+                        {{ __('Een persoonlijke omgeving voor afbeeldingen: upload, bewerk en bewaar je projecten vanuit je eigen workspace onder hetzelfde account.') }}
                     </p>
 
                     <div class="studio-footer-trust">
@@ -7693,11 +7632,6 @@
                                 </a>
                             @endif
 
-                            @if ($hasAiChat)
-                                <a href="{{ route('ai.chat') }}">
-                                    Mashal AI
-                                </a>
-                            @endif
                         @endauth
                     </div>
                 </div>
@@ -7749,11 +7683,6 @@
                                 </a>
                             @endif
 
-                            @if ($hasAiChat)
-                                <a href="{{ route('ai.chat') }}">
-                                    {{ __('AI-assistent') }}
-                                </a>
-                            @endif
 
                             @if (
                                 $layoutIsAdmin &&

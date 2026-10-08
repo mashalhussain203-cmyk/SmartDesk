@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AiChatController;
 
 use App\Http\Controllers\ContactController;
 
@@ -1477,60 +1476,6 @@ Route::middleware('auth')->group(function () {
 
     |--------------------------------------------------------------------------
 
-    | Mashal AI + Live Voice
-
-    |--------------------------------------------------------------------------
-
-    */
-
-    Route::get(
-
-        '/ai-chat',
-
-        [AiChatController::class, 'index']
-
-    )->name('ai.chat');
-
-    Route::post(
-
-        '/ai-chat/message',
-
-        [AiChatController::class, 'message']
-
-    )
-
-        ->middleware('throttle:20,1')
-
-        ->name('ai.chat.message');
-
-    Route::post(
-
-        '/ai-chat/voice/turn',
-
-        [AiChatController::class, 'voiceTurn']
-
-    )
-
-        ->middleware('throttle:30,1')
-
-        ->name('ai.chat.voice.turn');
-
-    Route::post(
-
-        '/ai-chat/voice/tts',
-
-        [AiChatController::class, 'speech']
-
-    )
-
-        ->middleware('throttle:60,1')
-
-        ->name('ai.chat.voice.tts');
-
-    /*
-
-    |--------------------------------------------------------------------------
-
     | Favorieten
 
     |--------------------------------------------------------------------------
@@ -2106,30 +2051,6 @@ Route::middleware('auth')->group(function () {
     });
 
 });
-
-/*
-
-|--------------------------------------------------------------------------
-
-| Mashal AI Workspace V5
-
-|--------------------------------------------------------------------------
-
-*/
-
-require __DIR__ . '/ai-workspace.php';
-
-/*
-
-|--------------------------------------------------------------------------
-
-| Mashal AI Studio V6
-
-|--------------------------------------------------------------------------
-
-*/
-
-require __DIR__ . '/ai-studio.php';
 
 /*
 
