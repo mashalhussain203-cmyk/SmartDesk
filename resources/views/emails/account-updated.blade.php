@@ -696,7 +696,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            Naam
+                                            {{ __('Naam') }}
                                         </div>
 
                                         <div
@@ -884,7 +884,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            E-mailadres
+                                            {{ __('E-mailadres') }}
                                         </div>
 
                                         <div
@@ -1394,7 +1394,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong
