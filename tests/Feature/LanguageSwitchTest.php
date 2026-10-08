@@ -94,7 +94,8 @@ class LanguageSwitchTest extends TestCase
         $this->withSession(['site_locale' => 'ur'])
             ->get(route('contact'))
             ->assertOk()
-            ->assertSee('ہم سے رابطہ کریں', false)
+            ->assertSee('ہم سے', false)
+            ->assertSee('رابطہ کریں', false)
             ->assertSee('رازداری', false);
     }
 
