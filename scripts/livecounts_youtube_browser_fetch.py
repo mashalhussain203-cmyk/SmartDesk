@@ -81,11 +81,11 @@ def parse_visible_stats(page):
     () => {
       const clean = (s) => String(s || '')
         .replace(/ /g, ' ')
-        .replace(/\\s+/g, ' ')
+        .replace(/\s+/g, ' ')
         .trim();
 
       const body = clean(document.body ? document.body.innerText : '');
-      const lines = body.split(/\\n+/).map(clean).filter(Boolean);
+      const lines = body.split(/\n+/).map(clean).filter(Boolean);
 
       const numberNear = (label) => {
         const target = label.toLowerCase();
@@ -99,8 +99,8 @@ def parse_visible_stats(page):
             for (const idx of [i - d, i + d]) {
               if (idx < 0 || idx >= lines.length) continue;
               const candidate = lines[idx];
-              if (/^[0-9][0-9,.\\s]*$/.test(candidate)) {
-                const digits = candidate.replace(/\\D/g, '');
+              if (/^[0-9][0-9,.\s]*$/.test(candidate)) {
+                const digits = candidate.replace(/\D/g, '');
                 if (digits) return Number(digits);
               }
             }
