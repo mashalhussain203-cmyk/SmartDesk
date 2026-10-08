@@ -158,7 +158,7 @@
                                     margin-bottom:10px;
                                 "
                             >
-                                Inlogverificatie
+                                {{ __('Inlogverificatie') }}
                             </div>
 
                             <h1
@@ -171,7 +171,7 @@
                                     letter-spacing:-.03em;
                                 "
                             >
-                                Je inlogcode
+                                {{ __('Je inlogcode') }}
                             </h1>
 
                             <p
@@ -182,8 +182,7 @@
                                     line-height:1.8;
                                 "
                             >
-                                Gebruik onderstaande 6-cijferige code om veilig
-                                in te loggen op je Mashal Automotive-account.
+                                {{ __('Gebruik onderstaande 6-cijferige code om veilig in te loggen op je Mashal Automotive-account.') }}
                             </p>
 
                             <div
@@ -211,7 +210,7 @@
                                         text-transform:uppercase;
                                     "
                                 >
-                                    Jouw code
+                                    {{ __('Jouw code') }}
                                 </div>
 
                                 <div
@@ -235,7 +234,7 @@
                                     line-height:1.8;
                                 "
                             >
-                                Deze code is
+                                {{ __('Deze code is') }}
                                 <strong
                                     style="
                                         color:#e6c07d;
@@ -243,7 +242,7 @@
                                 >
                                     {{ $expiresInMinutes }} minuten
                                 </strong>
-                                geldig.
+                                {{ __('geldig.') }}
                             </p>
 
                             <div
@@ -263,7 +262,7 @@
                                         margin-bottom:6px;
                                     "
                                 >
-                                    Heb jij deze code niet aangevraagd?
+                                    {{ __('Heb jij deze code niet aangevraagd?') }}
                                 </div>
 
                                 <div
@@ -273,8 +272,7 @@
                                         line-height:1.7;
                                     "
                                 >
-                                    Dan hoef je niets te doen. Negeer deze e-mail.
-                                    Deel deze code nooit met iemand anders.
+                                    {{ __('Dan hoef je niets te doen. Negeer deze e-mail. Deel deze code nooit met iemand anders.') }}
                                 </div>
                             </div>
 
@@ -287,7 +285,7 @@
                                         line-height:1.7;
                                     "
                                 >
-                                    Deze code is aangevraagd voor:
+                                    {{ __('Deze code is aangevraagd voor:') }}
                                     <strong
                                         style="
                                             color:#979da3;
@@ -317,9 +315,7 @@
                                     text-align:center;
                                 "
                             >
-                                Mashal Automotive vraagt je nooit om je
-                                inlogcode of wachtwoord via chat, telefoon
-                                of sociale media te delen.
+                                {{ __('Mashal Automotive vraagt je nooit om je inlogcode of wachtwoord via chat, telefoon of sociale media te delen.') }}
                             </p>
 
                             <p
