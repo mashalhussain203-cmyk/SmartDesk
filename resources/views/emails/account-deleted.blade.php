@@ -20,7 +20,7 @@
     >
 
     <title>
-        Account verwijderd - Mashal Automotive
+        {{ __('Account verwijderd - Mashal Automotive') }}
     </title>
 </head>
 
@@ -202,7 +202,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Account closed
+                                                    {{ __('Account closed') }}
                                                 </span>
                                             </td>
 
@@ -274,7 +274,7 @@
                                 text-transform: uppercase;
                             "
                         >
-                            Accountstatus gewijzigd
+                            {{ __('Accountstatus gewijzigd') }}
                         </div>
 
 
@@ -289,7 +289,7 @@
                                 text-align: center;
                             "
                         >
-                            Je Mashal-account is verwijderd
+                            {{ __('Je Mashal-account is verwijderd') }}
                         </h1>
 
 
@@ -303,9 +303,7 @@
                                 text-align: center;
                             "
                         >
-                            Een Mashal-beheerder heeft je account verwijderd.
-                            Hierdoor heb je geen toegang meer tot dit account
-                            en kun je er niet langer mee inloggen.
+                            {{ __('Een Mashal-beheerder heeft je account verwijderd. Hierdoor heb je geen toegang meer tot dit account en kun je er niet langer mee inloggen.') }}
                         </p>
 
                     </td>
@@ -331,7 +329,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $name }}</strong>,
                         </p>
 
 
@@ -343,8 +341,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Dit bericht bevestigt dat je account
-                            niet langer actief is binnen Mashal Automotive.
+                            {{ __('Dit bericht bevestigt dat je account niet langer actief is binnen Mashal Automotive.') }}
                         </p>
 
                     </td>
@@ -421,7 +418,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Account niet meer actief
+                                        {{ __('Account niet meer actief') }}
                                     </div>
 
                                     <div
@@ -431,9 +428,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Je kunt niet meer inloggen
-                                        of gebruikmaken van functies
-                                        die aan dit account gekoppeld waren.
+                                        {{ __('Je kunt niet meer inloggen of gebruikmaken van functies die aan dit account gekoppeld waren.') }}
                                     </div>
 
                                 </td>
@@ -465,7 +460,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat betekent dit?
+                            {{ __('Wat betekent dit?') }}
                         </div>
 
 
@@ -516,7 +511,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Inloggen met dit account is niet meer mogelijk.
+                                    {{ __('Inloggen met dit account is niet meer mogelijk.') }}
                                 </td>
                             </tr>
 
@@ -556,8 +551,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Functionaliteiten die accounttoegang vereisen,
-                                    zijn voor dit account niet langer beschikbaar.
+                                    {{ __('Functionaliteiten die accounttoegang vereisen, zijn voor dit account niet langer beschikbaar.') }}
                                 </td>
                             </tr>
 
@@ -597,8 +591,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Als deze verwijdering verwacht was,
-                                    hoef je verder niets te doen.
+                                    {{ __('Als deze verwijdering verwacht was, hoef je verder niets te doen.') }}
                                 </td>
                             </tr>
 
@@ -678,7 +671,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Had je deze verwijdering niet verwacht?
+                                        {{ __('Had je deze verwijdering niet verwacht?') }}
                                     </div>
 
                                     <div
@@ -688,9 +681,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Neem dan zo snel mogelijk contact op
-                                        met de Mashal-beheerder om te controleren
-                                        waarom je account is verwijderd.
+                                        {{ __('Neem dan zo snel mogelijk contact op met de Mashal-beheerder om te controleren waarom je account is verwijderd.') }}
                                     </div>
 
                                 </td>
@@ -772,7 +763,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Beveiligingsmelding
+                                        {{ __('Beveiligingsmelding') }}
                                     </div>
 
                                     <div
@@ -782,9 +773,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Mashal vraagt je nooit om wachtwoorden,
-                                        verificatiecodes of andere gevoelige
-                                        accountgegevens via e-mail door te sturen.
+                                        {{ __('Mashal vraagt je nooit om wachtwoorden, verificatiecodes of andere gevoelige accountgegevens via e-mail door te sturen.') }}
                                     </div>
 
                                 </td>
@@ -815,8 +804,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Als de verwijdering correct is uitgevoerd,
-                            hoef je verder geen actie te ondernemen.
+                            {{ __('Als de verwijdering correct is uitgevoerd, hoef je verder geen actie te ondernemen.') }}
                         </p>
 
 
@@ -836,7 +824,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -867,8 +855,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat je Mashal-account door een beheerder is verwijderd.
+                            {{ __('Deze e-mail is automatisch verzonden nadat je Mashal-account door een beheerder is verwijderd.') }}
                         </div>
 
 
@@ -903,8 +890,7 @@
                     text-align: center;
                 "
             >
-                Automatische accountmelding van Mashal Automotive.
-                Neem bij een onverwachte verwijdering contact op met de beheerder.
+                {{ __('Automatische accountmelding van Mashal Automotive. Neem bij een onverwachte verwijdering contact op met de beheerder.') }}
             </div>
 
         </td>
