@@ -396,7 +396,7 @@
         <div class="ytv-actions" id="ytv-actions" hidden>
             <button class="ytv-action" id="ytv-change" type="button">{{ __('↺ Change Video') }}</button>
             <button class="ytv-action" id="ytv-compare-toggle" type="button">{{ __('⇄ Compare') }}</button>
-            <button class="ytv-action" id="ytv-embed-toggle" type="button">{{ __('&lt;/&gt; Embed') }}</button>
+            <button class="ytv-action" id="ytv-embed-toggle" type="button">{{ __('</> Embed') }}</button>
             <button class="ytv-action" id="ytv-advanced-toggle" type="button">{{ __('▦ Advanced Metrics') }}</button>
         </div>
 
