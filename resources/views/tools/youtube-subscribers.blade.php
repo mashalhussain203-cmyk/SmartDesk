@@ -406,6 +406,140 @@
         line-height: inherit !important;
     }
 
+    .yts-banner {
+        width: 100%;
+        height: 92px;
+        margin-bottom: -42px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px;
+        background: rgba(255,255,255,.025);
+    }
+
+    .yts-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .yts-profile .yts-avatar {
+        position: relative;
+        z-index: 1;
+        border: 4px solid #10131a;
+    }
+
+    .yts-extras {
+        max-width: 1040px;
+        margin: 16px auto 0;
+        display: grid;
+        grid-template-columns: minmax(0,1.6fr) minmax(260px,.8fr);
+        gap: 16px;
+    }
+
+    .yts-extra-card {
+        padding: 20px;
+    }
+
+    .yts-extra-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .yts-extra-head strong {
+        color: #e7eaf0;
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    .yts-extra-head span {
+        color: #68717e;
+        font-size: 8px;
+    }
+
+    .yts-chart {
+        width: 100%;
+        height: 190px;
+        display: block;
+        overflow: visible;
+    }
+
+    .yts-chart-grid {
+        stroke: rgba(255,255,255,.06);
+        stroke-width: 1;
+    }
+
+    .yts-chart-line {
+        fill: none;
+        stroke: #ff6573;
+        stroke-width: 2.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .yts-chart-empty {
+        color: #596371;
+        font-size: 9px;
+        text-align: center;
+        margin-top: -105px;
+        pointer-events: none;
+    }
+
+    .yts-advanced {
+        display: grid;
+        gap: 9px;
+    }
+
+    .yts-advanced-row {
+        min-height: 58px;
+        padding: 11px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 13px;
+        background: rgba(255,255,255,.014);
+    }
+
+    .yts-advanced-row span {
+        color: #6e7784;
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .yts-advanced-row strong {
+        color: #f1f3f6;
+        font-size: 14px;
+        font-weight: 820;
+    }
+
+    .yts-about {
+        max-width: 1040px;
+        margin: 16px auto 0;
+        padding: 20px;
+    }
+
+    .yts-about h3 {
+        margin: 0;
+        color: #eef1f5;
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .yts-about p {
+        margin: 10px 0 0;
+        color: #737d8a;
+        font-size: 10px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
     @media (max-width: 780px) {
         .yts-search {
             grid-template-columns: 1fr;
@@ -416,6 +550,10 @@
         }
 
         .yts-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .yts-extras {
             grid-template-columns: 1fr;
         }
 
@@ -482,6 +620,10 @@
 
         <div class="yts-panel" id="yts-panel" hidden>
             <aside class="yts-card yts-profile">
+                <div class="yts-banner" id="yts-banner-wrap" hidden>
+                    <img id="yts-banner" src="" alt="" referrerpolicy="no-referrer">
+                </div>
+
                 <img
                     class="yts-avatar"
                     id="yts-avatar"
@@ -527,7 +669,62 @@
                         <div class="yts-stat-value yts-loading" id="yts-goal">0</div>
                     </div>
                 </div>
+
+                <div class="yts-status" style="margin-top:16px">
+                    <span>Remaining to goal</span>
+                    <strong id="yts-remaining">0</strong>
+                </div>
             </div>
+        </div>
+
+        <div class="yts-extras" id="yts-extras" hidden>
+            <div class="yts-card yts-extra-card">
+                <div class="yts-extra-head">
+                    <strong>Subscriber history</strong>
+                    <span>Live samples from this session</span>
+                </div>
+                <svg
+                    class="yts-chart"
+                    id="yts-chart"
+                    viewBox="0 0 640 190"
+                    preserveAspectRatio="none"
+                    aria-label="Subscriber history chart"
+                >
+                    <line class="yts-chart-grid" x1="0" y1="48" x2="640" y2="48"></line>
+                    <line class="yts-chart-grid" x1="0" y1="95" x2="640" y2="95"></line>
+                    <line class="yts-chart-grid" x1="0" y1="142" x2="640" y2="142"></line>
+                    <polyline class="yts-chart-line" id="yts-chart-line" points=""></polyline>
+                </svg>
+                <div class="yts-chart-empty" id="yts-chart-empty">
+                    Wachten op live samples…
+                </div>
+            </div>
+
+            <div class="yts-card yts-extra-card">
+                <div class="yts-extra-head">
+                    <strong>Advanced Metrics</strong>
+                    <span>Current session</span>
+                </div>
+                <div class="yts-advanced">
+                    <div class="yts-advanced-row">
+                        <span>Gained</span>
+                        <strong id="yts-gained">0</strong>
+                    </div>
+                    <div class="yts-advanced-row">
+                        <span>Per minute</span>
+                        <strong id="yts-per-minute">0</strong>
+                    </div>
+                    <div class="yts-advanced-row">
+                        <span>Samples</span>
+                        <strong id="yts-samples">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="yts-card yts-about" id="yts-about" hidden>
+            <h3 id="yts-about-title">About this channel</h3>
+            <p id="yts-about-copy"></p>
         </div>
 
         <div class="yts-empty" id="yts-empty">
@@ -552,15 +749,35 @@
     var message = document.getElementById('yts-message');
     var results = document.getElementById('yts-results');
     var panel = document.getElementById('yts-panel');
+    var extras = document.getElementById('yts-extras');
     var empty = document.getElementById('yts-empty');
     var status = document.getElementById('yts-status');
     var avatar = document.getElementById('yts-avatar');
+    var banner = document.getElementById('yts-banner');
+    var bannerWrap = document.getElementById('yts-banner-wrap');
     var name = document.getElementById('yts-name');
     var channelIdEl = document.getElementById('yts-channel-id');
     var channelLink = document.getElementById('yts-link');
+    var remaining = document.getElementById('yts-remaining');
+    var about = document.getElementById('yts-about');
+    var aboutTitle = document.getElementById('yts-about-title');
+    var aboutCopy = document.getElementById('yts-about-copy');
+    var chartLine = document.getElementById('yts-chart-line');
+    var chartEmpty = document.getElementById('yts-chart-empty');
+    var gainedEl = document.getElementById('yts-gained');
+    var perMinuteEl = document.getElementById('yts-per-minute');
+    var samplesEl = document.getElementById('yts-samples');
+
     var currentChannel = null;
     var refreshTimer = null;
+    var searchTimer = null;
+    var searchBusy = false;
+    var queuedSearch = '';
+    var lastSearch = '';
     var odometers = {};
+    var historyPoints = [];
+    var sessionStartedAt = null;
+    var firstSubscriberValue = null;
 
     function safeImage(url) {
         try {
@@ -573,6 +790,13 @@
 
     function setMessage(text) {
         message.textContent = text || '';
+    }
+
+    function formatSigned(value) {
+        var number = Number(value) || 0;
+        var rounded = Math.trunc(number);
+
+        return (rounded > 0 ? '+' : '') + rounded.toLocaleString('en-US');
     }
 
     function ensureOdometer(key, element) {
@@ -639,12 +863,102 @@
         });
     }
 
+    function resetSessionMetrics() {
+        historyPoints = [];
+        sessionStartedAt = Date.now();
+        firstSubscriberValue = null;
+        chartLine.setAttribute('points', '');
+        chartEmpty.hidden = false;
+        gainedEl.textContent = '0';
+        perMinuteEl.textContent = '0';
+        samplesEl.textContent = '0';
+    }
+
+    function drawChart() {
+        if (!historyPoints.length) {
+            chartLine.setAttribute('points', '');
+            chartEmpty.hidden = false;
+            return;
+        }
+
+        var values = historyPoints.map(function (point) {
+            return point.value;
+        });
+        var min = Math.min.apply(Math, values);
+        var max = Math.max.apply(Math, values);
+
+        if (min === max) {
+            min -= 1;
+            max += 1;
+        }
+
+        var width = 640;
+        var height = 190;
+        var padY = 18;
+        var usableHeight = height - (padY * 2);
+
+        var points = historyPoints.map(function (point, index) {
+            var x = historyPoints.length === 1
+                ? width / 2
+                : (index / (historyPoints.length - 1)) * width;
+            var ratio = (point.value - min) / (max - min);
+            var y = height - padY - (ratio * usableHeight);
+
+            return x.toFixed(2) + ',' + y.toFixed(2);
+        }).join(' ');
+
+        chartLine.setAttribute('points', points);
+        chartEmpty.hidden = historyPoints.length > 1;
+    }
+
+    function recordSubscriberSample(value) {
+        var subscribers = Number(value);
+
+        if (!Number.isFinite(subscribers)) {
+            return;
+        }
+
+        subscribers = Math.max(0, Math.trunc(subscribers));
+
+        if (firstSubscriberValue === null) {
+            firstSubscriberValue = subscribers;
+            sessionStartedAt = Date.now();
+        }
+
+        var now = Date.now();
+        var previous = historyPoints.length
+            ? historyPoints[historyPoints.length - 1]
+            : null;
+
+        if (!previous || previous.value !== subscribers || now - previous.at >= 4500) {
+            historyPoints.push({ value: subscribers, at: now });
+        }
+
+        if (historyPoints.length > 80) {
+            historyPoints.shift();
+        }
+
+        var gained = subscribers - firstSubscriberValue;
+        var elapsedMinutes = Math.max(
+            (now - sessionStartedAt) / 60000,
+            1 / 60
+        );
+        var perMinute = gained / elapsedMinutes;
+
+        gainedEl.textContent = formatSigned(gained);
+        perMinuteEl.textContent = formatSigned(Math.round(perMinute));
+        samplesEl.textContent = String(historyPoints.length);
+
+        drawChart();
+    }
+
     function renderChannel(channel) {
         if (!channel || !channel.id) {
             return;
         }
 
         panel.hidden = false;
+        extras.hidden = false;
         empty.hidden = true;
         currentChannel = channel.id;
 
@@ -661,8 +975,21 @@
             avatar.src = image;
         }
 
+        var bannerImage = safeImage(channel.banner);
+        if (bannerImage) {
+            banner.src = bannerImage;
+            bannerWrap.hidden = false;
+        }
+
+        if (channel.description) {
+            about.hidden = false;
+            aboutTitle.textContent = 'About ' + (channel.title || 'this channel');
+            aboutCopy.textContent = channel.description;
+        }
+
         if (channel.subscribers !== undefined) {
             updateNumber('subscribers', channel.subscribers);
+            recordSubscriberSample(channel.subscribers);
         }
         if (channel.views !== undefined) {
             updateNumber('views', channel.views);
@@ -672,6 +999,18 @@
         }
         if (channel.goal !== undefined) {
             updateNumber('goal', channel.goal);
+        }
+
+        if (
+            channel.goal !== undefined
+            && channel.subscribers !== undefined
+            && Number.isFinite(Number(channel.goal))
+            && Number.isFinite(Number(channel.subscribers))
+        ) {
+            remaining.textContent = Math.max(
+                0,
+                Math.trunc(Number(channel.goal) - Number(channel.subscribers))
+            ).toLocaleString('en-US');
         }
     }
 
@@ -730,6 +1069,74 @@
         });
     }
 
+    function runSearch(query, fromSubmit) {
+        query = String(query || '').trim();
+
+        if (query.length < 2) {
+            return Promise.resolve();
+        }
+
+        if (searchBusy) {
+            queuedSearch = query;
+            return Promise.resolve();
+        }
+
+        searchBusy = true;
+        queuedSearch = '';
+        lastSearch = query;
+
+        if (fromSubmit) {
+            submit.disabled = true;
+            submit.textContent = 'Zoeken…';
+        }
+
+        setMessage('Kanalen zoeken…');
+
+        return fetchJson(
+            lookupUrl + '?' + new URLSearchParams({ query: query }).toString()
+        )
+            .then(function (data) {
+                var currentQuery = input.value.trim();
+                var channels = Array.isArray(data.channels)
+                    ? data.channels
+                    : [];
+
+                if (currentQuery !== query && !fromSubmit) {
+                    queuedSearch = currentQuery;
+                    return;
+                }
+
+                setMessage('');
+                renderResults(channels);
+
+                if (channels.length === 1 && fromSubmit) {
+                    selectChannel(channels[0]);
+                }
+            })
+            .catch(function () {
+                if (input.value.trim() === query) {
+                    setMessage('Kanalen konden niet worden geladen.');
+                }
+            })
+            .finally(function () {
+                searchBusy = false;
+
+                if (fromSubmit) {
+                    submit.disabled = false;
+                    submit.textContent = 'Zoek kanaal →';
+                }
+
+                var next = queuedSearch;
+                queuedSearch = '';
+
+                if (next && next !== lastSearch && next.length >= 2) {
+                    window.setTimeout(function () {
+                        runSearch(next, false);
+                    }, 0);
+                }
+            });
+    }
+
     function loadStats() {
         if (!currentChannel || document.hidden) {
             return Promise.resolve();
@@ -765,6 +1172,9 @@
 
         results.innerHTML = '';
         setMessage('');
+        resetSessionMetrics();
+        about.hidden = true;
+        bannerWrap.hidden = true;
         renderChannel(channel);
 
         history.replaceState(
@@ -787,39 +1197,38 @@
             return;
         }
 
-        submit.disabled = true;
-        submit.textContent = 'Zoeken…';
-        setMessage('Kanalen zoeken…');
-        results.innerHTML = '';
+        window.clearTimeout(searchTimer);
+        runSearch(query, true);
+    });
 
-        fetchJson(
-            lookupUrl + '?' + new URLSearchParams({ query: query }).toString()
-        )
-            .then(function (data) {
-                var channels = Array.isArray(data.channels)
-                    ? data.channels
-                    : [];
+    input.addEventListener('input', function () {
+        var query = input.value.trim();
 
-                setMessage('');
-                renderResults(channels);
+        window.clearTimeout(searchTimer);
 
-                if (channels.length === 1) {
-                    selectChannel(channels[0]);
-                }
-            })
-            .catch(function () {
-                setMessage('Kanalen konden niet worden geladen.');
-            })
-            .finally(function () {
-                submit.disabled = false;
-                submit.textContent = 'Zoek kanaal →';
-            });
+        if (query.length < 2) {
+            results.innerHTML = '';
+            setMessage('');
+            return;
+        }
+
+        searchTimer = window.setTimeout(function () {
+            if (query !== lastSearch) {
+                runSearch(query, false);
+            }
+        }, 420);
+    });
+
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && currentChannel) {
+            loadStats();
+        }
     });
 
     var initial = new URLSearchParams(location.search).get('channel');
 
     if (initial && /^UC[A-Za-z0-9_-]{22}$/.test(initial)) {
-        currentChannel = initial;
+        resetSessionMetrics();
         renderChannel({
             id: initial,
             title: 'YouTube channel',
