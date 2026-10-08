@@ -436,6 +436,16 @@
         gap: 16px;
     }
 
+    .yts-extras.is-basic {
+        grid-template-columns: 1fr;
+    }
+
+    .yts-action-button.is-active {
+        border-color: rgba(255,83,99,.3);
+        color: #fff;
+        background: rgba(255,83,99,.07);
+    }
+
     .yts-extra-card {
         padding: 20px;
     }
@@ -699,6 +709,24 @@
         text-align: center;
     }
 
+    .yts-embed-stack {
+        display: grid;
+        gap: 14px;
+    }
+
+    .yts-embed-group {
+        display: grid;
+        gap: 7px;
+    }
+
+    .yts-embed-label {
+        color: #707986;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
     .yts-embed-row {
         display: grid;
         grid-template-columns: minmax(0,1fr) auto;
@@ -711,6 +739,11 @@
         resize: vertical;
         min-height: 72px;
         line-height: 1.45;
+    }
+
+    input.yts-embed-code {
+        min-height: 44px;
+        resize: none;
     }
 
     @media (max-width: 780px) {
@@ -860,6 +893,7 @@
             <button class="yts-action-button" id="yts-change-user" type="button">↺ Change User</button>
             <button class="yts-action-button" id="yts-compare-toggle" type="button">⇄ Compare</button>
             <button class="yts-action-button" id="yts-embed-toggle" type="button">&lt;/&gt; Embed</button>
+            <button class="yts-action-button" id="yts-advanced-toggle" type="button" aria-pressed="false">▦ Advanced Metrics</button>
         </div>
 
         <section class="yts-tool-panel" id="yts-compare-panel" hidden>
@@ -900,18 +934,33 @@
         <section class="yts-tool-panel" id="yts-embed-panel" hidden>
             <div class="yts-tool-panel-head">
                 <strong>Embed live subscriber count</strong>
-                <span>Gebruik je eigen Mashal counter</span>
+                <span>Website of OBS Browser Source</span>
             </div>
 
-            <div class="yts-embed-row">
-                <textarea class="yts-embed-code" id="yts-embed-code" readonly></textarea>
-                <button class="yts-action-button" id="yts-embed-copy" type="button">
-                    Copy
-                </button>
+            <div class="yts-embed-stack">
+                <div class="yts-embed-group">
+                    <span class="yts-embed-label">Website embed</span>
+                    <div class="yts-embed-row">
+                        <textarea class="yts-embed-code" id="yts-embed-code" readonly></textarea>
+                        <button class="yts-action-button" id="yts-embed-copy" type="button">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="yts-embed-group">
+                    <span class="yts-embed-label">OBS / Browser Source URL</span>
+                    <div class="yts-embed-row">
+                        <input class="yts-embed-code" id="yts-embed-url" type="text" readonly>
+                        <button class="yts-action-button" id="yts-embed-url-copy" type="button">
+                            Copy
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <div class="yts-extras" id="yts-extras" hidden>
+        <div class="yts-extras is-basic" id="yts-extras" hidden>
             <div class="yts-card yts-extra-card">
                 <div class="yts-extra-head">
                     <strong>Subscriber history</strong>
@@ -934,7 +983,7 @@
                 </div>
             </div>
 
-            <div class="yts-card yts-extra-card">
+            <div class="yts-card yts-extra-card" id="yts-advanced-card" hidden>
                 <div class="yts-extra-head">
                     <strong>Advanced Metrics</strong>
                     <span>Current session</span>
@@ -1005,6 +1054,8 @@
     var changeUserButton = document.getElementById('yts-change-user');
     var compareToggle = document.getElementById('yts-compare-toggle');
     var embedToggle = document.getElementById('yts-embed-toggle');
+    var advancedToggle = document.getElementById('yts-advanced-toggle');
+    var advancedCard = document.getElementById('yts-advanced-card');
     var comparePanel = document.getElementById('yts-compare-panel');
     var compareQuery = document.getElementById('yts-compare-query');
     var compareSearchButton = document.getElementById('yts-compare-search');
@@ -1018,6 +1069,10 @@
     var embedPanel = document.getElementById('yts-embed-panel');
     var embedCode = document.getElementById('yts-embed-code');
     var embedCopy = document.getElementById('yts-embed-copy');
+    var embedUrl = document.getElementById('yts-embed-url');
+    var embedUrlCopy = document.getElementById('yts-embed-url-copy');
+    var showBase = @json(url('/tools/youtube-subscribers'));
+    var initialChannelId = @json($initialChannelId ?? null);
 
     var currentChannel = null;
     var refreshTimer = null;
@@ -1205,14 +1260,22 @@
         drawChart();
     }
 
-    function buildEmbedCode(channelId) {
+    function buildEmbedUrl(channelId) {
         if (!channelId) {
             return '';
         }
 
-        var src = window.location.origin
+        return window.location.origin
             + '/embed/youtube-subscribers/'
             + encodeURIComponent(channelId);
+    }
+
+    function buildEmbedCode(channelId) {
+        var src = buildEmbedUrl(channelId);
+
+        if (!src) {
+            return '';
+        }
 
         return '<iframe src="' + src
             + '" width="720" height="240" frameborder="0"'
@@ -1357,6 +1420,7 @@
         currentChannel = channel.id;
         counterActions.hidden = false;
         embedCode.value = buildEmbedCode(channel.id);
+        embedUrl.value = buildEmbedUrl(channel.id);
 
         if (compareChannel && compareChannel.id === channel.id) {
             compareChannel = null;
@@ -1582,7 +1646,7 @@
         history.replaceState(
             null,
             '',
-            location.pathname + '?channel=' + encodeURIComponent(channel.id)
+            showBase + '/' + encodeURIComponent(channel.id)
         );
 
         loadStats();
@@ -1618,7 +1682,7 @@
             if (query !== lastSearch) {
                 runSearch(query, false);
             }
-        }, 420);
+        }, 300);
     });
 
     changeUserButton.addEventListener('click', function () {
@@ -1648,7 +1712,17 @@
 
         if (!embedPanel.hidden && currentChannel) {
             embedCode.value = buildEmbedCode(currentChannel);
+            embedUrl.value = buildEmbedUrl(currentChannel);
         }
+    });
+
+    advancedToggle.addEventListener('click', function () {
+        var opening = advancedCard.hidden;
+
+        advancedCard.hidden = !opening;
+        extras.classList.toggle('is-basic', !opening);
+        advancedToggle.classList.toggle('is-active', opening);
+        advancedToggle.setAttribute('aria-pressed', opening ? 'true' : 'false');
     });
 
     compareSearchButton.addEventListener('click', searchCompareChannel);
@@ -1660,28 +1734,38 @@
         }
     });
 
-    embedCopy.addEventListener('click', function () {
-        if (!embedCode.value) {
+    function copyField(field, button) {
+        if (!field || !field.value) {
             return;
         }
 
+        function markCopied() {
+            button.textContent = 'Copied';
+            window.setTimeout(function () {
+                button.textContent = 'Copy';
+            }, 1200);
+        }
+
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(embedCode.value)
-                .then(function () {
-                    embedCopy.textContent = 'Copied';
-                    window.setTimeout(function () {
-                        embedCopy.textContent = 'Copy';
-                    }, 1200);
-                })
+            navigator.clipboard.writeText(field.value)
+                .then(markCopied)
                 .catch(function () {
-                    embedCode.focus();
-                    embedCode.select();
+                    field.focus();
+                    field.select();
                 });
             return;
         }
 
-        embedCode.focus();
-        embedCode.select();
+        field.focus();
+        field.select();
+    }
+
+    embedCopy.addEventListener('click', function () {
+        copyField(embedCode, embedCopy);
+    });
+
+    embedUrlCopy.addEventListener('click', function () {
+        copyField(embedUrl, embedUrlCopy);
     });
 
     document.addEventListener('visibilitychange', function () {
@@ -1694,7 +1778,8 @@
         }
     });
 
-    var initial = new URLSearchParams(location.search).get('channel');
+    var initial = initialChannelId
+        || new URLSearchParams(location.search).get('channel');
 
     if (initial && /^UC[A-Za-z0-9_-]{22}$/.test(initial)) {
         resetSessionMetrics();
