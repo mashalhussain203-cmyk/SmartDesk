@@ -418,15 +418,13 @@
 
 
 
-            <h1>Veilig inloggen met Telegram</h1>
+            <h1>{{ __('Veilig inloggen met Telegram') }}</h1>
 
 
 
             <p class="copy">
 
-                We controleren je Telegram-account veilig en maken daarna
-
-                een korte eenmalige link om terug te gaan naar Mashal Studio.
+                {{ __('We controleren je Telegram-account veilig en maken daarna een korte eenmalige link om terug te gaan naar Mashal Studio.') }}
 
             </p>
 
@@ -446,7 +444,7 @@
 
                 <div class="spinner" aria-hidden="true"></div>
 
-                Telegram-account controleren…
+                {{ __('Telegram-account controleren…') }}
 
             </div>
 
@@ -470,7 +468,7 @@
 
 
 
-                Doorgaan naar Mashal Studio
+                {{ __('Doorgaan naar Mashal Studio') }}
 
             </button>
 
@@ -478,9 +476,7 @@
 
             <p class="fine">
 
-                Deze pagina gebruikt alleen de door Telegram ondertekende
-
-                Mini App-logininformatie. Je bot-token blijft uitsluitend op de server.
+                {{ __('Deze pagina gebruikt alleen de door Telegram ondertekende Mini App-logininformatie. Je bot-token blijft uitsluitend op de server.') }}
 
             </p>
 
