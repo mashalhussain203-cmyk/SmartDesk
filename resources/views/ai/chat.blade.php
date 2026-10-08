@@ -2979,10 +2979,10 @@
         <div class="workspace-panel" id="workspace-panel">
             <div class="workspace-panel-title">{{ __('Workspace') }}</div>
             <div class="workspace-row">
-                <select id="workspace-project-select" class="workspace-select" aria-label="Project">
+                <select id="workspace-project-select" class="workspace-select" aria-label="{{ __('Project') }}">
                     <option value="">{{ __('Geen project') }}</option>
                 </select>
-                <button type="button" class="workspace-action primary" id="workspace-project-add" title="Nieuw project">+</button>
+                <button type="button" class="workspace-action primary" id="workspace-project-add" title="{{ __('Nieuw project') }}">+</button>
             </div>
             <div class="workspace-row">
                 <button type="button" class="workspace-action" id="workspace-project-files">{{ __('📚 Bestanden') }}</button>
@@ -3039,7 +3039,7 @@
                     class="chat-topbar-button chat-sidebar-toggle"
                     id="chat-sidebar-toggle"
                     aria-label="Open chats"
-                    title="Chats"
+                    title="{{ __('Chats') }}"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -3063,7 +3063,7 @@
                         id="chat-network-pill"
                         aria-live="polite"
                     >
-                        Online
+                        {{ __('Online') }}
                     </span>
                 </div>
             </div>
@@ -3073,8 +3073,8 @@
                     type="button"
                     class="chat-topbar-button"
                     data-new-chat
-                    aria-label="Nieuwe chat"
-                    title="Nieuwe chat"
+                    aria-label="{{ __('Nieuwe chat') }}"
+                    title="{{ __('Nieuwe chat') }}"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path d="M12 5v14M5 12h14"/>
