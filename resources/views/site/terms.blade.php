@@ -253,16 +253,15 @@
             </p>
 
             <p>
-                De meest actuele versie van deze voorwaarden wordt altijd op deze pagina gepubliceerd.
+                {{ __('De meest actuele versie van deze voorwaarden wordt altijd op deze pagina gepubliceerd.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>11. Contact</h2>
+            <h2>{{ __('11. Contact') }}</h2>
 
             <p>
-                Heb je vragen over deze gebruiksvoorwaarden of over Mashal Studio?
-                Neem dan contact met ons op via onze
+                {{ __('Heb je vragen over deze gebruiksvoorwaarden of over Mashal Studio? Neem dan contact met ons op via onze') }}
                 <a class="legal-link" href="{{ route('contact') }}">
                     {{ __('contactpagina') }}
                 </a>.
@@ -270,7 +269,7 @@
         </section>
 
         <p class="legal-meta">
-            Laatst bijgewerkt: 26 september 2026.
+            {{ __('Laatst bijgewerkt: 26 september 2026.') }}
         </p>
 
     </div>
