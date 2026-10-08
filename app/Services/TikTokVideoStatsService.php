@@ -107,69 +107,6 @@ class TikTokVideoStatsService
      * Its own JavaScript performs the provider request; we only capture the
      * successful public search response and normalize it for our UI.
      */
-    public function prewarmLiveFollowerSearchBrowser(): void
-    {
-        try {
-            $probe = Http::connectTimeout(0.08)
-                ->timeout(0.15)
-                ->get('http://127.0.0.1:9223/json/version');
-
-            if ($probe->successful()) {
-                return;
-            }
-        } catch (Throwable $ignored) {
-            // Start a local Chromium instance below.
-        }
-
-        $lockKey = 'tiktok-live-follower:chromium-prewarm:v1';
-
-        if (!Cache::add($lockKey, true, now()->addSeconds(20))) {
-            return;
-        }
-
-        try {
-            $chromium = env('CHROMIUM_PATH');
-
-            if (!is_string($chromium) || $chromium === '' || !is_file($chromium)) {
-                foreach ([
-                    '/usr/bin/chromium',
-                    '/usr/bin/chromium-browser',
-                    '/usr/bin/google-chrome',
-                ] as $candidate) {
-                    if (is_file($candidate)) {
-                        $chromium = $candidate;
-                        break;
-                    }
-                }
-            }
-
-            if (!is_string($chromium) || $chromium === '' || !is_file($chromium)) {
-                Cache::forget($lockKey);
-                return;
-            }
-
-            $command = sprintf(
-                'nohup %s '
-                .'--headless=new --no-sandbox --disable-dev-shm-usage '
-                .'--disable-gpu --disable-extensions --mute-audio '
-                .'--remote-debugging-address=127.0.0.1 '
-                .'--remote-debugging-port=9223 '
-                .'--user-data-dir=/tmp/livecounts-follower-search-profile '
-                .'%s >/tmp/livecounts-follower-chromium.log 2>&1 </dev/null &',
-                escapeshellarg($chromium),
-                escapeshellarg(
-                    'https://livecounts.io/tiktok-live-follower-counter'
-                )
-            );
-
-            $process = new Process(['/bin/sh', '-lc', $command]);
-            $process->setTimeout(1.5);
-            $process->run();
-        } catch (Throwable $ignored) {
-            Cache::forget($lockKey);
-        }
-    }
-
     public function searchLiveFollowerUsers(string $query): array
     {
         $query = trim(ltrim($query, '@'));
