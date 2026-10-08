@@ -20,7 +20,7 @@
     >
 
     <title>
-        Je Mashal-wachtwoord is gewijzigd
+        {{ __('Je Mashal-wachtwoord is gewijzigd') }}
     </title>
 </head>
 
@@ -203,7 +203,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Security confirmed
+                                                    {{ __('Security confirmed') }}
                                                 </span>
 
                                             </td>
@@ -276,7 +276,7 @@
                                 text-align: center;
                             "
                         >
-                            Account security update
+                            {{ __('Account security update') }}
                         </div>
 
 
@@ -291,7 +291,7 @@
                                 text-align: center;
                             "
                         >
-                            Je wachtwoord is gewijzigd
+                            {{ __('Je wachtwoord is gewijzigd') }}
                         </h1>
 
 
@@ -305,8 +305,7 @@
                                 text-align: center;
                             "
                         >
-                            Het wachtwoord van je Mashal-account
-                            is succesvol aangepast.
+                            {{ __('Het wachtwoord van je Mashal-account is succesvol aangepast.') }}
                         </p>
 
                     </td>
@@ -332,7 +331,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $user->name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
 
@@ -344,9 +343,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Deze e-mail bevestigt dat het wachtwoord
-                            van je Mashal-account zojuist is gewijzigd.
-                            Je nieuwe wachtwoord is direct actief.
+                            {{ __('Deze e-mail bevestigt dat het wachtwoord van je Mashal-account zojuist is gewijzigd. Je nieuwe wachtwoord is direct actief.') }}
                         </p>
 
                     </td>
@@ -423,7 +420,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Wachtwoord succesvol bijgewerkt
+                                        {{ __('Wachtwoord succesvol bijgewerkt') }}
                                     </div>
 
                                     <div
@@ -433,8 +430,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Vanaf nu kun je alleen nog
-                                        met je nieuwe wachtwoord inloggen.
+                                        {{ __('Vanaf nu kun je alleen nog met je nieuwe wachtwoord inloggen.') }}
                                     </div>
 
                                 </td>
@@ -466,7 +462,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat betekent dit?
+                            {{ __('Wat betekent dit?') }}
                         </div>
 
 
@@ -517,7 +513,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Je oude wachtwoord kan niet meer worden gebruikt.
+                                    {{ __('Je oude wachtwoord kan niet meer worden gebruikt.') }}
                                 </td>
                             </tr>
 
@@ -557,8 +553,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Gebruik voortaan alleen je nieuwe wachtwoord
-                                    om toegang te krijgen tot je Mashal-account.
+                                    {{ __('Gebruik voortaan alleen je nieuwe wachtwoord om toegang te krijgen tot je Mashal-account.') }}
                                 </td>
                             </tr>
 
@@ -598,8 +593,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Heb je deze wijziging zelf uitgevoerd?
-                                    Dan hoef je verder niets te doen.
+                                    {{ __('Heb je deze wijziging zelf uitgevoerd? Dan hoef je verder niets te doen.') }}
                                 </td>
                             </tr>
 
@@ -629,7 +623,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Accountgegevens
+                            {{ __('Accountgegevens') }}
                         </div>
 
 
@@ -668,7 +662,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -742,7 +736,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Wijziging uitgevoerd
+                                        {{ __('Wijziging uitgevoerd') }}
                                     </div>
 
                                     <div
@@ -837,7 +831,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Heb jij je wachtwoord niet gewijzigd?
+                                        {{ __('Heb jij je wachtwoord niet gewijzigd?') }}
                                     </div>
 
                                     <div
@@ -847,9 +841,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Dan kan iemand anders toegang hebben gehad
-                                        tot je account. Beveilig je account dan direct
-                                        en controleer je accountgegevens.
+                                        {{ __('Dan kan iemand anders toegang hebben gehad tot je account. Beveilig je account dan direct en controleer je accountgegevens.') }}
                                     </div>
 
                                 </td>
@@ -881,7 +873,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Als jij dit niet was
+                            {{ __('Als jij dit niet was') }}
                         </div>
 
 
@@ -932,7 +924,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of je nog toegang hebt tot je Mashal-account.
+                                    {{ __('Controleer of je nog toegang hebt tot je Mashal-account.') }}
                                 </td>
                             </tr>
 
@@ -972,8 +964,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Stel opnieuw een sterk en uniek wachtwoord in
-                                    dat je nergens anders gebruikt.
+                                    {{ __('Stel opnieuw een sterk en uniek wachtwoord in dat je nergens anders gebruikt.') }}
                                 </td>
                             </tr>
 
@@ -1013,8 +1004,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of naam en e-mailadres in je account
-                                    nog correct zijn en neem zo nodig contact op met Mashal.
+                                    {{ __('Controleer of naam en e-mailadres in je account nog correct zijn en neem zo nodig contact op met Mashal.') }}
                                 </td>
                             </tr>
 
@@ -1094,7 +1084,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Veilig wachtwoordgebruik
+                                        {{ __('Veilig wachtwoordgebruik') }}
                                     </div>
 
                                     <div
@@ -1104,9 +1094,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Gebruik een uniek wachtwoord en deel het nooit.
-                                        Mashal vraagt je nooit per e-mail, chat of telefoon
-                                        om je wachtwoord door te geven.
+                                        {{ __('Gebruik een uniek wachtwoord en deel het nooit. Mashal vraagt je nooit per e-mail, chat of telefoon om je wachtwoord door te geven.') }}
                                     </div>
 
                                 </td>
@@ -1137,8 +1125,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Als je deze wijziging zelf hebt uitgevoerd,
-                            hoef je verder niets te doen.
+                            {{ __('Als je deze wijziging zelf hebt uitgevoerd, hoef je verder niets te doen.') }}
                         </p>
 
 
@@ -1158,7 +1145,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -1189,9 +1176,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            als beveiligingsmelding na een wachtwoordwijziging
-                            op je Mashal-account.
+                            {{ __('Deze e-mail is automatisch verzonden als beveiligingsmelding na een wachtwoordwijziging op je Mashal-account.') }}
                         </div>
 
 
@@ -1226,9 +1211,7 @@
                     text-align: center;
                 "
             >
-                Beveiligingsmail van Mashal Automotive.
-                Bewaar je wachtwoord altijd privé en gebruik voor ieder account
-                bij voorkeur een uniek wachtwoord.
+                {{ __('Beveiligingsmail van Mashal Automotive. Bewaar je wachtwoord altijd privé en gebruik voor ieder account bij voorkeur een uniek wachtwoord.') }}
             </div>
 
         </td>
