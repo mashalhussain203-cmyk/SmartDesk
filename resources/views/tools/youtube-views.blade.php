@@ -305,7 +305,7 @@
 @endpush
 
 @section('content')
-<section class="ytv-page" data-ui-build="20261008-youtube-live-view-v1">
+<section class="ytv-page" data-ui-build="20261008-youtube-direct-url-v2">
     <div class="ytv-shell">
         <a class="ytv-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
 
@@ -884,6 +884,21 @@
         }).catch(function () {});
     }
 
+    function directVideoId(query) {
+        var value = String(query || '').trim();
+        var match;
+
+        if (/^[A-Za-z0-9_-]{11}$/.test(value)) {
+            return value;
+        }
+
+        match = value.match(
+            /(?:youtu\.be\/|youtube\.com\/(?:watch\?[^#]*v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/i
+        );
+
+        return match ? match[1] : null;
+    }
+
     form.addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -896,7 +911,23 @@
 
         searchVideos(query, results, openVideo)
             .then(function (videos) {
-                setMessage(videos.length ? 'Kies de juiste video.' : 'Geen video’s gevonden.');
+                var exactId = directVideoId(query);
+
+                if (
+                    exactId
+                    && videos.length
+                    && videos[0]
+                    && videos[0].id === exactId
+                ) {
+                    openVideo(videos[0]);
+                    return;
+                }
+
+                setMessage(
+                    videos.length
+                        ? 'Kies de juiste video.'
+                        : 'Geen video’s gevonden.'
+                );
             })
             .catch(function () {
                 setMessage('Video’s konden niet worden geladen.');
