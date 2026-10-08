@@ -1775,7 +1775,7 @@
                             {{ __('Kies je inlogmethode en open veilig je persoonlijke Mashal Studio-workspace.') }}
                         </p>
 
-                        <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
+                        <nav class="glass-auth-switch" aria-label="{{ __('Inloggen of registreren') }}">
                             <a class="active" href="{{ route('login') }}" aria-current="page">
                                 {{ __('Inloggen') }}
                             </a>
@@ -1821,7 +1821,7 @@
 
                         @include('partials.passkeys', ['passkeyMode' => 'login'])
 
-                        <div class="login-tabs" role="tablist" aria-label="Inlogmethode kiezen">
+                        <div class="login-tabs" role="tablist" aria-label="{{ __('Inlogmethode kiezen') }}">
                             <button
                                 class="login-tab active"
                                 type="button"
@@ -1901,7 +1901,7 @@
                                             id="password"
                                             type="password"
                                             name="password"
-                                            placeholder="Vul je wachtwoord in"
+                                            placeholder="{{ __('Vul je wachtwoord in') }}"
                                             autocomplete="current-password"
                                             required
                                         >
@@ -1910,7 +1910,7 @@
                                             class="glass-password-toggle"
                                             type="button"
                                             data-toggle-password="password"
-                                            aria-label="Wachtwoord tonen of verbergen"
+                                            aria-label="{{ __('Wachtwoord tonen of verbergen') }}"
                                         >
                                             {{ __('Tonen') }}
                                         </button>
@@ -1931,7 +1931,7 @@
 
                                     <div
                                         class="login-recovery-links"
-                                        aria-label="Account herstellen"
+                                        aria-label="{{ __('Account herstellen') }}"
                                     >
                                         <a
                                             class="glass-small-link"
@@ -2050,7 +2050,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('google.redirect') }}"
-                                    aria-label="Doorgaan met Google"
+                                    aria-label="{{ __('Doorgaan met Google') }}"
                                 >
                                     <span class="login-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2070,7 +2070,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('github.redirect') }}"
-                                    aria-label="Doorgaan met GitHub"
+                                    aria-label="{{ __('Doorgaan met GitHub') }}"
                                 >
                                     <span class="login-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2087,7 +2087,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('facebook.redirect') }}"
-                                    aria-label="Doorgaan met Facebook"
+                                    aria-label="{{ __('Doorgaan met Facebook') }}"
                                 >
                                     <span class="login-oauth-icon" style="color:#1877f2">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2104,7 +2104,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('tiktok.redirect') }}"
-                                    aria-label="Doorgaan met TikTok"
+                                    aria-label="{{ __('Doorgaan met TikTok') }}"
                                 >
                                     <span class="login-oauth-icon">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2122,7 +2122,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('linkedin.redirect') }}"
-                                    aria-label="Doorgaan met LinkedIn"
+                                    aria-label="{{ __('Doorgaan met LinkedIn') }}"
                                 >
                                     <span class="login-oauth-icon" aria-hidden="true">
                                         <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
@@ -2137,7 +2137,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('x.redirect') }}"
-                                    aria-label="Doorgaan met X"
+                                    aria-label="{{ __('Doorgaan met X') }}"
                                 >
                                     <span class="login-oauth-icon" aria-hidden="true">
                                         <svg viewBox="0 0 24 24">
@@ -2158,7 +2158,7 @@
                                     class="login-oauth"
                                     data-login-security-oauth data-auth-transition-link
                                     href="{{ route('auth.microsoft.redirect') }}"
-                                    aria-label="Doorgaan met Microsoft"
+                                    aria-label="{{ __('Doorgaan met Microsoft') }}"
                                 >
                                     <span class="login-oauth-icon" aria-hidden="true">
                                         <svg viewBox="0 0 24 24">
@@ -2196,7 +2196,7 @@
                                         data-telegram-mini-app
                                         data-telegram-bot="{{ $telegramBotUsername }}"
                                         href="{{ $telegramMiniAppUrl }}"
-                                        aria-label="Doorgaan met Telegram"
+                                        aria-label="{{ __('Doorgaan met Telegram') }}"
                                     >
                                         <span
                                             class="login-telegram-logo-shell"
@@ -2272,7 +2272,7 @@
         </div>
 
         <div class="glass-footer">
-            Mashal Studio · Secure account access
+            {{ __('Mashal Studio · Secure account access') }}
         </div>
     </main>
 </section>
