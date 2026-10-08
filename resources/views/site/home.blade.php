@@ -3088,7 +3088,7 @@ document.addEventListener('DOMContentLoaded', function () {
             clearSelection();
 
             showClientError(
-                'Gebruik alleen een JPG, PNG of WEBP-afbeelding.'
+                @json(__('Gebruik alleen een JPG, PNG of WEBP-afbeelding.'))
             );
 
             return;
@@ -3101,7 +3101,7 @@ document.addEventListener('DOMContentLoaded', function () {
             clearSelection();
 
             showClientError(
-                'Deze afbeelding is groter dan 20 MB.'
+                @json(__('Deze afbeelding is groter dan 20 MB.'))
             );
 
             return;
@@ -3290,7 +3290,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 !input.files.length
             ) {
                 showClientError(
-                    'Drag & drop wordt in deze browser niet volledig ondersteund. Kies het bestand via de knop.'
+                    @json(__('Drag & drop wordt in deze browser niet volledig ondersteund. Kies het bestand via de knop.'))
                 );
 
                 return;
@@ -3312,7 +3312,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 event.preventDefault();
 
                 showClientError(
-                    'Kies eerst een afbeelding.'
+                    @json(__('Kies eerst een afbeelding.'))
                 );
 
                 openFilePicker();
