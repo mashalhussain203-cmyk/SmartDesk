@@ -1832,7 +1832,7 @@
 
                             {{ __('Account') }}
 
-                            <strong>gevonden</strong>
+                            <strong>{{ __('gevonden') }}</strong>
 
                         </h2>
 
@@ -1840,11 +1840,7 @@
 
                         <p class="forgot-result-description">
 
-                            Je herstelcode is succesvol gecontroleerd.
-
-                            Hieronder staat het e-mailadres dat bij je
-
-                            Mashal Studio-account hoort.
+                            {{ __('Je herstelcode is succesvol gecontroleerd. Hieronder staat het e-mailadres dat bij je Mashal Studio-account hoort.') }}
 
                         </p>
 
@@ -1872,7 +1868,7 @@
 
                             <p class="forgot-result-account-label">
 
-                                Teruggevonden account
+                                {{ __('Teruggevonden account') }}
 
                             </p>
 
@@ -1914,7 +1910,7 @@
 
                             >
 
-                                E-mailadres kopiëren
+                                {{ __('E-mailadres kopiëren') }}
 
                             </button>
 
@@ -1930,7 +1926,7 @@
 
                         >
 
-                            Inloggen met dit account →
+                            {{ __('Inloggen met dit account →') }}
 
                         </a>
 
@@ -1960,7 +1956,7 @@
 
                             >
 
-                                Ander account zoeken
+                                {{ __('Ander account zoeken') }}
 
                             </a>
 
@@ -1970,11 +1966,7 @@
 
                         <p class="forgot-result-note">
 
-                            Deze recovery-uitkomst is tijdelijk beschikbaar.
-
-                            Sluit deze pagina wanneer je klaar bent op een
-
-                            gedeeld apparaat.
+                            {{ __('Deze recovery-uitkomst is tijdelijk beschikbaar. Sluit deze pagina wanneer je klaar bent op een gedeeld apparaat.') }}
 
                         </p>
 
