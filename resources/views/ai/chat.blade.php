@@ -3534,22 +3534,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function aiModeStatusCopy(mode) {
         return {
-            auto: 'Auto: internet en berekeningen wanneer nodig.',
-            web: 'Internetmodus: webzoekopdracht wordt gebruikt.',
-            research: 'Researchmodus: uitgebreid zoeken met bronnen.',
-            code: 'Codemodus: Python-berekening/controle wordt gebruikt.',
-            plain: 'Alleen chat: externe tools uitgeschakeld.',
-        }[mode] || 'Auto-modus actief.';
+            auto: @json(__('Auto: internet en berekeningen wanneer nodig.')),
+            web: @json(__('Internetmodus: webzoekopdracht wordt gebruikt.')),
+            research: @json(__('Researchmodus: uitgebreid zoeken met bronnen.')),
+            code: @json(__('Codemodus: Python-berekening/controle wordt gebruikt.')),
+            plain: @json(__('Alleen chat: externe tools uitgeschakeld.')),
+        }[mode] || @json(__('Auto-modus actief.'));
     }
 
     function aiModeLoadingCopy(mode) {
         return {
-            auto: 'Mashal AI denkt…',
-            web: 'Mashal AI zoekt op internet…',
-            research: 'Mashal AI doet onderzoek…',
-            code: 'Mashal AI rekent en controleert…',
-            plain: 'Mashal AI denkt…',
-        }[mode] || 'Mashal AI denkt…';
+            auto: @json(__('Mashal AI denkt…')),
+            web: @json(__('Mashal AI zoekt op internet…')),
+            research: @json(__('Mashal AI doet onderzoek…')),
+            code: @json(__('Mashal AI rekent en controleert…')),
+            plain: @json(__('Mashal AI denkt…')),
+        }[mode] || @json(__('Mashal AI denkt…'));
     }
 
     let conversations = loadConversations();
@@ -3745,7 +3745,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         setMobileStatus(
-            'Template geladen: '
+            @json(__('Template geladen: '))
             + String(
                 template.title
                 || slug
@@ -3839,7 +3839,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !payload.ok) {
                 throw new Error(
                     payload.message
-                    || 'Workspace kon niet worden geladen.'
+                    || @json(__('Workspace kon niet worden geladen.'))
                 );
             }
 
@@ -3869,11 +3869,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             setWorkspaceStatus(
-                'Gesynchroniseerd · chats, projecten en bestanden zijn accountgebonden.'
+                @json(__('Gesynchroniseerd · chats, projecten en bestanden zijn accountgebonden.'))
             );
         } catch (error) {
             setWorkspaceStatus(
-                'Lokale modus · server-sync tijdelijk niet beschikbaar.'
+                @json(__('Lokale modus · server-sync tijdelijk niet beschikbaar.'))
             );
         }
     }
@@ -3894,8 +3894,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 saveConversations();
                 setWorkspaceStatus(
                     chat.projectId
-                        ? 'Project gekoppeld aan deze chat.'
-                        : 'Deze chat staat buiten een project.'
+                        ? @json(__('Project gekoppeld aan deze chat.'))
+                        : @json(__('Deze chat staat buiten een project.'))
                 );
 
                 refreshWorkspaceProjectFiles();
@@ -3938,7 +3938,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!projectId) {
                     setError(
-                        'Kies eerst een project om dit bestand permanent op te slaan.'
+                        @json(__('Kies eerst een project om dit bestand permanent op te slaan.'))
                     );
 
                     return;
@@ -4175,7 +4175,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!ensureWorkspaceChatUuid(chat)) {
             setWorkspaceStatus(
-                'Deze chat heeft geen geldige UUID en kan niet worden gesynchroniseerd.'
+                @json(__('Deze chat heeft geen geldige UUID en kan niet worden gesynchroniseerd.'))
             );
 
             return null;
@@ -4250,7 +4250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function createWorkspaceProject() {
         const name = window.prompt(
-            'Naam van het nieuwe project:'
+            @json(__('Naam van het nieuwe project:'))
         );
 
         if (!name?.trim()) {
@@ -4258,7 +4258,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const instructions = window.prompt(
-            'Optionele projectinstructies voor Mashal AI:',
+            @json(__('Optionele projectinstructies voor Mashal AI:')),
             ''
         );
 
@@ -4285,7 +4285,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !payload.ok) {
                 throw new Error(
                     payload.message
-                    || 'Project kon niet worden gemaakt.'
+                    || @json(__('Project kon niet worden gemaakt.'))
                 );
             }
 
@@ -4300,12 +4300,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             renderWorkspaceProjects();
             setWorkspaceStatus(
-                'Project gemaakt en aan deze chat gekoppeld.'
+                @json(__('Project gemaakt en aan deze chat gekoppeld.'))
             );
         } catch (error) {
             setError(
                 error?.message
-                || 'Project kon niet worden gemaakt.'
+                || @json(__('Project kon niet worden gemaakt.'))
             );
         }
     }
@@ -4323,7 +4323,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const empty = document.createElement('div');
             empty.className = 'workspace-status';
             empty.textContent =
-                'Kies een project om permanente bestanden te beheren.';
+                @json(__('Kies een project om permanente bestanden te beheren.'));
             workspaceFilePanel.appendChild(empty);
             return;
         }
@@ -4363,7 +4363,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!documents.length) {
                 const empty = document.createElement('div');
                 empty.className = 'workspace-status';
-                empty.textContent = 'Nog geen projectbestanden.';
+                empty.textContent = @json(__('Nog geen projectbestanden.'));
                 workspaceFilePanel.appendChild(empty);
                 return;
             }
@@ -4381,14 +4381,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     remove.type = 'button';
                     remove.className = 'workspace-file-delete';
                     remove.textContent = '✕';
-                    remove.title = 'Verwijder bestand';
+                    remove.title = @json(__('Verwijder bestand'));
 
                     remove.addEventListener(
                         'click',
                         async function () {
                             if (
                                 !window.confirm(
-                                    'Dit projectbestand verwijderen?'
+                                    @json(__('Dit projectbestand verwijderen?'))
                                 )
                             ) {
                                 return;
@@ -4410,19 +4410,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const status = document.createElement('div');
             status.className = 'workspace-status';
             status.textContent =
-                'Bestanden konden nu niet worden geladen.';
+                @json(__('Bestanden konden nu niet worden geladen.'));
             workspaceFilePanel.appendChild(status);
         }
     }
 
     async function uploadWorkspaceProjectFile(projectId, file) {
         if (file.size > maxFileBytes) {
-            setError('Dit bestand is te groot.');
+            setError(@json(__('Dit bestand is te groot.')));
             return;
         }
 
         setWorkspaceStatus(
-            'Projectbestand wordt gelezen en opgeslagen…'
+            @json(__('Projectbestand wordt gelezen en opgeslagen…'))
         );
 
         const data = new FormData();
@@ -4448,19 +4448,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !payload.ok) {
                 throw new Error(
                     payload.message
-                    || 'Bestand kon niet worden opgeslagen.'
+                    || @json(__('Bestand kon niet worden opgeslagen.'))
                 );
             }
 
             setWorkspaceStatus(
-                'Projectbestand opgeslagen. Mashal AI kan het later opnieuw gebruiken.'
+                @json(__('Projectbestand opgeslagen. Mashal AI kan het later opnieuw gebruiken.'))
             );
 
             refreshWorkspaceProjectFiles();
         } catch (error) {
             setError(
                 error?.message
-                || 'Bestand kon niet worden opgeslagen.'
+                || @json(__('Bestand kon niet worden opgeslagen.'))
             );
         }
     }
@@ -4487,7 +4487,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function createWorkspaceMemory() {
         const content = window.prompt(
-            'Wat moet Mashal AI voor jou onthouden?'
+            @json(__('Wat moet Mashal AI voor jou onthouden?'))
         );
 
         if (!content?.trim()) {
@@ -4523,19 +4523,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !payload.ok) {
                 throw new Error(
                     payload.message
-                    || 'Geheugen kon niet worden opgeslagen.'
+                    || @json(__('Geheugen kon niet worden opgeslagen.'))
                 );
             }
 
             workspaceMemories.unshift(payload.memory);
 
             setWorkspaceStatus(
-                'Geheugen opgeslagen. Het wordt alleen gebruikt wanneer relevant.'
+                @json(__('Geheugen opgeslagen. Het wordt alleen gebruikt wanneer relevant.'))
             );
         } catch (error) {
             setError(
                 error?.message
-                || 'Geheugen kon niet worden opgeslagen.'
+                || @json(__('Geheugen kon niet worden opgeslagen.'))
             );
         }
     }
@@ -4549,7 +4549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             setWorkspaceStatus(
-                'Chat wordt eerst gesynchroniseerd…'
+                @json(__('Chat wordt eerst gesynchroniseerd…'))
             );
 
             const syncResult =
@@ -4557,7 +4557,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!syncResult?.ok) {
                 throw new Error(
-                    'De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'
+                    @json(__('De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'))
                 );
             }
 
@@ -4582,7 +4582,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !payload.ok) {
                 throw new Error(
                     payload.message
-                    || 'Deellink kon niet worden gemaakt.'
+                    || @json(__('Deellink kon niet worden gemaakt.'))
                 );
             }
 
@@ -4590,18 +4590,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (copied) {
                 setWorkspaceStatus(
-                    'Deellink gekopieerd naar klembord.'
+                    @json(__('Deellink gekopieerd naar klembord.'))
                 );
             } else {
                 window.prompt(
-                    'Kopieer deze deellink:',
+                    @json(__('Kopieer deze deellink:')),
                     payload.url
                 );
             }
         } catch (error) {
             setError(
                 error?.message
-                || 'Deellink kon niet worden gemaakt.'
+                || @json(__('Deellink kon niet worden gemaakt.'))
             );
         }
     }
@@ -4615,7 +4615,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             setWorkspaceStatus(
-                'Chat wordt gesynchroniseerd voor export…'
+                @json(__('Chat wordt gesynchroniseerd voor export…'))
             );
 
             const syncResult =
@@ -4623,18 +4623,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!syncResult?.ok) {
                 throw new Error(
-                    'De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'
+                    @json(__('De chat kon niet met de server worden gesynchroniseerd. Probeer opnieuw.'))
                 );
             }
 
             if (!workspaceChatHasValidUuid(chat)) {
                 throw new Error(
-                    'De chat heeft geen geldige export-ID.'
+                    @json(__('De chat heeft geen geldige export-ID.'))
                 );
             }
 
             setWorkspaceStatus(
-                'Export wordt voorbereid…'
+                @json(__('Export wordt voorbereid…'))
             );
 
             window.location.assign(
@@ -4645,11 +4645,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             setError(
                 error?.message
-                || 'De chat kon niet worden geëxporteerd.'
+                || @json(__('De chat kon niet worden geëxporteerd.'))
             );
 
             setWorkspaceStatus(
-                'Export mislukt. Controleer de verbinding en probeer opnieuw.'
+                @json(__('Export mislukt. Controleer de verbinding en probeer opnieuw.'))
             );
         }
     }
@@ -5050,8 +5050,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             empty.textContent =
                 search
-                    ? 'Geen chats gevonden.'
-                    : 'Nog geen chats.';
+                    ? @json(__('Geen chats gevonden.'))
+                    : @json(__('Nog geen chats.'));
 
             chatList.appendChild(
                 empty
@@ -5170,7 +5170,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || voicePending
         ) {
             setError(
-                'Wacht tot het huidige antwoord klaar is voordat je van chat wisselt.'
+                @json(__('Wacht tot het huidige antwoord klaar is voordat je van chat wisselt.'))
             );
 
             return;
@@ -5217,7 +5217,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || voicePending
         ) {
             setError(
-                'Wacht tot het huidige antwoord klaar is voordat je een nieuwe chat opent.'
+                @json(__('Wacht tot het huidige antwoord klaar is voordat je een nieuwe chat opent.'))
             );
 
             return;
@@ -5282,7 +5282,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const confirmed =
             window.confirm(
-                'Deze chat verwijderen?'
+                @json(__('Deze chat verwijderen?'))
             );
 
         if (!confirmed) {
@@ -5670,7 +5670,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 source.analysis
                                     ? 'Analyse: '
                                         + source.analysis
-                                    : 'Gebruikt als projectcontext.'
+                                    : @json(__('Gebruikt als projectcontext.'))
                             );
 
                         card.append(
@@ -5824,8 +5824,8 @@ document.addEventListener('DOMContentLoaded', function () {
         copy.setAttribute(
             'aria-label',
             role === 'assistant'
-                ? 'Kopieer antwoord'
-                : 'Kopieer bericht'
+                ? @json(__('Kopieer antwoord'))
+                : @json(__('Kopieer bericht'))
         );
 
         copy.addEventListener(
@@ -5838,7 +5838,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!ok) {
                     setMobileStatus(
-                        'Kopiëren lukte niet.',
+                        @json(__('Kopiëren lukte niet.')),
                         1800
                     );
                     return;
@@ -6606,7 +6606,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 && selectedFiles.length === 0
             ) {
                 setError(
-                    'Typ een bericht of voeg een bestand toe.'
+                    @json(__('Typ een bericht of voeg een bestand toe.'))
                 );
 
                 return;
@@ -6619,7 +6619,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const visibleUserText =
                 text
-                || 'Analyseer de toegevoegde bestanden.';
+                || @json(__('Analyseer de toegevoegde bestanden.'));
 
             const visibleFileNames =
                 selectedFiles
@@ -6740,7 +6740,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok || !payload.ok) {
                     throw new Error(
                         payload.message
-                        || 'Mashal AI kon geen antwoord ophalen.'
+                        || @json(__('Mashal AI kon geen antwoord ophalen.'))
                     );
                 }
 
@@ -6752,7 +6752,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     pushHistory(
                         'user',
-                        'Ik heb bestanden of afbeeldingen toegevoegd. Lees en analyseer ze.'
+                        @json(__('Ik heb bestanden of afbeeldingen toegevoegd. Lees en analyseer ze.'))
                     );
                 }
 
@@ -6782,13 +6782,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (error?.name === 'AbortError') {
                     setMobileStatus(
-                        'Genereren gestopt.',
+                        @json(__('Genereren gestopt.')),
                         1500
                     );
                 } else {
                     setError(
                         error?.message
-                        || 'Er ging iets mis.'
+                        || @json(__('Er ging iets mis.'))
                     );
                 }
             } finally {
@@ -6848,7 +6848,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 >= maxFiles
             ) {
                 setError(
-                    'Je kunt maximaal '
+                    @json(__('Je kunt maximaal '))
                     + maxFiles
                     + ' bestanden toevoegen.'
                 );
@@ -7323,7 +7323,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 'listeningTitle'
                             ),
                             selectedVoiceLanguage === 'auto'
-                                ? 'Automatische taalherkenning staat aan.'
+                                ? @json(__('Automatische taalherkenning staat aan.'))
                                 : 'Taal: ' + selectedLanguageLabel()
                         );
                     }
@@ -7386,8 +7386,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 setVoiceState(
                     'idle',
-                    'Microfoon gedempt',
-                    'Tik opnieuw op de microfoon om verder te praten.'
+                    @json(__('Microfoon gedempt')),
+                    @json(__('Tik opnieuw op de microfoon om verder te praten.'))
                 );
             } else if (
                 !voicePending
@@ -7396,7 +7396,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setVoiceState(
                     'listening',
                     'Ik luister…',
-                    'Praat gewoon. Je hoeft niets in te drukken.'
+                    @json(__('Praat gewoon. Je hoeft niets in te drukken.'))
                 );
             }
         }
@@ -7408,7 +7408,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || !voiceConfigured
         ) {
             setError(
-                'Live Voice is nog niet volledig geconfigureerd.'
+                @json(__('Live Voice is nog niet volledig geconfigureerd.'))
             );
 
             return;
@@ -7430,7 +7430,7 @@ document.addEventListener('DOMContentLoaded', function () {
             || typeof MediaRecorder === 'undefined'
         ) {
             setError(
-                'Deze browser ondersteunt de benodigde microfoonfuncties niet.'
+                @json(__('Deze browser ondersteunt de benodigde microfoonfuncties niet.'))
             );
 
             return;
@@ -7474,7 +7474,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'listeningTitle'
                 ),
                 selectedVoiceLanguage === 'auto'
-                    ? 'Praat Nederlands, English of اردو. Taal wordt automatisch herkend.'
+                    ? @json(__('Praat Nederlands, English of اردو. Taal wordt automatisch herkend.'))
                     : 'Taal: ' + selectedLanguageLabel()
             );
 
@@ -7483,7 +7483,7 @@ document.addEventListener('DOMContentLoaded', function () {
             runVadLoop();
         } catch (error) {
             setError(
-                'Microfoontoegang is nodig voor Live Voice.'
+                @json(__('Microfoontoegang is nodig voor Live Voice.'))
             );
 
             cleanupVoiceResources();
@@ -7497,7 +7497,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!Context) {
             throw new Error(
-                'AudioContext wordt niet ondersteund.'
+                @json(__('AudioContext wordt niet ondersteund.'))
             );
         }
 
@@ -7717,7 +7717,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setVoiceState(
                 'listening',
                 'Ik luister…',
-                'Je hebt Mashal AI onderbroken.'
+                @json(__('Je hebt Mashal AI onderbroken.'))
             );
 
             window.setTimeout(
@@ -7776,8 +7776,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             setVoiceState(
                 'error',
-                'Opname kon niet starten',
-                'Probeer Live Voice opnieuw.'
+                @json(__('Opname kon niet starten')),
+                @json(__('Probeer Live Voice opnieuw.'))
             );
 
             return;
@@ -7811,7 +7811,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setVoiceState(
             'recording',
             'Ik hoor je…',
-            'Praat verder. Ik verstuur automatisch zodra je klaar bent.'
+            @json(__('Praat verder. Ik verstuur automatisch zodra je klaar bent.'))
         );
 
         mediaRecorder.start(
@@ -7867,7 +7867,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setVoiceState(
                 'listening',
                 'Ik luister…',
-                'Ik hoorde te weinig. Praat opnieuw.'
+                @json(__('Ik hoorde te weinig. Praat opnieuw.'))
             );
 
             return;
@@ -7890,8 +7890,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setVoiceState(
             'thinking',
-            'Mashal AI denkt…',
-            'Je hoeft niets te klikken.'
+            @json(__('Mashal AI denkt…')),
+            @json(__('Je hoeft niets te klikken.'))
         );
 
         const historyBefore =
@@ -7959,7 +7959,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
                 throw new Error(
                     payload.message
-                    || 'Live Voice kon geen antwoord ophalen.'
+                    || @json(__('Live Voice kon geen antwoord ophalen.'))
                 );
             }
 
@@ -8006,7 +8006,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             setVoiceState(
                 'error',
-                'Er ging iets mis',
+                @json(__('Er ging iets mis')),
                 error?.message
                 || 'Probeer opnieuw.'
             );
@@ -8020,7 +8020,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         setVoiceState(
                             'listening',
                             'Ik luister…',
-                            'Praat opnieuw wanneer je wilt.'
+                            @json(__('Praat opnieuw wanneer je wilt.'))
                         );
                     }
                 },
@@ -8105,15 +8105,15 @@ document.addEventListener('DOMContentLoaded', function () {
             setVoiceState(
                 'error',
                 locale.startsWith('ur')
-                    ? 'Urdu-spraak niet beschikbaar'
-                    : 'Spraak kon niet worden afgespeeld',
+                    ? @json(__('Urdu-spraak niet beschikbaar'))
+                    : @json(__('Spraak kon niet worden afgespeeld')),
                 locale.startsWith('ur')
                     ? (
                         serverTtsConfigured
-                            ? 'De server kon de Urdu-audio niet afspelen. Controleer het mediavolume en probeer opnieuw.'
-                            : 'Configureer Azure Speech voor betrouwbare Urdu-spraak op telefoon en desktop.'
+                            ? @json(__('De server kon de Urdu-audio niet afspelen. Controleer het mediavolume en probeer opnieuw.'))
+                            : @json(__('Configureer Azure Speech voor betrouwbare Urdu-spraak op telefoon en desktop.'))
                     )
-                    : 'Controleer je mediavolume en probeer opnieuw.'
+                    : @json(__('Controleer je mediavolume en probeer opnieuw.'))
             );
 
             return;
@@ -8418,14 +8418,14 @@ document.addEventListener('DOMContentLoaded', function () {
         locale
     ) {
         if (locale.startsWith('ur')) {
-            return 'Urdu server-stem wordt afgespeeld…';
+            return @json(__('Urdu server-stem wordt afgespeeld…'));
         }
 
         if (locale.startsWith('en')) {
-            return 'Server voice is playing…';
+            return @json(__('Server voice is playing…'));
         }
 
-        return 'Serverstem wordt afgespeeld…';
+        return @json(__('Serverstem wordt afgespeeld…'));
     }
 
     function cancelVoicePlayback() {
@@ -8730,28 +8730,28 @@ document.addEventListener('DOMContentLoaded', function () {
         const copy = {
             nl: {
                 speakingTitle:
-                    'Mashal AI spreekt…',
+                    @json(__('Mashal AI spreekt…')),
                 speakingDetail:
-                    'Je kunt Mashal AI onderbreken door zelf te beginnen praten.',
+                    @json(__('Je kunt Mashal AI onderbreken door zelf te beginnen praten.')),
                 listeningTitle:
                     'Ik luister…',
                 listeningDetail:
-                    'Praat gewoon verder.',
+                    @json(__('Praat gewoon verder.')),
                 speechErrorDetail:
-                    'Het antwoord kon niet volledig worden uitgesproken.',
+                    @json(__('Het antwoord kon niet volledig worden uitgesproken.')),
             },
 
             en: {
                 speakingTitle:
-                    'Mashal AI is speaking…',
+                    @json(__('Mashal AI is speaking…')),
                 speakingDetail:
-                    'You can interrupt Mashal AI by speaking.',
+                    @json(__('You can interrupt Mashal AI by speaking.')),
                 listeningTitle:
                     'I’m listening…',
                 listeningDetail:
-                    'Just keep talking.',
+                    @json(__('Just keep talking.')),
                 speechErrorDetail:
-                    'The response could not be spoken completely.',
+                    @json(__('The response could not be spoken completely.')),
             },
 
             ur: {
@@ -9331,12 +9331,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!online) {
             setMobileStatus(
-                'Geen internetverbinding. Bestaande chats blijven zichtbaar.',
+                @json(__('Geen internetverbinding. Bestaande chats blijven zichtbaar.')),
                 0
             );
         } else if (
             mobileStatusText?.textContent
-                .includes('Geen internetverbinding')
+                .includes(@json(__('Geen internetverbinding')))
         ) {
             setMobileStatus('', 0);
         }
@@ -9428,7 +9428,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 addFiles(imageFiles);
                 setMobileStatus(
                     imageFiles.length === 1
-                        ? 'Afbeelding uit klembord toegevoegd.'
+                        ? @json(__('Afbeelding uit klembord toegevoegd.'))
                         : imageFiles.length
                             + ' afbeeldingen uit klembord toegevoegd.',
                     2200
@@ -9794,15 +9794,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isMobileInteractionMode()) {
             voiceDeviceHint.textContent =
                 serverTtsConfigured
-                    ? 'Server-spraak actief. Je kunt de AI onderbreken door te praten.'
-                    : 'Browser-spraak actief. Je kunt de AI onderbreken door te praten.';
+                    ? @json(__('Server-spraak actief. Je kunt de AI onderbreken door te praten.'))
+                    : @json(__('Browser-spraak actief. Je kunt de AI onderbreken door te praten.'));
             return;
         }
 
         voiceDeviceHint.textContent =
             serverTtsConfigured
-                ? 'Telefoonmodus actief · server-audio · microfoon automatisch · praat om te onderbreken.'
-                : 'Telefoonmodus actief · browserstem fallback · houd mediavolume en microfoon aan.';
+                ? @json(__('Telefoonmodus actief · server-audio · microfoon automatisch · praat om te onderbreken.'))
+                : @json(__('Telefoonmodus actief · browserstem fallback · houd mediavolume en microfoon aan.'));
     }
 
     function handleVisibilityChange() {
@@ -9844,7 +9844,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return {
                 ok: false,
                 message:
-                    'De server gaf geen geldig antwoord terug.',
+                    @json(__('De server gaf geen geldig antwoord terug.')),
             };
         }
     }
