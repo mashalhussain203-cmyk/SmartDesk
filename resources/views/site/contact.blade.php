@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal Studio | Contact')
+@section('title', 'Mashal Studio | ' . __('Contact'))
 
 @push('styles')
 <style>
