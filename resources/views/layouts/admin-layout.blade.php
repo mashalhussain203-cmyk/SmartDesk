@@ -3109,7 +3109,7 @@
                                 href="{{ route('admin.dashboard') }}"
                                 data-admin-menu-item
                                 data-search="dashboard overzicht platform home"
-                                title="Dashboard"
+                                title="{{ __('Dashboard') }}"
                             >
                                 <span class="admin-nav-icon">
 
@@ -3192,7 +3192,7 @@
                                 href="{{ route('users.index') }}"
                                 data-admin-menu-item
                                 data-search="gebruikers users accounts rollen leden"
-                                title="Gebruikers beheren"
+                                title="{{ __('Gebruikers beheren') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3259,7 +3259,7 @@
                                 href="{{ route('users.create') }}"
                                 data-admin-menu-item
                                 data-search="nieuwe gebruiker toevoegen account aanmaken"
-                                title="Gebruiker toevoegen"
+                                title="{{ __('Gebruiker toevoegen') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3318,7 +3318,7 @@
                                 href="{{ route('images.index') }}"
                                 data-admin-menu-item
                                 data-search="afbeeldingen images foto's foto's projecten bibliotheek"
-                                title="Afbeeldingen"
+                                title="{{ __('Afbeeldingen') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3389,7 +3389,7 @@
                                 href="{{ route('home') }}#upload"
                                 data-admin-menu-item
                                 data-search="upload nieuwe afbeelding image studio"
-                                title="Nieuwe upload"
+                                title="{{ __('Nieuwe upload') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3442,7 +3442,7 @@
                                 href="{{ route('account') }}"
                                 data-admin-menu-item
                                 data-search="account profiel instellingen"
-                                title="Mijn account"
+                                title="{{ __('Mijn account') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3492,7 +3492,7 @@
                                 href="{{ route('security.index') }}"
                                 data-admin-menu-item
                                 data-search="beveiliging security login activiteit sessies"
-                                title="Beveiliging"
+                                title="{{ __('Beveiliging') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3538,7 +3538,7 @@
                                 href="{{ route('home') }}"
                                 data-admin-menu-item
                                 data-search="website mashal studio home frontend"
-                                title="Website bekijken"
+                                title="{{ __('Website bekijken') }}"
                             >
 
                                 <span class="admin-nav-icon">
@@ -3601,7 +3601,7 @@
                             <a
                                 class="admin-bottom-link primary"
                                 href="{{ route('users.create') }}"
-                                title="Nieuwe gebruiker"
+                                title="{{ __('Nieuwe gebruiker') }}"
                             >
 
                                 <span class="admin-bottom-icon">
@@ -3636,7 +3636,7 @@
                             <a
                                 class="admin-bottom-link"
                                 href="{{ route('account') }}"
-                                title="Account"
+                                title="{{ __('Account') }}"
                             >
 
                                 <span class="admin-bottom-icon">
@@ -3682,7 +3682,7 @@
 
                                 <button
                                     type="submit"
-                                    title="Uitloggen"
+                                    title="{{ __('Uitloggen') }}"
                                 >
 
                                     <span class="admin-bottom-icon">
@@ -3874,7 +3874,7 @@
                                     <button
                                         class="admin-alert-close"
                                         type="button"
-                                        aria-label="Melding sluiten"
+                                        aria-label="{{ __('Melding sluiten') }}"
                                         data-admin-alert-close
                                     >
                                         ×
@@ -3900,7 +3900,7 @@
                                     <button
                                         class="admin-alert-close"
                                         type="button"
-                                        aria-label="Melding sluiten"
+                                        aria-label="{{ __('Melding sluiten') }}"
                                         data-admin-alert-close
                                     >
                                         ×
@@ -3926,7 +3926,7 @@
                                     <button
                                         class="admin-alert-close"
                                         type="button"
-                                        aria-label="Melding sluiten"
+                                        aria-label="{{ __('Melding sluiten') }}"
                                         data-admin-alert-close
                                     >
                                         ×
@@ -3952,7 +3952,7 @@
                                     <button
                                         class="admin-alert-close"
                                         type="button"
-                                        aria-label="Melding sluiten"
+                                        aria-label="{{ __('Melding sluiten') }}"
                                         data-admin-alert-close
                                     >
                                         ×
@@ -3993,7 +3993,7 @@
                                     <button
                                         class="admin-alert-close"
                                         type="button"
-                                        aria-label="Melding sluiten"
+                                        aria-label="{{ __('Melding sluiten') }}"
                                         data-admin-alert-close
                                     >
                                         ×
