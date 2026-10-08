@@ -6504,6 +6504,85 @@
     </style>
 
 
+
+    <style id="mashal-language-switcher">
+        .expert-language-switcher {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 2px;
+            padding: 3px;
+            border: 1px solid rgba(122, 108, 255, .20);
+            border-radius: 12px;
+            background: rgba(10, 13, 20, .9);
+            direction: ltr;
+        }
+
+        .expert-language-switcher form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .expert-language-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 39px;
+            height: 33px;
+            padding: 0 9px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            background: transparent;
+            color: #bdc6d6;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: color .15s ease, background .15s ease, border-color .15s ease;
+        }
+
+        .expert-language-button[lang="ur"] {
+            font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", Tahoma, sans-serif;
+        }
+
+        .expert-language-button:hover {
+            color: #fff;
+            background: rgba(122, 108, 255, .12);
+        }
+
+        .expert-language-button[aria-pressed="true"] {
+            color: #fff;
+            border-color: rgba(122, 108, 255, .32);
+            background: rgba(122, 108, 255, .22);
+        }
+
+        .expert-language-button:focus-visible {
+            outline: 2px solid #a99fff;
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 520px) {
+            .expert-language-switcher {
+                padding: 2px;
+            }
+
+            .expert-language-button {
+                min-width: 34px;
+                height: 31px;
+                padding: 0 6px;
+                font-size: 11px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .expert-language-button {
+                transition: none;
+            }
+        }
+    </style>
+
     @stack('styles')
 </head>
 
@@ -6650,6 +6729,8 @@
                 </nav>
 
                 <div class="expert-nav-right">
+                    @include('partials.language-switcher')
+
                     <a
                         class="expert-new-project"
                         href="{{ route('home') }}#upload"
