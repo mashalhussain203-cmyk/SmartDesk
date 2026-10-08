@@ -251,6 +251,7 @@ def main():
         or shutil.which("google-chrome")
     )
 
+    started_at = time.time()
     debug = {
         "stage": "browser_start",
         "query": query,
@@ -288,7 +289,7 @@ def main():
 
             def block_heavy_assets(route):
                 try:
-                    if route.request.resource_type in ("image", "media", "font"):
+                    if route.request.resource_type in ("image", "media", "font", "stylesheet"):
                         route.abort()
                     else:
                         route.continue_()
@@ -343,8 +344,8 @@ def main():
             try:
                 page.goto(
                     "https://livecounts.io/tiktok-live-follower-counter",
-                    wait_until="domcontentloaded",
-                    timeout=12000,
+                    wait_until="commit",
+                    timeout=3500,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
@@ -360,7 +361,7 @@ def main():
                 'input[type="text"]',
             ]
 
-            input_deadline = time.time() + 10
+            input_deadline = time.time() + 3.2
             while time.time() < input_deadline and search_input is None:
                 for selector in selectors:
                     try:
@@ -372,7 +373,7 @@ def main():
                         pass
 
                 if search_input is None:
-                    page.wait_for_timeout(150)
+                    page.wait_for_timeout(60)
 
             if search_input is None:
                 browser.close()
@@ -383,28 +384,21 @@ def main():
                     "debug": debug,
                 }, 10)
 
-            # Give the page a moment to finish client-side hydration, then
-            # interact with the same visible Search Accounts field a visitor uses.
-            page.wait_for_timeout(700)
-
+            # Fast path: Playwright fill() emits the normal input/change
+            # events React listens to, without simulating 100ms per keystroke.
             try:
-                search_input.click(timeout=1200)
+                search_input.click(timeout=500)
             except Exception:
                 pass
 
             try:
-                search_input.press("Control+A")
-                search_input.press("Backspace")
+                search_input.fill(query, timeout=700)
             except Exception:
                 try:
-                    search_input.fill("")
+                    search_input.press("Control+A")
+                    search_input.press_sequentially(query, delay=18)
                 except Exception:
-                    pass
-
-            try:
-                search_input.press_sequentially(query, delay=110)
-            except Exception:
-                search_input.type(query, delay=110)
+                    search_input.type(query, delay=18)
 
             debug["stage"] = "wait_for_livecounts_search"
 
@@ -424,12 +418,12 @@ def main():
             source = None
 
             # First allow the site's own debounce/onChange search to fire.
-            deadline = time.time() + 4
+            deadline = time.time() + 1.25
             while time.time() < deadline:
                 results, source = current_results()
                 if results:
                     break
-                page.wait_for_timeout(120)
+                page.wait_for_timeout(40)
 
             # Some builds only commit the search after Enter. This is still
             # normal UI interaction; the provider page itself creates the request.
@@ -440,7 +434,7 @@ def main():
                 except Exception as exc:
                     debug["enter_warning"] = str(exc)
 
-                deadline = time.time() + 5
+                deadline = time.time() + 0.55
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
@@ -466,7 +460,7 @@ def main():
                 except Exception as exc:
                     debug["event_warning"] = str(exc)
 
-                deadline = time.time() + 3
+                deadline = time.time() + 0.20
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
@@ -482,6 +476,7 @@ def main():
             debug["search_status"] = captured.get("status")
             debug["json_candidates"] = captured.get("json_candidates")
             debug["result_count"] = len(results)
+            debug["elapsed_ms"] = int((time.time() - started_at) * 1000)
             debug["stage"] = "parsed"
 
             browser.close()
