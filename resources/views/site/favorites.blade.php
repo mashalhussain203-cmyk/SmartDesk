@@ -581,7 +581,7 @@
                 </span>
 
                 <h1 class="favorites-title">
-                    Mijn
+                    {{ __('Mijn') }}
                     <span>favorieten.</span>
                 </h1>
 
