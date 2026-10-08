@@ -3177,7 +3177,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!value) {
             return {
                 score: 0,
-                label: 'Nog niet ingevuld'
+                label: @json(__('Nog niet ingevuld'))
             };
         }
 
