@@ -850,7 +850,7 @@
 
             <p class="telegram-mini-kicker">
 
-                Telegram Secure Login
+                {{ __('Telegram Secure Login') }}
 
             </p>
 
@@ -858,7 +858,7 @@
 
             <h1 class="telegram-mini-title">
 
-                Inloggen bij Mashal Studio
+                {{ __('Inloggen bij Mashal Studio') }}
 
             </h1>
 
@@ -866,11 +866,7 @@
 
             <p class="telegram-mini-copy">
 
-                Telegram bevestigt eerst je account.
-
-                Daarna maken we een korte eenmalige link
-
-                waarmee je veilig teruggaat naar Mashal Studio.
+                {{ __('Telegram bevestigt eerst je account. Daarna maken we een korte eenmalige link waarmee je veilig teruggaat naar Mashal Studio.') }}
 
             </p>
 
@@ -902,7 +898,7 @@
 
                 <span id="telegramMiniStatusText">
 
-                    Telegram-account controleren…
+                    {{ __('Telegram-account controleren…') }}
 
                 </span>
 
@@ -940,7 +936,7 @@
 
                 <span id="telegramMiniContinueText">
 
-                    Doorgaan naar Mashal Studio
+                    {{ __('Doorgaan naar Mashal Studio') }}
 
                 </span>
 
@@ -966,11 +962,7 @@
 
             <p class="telegram-mini-note">
 
-                Je bot-token wordt nooit naar deze pagina gestuurd.
-
-                De Telegram-handtekening wordt uitsluitend
-
-                door Laravel op de server gecontroleerd.
+                {{ __('Je bot-token wordt nooit naar deze pagina gestuurd. De Telegram-handtekening wordt uitsluitend door Laravel op de server gecontroleerd.') }}
 
             </p>
 
