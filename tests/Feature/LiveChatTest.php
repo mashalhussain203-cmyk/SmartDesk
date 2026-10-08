@@ -1105,17 +1105,19 @@ class LiveChatTest extends TestCase
             ->assertJsonPath('call.status', 'accepted');
     }
 
-    public function test_guest_cannot_start_call_if_admin_is_offline(): void
+    public function test_guest_can_ring_admin_even_when_presence_is_offline(): void
     {
         $this->withSession(['live_chat.guest_token' => str_repeat('x', 64)])
             ->postJson('/live-chat/calls', [
                 'mode' => 'audio',
                 'offer' => ['type' => 'offer', 'sdp' => "v=0\\r\\n"],
             ])
-            ->assertStatus(409);
+            ->assertCreated()
+            ->assertJsonPath('call.initiated_by', 'visitor')
+            ->assertJsonPath('call.status', 'ringing');
 
-        $this->assertDatabaseCount('live_chat_conversations', 0);
-        $this->assertDatabaseCount('live_chat_calls', 0);
+        $this->assertDatabaseCount('live_chat_conversations', 1);
+        $this->assertDatabaseCount('live_chat_calls', 1);
     }
 
     public function test_guest_call_buttons_are_shown_in_human_support_mode(): void
@@ -1154,9 +1156,55 @@ class LiveChatTest extends TestCase
         $this->assertStringContainsString("root.dispatchEvent(new CustomEvent('live-chat:handoff'", $callsScript);
         $this->assertStringContainsString("root.querySelector('.lca-heading__actions')", $callsScript);
         $this->assertStringContainsString("side === 'admin' && call.initiated_by === 'visitor'", $callsScript);
-        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=7", $guestView);
+        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=8", $guestView);
         $this->assertStringContainsString("js/live-chat-calls.js') }}?v=7", $adminView);
         $this->assertStringContainsString('data-default-mode="human"', $guestView);
+    }
+
+
+    public function test_anonymous_guest_can_initiate_audio_and_video_calls_without_admin_online(): void
+    {
+        $this->getJson('/live-chat/calls/current')
+            ->assertOk()
+            ->assertJsonPath('agent_online', false);
+
+        foreach (['audio', 'video'] as $mode) {
+            // No authenticated user, earlier chat message or active operator required.
+            $this->withSession([
+                'live_chat.guest_token' => str_repeat($mode === 'audio' ? 'g' : 'v', 64),
+            ])->postJson('/live-chat/calls', [
+                'mode' => $mode,
+                'offer' => ['type' => 'offer', 'sdp' => "v=0\r\n"],
+            ])->assertCreated()
+                ->assertJsonPath('call.initiated_by', 'visitor')
+                ->assertJsonPath('call.mode', $mode)
+                ->assertJsonPath('call.status', 'ringing');
+        }
+
+        $this->assertDatabaseCount('live_chat_calls', 2);
+        $this->assertDatabaseCount('live_chat_conversations', 2);
+        $this->assertSame(2, DB::table('live_chat_conversations')->whereNull('user_id')->count());
+
+        // The admin inbox can discover the guest's incoming call.
+        $incoming = app(\App\Services\LiveChatCallService::class)->incomingForAdmin();
+        $this->assertNotNull($incoming);
+        $this->assertSame('visitor', $incoming->initiated_by);
+        $this->assertContains($incoming->mode, ['audio', 'video']);
+    }
+
+    public function test_guest_chat_exposes_its_own_call_buttons_without_signing_in(): void
+    {
+        $view = file_get_contents(resource_path('views/site/partials/guest-chat.blade.php'));
+        $calls = file_get_contents(public_path('js/live-chat-calls.js'));
+
+        $this->assertIsString($view);
+        $this->assertIsString($calls);
+        $this->assertStringContainsString('data-lcc-header-audio', $view);
+        $this->assertStringContainsString('data-lcc-header-video', $view);
+        $this->assertStringContainsString('data-default-mode="human"', $view);
+        $this->assertStringContainsString("void startOutgoing(mode)", $calls);
+        $this->assertStringContainsString("headerActions.dataset.lccReady = 'true'", $calls);
+        $this->assertStringContainsString("endpoints().incoming", $calls);
     }
 
 }

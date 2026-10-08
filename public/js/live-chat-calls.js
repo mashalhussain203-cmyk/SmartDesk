@@ -8,7 +8,16 @@
     const guestRoot = document.getElementById('guest-chat');
     const side = adminRoot ? 'admin' : (guestRoot ? 'visitor' : null);
 
-    if (!side || !navigator.mediaDevices || !window.RTCPeerConnection) {
+    if (!side) return;
+
+    if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) {
+        // Keep the permanent guest buttons visible, but explain why
+        // this browser cannot start a secure WebRTC call.
+        document.querySelectorAll('#guest-chat [data-lcc-header-audio], #guest-chat [data-lcc-header-video]')
+            .forEach(button => {
+                button.disabled = true;
+                button.title = 'Bellen vereist een moderne browser en een beveiligde HTTPS-verbinding.';
+            });
         return;
     }
 
@@ -463,7 +472,7 @@
             if (side === 'visitor') {
                 const availability = await request(endpoints().current);
                 if (!availability.agent_online) {
-                    throw new Error('Er is nu geen medewerker online om op te nemen.');
+                    toast('De admin is mogelijk offline. De oproep gaat over tot iemand opneemt of de wachttijd verstrijkt.');
                 }
             }
             const stream = await getMedia(mode, state.facingMode);
@@ -657,41 +666,53 @@
         if (side !== 'visitor') return;
 
         const headerActions = root.querySelector('.guest-chat__header .gc-actions');
-        if (!headerActions || headerActions.querySelector('[data-lcc-header-audio]')) return;
+        if (!headerActions || headerActions.dataset.lccReady === 'true') return;
 
-        function button(mode, label, icon) {
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'gc-call-quick';
-            item.dataset[mode === 'video' ? 'lccHeaderVideo' : 'lccHeaderAudio'] = '';
-            item.setAttribute('aria-label', label);
-            item.title = label;
-            item.innerHTML = icon;
-            item.addEventListener('click', () => {
-                // The normal visitor chat is opened by default. In case a
-                // theme switches it, restore human support before calling.
-                if (root.dataset.mode !== 'human') {
-                    root.dispatchEvent(new CustomEvent('live-chat:handoff', {
-                        detail: { body: '' },
-                    }));
-                }
-                void startOutgoing(mode);
-            });
-            return item;
+        function fallbackButton(mode, label, svg) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'gc-action gc-call-quick';
+            button.setAttribute(mode === 'audio' ? 'data-lcc-header-audio' : 'data-lcc-header-video', '');
+            button.setAttribute('aria-label', label);
+            button.title = label;
+            button.innerHTML = svg;
+            return button;
         }
 
-        const phone = button('audio', 'Spraakbellen met de admin',
-            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7 10a16 16 0 0 0 7 7l1.6-2a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.7 2z"/></svg>');
-        const camera = button('video', 'Videobellen met de admin',
-            '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>');
+        // Prefer the buttons rendered by Blade, so guests see them immediately.
+        // A JS fallback is kept for older cached versions of the template.
+        let phone = headerActions.querySelector('[data-lcc-header-audio]');
+        let camera = headerActions.querySelector('[data-lcc-header-video]');
+        if (!phone) {
+            phone = fallbackButton('audio', 'Spraakbellen met de admin',
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7 10a16 16 0 0 0 7 7l1.6-2a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.7 2z"/></svg>');
+            headerActions.prepend(phone);
+        }
+        if (!camera) {
+            camera = fallbackButton('video', 'Videobellen met de admin',
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>');
+            phone.insertAdjacentElement('afterend', camera);
+        }
 
-        headerActions.prepend(camera);
-        headerActions.prepend(phone);
+        const callAdmin = mode => {
+            // Guests can ring the admin without a registered user account or
+            // an existing chat message. The server creates a conversation.
+            if (root.dataset.mode !== 'human') {
+                root.dispatchEvent(new CustomEvent('live-chat:handoff', {
+                    detail: { body: '' },
+                }));
+            }
+            void startOutgoing(mode);
+        };
+
+        phone.addEventListener('click', () => callAdmin('audio'));
+        camera.addEventListener('click', () => callAdmin('video'));
+        headerActions.dataset.lccReady = 'true';
 
         const refresh = () => {
-            const blocked = state.busy || Boolean(state.call);
-            phone.disabled = blocked;
-            camera.disabled = blocked;
+            const disabled = state.busy || Boolean(state.call);
+            phone.disabled = disabled;
+            camera.disabled = disabled;
         };
         setInterval(refresh, 1000);
         refresh();

@@ -42,11 +42,9 @@ class LiveChatCallController extends Controller
     ): JsonResponse {
         $conversation = $chat->visitorConversation($request);
 
-        if (! $chat->online()) {
-            return response()->json([
-                'message' => 'Er is momenteel geen medewerker beschikbaar om op te nemen.',
-            ], 409);
-        }
+        // A visitor can initiate an audio/video call even when no operator
+        // currently has the admin inbox open. The invitation is stored
+        // server-side and expires if nobody answers in time.
 
         if ($chat->visitorBlocked($request)) {
             return response()->json([

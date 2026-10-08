@@ -3326,7 +3326,15 @@
 
             <div class="gc-actions">
 
-                <button type="button" class="gc-action gc-reset" aria-label="Nieuw gesprek" title="Nieuw gesprek"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                {{-- Guests can initiate calls before sending a message, without an account. --}}
+                <button type="button" class="gc-action gc-call-quick" data-lcc-header-audio aria-label="{{ __('Spraakbellen met de admin') }}" title="{{ __('Spraakbellen met de admin') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7 10a16 16 0 0 0 7 7l1.6-2a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.7 2z"/></svg>
+                </button>
+                <button type="button" class="gc-action gc-call-quick" data-lcc-header-video aria-label="{{ __('Videobellen met de admin') }}" title="{{ __('Videobellen met de admin') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>
+                </button>
+
+                <button type="button" class="gc-action gc-reset" aria-label="Nieuw gesprek" title="Nieuw gesprek"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
                 <button type="button" class="gc-action gc-expand" aria-label="Chat vergroten" aria-pressed="false" title="Chat vergroten"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6m0 6 7-7"/></svg></button>
 
@@ -3342,7 +3350,7 @@
 
             <div class="gc-welcome">
 
-                <p class="gc-eyebrow">{{ __('MASHAL INTELLIGENCE') }}</p>
+                <p class="gc-eyebrow">{{ __('MASHAL SUPPORT') }}</p>
 
                 <h3>{{ __('Wat wil je') }}<br>{{ __('bereiken?') }}</h3>
 
@@ -3372,13 +3380,13 @@
 
             <form class="guest-chat__form">
 
-                <textarea rows="1" aria-label="Je bericht aan Mashal AI" placeholder="Vraag het Mashal AI…" maxlength="2000" required></textarea>
+                <textarea rows="1" aria-label="Je bericht aan de medewerker" placeholder="Stuur een bericht naar support…" maxlength="2000" required></textarea>
 
                 <button type="submit" class="guest-chat__send" aria-label="Bericht versturen"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button>
 
             </form>
 
-            <p class="guest-chat__notice">{{ __('AI kan fouten maken. Controleer belangrijke informatie.') }}</p>
+            <p class="guest-chat__notice">{{ __('Een medewerker helpt je via livechat, spraak- of videobellen.') }}</p>
 
         </div>
 
@@ -4366,4 +4374,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script src="{{ asset('js/live-chat.js') }}?v=20" defer></script>
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=7" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=8" defer></script>
