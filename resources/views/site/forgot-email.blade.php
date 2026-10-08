@@ -1692,7 +1692,7 @@
 
         <h1 class="forgot-email-title">
 
-            Account Recovery
+            {{ __('Account Recovery') }}
 
             <span>Mashal Studio</span>
 
@@ -1930,7 +1930,7 @@
 
                                     value="{{ old('first_name') }}"
 
-                                    placeholder="Voornaam"
+                                    placeholder="{{ __('Voornaam') }}"
 
                                     autocomplete="given-name"
 
@@ -1984,7 +1984,7 @@
 
                                     value="{{ old('last_name') }}"
 
-                                    placeholder="Achternaam"
+                                    placeholder="{{ __('Achternaam') }}"
 
                                     autocomplete="family-name"
 
