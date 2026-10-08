@@ -136,7 +136,6 @@ class AppServiceProvider extends ServiceProvider
                         ->route('contact')
                         ->with('error', __('Te veel contactverzoeken. Wacht enkele minuten en probeer het opnieuw.'))
                         ->withInput($request->only(['first_name', 'last_name', 'email', 'message']))
-                        ->withHeaders($headers)
                 ),
                 $limits
             );
