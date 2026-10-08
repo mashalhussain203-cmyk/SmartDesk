@@ -1937,7 +1937,7 @@
 
         <h1 class="forgot-verify-title">
 
-            Verify Recovery Email
+            {{ __('Verify Recovery Email') }}
 
             <span>Mashal Studio</span>
 
@@ -2203,7 +2203,7 @@
 
                                 role="group"
 
-                                aria-label="6-cijferige verificatiecode"
+                                aria-label="{{ __('6-cijferige verificatiecode') }}"
 
                             >
 
