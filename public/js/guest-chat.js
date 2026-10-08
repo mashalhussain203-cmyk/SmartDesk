@@ -437,6 +437,20 @@
     toggle.addEventListener(
         'click',
         () => {
+            // Open the live conversation by default for customers/guests.
+            // The existing human handoff activates the visitor API, typing
+            // indicators, and notifications without creating an admin session.
+            if (
+                panel.hidden
+                && chat.dataset.defaultMode === 'human'
+                && chat.dataset.mode !== 'human'
+                && chat.querySelector('.lc-panel')
+            ) {
+                chat.dispatchEvent(new CustomEvent('live-chat:handoff', {
+                    detail: { body: '' },
+                }));
+            }
+
             setOpen(panel.hidden);
         }
     );

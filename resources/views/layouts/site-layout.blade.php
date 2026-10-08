@@ -9101,7 +9101,12 @@
         @endif
     @endauth
 
-    @include('site.partials.guest-chat')
+    {{-- Admins use the operator inbox; customers and guests use the visitor live chat. --}}
+    @if ($layoutIsAdmin && \Illuminate\Support\Facades\Route::has('admin.live-chat.index'))
+        @include('site.partials.admin-live-chat-launcher')
+    @else
+        @include('site.partials.guest-chat')
+    @endif
 
     @include('partials.auth-success-overlay')
 </body>

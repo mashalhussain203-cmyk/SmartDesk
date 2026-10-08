@@ -898,4 +898,51 @@ class LiveChatTest extends TestCase
 
     }
 
+
+    public function test_chat_launcher_routes_admin_to_operator_inbox_and_user_to_live_chat(): void
+    {
+        $admin = UserFactory::new()->create([
+            'is_admin' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('home'))
+            ->assertOk()
+            ->assertSee('id="admin-live-chat-launcher"', false)
+            ->assertSee('href="'.route('admin.live-chat.index').'"', false)
+            ->assertDontSee('id="guest-chat"', false);
+
+        $user = UserFactory::new()->create([
+            'is_admin' => false,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('home'))
+            ->assertOk()
+            ->assertSee('id="guest-chat"', false)
+            ->assertSee('data-default-mode="human"', false)
+            ->assertDontSee('id="admin-live-chat-launcher"', false);
+
+        auth()->logout();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('id="guest-chat"', false)
+            ->assertDontSee('id="admin-live-chat-launcher"', false);
+    }
+
+    public function test_admin_user_management_has_operator_launcher_not_a_visitor_chat(): void
+    {
+        $admin = UserFactory::new()->create([
+            'is_admin' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('users.index'))
+            ->assertOk()
+            ->assertSee('id="admin-live-chat-launcher"', false)
+            ->assertDontSee('id="guest-chat"', false);
+    }
+
+
 }

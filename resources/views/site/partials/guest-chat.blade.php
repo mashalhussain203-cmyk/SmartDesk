@@ -3314,7 +3314,7 @@
 
 
 
-<aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" hidden data-mode="ai" data-endpoint="{{ route('guest-chat.message') }}">
+<aside id="guest-chat" class="guest-chat" aria-label="Mashal chat" hidden data-mode="ai" data-default-mode="human" data-endpoint="{{ route('guest-chat.message') }}">
 
     <section id="guest-chat-panel" class="guest-chat__panel" aria-labelledby="guest-chat-title" hidden>
 

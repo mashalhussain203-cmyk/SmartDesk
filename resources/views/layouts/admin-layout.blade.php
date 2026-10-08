@@ -4836,5 +4836,10 @@
 
     @stack('scripts')
 
+    {{-- Keep the operator chat accessible on admin screens without showing the visitor widget. --}}
+    @if ($adminIsAllowed && ! request()->routeIs('admin.live-chat.*') && \Illuminate\Support\Facades\Route::has('admin.live-chat.index'))
+        @include('site.partials.admin-live-chat-launcher')
+    @endif
+
 </body>
 </html>
