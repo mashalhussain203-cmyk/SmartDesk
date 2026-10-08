@@ -601,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-fast-autocomplete-v8"
+                data-ui-build="20261008-autocomplete-js-fix-v7"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -968,7 +968,7 @@
 
         debounceTimer = window.setTimeout(function () {
             runSearch(query);
-        }, query.length === 2 ? 40 : 120);
+        }, query.length === 2 ? 80 : 260);
     });
 
     input.addEventListener('focus', function () {
