@@ -1942,7 +1942,7 @@
 
                                 >
 
-                                    {{ __('Verifieer &amp; ga verder →') }}
+                                    {{ __('Verifieer & ga verder →') }}
 
                                 </button>
 
