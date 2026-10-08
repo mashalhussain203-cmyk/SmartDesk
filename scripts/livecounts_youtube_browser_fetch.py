@@ -93,8 +93,10 @@ def parse_visible_stats(page):
         .replace(/\s+/g, ' ')
         .trim();
 
-      const body = clean(document.body ? document.body.innerText : '');
-      const lines = body.split(/\n+/).map(clean).filter(Boolean);
+      const rawBody = String(
+        document.body ? document.body.innerText : ''
+      ).replace(/ /g, ' ');
+      const lines = rawBody.split(/\n+/).map(clean).filter(Boolean);
 
       const numberNear = (label) => {
         const target = label.toLowerCase();
