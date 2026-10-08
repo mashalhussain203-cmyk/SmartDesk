@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import fcntl
 import json
 import os
 import re
@@ -265,6 +266,9 @@ def main():
             page = None
             owns_browser = True
             using_prewarmed_browser = False
+            reusing_prewarmed_page = False
+            close_page_when_done = True
+            page_lock = None
 
             # Fast path: the Laravel page starts a local Chromium instance
             # before the user types. Connecting to it removes Chromium startup
@@ -277,10 +281,43 @@ def main():
                 )
                 if browser.contexts:
                     context = browser.contexts[0]
-                    page = context.new_page()
                     owns_browser = False
                     using_prewarmed_browser = True
                     debug["prewarmed_browser"] = True
+
+                    # Reuse the already-loaded Livecounts page when one search
+                    # owns it. A tiny file lock prevents concurrent requests
+                    # from typing into the same input at once.
+                    try:
+                        page_lock = open(
+                            "/tmp/livecounts-follower-search.lock",
+                            "a+",
+                        )
+                        fcntl.flock(
+                            page_lock.fileno(),
+                            fcntl.LOCK_EX | fcntl.LOCK_NB,
+                        )
+
+                        for existing_page in context.pages:
+                            if (
+                                "livecounts.io/tiktok-live-follower-counter"
+                                in existing_page.url
+                            ):
+                                page = existing_page
+                                reusing_prewarmed_page = True
+                                close_page_when_done = False
+                                debug["reused_loaded_page"] = True
+                                break
+                    except Exception:
+                        if page_lock is not None:
+                            try:
+                                page_lock.close()
+                            except Exception:
+                                pass
+                        page_lock = None
+
+                    if page is None:
+                        page = context.new_page()
             except Exception:
                 browser = None
                 context = None
@@ -326,7 +363,8 @@ def main():
                     except Exception:
                         pass
 
-            page.route("**/*", block_heavy_assets)
+            if not reusing_prewarmed_page:
+                page.route("**/*", block_heavy_assets)
 
             captured = {
                 "search": None,
@@ -368,14 +406,15 @@ def main():
 
             page.on("response", on_response)
 
-            try:
-                page.goto(
-                    "https://livecounts.io/tiktok-live-follower-counter",
-                    wait_until="commit",
-                    timeout=2200 if using_prewarmed_browser else 3500,
-                )
-            except Exception as exc:
-                debug["navigation_warning"] = str(exc)
+            if not reusing_prewarmed_page:
+                try:
+                    page.goto(
+                        "https://livecounts.io/tiktok-live-follower-counter",
+                        wait_until="commit",
+                        timeout=2200 if using_prewarmed_browser else 3500,
+                    )
+                except Exception as exc:
+                    debug["navigation_warning"] = str(exc)
 
             debug["stage"] = "find_search_input"
 
@@ -389,7 +428,9 @@ def main():
             ]
 
             input_deadline = time.time() + (
-                1.25 if using_prewarmed_browser else 3.2
+                0.35
+                if reusing_prewarmed_page
+                else (1.25 if using_prewarmed_browser else 3.2)
             )
             while time.time() < input_deadline and search_input is None:
                 for selector in selectors:
@@ -405,10 +446,20 @@ def main():
                     page.wait_for_timeout(60)
 
             if search_input is None:
-                try:
-                    page.close()
-                except Exception:
-                    pass
+                if close_page_when_done:
+                    try:
+                        page.close()
+                    except Exception:
+                        pass
+                if page_lock is not None:
+                    try:
+                        fcntl.flock(page_lock.fileno(), fcntl.LOCK_UN)
+                    except Exception:
+                        pass
+                    try:
+                        page_lock.close()
+                    except Exception:
+                        pass
                 if owns_browser:
                     browser.close()
                 emit({
@@ -513,11 +564,21 @@ def main():
             debug["elapsed_ms"] = int((time.time() - started_at) * 1000)
             debug["stage"] = "parsed"
 
-            try:
-                page.close()
-            except Exception:
-                pass
+            if close_page_when_done:
+                try:
+                    page.close()
+                except Exception:
+                    pass
 
+                if page_lock is not None:
+                    try:
+                        fcntl.flock(page_lock.fileno(), fcntl.LOCK_UN)
+                    except Exception:
+                        pass
+                    try:
+                        page_lock.close()
+                    except Exception:
+                        pass
             if owns_browser:
                 browser.close()
 
