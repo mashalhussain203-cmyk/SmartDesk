@@ -2,7 +2,7 @@
 
 
 
-@section('title', 'Mashal Studio | Privacybeleid')
+@section('title', 'Mashal Studio | ' . __('Privacybeleid'))
 
 
 
