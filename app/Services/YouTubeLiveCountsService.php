@@ -166,6 +166,8 @@ class YouTubeLiveCountsService
                 'id' => $channelId,
                 'title' => $payload['title'] ?? null,
                 'avatar' => $payload['avatar'] ?? null,
+                'banner' => $payload['banner'] ?? null,
+                'description' => $payload['description'] ?? null,
                 'url' => 'https://www.youtube.com/channel/'.$channelId,
                 'subscribers' => (int) $stats['subscribers'],
                 'views' => (int) $stats['views'],
