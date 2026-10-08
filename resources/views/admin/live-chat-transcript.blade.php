@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-<div class="toolbar"><button onclick="window.print()">Afdrukken / opslaan als PDF</button></div>
+<div class="toolbar"><button onclick="window.print()">{{ __('Afdrukken / opslaan als PDF') }}</button></div>
 <header>
     <h1>Chat transcript #{{ $conversation->id }}</h1>
     <div class="meta">{{ $conversation->name ?: 'Gast' }} @if($conversation->email) · {{ $conversation->email }} @endif</div>
