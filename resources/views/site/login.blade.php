@@ -1772,21 +1772,21 @@
                         </h2>
 
                         <p class="glass-description">
-                            Kies je inlogmethode en open veilig je persoonlijke Mashal Studio-workspace.
+                            {{ __('Kies je inlogmethode en open veilig je persoonlijke Mashal Studio-workspace.') }}
                         </p>
 
                         <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
                             <a class="active" href="{{ route('login') }}" aria-current="page">
-                                Inloggen
+                                {{ __('Inloggen') }}
                             </a>
                             <a href="{{ route('register') }}">
-                                Registreren
+                                {{ __('Registreren') }}
                             </a>
                         </nav>
 
                         @if (session()->has('pending_image'))
                             <div class="login-pending">
-                                ✓ Je afbeelding staat klaar. Rond je login af om verder te gaan naar je editor.
+                                {{ __('✓ Je afbeelding staat klaar. Rond je login af om verder te gaan naar je editor.') }}
                             </div>
                         @endif
 
@@ -1810,7 +1810,7 @@
 
                         @if ($errors->any())
                             <div class="glass-message error" role="alert">
-                                <strong>Inloggen is niet gelukt.</strong>
+                                <strong>{{ __('Inloggen is niet gelukt.') }}</strong>
                                 <ul>
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -1829,7 +1829,7 @@
                                 aria-selected="true"
                                 data-auth-tab="password"
                             >
-                                Wachtwoord
+                                {{ __('Wachtwoord') }}
                             </button>
 
                             <button
@@ -1866,7 +1866,7 @@
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="email">E-mailadres</label>
+                                        <label for="email">{{ __('E-mailadres') }}</label>
                                         @error('email')
                                             <span class="glass-field-error">{{ $message }}</span>
                                         @enderror
@@ -1889,7 +1889,7 @@
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="password">Wachtwoord</label>
+                                        <label for="password">{{ __('Wachtwoord') }}</label>
                                         @error('password')
                                             <span class="glass-field-error">{{ $message }}</span>
                                         @enderror
@@ -1912,7 +1912,7 @@
                                             data-toggle-password="password"
                                             aria-label="Wachtwoord tonen of verbergen"
                                         >
-                                            Tonen
+                                            {{ __('Tonen') }}
                                         </button>
                                     </div>
                                 </div>
@@ -1926,7 +1926,7 @@
                                             value="1"
                                             @checked(old('remember'))
                                         >
-                                        <span>Onthoud mij</span>
+                                        <span>{{ __('Onthoud mij') }}</span>
                                     </label>
 
                                     <div
@@ -1937,7 +1937,7 @@
                                             class="glass-small-link"
                                             href="{{ route('password.request') }}"
                                         >
-                                            Wachtwoord vergeten?
+                                            {{ __('Wachtwoord vergeten?') }}
                                         </a>
 
                                         <span
@@ -1949,7 +1949,7 @@
                                             class="glass-small-link"
                                             href="{{ route('email.forgot') }}"
                                         >
-                                            E-mailadres vergeten?
+                                            {{ __('E-mailadres vergeten?') }}
                                         </a>
                                     </div>
                                 </div>
@@ -1959,7 +1959,7 @@
                                     type="submit"
                                     data-submit-label="Inloggen bij Mashal Studio"
                                 >
-                                    Inloggen &amp; doorgaan →
+                                    {{ __('Inloggen &amp; doorgaan →') }}
                                 </button>
                             </form>
                         </section>
@@ -1974,8 +1974,8 @@
                                     <span class="login-passwordless-icon">6</span>
 
                                     <div class="login-passwordless-copy">
-                                        <strong>Eenmalige e-mailcode</strong>
-                                        <span>Ontvang een tijdelijke 6-cijferige code. Geen wachtwoord nodig.</span>
+                                        <strong>{{ __('Eenmalige e-mailcode') }}</strong>
+                                        <span>{{ __('Ontvang een tijdelijke 6-cijferige code. Geen wachtwoord nodig.') }}</span>
                                     </div>
                                 </div>
 
@@ -1999,7 +1999,7 @@
                                     >
 
                                     <button class="glass-secondary" type="submit">
-                                        Stuur code
+                                        {{ __('Stuur code') }}
                                     </button>
                                 </form>
                             </div>
@@ -2009,8 +2009,8 @@
                                     <span class="login-passwordless-icon">↗</span>
 
                                     <div class="login-passwordless-copy">
-                                        <strong>Veilige loginlink</strong>
-                                        <span>Ontvang een persoonlijke magic link die één keer gebruikt kan worden.</span>
+                                        <strong>{{ __('Veilige loginlink') }}</strong>
+                                        <span>{{ __('Ontvang een persoonlijke magic link die één keer gebruikt kan worden.') }}</span>
                                     </div>
                                 </div>
 
@@ -2034,7 +2034,7 @@
                                     >
 
                                     <button class="glass-secondary" type="submit">
-                                        Stuur link
+                                        {{ __('Stuur link') }}
                                     </button>
                                 </form>
                             </div>
@@ -2062,7 +2062,7 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>Google / Gmail</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2079,7 +2079,7 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>GitHub</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2096,7 +2096,7 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>Facebook</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2114,7 +2114,7 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>TikTok</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2129,7 +2129,7 @@
                                     </span>
                                     <span class="login-oauth-copy">
                                         <strong>LinkedIn</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2150,7 +2150,7 @@
 
                                     <span class="login-oauth-copy">
                                         <strong>X</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2171,7 +2171,7 @@
 
                                     <span class="login-oauth-copy">
                                         <strong>Microsoft / Hotmail</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2213,7 +2213,7 @@
 
                                         <span class="login-oauth-copy">
                                             <strong>Telegram</strong>
-                                            <span>Open Telegram-app</span>
+                                            <span>{{ __('Open Telegram-app') }}</span>
                                         </span>
 
                                         <span
@@ -2238,7 +2238,7 @@
                                             >
 
                                             <span>
-                                                Telegram-login is nog niet geconfigureerd.
+                                                {{ __('Telegram-login is nog niet geconfigureerd.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -2247,21 +2247,21 @@
                         </section>
 
                         <div class="glass-divider">
-                            Nieuw bij Mashal Studio?
+                            {{ __('Nieuw bij Mashal Studio?') }}
                         </div>
 
                         <div class="login-register-row">
                             <span>
-                                Nog geen account? Maak gratis je eigen workspace.
+                                {{ __('Nog geen account? Maak gratis je eigen workspace.') }}
                             </span>
 
                             <a class="glass-small-link" href="{{ route('register') }}">
-                                Registreren
+                                {{ __('Registreren') }}
                             </a>
                         </div>
 
                         <div class="login-security-note">
-                            ✓ Mashal Studio vraagt je nooit om je wachtwoord via e-mail, chat of telefoon te delen.
+                            {{ __('✓ Mashal Studio vraagt je nooit om je wachtwoord via e-mail, chat of telefoon te delen.') }}
                         </div>
                     </div>
                 </div>
