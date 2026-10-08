@@ -733,7 +733,7 @@
             </span>
 
             <a href="{{ route('catalog') }}">
-                Collectie
+                {{ __('Collectie') }}
             </a>
 
             <span class="breadcrumb-separator">
@@ -860,7 +860,7 @@
                 <div>
 
                     <span class="vehicle-kicker">
-                        Premium automotive
+                        {{ __('Premium automotive') }}
                     </span>
 
                     <h1 class="vehicle-title">
@@ -1065,7 +1065,7 @@
                 <div>
 
                     <span class="experience-label">
-                        The Mashal experience
+                        {{ __('The Mashal experience') }}
                     </span>
 
                     <h2>
@@ -1076,10 +1076,7 @@
 
 
                 <p>
-                    Deze pagina is ontworpen om één ding goed te doen:
-                    je precies de informatie geven die je nodig hebt
-                    zonder onnodige afleiding. Van voertuiggegevens
-                    tot prijs en bestelling blijft iedere stap overzichtelijk.
+                    {{ __('Deze pagina is ontworpen om één ding goed te doen: je precies de informatie geven die je nodig hebt zonder onnodige afleiding. Van voertuiggegevens tot prijs en bestelling blijft iedere stap overzichtelijk.') }}
                 </p>
 
             </div>
