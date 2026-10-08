@@ -2355,7 +2355,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!file) {
                 if (photoFilename) {
                     photoFilename.textContent =
-                        'Geen nieuw bestand geselecteerd.';
+                        @json(__('Geen nieuw bestand geselecteerd.'));
                 }
 
                 return;
