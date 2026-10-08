@@ -1080,6 +1080,33 @@ Route::get(
     [TikTokCounterController::class, 'index']
 )->name('tiktok-counter.index');
 
+Route::get(
+    '/tools/tiktok-engagement',
+    [TikTokCounterController::class, 'engagementIndex']
+)->name('tiktok-engagement.index');
+
+Route::post(
+    '/tools/tiktok-engagement',
+    [TikTokCounterController::class, 'engagementLookup']
+)
+    ->middleware('throttle:20,1')
+    ->name('tiktok-engagement.lookup');
+
+Route::get(
+    '/tools/tiktok-engagement/{videoId}',
+    [TikTokCounterController::class, 'engagementShow']
+)
+    ->whereNumber('videoId')
+    ->name('tiktok-engagement.show');
+
+Route::get(
+    '/api/tools/tiktok-engagement/{videoId}',
+    [TikTokCounterController::class, 'engagementStats']
+)
+    ->whereNumber('videoId')
+    ->middleware('throttle:60,1')
+    ->name('tiktok-engagement.stats');
+
 Route::post(
     '/tools/tiktok-counter',
     [TikTokCounterController::class, 'lookup']
