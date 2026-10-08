@@ -307,17 +307,16 @@
 @section('content')
 <section class="ytv-page" data-ui-build="20261008-youtube-direct-url-v2">
     <div class="ytv-shell">
-        <a class="ytv-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
+        <a class="ytv-back" href="{{ route('live-counts.index') }}">{{ __('← Live Counts') }}</a>
 
         <header class="ytv-hero">
             <div class="ytv-eyebrow">
                 <span class="ytv-eyebrow-dot"></span>
                 Mashal Studio · YouTube Live
             </div>
-            <h1 class="ytv-title">Live <span>Views.</span></h1>
+            <h1 class="ytv-title">{{ __('Live') }} <span>{{ __('Views.') }}</span></h1>
             <p class="ytv-copy">
-                Plak een YouTube-video URL of zoek op titel. Volg daarna views,
-                likes, dislikes en comments automatisch in dezelfde live teller.
+                {{ __('Plak een YouTube-video URL of zoek op titel. Volg daarna views, likes, dislikes en comments automatisch in dezelfde live teller.') }}
             </p>
         </header>
 
@@ -336,7 +335,7 @@
                         aria-label="YouTube video zoeken"
                     >
                 </div>
-                <button class="ytv-button" id="ytv-submit" type="submit">Zoek video →</button>
+                <button class="ytv-button" id="ytv-submit" type="submit">{{ __('Zoek video →') }}</button>
             </form>
         </div>
 
@@ -354,7 +353,7 @@
                         referrerpolicy="no-referrer"
                     >
                 </div>
-                <div class="ytv-video-title" id="ytv-title">YouTube video</div>
+                <div class="ytv-video-title" id="ytv-title">{{ __('YouTube video') }}</div>
                 <div class="ytv-channel" id="ytv-channel"></div>
                 <div class="ytv-video-id" id="ytv-video-id"></div>
                 <a
@@ -363,31 +362,31 @@
                     href="#"
                     target="_blank"
                     rel="noopener noreferrer"
-                >Open op YouTube ↗</a>
+                >{{ __('Open op YouTube ↗') }}</a>
             </aside>
 
             <div class="ytv-card ytv-dashboard">
                 <div class="ytv-status">
-                    <span>Live video statistics</span>
-                    <strong id="ytv-status">Live</strong>
+                    <span>{{ __('Live video statistics') }}</span>
+                    <strong id="ytv-status">{{ __('Live') }}</strong>
                 </div>
 
                 <div class="ytv-main">
-                    <div class="ytv-main-label">Views</div>
+                    <div class="ytv-main-label">{{ __('Views') }}</div>
                     <div class="ytv-main-value ytv-loading" id="ytv-views">0</div>
                 </div>
 
                 <div class="ytv-stats">
                     <div class="ytv-stat">
-                        <div class="ytv-stat-label">Likes</div>
+                        <div class="ytv-stat-label">{{ __('Likes') }}</div>
                         <div class="ytv-stat-value ytv-loading" id="ytv-likes">0</div>
                     </div>
                     <div class="ytv-stat">
-                        <div class="ytv-stat-label">Dislikes</div>
+                        <div class="ytv-stat-label">{{ __('Dislikes') }}</div>
                         <div class="ytv-stat-value ytv-loading" id="ytv-dislikes">0</div>
                     </div>
                     <div class="ytv-stat">
-                        <div class="ytv-stat-label">Comments</div>
+                        <div class="ytv-stat-label">{{ __('Comments') }}</div>
                         <div class="ytv-stat-value ytv-loading" id="ytv-comments">0</div>
                     </div>
                 </div>
@@ -395,16 +394,16 @@
         </div>
 
         <div class="ytv-actions" id="ytv-actions" hidden>
-            <button class="ytv-action" id="ytv-change" type="button">↺ Change Video</button>
-            <button class="ytv-action" id="ytv-compare-toggle" type="button">⇄ Compare</button>
-            <button class="ytv-action" id="ytv-embed-toggle" type="button">&lt;/&gt; Embed</button>
-            <button class="ytv-action" id="ytv-advanced-toggle" type="button">▦ Advanced Metrics</button>
+            <button class="ytv-action" id="ytv-change" type="button">{{ __('↺ Change Video') }}</button>
+            <button class="ytv-action" id="ytv-compare-toggle" type="button">{{ __('⇄ Compare') }}</button>
+            <button class="ytv-action" id="ytv-embed-toggle" type="button">{{ __('&lt;/&gt; Embed') }}</button>
+            <button class="ytv-action" id="ytv-advanced-toggle" type="button">{{ __('▦ Advanced Metrics') }}</button>
         </div>
 
         <section class="ytv-tool-panel" id="ytv-compare-panel" hidden>
             <div class="ytv-tool-head">
-                <strong>Compare videos</strong>
-                <span>Live view counts</span>
+                <strong>{{ __('Compare videos') }}</strong>
+                <span>{{ __('Live view counts') }}</span>
             </div>
             <div class="ytv-compare-search">
                 <input
@@ -415,16 +414,16 @@
                     placeholder="Zoek tweede video…"
                     autocomplete="off"
                 >
-                <button class="ytv-action" id="ytv-compare-search" type="button">Zoek →</button>
+                <button class="ytv-action" id="ytv-compare-search" type="button">{{ __('Zoek →') }}</button>
             </div>
             <div class="ytv-compare-results" id="ytv-compare-results"></div>
             <div class="ytv-compare-board" id="ytv-compare-board" hidden>
                 <div class="ytv-compare-side">
-                    <span id="ytv-compare-a-name">Current video</span>
+                    <span id="ytv-compare-a-name">{{ __('Current video') }}</span>
                     <strong id="ytv-compare-a-count">0</strong>
                 </div>
                 <div class="ytv-compare-side">
-                    <span id="ytv-compare-b-name">Second video</span>
+                    <span id="ytv-compare-b-name">{{ __('Second video') }}</span>
                     <strong id="ytv-compare-b-count">0</strong>
                 </div>
             </div>
@@ -433,22 +432,22 @@
 
         <section class="ytv-tool-panel" id="ytv-embed-panel" hidden>
             <div class="ytv-tool-head">
-                <strong>Embed live view count</strong>
-                <span>Website of OBS Browser Source</span>
+                <strong>{{ __('Embed live view count') }}</strong>
+                <span>{{ __('Website of OBS Browser Source') }}</span>
             </div>
             <div class="ytv-embed-stack">
                 <div class="ytv-embed-group">
-                    <span class="ytv-embed-label">Website embed</span>
+                    <span class="ytv-embed-label">{{ __('Website embed') }}</span>
                     <div class="ytv-embed-row">
                         <textarea class="ytv-embed-code" id="ytv-embed-code" readonly></textarea>
-                        <button class="ytv-action" id="ytv-embed-copy" type="button">Copy</button>
+                        <button class="ytv-action" id="ytv-embed-copy" type="button">{{ __('Copy') }}</button>
                     </div>
                 </div>
                 <div class="ytv-embed-group">
-                    <span class="ytv-embed-label">OBS / Browser Source URL</span>
+                    <span class="ytv-embed-label">{{ __('OBS / Browser Source URL') }}</span>
                     <div class="ytv-embed-row">
                         <input class="ytv-embed-code" id="ytv-embed-url" type="text" readonly>
-                        <button class="ytv-action" id="ytv-embed-url-copy" type="button">Copy</button>
+                        <button class="ytv-action" id="ytv-embed-url-copy" type="button">{{ __('Copy') }}</button>
                     </div>
                 </div>
             </div>
@@ -457,8 +456,8 @@
         <div class="ytv-extras" id="ytv-extras" hidden>
             <div class="ytv-card ytv-extra">
                 <div class="ytv-extra-head">
-                    <strong>View history</strong>
-                    <span>Live samples from this session</span>
+                    <strong>{{ __('View history') }}</strong>
+                    <span>{{ __('Live samples from this session') }}</span>
                 </div>
                 <svg class="ytv-chart" viewBox="0 0 640 190" preserveAspectRatio="none">
                     <line class="ytv-chart-grid" x1="0" y1="48" x2="640" y2="48"></line>
@@ -466,29 +465,29 @@
                     <line class="ytv-chart-grid" x1="0" y1="142" x2="640" y2="142"></line>
                     <polyline class="ytv-chart-line" id="ytv-chart-line" points=""></polyline>
                 </svg>
-                <div class="ytv-chart-empty" id="ytv-chart-empty">Wachten op live samples…</div>
+                <div class="ytv-chart-empty" id="ytv-chart-empty">{{ __('Wachten op live samples…') }}</div>
             </div>
 
             <div class="ytv-card ytv-extra" id="ytv-advanced-card" hidden>
                 <div class="ytv-extra-head">
-                    <strong>Advanced Metrics</strong>
-                    <span>Current session</span>
+                    <strong>{{ __('Advanced Metrics') }}</strong>
+                    <span>{{ __('Current session') }}</span>
                 </div>
                 <div class="ytv-advanced">
-                    <div class="ytv-advanced-row"><span>Gained</span><strong id="ytv-gained">0</strong></div>
-                    <div class="ytv-advanced-row"><span>Per minute</span><strong id="ytv-per-minute">0</strong></div>
-                    <div class="ytv-advanced-row"><span>Samples</span><strong id="ytv-samples">0</strong></div>
+                    <div class="ytv-advanced-row"><span>{{ __('Gained') }}</span><strong id="ytv-gained">0</strong></div>
+                    <div class="ytv-advanced-row"><span>{{ __('Per minute') }}</span><strong id="ytv-per-minute">0</strong></div>
+                    <div class="ytv-advanced-row"><span>{{ __('Samples') }}</span><strong id="ytv-samples">0</strong></div>
                 </div>
             </div>
         </div>
 
         <div class="ytv-card ytv-about" id="ytv-about" hidden>
-            <h3 id="ytv-about-title">About this video</h3>
+            <h3 id="ytv-about-title">{{ __('About this video') }}</h3>
             <p id="ytv-about-copy"></p>
         </div>
 
         <div class="ytv-empty" id="ytv-empty">
-            Zoek een YouTube-video en kies het juiste resultaat. Daarna blijven de cijfers automatisch verversen.
+            {{ __('Zoek een YouTube-video en kies het juiste resultaat. Daarna blijven de cijfers automatisch verversen.') }}
         </div>
     </div>
 </section>
