@@ -247,7 +247,7 @@
                 >
                     mahsalhussain203@gmail.com
                 </a>
-                of bezoek onze
+                {{ __('of bezoek onze') }}
                 <a
                     class="legal-link"
                     href="{{ route('contact') }}"
