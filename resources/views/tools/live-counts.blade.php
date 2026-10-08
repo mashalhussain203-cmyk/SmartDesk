@@ -1,7 +1,7 @@
 @extends('layouts.site-layout')
 
 @section('title', 'Live Counts | Mashal Studio')
-@section('meta_description', 'Open Mashal Studio live social counters voor TikTok followers en video views.')
+@section('meta_description', 'Open Mashal Studio live social counters voor TikTok en YouTube.')
 
 @push('styles')
 <style>
@@ -292,7 +292,7 @@
             <h1 class="livehub-title">Live <span>Counts.</span></h1>
 
             <p class="livehub-copy">
-                Kies een live counter en volg publieke TikTok-statistieken zonder handmatig te refreshen.
+                Kies een live counter en volg publieke TikTok- en YouTube-statistieken zonder handmatig te refreshen.
                 De cijfers bewegen automatisch zodra nieuwe data binnenkomt.
             </p>
         </header>
@@ -314,10 +314,27 @@
 
         <div class="livehub-section-head">
             <h2>Choose a live counter</h2>
-            <p>TikTok tools</p>
+            <p>TikTok &amp; YouTube tools</p>
         </div>
 
         <div class="livehub-grid">
+            <a class="livehub-tool" href="{{ route('youtube-subscribers.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <span style="font-size:31px;color:#ff4656;font-weight:900" aria-hidden="true">▶</span>
+                    </div>
+                    <div class="livehub-live"><i></i> Live</div>
+                </div>
+                <h3>YouTube Live Subscribers</h3>
+                <p>Zoek een YouTube-kanaal en volg abonnees, weergaven en video's met een automatisch vernieuwende teller.</p>
+                <div class="livehub-metrics">
+                    <span>Subscribers</span>
+                    <span>Views</span>
+                    <span>Videos</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
             <a class="livehub-tool" href="{{ route('tiktok-follower-counter.index') }}">
                 <div class="livehub-tool-top">
                     <div class="livehub-icon-wrap">
