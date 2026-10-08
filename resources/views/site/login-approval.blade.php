@@ -748,9 +748,9 @@
 
             <h1 class="approval-wait-title">
 
-                Bevestig op een
+                {{ __('Bevestig op een') }}
 
-                <span>ingelogd apparaat</span>
+                <span>{{ __('ingelogd apparaat') }}</span>
 
             </h1>
 
@@ -770,7 +770,7 @@
 
             <h2 class="approval-wait-heading">
 
-                Welk nummer zie je hier?
+                {{ __('Welk nummer zie je hier?') }}
 
             </h2>
 
@@ -792,7 +792,7 @@
 
                 <div class="approval-number-label">
 
-                    Kies dit nummer
+                    {{ __('Kies dit nummer') }}
 
                 </div>
 
@@ -838,7 +838,7 @@
 
                 <span id="approvalWaitText">
 
-                    Wachten op goedkeuring…
+                    {{ __('Wachten op goedkeuring…') }}
 
                 </span>
 
@@ -848,7 +848,7 @@
 
             <div class="approval-wait-meta">
 
-                Deze aanvraag verloopt automatisch.
+                {{ __('Deze aanvraag verloopt automatisch.') }}
 
                 <span id="approvalCountdown"></span>
 
@@ -888,7 +888,7 @@
 
                     >
 
-                        Login annuleren
+                        {{ __('Login annuleren') }}
 
                     </button>
 
