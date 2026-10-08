@@ -2047,9 +2047,9 @@
 
                         >
 
-                            Bevestig je
+                            {{ __('Bevestig je') }}
 
-                            <strong>hersteladres</strong>
+                            <strong>{{ __('hersteladres') }}</strong>
 
                         </h2>
 
@@ -2057,7 +2057,7 @@
 
                         <p class="forgot-verify-description">
 
-                            Voer de 6-cijferige code in die naar je nieuwe herstel-e-mailadres is gestuurd.
+                            {{ __('Voer de 6-cijferige code in die naar je nieuwe herstel-e-mailadres is gestuurd.') }}
 
                         </p>
 
@@ -2125,7 +2125,7 @@
 
                                 <strong>
 
-                                    Controleer de herstelcode.
+                                    {{ __('Controleer de herstelcode.') }}
 
                                 </strong>
 
@@ -2175,7 +2175,7 @@
 
                             >
 
-                                6-cijferige verificatiecode
+                                {{ __('6-cijferige verificatiecode') }}
 
                             </label>
 
@@ -2259,7 +2259,7 @@
 
                             >
 
-                                Code controleren →
+                                {{ __('Code controleren →') }}
 
                             </button>
 
@@ -2271,9 +2271,7 @@
 
                             <p class="forgot-verify-resend-text">
 
-                                Geen code ontvangen? Je kunt een nieuwe
-
-                                herstelcode aanvragen.
+                                {{ __('Geen code ontvangen? Je kunt een nieuwe herstelcode aanvragen.') }}
 
                             </p>
 
@@ -2303,7 +2301,7 @@
 
                                 >
 
-                                    Nieuwe code sturen
+                                    {{ __('Nieuwe code sturen') }}
 
                                 </button>
 
@@ -2315,7 +2313,7 @@
 
                         <p class="forgot-verify-note">
 
-                            De code is tijdelijk geldig. Na meerdere onjuiste pogingen moet de verificatie opnieuw worden gestart.
+                            {{ __('De code is tijdelijk geldig. Na meerdere onjuiste pogingen moet de verificatie opnieuw worden gestart.') }}
 
                         </p>
 
@@ -2331,7 +2329,7 @@
 
                             >
 
-                                ← Terug naar account
+                                {{ __('← Terug naar account') }}
 
                             </a>
 
@@ -2345,7 +2343,7 @@
 
                             >
 
-                                Naar account
+                                {{ __('Naar account') }}
 
                             </a>
 
