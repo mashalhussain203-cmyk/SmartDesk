@@ -2904,6 +2904,7 @@
 
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008">
+    <script src="{{ asset('js/smartdesk-urdu.js') }}?v=20261008"></script>
 </head>
 
 
