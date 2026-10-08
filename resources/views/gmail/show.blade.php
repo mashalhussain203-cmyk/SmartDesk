@@ -3388,7 +3388,7 @@
 
             <div class="brand-title">
 
-                Mashal Mail
+                {{ __('Mashal Mail') }}
 
             </div>
 
@@ -3514,7 +3514,7 @@
 
                 <div class="mailbox-context-label">
 
-                    Huidige map
+                    {{ __('Huidige map') }}
 
                 </div>
 
@@ -3576,11 +3576,9 @@
 
             <div>
 
-                <strong>Dit bericht staat in Spam.</strong>
+                <strong>{{ __('Dit bericht staat in Spam.') }}</strong>
 
-                We tonen de inhoud als gewone tekst en voeren geen
-
-                externe HTML of scripts uit.
+                {{ __('We tonen de inhoud als gewone tekst en voeren geen externe HTML of scripts uit.') }}
 
             </div>
 
@@ -3610,11 +3608,9 @@
 
             <div>
 
-                <strong>Dit bericht staat in de Prullenbak.</strong>
+                <strong>{{ __('Dit bericht staat in de Prullenbak.') }}</strong>
 
-                Op dit moment kan Mashal Mail het bericht bekijken,
-
-                maar nog niet herstellen of definitief verwijderen.
+                {{ __('Op dit moment kan Mashal Mail het bericht bekijken, maar nog niet herstellen of definitief verwijderen.') }}
 
             </div>
 
@@ -3698,7 +3694,7 @@
 
             <strong>
 
-                Controleer de gegevens.
+                {{ __('Controleer de gegevens.') }}
 
             </strong>
 
@@ -3824,7 +3820,7 @@
 
                     <span class="desktop-label">
 
-                        Beantwoorden
+                        {{ __('Beantwoorden') }}
 
                     </span>
 
@@ -3906,7 +3902,7 @@
 
                             <span class="message-label unread">
 
-                                Ongelezen
+                                {{ __('Ongelezen') }}
 
                             </span>
 
@@ -3918,7 +3914,7 @@
 
                             <span class="message-label spam">
 
-                                Spam
+                                {{ __('Spam') }}
 
                             </span>
 
@@ -3930,7 +3926,7 @@
 
                             <span class="message-label trash">
 
-                                Prullenbak
+                                {{ __('Prullenbak') }}
 
                             </span>
 
@@ -4068,7 +4064,7 @@
 
                 >
 
-                    Berichtdetails
+                    {{ __('Berichtdetails') }}
 
 
 
@@ -4106,7 +4102,7 @@
 
                         <div class="recipient-label">
 
-                            Van
+                            {{ __('Van') }}
 
                         </div>
 
@@ -4136,7 +4132,7 @@
 
                         <div class="recipient-label">
 
-                            Aan
+                            {{ __('Aan') }}
 
                         </div>
 
@@ -4170,7 +4166,7 @@
 
                             <div class="recipient-label">
 
-                                Cc
+                                {{ __('Cc') }}
 
                             </div>
 
@@ -4204,7 +4200,7 @@
 
                             <div class="recipient-label">
 
-                                Datum
+                                {{ __('Datum') }}
 
                             </div>
 
@@ -4238,7 +4234,7 @@
 
                             <div class="recipient-label">
 
-                                Thread
+                                {{ __('Thread') }}
 
                             </div>
 
@@ -4284,7 +4280,7 @@
 
                 >
 
-                    ↩ Antwoorden
+                    {{ __('↩ Antwoorden') }}
 
                 </button>
 
@@ -4308,7 +4304,7 @@
 
 
 
-        <section class="message-body">@if(!empty($message['body'])){{ $message['body'] }}@elseif(!empty($message['snippet'])){{ $message['snippet'] }}@else<span class="empty-message">Deze e-mail bevat geen leesbare tekst.</span>@endif</section>
+        <section class="message-body">@if(!empty($message['body'])){{ $message['body'] }}@elseif(!empty($message['snippet'])){{ $message['snippet'] }}@else<span class="empty-message">{{ __('Deze e-mail bevat geen leesbare tekst.') }}</span>@endif</section>
 
 
 
@@ -4340,9 +4336,7 @@
 
                 >
 
-                    ↩
-
-                    Beantwoorden
+                    {{ __('↩ Beantwoorden') }}
 
                 </button>
 
@@ -4390,9 +4384,7 @@
 
             >
 
-                📥
-
-                Inbox
+                {{ __('📥 Inbox') }}
 
             </a>
 
@@ -4408,9 +4400,7 @@
 
             >
 
-                🏠
-
-                Mashal Studio
+                {{ __('🏠 Mashal Studio') }}
 
             </a>
 
@@ -4506,7 +4496,7 @@
 
 
 
-            Antwoorden
+            {{ __('Antwoorden') }}
 
         </button>
 
@@ -4650,7 +4640,7 @@
 
             >
 
-                Bericht beantwoorden
+                {{ __('Bericht beantwoorden') }}
 
             </h2>
 
@@ -4702,7 +4692,7 @@
 
             >
 
-                Ontvanger
+                {{ __('Ontvanger') }}
 
             </label>
 
@@ -4750,7 +4740,7 @@
 
             >
 
-                Onderwerp
+                {{ __('Onderwerp') }}
 
             </label>
 
@@ -4792,7 +4782,7 @@
 
             >
 
-                Antwoord
+                {{ __('Antwoord') }}
 
             </label>
 
@@ -4830,7 +4820,7 @@
 
                 >
 
-                    Verzenden
+                    {{ __('Verzenden') }}
 
                 </button>
 
