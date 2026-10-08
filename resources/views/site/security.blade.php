@@ -1612,7 +1612,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>IP-adres</small>
+                                    <small>{{ __('IP-adres') }}</small>
 
                                     <strong>{{ $activity->ip_address ?: 'Onbekend' }}</strong>
 
