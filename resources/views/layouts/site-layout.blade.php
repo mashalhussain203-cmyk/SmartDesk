@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ur' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
 
@@ -6512,7 +6512,7 @@
         class="studio-skip-link"
         href="#studioMain"
     >
-        Ga naar inhoud
+        {{ __('Ga naar inhoud') }}
     </a>
 
     <div
@@ -6572,8 +6572,8 @@
                         </span>
 
                         <span class="expert-command-copy">
-                            <strong>Ga naar…</strong>
-                            <small>Projecten, AI, account</small>
+                            <strong>{{ __('Ga naar…') }}</strong>
+                            <small>{{ __('Projecten, AI, account') }}</small>
                         </span>
 
                         <span class="expert-command-key" aria-hidden="true">
@@ -6664,14 +6664,14 @@
                             class="expert-auth-link"
                             href="{{ route('login') }}"
                         >
-                            Inloggen
+                            {{ __('Inloggen') }}
                         </a>
 
                         <a
                             class="expert-auth-link expert-auth-link-primary"
                             href="{{ route('register') }}"
                         >
-                            Start gratis
+                            {{ __('Start gratis') }}
                         </a>
                     @else
                         <div class="studio-account-wrap expert-account-wrap">
@@ -6760,8 +6760,8 @@
                                             <span class="expert-account-item-icon">▦</span>
 
                                             <span class="expert-account-item-copy">
-                                                <strong>Mijn afbeeldingen</strong>
-                                                <small>Beheer projecten en versies</small>
+                                                <strong>{{ __('Mijn afbeeldingen') }}</strong>
+                                                <small>{{ __('Beheer projecten en versies') }}</small>
                                             </span>
 
                                             <span class="expert-account-item-meta">
@@ -6779,7 +6779,7 @@
 
                                             <span class="expert-account-item-copy">
                                                 <strong>Mashal AI</strong>
-                                                <small>Open je AI workspace</small>
+                                                <small>{{ __('Open je AI workspace') }}</small>
                                             </span>
 
                                             <span class="expert-account-item-meta">
@@ -6802,8 +6802,8 @@
                                             <span class="expert-account-item-icon">○</span>
 
                                             <span class="expert-account-item-copy">
-                                                <strong>Accountinstellingen</strong>
-                                                <small>Profiel en voorkeuren</small>
+                                                <strong>{{ __('Accountinstellingen') }}</strong>
+                                                <small>{{ __('Profiel en voorkeuren') }}</small>
                                             </span>
 
                                             <span class="expert-account-item-meta">→</span>
@@ -6818,8 +6818,8 @@
                                             <span class="expert-account-item-icon">◈</span>
 
                                             <span class="expert-account-item-copy">
-                                                <strong>Beveiliging</strong>
-                                                <small>Login en apparaten</small>
+                                                <strong>{{ __('Beveiliging') }}</strong>
+                                                <small>{{ __('Login en apparaten') }}</small>
                                             </span>
 
                                             <span class="expert-account-item-meta">→</span>
@@ -6838,7 +6838,7 @@
 
                                             <span class="expert-account-item-copy">
                                                 <strong>Admin</strong>
-                                                <small>Beheer de applicatie</small>
+                                                <small>{{ __('Beheer de applicatie') }}</small>
                                             </span>
 
                                             <span class="expert-account-item-meta">→</span>
@@ -6857,7 +6857,7 @@
                                             class="expert-logout-button"
                                             type="submit"
                                         >
-                                            <span>Uitloggen</span>
+                                            <span>{{ __('Uitloggen') }}</span>
                                             <span aria-hidden="true">↗</span>
                                         </button>
                                     </form>
@@ -6909,7 +6909,7 @@
                     </span>
 
                     <strong id="studioCommandTitle">
-                        Waar wil je heen?
+                        {{ __('Waar wil je heen?') }}
                     </strong>
                 </div>
 
@@ -6950,7 +6950,7 @@
                         <span class="expert-command-item-icon">◇</span>
                         <span>
                             <strong>Studio</strong>
-                            <small>Ga naar de homepage en editor-start</small>
+                            <small>{{ __('Ga naar de homepage en editor-start') }}</small>
                         </span>
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
@@ -7007,7 +7007,7 @@
                     >
                         <span class="expert-command-item-icon">＋</span>
                         <span>
-                            <strong>Nieuwe afbeelding</strong>
+                            <strong>{{ __('Nieuwe afbeelding') }}</strong>
                             <small>Upload JPG, PNG of WEBP</small>
                         </span>
                         <span class="expert-command-item-arrow">↗</span>
@@ -7022,8 +7022,8 @@
                             >
                                 <span class="expert-command-item-icon">▦</span>
                                 <span>
-                                    <strong>Mijn afbeeldingen</strong>
-                                    <small>Open je projectbibliotheek</small>
+                                    <strong>{{ __('Mijn afbeeldingen') }}</strong>
+                                    <small>{{ __('Open je projectbibliotheek') }}</small>
                                 </span>
                                 <span class="expert-command-item-arrow">↗</span>
                             </a>
@@ -7038,7 +7038,7 @@
                                 <span class="expert-command-item-icon">✦</span>
                                 <span>
                                     <strong>Mashal AI</strong>
-                                    <small>Open de AI-workspace</small>
+                                    <small>{{ __('Open de AI-workspace') }}</small>
                                 </span>
                                 <span class="expert-command-item-arrow">↗</span>
                             </a>
@@ -7061,7 +7061,7 @@
                                 <span class="expert-command-item-icon">○</span>
                                 <span>
                                     <strong>Account</strong>
-                                    <small>Profiel en voorkeuren</small>
+                                    <small>{{ __('Profiel en voorkeuren') }}</small>
                                 </span>
                                 <span class="expert-command-item-arrow">↗</span>
                             </a>
@@ -7075,8 +7075,8 @@
                             >
                                 <span class="expert-command-item-icon">◈</span>
                                 <span>
-                                    <strong>Beveiliging</strong>
-                                    <small>Login en apparaten beheren</small>
+                                    <strong>{{ __('Beveiliging') }}</strong>
+                                    <small>{{ __('Login en apparaten beheren') }}</small>
                                 </span>
                                 <span class="expert-command-item-arrow">↗</span>
                             </a>
@@ -7150,7 +7150,7 @@
             <span class="expert-mobile-upload-icon">＋</span>
 
             <span>
-                <strong>Nieuwe afbeelding</strong>
+                <strong>{{ __('Nieuwe afbeelding') }}</strong>
                 <small>JPG, PNG of WEBP uploaden</small>
             </span>
 
@@ -7192,7 +7192,7 @@
                 <span class="expert-mobile-link-icon">◇</span>
                 <span>
                     <strong>Studio</strong>
-                    <small>Home en editor-start</small>
+                    <small>{{ __('Home en editor-start') }}</small>
                 </span>
                 <span>→</span>
             </a>
@@ -7205,7 +7205,7 @@
                     <span class="expert-mobile-link-icon">◉</span>
                     <span>
                         <strong>Live Counts</strong>
-                        <small>Kies je live counter</small>
+                        <small>{{ __('Kies je live counter') }}</small>
                     </span>
                     <span>→</span>
                 </a>
@@ -7219,8 +7219,8 @@
                     >
                         <span class="expert-mobile-link-icon">▦</span>
                         <span>
-                            <strong>Mijn afbeeldingen</strong>
-                            <small>Projecten en versies</small>
+                            <strong>{{ __('Mijn afbeeldingen') }}</strong>
+                            <small>{{ __('Projecten en versies') }}</small>
                         </span>
                         <span>→</span>
                     </a>
@@ -7252,7 +7252,7 @@
                         <span class="expert-mobile-link-icon">○</span>
                         <span>
                             <strong>Account</strong>
-                            <small>Profiel en voorkeuren</small>
+                            <small>{{ __('Profiel en voorkeuren') }}</small>
                         </span>
                         <span>→</span>
                     </a>
@@ -7265,8 +7265,8 @@
                     >
                         <span class="expert-mobile-link-icon">◈</span>
                         <span>
-                            <strong>Beveiliging</strong>
-                            <small>Login en apparaten</small>
+                            <strong>{{ __('Beveiliging') }}</strong>
+                            <small>{{ __('Login en apparaten') }}</small>
                         </span>
                         <span>→</span>
                     </a>
@@ -7283,7 +7283,7 @@
                         <span class="expert-mobile-link-icon">⌁</span>
                         <span>
                             <strong>Admin</strong>
-                            <small>Applicatiebeheer</small>
+                            <small>{{ __('Applicatiebeheer') }}</small>
                         </span>
                         <span>→</span>
                     </a>
@@ -7297,14 +7297,14 @@
                     class="expert-mobile-auth"
                     href="{{ route('login') }}"
                 >
-                    Inloggen
+                    {{ __('Inloggen') }}
                 </a>
 
                 <a
                     class="expert-mobile-auth expert-mobile-auth-primary"
                     href="{{ route('register') }}"
                 >
-                    Gratis starten
+                    {{ __('Gratis starten') }}
                 </a>
             @else
                 <form
@@ -7317,7 +7317,7 @@
                         class="expert-mobile-logout"
                         type="submit"
                     >
-                        <span>Uitloggen</span>
+                        <span>{{ __('Uitloggen') }}</span>
                         <span>↗</span>
                     </button>
                 </form>
@@ -7424,7 +7424,7 @@
                 >
                     <div class="studio-flash-content">
                         <strong>
-                            Controleer onderstaande gegevens:
+                            {{ __('Controleer onderstaande gegevens:') }}
                         </strong>
 
                         <ul class="studio-flash-list">
@@ -7488,14 +7488,11 @@
                     </a>
 
                     <p>
-                        Een persoonlijke omgeving voor afbeeldingen en AI:
-                        upload, bewerk en bewaar je projecten vanuit je eigen
-                        workspace en gebruik Mashal AI als aparte assistent
-                        onder hetzelfde account.
+                        {{ __('Een persoonlijke omgeving voor afbeeldingen en AI: upload, bewerk en bewaar je projecten vanuit je eigen workspace en gebruik Mashal AI als aparte assistent onder hetzelfde account.') }}
                     </p>
 
                     <div class="studio-footer-trust">
-                        Persoonlijke accountomgeving
+                        {{ __('Persoonlijke accountomgeving') }}
                     </div>
                 </div>
 
@@ -7528,13 +7525,13 @@
                         @endif
 
                         <a href="{{ route('home') }}#upload">
-                            Upload afbeelding
+                            {{ __('Upload afbeelding') }}
                         </a>
 
                         @auth
                             @if ($hasImagesIndex)
                                 <a href="{{ route('images.index') }}">
-                                    Mijn afbeeldingen
+                                    {{ __('Mijn afbeeldingen') }}
                                 </a>
                             @endif
 
@@ -7555,22 +7552,22 @@
                     <div class="studio-footer-links">
                         @guest
                             <a href="{{ route('login') }}">
-                                Inloggen
+                                {{ __('Inloggen') }}
                             </a>
 
                             <a href="{{ route('register') }}">
-                                Registreren
+                                {{ __('Registreren') }}
                             </a>
                         @else
                             @if ($hasAccount)
                                 <a href="{{ route('account') }}">
-                                    Accountinstellingen
+                                    {{ __('Accountinstellingen') }}
                                 </a>
                             @endif
 
                             @if ($hasSecurity)
                                 <a href="{{ route('security.index') }}">
-                                    Beveiliging
+                                    {{ __('Beveiliging') }}
                                 </a>
                             @endif
                         @endguest
@@ -7584,19 +7581,19 @@
 
                     <div class="studio-footer-links">
                         <a href="{{ route('home') }}#upload">
-                            Nieuw project
+                            {{ __('Nieuw project') }}
                         </a>
 
                         @auth
                             @if ($hasImagesIndex)
                                 <a href="{{ route('images.index') }}">
-                                    Projectbibliotheek
+                                    {{ __('Projectbibliotheek') }}
                                 </a>
                             @endif
 
                             @if ($hasAiChat)
                                 <a href="{{ route('ai.chat') }}">
-                                    AI-assistent
+                                    {{ __('AI-assistent') }}
                                 </a>
                             @endif
 
@@ -7620,7 +7617,7 @@
                 )
                     <div class="studio-footer-column">
                         <h3>
-                            Informatie
+                            {{ __('Informatie') }}
                         </h3>
 
                         <div class="studio-footer-links">
