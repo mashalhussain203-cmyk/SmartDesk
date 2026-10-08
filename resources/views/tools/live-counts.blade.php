@@ -124,7 +124,7 @@
 
     .livehub-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0,1fr));
+        grid-template-columns: repeat(3, minmax(0,1fr));
         gap: 16px;
     }
 
@@ -248,6 +248,12 @@
         transform: translateX(3px);
     }
 
+    @media (max-width: 980px) {
+        .livehub-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     @media (max-width: 760px) {
         .livehub-page {
             padding-top: 38px;
@@ -355,6 +361,29 @@
                     <span>Likes</span>
                     <span>Comments</span>
                     <span>Shares</span>
+                </div>
+
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a class="livehub-tool" href="{{ route('tiktok-engagement.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <img src="/icons/live-heart.svg?v=20261007-4" alt="">
+                    </div>
+                    <div class="livehub-live"><i></i> Public</div>
+                </div>
+
+                <h3>TikTok Engagement</h3>
+                <p>
+                    Open een publieke TikTok-video en bekijk hearts, comments
+                    en favorites in dezelfde rustige live interface.
+                </p>
+
+                <div class="livehub-metrics">
+                    <span>Hearts</span>
+                    <span>Comments</span>
+                    <span>Favorites</span>
                 </div>
 
                 <span class="livehub-arrow" aria-hidden="true">→</span>
