@@ -1994,12 +1994,12 @@ body {
                     </span>
 
                     <h1 class="ms-hero-title">
-                        Edit images.
+                        {{ __('Edit images.') }}
                         <span class="muted">
-                            Keep the original.
+                            {{ __('Keep the original.') }}
                         </span>
                         <span class="gradient">
-                            Build better versions.
+                            {{ __('Build better versions.') }}
                         </span>
                     </h1>
 
@@ -2076,7 +2076,7 @@ body {
                                 </div>
 
                                 <div class="ms-window-secure">
-                                    Secure upload
+                                    {{ __('Secure upload') }}
                                 </div>
                             </div>
 
@@ -2142,8 +2142,7 @@ body {
                                             </h2>
 
                                             <p>
-                                                Selecteer een JPG, PNG of WEBP.
-                                                Je ziet eerst een preview voordat de upload begint.
+                                                {{ __('Selecteer een JPG, PNG of WEBP. Je ziet eerst een preview voordat de upload begint.') }}
                                             </p>
 
                                             <button
@@ -2174,7 +2173,7 @@ body {
                                                     class="ms-preview-badge"
                                                     id="previewBadge"
                                                 >
-                                                    PREVIEW
+                                                    {{ __('PREVIEW') }}
                                                 </span>
                                             </div>
 
@@ -2281,7 +2280,7 @@ body {
         <div class="ms-shell">
             <header class="ms-showcase-head" data-reveal>
                 <span class="ms-kicker">
-                    Product experience
+                    {{ __('Product experience') }}
                 </span>
 
                 <h2 class="ms-heading">
@@ -2297,7 +2296,7 @@ body {
             <div class="ms-editor-shell" data-reveal>
                 <aside class="ms-editor-sidebar">
                     <div class="ms-editor-label">
-                        Tools
+                        {{ __('Tools') }}
                     </div>
 
                     <div class="ms-editor-tool active">
@@ -2345,11 +2344,11 @@ body {
 
                 <aside class="ms-editor-inspector">
                     <div class="ms-inspector-title">
-                        Resize image
+                        {{ __('Resize image') }}
                     </div>
 
                     <div class="ms-field">
-                        <label>Width</label>
+                        <label>{{ __('Width') }}</label>
 
                         <div class="ms-fake-input">
                             <span>1920</span>
@@ -2358,7 +2357,7 @@ body {
                     </div>
 
                     <div class="ms-field">
-                        <label>Height</label>
+                        <label>{{ __('Height') }}</label>
 
                         <div class="ms-fake-input">
                             <span>1080</span>
@@ -2367,19 +2366,19 @@ body {
                     </div>
 
                     <div class="ms-field">
-                        <label>Aspect ratio</label>
+                        <label>{{ __('Aspect ratio') }}</label>
 
                         <div class="ms-fake-toggle">
-                            <span>Keep ratio</span>
+                            <span>{{ __('Keep ratio') }}</span>
                             <span class="ms-toggle-dot"></span>
                         </div>
                     </div>
 
                     <div class="ms-field">
-                        <label>Source</label>
+                        <label>{{ __('Source') }}</label>
 
                         <div class="ms-fake-input">
-                            <span>Original</span>
+                            <span>{{ __('Original') }}</span>
                             <small>⌄</small>
                         </div>
                     </div>
@@ -2389,7 +2388,7 @@ body {
                         type="button"
                         tabindex="-1"
                     >
-                        Create version
+                        {{ __('Create version') }}
                     </button>
                 </aside>
             </div>
@@ -2400,7 +2399,7 @@ body {
         <div class="ms-shell">
             <header class="ms-showcase-head" data-reveal>
                 <span class="ms-kicker">
-                    Version-first
+                    {{ __('Version-first') }}
                 </span>
 
                 <h2 class="ms-heading">
@@ -2452,7 +2451,7 @@ body {
                     <span class="ms-bento-index">03 / EXPORT</span>
 
                     <h3>
-                        JPG, PNG en WEBP.
+                        {{ __('JPG, PNG en WEBP.') }}
                     </h3>
 
                     <p>
@@ -2525,7 +2524,7 @@ body {
                         <div class="ms-flow-number">03</div>
                         <h3>{{ __('Bewerk in de editor') }}</h3>
                         <p>
-                            Resize, crop, rotate, flip, compress of convert vanuit één consistente editorflow.
+                            {{ __('Resize, crop, rotate, flip, compress of convert vanuit één consistente editorflow.') }}
                         </p>
                     </article>
 
@@ -2546,7 +2545,7 @@ body {
             <div class="ms-workspace" data-reveal>
                 <div>
                     <span class="ms-kicker">
-                        Personal workspace
+                        {{ __('Personal workspace') }}
                     </span>
 
                     <h2>
@@ -2601,7 +2600,7 @@ body {
                 <div class="ms-library-window" aria-hidden="true">
                     <div class="ms-library-head">
                         <strong>{{ __('Mijn afbeeldingen') }}</strong>
-                        <span>Private library</span>
+                        <span>{{ __('Private library') }}</span>
                     </div>
 
                     <div class="ms-library-grid">
@@ -2627,8 +2626,7 @@ body {
                     </span>
 
                     <h2>
-                        Kort.
-                        Duidelijk.
+                        {{ __('Kort. Duidelijk.') }}
                     </h2>
 
                     <p>
@@ -2650,7 +2648,7 @@ body {
                         <div class="ms-faq-answer">
                             <div>
                                 <div class="ms-faq-answer-inner">
-                                    JPG/JPEG, PNG en WEBP tot maximaal 20 MB.
+                                    {{ __('JPG/JPEG, PNG en WEBP tot maximaal 20 MB.') }}
                                 </div>
                             </div>
                         </div>
@@ -2722,12 +2720,11 @@ body {
             <div class="ms-final-panel" data-reveal>
                 <div class="ms-final-copy">
                     <span class="ms-kicker">
-                        Start editing
+                        {{ __('Start editing') }}
                     </span>
 
                     <h2>
-                        Eén upload.
-                        Daarna ben je vertrokken.
+                        {{ __('Eén upload. Daarna ben je vertrokken.') }}
                     </h2>
 
                     <p>
@@ -2774,14 +2771,14 @@ body {
         <div class="ms-sticky-inner">
             <div class="ms-sticky-copy">
                 <strong>{{ __('Klaar voor een nieuwe afbeelding?') }}</strong>
-                <span>JPG, PNG of WEBP · maximaal 20 MB</span>
+                <span>{{ __('JPG, PNG of WEBP · maximaal 20 MB') }}</span>
             </div>
 
             <a
                 class="ms-sticky-link"
                 href="#upload"
             >
-                Upload
+                {{ __('Upload') }}
             </a>
         </div>
     </div>
