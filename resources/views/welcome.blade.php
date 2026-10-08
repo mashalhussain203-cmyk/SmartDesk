@@ -3122,7 +3122,7 @@
 
                         >
 
-                            Account aanmaken
+                            {{ __('Account aanmaken') }}
 
                             <span aria-hidden="true">→</span>
 
