@@ -20,7 +20,7 @@
     >
 
     <title>
-        Je Mashal-verificatiecode
+        {{ __('Je Mashal-verificatiecode') }}
     </title>
 </head>
 
@@ -214,7 +214,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Secure verification
+                                                    {{ __('Secure verification') }}
                                                 </span>
 
                                             </td>
@@ -272,7 +272,7 @@
                                 text-align: center;
                             "
                         >
-                            Account verification
+                            {{ __('Account verification') }}
                         </div>
 
 
@@ -287,7 +287,7 @@
                                 text-align: center;
                             "
                         >
-                            Bevestig je e-mailadres
+                            {{ __('Bevestig je e-mailadres') }}
                         </h1>
 
 
@@ -301,8 +301,7 @@
                                 text-align: center;
                             "
                         >
-                            Gebruik de verificatiecode hieronder om je e-mailadres
-                            te bevestigen en je Mashal-account veilig te activeren.
+                            {{ __('Gebruik de verificatiecode hieronder om je e-mailadres te bevestigen en je Mashal-account veilig te activeren.') }}
                         </p>
 
                     </td>
@@ -328,7 +327,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Beste <strong>{{ $user->name }}</strong>,
+                            {{ __('Beste') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
 
@@ -340,9 +339,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Er is een verificatiecode aangevraagd voor het e-mailadres
-                            dat gekoppeld is aan jouw Mashal-account.
-                            Vul de onderstaande 6-cijferige code in op de verificatiepagina.
+                            {{ __('Er is een verificatiecode aangevraagd voor het e-mailadres dat gekoppeld is aan jouw Mashal-account. Vul de onderstaande 6-cijferige code in op de verificatiepagina.') }}
                         </p>
 
                     </td>
@@ -396,7 +393,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Jouw verificatiecode
+                                        {{ __('Jouw verificatiecode') }}
                                     </div>
 
                                 </td>
@@ -450,7 +447,7 @@
                                             font-weight: 700;
                                         "
                                     >
-                                        Geldig gedurende 15 minuten
+                                        {{ __('Geldig gedurende 15 minuten') }}
                                     </span>
 
                                 </td>
@@ -482,7 +479,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Zo rond je de verificatie af
+                            {{ __('Zo rond je de verificatie af') }}
                         </div>
 
 
@@ -537,7 +534,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Open de verificatiepagina van Mashal.
+                                    {{ __('Open de verificatiepagina van Mashal.') }}
                                 </td>
 
                             </tr>
@@ -582,7 +579,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Vul hetzelfde e-mailadres in waarop je deze e-mail hebt ontvangen.
+                                    {{ __('Vul hetzelfde e-mailadres in waarop je deze e-mail hebt ontvangen.') }}
                                 </td>
 
                             </tr>
@@ -627,7 +624,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Voer de 6-cijferige code in en bevestig je e-mailadres.
+                                    {{ __('Voer de 6-cijferige code in en bevestig je e-mailadres.') }}
                                 </td>
 
                             </tr>
@@ -708,7 +705,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Code verlopen?
+                                        {{ __('Code verlopen?') }}
                                     </div>
 
                                     <div
@@ -718,8 +715,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Na 15 minuten werkt deze code niet meer.
-                                        Vraag dan een nieuwe verificatiecode aan.
+                                        {{ __('Na 15 minuten werkt deze code niet meer. Vraag dan een nieuwe verificatiecode aan.') }}
                                     </div>
 
                                 </td>
@@ -751,7 +747,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Accountgegevens
+                            {{ __('Accountgegevens') }}
                         </div>
 
 
@@ -791,7 +787,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -934,8 +930,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Dan kun je deze e-mail veilig negeren.
-                                        Deel de verificatiecode nooit met iemand anders.
+                                        {{ __('Dan kun je deze e-mail veilig negeren. Deel de verificatiecode nooit met iemand anders.') }}
                                     </div>
 
                                 </td>
@@ -1017,7 +1012,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Veiligheid
+                                        {{ __('Veiligheid') }}
                                     </div>
 
                                     <div
@@ -1027,8 +1022,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Mashal zal je nooit vragen om deze verificatiecode
-                                        via e-mail, chat of telefoon met iemand te delen.
+                                        {{ __('Mashal zal je nooit vragen om deze verificatiecode via e-mail, chat of telefoon met iemand te delen.') }}
                                     </div>
 
                                 </td>
@@ -1059,8 +1053,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Gebruik de code hierboven om je registratie
-                            of wijziging van je e-mailadres af te ronden.
+                            {{ __('Gebruik de code hierboven om je registratie of wijziging van je e-mailadres af te ronden.') }}
                         </p>
 
 
@@ -1080,7 +1073,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
@@ -1110,9 +1103,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            omdat er een verificatiecode voor je Mashal-account
-                            is aangevraagd.
+                            {{ __('Deze e-mail is automatisch verzonden omdat er een verificatiecode voor je Mashal-account is aangevraagd.') }}
                         </div>
 
 
@@ -1147,8 +1138,7 @@
                     text-align: center;
                 "
             >
-                Ontvang je onverwacht vaker beveiligingsmails?
-                Controleer dan je accountgegevens en wijzig indien nodig je wachtwoord.
+                {{ __('Ontvang je onverwacht vaker beveiligingsmails? Controleer dan je accountgegevens en wijzig indien nodig je wachtwoord.') }}
             </div>
 
         </td>
