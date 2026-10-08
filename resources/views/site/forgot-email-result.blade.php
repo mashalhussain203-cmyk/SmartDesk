@@ -1744,7 +1744,7 @@
 
         <h1 class="forgot-result-title">
 
-            Account Found
+            {{ __('Account Found') }}
 
             <span>Mashal Studio</span>
 
