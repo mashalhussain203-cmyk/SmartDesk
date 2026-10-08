@@ -2011,6 +2011,7 @@
         }
 
     </style>
+    <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008">
 </head>
 
 <body>
