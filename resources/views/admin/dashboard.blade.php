@@ -740,7 +740,7 @@
                                         >
                                             @csrf
                                             @method('DELETE')
-                                            <button class="md-btn danger" type="submit" >Verwijderen</button>
+                                            <button class="md-btn danger" type="submit" >{{ __('Verwijderen') }}</button>
                                         </form>
                                     @else
                                         <span class="md-self-lock">{{ __('Eigen account') }}</span>
