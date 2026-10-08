@@ -20,7 +20,7 @@
     >
 
     <title>
-        Je Mashal-e-mailadres is gewijzigd
+        {{ __('Je Mashal-e-mailadres is gewijzigd') }}
     </title>
 </head>
 
@@ -274,7 +274,7 @@
                                 text-align: center;
                             "
                         >
-                            Accountgegevens gewijzigd
+                            {{ __('Accountgegevens gewijzigd') }}
                         </div>
 
 
@@ -289,7 +289,7 @@
                                 text-align: center;
                             "
                         >
-                            Je e-mailadres is gewijzigd
+                            {{ __('Je e-mailadres is gewijzigd') }}
                         </h1>
 
 
@@ -303,9 +303,7 @@
                                 text-align: center;
                             "
                         >
-                            Het e-mailadres dat aan je Mashal-account is gekoppeld,
-                            is aangepast. Hieronder vind je de wijziging en de
-                            vervolgstappen voor verificatie.
+                            {{ __('Het e-mailadres dat aan je Mashal-account is gekoppeld, is aangepast. Hieronder vind je de wijziging en de vervolgstappen voor verificatie.') }}
                         </p>
 
                     </td>
@@ -343,9 +341,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Deze e-mail bevestigt dat het e-mailadres
-                            van je Mashal-account is gewijzigd.
-                            Controleer onderstaande gegevens zorgvuldig.
+                            {{ __('Deze e-mail bevestigt dat het e-mailadres van je Mashal-account is gewijzigd. Controleer onderstaande gegevens zorgvuldig.') }}
                         </p>
 
                     </td>
@@ -372,7 +368,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wijzigingsoverzicht
+                            {{ __('Wijzigingsoverzicht') }}
                         </div>
 
 
@@ -413,7 +409,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Vorig e-mailadres
+                                        {{ __('Vorig e-mailadres') }}
                                     </div>
 
                                     <div
@@ -545,7 +541,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Nieuwe verificatie vereist
+                                        {{ __('Nieuwe verificatie vereist') }}
                                     </div>
 
                                     <div
@@ -555,10 +551,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Omdat je e-mailadres is gewijzigd,
-                                        moet je het nieuwe adres opnieuw verifiëren.
-                                        Hiervoor wordt een verificatiecode
-                                        naar je nieuwe e-mailadres gestuurd.
+                                        {{ __('Omdat je e-mailadres is gewijzigd, moet je het nieuwe adres opnieuw verifiëren. Hiervoor wordt een verificatiecode naar je nieuwe e-mailadres gestuurd.') }}
                                     </div>
 
                                 </td>
@@ -590,7 +583,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat verandert er?
+                            {{ __('Wat verandert er?') }}
                         </div>
 
 
@@ -641,8 +634,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Je Mashal-account gebruikt voortaan
-                                    het nieuwe e-mailadres voor accountcommunicatie.
+                                    {{ __('Je Mashal-account gebruikt voortaan het nieuwe e-mailadres voor accountcommunicatie.') }}
                                 </td>
                             </tr>
 
@@ -682,9 +674,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Bestelbevestigingen en belangrijke
-                                    beveiligingsmeldingen gaan voortaan
-                                    naar het nieuwe e-mailadres.
+                                    {{ __('Bestelbevestigingen en belangrijke beveiligingsmeldingen gaan voortaan naar het nieuwe e-mailadres.') }}
                                 </td>
                             </tr>
 
@@ -724,8 +714,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Rond de wijziging af door
-                                    het nieuwe e-mailadres te verifiëren.
+                                    {{ __('Rond de wijziging af door het nieuwe e-mailadres te verifiëren.') }}
                                 </td>
                             </tr>
 
@@ -805,7 +794,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Heb jij deze wijziging niet uitgevoerd?
+                                        {{ __('Heb jij deze wijziging niet uitgevoerd?') }}
                                     </div>
 
                                     <div
@@ -815,9 +804,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Dan kan iemand anders toegang hebben
-                                        tot je account. Wijzig zo snel mogelijk
-                                        je wachtwoord en controleer je accountgegevens.
+                                        {{ __('Dan kan iemand anders toegang hebben tot je account. Wijzig zo snel mogelijk je wachtwoord en controleer je accountgegevens.') }}
                                     </div>
 
                                 </td>
@@ -849,7 +836,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Als jij dit niet was
+                            {{ __('Als jij dit niet was') }}
                         </div>
 
 
@@ -900,8 +887,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of je nog toegang hebt
-                                    tot je Mashal-account.
+                                    {{ __('Controleer of je nog toegang hebt tot je Mashal-account.') }}
                                 </td>
                             </tr>
 
@@ -941,7 +927,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Stel direct een nieuw, sterk en uniek wachtwoord in.
+                                    {{ __('Stel direct een nieuw, sterk en uniek wachtwoord in.') }}
                                 </td>
                             </tr>
 
@@ -981,8 +967,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer daarna of je naam,
-                                    e-mailadres en andere accountgegevens nog kloppen.
+                                    {{ __('Controleer daarna of je naam, e-mailadres en andere accountgegevens nog kloppen.') }}
                                 </td>
                             </tr>
 
@@ -1219,7 +1204,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Beveilig je account
+                                        {{ __('Beveilig je account') }}
                                     </div>
 
                                     <div
@@ -1229,9 +1214,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Mashal zal je nooit vragen
-                                        om wachtwoorden of verificatiecodes
-                                        via e-mail, chat of telefoon met iemand te delen.
+                                        {{ __('Mashal zal je nooit vragen om wachtwoorden of verificatiecodes via e-mail, chat of telefoon met iemand te delen.') }}
                                     </div>
 
                                 </td>
@@ -1262,9 +1245,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Heb je deze wijziging zelf uitgevoerd,
-                            dan hoef je alleen nog je nieuwe e-mailadres
-                            te verifiëren.
+                            {{ __('Heb je deze wijziging zelf uitgevoerd, dan hoef je alleen nog je nieuwe e-mailadres te verifiëren.') }}
                         </p>
 
 
@@ -1315,9 +1296,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            omdat het e-mailadres van je Mashal-account
-                            is gewijzigd.
+                            {{ __('Deze e-mail is automatisch verzonden omdat het e-mailadres van je Mashal-account is gewijzigd.') }}
                         </div>
 
 
@@ -1352,8 +1331,7 @@
                     text-align: center;
                 "
             >
-                Beveiligingsmelding van Mashal Automotive.
-                Controleer onverwachte wijzigingen altijd direct.
+                {{ __('Beveiligingsmelding van Mashal Automotive. Controleer onverwachte wijzigingen altijd direct.') }}
             </div>
 
         </td>
