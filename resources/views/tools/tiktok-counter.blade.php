@@ -1465,7 +1465,7 @@
                     <iframe
                         class="ttc-preview-player"
                         src="https://www.tiktok.com/player/v1/{{ $videoId }}"
-                        title="TikTok video"
+                        title="{{ __('TikTok video') }}"
                         loading="eager"
                         allow="autoplay; encrypted-media; picture-in-picture"
                         allowfullscreen
