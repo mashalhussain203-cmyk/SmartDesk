@@ -1075,7 +1075,7 @@ Route::get('/tools/youtube-subscribers', [YouTubeSubscriberController::class, 'i
     ->name('youtube-subscribers.index');
 
 Route::get('/api/tools/youtube-subscribers/search', [YouTubeSubscriberController::class, 'lookup'])
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:180,1')
     ->name('youtube-subscribers.lookup');
 
 Route::get('/api/tools/youtube-subscribers/{channelId}', [YouTubeSubscriberController::class, 'stats'])
