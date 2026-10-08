@@ -39,6 +39,7 @@
     const fileInput = root.querySelector('.lca-file');
 
     const voiceButton = root.querySelector('.lca-voice');
+    const micIconMarkup = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v3m-4 0h8"/></svg>';
 
     const nameNode = root.querySelector('[data-name]');
 
@@ -247,9 +248,12 @@
 
     function clearReplyTarget() {
         replyTarget = null;
+        delete root.dataset.replyId;
+        delete root.dataset.replyLabel;
         replyPreviewText.textContent = '';
         replyPreview.hidden = true;
         replyPreview.style.display = 'none';
+        window.dispatchEvent(new CustomEvent('admin-chat:reply-cleared'));
     }
 
     function setReplyTarget(message) {
@@ -263,7 +267,12 @@
             || 'Bericht'
         ).trim();
         replyTarget = { id, label };
-        replyPreviewText.textContent = `↩ Antwoord op: ${label}`;
+        root.dataset.replyId = String(id);
+        root.dataset.replyLabel = label;
+        replyPreviewText.textContent = `Beantwoorden: ${label}`;
+        window.dispatchEvent(new CustomEvent('admin-chat:reply-selected', {
+            detail: { id, label },
+        }));
         replyPreview.hidden = false;
         replyPreview.style.display = 'flex';
         input.focus();
@@ -271,6 +280,13 @@
 
     replyPreviewClose.addEventListener('click', () => {
         clearReplyTarget();
+        input.focus();
+    });
+    window.addEventListener('admin-chat:reply-cancel', () => {
+        clearReplyTarget();
+        input.focus();
+    });
+    window.addEventListener('admin-chat:reply-focus', () => {
         input.focus();
     });
 
@@ -1125,9 +1141,9 @@
 
             emailMode
 
-                ? '↩ Terug naar live chat'
+                ? 'Terug naar live chat'
 
-                : '✉ Verder via e-mail';
+                : 'Verder via e-mail';
 
         emailSettingsButton.hidden =
 
@@ -1380,7 +1396,7 @@
             download.rel =
                 'noopener noreferrer';
             download.textContent =
-                '⬇ Video downloaden';
+                'Video downloaden';
 
             item.append(video, videoMeta, download);
             return;
@@ -1438,7 +1454,7 @@
 
         link.textContent =
 
-            `📎 ${
+            `Bijlage: ${
 
                 message.attachment_name
 
@@ -1571,7 +1587,7 @@
             quote.style.display = 'block';
             quote.style.opacity = '.8';
             quote.style.marginBottom = '6px';
-            quote.textContent = '↩ ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
+            quote.textContent = 'Antwoord op: ' + (message.reply_to.body || message.reply_to.attachment_name || 'Bericht');
             quote.addEventListener('click', () => {
                 log.querySelector(`[data-message-id="${message.reply_to.id}"]`)?.scrollIntoView({behavior:'smooth', block:'center'});
             });
@@ -1586,51 +1602,46 @@
 
         );
 
+        // Plain HTML actions remain usable without compiled React assets.
         const actions = document.createElement('div');
-        actions.style.display = 'flex';
-        actions.style.gap = '6px';
-        actions.style.flexWrap = 'wrap';
-        actions.style.marginTop = '7px';
-        const miniButton = (label, title, handler) => {
+        actions.className = 'lca-message-actions';
+
+        const actionButton = (label, handler, kind = '') => {
             const button = document.createElement('button');
             button.type = 'button';
+            button.className = 'lca-message-action' + (kind ? ' lca-message-action--' + kind : '');
             button.textContent = label;
-            button.title = title;
-            button.style.fontSize = '12px';
-            button.style.padding = '3px 7px';
-            button.style.borderRadius = '999px';
+            button.setAttribute('aria-label', label);
             button.addEventListener('click', handler);
             return button;
         };
-        actions.append(miniButton('↩', 'Beantwoorden', () => {
-            setReplyTarget(message);
-        }));
-        ['👍','❤️','😂','😮','😢','🙏'].forEach(emoji => {
-            const count = Number(message.reactions?.[emoji] || 0);
-            actions.append(miniButton(emoji + (count ? ` ${count}` : ''), 'Reactie', async () => {
-                try {
-                    await api(`${root.dataset.base}/${selected.id}/messages/${id}/reaction`, 'POST', {emoji});
-                    lastMessageId = 0; seen.clear(); log.replaceChildren(); await detail();
-                } catch (error) { fail(error.message); }
-            }));
-        });
+
+        actions.append(actionButton('Beantwoorden', () => setReplyTarget(message), 'reply'));
+
         if (message.sender === 'admin' && message.body) {
-            actions.append(miniButton('✎', 'Bericht bewerken (max. 5 minuten)', async () => {
+            actions.append(actionButton('Bewerken', async () => {
                 const body = window.prompt('Bericht bewerken:', message.body);
                 if (body === null || !body.trim()) return;
                 try {
-                    await api(`${root.dataset.base}/${selected.id}/messages/${id}`, 'PATCH', {body: body.trim()});
-                    lastMessageId = 0; seen.clear(); log.replaceChildren(); await detail();
+                    await api(`${root.dataset.base}/${selected.id}/messages/${id}`, 'PATCH', { body: body.trim() });
+                    lastMessageId = 0;
+                    seen.clear();
+                    log.replaceChildren();
+                    await detail();
                 } catch (error) { fail(error.message); }
             }));
         }
+
         if (message.attachment_url) {
-            actions.append(miniButton('⛶', 'Media fullscreen openen', () => window.open(message.attachment_url, '_blank', 'noopener')));
+            actions.append(actionButton('Media openen', () => {
+                window.open(message.attachment_url, '_blank', 'noopener');
+            }));
         }
+
         const status = document.createElement('span');
-        status.style.fontSize = '11px';
-        status.style.opacity = '.65';
-        status.textContent = (message.edited_at ? 'bewerkt · ' : '') + (message.sender === 'admin' ? (message.read_by_other ? 'gelezen' : 'verzonden') : '');
+        status.className = 'lca-message-state';
+        status.textContent = (message.edited_at ? 'bewerkt · ' : '')
+            + (message.sender === 'admin' ? (message.read_by_other ? 'gelezen' : 'verzonden') : '');
         actions.append(status);
         item.append(actions);
 
@@ -2772,9 +2783,7 @@
 
         );
 
-        voiceButton.textContent =
-
-            '🎤';
+        voiceButton.innerHTML = micIconMarkup;
 
         mediaRecorder = null;
 
@@ -2828,9 +2837,7 @@
 
         );
 
-        voiceButton.textContent =
-
-            '🎤';
+        voiceButton.innerHTML = micIconMarkup;
 
         const bytes =
 
@@ -3974,11 +3981,17 @@
     // INBOX SEARCH + STATS
     // =========================================================================
 
-    const searchInput=document.createElement('input');
-    searchInput.type='search'; searchInput.placeholder='Zoek naam, e-mail of bericht…'; searchInput.style.width='100%'; searchInput.style.padding='9px'; searchInput.style.boxSizing='border-box';
-    list.parentElement?.insertBefore(searchInput,list);
-    let searchTimer=null;
-    searchInput.addEventListener('input',()=>{window.clearTimeout(searchTimer);searchTimer=window.setTimeout(()=>{inboxSearch=searchInput.value.trim();page=1;cachedInboxSignature='';void inbox();},250);});
+    const searchInput = root.querySelector('[data-search]');
+    let searchTimer = null;
+    searchInput?.addEventListener('input', () => {
+        window.clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+            inboxSearch = searchInput.value.trim();
+            page = 1;
+            cachedInboxSignature = '';
+            void inbox();
+        }, 250);
+    });
 
     const statsNode=document.createElement('div'); statsNode.style.fontSize='12px'; statsNode.style.padding='8px'; list.parentElement?.insertBefore(statsNode,list);
     async function loadStats(){try{const url=new URL(root.dataset.base,window.location.origin);url.pathname=url.pathname.replace(/\/conversations\/?$/,'/stats');const d=await api(url.toString());statsNode.textContent=`Actief ${d.active} · Wacht ${d.waiting} · Ongelezen ${d.unread} · Vandaag ${d.messages_today}`;document.title=d.unread?`(${d.unread}) ${originalDocumentTitle}`:originalDocumentTitle;}catch{}}

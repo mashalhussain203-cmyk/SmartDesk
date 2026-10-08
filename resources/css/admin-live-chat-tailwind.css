@@ -1,0 +1,5 @@
+/* Tailwind v4 utilities are scoped to the React admin chat island.
+   No preflight reset is loaded, so the existing Laravel admin navigation stays intact. */
+@import 'tailwindcss/theme.css' layer(theme) prefix(admintw);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(admintw);
+@source '../js/admin-live-chat-react.js';

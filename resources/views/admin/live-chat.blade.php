@@ -3490,6 +3490,7 @@ body {
 }
 
 </style>
+<link rel="stylesheet" href="{{ asset('css/admin-live-chat.css') }}?v=20261008-1">
 
 
 
@@ -4485,7 +4486,7 @@ body {
 
 
 
-                            ✉ Verder via e-mail
+                            Verder via e-mail
 
 
 
@@ -4525,7 +4526,7 @@ body {
 
 
 
-                            ✎ E-mail / titel
+                            E-mail en titel
 
 
 
@@ -4939,6 +4940,10 @@ body {
 
 
 
+                    <div id="admin-live-chat-react-tools" aria-label="Antwoordwerkbalk">
+    <p class="lca-reply-hint-fallback">Kies Beantwoorden bij een bericht om daarop te reageren, of typ direct je antwoord.</p>
+</div>
+
                     <form
 
 
@@ -4975,7 +4980,7 @@ body {
 
 
 
-                            📎
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 13v5a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-5"/></svg>
 
 
 
@@ -5043,7 +5048,7 @@ body {
 
 
 
-                            🎤
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v3m-4 0h8"/></svg>
 
 
 
@@ -5274,7 +5279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    src="{{ asset('js/admin-live-chat.js') }}?v=80"
+    src="{{ asset('js/admin-live-chat.js') }}?v=81"
 
 
 
@@ -5288,5 +5293,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <script src="{{ asset('js/live-chat-calls.js') }}?v=1" defer></script>
+
+{{-- Progressive enhancement: the old Blade/JavaScript operator chat keeps working
+     if a Vite build has not been deployed yet. --}}
+@php
+    $operatorManifestPath = public_path('build/manifest.json');
+    $operatorManifest = is_file($operatorManifestPath)
+        ? json_decode(file_get_contents($operatorManifestPath), true)
+        : null;
+@endphp
+@if (is_array($operatorManifest) && isset($operatorManifest['resources/js/admin-live-chat-react.js']))
+    @vite('resources/js/admin-live-chat-react.js')
+@endif
 
 @endsection

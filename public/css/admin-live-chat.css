@@ -1,0 +1,143 @@
+/*
+ * Mashal Support / Operator refresh
+ * No preflight reset; this stylesheet overrides the original Blade theme,
+ * including when Vite's optional React bundle is unavailable.
+ */
+.lca .lca-top {
+    border-color: rgba(189, 177, 249, .8);
+    background: radial-gradient(circle at 90% -20%, #d6ccff 0, transparent 43%), linear-gradient(123deg,#f1eeff 0%,#dce4ff 100%) !important;
+    box-shadow: 0 30px 65px rgba(10, 11, 34, .24), inset 0 1px rgba(255,255,255,.9);
+}
+.lca .lca-top::before { background:linear-gradient(180deg,#8968ed,#587ce1); }
+.lca .lca-top h1 { color:#1d2340 !important; letter-spacing:-.06em; }
+.lca .lca-eyebrow { color:#5842a4 !important; }
+.lca .lca-top p { color:#53617b !important; }
+.lca .lca-eyebrow__dot { background:#5a997a; box-shadow:0 0 0 4px rgba(67,157,111,.16); }
+.lca .lca-presence {
+    border:1px solid rgba(98,102,172,.26) !important;
+    background:rgba(255,255,255,.63) !important;
+    box-shadow:0 8px 28px rgba(58,55,122,.08);
+}
+.lca .lca-presence__copy strong { color:#253956 !important; font-size:13px; }
+.lca .lca-presence__copy small { color:#596783 !important; font-size:11px; }
+.lca .lca-stats { gap:12px; }
+.lca .lca-stat {
+    border-color:rgba(162,160,227,.2);
+    background:linear-gradient(135deg,#1f2642,#171e32);
+    box-shadow:0 13px 34px rgba(0,0,0,.15);
+}
+.lca .lca-stat__copy strong { color:#f5f4ff; }
+.lca .lca-stat__copy small { color:#b0bad4; font-size:11px; white-space:normal; }
+.lca .lca-grid {
+    border-color:rgba(179,171,247,.25);
+    border-radius:25px;
+    box-shadow:0 34px 84px rgba(0,0,0,.36);
+}
+.lca .lca-inbox { background:linear-gradient(180deg,#151c30,#10182a); }
+.lca .lca-inbox__head { background:#20263e; }
+.lca .lca-inbox__title strong { color:#faf9ff; }
+.lca .lca-search input { font-size:14px; }
+.lca .lca-item__name-row strong { font-size:13px; }
+.lca .lca-item__meta { color:#b1bbce; font-size:11px; }
+.lca .lca-item__time { color:#a5aec8; font-size:10px; }
+.lca .lca-item[aria-pressed="true"] {
+    border-color:rgba(175,149,255,.43)!important;
+    background:linear-gradient(100deg,rgba(122,92,220,.35),rgba(57,83,148,.16))!important;
+    box-shadow:inset 3px 0 #b8a0ff!important;
+}
+.lca .lca-detail { background:#0e1729; }
+.lca .lca-heading { background:#1d263e; }
+.lca .lca-heading strong { color:#f7f5ff; }
+.lca .lca-heading p { color:#b0b9d2; }
+.lca .lca-log { background: radial-gradient(circle at 92% 0%,rgba(130,118,226,.1),transparent 35%), #111a2d; }
+.lca .lca-message {
+    border-color:rgba(180,191,230,.16);
+    background:#252f47;
+    color:#f5f6ff;
+}
+.lca .lca-message[data-sender="admin"] {
+    border-color:rgba(198,172,255,.4);
+    background:linear-gradient(135deg,#735ac9,#5378dc);
+}
+.lca .lca-message p { font-size:14px; line-height:1.7; }
+.lca .lca-message-actions {
+    display:flex; flex-wrap:wrap; align-items:center; gap:7px;
+    margin-top:13px; padding-top:10px; border-top:1px solid rgba(255,255,255,.14);
+}
+.lca .lca-message-action {
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    padding:7px 11px; min-height:34px;
+    border:1px solid rgba(204,211,250,.2);
+    border-radius:11px;
+    color:#e8eafd;
+    background:rgba(255,255,255,.075);
+    font:700 11px/1.3 system-ui,sans-serif;
+    transition:background .15s ease,border-color .15s ease;
+}
+.lca .lca-message-action:hover { color:white; border-color:rgba(222,204,255,.54); background:rgba(255,255,255,.17); }
+.lca .lca-message-action--reply {
+    color:#fff;
+    border-color:rgba(212,191,255,.55);
+    background:rgba(191,163,255,.22);
+}
+.lca .lca-message-action--reply::before {
+    content:"";
+    display:inline-block; width:13px; height:13px;
+    border-left:2px solid currentColor;
+    border-bottom:2px solid currentColor;
+    border-bottom-left-radius:7px;
+    transform:translateY(-2px) rotate(-20deg);
+}
+.lca .lca-message-state { margin-left:auto; color:#b6c0d8; font-size:10px; }
+.lca .lca-reply-preview {
+    padding:13px 16px!important;
+    border:1px solid rgba(192,166,255,.5)!important;
+    border-left:4px solid #ac97ff!important;
+    border-radius:14px!important;
+    color:#f0edff;
+    background:#283051!important;
+}
+.lca .lca-reply-preview span { font-size:12px; }
+.lca .lca-reply-preview button { min-width:36px; min-height:36px; font-size:19px; }
+.lca .lca-composer-wrap { background:#202941; }
+.lca .lca-composer-info { color:#b6c3da; font-size:12px; }
+.lca .lca-form { border-color:rgba(174,171,243,.34); background:#111a2d; }
+.lca .lca-tool {
+    display:inline-grid; place-items:center;
+    color:#e1daff!important; background:rgba(171,150,245,.16)!important;
+}
+.lca .lca-tool svg { display:block; width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linejoin:round; stroke-linecap:round; }
+.lca .lca-tool:focus-visible,.lca .lca-message-action:focus-visible { outline:2px solid #d5c4ff; outline-offset:2px; }
+.lca .lca-form textarea { min-width:0; font-size:16px; color:#faf9ff; }
+.lca .lca-submit { font-size:13px; background:linear-gradient(135deg,#9274ed,#688ff2)!important; }
+.lca #admin-live-chat-react-tools { margin-bottom:11px; }
+.lca #admin-live-chat-react-tools .lca-reply-hint-fallback {
+    padding:12px 15px; margin:0;
+    color:#c0c9e3; border:1px solid rgba(177,170,235,.18);
+    border-radius:14px; background:#172139; font-size:12px;
+}
+.lca.lca-react-ready .lca-reply-preview { display:none!important; }
+@media(max-width:980px) {
+    .lca .lca-grid { display:grid; grid-template-columns:minmax(0,1fr)!important; height:auto; }
+    .lca .lca-inbox { border-right:0; border-bottom:1px solid rgba(188,186,240,.2); max-height:440px; }
+    .lca .lca-detail { min-height:650px; }
+}
+@media(max-width:700px) {
+    .lca .lca-top { padding:20px 16px!important; }
+    .lca .lca-top h1 { font-size:29px!important; }
+    .lca .lca-stats { grid-template-columns:1fr 1fr; overflow:visible; }
+    .lca .lca-stat:nth-child(n+2) { display:grid; }
+    .lca .lca-stat:nth-child(3) { grid-column:1/-1; }
+    .lca .lca-stat { min-width:0; grid-template-columns:40px minmax(0,1fr); }
+    .lca .lca-stat__icon { width:40px; height:40px; }
+    .lca .lca-message { max-width:96%; }
+    .lca .lca-message-actions { gap:6px; }
+    .lca .lca-message-action { min-height:39px; }
+    .lca .lca-composer-wrap { padding:12px; }
+    .lca .lca-form { display:grid; grid-template-columns:42px 42px minmax(0,1fr); }
+    .lca .lca-tool { width:42px; min-width:42px; height:42px; }
+    .lca .lca-submit { grid-column:1/-1; width:100%; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .lca .lca-message-action { transition:none; }
+}
