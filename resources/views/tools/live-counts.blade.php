@@ -331,6 +331,7 @@
                     <span>Subscribers</span>
                     <span>Views</span>
                     <span>Videos</span>
+                    <span>Goal</span>
                 </div>
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
