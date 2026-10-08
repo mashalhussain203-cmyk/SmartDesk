@@ -6,6 +6,7 @@ use App\Services\AiWorkspaceService;
 use App\Services\AzureSpeechService;
 use App\Services\ChatFileReaderService;
 use App\Services\GroqChatService;
+use App\Services\OpenAiChatService;
 use App\Services\GroqVoiceService;
 use App\Services\GroqVisionService;
 use Illuminate\Contracts\View\View;
@@ -28,6 +29,7 @@ class AiChatController extends Controller
 
     public function __construct(
         private readonly GroqChatService $groqChat,
+        private readonly OpenAiChatService $openAiChat,
         private readonly GroqVoiceService $groqVoice,
         private readonly GroqVisionService $groqVision,
         private readonly AzureSpeechService $azureSpeech,
@@ -40,13 +42,13 @@ class AiChatController extends Controller
     {
         return view('ai.chat', [
             'chatConfigured' =>
-                $this->groqChat->isConfigured(),
+                $this->chatProvider()->isConfigured(),
 
             'voiceConfigured' =>
                 $this->groqVoice->isConfigured(),
 
             'modelName' =>
-                $this->groqChat->modelName(),
+                $this->chatProvider()->modelName(),
 
             'voiceModelName' =>
                 $this->groqVoice->modelName(),
@@ -86,7 +88,7 @@ class AiChatController extends Controller
 
     public function message(Request $request): JsonResponse
     {
-        if (! $this->groqChat->isConfigured()) {
+        if (! $this->chatProvider()->isConfigured()) {
             return $this->notConfiguredResponse();
         }
 
@@ -200,7 +202,7 @@ class AiChatController extends Controller
 
             $startedAt = hrtime(true);
 
-            $result = $this->groqChat->chat(
+            $result = $this->chatProvider()->chat(
                 $conversation['messages'],
                 [
                     'mode' => $mode,
@@ -294,7 +296,7 @@ class AiChatController extends Controller
     public function voiceTurn(Request $request): JsonResponse
     {
         if (
-            ! $this->groqChat->isConfigured()
+            ! $this->chatProvider()->isConfigured()
             || ! $this->groqVoice->isConfigured()
         ) {
             return $this->notConfiguredResponse();
@@ -393,7 +395,7 @@ class AiChatController extends Controller
                 $voiceLanguage
             );
 
-            $result = $this->groqChat->chat(
+            $result = $this->chatProvider()->chat(
                 $conversation['messages'],
                 [
                     'mode' => 'auto',
@@ -921,6 +923,18 @@ class AiChatController extends Controller
         ];
     }
 
+    private function chatProvider(): GroqChatService|OpenAiChatService
+    {
+        return strtolower((string) config('mashal-ai.provider', 'groq')) === 'openai'
+            ? $this->openAiChat
+            : $this->groqChat;
+    }
+
+    private function chatProviderLabel(): string
+    {
+        return $this->chatProvider() instanceof OpenAiChatService ? 'OpenAI' : 'Groq';
+    }
+
     private function providerErrorResponse(
         Request $request,
         Throwable $exception
@@ -943,28 +957,28 @@ class AiChatController extends Controller
                 'ok' => false,
                 'error_code' => 'provider_auth_error',
                 'message' =>
-                    'Mashal AI kan Groq niet authenticeren. Controleer GROQ_API_KEY in Railway.',
+                    'Mashal AI kan '.$this->chatProviderLabel().' niet authenticeren. Controleer de API-key in Railway.',
             ], 503),
 
             404 => response()->json([
                 'ok' => false,
                 'error_code' => 'model_not_found',
                 'message' =>
-                    'Een ingesteld Groq-model is niet beschikbaar. Controleer de Groq modelvariabelen.',
+                    'Het ingestelde '.$this->chatProviderLabel().'-model is niet beschikbaar. Controleer de modelinstellingen.',
             ], 503),
 
             400 => response()->json([
                 'ok' => false,
                 'error_code' => 'provider_request_error',
                 'message' =>
-                    'Groq kon deze request niet verwerken. Probeer opnieuw.',
+                    $this->chatProviderLabel().' kon deze aanvraag niet verwerken. Probeer opnieuw.',
             ], 502),
 
             default => response()->json([
                 'ok' => false,
                 'error_code' => 'provider_error',
                 'message' =>
-                    'Mashal AI kon nu geen antwoord ophalen via Groq. Probeer het opnieuw.',
+                    'Mashal AI kon geen antwoord ophalen via '.$this->chatProviderLabel().'. Probeer opnieuw.',
             ], 502),
         };
     }
@@ -974,7 +988,7 @@ class AiChatController extends Controller
         Throwable $exception
     ): JsonResponse {
         $retryAfter = max(
-            $this->groqChat->lastRetryAfterSeconds() ?? 0,
+            $this->chatProvider()->lastRetryAfterSeconds() ?? 0,
             $this->groqVoice->lastRetryAfterSeconds() ?? 0,
             $this->groqVision->lastRetryAfterSeconds() ?? 0,
             $this->fallbackCooldownSeconds()
@@ -994,7 +1008,7 @@ class AiChatController extends Controller
         );
 
         Log::warning(
-            'Groq rate limit voor Mashal AI.',
+            'AI-provider rate limit voor Mashal AI.',
             [
                 'user_id' =>
                     $request->user()?->getAuthIdentifier(),
@@ -1003,7 +1017,7 @@ class AiChatController extends Controller
                     $retryAfter,
 
                 'chat_status' =>
-                    $this->groqChat->lastStatus(),
+                    $this->chatProvider()->lastStatus(),
 
                 'voice_status' =>
                     $this->groqVoice->lastStatus(),
@@ -1021,7 +1035,7 @@ class AiChatController extends Controller
                 'ok' => false,
                 'error_code' => 'rate_limited',
                 'message' =>
-                    'Mashal AI heeft tijdelijk de Groq-limiet bereikt. Probeer over '
+                    'Mashal AI heeft tijdelijk de limiet van '.$this->chatProviderLabel().' bereikt. Probeer over '
                     . $retryAfter
                     . ' seconden opnieuw.',
                 'retry_after' => $retryAfter,
@@ -1048,7 +1062,7 @@ class AiChatController extends Controller
                 'ok' => false,
                 'error_code' => 'rate_limited',
                 'message' =>
-                    'Mashal AI wacht nog op de Groq-limiet. Probeer over '
+                    'Mashal AI wacht nog op de '.$this->chatProviderLabel().'-limiet. Probeer over '
                     . $remaining
                     . ' seconden opnieuw.',
                 'retry_after' => $remaining,
@@ -1065,7 +1079,7 @@ class AiChatController extends Controller
             'ok' => false,
             'error_code' => 'not_configured',
             'message' =>
-                'Mashal AI is nog niet volledig met Groq geconfigureerd.',
+                'Mashal AI is nog niet met '.$this->chatProviderLabel().' geconfigureerd. Controleer de Railway-variabelen.',
         ], 503);
     }
 
@@ -1126,11 +1140,11 @@ class AiChatController extends Controller
                 ?->getAuthIdentifier();
 
         if ($userId !== null) {
-            return 'mashal-ai:groq-cooldown:user:'
+            return 'mashal-ai:'.strtolower($this->chatProviderLabel()).'-cooldown:user:'
                 . (string) $userId;
         }
 
-        return 'mashal-ai:groq-cooldown:ip:'
+        return 'mashal-ai:'.strtolower($this->chatProviderLabel()).'-cooldown:ip:'
             . sha1(
                 (string) $request->ip()
             );
