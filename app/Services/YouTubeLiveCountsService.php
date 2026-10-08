@@ -108,6 +108,18 @@ class YouTubeLiveCountsService
             throw new RuntimeException('Ongeldige YouTube zoekterm.');
         }
 
+        $directVideoId = $this->extractVideoIdFromQuery($query);
+
+        if ($directVideoId !== null) {
+            return [[
+                'id' => $directVideoId,
+                'title' => 'YouTube-video',
+                'thumbnail' => 'https://i.ytimg.com/vi/'.$directVideoId.'/hqdefault.jpg',
+                'channel' => null,
+                'url' => 'https://www.youtube.com/watch?v='.$directVideoId,
+            ]];
+        }
+
         $cacheKey = 'youtube-livecounts:video-search:v1:'
             .sha1(mb_strtolower($query));
 
@@ -385,6 +397,67 @@ class YouTubeLiveCountsService
         } finally {
             $lock->release();
         }
+    }
+
+    private function extractVideoIdFromQuery(string $query): ?string
+    {
+        $query = trim($query);
+
+        if (preg_match('/^[A-Za-z0-9_-]{11}$/', $query)) {
+            return $query;
+        }
+
+        $candidate = $query;
+
+        if (!preg_match('#^https?://#i', $candidate)) {
+            if (preg_match('#^(?:www\.)?(?:youtube\.com|youtu\.be)/#i', $candidate)) {
+                $candidate = 'https://'.$candidate;
+            } else {
+                return null;
+            }
+        }
+
+        $parts = parse_url($candidate);
+        if (!is_array($parts)) {
+            return null;
+        }
+
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $host = preg_replace('/^www\./', '', $host) ?? $host;
+        $path = trim((string) ($parts['path'] ?? ''), '/');
+
+        if ($host === 'youtu.be') {
+            $segment = explode('/', $path)[0] ?? '';
+
+            return preg_match('/^[A-Za-z0-9_-]{11}$/', $segment)
+                ? $segment
+                : null;
+        }
+
+        if (!in_array($host, [
+            'youtube.com',
+            'm.youtube.com',
+            'music.youtube.com',
+        ], true)) {
+            return null;
+        }
+
+        parse_str((string) ($parts['query'] ?? ''), $params);
+
+        $watchId = trim((string) ($params['v'] ?? ''));
+        if (preg_match('/^[A-Za-z0-9_-]{11}$/', $watchId)) {
+            return $watchId;
+        }
+
+        if (preg_match(
+            '#^(?:shorts|embed|live)/([A-Za-z0-9_-]{11})(?:/|$)#',
+            $path,
+            $match
+        )) {
+            return $match[1];
+        }
+
+        return null;
     }
 
     private function runPython(
