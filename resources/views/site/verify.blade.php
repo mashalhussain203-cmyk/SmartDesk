@@ -2064,7 +2064,7 @@
 
                         <h2 class="verify-heading success">
 
-                            Verified <strong>Successfully</strong>
+                            {{ __('Verified') }} <strong>Successfully</strong>
 
                         </h2>
 
