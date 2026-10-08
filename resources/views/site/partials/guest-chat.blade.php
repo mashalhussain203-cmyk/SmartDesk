@@ -3702,7 +3702,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (toastText) {
             toastText.textContent =
-                message || 'Je hebt een nieuw bericht ontvangen.';
+                message || @json(__('Je hebt een nieuw bericht ontvangen.'));
         }
 
         toast.classList.add('is-visible');
@@ -3744,7 +3744,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const notification = new Notification(
                 'Nieuw bericht · Mashal Studio',
                 {
-                    body: message || 'Je hebt een nieuw bericht ontvangen.',
+                    body: message || @json(__('Je hebt een nieuw bericht ontvangen.')),
                     tag: 'mashal-chat-message'
                 }
             );
@@ -3776,7 +3776,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const text = normalizeText(node?.textContent);
 
         if (!text) {
-            return 'Je hebt een nieuw bericht ontvangen.';
+            return @json(__('Je hebt een nieuw bericht ontvangen.'));
         }
 
         return text.length > 92
@@ -4112,7 +4112,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ?? message?.content
             ?? message?.content_text
             ?? message?.contentText
-            ?? 'Je hebt een nieuw bericht ontvangen.'
+            ?? @json(__('Je hebt een nieuw bericht ontvangen.'))
         );
     };
 
