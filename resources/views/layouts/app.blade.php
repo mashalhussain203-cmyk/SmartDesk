@@ -13,5 +13,6 @@
 
 <body>
     @yield('content')
+    <script src="{{ asset('js/smartdesk-urdu.js') }}" defer></script>
 </body>
 </html>
