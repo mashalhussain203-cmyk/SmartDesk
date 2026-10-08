@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>YouTube Live Views</title>
+    <title>{{ __('YouTube Live Views') }}</title>
     <link rel="stylesheet" href="/vendor/odometer/odometer-theme-minimal.css?v=20261007-2">
     <style>
         :root { color-scheme:dark; }
@@ -42,11 +42,11 @@
 <body>
 <div class="box">
     <div class="copy">
-        <div class="label">YouTube Live Views</div>
+        <div class="label">{{ __('YouTube Live Views') }}</div>
         <div class="value" id="value">0</div>
     </div>
     <div class="meta">
-        <div class="title" id="title">YouTube video</div>
+        <div class="title" id="title">{{ __('YouTube video') }}</div>
         <div class="stats" id="stats">0 likes · 0 comments</div>
     </div>
 </div>
