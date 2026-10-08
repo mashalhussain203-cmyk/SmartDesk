@@ -1136,4 +1136,27 @@ class LiveChatTest extends TestCase
     }
 
 
+
+    public function test_guest_has_immediately_accessible_audio_and_video_buttons_in_chat_header(): void
+    {
+        $callsScript = file_get_contents(public_path('js/live-chat-calls.js'));
+        $guestView = file_get_contents(resource_path('views/site/partials/guest-chat.blade.php'));
+        $adminView = file_get_contents(resource_path('views/admin/live-chat.blade.php'));
+
+        $this->assertIsString($callsScript);
+        $this->assertIsString($guestView);
+        $this->assertIsString($adminView);
+        $this->assertStringContainsString('function installGuestHeaderButtons()', $callsScript);
+        $this->assertStringContainsString("root.querySelector('.guest-chat__header .gc-actions')", $callsScript);
+        $this->assertStringContainsString('Spraakbellen met de admin', $callsScript);
+        $this->assertStringContainsString('Videobellen met de admin', $callsScript);
+        $this->assertStringContainsString("void startOutgoing(mode)", $callsScript);
+        $this->assertStringContainsString("root.dispatchEvent(new CustomEvent('live-chat:handoff'", $callsScript);
+        $this->assertStringContainsString("root.querySelector('.lca-heading__actions')", $callsScript);
+        $this->assertStringContainsString("side === 'admin' && call.initiated_by === 'visitor'", $callsScript);
+        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=7", $guestView);
+        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=7", $adminView);
+        $this->assertStringContainsString('data-default-mode="human"', $guestView);
+    }
+
 }

@@ -5292,7 +5292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<script src="{{ asset('js/live-chat-calls.js') }}?v=6" defer></script>
+<script src="{{ asset('js/live-chat-calls.js') }}?v=7" defer></script>
 
 {{-- Progressive enhancement: the old Blade/JavaScript operator chat keeps working
      if a Vite build has not been deployed yet. --}}

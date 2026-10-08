@@ -38,6 +38,15 @@
 
     const style = document.createElement('style');
     style.textContent = css + "\n#guest-chat .lc-call-actions{display:flex;flex-wrap:wrap;gap:9px;padding:10px 16px 12px;border-bottom:1px solid rgba(255,255,255,.075)}\n#guest-chat .lc-call-actions[hidden]{display:none!important}\n#guest-chat .lc-call-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:1 1 125px;min-height:46px;padding:8px 12px;border:1px solid rgba(140,128,255,.25);border-radius:12px;background:rgba(122,108,255,.1);color:#eef1ff;font-family:inherit;font-size:13px;font-weight:700;line-height:1.3;cursor:pointer}\n#guest-chat .lc-call-action:hover:not(:disabled){background:rgba(122,108,255,.22);border-color:rgba(140,128,255,.55)}\n#guest-chat .lc-call-action:disabled{opacity:.45;cursor:not-allowed}\n#guest-chat .lc-call-action:focus-visible{outline:2px solid #a99fff;outline-offset:3px}\n#guest-chat .lc-call-action-icon{font-size:20px;line-height:1}\n@media(max-width:380px){#guest-chat .lc-call-actions{padding-inline:10px;gap:6px}#guest-chat .lc-call-action{font-size:12px;padding:7px 6px}}\n";
+    // The two call shortcuts belong in the visible visitor-chat header.
+    // On a small phone they are compact icon buttons with accessible labels.
+    style.textContent += [
+        '#guest-chat .gc-actions .gc-call-quick{display:inline-grid;place-items:center;flex:0 0 39px;width:39px;height:42px;padding:0;border:1px solid rgba(129,151,255,.22);border-radius:12px;background:rgba(122,108,255,.09);color:#e9edff;cursor:pointer}',
+        '#guest-chat .gc-actions .gc-call-quick:hover:not(:disabled){border-color:rgba(139,126,255,.65);background:rgba(122,108,255,.19)}',
+        '#guest-chat .gc-actions .gc-call-quick:disabled{opacity:.45;cursor:wait}',
+        '#guest-chat .gc-actions .gc-call-quick svg{width:19px;height:19px;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}',
+        '@media(max-width:390px){#guest-chat .gc-actions{gap:2px}#guest-chat .gc-actions .gc-call-quick{width:35px;height:39px;flex-basis:35px;border-radius:10px}#guest-chat .gc-actions .gc-reset{display:none}}',
+    ].join('\n');
     document.head.append(style);
 
     const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -644,7 +653,52 @@
         } catch {}
     }
 
+    function installGuestHeaderButtons() {
+        if (side !== 'visitor') return;
+
+        const headerActions = root.querySelector('.guest-chat__header .gc-actions');
+        if (!headerActions || headerActions.querySelector('[data-lcc-header-audio]')) return;
+
+        function button(mode, label, icon) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'gc-call-quick';
+            item.dataset[mode === 'video' ? 'lccHeaderVideo' : 'lccHeaderAudio'] = '';
+            item.setAttribute('aria-label', label);
+            item.title = label;
+            item.innerHTML = icon;
+            item.addEventListener('click', () => {
+                // The normal visitor chat is opened by default. In case a
+                // theme switches it, restore human support before calling.
+                if (root.dataset.mode !== 'human') {
+                    root.dispatchEvent(new CustomEvent('live-chat:handoff', {
+                        detail: { body: '' },
+                    }));
+                }
+                void startOutgoing(mode);
+            });
+            return item;
+        }
+
+        const phone = button('audio', 'Spraakbellen met de admin',
+            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7 10a16 16 0 0 0 7 7l1.6-2a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.7 2z"/></svg>');
+        const camera = button('video', 'Videobellen met de admin',
+            '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>');
+
+        headerActions.prepend(camera);
+        headerActions.prepend(phone);
+
+        const refresh = () => {
+            const blocked = state.busy || Boolean(state.call);
+            phone.disabled = blocked;
+            camera.disabled = blocked;
+        };
+        setInterval(refresh, 1000);
+        refresh();
+    }
+
     function installButtons() {
+        installGuestHeaderButtons();
         if (side === 'admin') {
             const actions = root.querySelector('.lca-heading__actions');
             if (!actions || actions.querySelector('[data-lcc-audio]')) return;
