@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(
     basePath: dirname(__DIR__)
@@ -66,6 +67,28 @@ return Application::configure(
             fn (Request $request): bool =>
                 $request->is('api/*') ||
                 $request->expectsJson(),
+        );
+
+        // A contact form submitted from an expired or replaced session
+        // should offer a fresh, CSRF-protected form instead of Laravel's
+        // generic 419 page. The token check remains fully enabled.
+        $exceptions->render(
+            static function (HttpExceptionInterface $exception, Request $request) {
+                if (
+                    $exception->getStatusCode() === 419
+                    && $request->isMethod('POST')
+                    && $request->is('contact')
+                    && ! $request->expectsJson()
+                ) {
+                    return redirect()->route(
+                        'contact',
+                        ['session_expired' => '1'],
+                        303
+                    );
+                }
+
+                return null;
+            }
         );
     })
 

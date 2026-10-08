@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\GmailLiveChatService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 use Throwable;
 
 class ContactController extends Controller
@@ -13,9 +13,13 @@ class ContactController extends Controller
     /**
      * Toon de publieke contactpagina.
      */
-    public function show(): View
+    public function show(): Response
     {
-        return view('site.contact');
+        // The CSRF token must be generated against the current session.
+        // Never allow a cached copy of the contact form to be reused.
+        return response()->view('site.contact')
+            ->header('Cache-Control', 'private, no-store, no-cache, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     /**
