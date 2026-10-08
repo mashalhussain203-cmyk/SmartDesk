@@ -1,33 +1,47 @@
-# Urdu localization (initial translation pass)
+# Nederlands / Urdu in SmartDesk
 
-This branch introduces an **initial**, opt-in Dutch-to-Urdu translation for the SmartDesk / Mashal Studio Laravel app.
+The global site header now offers two language buttons: **NL** and **اردو**.
 
-## Enable Urdu
+## How it works
 
-Set these environment variables on your Laravel installation:
+- The visible header buttons submit a CSRF-protected POST to `/language`.
+- Supported values are strictly `nl` and `ur`.
+- The choice is stored in the visitor's session as `site_locale` and applied on subsequent web requests by `App\Http\Middleware\SetSiteLocale`.
+- Switching languages returns visitors to their original page, subject to a same-host check.
+- When Urdu is active, the site layout sets `lang="ur"` and `dir="rtl"`.
+- No JavaScript is required for the switch. The same buttons are visible in the mobile header.
+- By default, the application uses the locale configured in `APP_LOCALE` (normally `nl`), until the visitor selects a language.
+
+## Deployment
+
+Do **not** set `APP_LOCALE=ur` merely to enable the language buttons. Visitors can select Urdu in the navigation themselves. To keep Dutch as the default, configure:
 
 ```dotenv
-APP_LOCALE=ur
+APP_LOCALE=nl
 APP_FALLBACK_LOCALE=nl
 ```
 
-Then clear cached configuration using `php artisan config:clear` (or redeploy with the updated environment).
+Then clear the Laravel configuration cache if needed: `php artisan config:clear`.
 
-The main site layout sets `dir="rtl"` when the locale is `ur`. The application keeps the current language settings until you explicitly change them.
+## What's translated so far
 
-## What's included
-
-- `lang/ur.json`: translated interface messages and public information text.
-- Primary landing page, login and registration forms, shared navigation, several account/shopping pages.
+- `lang/ur.json`: initial Urdu translations.
+- Main landing page, login and registration forms, shared navigation, several account/shopping pages.
 - About, Contact, Terms of Use and Privacy Policy pages.
 - The footer's navigation and accessibility label.
 
-Literal developer-facing identifiers, route names, input names, brand names and programming logic are intentionally not translated.
+Developer identifiers, route names, input names, brand names and programming logic stay unchanged.
 
-## Current limitations
+## Tests and outstanding work
 
-**This is not a complete translation of all 399 repository files.** Some pages, email templates, JavaScript messages, controller responses, validation errors and other dynamic strings remain in Dutch or English. Untranslated Laravel keys will display their original wording.
+`tests/Feature/LanguageSwitchTest.php` covers:
+- button visibility;
+- switching to Urdu and back with the session preserved;
+- rejecting unsupported locale values;
+- blocking external referrer redirects.
 
-Before deploying the entire app in Urdu, finish extracting and translating the remaining interface strings, verify right-to-left spacing and layout on mobile and desktop, and have any legal/privacy copy reviewed by a qualified Urdu speaker and legal reviewer.
+**The test suite has not been executed in the GitHub connector environment.**
 
-The translation is offered as a separate branch / pull request for review. Do not merge until its coverage and visual behavior suit your deployment.
+**This is still a partial translation, not the entire application.** Some other pages, emails, dynamic JavaScript messages and controller responses remain Dutch or English. Untranslated Laravel keys render their original text.
+
+Before merging, check the UI on narrow mobile widths, validate the right-to-left layout, run the Laravel test suite, and have legal/privacy translations reviewed as appropriate.
