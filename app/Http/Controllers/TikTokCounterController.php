@@ -22,6 +22,151 @@ class TikTokCounterController extends Controller
         return view('tools.tiktok-counter');
     }
 
+    public function engagementIndex(): View
+    {
+        return view('tools.tiktok-engagement');
+    }
+
+    public function engagementLookup(
+        Request $request,
+        TikTokVideoStatsService $service
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'url' => ['required', 'string', 'max:2048'],
+            'service' => ['required', 'in:hearts,comments,favorites'],
+        ]);
+
+        try {
+            $video = $service->resolveVideo($validated['url']);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'url' => $e->getMessage(),
+                ]);
+        }
+
+        return redirect()->route(
+            'tiktok-engagement.show',
+            [
+                'videoId' => $video['video_id'],
+                'url' => $video['url'],
+                'service' => $validated['service'],
+            ]
+        );
+    }
+
+    public function engagementShow(
+        string $videoId,
+        Request $request,
+        TikTokVideoStatsService $service
+    ): Response|RedirectResponse {
+        $videoUrl = trim((string) $request->query('url', ''));
+        $serviceKey = trim((string) $request->query('service', 'hearts'));
+
+        if (!in_array($serviceKey, ['hearts', 'comments', 'favorites'], true)) {
+            $serviceKey = 'hearts';
+        }
+
+        if ($videoUrl === '') {
+            return redirect()
+                ->route('tiktok-engagement.index')
+                ->withErrors([
+                    'url' => 'De TikTok URL ontbreekt. Plak de video opnieuw.',
+                ]);
+        }
+
+        try {
+            $video = $service->resolveVideo($videoUrl);
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('tiktok-engagement.index')
+                ->withInput([
+                    'url' => $videoUrl,
+                    'service' => $serviceKey,
+                ])
+                ->withErrors([
+                    'url' => $e->getMessage(),
+                ]);
+        }
+
+        if ((string) $video['video_id'] !== (string) $videoId) {
+            return redirect()->route(
+                'tiktok-engagement.show',
+                [
+                    'videoId' => $video['video_id'],
+                    'url' => $video['url'],
+                    'service' => $serviceKey,
+                ]
+            );
+        }
+
+        return response()
+            ->view('tools.tiktok-engagement', [
+                'videoId' => $video['video_id'],
+                'videoUrl' => $video['url'],
+                'selectedService' => $serviceKey,
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    public function engagementStats(
+        string $videoId,
+        Request $request,
+        TikTokVideoStatsService $service
+    ): JsonResponse {
+        $videoUrl = trim((string) $request->query('url', ''));
+
+        if ($videoUrl === '') {
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'TikTok URL ontbreekt.',
+                ], 422)
+            );
+        }
+
+        try {
+            $stats = $service->getSupplementalTikTokStats(
+                $videoUrl,
+                $videoId
+            );
+
+            return $this->noStore(
+                response()->json([
+                    'success' => true,
+                    'video_id' => $videoId,
+                    'stats' => [
+                        'hearts' => $stats['likes'] ?? null,
+                        'comments' => $stats['comments'] ?? null,
+                        'favorites' => $stats['favorites'] ?? null,
+                    ],
+                    'author_name' => $stats['author_name'] ?? null,
+                    'title' => $stats['title'] ?? null,
+                    'thumbnail_url' => $stats['thumbnail_url'] ?? null,
+                    'source' => $stats['source'] ?? 'tiktok-public-video-page',
+                    'updated_at' => now()->toIso8601String(),
+                ])
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'updated_at' => now()->toIso8601String(),
+                ], 502)
+            );
+        }
+    }
+
     public function lookup(
         Request $request,
         TikTokVideoStatsService $service
