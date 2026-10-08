@@ -891,7 +891,7 @@
         <div class="yts-counter-actions" id="yts-counter-actions" hidden>
             <button class="yts-action-button" id="yts-change-user" type="button">{{ __('↺ Change User') }}</button>
             <button class="yts-action-button" id="yts-compare-toggle" type="button">{{ __('⇄ Compare') }}</button>
-            <button class="yts-action-button" id="yts-embed-toggle" type="button">{{ __('&lt;/&gt; Embed') }}</button>
+            <button class="yts-action-button" id="yts-embed-toggle" type="button">{{ __('</> Embed') }}</button>
             <button class="yts-action-button" id="yts-advanced-toggle" type="button" aria-pressed="false">{{ __('▦ Advanced Metrics') }}</button>
         </div>
 
