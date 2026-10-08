@@ -1083,6 +1083,10 @@ Route::get('/api/tools/youtube-subscribers/{channelId}', [YouTubeSubscriberContr
     ->middleware('throttle:60,1')
     ->name('youtube-subscribers.stats');
 
+Route::get('/embed/youtube-subscribers/{channelId}', [YouTubeSubscriberController::class, 'embed'])
+    ->where('channelId', 'UC[A-Za-z0-9_-]{22}')
+    ->name('youtube-subscribers.embed');
+
 Route::get(
     '/tools/live',
     [TikTokCounterController::class, 'liveCountsIndex']
