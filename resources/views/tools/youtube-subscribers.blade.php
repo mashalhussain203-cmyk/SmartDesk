@@ -1366,7 +1366,7 @@
             image.src = safeImage(channel.avatar)
                 || '/icons/follower-profile.svg?v=1';
 
-            title.textContent = channel.title || 'YouTube channel';
+            title.textContent = channel.title || @json(__('YouTube channel'));
             id.textContent = channel.id;
 
             copy.appendChild(title);
@@ -1783,7 +1783,7 @@
         resetSessionMetrics();
         renderChannel({
             id: initial,
-            title: 'YouTube channel',
+            title: @json(__('YouTube channel')),
             avatar: '/icons/follower-profile.svg?v=1'
         });
         loadStats();
