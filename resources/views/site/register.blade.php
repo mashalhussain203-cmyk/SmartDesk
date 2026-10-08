@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Registreren | Mashal Studio')
+@section('title', __('Registreren') . ' | Mashal Studio')
 
 @section(
     'meta_description',
