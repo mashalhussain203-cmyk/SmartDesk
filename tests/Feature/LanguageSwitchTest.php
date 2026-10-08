@@ -76,4 +76,26 @@ class LanguageSwitchTest extends TestCase
             ->post(route('language.switch'), ['locale' => 'ur'])
             ->assertRedirect(route('home'));
     }
+
+    public function test_about_page_shows_urdu_translations_instead_of_dutch(): void
+    {
+        $this->withSession(['site_locale' => 'ur'])
+            ->get(route('about'))
+            ->assertOk()
+            ->assertSee('lang="ur"', false)
+            ->assertSee('dir="rtl"', false)
+            ->assertSee('ہمارے بارے', false)
+            ->assertSee('Mashal Studio ایک ڈیجیٹل پلیٹ فارم ہے', false)
+            ->assertSee('ذاتی معلومات کے استعمال سے متعلق', false);
+    }
+
+    public function test_contact_and_legal_navigation_are_localized(): void
+    {
+        $this->withSession(['site_locale' => 'ur'])
+            ->get(route('contact'))
+            ->assertOk()
+            ->assertSee('ہم سے رابطہ کریں', false)
+            ->assertSee('رازداری', false);
+    }
+
 }
