@@ -1968,7 +1968,7 @@
 
                     >
 
-                        Ontdek de collectie
+                        {{ __('Ontdek de collectie') }}
 
                         <span aria-hidden="true">→</span>
 
@@ -2582,7 +2582,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -2698,7 +2698,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -2814,7 +2814,7 @@
 
                             <span>
 
-                                Vanaf
+                                {{ __('Vanaf') }}
 
                             </span>
 
@@ -3242,7 +3242,7 @@
 
                         >
 
-                            Ontdek de collectie
+                            {{ __('Ontdek de collectie') }}
 
                             <span aria-hidden="true">→</span>
 
@@ -3258,7 +3258,7 @@
 
                         >
 
-                            Mijn account
+                            {{ __('Mijn account') }}
 
                         </a>
 
