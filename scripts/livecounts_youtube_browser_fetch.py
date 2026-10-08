@@ -121,6 +121,8 @@ def parse_visible_stats(page):
 
       let title = null;
       let avatar = null;
+      let banner = null;
+      let description = null;
 
       const avatarImage = Array.from(document.images || []).find(img => {
         const alt = clean(img.getAttribute('alt'));
@@ -151,6 +153,48 @@ def parse_visible_stats(page):
         if (heading) title = heading;
       }
 
+      const bannerImage = Array.from(document.images || []).find(img => {
+        const alt = clean(img.getAttribute('alt'));
+        return /banner$/i.test(alt) || /'s banner$/i.test(alt);
+      });
+
+      if (bannerImage) {
+        banner = bannerImage.currentSrc
+          || bannerImage.getAttribute('src')
+          || bannerImage.src
+          || null;
+      }
+
+      if (title) {
+        const aboutHeading = Array.from(
+          document.querySelectorAll('h1,h2,h3,h4,strong')
+        ).find(el => {
+          const text = clean(el.textContent);
+          return text.toLowerCase() === ('about ' + title).toLowerCase();
+        });
+
+        if (aboutHeading) {
+          let container = aboutHeading.parentElement;
+          for (let depth = 0; depth < 4 && container; depth++) {
+            const text = clean(container.innerText);
+            const prefix = clean(aboutHeading.textContent);
+
+            if (
+              text
+              && text.length > prefix.length + 10
+              && text.length < 5000
+            ) {
+              description = clean(
+                text.slice(text.indexOf(prefix) + prefix.length)
+              );
+              break;
+            }
+
+            container = container.parentElement;
+          }
+        }
+      }
+
       return {
         stats: {
           subscribers: numberNear('Subscribers'),
@@ -159,7 +203,9 @@ def parse_visible_stats(page):
           goal: numberNear('Goal')
         },
         title,
-        avatar
+        avatar,
+        banner,
+        description
       };
     }
     """
@@ -371,6 +417,8 @@ def main():
                 "stats": stats,
                 "title": visible.get("title"),
                 "avatar": visible.get("avatar"),
+                "banner": visible.get("banner"),
+                "description": visible.get("description"),
                 "source": source or "livecounts-youtube-browser-network",
                 "debug": debug,
             })
