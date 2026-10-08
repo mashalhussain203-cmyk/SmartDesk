@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="nl">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ur' ? 'rtl' : 'ltr' }}">
 
 <head>
 
@@ -3414,6 +3414,9 @@
 
 
     <div class="topbar-actions">
+    <div class="standalone-language-switcher" aria-label="{{ __('Taal kiezen') }}">
+        @include('partials.language-switcher')
+    </div>
 
 
 
