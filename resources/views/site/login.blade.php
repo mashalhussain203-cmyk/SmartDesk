@@ -1768,7 +1768,7 @@
                         </div>
 
                         <h2 class="glass-heading">
-                            Secure <strong>Access</strong>
+                            {{ __('Secure') }} <strong>Access</strong>
                         </h2>
 
                         <p class="glass-description">
@@ -1839,7 +1839,7 @@
                                 aria-selected="false"
                                 data-auth-tab="passwordless"
                             >
-                                E-mail
+                                {{ __('E-mail') }}
                             </button>
 
                             <button
@@ -1849,7 +1849,7 @@
                                 aria-selected="false"
                                 data-auth-tab="oauth"
                             >
-                                Social
+                                {{ __('Social') }}
                             </button>
                         </div>
 
