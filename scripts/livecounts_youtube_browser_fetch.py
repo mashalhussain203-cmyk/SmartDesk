@@ -30,9 +30,18 @@ def normalize_stats(payload):
     if not isinstance(payload, dict):
         return None
 
-    data = payload.get("data")
-    if isinstance(data, dict):
-        payload = data
+    for container in ("data", "stats", "channel", "counts"):
+        nested = payload.get(container)
+        if isinstance(nested, dict):
+            if (
+                "followerCount" in nested
+                or "subscriberCount" in nested
+                or "bottomOdos" in nested
+                or "viewCount" in nested
+                or "videoCount" in nested
+            ):
+                payload = nested
+                break
 
     follower = as_int(
         payload.get("followerCount")
@@ -238,22 +247,35 @@ def main():
                 "payload": None,
                 "url": None,
                 "status": None,
+                "json_candidates": [],
             }
 
             def on_response(resp):
                 try:
                     url = resp.url
                     lower = url.lower()
+                    is_stats_url = (
+                        "/youtube-live-subscriber-counter/stats/" in lower
+                    )
 
-                    if "/youtube-live-subscriber-counter/stats/" in lower:
+                    if is_stats_url:
                         captured["url"] = url
                         captured["status"] = resp.status
 
+                    # Ignore 429/error bodies but keep the listener alive.
+                    # The public Livecounts page may retry and later return 2xx.
                     if not (200 <= resp.status < 300):
                         return
 
-                    content_type = (resp.headers.get("content-type") or "").lower()
-                    if "json" not in content_type and "api.livecounts.io" not in lower:
+                    content_type = (
+                        resp.headers.get("content-type") or ""
+                    ).lower()
+
+                    if (
+                        not is_stats_url
+                        and "json" not in content_type
+                        and "api.livecounts.io" not in lower
+                    ):
                         return
 
                     payload = resp.json()
@@ -269,6 +291,7 @@ def main():
                         captured["payload"] = payload
                         captured["url"] = url
                         captured["status"] = resp.status
+                        captured["json_candidates"].append(url)
                 except Exception:
                     pass
 
@@ -278,11 +301,16 @@ def main():
                 page.goto(
                     "https://livecounts.io/youtube-live-subscriber-counter/"
                     + channel_id,
-                    wait_until="domcontentloaded",
-                    timeout=14000,
+                    wait_until="commit",
+                    timeout=8000,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
+
+            debug["page_http_status"] = response.status if response else None
+            debug["final_url"] = page.url
+            debug["livecounts_mode"] = "browser-network-capture"
+            debug["stage"] = "wait_for_livecounts_youtube_stats"
 
             stats = None
             source = None
@@ -315,8 +343,17 @@ def main():
                         stats = visible_stats
                         source = "livecounts-youtube-rendered-page"
 
+            debug["network_stats_captured"] = isinstance(
+                captured.get("payload"), dict
+            )
             debug["stats_url"] = captured.get("url")
             debug["stats_status"] = captured.get("status")
+            debug["json_candidates"] = captured.get("json_candidates")
+            debug["stats_keys"] = (
+                list(captured.get("payload").keys())[:30]
+                if isinstance(captured.get("payload"), dict)
+                else []
+            )
             debug["stage"] = "parsed"
 
             browser.close()
