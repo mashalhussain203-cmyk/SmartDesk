@@ -672,11 +672,7 @@
 
                 <p class="intro">
 
-                    Je account is beschermd met Authenticator-verificatie.
-
-                    Voer de actuele 6-cijferige code uit je Authenticator-app in
-
-                    om je login af te ronden.
+                    {{ __('Je account is beschermd met Authenticator-verificatie. Voer de actuele 6-cijferige code uit je Authenticator-app in om je login af te ronden.') }}
 
                 </p>
 
@@ -800,7 +796,7 @@
 
                     >
 
-                        6-cijferige Authenticator-code
+                        {{ __('6-cijferige Authenticator-code') }}
 
                     </label>
 
@@ -858,7 +854,7 @@
 
                     >
 
-                        Login bevestigen
+                        {{ __('Login bevestigen') }}
 
                     </button>
 
@@ -898,7 +894,7 @@
 
                     <summary>
 
-                        Gebruik een herstelcode
+                        {{ __('Gebruik een herstelcode') }}
 
                     </summary>
 
@@ -910,9 +906,7 @@
 
                         <p class="small" style="margin-top: 0;">
 
-                            Heb je tijdelijk geen toegang tot je Authenticator-app?
-
-                            Gebruik dan één van je opgeslagen herstelcodes.
+                            {{ __('Heb je tijdelijk geen toegang tot je Authenticator-app? Gebruik dan één van je opgeslagen herstelcodes.') }}
 
                         </p>
 
@@ -940,7 +934,7 @@
 
                             >
 
-                                Herstelcode
+                                {{ __('Herstelcode') }}
 
                             </label>
 
@@ -990,7 +984,7 @@
 
                             >
 
-                                Inloggen met herstelcode
+                                {{ __('Inloggen met herstelcode') }}
 
                             </button>
 
@@ -1000,7 +994,7 @@
 
                         <p class="small" style="margin-bottom: 0;">
 
-                            Een herstelcode kan maar één keer worden gebruikt.
+                            {{ __('Een herstelcode kan maar één keer worden gebruikt.') }}
 
                         </p>
 
@@ -1062,9 +1056,7 @@
 
         <div class="footer">
 
-            Deel je Authenticator-code of herstelcodes nooit met anderen.
-
-            Mashal Studio zal je hier nooit per e-mail of chat om vragen.
+            {{ __('Deel je Authenticator-code of herstelcodes nooit met anderen. Mashal Studio zal je hier nooit per e-mail of chat om vragen.') }}
 
         </div>
 
