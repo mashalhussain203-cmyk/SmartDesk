@@ -750,7 +750,7 @@
 
                 >
 
-                    6-cijferige code
+                    {{ __('6-cijferige code') }}
 
                 </label>
 
