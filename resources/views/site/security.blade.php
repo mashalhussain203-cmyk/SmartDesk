@@ -1208,7 +1208,7 @@
 
                 <h1 class="security-title">
 
-                    Login <span>beveiliging.</span>
+                    {{ __('Login') }} <span>beveiliging.</span>
 
                 </h1>
 
@@ -1748,7 +1748,7 @@
 
                                 <div class="login-detail">
 
-                                    <small>Loginmethode</small>
+                                    <small>{{ __('Loginmethode') }}</small>
 
                                     <strong>{{ $activity->providerLabel() }}</strong>
 
