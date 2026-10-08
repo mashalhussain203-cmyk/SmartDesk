@@ -69,6 +69,8 @@ class YouTubeSubscriberController extends Controller
                     'id' => $stats['id'],
                     'title' => $stats['title'],
                     'avatar' => $stats['avatar'],
+                    'banner' => $stats['banner'] ?? null,
+                    'description' => $stats['description'] ?? null,
                     'url' => $stats['url'],
                     'subscribers' => $stats['subscribers'],
                     'views' => $stats['views'],
