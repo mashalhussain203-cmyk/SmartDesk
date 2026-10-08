@@ -1618,7 +1618,7 @@
 
                                     name="password"
 
-                                    placeholder="Minimaal 8 tekens"
+                                    placeholder="{{ __('Minimaal 8 tekens') }}"
 
                                     autocomplete="new-password"
 
