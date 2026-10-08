@@ -113,13 +113,21 @@ class MashalOpenAiProviderTest extends TestCase
         }
     }
 
-    public function test_provider_selection_is_explicit_and_groq_remains_default(): void
+    public function test_mashal_ai_uses_only_openai_without_a_groq_fallback(): void
     {
-        $this->assertSame('groq', config('mashal-ai.provider'));
+        $this->assertSame('openai', config('mashal-ai.provider'));
 
         $controller = file_get_contents(base_path('app/Http/Controllers/AiChatController.php'));
+        $reader = file_get_contents(base_path('app/Services/ChatFileReaderService.php'));
+
         $this->assertIsString($controller);
-        $this->assertStringContainsString("config('mashal-ai.provider', 'groq')", $controller);
+        $this->assertIsString($reader);
+        $this->assertStringContainsString('private function chatProvider(): OpenAiChatService', $controller);
         $this->assertStringContainsString('$this->chatProvider()->chat(', $controller);
+        $this->assertStringContainsString('OpenAiVoiceService', $controller);
+        $this->assertStringContainsString('OpenAiVisionService', $controller);
+        $this->assertStringContainsString('OpenAiVisionService', $reader);
+        $this->assertStringNotContainsString('Groq', $controller);
+        $this->assertStringNotContainsString('Groq', $reader);
     }
 }

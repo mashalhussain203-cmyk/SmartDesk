@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal AI | Live Voice')
+@section('title', 'Mashal AI | Chat')
 
 @section(
     'meta_description',
@@ -2937,6 +2937,7 @@
 
 </style>
 <link rel="stylesheet" href="{{ asset('css/mashal-ai-workspace.css') }}?v=20261008-1">
+<link rel="stylesheet" href="{{ asset('css/mashal-ai-chat-interface.css') }}?v=20261009-1">
 @endpush
 
 @section('content')
@@ -3016,7 +3017,7 @@
                 <div>
                     <strong>Mashal AI</strong>
                     <span>
-                        {{ $modelName ?: 'Groq AI' }}
+                        {{ $modelName ?: 'GPT' }}
                         ·
                         {{ $voiceModelName ?: 'Whisper' }}
                     </span>
@@ -3056,7 +3057,7 @@
                     </span>
 
                     <span class="chat-model-pill">
-                        {{ $modelName ?: 'Groq' }}
+                        {{ $modelName ?: 'GPT' }}
                     </span>
 
                     <span
@@ -3107,13 +3108,9 @@
                         <div class="ai-welcome-mark" aria-hidden="true">M</div>
                     </div>
 
-                    <h1>{{ __('Waar kan ik je mee helpen?') }}</h1>
+                    <h1>{{ __('Waarmee kan ik je helpen?') }}</h1>
 
-                    <p>
-                        Praat met Mashal AI, upload foto's of documenten, laat informatie
-                        uitleggen en laat Mashal AI wanneer nodig live op internet zoeken of
-                        berekeningen uitvoeren. Live Voice ondersteunt Nederlands, English en اردو.
-                    </p>
+                    <p>{{ __('Stel een vraag, maak iets nieuws of voeg een bestand toe.') }}</p>
 
                     <div class="ai-suggestions">
                         <button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit.">
@@ -3174,6 +3171,11 @@
                     <button class="ai-workspace-mode" type="button" data-ai-quick-mode="code" aria-pressed="false">{{ __('Code') }}</button>
                     <button class="ai-workspace-mode" type="button" data-ai-quick-mode="plain" aria-pressed="false">{{ __('Alleen chat') }}</button>
                 </div>
+                @if (! $chatConfigured)
+                <div class="ai-chat-setup-note" role="status">
+                    Mashal AI wacht op de serverkoppeling. De beheerder moet de OpenAI API-sleutel instellen in Railway voordat berichten verstuurd kunnen worden.
+                </div>
+                @endif
                 <div
                     id="ai-error"
                     class="ai-error"
@@ -3187,12 +3189,40 @@
                     ></div>
 
                     <div class="ai-input-wrap">
+                        <div class="ai-attach-menu" id="ai-attach-menu">
+                            <button
+                                class="ai-attach-toggle"
+                                type="button"
+                                id="ai-attach-toggle"
+                                aria-label="{{ __('Bestanden en AI-functies') }}"
+                                aria-controls="ai-attach-menu-panel"
+                                aria-expanded="false"
+                                title="{{ __('Bestanden en AI-functies') }}"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                            </button>
+                            <div class="ai-attach-menu-panel" id="ai-attach-menu-panel" hidden>
+                                <div class="ai-menu-label">{{ __('Toevoegen') }}</div>
+                                <button type="button" data-ai-menu-action="file">{{ __('Bestand of afbeelding toevoegen') }}</button>
+                                <button type="button" data-ai-menu-action="camera">{{ __('Foto maken') }}</button>
+                                <button type="button" data-ai-menu-action="voice">{{ __('Live praten') }}</button>
+                                <div class="ai-menu-divider" role="separator"></div>
+                                <div class="ai-menu-label">{{ __('AI-modus') }}</div>
+                                <button type="button" data-ai-quick-mode="auto" aria-pressed="true">{{ __('Automatisch') }}</button>
+                                <button type="button" data-ai-quick-mode="web" aria-pressed="false">{{ __('Zoeken op internet') }}</button>
+                                <button type="button" data-ai-quick-mode="research" aria-pressed="false">{{ __('Diepgaand onderzoek') }}</button>
+                                <button type="button" data-ai-quick-mode="code" aria-pressed="false">{{ __('Code en berekeningen') }}</button>
+                                <button type="button" data-ai-quick-mode="plain" aria-pressed="false">{{ __('Alleen chat') }}</button>
+                            </div>
+                        </div>
                         <textarea
                             id="ai-input"
                             class="ai-input"
                             rows="1"
                             maxlength="12000"
-                            placeholder="Stuur een bericht naar Mashal AI"
+                            placeholder="Vraag iets aan Mashal AI"
                             autocomplete="off"
                         ></textarea>
 
@@ -3261,11 +3291,11 @@
                                         aria-label="AI modus"
                                         title="Kies hoe Mashal AI tools gebruikt"
                                     >
-                                        <option value="auto">{{ __('✨ Auto') }}</option>
-                                        <option value="web">{{ __('🌐 Internet') }}</option>
-                                        <option value="research">{{ __('🔎 Research') }}</option>
-                                        <option value="code">{{ __('🧮 Code') }}</option>
-                                        <option value="plain">{{ __('💬 Alleen chat') }}</option>
+                                        <option value="auto">{{ __('Auto') }}</option>
+                                        <option value="web">{{ __('Internet') }}</option>
+                                        <option value="research">{{ __('Research') }}</option>
+                                        <option value="code">{{ __('Code') }}</option>
+                                        <option value="plain">{{ __('Alleen chat') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -3299,7 +3329,7 @@
 
                 <div class="composer-note">
                     Mashal AI kan fouten maken. Controleer belangrijke informatie.
-                    Auto kan internet en veilige Python-berekeningen gebruiken wanneer nodig.
+                    Kies Internet of Code via de plusknop om extra AI-tools te gebruiken.
                     Max. {{ $maxChatFiles ?? 5 }} bestanden van {{ $maxChatFileMb ?? 10 }} MB.
                 </div>
             </div>
@@ -3571,6 +3601,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     aiModeSelect?.addEventListener('change', syncQuickModeButtons);
     syncQuickModeButtons();
+
+    // Keep the lightweight + menu on the public Mashal AI page,
+    // while reusing the existing attachment, camera and voice handlers.
+    const attachMenu = document.getElementById('ai-attach-menu');
+    const attachToggle = document.getElementById('ai-attach-toggle');
+    const attachPanel = document.getElementById('ai-attach-menu-panel');
+
+    function closeAttachMenu() {
+        if (!attachPanel || !attachToggle) return;
+        attachPanel.hidden = true;
+        attachToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    attachToggle?.addEventListener('click', function () {
+        if (!attachPanel) return;
+        const willOpen = attachPanel.hidden;
+        attachPanel.hidden = !willOpen;
+        attachToggle.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    attachPanel?.addEventListener('click', function (event) {
+        const button = event.target.closest('button');
+        if (!button) return;
+
+        const action = button.dataset.aiMenuAction;
+        if (action === 'file') {
+            closeAttachMenu();
+            fileInput?.click();
+        } else if (action === 'camera') {
+            closeAttachMenu();
+            cameraInput?.click();
+        } else if (action === 'voice') {
+            closeAttachMenu();
+            liveStartButton?.click();
+        } else if (button.dataset.aiQuickMode) {
+            closeAttachMenu();
+        }
+    });
+
+    document.addEventListener('pointerdown', function (event) {
+        if (attachMenu && !attachMenu.contains(event.target)) {
+            closeAttachMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeAttachMenu();
+    });
 
     function aiModeStatusCopy(mode) {
         return {
@@ -5382,8 +5460,8 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="ai-welcome-brand">'
             + '<div class="ai-welcome-mark" aria-hidden="true">M</div>'
             + '</div>'
-            + '<h1>Waar kan ik je mee helpen?</h1>'
-            + '<p>Praat met Mashal AI, upload foto\'s of documenten en laat ze uitleggen, samenvatten of analyseren. Live Voice ondersteunt Nederlands, English en اردو.</p>'
+            + '<h1>Waarmee kan ik je helpen?</h1>'
+            + '<p>Stel een vraag, maak iets nieuws of voeg een bestand toe.</p>'
             + '<div class="ai-suggestions">'
             + '<button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit."><strong>Document begrijpen</strong><span>Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.</span></button>'
             + '<button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is."><strong>Afbeelding analyseren</strong><span>Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.</span></button>'
@@ -6668,7 +6746,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                     .join(', ');
 
-            renderMessage(
+            const optimisticMessage = renderMessage(
                 'user',
                 visibleFileNames
                     ? (
@@ -6775,6 +6853,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     response
                 );
 
+                if (response.status === 419) {
+                    throw new Error('Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw. Je bericht blijft in het invoerveld staan.');
+                }
+
                 loading?.remove();
 
                 if (!response.ok || !payload.ok) {
@@ -6819,6 +6901,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 clearSelectedFiles();
             } catch (error) {
                 loading?.remove();
+
+                // Do not show a failed request as a real saved user message.
+                // Restore the draft and file selections so it can be retried.
+                optimisticMessage?.remove();
+                input.value = text;
+                autoResize();
+                if (!history.length && !messages.querySelector('.ai-welcome')) {
+                    messages.appendChild(buildWelcome());
+                }
 
                 if (error?.name === 'AbortError') {
                     setMobileStatus(

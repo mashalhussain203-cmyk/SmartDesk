@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Services\AiWorkspaceService;
 use App\Services\AzureSpeechService;
 use App\Services\ChatFileReaderService;
-use App\Services\GroqChatService;
 use App\Services\OpenAiChatService;
-use App\Services\GroqVoiceService;
-use App\Services\GroqVisionService;
+use App\Services\OpenAiVoiceService;
+use App\Services\OpenAiVisionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,10 +27,9 @@ class AiChatController extends Controller
     private const MAX_HISTORY_ITEMS = 20;
 
     public function __construct(
-        private readonly GroqChatService $groqChat,
         private readonly OpenAiChatService $openAiChat,
-        private readonly GroqVoiceService $groqVoice,
-        private readonly GroqVisionService $groqVision,
+        private readonly OpenAiVoiceService $openAiVoice,
+        private readonly OpenAiVisionService $openAiVision,
         private readonly AzureSpeechService $azureSpeech,
         private readonly AiWorkspaceService $workspace,
         private readonly ChatFileReaderService $fileReader
@@ -45,19 +43,19 @@ class AiChatController extends Controller
                 $this->chatProvider()->isConfigured(),
 
             'voiceConfigured' =>
-                $this->groqVoice->isConfigured(),
+                $this->openAiVoice->isConfigured(),
 
             'modelName' =>
                 $this->chatProvider()->modelName(),
 
             'voiceModelName' =>
-                $this->groqVoice->modelName(),
+                $this->openAiVoice->modelName(),
 
             'visionConfigured' =>
-                $this->groqVision->isConfigured(),
+                $this->openAiVision->isConfigured(),
 
             'visionModelName' =>
-                $this->groqVision->modelName(),
+                $this->openAiVision->modelName(),
 
             'serverTtsConfigured' =>
                 $this->azureSpeech->isConfigured(),
@@ -122,7 +120,7 @@ class AiChatController extends Controller
             $mode = (string) (
                 $validated['mode']
                 ?? config(
-                    'groq-chat.tools.default_mode',
+                    'mashal-ai.openai.default_mode',
                     'auto'
                 )
             );
@@ -289,7 +287,7 @@ class AiChatController extends Controller
     /**
      * Eén volledige gesproken beurt:
      *
-     * audio -> Groq Whisper -> tekst -> Groq Chat -> antwoord.
+     * audio -> OpenAI transcription -> OpenAI response -> antwoord.
      *
      * De browser hoeft hierdoor niet twee aparte Laravel-calls te doen.
      */
@@ -297,7 +295,7 @@ class AiChatController extends Controller
     {
         if (
             ! $this->chatProvider()->isConfigured()
-            || ! $this->groqVoice->isConfigured()
+            || ! $this->openAiVoice->isConfigured()
         ) {
             return $this->notConfiguredResponse();
         }
@@ -311,7 +309,7 @@ class AiChatController extends Controller
                 'required',
                 'file',
                 'max:' . (int) (
-                    GroqVoiceService::MAX_AUDIO_BYTES /
+                    OpenAiVoiceService::MAX_AUDIO_BYTES /
                     1024
                 ),
             ],
@@ -380,7 +378,7 @@ class AiChatController extends Controller
         );
 
         try {
-            $transcript = $this->groqVoice->transcribe(
+            $transcript = $this->openAiVoice->transcribe(
                 $audio,
                 $voiceLanguage === 'auto'
                     ? null
@@ -766,7 +764,7 @@ class AiChatController extends Controller
 
         $systemPrompt = trim(
             (string) config(
-                'groq-chat.system_prompt',
+                'mashal-ai.openai.system_prompt',
                 ''
             )
         );
@@ -792,7 +790,7 @@ class AiChatController extends Controller
         if ($voiceMode) {
             $voicePrompt = trim(
                 (string) config(
-                    'groq-chat.voice_system_prompt',
+                    'mashal-ai.openai.voice_system_prompt',
                     ''
                 )
             );
@@ -923,16 +921,15 @@ class AiChatController extends Controller
         ];
     }
 
-    private function chatProvider(): GroqChatService|OpenAiChatService
+    private function chatProvider(): OpenAiChatService
     {
-        return strtolower((string) config('mashal-ai.provider', 'groq')) === 'openai'
-            ? $this->openAiChat
-            : $this->groqChat;
+        // Mashal AI only talks to OpenAI; there is no secondary provider.
+        return $this->openAiChat;
     }
 
     private function chatProviderLabel(): string
     {
-        return $this->chatProvider() instanceof OpenAiChatService ? 'OpenAI' : 'Groq';
+        return 'OpenAI';
     }
 
     private function providerErrorResponse(
@@ -989,8 +986,8 @@ class AiChatController extends Controller
     ): JsonResponse {
         $retryAfter = max(
             $this->chatProvider()->lastRetryAfterSeconds() ?? 0,
-            $this->groqVoice->lastRetryAfterSeconds() ?? 0,
-            $this->groqVision->lastRetryAfterSeconds() ?? 0,
+            $this->openAiVoice->lastRetryAfterSeconds() ?? 0,
+            $this->openAiVision->lastRetryAfterSeconds() ?? 0,
             $this->fallbackCooldownSeconds()
         );
 
@@ -1020,10 +1017,10 @@ class AiChatController extends Controller
                     $this->chatProvider()->lastStatus(),
 
                 'voice_status' =>
-                    $this->groqVoice->lastStatus(),
+                    $this->openAiVoice->lastStatus(),
 
                 'vision_status' =>
-                    $this->groqVision->lastStatus(),
+                    $this->openAiVision->lastStatus(),
 
                 'exception' =>
                     $exception::class,
@@ -1171,7 +1168,7 @@ class AiChatController extends Controller
             min(
                 300,
                 (int) config(
-                    'groq-chat.rate_limit_cooldown',
+                    'mashal-ai.openai.rate_limit_cooldown',
                     20
                 )
             )

@@ -46,7 +46,7 @@ class ChatFileReaderService
     ];
 
     public function __construct(
-        private readonly GroqVisionService $vision
+        private readonly OpenAiVisionService $vision
     ) {
     }
 
@@ -256,7 +256,7 @@ class ChatFileReaderService
     ): string {
         if (! $this->vision->isConfigured()) {
             throw ValidationException::withMessages([
-                'files' => 'Afbeeldingen vereisen Groq Vision. Controleer GROQ_API_KEY en GROQ_VISION_MODEL.',
+                'files' => 'Afbeeldingen vereisen een werkende OpenAI-koppeling. Controleer OPENAI_API_KEY op Railway.',
             ]);
         }
 
@@ -432,7 +432,7 @@ class ChatFileReaderService
     private function pdfVisionEnabled(): bool
     {
         return (bool) config(
-            'groq-vision.pdf.enabled',
+            'mashal-ai.openai.pdf.enabled',
             true
         );
     }
@@ -442,8 +442,8 @@ class ChatFileReaderService
         $textRich = mb_strlen($extractedText) >= 300;
 
         $value = $textRich
-            ? (int) config('groq-vision.pdf.visual_pages_with_text', 3)
-            : (int) config('groq-vision.pdf.max_scanned_pages', 6);
+            ? (int) config('mashal-ai.openai.pdf.visual_pages_with_text', 3)
+            : (int) config('mashal-ai.openai.pdf.max_scanned_pages', 6);
 
         return max(1, min(12, $value));
     }
