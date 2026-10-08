@@ -514,7 +514,7 @@
                             name="message"
                             minlength="10"
                             maxlength="5000"
-                            placeholder="Vertel ons waarmee we je kunnen helpen..."
+                            placeholder="{{ __('Vertel ons waarmee we je kunnen helpen...') }}"
                             required
                         >{{ old('message') }}</textarea>
 
