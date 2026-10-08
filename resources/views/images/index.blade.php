@@ -1734,9 +1734,9 @@
 
                 <h1>
 
-                    Mijn
+                    {{ __('Mijn') }}
 
-                    <span>afbeeldingen.</span>
+                    <span>{{ __('afbeeldingen.') }}</span>
 
                 </h1>
 
@@ -1768,7 +1768,7 @@
 
                 >
 
-                    ← Home
+                    {{ __('← Home') }}
 
                 </a>
 
@@ -1782,7 +1782,7 @@
 
                 >
 
-                    + Nieuwe afbeelding
+                    {{ __('+ Nieuwe afbeelding') }}
 
                 </a>
 
@@ -1824,7 +1824,7 @@
 
                     <strong>
 
-                        Gelukt
+                        {{ __('Gelukt') }}
 
                     </strong>
 
@@ -1864,7 +1864,7 @@
 
                     <strong>
 
-                        Er ging iets mis
+                        {{ __('Er ging iets mis') }}
 
                     </strong>
 
@@ -1908,7 +1908,7 @@
 
                     <div class="library-summary-item">
 
-                        Projecten
+                        {{ __('Projecten') }}
 
 
 
@@ -1924,7 +1924,7 @@
 
                     <div class="library-summary-item">
 
-                        Deze pagina
+                        {{ __('Deze pagina') }}
 
 
 
@@ -1940,7 +1940,7 @@
 
                     <div class="library-summary-item">
 
-                        Pagina
+                        {{ __('Pagina') }}
 
 
 
@@ -1962,7 +1962,7 @@
 
                 <div class="library-summary-right">
 
-                    Alleen jij kunt deze bestanden bekijken.
+                    {{ __('Alleen jij kunt deze bestanden bekijken.') }}
 
                 </div>
 
@@ -2218,7 +2218,7 @@
 
                                     <small>
 
-                                        Formaat
+                                        {{ __('Formaat') }}
 
                                     </small>
 
@@ -2240,7 +2240,7 @@
 
                                     <small>
 
-                                        Bestandsgrootte
+                                        {{ __('Bestandsgrootte') }}
 
                                     </small>
 
@@ -2262,7 +2262,7 @@
 
                                     <small>
 
-                                        Afmetingen
+                                        {{ __('Afmetingen') }}
 
                                     </small>
 
@@ -2284,7 +2284,7 @@
 
                                     <small>
 
-                                        Bewerkingen
+                                        {{ __('Bewerkingen') }}
 
                                     </small>
 
@@ -2328,7 +2328,7 @@
 
                                 >
 
-                                    Open editor
+                                    {{ __('Open editor') }}
 
                                 </a>
 
@@ -2346,9 +2346,7 @@
 
                                 >
 
-                                    ↓
-
-                                    Download
+                                    {{ __('↓ Download') }}
 
                                 </a>
 
@@ -2476,7 +2474,7 @@
 
                 <h2>
 
-                    Je bibliotheek is nog leeg.
+                    {{ __('Je bibliotheek is nog leeg.') }}
 
                 </h2>
 
@@ -2504,7 +2502,7 @@
 
                 >
 
-                    + Eerste afbeelding uploaden
+                    {{ __('+ Eerste afbeelding uploaden') }}
 
                 </a>
 
