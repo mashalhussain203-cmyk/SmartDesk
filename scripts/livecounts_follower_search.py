@@ -260,32 +260,59 @@ def main():
 
     try:
         with sync_playwright() as p:
-            launch_args = {
-                "headless": True,
-                "args": [
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu",
-                    "--disable-background-networking",
-                    "--disable-default-apps",
-                    "--disable-extensions",
-                    "--mute-audio",
-                ],
-            }
-            if chromium:
-                launch_args["executable_path"] = chromium
+            browser = None
+            context = None
+            page = None
+            owns_browser = True
+            using_prewarmed_browser = False
 
-            browser = p.chromium.launch(**launch_args)
-            context = browser.new_context(
-                viewport={"width": 1100, "height": 900},
-                locale="en-US",
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/141.0.0.0 Safari/537.36"
-                ),
-            )
-            page = context.new_page()
+            # Fast path: the Laravel page starts a local Chromium instance
+            # before the user types. Connecting to it removes Chromium startup
+            # from the autocomplete request while keeping the same public
+            # Livecounts page/JS data flow.
+            try:
+                browser = p.chromium.connect_over_cdp(
+                    "http://127.0.0.1:9223",
+                    timeout=300,
+                )
+                if browser.contexts:
+                    context = browser.contexts[0]
+                    page = context.new_page()
+                    owns_browser = False
+                    using_prewarmed_browser = True
+                    debug["prewarmed_browser"] = True
+            except Exception:
+                browser = None
+                context = None
+                page = None
+
+            if page is None:
+                launch_args = {
+                    "headless": True,
+                    "args": [
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--disable-background-networking",
+                        "--disable-default-apps",
+                        "--disable-extensions",
+                        "--mute-audio",
+                    ],
+                }
+                if chromium:
+                    launch_args["executable_path"] = chromium
+
+                browser = p.chromium.launch(**launch_args)
+                context = browser.new_context(
+                    viewport={"width": 1100, "height": 900},
+                    locale="en-US",
+                    user_agent=(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/141.0.0.0 Safari/537.36"
+                    ),
+                )
+                page = context.new_page()
 
             def block_heavy_assets(route):
                 try:
@@ -345,7 +372,7 @@ def main():
                 page.goto(
                     "https://livecounts.io/tiktok-live-follower-counter",
                     wait_until="commit",
-                    timeout=3500,
+                    timeout=2200 if using_prewarmed_browser else 3500,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
@@ -361,7 +388,9 @@ def main():
                 'input[type="text"]',
             ]
 
-            input_deadline = time.time() + 3.2
+            input_deadline = time.time() + (
+                1.25 if using_prewarmed_browser else 3.2
+            )
             while time.time() < input_deadline and search_input is None:
                 for selector in selectors:
                     try:
@@ -376,7 +405,12 @@ def main():
                     page.wait_for_timeout(60)
 
             if search_input is None:
-                browser.close()
+                try:
+                    page.close()
+                except Exception:
+                    pass
+                if owns_browser:
+                    browser.close()
                 emit({
                     "success": False,
                     "message": "Livecounts zoekveld kon niet worden gevonden.",
@@ -479,7 +513,13 @@ def main():
             debug["elapsed_ms"] = int((time.time() - started_at) * 1000)
             debug["stage"] = "parsed"
 
-            browser.close()
+            try:
+                page.close()
+            except Exception:
+                pass
+
+            if owns_browser:
+                browser.close()
 
             emit({
                 "success": True,
