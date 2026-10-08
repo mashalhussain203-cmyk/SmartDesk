@@ -251,7 +251,6 @@ def main():
         or shutil.which("google-chrome")
     )
 
-    started_at = time.time()
     debug = {
         "stage": "browser_start",
         "query": query,
@@ -260,63 +259,36 @@ def main():
 
     try:
         with sync_playwright() as p:
-            browser = None
-            context = None
-            page = None
-            owns_browser = True
-            using_prewarmed_browser = False
+            launch_args = {
+                "headless": True,
+                "args": [
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--disable-background-networking",
+                    "--disable-default-apps",
+                    "--disable-extensions",
+                    "--mute-audio",
+                ],
+            }
+            if chromium:
+                launch_args["executable_path"] = chromium
 
-            # Fast path: the Laravel page starts a local Chromium instance
-            # before the user types. Connecting to it removes Chromium startup
-            # from the autocomplete request while keeping the same public
-            # Livecounts page/JS data flow.
-            try:
-                browser = p.chromium.connect_over_cdp(
-                    "http://127.0.0.1:9223",
-                    timeout=300,
-                )
-                if browser.contexts:
-                    context = browser.contexts[0]
-                    page = context.new_page()
-                    owns_browser = False
-                    using_prewarmed_browser = True
-                    debug["prewarmed_browser"] = True
-            except Exception:
-                browser = None
-                context = None
-                page = None
-
-            if page is None:
-                launch_args = {
-                    "headless": True,
-                    "args": [
-                        "--no-sandbox",
-                        "--disable-dev-shm-usage",
-                        "--disable-gpu",
-                        "--disable-background-networking",
-                        "--disable-default-apps",
-                        "--disable-extensions",
-                        "--mute-audio",
-                    ],
-                }
-                if chromium:
-                    launch_args["executable_path"] = chromium
-
-                browser = p.chromium.launch(**launch_args)
-                context = browser.new_context(
-                    viewport={"width": 1100, "height": 900},
-                    locale="en-US",
-                    user_agent=(
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/141.0.0.0 Safari/537.36"
-                    ),
-                )
-                page = context.new_page()
+            browser = p.chromium.launch(**launch_args)
+            context = browser.new_context(
+                viewport={"width": 1100, "height": 900},
+                locale="en-US",
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/141.0.0.0 Safari/537.36"
+                ),
+            )
+            page = context.new_page()
 
             def block_heavy_assets(route):
                 try:
-                    if route.request.resource_type in ("image", "media", "font", "stylesheet"):
+                    if route.request.resource_type in ("image", "media", "font"):
                         route.abort()
                     else:
                         route.continue_()
@@ -371,8 +343,8 @@ def main():
             try:
                 page.goto(
                     "https://livecounts.io/tiktok-live-follower-counter",
-                    wait_until="commit",
-                    timeout=2200 if using_prewarmed_browser else 3500,
+                    wait_until="domcontentloaded",
+                    timeout=12000,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
@@ -388,9 +360,7 @@ def main():
                 'input[type="text"]',
             ]
 
-            input_deadline = time.time() + (
-                1.25 if using_prewarmed_browser else 3.2
-            )
+            input_deadline = time.time() + 10
             while time.time() < input_deadline and search_input is None:
                 for selector in selectors:
                     try:
@@ -402,15 +372,10 @@ def main():
                         pass
 
                 if search_input is None:
-                    page.wait_for_timeout(60)
+                    page.wait_for_timeout(150)
 
             if search_input is None:
-                try:
-                    page.close()
-                except Exception:
-                    pass
-                if owns_browser:
-                    browser.close()
+                browser.close()
                 emit({
                     "success": False,
                     "message": "Livecounts zoekveld kon niet worden gevonden.",
@@ -418,21 +383,28 @@ def main():
                     "debug": debug,
                 }, 10)
 
-            # Fast path: Playwright fill() emits the normal input/change
-            # events React listens to, without simulating 100ms per keystroke.
+            # Give the page a moment to finish client-side hydration, then
+            # interact with the same visible Search Accounts field a visitor uses.
+            page.wait_for_timeout(700)
+
             try:
-                search_input.click(timeout=500)
+                search_input.click(timeout=1200)
             except Exception:
                 pass
 
             try:
-                search_input.fill(query, timeout=700)
+                search_input.press("Control+A")
+                search_input.press("Backspace")
             except Exception:
                 try:
-                    search_input.press("Control+A")
-                    search_input.press_sequentially(query, delay=18)
+                    search_input.fill("")
                 except Exception:
-                    search_input.type(query, delay=18)
+                    pass
+
+            try:
+                search_input.press_sequentially(query, delay=110)
+            except Exception:
+                search_input.type(query, delay=110)
 
             debug["stage"] = "wait_for_livecounts_search"
 
@@ -452,12 +424,12 @@ def main():
             source = None
 
             # First allow the site's own debounce/onChange search to fire.
-            deadline = time.time() + 1.25
+            deadline = time.time() + 4
             while time.time() < deadline:
                 results, source = current_results()
                 if results:
                     break
-                page.wait_for_timeout(40)
+                page.wait_for_timeout(120)
 
             # Some builds only commit the search after Enter. This is still
             # normal UI interaction; the provider page itself creates the request.
@@ -468,7 +440,7 @@ def main():
                 except Exception as exc:
                     debug["enter_warning"] = str(exc)
 
-                deadline = time.time() + 0.55
+                deadline = time.time() + 5
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
@@ -494,7 +466,7 @@ def main():
                 except Exception as exc:
                     debug["event_warning"] = str(exc)
 
-                deadline = time.time() + 0.20
+                deadline = time.time() + 3
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
@@ -510,16 +482,9 @@ def main():
             debug["search_status"] = captured.get("status")
             debug["json_candidates"] = captured.get("json_candidates")
             debug["result_count"] = len(results)
-            debug["elapsed_ms"] = int((time.time() - started_at) * 1000)
             debug["stage"] = "parsed"
 
-            try:
-                page.close()
-            except Exception:
-                pass
-
-            if owns_browser:
-                browser.close()
+            browser.close()
 
             emit({
                 "success": True,
