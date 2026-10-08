@@ -278,7 +278,7 @@
                                 text-transform: uppercase;
                             "
                         >
-                            Welcome to Mashal
+                            {{ __('Welcome to Mashal') }}
                         </div>
 
 
@@ -335,7 +335,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $user->name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
 
@@ -376,7 +376,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Accountoverzicht
+                            {{ __('Accountoverzicht') }}
                         </div>
 
 
@@ -415,7 +415,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -1014,7 +1014,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of je naam en e-mailadres correct zijn.
+                                    {{ __('Controleer of je naam en e-mailadres correct zijn.') }}
                                 </td>
                             </tr>
 
@@ -1176,7 +1176,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Je wachtwoord blijft privé
+                                        {{ __('Je wachtwoord blijft privé') }}
                                     </div>
 
                                     <div
@@ -1266,7 +1266,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Had je dit account niet verwacht?
+                                        {{ __('Had je dit account niet verwacht?') }}
                                     </div>
 
                                     <div
@@ -1329,7 +1329,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
