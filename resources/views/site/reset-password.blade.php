@@ -2138,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 percent: 0,
 
-                label: 'Nog niet ingevuld',
+                label: @json(__('Nog niet ingevuld')),
 
                 tone: '#707780'
 
@@ -2440,7 +2440,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             submit.textContent =
 
-                'Nieuw wachtwoord opslaan';
+                @json(__('Nieuw wachtwoord opslaan'));
 
         }
 
