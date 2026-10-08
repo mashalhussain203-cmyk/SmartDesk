@@ -377,22 +377,19 @@
             </span>
 
             <h1 class="legal-title">
-                Neem <span>contact op.</span>
+                {{ __('Neem') }} <span>{{ __('contact op.') }}</span>
             </h1>
 
             <p class="legal-intro">
-                Heb je een vraag over je account, privacy, beveiliging
-                of het gebruik van Mashal Studio? Vul het formulier hieronder in.
-                We hebben je bericht dan direct binnen en nemen zo snel mogelijk contact met je op.
+                {{ __('Heb je een vraag over je account, privacy, beveiliging of het gebruik van Mashal Studio? Vul het formulier hieronder in. We hebben je bericht dan direct binnen en nemen zo snel mogelijk contact met je op.') }}
             </p>
         </header>
 
         <section class="contact-form-card">
-            <h2>Stuur ons een bericht</h2>
+            <h2>{{ __('Stuur ons een bericht') }}</h2>
 
             <p class="contact-form-intro">
-                Vul je gegevens en toelichting in. Na het verzenden ontvang je automatisch
-                een bevestiging op het opgegeven e-mailadres.
+                {{ __('Vul je gegevens en toelichting in. Na het verzenden ontvang je automatisch een bevestiging op het opgegeven e-mailadres.') }}
             </p>
 
             @if (session('success'))
@@ -409,7 +406,7 @@
 
             @if ($errors->any())
                 <div class="contact-alert contact-alert-error">
-                    Controleer de ingevulde gegevens en probeer het opnieuw.
+                    {{ __('Controleer de ingevulde gegevens en probeer het opnieuw.') }}
                 </div>
             @endif
 
@@ -427,7 +424,7 @@
                             class="contact-label"
                             for="first_name"
                         >
-                            Voornaam
+                            {{ __('Voornaam') }}
                         </label>
 
                         <input
@@ -454,7 +451,7 @@
                             class="contact-label"
                             for="last_name"
                         >
-                            Achternaam
+                            {{ __('Achternaam') }}
                         </label>
 
                         <input
@@ -481,7 +478,7 @@
                             class="contact-label"
                             for="email"
                         >
-                            E-mailadres
+                            {{ __('E-mailadres') }}
                         </label>
 
                         <input
@@ -508,7 +505,7 @@
                             class="contact-label"
                             for="message"
                         >
-                            Toelichting
+                            {{ __('Toelichting') }}
                         </label>
 
                         <textarea
@@ -534,7 +531,7 @@
                     class="contact-submit"
                     type="submit"
                 >
-                    Bericht versturen
+                    {{ __('Bericht versturen') }}
                 </button>
             </form>
         </section>
@@ -542,10 +539,10 @@
         <div class="legal-grid">
 
             <section class="legal-card">
-                <h2>Contact</h2>
+                <h2>{{ __('Contact') }}</h2>
 
                 <div class="contact-box">
-                    <strong>E-mailadres</strong>
+                    <strong>{{ __('E-mailadres') }}</strong>
 
                     <span>
                         mashalhussain203@gmail.com
@@ -555,29 +552,29 @@
                         class="contact-button"
                         href="mailto:mashalhussain203@gmail.com"
                     >
-                        E-mail sturen
+                        {{ __('E-mail sturen') }}
                     </a>
                 </div>
             </section>
 
             <section class="legal-card">
-                <h2>Waarmee kunnen we helpen?</h2>
+                <h2>{{ __('Waarmee kunnen we helpen?') }}</h2>
 
                 <ul>
-                    <li>problemen met inloggen of toegang tot je account;</li>
-                    <li>vragen over TikTok-login of andere inlogmethoden;</li>
-                    <li>vragen over passkeys of Authenticator;</li>
-                    <li>privacy- en gegevensverzoeken;</li>
-                    <li>technische problemen met Mashal Studio;</li>
-                    <li>beveiligingsmeldingen;</li>
-                    <li>algemene vragen, feedback en suggesties.</li>
+                    <li>{{ __('problemen met inloggen of toegang tot je account;') }}</li>
+                    <li>{{ __('vragen over TikTok-login of andere inlogmethoden;') }}</li>
+                    <li>{{ __('vragen over passkeys of Authenticator;') }}</li>
+                    <li>{{ __('privacy- en gegevensverzoeken;') }}</li>
+                    <li>{{ __('technische problemen met Mashal Studio;') }}</li>
+                    <li>{{ __('beveiligingsmeldingen;') }}</li>
+                    <li>{{ __('algemene vragen, feedback en suggesties.') }}</li>
                 </ul>
             </section>
 
         </div>
 
         <section class="legal-card">
-            <h2>Account en inloggen</h2>
+            <h2>{{ __('Account en inloggen') }}</h2>
 
             <p>
                 Heb je problemen met inloggen, het aanmaken van een account
@@ -592,7 +589,7 @@
         </section>
 
         <section class="legal-card">
-            <h2>Privacy- en gegevensverzoeken</h2>
+            <h2>{{ __('Privacy- en gegevensverzoeken') }}</h2>
 
             <p>
                 Voor vragen over je persoonsgegevens, inzage, correctie,
@@ -613,13 +610,13 @@
                     class="legal-link"
                     href="{{ route('privacy') }}"
                 >
-                    Privacybeleid
+                    {{ __('Privacybeleid') }}
                 </a>.
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>Beveiligingsmeldingen</h2>
+            <h2>{{ __('Beveiligingsmeldingen') }}</h2>
 
             <p>
                 Denk je dat er sprake is van ongeautoriseerde toegang,
@@ -635,7 +632,7 @@
         </section>
 
         <section class="legal-card">
-            <h2>Juridische informatie</h2>
+            <h2>{{ __('Juridische informatie') }}</h2>
 
             <p>
                 Bekijk voor meer informatie ook ons
@@ -643,20 +640,20 @@
                     class="legal-link"
                     href="{{ route('privacy') }}"
                 >
-                    Privacybeleid
+                    {{ __('Privacybeleid') }}
                 </a>
                 en onze
                 <a
                     class="legal-link"
                     href="{{ route('terms') }}"
                 >
-                    Gebruiksvoorwaarden
+                    {{ __('Gebruiksvoorwaarden') }}
                 </a>.
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>Reactietijd</h2>
+            <h2>{{ __('Reactietijd') }}</h2>
 
             <p>
                 We proberen vragen en verzoeken zo snel mogelijk te beoordelen
