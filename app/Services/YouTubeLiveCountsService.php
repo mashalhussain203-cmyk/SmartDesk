@@ -20,7 +20,7 @@ class YouTubeLiveCountsService
             throw new RuntimeException('Ongeldige YouTube zoekterm.');
         }
 
-        $cacheKey = 'youtube-livecounts:search:v1:'
+        $cacheKey = 'youtube-livecounts:search:v2:'
             .sha1(mb_strtolower($query));
 
         $cached = Cache::get($cacheKey);
