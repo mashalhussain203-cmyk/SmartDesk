@@ -51,6 +51,34 @@ use App\Http\Controllers\XAuthController;
 
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Visitor language switch (available to guests and signed-in users)
+|--------------------------------------------------------------------------
+|
+| CSRF-protected POST, with an explicit allowlist and a same-host redirect.
+|
+*/
+
+Route::post('/language', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'locale' => ['required', 'in:nl,ur'],
+    ]);
+
+    $request->session()->put('site_locale', $validated['locale']);
+
+    $previousUrl = url()->previous(route('home'));
+
+    // Do not redirect to arbitrary websites supplied via the Referer header.
+    if (parse_url($previousUrl, PHP_URL_HOST) !== $request->getHost()) {
+        return redirect()->route('home');
+    }
+
+    return redirect()->to($previousUrl);
+})
+    ->middleware('throttle:20,1')
+    ->name('language.switch');
+
 Route::post('/guest-chat/message', [GuestChatController::class, 'store'])
 
     ->middleware('throttle:10,1')
