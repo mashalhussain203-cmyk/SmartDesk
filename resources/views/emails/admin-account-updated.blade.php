@@ -1479,7 +1479,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Accountbeveiliging
+                                        {{ __('Accountbeveiliging') }}
                                     </div>
 
                                     <div
@@ -1535,7 +1535,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong
