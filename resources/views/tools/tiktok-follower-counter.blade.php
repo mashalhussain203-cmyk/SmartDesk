@@ -601,7 +601,7 @@
             <div
                 class="tfc-result"
                 id="tfc-result"
-                data-ui-build="20261008-instant-typed-result-v9"
+                data-ui-build="20261008-fast-autocomplete-v8"
                 data-endpoint="{{ route('tiktok-follower-counter.livecounts-cards', ['username' => $username]) }}"
             >
                 <aside class="tfc-card tfc-profile">
@@ -842,33 +842,6 @@
         input.setAttribute('aria-expanded', 'true');
     }
 
-    function typedAccount(query) {
-        var username = String(query || '').trim().replace(/^@/, '');
-
-        if (!/^[A-Za-z0-9._]{2,24}$/.test(username)) {
-            return null;
-        }
-
-        return {
-            username: username,
-            display_name: username,
-            avatar_url: '/icons/follower-profile.svg?v=1',
-            verified: false,
-            provisional: true
-        };
-    }
-
-    function showTypedAccount(query) {
-        var account = typedAccount(query);
-
-        if (!account) {
-            return false;
-        }
-
-        renderResults([account]);
-        return true;
-    }
-
     function runSearch(query) {
         var requestedQuery = String(query || '').trim().replace(/^@/, '');
 
@@ -891,7 +864,7 @@
             ? new AbortController()
             : null;
 
-        if (!currentItems.length && !cachedResults.length) {
+        if (!cachedResults.length) {
             showState('Accounts zoeken…');
         }
 
@@ -923,7 +896,7 @@
 
                 if (!data || data.success === false) {
                     if (currentQuery === requestedQuery) {
-                        showTypedAccount(currentQuery);
+                        showState('Accounts konden niet worden geladen');
                     }
                     return;
                 }
@@ -940,7 +913,7 @@
                 }
 
                 if (currentQuery === requestedQuery) {
-                    showTypedAccount(currentQuery);
+                    renderResults([]);
                     return;
                 }
 
@@ -960,7 +933,11 @@
                     return;
                 }
 
-                showTypedAccount(currentQuery);
+                if (error && error.status === 429) {
+                    showState('Even te veel zoekopdrachten — probeer opnieuw');
+                } else {
+                    showState('Accounts konden niet worden geladen');
+                }
             });
     }
 
@@ -985,19 +962,13 @@
 
             if (localMatches.length) {
                 renderResults(localMatches);
-            } else {
-                showTypedAccount(query);
+                return;
             }
-        } else {
-            // Instant UX: show the typed @username immediately. The real
-            // Livecounts search silently enriches/replaces it with avatar,
-            // display name and verified status as soon as it returns.
-            showTypedAccount(query);
         }
 
         debounceTimer = window.setTimeout(function () {
             runSearch(query);
-        }, query.length === 2 ? 20 : 80);
+        }, query.length === 2 ? 40 : 120);
     });
 
     input.addEventListener('focus', function () {
