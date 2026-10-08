@@ -96,6 +96,205 @@ class YouTubeLiveCountsService
         return $normalized;
     }
 
+    public function searchVideos(string $query): array
+    {
+        $query = trim($query);
+
+        if (mb_strlen($query) < 2 || mb_strlen($query) > 255) {
+            return [];
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/u', $query)) {
+            throw new RuntimeException('Ongeldige YouTube zoekterm.');
+        }
+
+        $cacheKey = 'youtube-livecounts:video-search:v1:'
+            .sha1(mb_strtolower($query));
+
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached) && $cached !== []) {
+            return $cached;
+        }
+
+        $payload = $this->runPython(
+            'scripts/livecounts_youtube_view_search.py',
+            [$query],
+            38
+        );
+
+        if (($payload['success'] ?? false) !== true) {
+            throw new RuntimeException(
+                (string) ($payload['message'] ?? 'YouTube video zoeken faalde.')
+            );
+        }
+
+        $results = $payload['results'] ?? [];
+        if (!is_array($results)) {
+            return [];
+        }
+
+        $normalized = [];
+        $seen = [];
+
+        foreach ($results as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $id = trim((string) (
+                $item['id']
+                ?? $item['video_id']
+                ?? $item['videoId']
+                ?? ''
+            ));
+
+            if (!preg_match('/^[A-Za-z0-9_-]{11}$/', $id)) {
+                continue;
+            }
+
+            if (isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
+
+            $title = trim((string) (
+                $item['title']
+                ?? $item['name']
+                ?? $item['display_name']
+                ?? 'YouTube-video'
+            ));
+
+            $thumbnail = $item['thumbnail']
+                ?? $item['thumbnail_url']
+                ?? $item['image']
+                ?? $item['avatar']
+                ?? null;
+
+            $channel = trim((string) (
+                $item['channel']
+                ?? $item['channelTitle']
+                ?? $item['channel_name']
+                ?? $item['author']
+                ?? ''
+            ));
+
+            $normalized[] = [
+                'id' => $id,
+                'title' => $title !== '' ? $title : 'YouTube-video',
+                'thumbnail' => is_string($thumbnail) && $thumbnail !== ''
+                    ? $thumbnail
+                    : 'https://i.ytimg.com/vi/'.$id.'/hqdefault.jpg',
+                'channel' => $channel !== '' ? $channel : null,
+                'url' => 'https://www.youtube.com/watch?v='.$id,
+            ];
+
+            if (count($normalized) >= 8) {
+                break;
+            }
+        }
+
+        if ($normalized !== []) {
+            Cache::put($cacheKey, $normalized, now()->addSeconds(60));
+        }
+
+        return $normalized;
+    }
+
+    public function getVideoStats(string $videoId): array
+    {
+        if (!preg_match('/^[A-Za-z0-9_-]{11}$/', $videoId)) {
+            throw new RuntimeException('Ongeldig YouTube video-ID.');
+        }
+
+        $cacheKey = 'youtube-livecounts:video-stats:v1:'.$videoId;
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $lock = Cache::lock(
+            'youtube-livecounts:video-stats-lock:v1:'.$videoId,
+            35
+        );
+
+        if (!$lock->get()) {
+            for ($attempt = 0; $attempt < 80; $attempt++) {
+                usleep(250000);
+                $cached = Cache::get($cacheKey);
+
+                if (is_array($cached)) {
+                    return $cached;
+                }
+            }
+
+            throw new RuntimeException(
+                'YouTube video refresh draait al maar leverde nog geen snapshot.'
+            );
+        }
+
+        try {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+
+            $payload = $this->runPython(
+                'scripts/livecounts_youtube_view_browser_fetch.py',
+                [$videoId],
+                30
+            );
+
+            if (($payload['success'] ?? false) !== true) {
+                throw new RuntimeException(
+                    (string) (
+                        $payload['message']
+                        ?? 'YouTube live views ophalen faalde.'
+                    )
+                );
+            }
+
+            $stats = $payload['stats'] ?? null;
+            if (!is_array($stats)) {
+                throw new RuntimeException(
+                    'Livecounts YouTube video response bevatte geen stats.'
+                );
+            }
+
+            foreach (['views', 'likes', 'dislikes', 'comments'] as $key) {
+                if (!array_key_exists($key, $stats) || $stats[$key] === null) {
+                    throw new RuntimeException(
+                        'Livecounts YouTube video mist teller: '.$key
+                    );
+                }
+            }
+
+            $result = [
+                'id' => $videoId,
+                'title' => $payload['title'] ?? null,
+                'thumbnail' => $payload['thumbnail']
+                    ?? 'https://i.ytimg.com/vi/'.$videoId.'/hqdefault.jpg',
+                'channel' => $payload['channel'] ?? null,
+                'description' => $payload['description'] ?? null,
+                'url' => 'https://www.youtube.com/watch?v='.$videoId,
+                'views' => (int) $stats['views'],
+                'likes' => (int) $stats['likes'],
+                'dislikes' => (int) $stats['dislikes'],
+                'comments' => (int) $stats['comments'],
+                'source' => (string) (
+                    $payload['source']
+                    ?? 'livecounts-youtube-view-public-page-rendered'
+                ),
+            ];
+
+            Cache::put($cacheKey, $result, now()->addSeconds(3));
+
+            return $result;
+        } finally {
+            $lock->release();
+        }
+    }
+
     public function getChannelStats(string $channelId): array
     {
         if (!preg_match('/^UC[A-Za-z0-9_-]{22}$/', $channelId)) {
