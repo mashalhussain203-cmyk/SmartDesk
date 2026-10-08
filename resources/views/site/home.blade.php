@@ -2229,7 +2229,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">↔</div>
                     <div>
-                        <strong>Resize</strong>
+                        <strong>{{ __('Resize') }}</strong>
                         <span>{{ __('Exacte afmetingen') }}</span>
                     </div>
                 </div>
@@ -2237,7 +2237,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">⌗</div>
                     <div>
-                        <strong>Crop</strong>
+                        <strong>{{ __('Crop') }}</strong>
                         <span>{{ __('Snijd gericht uit') }}</span>
                     </div>
                 </div>
@@ -2245,7 +2245,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">↻</div>
                     <div>
-                        <strong>Rotate</strong>
+                        <strong>{{ __('Rotate') }}</strong>
                         <span>{{ __('Draai zonder verlies') }}</span>
                     </div>
                 </div>
@@ -2253,7 +2253,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">⇆</div>
                     <div>
-                        <strong>Flip</strong>
+                        <strong>{{ __('Flip') }}</strong>
                         <span>{{ __('Horizontaal / verticaal') }}</span>
                     </div>
                 </div>
@@ -2261,7 +2261,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">↓</div>
                     <div>
-                        <strong>Compress</strong>
+                        <strong>{{ __('Compress') }}</strong>
                         <span>{{ __('Kleinere export') }}</span>
                     </div>
                 </div>
@@ -2269,7 +2269,7 @@ body {
                 <div class="ms-signal-item">
                     <div class="ms-signal-icon">◇</div>
                     <div>
-                        <strong>Convert</strong>
+                        <strong>{{ __('Convert') }}</strong>
                         <span>JPG · PNG · WEBP</span>
                     </div>
                 </div>
@@ -2302,32 +2302,32 @@ body {
 
                     <div class="ms-editor-tool active">
                         <span class="ms-editor-tool-icon">↔</span>
-                        Resize
+                        {{ __('Resize') }}
                     </div>
 
                     <div class="ms-editor-tool">
                         <span class="ms-editor-tool-icon">⌗</span>
-                        Crop
+                        {{ __('Crop') }}
                     </div>
 
                     <div class="ms-editor-tool">
                         <span class="ms-editor-tool-icon">↻</span>
-                        Rotate
+                        {{ __('Rotate') }}
                     </div>
 
                     <div class="ms-editor-tool">
                         <span class="ms-editor-tool-icon">⇆</span>
-                        Flip
+                        {{ __('Flip') }}
                     </div>
 
                     <div class="ms-editor-tool">
                         <span class="ms-editor-tool-icon">↓</span>
-                        Compress
+                        {{ __('Compress') }}
                     </div>
 
                     <div class="ms-editor-tool">
                         <span class="ms-editor-tool-icon">◇</span>
-                        Convert
+                        {{ __('Convert') }}
                     </div>
                 </aside>
 
