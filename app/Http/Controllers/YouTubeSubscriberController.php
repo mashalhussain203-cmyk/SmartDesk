@@ -47,6 +47,18 @@ class YouTubeSubscriberController extends Controller
         }
     }
 
+    public function embed(string $channelId): View
+    {
+        abort_unless(
+            preg_match('/^UC[A-Za-z0-9_-]{22}$/', $channelId) === 1,
+            404
+        );
+
+        return view('tools.youtube-subscribers-embed', [
+            'channelId' => $channelId,
+        ]);
+    }
+
     public function stats(
         string $channelId,
         YouTubeLiveCountsService $service
