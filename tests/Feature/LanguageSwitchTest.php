@@ -23,7 +23,14 @@ class LanguageSwitchTest extends TestCase
             ->assertSee('name="locale" value="nl"', false)
             ->assertSee('name="locale" value="ur"', false)
             ->assertSee('Nederlands', false)
-            ->assertSee('اردو', false);
+            ->assertSee('اردو', false)
+            ->assertSee('class="expert-mobile-language"', false);
+
+        // The locale switch is rendered twice: once in the header
+        // and once directly inside the mobile drawer.
+        $response = $this->get(route('about'));
+        $this->assertSame(2, substr_count($response->getContent(), 'name="locale" value="ur"'));
+        $this->assertSame(2, substr_count($response->getContent(), 'name="locale" value="nl"'));
     }
 
     public function test_guest_can_switch_to_urdu_and_back_without_leaving_the_page(): void
