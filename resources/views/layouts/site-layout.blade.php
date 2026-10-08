@@ -6563,18 +6563,86 @@
             outline-offset: 2px;
         }
 
+        /* A second, clearly labeled switch is always at the top of the mobile menu. */
+        .expert-mobile-language {
+            display: none;
+        }
+
+        @media (max-width: 1120px) {
+            .expert-mobile-language {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin: 10px 0 18px;
+                padding: 12px;
+                border: 1px solid rgba(122, 108, 255, .22);
+                border-radius: 12px;
+                background: rgba(122, 108, 255, .055);
+            }
+
+            .expert-mobile-language-copy {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #edf0fa;
+                font-size: 13px;
+            }
+
+            .expert-mobile-language .expert-language-switcher {
+                flex: 1 0 auto;
+                justify-content: center;
+            }
+
+            .expert-mobile-language .expert-language-button {
+                min-width: 58px;
+                min-height: 44px;
+                padding: 0 12px;
+                font-size: 14px;
+            }
+        }
+
         @media (max-width: 520px) {
+            .expert-nav-right {
+                gap: 5px;
+                min-width: 0;
+            }
+
             .expert-language-switcher {
-                padding: 2px;
+                flex-shrink: 0;
             }
 
             .expert-language-button {
-                min-width: 34px;
-                height: 31px;
-                padding: 0 6px;
-                font-size: 11px;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0 8px;
+                font-size: 12px;
+            }
+
+            .expert-mobile-language .expert-language-switcher {
+                width: 100%;
+            }
+
+            .expert-mobile-language .expert-language-switcher form {
+                flex: 1 1 0;
+            }
+
+            .expert-mobile-language .expert-language-button {
+                width: 100%;
             }
         }
+
+        @media (max-width: 355px) {
+            .expert-brand-copy {
+                display: none;
+            }
+
+            .expert-nav {
+                gap: 8px;
+            }
+        }
+
 
         @media (prefers-reduced-motion: reduce) {
             .expert-language-button {
@@ -7223,6 +7291,14 @@
                 ×
             </button>
         </div>
+
+        <section class="expert-mobile-language" aria-label="{{ __('Taal kiezen') }}">
+            <div class="expert-mobile-language-copy">
+                <span aria-hidden="true">🌐</span>
+                <strong>{{ __('Taal kiezen') }}</strong>
+            </div>
+            @include('partials.language-switcher')
+        </section>
 
         <a
             class="expert-mobile-upload"
