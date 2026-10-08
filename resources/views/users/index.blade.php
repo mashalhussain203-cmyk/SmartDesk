@@ -4728,7 +4728,7 @@
 
 
 
-                                                Verwijderen
+                                                {{ __('Verwijderen') }}
 
 
 
