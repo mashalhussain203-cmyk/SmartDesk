@@ -20,7 +20,7 @@
     >
 
     <title>
-        Beveiligingsmelding: je Mashal-e-mailadres is gewijzigd
+        {{ __('Beveiligingsmelding: je Mashal-e-mailadres is gewijzigd') }}
     </title>
 </head>
 
@@ -199,7 +199,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Security event
+                                                    {{ __('Security event') }}
                                                 </span>
                                             </td>
 
@@ -269,7 +269,7 @@
                                 text-transform: uppercase;
                             "
                         >
-                            Belangrijke accountwijziging
+                            {{ __('Belangrijke accountwijziging') }}
                         </div>
 
                         <h1
@@ -283,7 +283,7 @@
                                 text-align: center;
                             "
                         >
-                            Je e-mailadres is gewijzigd
+                            {{ __('Je e-mailadres is gewijzigd') }}
                         </h1>
 
                         <p
@@ -296,8 +296,7 @@
                                 text-align: center;
                             "
                         >
-                            Dit is een beveiligingsmelding over een wijziging
-                            in de contactgegevens van je Mashal-account.
+                            {{ __('Dit is een beveiligingsmelding over een wijziging in de contactgegevens van je Mashal-account.') }}
                         </p>
 
                     </td>
@@ -334,8 +333,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Het e-mailadres dat aan je Mashal-account is gekoppeld,
-                            is gewijzigd. Controleer onderstaande wijziging zorgvuldig.
+                            {{ __('Het e-mailadres dat aan je Mashal-account is gekoppeld, is gewijzigd. Controleer onderstaande wijziging zorgvuldig.') }}
                         </p>
 
                     </td>
@@ -362,7 +360,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wijzigingsoverzicht
+                            {{ __('Wijzigingsoverzicht') }}
                         </div>
 
                         <table
@@ -524,7 +522,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Je nieuwe e-mailadres moet opnieuw worden geverifieerd
+                                        {{ __('Je nieuwe e-mailadres moet opnieuw worden geverifieerd') }}
                                     </div>
 
                                     <div
@@ -534,9 +532,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Na een e-mailwijziging wordt de verificatiestatus opnieuw
-                                        gecontroleerd. Rond de verificatie af met de code die
-                                        naar je nieuwe e-mailadres is verzonden.
+                                        {{ __('Na een e-mailwijziging wordt de verificatiestatus opnieuw gecontroleerd. Rond de verificatie af met de code die naar je nieuwe e-mailadres is verzonden.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -566,7 +562,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Wat gebeurt er nu?
+                            {{ __('Wat gebeurt er nu?') }}
                         </div>
 
                         <table
@@ -616,9 +612,9 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Je account gebruikt voortaan
+                                    {{ __('Je account gebruikt voortaan') }}
                                     <strong>{{ $newEmail }}</strong>
-                                    voor accountcommunicatie.
+                                    {{ __('voor accountcommunicatie.') }}
                                 </td>
                             </tr>
 
@@ -657,9 +653,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Toekomstige bestelbevestigingen en
-                                    beveiligingsmeldingen worden naar
-                                    het nieuwe adres verzonden.
+                                    {{ __('Toekomstige bestelbevestigingen en beveiligingsmeldingen worden naar het nieuwe adres verzonden.') }}
                                 </td>
                             </tr>
 
@@ -698,8 +692,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Rond de wijziging af door het nieuwe
-                                    e-mailadres te verifiëren.
+                                    {{ __('Rond de wijziging af door het nieuwe e-mailadres te verifiëren.') }}
                                 </td>
                             </tr>
 
@@ -776,7 +769,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Heb jij deze wijziging niet uitgevoerd?
+                                        {{ __('Heb jij deze wijziging niet uitgevoerd?') }}
                                     </div>
 
                                     <div
@@ -786,9 +779,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Dan kan iemand anders toegang hebben gehad
-                                        tot je account. Wijzig direct je wachtwoord
-                                        en controleer je accountgegevens.
+                                        {{ __('Dan kan iemand anders toegang hebben gehad tot je account. Wijzig direct je wachtwoord en controleer je accountgegevens.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -818,7 +809,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Aanbevolen beveiligingsstappen
+                            {{ __('Aanbevolen beveiligingsstappen') }}
                         </div>
 
                         <table
@@ -868,7 +859,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of je nog toegang hebt tot je Mashal-account.
+                                    {{ __('Controleer of je nog toegang hebt tot je Mashal-account.') }}
                                 </td>
                             </tr>
 
@@ -907,8 +898,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Gebruik een sterk en uniek wachtwoord
-                                    dat je nergens anders gebruikt.
+                                    {{ __('Gebruik een sterk en uniek wachtwoord dat je nergens anders gebruikt.') }}
                                 </td>
                             </tr>
 
@@ -947,8 +937,7 @@
                                         line-height: 1.65;
                                     "
                                 >
-                                    Controleer of naam, e-mailadres en andere
-                                    accountgegevens nog correct zijn.
+                                    {{ __('Controleer of naam, e-mailadres en andere accountgegevens nog correct zijn.') }}
                                 </td>
                             </tr>
 
@@ -1173,7 +1162,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Houd je accountgegevens privé
+                                        {{ __('Houd je accountgegevens privé') }}
                                     </div>
 
                                     <div
@@ -1183,8 +1172,7 @@
                                             line-height: 1.65;
                                         "
                                     >
-                                        Mashal vraagt je nooit via e-mail, chat of telefoon
-                                        om je wachtwoord of verificatiecode met iemand te delen.
+                                        {{ __('Mashal vraagt je nooit via e-mail, chat of telefoon om je wachtwoord of verificatiecode met iemand te delen.') }}
                                     </div>
                                 </td>
                             </tr>
@@ -1213,9 +1201,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Heb je deze wijziging zelf uitgevoerd,
-                            dan hoef je alleen nog de verificatie
-                            van het nieuwe e-mailadres af te ronden.
+                            {{ __('Heb je deze wijziging zelf uitgevoerd, dan hoef je alleen nog de verificatie van het nieuwe e-mailadres af te ronden.') }}
                         </p>
 
                         <p
@@ -1265,8 +1251,7 @@
                                 line-height: 1.6;
                             "
                         >
-                            Deze e-mail is automatisch verzonden
-                            nadat het e-mailadres van je Mashal-account is gewijzigd.
+                            {{ __('Deze e-mail is automatisch verzonden nadat het e-mailadres van je Mashal-account is gewijzigd.') }}
                         </div>
 
                         <div
@@ -1300,8 +1285,7 @@
                     text-align: center;
                 "
             >
-                Automatische beveiligingsmelding van Mashal Automotive.
-                Controleer onverwachte accountwijzigingen altijd direct.
+                {{ __('Automatische beveiligingsmelding van Mashal Automotive. Controleer onverwachte accountwijzigingen altijd direct.') }}
             </div>
 
         </td>
