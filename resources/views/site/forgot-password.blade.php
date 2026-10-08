@@ -2549,7 +2549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             submit.textContent =
 
-                'Verstuur resetlink';
+                @json(__('Verstuur resetlink'));
 
         }
 
