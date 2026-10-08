@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Over ons | Mashal Studio')
+@section('title', __('Over ons') . ' | Mashal Studio')
 
 @push('styles')
 <style>
