@@ -410,7 +410,7 @@
 
                                         >
 
-                                            Klantenservice
+                                            {{ __('Klantenservice') }}
 
                                         </span>
 
@@ -682,9 +682,7 @@
 
                                                     >
 
-                                                        Persoonlijke ondersteuning
-
-                                                        via e-mail
+                                                        {{ __('Persoonlijke ondersteuning via e-mail') }}
 
                                                     </div>
 
@@ -746,7 +744,7 @@
 
                                                     >
 
-                                                        ● ACTIEF
+                                                        {{ __('● ACTIEF') }}
 
                                                     </span>
 
@@ -880,7 +878,7 @@
 
                                             >
 
-                                                Hallo,
+                                                {{ __('Hallo,') }}
 
                                             </div>
 
@@ -902,11 +900,7 @@
 
                                         >
 
-                                            Er staat een nieuw bericht voor u klaar
-
-                                            van Mashal Support. U kunt rechtstreeks
-
-                                            vanuit uw e-mail reageren.
+                                            {{ __('Er staat een nieuw bericht voor u klaar van Mashal Support. U kunt rechtstreeks vanuit uw e-mail reageren.') }}
 
                                         </div>
 
@@ -1028,7 +1022,7 @@
 
                                                             >
 
-                                                                SUPPORTGESPREK
+                                                                {{ __('SUPPORTGESPREK') }}
 
                                                             </td>
 
@@ -1080,9 +1074,7 @@
 
                                                             >
 
-                                                                Uw gesprek is momenteel
-
-                                                                actief via e-mail.
+                                                                {{ __('Uw gesprek is momenteel actief via e-mail.') }}
 
                                                             </td>
 
@@ -1260,7 +1252,7 @@
 
                                                     >
 
-                                                        Van Mashal Support
+                                                        {{ __('Van Mashal Support') }}
 
                                                     </div>
 
@@ -1444,7 +1436,7 @@
                                                                                 text-decoration:none;
                                                                             "
                                                                         >
-                                                                            ▶ Video bekijken / downloaden
+                                                                            {{ __('▶ Video bekijken / downloaden') }}
                                                                         </a>
                                                                     </td>
                                                                 </tr>
@@ -1659,7 +1651,7 @@
 
                                                     >
 
-                                                        Antwoord rechtstreeks op deze e-mail
+                                                        {{ __('Antwoord rechtstreeks op deze e-mail') }}
 
                                                     </div>
 
@@ -1679,7 +1671,7 @@
 
                                                     >
 
-                                                        Gebruik simpelweg de knop
+                                                        {{ __('Gebruik simpelweg de knop') }}
 
                                                         <strong>
 
@@ -1687,15 +1679,7 @@
 
                                                         </strong>
 
-                                                        in Gmail, Outlook of uw
-
-                                                        andere e-mailprogramma.
-
-                                                        Uw reactie wordt automatisch
-
-                                                        toegevoegd aan hetzelfde
-
-                                                        supportgesprek.
+                                                        {{ __('in Gmail, Outlook of uw andere e-mailprogramma. Uw reactie wordt automatisch toegevoegd aan hetzelfde supportgesprek.') }}
 
                                                     </div>
 
@@ -1805,7 +1789,7 @@
 
                                                     >
 
-                                                        Eén doorlopend gesprek
+                                                        {{ __('Eén doorlopend gesprek') }}
 
                                                     </div>
 
@@ -1825,17 +1809,7 @@
 
                                                     >
 
-                                                        U hoeft geen nieuwe e-mail
-
-                                                        of nieuw supportgesprek te
-
-                                                        starten. Wanneer u op deze
-
-                                                        e-mail antwoordt, blijft de
-
-                                                        volledige communicatie
-
-                                                        gekoppeld aan gesprek
+                                                        {{ __('U hoeft geen nieuwe e-mail of nieuw supportgesprek te starten. Wanneer u op deze e-mail antwoordt, blijft de volledige communicatie gekoppeld aan gesprek') }}
 
                                                         <strong>
 
@@ -1965,7 +1939,7 @@
 
                                                             >
 
-                                                                Gespreksnummer
+                                                                {{ __('Gespreksnummer') }}
 
                                                             </td>
 
@@ -2009,7 +1983,7 @@
                                                                     color:#64748b;
                                                                 "
                                                             >
-                                                                Onderwerp:
+                                                                {{ __('Onderwerp:') }}
                                                                 <strong style="color:#334155;">
                                                                     {{ $emailSubject ?? ('Mashal Support · gesprek #'.$conversationId) }}
                                                                 </strong>
@@ -2038,7 +2012,7 @@
 
                                                             >
 
-                                                                Kanaal
+                                                                {{ __('Kanaal') }}
 
                                                             </td>
 
@@ -2066,7 +2040,7 @@
 
                                                             >
 
-                                                                E-mail support
+                                                                {{ __('E-mail support') }}
 
                                                             </td>
 
@@ -2094,7 +2068,7 @@
 
                                                             >
 
-                                                                Status
+                                                                {{ __('Status') }}
 
                                                             </td>
 
@@ -2122,7 +2096,7 @@
 
                                                             >
 
-                                                                ● Actief
+                                                                {{ __('● Actief') }}
 
                                                             </td>
 
@@ -2244,7 +2218,7 @@
 
                                                     >
 
-                                                        Wij helpen u graag verder.
+                                                        {{ __('Wij helpen u graag verder.') }}
 
                                                     </div>
 
@@ -2340,9 +2314,7 @@
 
                             >
 
-                                Deze e-mail is onderdeel van uw
-
-                                communicatie met
+                                {{ __('Deze e-mail is onderdeel van uw communicatie met') }}
 
                                 <strong
 
@@ -2378,9 +2350,7 @@
 
                             >
 
-                                Antwoord rechtstreeks op deze e-mail
-
-                                om uw gesprek voort te zetten.
+                                {{ __('Antwoord rechtstreeks op deze e-mail om uw gesprek voort te zetten.') }}
 
                             </div>
 
