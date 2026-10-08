@@ -1,0 +1,353 @@
+/*
+ * SmartDesk / Mashal Studio – mobile layout improvements
+ * Loaded AFTER per-page styles so narrow-screen fixes win without changing desktop UI.
+ * Mobile QA targets: 320, 360, 375, 390, 414, 430, 768 CSS px.
+ */
+
+@media (max-width: 767px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body,
+    .studio-main,
+    .admin-main,
+    .admin-content,
+    .app-shell {
+        min-width: 0;
+    }
+
+    :is(.studio-main, .admin-content) :is(img, video, iframe) {
+        max-width: 100%;
+    }
+
+    :is(.studio-main, .admin-content) :is(h1, h2, h3, h4, p, small, strong, label, td, th) {
+        overflow-wrap: anywhere;
+    }
+
+    :is(.studio-main, .admin-content) :is(form, fieldset) {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    :is(.studio-main, .admin-content) :is(input, select, textarea) {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    /* The header, Urdu switch and hamburger must fit together on narrow devices. */
+    .studio-header-expert .studio-shell,
+    .studio-footer .studio-shell {
+        width: calc(100% - 24px);
+        max-width: 100%;
+    }
+
+    .studio-header-expert .expert-nav {
+        min-height: 66px;
+        gap: 8px;
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .studio-header-expert .expert-nav-left,
+    .studio-header-expert .expert-nav-right {
+        min-width: 0;
+        gap: 6px;
+    }
+
+    .studio-header-expert .expert-brand {
+        min-width: 0;
+    }
+
+    .studio-header-expert .expert-brand-copy {
+        min-width: 0;
+    }
+
+    .studio-header-expert .expert-brand-mark {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+    }
+
+    .studio-header-expert .expert-menu-toggle,
+    .studio-header-expert .expert-account-trigger {
+        flex-shrink: 0;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .studio-header-expert .expert-language-switcher {
+        gap: 2px;
+        flex-shrink: 0;
+    }
+
+    .studio-header-expert .expert-language-button {
+        min-width: 44px;
+        min-height: 44px;
+        height: auto;
+        padding: 0 7px;
+        touch-action: manipulation;
+    }
+
+    .expert-mobile-drawer {
+        max-height: 100dvh;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .expert-mobile-language,
+    .expert-mobile-nav,
+    .expert-mobile-footer {
+        min-width: 0;
+    }
+
+    .expert-mobile-language .expert-language-button {
+        min-width: 58px;
+        min-height: 44px;
+    }
+
+    .expert-mobile-link,
+    .expert-mobile-auth,
+    .expert-mobile-logout {
+        min-height: 44px;
+    }
+
+    /* General content widths, especially with longer RTL translations. */
+    .studio-main :is(.ms-shell, .account-shell, .security-shell, .legal-shell, .image-editor-shell, .glass-stage, .glass-card-shell) {
+        max-width: 100%;
+    }
+
+    .studio-main :is(.account-layout, .ms-hero-grid, .ms-flow, .ms-workspace) > * {
+        min-width: 0;
+    }
+
+    .studio-main :is(.table-wrap, .ai-rich-table-wrap, .mail-table-wrap, .table-responsive) {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .studio-main :is(pre, .ai-code-block pre) {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* iOS Safari zooms focused inputs when their computed font-size is below 16px. */
+    @supports (-webkit-touch-callout: none) {
+        :is(.studio-main, .admin-content, .app-shell)
+        :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]), select, textarea) {
+            font-size: 16px;
+        }
+    }
+
+    /* The image-editor toolbars scroll independently, instead of pushing the page wide. */
+    .image-editor-page .editor-topbar,
+    .image-editor-page .editor-canvas-toolbar,
+    .image-editor-page .editor-canvas-area,
+    .image-editor-page .editor-workspace,
+    .image-editor-page .editor-stage,
+    .image-editor-page .editor-brand-copy {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .image-editor-page .editor-top-actions,
+    .image-editor-page .editor-tool-list {
+        max-width: 100%;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .image-editor-page .editor-brand-copy strong {
+        overflow-wrap: anywhere;
+    }
+
+    .image-editor-page .editor-link,
+    .image-editor-page .editor-tool,
+    .image-editor-page .editor-submit,
+    .image-editor-page .editor-secondary-action {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+    .image-editor-page .editor-field-grid > *,
+    .image-editor-page .editor-choice-grid > * {
+        min-width: 0;
+    }
+
+    /* Prevent long account IDs, email addresses and filenames from overflowing. */
+    .account-page :is(.account-card, .account-panel, .account-content, .project-card),
+    .security-page :is(.security-card, .security-shell) {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .account-page :is(.account-hero-actions, .form-grid) > * {
+        min-width: 0;
+    }
+
+    .glass-auth-page .glass-card-shell,
+    .glass-auth-page .glass-card,
+    .glass-auth-page .glass-inner {
+        max-width: 100%;
+    }
+
+    .glass-auth-page :is(.glass-primary, .glass-secondary, .login-oauth, .register-oauth) {
+        min-height: 44px;
+    }
+
+    /* Admin panel: keep the existing drawer and tables scrollable, not clipped. */
+    .admin-app,
+    .admin-main,
+    .admin-content,
+    .admin-topbar {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .admin-topbar {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .admin-topbar-copy,
+    .admin-topbar-actions {
+        min-width: 0;
+    }
+
+    .admin-content .table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-content table {
+        min-width: max-content;
+    }
+
+    .admin-content :is(button, .admin-button, input[type="submit"]) {
+        touch-action: manipulation;
+    }
+
+    /* Standalone Mashal Mail screens. */
+    .app-shell {
+        max-width: 100%;
+    }
+
+    .app-shell :is(.topbar, .message-list, .message-card, .message-body) {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .app-shell .message-body {
+        overflow-wrap: anywhere;
+    }
+
+    .app-shell :is(pre, .message-body pre) {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .app-shell :is(button, a, input, select, textarea) {
+        touch-action: manipulation;
+    }
+}
+
+@media (max-width: 480px) {
+    .ms-home .ms-hero-title {
+        font-size: clamp(34px, 10vw, 48px);
+        line-height: 1.1;
+        letter-spacing: -.035em;
+        overflow-wrap: anywhere;
+    }
+
+    .ms-home .ms-dropzone {
+        min-height: 280px;
+        padding: 20px 12px;
+    }
+
+    .ms-home .ms-studio-card,
+    .ms-home .ms-studio-window,
+    .ms-home .ms-window-body {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .ms-home .ms-hero-actions,
+    .ms-home .ms-preview-actions {
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .ms-home .ms-preview-change,
+    .ms-home .ms-preview-submit {
+        min-height: 44px;
+    }
+
+    .glass-auth-page .glass-inner {
+        padding-inline: clamp(12px, 4vw, 22px);
+    }
+
+    .glass-auth-page :is(.login-oauth-grid, .register-oauth-grid) {
+        min-width: 0;
+    }
+
+    .studio-footer-main,
+    .studio-footer-bottom {
+        min-width: 0;
+    }
+
+    /* If the user's name and Urdu buttons compete for space, prefer the actions. */
+    .studio-header-expert .expert-brand-copy {
+        display: none;
+    }
+
+    .studio-header-expert .expert-nav-right {
+        gap: 4px;
+    }
+
+    .image-editor-page .editor-canvas-toolbar {
+        gap: 8px;
+    }
+
+    .image-editor-page .editor-stage {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .studio-header-expert .studio-shell {
+        width: calc(100% - 16px);
+    }
+
+    .studio-header-expert .expert-nav {
+        gap: 4px;
+    }
+
+    .studio-header-expert .expert-language-button {
+        min-width: 42px;
+        padding-inline: 5px;
+    }
+
+    .studio-header-expert .expert-brand-mark {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+    }
+
+    .ms-home .ms-hero-title {
+        font-size: 34px;
+    }
+}
+
+/* RTL text should wrap naturally, but keep technical values legible. */
+html[dir="rtl"] :is(input[type="email"], input[type="url"], input[type="tel"]) {
+    direction: ltr;
+    text-align: start;
+}
