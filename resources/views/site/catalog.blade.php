@@ -1223,7 +1223,7 @@
 
                 <span class="catalog-badge">
 
-                    Curated
+                    {{ __('Curated') }}
 
                 </span>
 
