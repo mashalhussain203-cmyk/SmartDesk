@@ -3781,7 +3781,7 @@
 
                 aria-label="Bericht vernieuwen"
 
-                title="Vernieuwen"
+                title="{{ __('Vernieuwen') }}"
 
             >
 
@@ -4717,7 +4717,7 @@
 
                 ) }}"
 
-                placeholder="Aan"
+                placeholder="{{ __('Aan') }}"
 
                 required
 
@@ -4765,7 +4765,7 @@
 
                 ) }}"
 
-                placeholder="Onderwerp"
+                placeholder="{{ __('Onderwerp') }}"
 
                 maxlength="998"
 
