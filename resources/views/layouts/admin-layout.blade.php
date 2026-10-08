@@ -2912,7 +2912,7 @@
         class="admin-skip-link"
         href="#adminContent"
     >
-        Ga naar inhoud
+        {{ __('Ga naar inhoud') }}
     </a>
 
 
@@ -2972,7 +2972,7 @@
                                 </strong>
 
                                 <span>
-                                    Admin workspace
+                                    {{ __('Admin workspace') }}
                                 </span>
                             </span>
                         </a>
@@ -3038,7 +3038,7 @@
                             </span>
 
                             <div class="admin-role">
-                                Administrator
+                                {{ __('Administrator') }}
                             </div>
 
                         </div>
@@ -3091,13 +3091,13 @@
                         @if (\Illuminate\Support\Facades\Route::has('admin.live-chat.index'))
                             <a class="admin-nav-link {{ request()->routeIs('admin.live-chat.*') ? 'active' : '' }}" href="{{ route('admin.live-chat.index') }}" data-admin-menu-item data-search="live chat gesprekken bezoekers gasten">
                                 <span class="admin-nav-icon" aria-hidden="true">✉</span>
-                                <span>Live chat</span>
+                                <span>{{ __('Live chat') }}</span>
                             </a>
                         @endif
 
 
                         <div class="admin-nav-label">
-                            Overzicht
+                            {{ __('Overzicht') }}
                         </div>
 
 
@@ -3159,11 +3159,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Dashboard
+                                        {{ __('Dashboard') }}
                                     </strong>
 
                                     <span>
-                                        Platformoverzicht
+                                        {{ __('Platformoverzicht') }}
                                     </span>
 
                                 </span>
@@ -3174,7 +3174,7 @@
 
 
                         <div class="admin-nav-label">
-                            Gebruikers
+                            {{ __('Gebruikers') }}
                         </div>
 
 
@@ -3224,11 +3224,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Gebruikers beheren
+                                        {{ __('Gebruikers beheren') }}
                                     </strong>
 
                                     <span>
-                                        Accounts en rollen
+                                        {{ __('Accounts en rollen') }}
                                     </span>
 
                                 </span>
@@ -3291,11 +3291,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Gebruiker toevoegen
+                                        {{ __('Gebruiker toevoegen') }}
                                     </strong>
 
                                     <span>
-                                        Nieuw account
+                                        {{ __('Nieuw account') }}
                                     </span>
 
                                 </span>
@@ -3306,7 +3306,7 @@
 
 
                         <div class="admin-nav-label">
-                            Image Studio
+                            {{ __('Image Studio') }}
                         </div>
 
 
@@ -3354,11 +3354,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Afbeeldingen
+                                        {{ __('Afbeeldingen') }}
                                     </strong>
 
                                     <span>
-                                        Projectbibliotheek
+                                        {{ __('Projectbibliotheek') }}
                                     </span>
 
                                 </span>
@@ -3415,11 +3415,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Nieuwe upload
+                                        {{ __('Nieuwe upload') }}
                                     </strong>
 
                                     <span>
-                                        Studio openen
+                                        {{ __('Studio openen') }}
                                     </span>
 
                                 </span>
@@ -3430,7 +3430,7 @@
 
 
                         <div class="admin-nav-label">
-                            Account
+                            {{ __('Account') }}
                         </div>
 
 
@@ -3470,11 +3470,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Mijn account
+                                        {{ __('Mijn account') }}
                                     </strong>
 
                                     <span>
-                                        Profielinstellingen
+                                        {{ __('Profielinstellingen') }}
                                     </span>
 
                                 </span>
@@ -3516,11 +3516,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Beveiliging
+                                        {{ __('Beveiliging') }}
                                     </strong>
 
                                     <span>
-                                        Loginactiviteit
+                                        {{ __('Loginactiviteit') }}
                                     </span>
 
                                 </span>
@@ -3570,11 +3570,11 @@
                                 <span class="admin-nav-copy">
 
                                     <strong>
-                                        Website bekijken
+                                        {{ __('Website bekijken') }}
                                     </strong>
 
                                     <span>
-                                        Naar Mashal Studio
+                                        {{ __('Naar Mashal Studio') }}
                                     </span>
 
                                 </span>
@@ -3622,7 +3622,7 @@
 
 
                                 <span class="admin-bottom-text">
-                                    Nieuwe gebruiker
+                                    {{ __('Nieuwe gebruiker') }}
                                 </span>
 
                             </a>
@@ -3662,7 +3662,7 @@
 
 
                                 <span class="admin-bottom-text">
-                                    Instellingen
+                                    {{ __('Instellingen') }}
                                 </span>
 
                             </a>
@@ -3706,7 +3706,7 @@
 
 
                                     <span class="admin-bottom-text">
-                                        Uitloggen
+                                        {{ __('Uitloggen') }}
                                     </span>
 
                                 </button>
@@ -3733,7 +3733,7 @@
                         <div class="admin-topbar-copy">
 
                             <span class="admin-kicker">
-                                Mashal Studio administration
+                                {{ __('Mashal Studio administration') }}
                             </span>
 
 
@@ -3775,7 +3775,7 @@
                                     class="admin-button secondary desktop-only"
                                     href="{{ route('home') }}"
                                 >
-                                    Website
+                                    {{ __('Website') }}
                                 </a>
 
                             @endif
@@ -3787,7 +3787,7 @@
                                     class="admin-button secondary desktop-only"
                                     href="{{ route('images.index') }}"
                                 >
-                                    Afbeeldingen
+                                    {{ __('Afbeeldingen') }}
                                 </a>
 
                             @endif
@@ -3799,7 +3799,7 @@
                                     class="admin-button"
                                     href="{{ route('users.create') }}"
                                 >
-                                    + Gebruiker
+                                    {{ __('+ Gebruiker') }}
                                 </a>
 
                             @endif
@@ -3972,7 +3972,7 @@
                                     <div>
 
                                         <strong>
-                                            Controleer onderstaande gegevens:
+                                            {{ __('Controleer onderstaande gegevens:') }}
                                         </strong>
 
 
@@ -4036,12 +4036,12 @@
 
 
                     <h1>
-                        Geen administratorrechten
+                        {{ __('Geen administratorrechten') }}
                     </h1>
 
 
                     <p>
-                        Je bent ingelogd, maar dit account heeft geen toegang tot de Mashal Studio adminomgeving.
+                        {{ __('Je bent ingelogd, maar dit account heeft geen toegang tot de Mashal Studio adminomgeving.') }}
                     </p>
 
 
@@ -4051,7 +4051,7 @@
                             class="admin-button"
                             href="{{ route('account') }}"
                         >
-                            Naar mijn account
+                            {{ __('Naar mijn account') }}
                         </a>
 
                     @elseif ($hasHome)
@@ -4060,7 +4060,7 @@
                             class="admin-button"
                             href="{{ route('home') }}"
                         >
-                            Naar Mashal Studio
+                            {{ __('Naar Mashal Studio') }}
                         </a>
 
                     @endif
@@ -4088,12 +4088,12 @@
 
 
                 <h1>
-                    Mashal Studio Admin
+                    {{ __('Mashal Studio Admin') }}
                 </h1>
 
 
                 <p>
-                    Log in met een administratoraccount om gebruikers, beeldprojecten en de Studio-omgeving te beheren.
+                    {{ __('Log in met een administratoraccount om gebruikers, beeldprojecten en de Studio-omgeving te beheren.') }}
                 </p>
 
 
@@ -4103,7 +4103,7 @@
                         class="admin-button"
                         href="{{ route('login') }}"
                     >
-                        Inloggen
+                        {{ __('Inloggen') }}
                     </a>
 
                 @endif
