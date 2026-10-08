@@ -1,83 +1,114 @@
-{{-- Only include this launcher for authenticated admins. The admin controller enforces is_admin again. --}}
+{{-- Admin-only entry point. The operator inbox performs its own is_admin authorization. --}}
 <style>
     .admin-chat-launcher {
+        --acl-purple: #b39aff;
+        --acl-blue: #82b5ff;
         position: fixed;
-        right: max(18px, env(safe-area-inset-right));
-        bottom: max(20px, env(safe-area-inset-bottom));
         z-index: 1200;
-        display: inline-flex;
+        inset: auto max(20px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) auto;
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr) auto;
         align-items: center;
-        gap: 12px;
-        min-height: 58px;
-        padding: 9px 17px 9px 10px;
-        border: 1px solid rgba(143, 130, 255, .5);
-        border-radius: 18px;
-        background: linear-gradient(135deg, #24213b, #101522);
-        color: #fff;
+        gap: 13px;
+        min-width: 262px;
+        min-height: 76px;
+        padding: 11px 15px 11px 11px;
+        border: 1px solid rgba(192,171,255,.45);
+        border-radius: 22px;
+        background:
+            radial-gradient(circle at 0% 0%, rgba(165,134,255,.22), transparent 65%),
+            linear-gradient(135deg,#22213f 0%,#151e35 68%,#121927 100%);
+        box-shadow: 0 23px 60px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.12);
+        color: #f7f6ff;
+        font: 700 13px/1.35 Inter, system-ui, -apple-system, sans-serif;
         text-decoration: none;
-        font: 700 13px/1.3 system-ui, sans-serif;
-        box-shadow: 0 14px 42px rgba(0, 0, 0, .4);
-        transition: transform .15s ease, border-color .15s ease;
+        text-align: start;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
-
     .admin-chat-launcher:hover {
-        transform: translateY(-2px);
-        border-color: #aea2ff;
         color: #fff;
+        transform: translateY(-4px);
+        border-color: rgba(211,190,255,.8);
+        box-shadow: 0 28px 68px rgba(0,0,0,.54), 0 0 34px rgba(118,104,241,.12);
     }
-
     .admin-chat-launcher:focus-visible {
-        outline: 3px solid #aea2ff;
-        outline-offset: 3px;
+        outline: 3px solid var(--acl-purple);
+        outline-offset: 4px;
     }
-
     .admin-chat-launcher__icon {
-        width: 40px;
-        height: 40px;
-        flex: 0 0 40px;
+        position: relative;
         display: grid;
         place-items: center;
-        border-radius: 13px;
-        background: linear-gradient(135deg, #796bff, #4f8eff);
+        width: 54px;
+        height: 54px;
+        border: 1px solid rgba(255,255,255,.23);
+        border-radius: 17px;
+        background: linear-gradient(145deg,#9d7cf2,#657ef1);
+        box-shadow: 0 11px 25px rgba(91,78,202,.30), inset 0 1px rgba(255,255,255,.28);
+        color: #fff;
     }
-
     .admin-chat-launcher__icon svg {
-        width: 22px;
-        height: 22px;
+        display: block;
+        width: 25px;
+        height: 25px;
     }
-
+    .admin-chat-launcher__icon::after {
+        content: "";
+        position: absolute;
+        inset: auto -3px -3px auto;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #171d34;
+        border-radius: 50%;
+        background: #75e8b2;
+    }
     .admin-chat-launcher__copy {
+        min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 3px;
-        text-align: start;
+        gap: 4px;
     }
-
+    .admin-chat-launcher__copy strong {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 810;
+        letter-spacing: -.025em;
+    }
     .admin-chat-launcher__copy small {
-        color: #b5b8c8;
+        color: #b6bddb;
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 530;
+        white-space: nowrap;
     }
-
+    .admin-chat-launcher__arrow {
+        display: grid;
+        place-items: center;
+        width: 27px;
+        height: 27px;
+        border: 1px solid rgba(191,181,253,.2);
+        border-radius: 9px;
+        color: #c9c1ff;
+        background: rgba(160,141,255,.12);
+        font-size: 16px;
+        line-height: 1;
+    }
     @media (max-width: 699px) {
         .admin-chat-launcher {
-            right: max(12px, env(safe-area-inset-right));
-            bottom: max(12px, env(safe-area-inset-bottom));
-            min-width: 56px;
-            min-height: 56px;
-            padding: 8px;
-            border-radius: 17px;
+            inset: auto max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) auto;
+            min-width: 60px;
+            min-height: 60px;
+            grid-template-columns: 1fr;
+            padding: 7px;
+            gap: 0;
+            border-radius: 20px;
         }
-
-        .admin-chat-launcher__copy {
-            display: none;
-        }
+        .admin-chat-launcher__icon { width: 46px; height: 46px; border-radius: 15px; }
+        .admin-chat-launcher__copy, .admin-chat-launcher__arrow { display: none; }
     }
-
     @media (prefers-reduced-motion: reduce) {
-        .admin-chat-launcher {
-            transition: none;
-        }
+        .admin-chat-launcher { transition: none; }
+        .admin-chat-launcher:hover { transform: none; }
     }
 </style>
 
@@ -91,11 +122,12 @@
     <span class="admin-chat-launcher__icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 11.5a8 8 0 0 1-11.5 7.2L3 21l1.8-5.7A8 8 0 1 1 20 11.5Z"/>
-            <path d="M8.5 11.5h7M12 8v7"/>
+            <path d="M8 11.5h8M8 15h5"/>
         </svg>
     </span>
     <span class="admin-chat-launcher__copy">
-        <strong>{{ __('Live chat') }}</strong>
+        <strong>{{ __('Live chat') }} · Admin</strong>
         <small>{{ __('Gesprekken beheren') }}</small>
     </span>
+    <span class="admin-chat-launcher__arrow" aria-hidden="true">↗</span>
 </a>

@@ -3128,6 +3128,367 @@ body {
     }
 }
 
+
+/* ==========================================================================
+   MASHAL SUPPORT / STUDIO EDITION
+   2026-10 - readable, premium operator interface; DOM/API hooks untouched.
+   Added last so these styles intentionally override earlier legacy console CSS.
+   ========================================================================== */
+.lca {
+    --lca-accent: #a99aff;
+    --lca-accent-2: #78b7ff;
+    --lca-text: #f5f5ff;
+    --lca-muted: #a1a9bc;
+    --lca-border: rgba(178,181,235,.13);
+    --lca-border-strong: rgba(178,181,235,.20);
+    max-width: 1760px;
+    font-size: 14px;
+    color: var(--lca-text);
+}
+.lca-shell { gap: 16px; }
+
+/* Hero / live availability */
+.lca-top {
+    min-height: 136px;
+    padding: clamp(19px, 2.2vw, 32px);
+    border: 1px solid rgba(181,166,255,.22);
+    border-radius: 25px;
+    background:
+        radial-gradient(ellipse at 82% 0%, rgba(131,110,255,.21), transparent 52%),
+        radial-gradient(ellipse at 2% 95%, rgba(65,153,255,.12), transparent 49%),
+        linear-gradient(135deg, #17152a 0%, #0e1422 58%, #101522 100%);
+    box-shadow: 0 28px 75px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.lca-top::before {
+    top: 21px; bottom: 21px; width: 4px;
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(180deg,#c3a5ff,#5bbef7);
+}
+.lca-top__copy { max-width: 680px; }
+.lca-eyebrow {
+    margin-bottom: 11px;
+    color: #c8c0ff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .13em;
+}
+.lca-eyebrow__dot { width: 9px; height: 9px; border-radius: 50%; }
+.lca-top h1 {
+    margin: 0;
+    font-size: clamp(30px, 3vw, 42px);
+    font-weight: 820;
+    letter-spacing: -.05em;
+    line-height: 1.08;
+}
+.lca-top p {
+    display: block;
+    margin-top: 12px;
+    color: #a5abc4;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.lca-presence {
+    min-width: min(100%, 305px);
+    padding: 17px 18px;
+    border: 1px solid rgba(102,230,183,.25);
+    border-radius: 17px;
+    background: rgba(30,74,65,.27);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+}
+.lca-presence__copy { gap: 5px; }
+.lca-presence__copy strong { color: #e0fff0; font-size: 13px; line-height: 1.25; }
+.lca-presence__copy small { color: #98bfb3; font-size: 11px; line-height: 1.45; }
+
+/* Live overview */
+.lca-stats { gap: 13px; }
+.lca-stat {
+    min-height: 95px;
+    grid-template-columns: 52px minmax(0,1fr);
+    gap: 14px;
+    padding: 15px 19px;
+    border: 1px solid rgba(178,181,235,.12);
+    border-radius: 19px;
+    background: linear-gradient(125deg, rgba(27,31,52,.96), rgba(15,21,34,.96));
+    box-shadow: 0 12px 32px rgba(0,0,0,.14);
+}
+.lca-stat:hover { border-color: rgba(179,161,255,.38); background: #1a2035; }
+.lca-stat__icon {
+    width: 52px; height: 52px;
+    border: 1px solid rgba(187,168,255,.25);
+    border-radius: 16px;
+    color: #c2b4ff;
+    background: linear-gradient(145deg, rgba(162,136,255,.2), rgba(93,154,255,.09));
+    filter: none;
+}
+.lca-stat__icon svg { display:block; width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.lca-stat:nth-child(2) .lca-stat__icon { color:#87e9c3; border-color:rgba(105,228,182,.23); background:rgba(47,139,103,.12); }
+.lca-stat:nth-child(3) .lca-stat__icon { color:#92cfff; border-color:rgba(102,175,255,.24); background:rgba(75,144,234,.12); }
+.lca-stat__copy { gap: 4px; }
+.lca-stat__copy strong { font-size: 20px; line-height:1.15; font-weight: 810; color:#f6f5ff; }
+.lca-stat__copy small { color:#a5adc2; font-size:11px; line-height:1.35; white-space:normal; }
+.lca-error { padding:13px 16px; border-radius:13px; font-size:12px; }
+
+/* Two-pane support desk */
+.lca-grid {
+    min-height: 650px;
+    height: clamp(650px, calc(100dvh - 310px), 1000px);
+    border: 1px solid rgba(158,166,212,.18);
+    border-radius: 25px;
+    background: #0c101c;
+    box-shadow: 0 36px 90px rgba(0,0,0,.43);
+}
+.lca-inbox {
+    background: linear-gradient(180deg, #121828, #101625 65%, #0d1423);
+    border-right: 1px solid rgba(158,166,212,.16);
+}
+.lca-inbox__head {
+    padding: 22px 18px 18px;
+    gap: 15px;
+    background: linear-gradient(180deg, #1b2034, #141a2a);
+    border-bottom: 1px solid rgba(175,171,230,.12);
+}
+.lca-inbox__title strong { font-size: 18px; font-weight:800; letter-spacing:-.035em; }
+.lca-inbox__title span {
+    color: #d4c7ff;
+    background:rgba(168,137,255,.13);
+    border:1px solid rgba(174,151,255,.2);
+    border-radius:999px;
+    padding:5px 9px;
+    font-size:10px;
+    letter-spacing:.03em;
+}
+.lca-search {
+    min-height: 48px;
+    border: 1px solid rgba(189,181,232,.2);
+    border-radius: 13px;
+    background: #0c1220;
+}
+.lca-search:focus-within { border-color: #9e8dff; box-shadow: 0 0 0 3px rgba(155,136,255,.16); }
+.lca-search input { min-height: 46px; padding-left: 38px; color:#f3f5ff; font-size:13px; }
+.lca-search input::placeholder { color:#8993aa; opacity:1; }
+.lca-search__icon { color:#b2abdf; font-size:23px; left:12px; }
+.lca-filter { gap: 9px; }
+.lca-filter select, .lca-icon-button, .lca-pages button {
+    min-height: 44px;
+    border: 1px solid rgba(175,172,220,.15)!important;
+    border-radius: 12px!important;
+    color:#cbd0e8!important;
+    background:#1a2032!important;
+}
+.lca-filter select { font-size:12px; }
+.lca-list { padding:12px 9px; }
+.lca-list-empty { padding:35px 20px; font-size:13px; color:#a3abc1; }
+.lca-item {
+    min-height: 85px;
+    margin: 0 0 7px;
+    padding: 15px 13px!important;
+    gap: 12px;
+    grid-template-columns: 48px minmax(0,1fr) auto;
+    border: 1px solid transparent!important;
+    border-radius: 16px!important;
+    background: transparent!important;
+}
+.lca-item:hover { border-color:rgba(171,165,235,.16)!important; background:rgba(151,145,245,.075)!important; transform:none!important; }
+.lca-item[aria-pressed="true"] {
+    border-color:rgba(174,145,255,.48)!important;
+    background:linear-gradient(105deg,rgba(129,105,236,.27),rgba(66,105,196,.1))!important;
+    box-shadow:inset 3px 0 #ae93ff,0 10px 28px rgba(16,9,48,.18)!important;
+}
+.lca-item__avatar {
+    width:48px; height:48px;
+    border-radius:16px;
+    border-color:rgba(188,179,251,.19);
+    background:linear-gradient(145deg,#5b497d,#263657);
+    font-size:15px;
+}
+.lca-item__name-row strong { color:#f2f3ff; font-size:13px; font-weight:750; }
+.lca-item__meta { margin-top:6px; color:#a7aec2; font-size:11px; line-height:1.3; }
+.lca-item__time { color:#9ea9bd; font-size:10px; }
+.lca-kind { color:#d8cdfb; border-color:rgba(172,150,255,.2); background:rgba(158,128,243,.13); font-size:9px; border-radius:7px; }
+.lca-unread { min-width:23px; height:23px; padding-inline:7px; bottom:9px; background:#9779ff; font-size:11px; }
+.lca-pages { padding:12px; background:#12192a; }
+.lca-pages span { font-size:11px; color:#adb5c8; }
+
+/* Active conversation */
+.lca-detail {
+    background:
+        radial-gradient(ellipse at 85% 5%, rgba(91,100,201,.09), transparent 40%),
+        #0d1320;
+}
+.lca-heading {
+    min-height:91px;
+    padding:17px 22px;
+    border-bottom:1px solid rgba(184,185,230,.16);
+    background:rgba(23,29,47,.97);
+}
+.lca-heading strong { color:#f5f5ff; font-size:17px; font-weight:790; }
+.lca-heading p { margin-top:4px; color:#aab3c7; font-size:11px; }
+.lca-status-chip {
+    margin-top:8px;
+    padding:6px 10px;
+    border-color:rgba(104,225,173,.23);
+    color:#aaf0c9;
+    background:rgba(56,156,115,.13);
+    font-size:10px;
+    font-weight:720;
+}
+.lca-heading__actions { gap:9px; }
+.lca-heading__actions button {
+    min-height:41px;
+    padding:0 13px;
+    border-radius:11px!important;
+    color:#d0d5ef;
+    border:1px solid rgba(185,180,237,.2);
+    background:rgba(149,144,221,.075);
+    font-size:11px;
+    font-weight:700;
+}
+.lca-email-handoff { color:#c3d5ff!important; background:rgba(94,132,247,.13)!important; }
+.lca-close { color:#ffb1bd!important; background:rgba(255,101,135,.13)!important; }
+
+/* Chat bubbles: visibly distinct operator / customer voices */
+.lca-log {
+    padding: 32px clamp(18px,4vw,58px) 40px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(107,91,215,.07), transparent 38%),
+        repeating-linear-gradient(0deg, transparent 0 34px, rgba(255,255,255,.012) 35px 36px),
+        #0e1422;
+}
+.lca-empty-chat__icon {
+    width:76px; height:76px; border-radius:25px;
+    border:1px solid rgba(184,167,255,.25);
+    color:#c2b4ff; background:linear-gradient(145deg,rgba(161,119,255,.2),rgba(85,144,245,.09));
+    filter:none;
+}
+.lca-empty-chat__icon svg { display:block; width:34px; height:34px; margin:auto; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; }
+.lca-empty-chat strong { font-size:17px; color:#f4f5ff; }
+.lca-empty-chat p { margin-top:11px; max-width:380px; font-size:13px; color:#9faac0; }
+.lca-message {
+    max-width:min(650px,78%);
+    margin-bottom:17px;
+    padding:15px 17px;
+    border:1px solid rgba(176,177,222,.14);
+    border-radius:19px 19px 19px 7px;
+    color:#e6ebfa;
+    background:linear-gradient(150deg,#252d42,#1b2638);
+    box-shadow:0 13px 34px rgba(0,0,0,.18);
+}
+.lca-message[data-sender="admin"] {
+    border-color:rgba(193,174,255,.37);
+    border-radius:19px 19px 7px 19px;
+    background:linear-gradient(135deg,#6b55cc,#4f79dc);
+    box-shadow:0 13px 35px rgba(55,65,171,.24);
+}
+.lca-message p { font-size:14px; line-height:1.68; overflow-wrap:anywhere; }
+.lca-msg-head { margin-bottom:9px; gap:8px; }
+.lca-msg-head small { font-size:10px; opacity:.82; }
+.lca-avatar { width:29px; height:29px; border-radius:11px; background:#485269; }
+.lca-message[data-sender="admin"] .lca-avatar { background:rgba(18,17,81,.25); }
+.lca-file-link { padding:10px 12px; border-radius:12px; font-size:12px; }
+.lca-typing { padding:9px 20px; }
+.lca-typing__label { font-size:11px; }
+
+/* Modern composer - keyboard, file and voice controls remain the same. */
+.lca-composer-wrap {
+    padding:16px clamp(13px,2vw,25px) 19px;
+    background:linear-gradient(180deg,#151c2d,#111827);
+    border-top:1px solid rgba(173,174,223,.16);
+    backdrop-filter:none;
+}
+.lca-composer-info { min-height:29px; padding-bottom:10px; color:#a9b1c8; font-size:11px; }
+.lca-form {
+    min-height:65px; gap:9px; padding:9px;
+    border:1px solid rgba(169,162,237,.26);
+    border-radius:18px;
+    background:#0c1220;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 15px 32px rgba(0,0,0,.22);
+}
+.lca-form:focus-within { border-color:#aa95ff; box-shadow:0 0 0 3px rgba(161,141,255,.15),0 15px 32px rgba(0,0,0,.2); }
+.lca-tool {
+    width:45px; min-width:45px; height:45px;
+    border-radius:13px!important;
+    color:#c0c4ed!important;
+    background:rgba(184,177,255,.075)!important;
+    font-size:18px;
+}
+.lca-tool:hover:not(:disabled) { color:white!important; background:rgba(159,135,255,.2)!important; }
+.lca-form textarea {
+    min-height:44px;
+    padding:12px 8px;
+    color:#f4f6ff;
+    font-size:14px;
+    line-height:1.5;
+}
+.lca-form textarea::placeholder { color:#929eb7; }
+.lca-submit {
+    min-height:46px; min-width:115px;
+    padding:0 18px;
+    border-radius:13px!important;
+    font-size:12px; font-weight:800;
+    background:linear-gradient(135deg,#9a79f4,#638ef4)!important;
+    box-shadow:0 12px 27px rgba(79,87,220,.28);
+}
+.lca-submit:hover:not(:disabled) { filter:brightness(1.12); }
+
+/* Adaptation for laptop / tablet / phone, without horizontally clipping controls */
+@media(min-width:1180px) {
+    .lca-grid { grid-template-columns:minmax(330px,380px) minmax(0,1fr)!important; }
+}
+@media(max-width:1179px) {
+    .lca-top p { max-width:470px; display:block; }
+    .lca-grid { grid-template-columns:minmax(300px,335px) minmax(0,1fr); }
+}
+@media(max-width:980px) {
+    .lca-top { grid-template-columns:minmax(0,1fr); gap:18px; }
+    .lca-presence { width:100%; min-width:0; }
+    .lca-grid { display:grid; height:auto; min-height:0; grid-template-columns:minmax(0,1fr)!important; }
+    .lca-inbox { max-height:430px; min-height:300px; border-right:0; border-bottom:1px solid var(--lca-border); }
+    .lca-detail { min-height:650px; }
+    .lca-message { max-width:88%; }
+}
+@media(max-width:760px) {
+    .lca-shell { gap:11px; }
+    .lca-top { min-height:0; padding:20px; border-radius:20px; }
+    .lca-top h1 { font-size:30px; }
+    .lca-top p { font-size:12px; }
+    .lca-stats {
+        grid-template-columns:repeat(3,minmax(170px,1fr));
+        gap:9px; max-width:100%; overflow-x:auto; padding-bottom:5px;
+        scrollbar-width:thin;
+    }
+    .lca-stat:nth-child(n+2) { display:grid; }
+    .lca-stat { min-height:77px; padding:11px; grid-template-columns:42px minmax(0,1fr); gap:9px; }
+    .lca-stat__icon { width:42px; height:42px; border-radius:13px; }
+    .lca-stat__icon svg { width:21px; height:21px; }
+    .lca-stat__copy strong { font-size:15px; }
+    .lca-stat__copy small { font-size:10px; }
+    .lca-grid { border-radius:20px; }
+    .lca-inbox__head { padding:16px 13px; }
+    .lca-inbox__title strong { font-size:16px; }
+    .lca-list { padding:8px; }
+    .lca-item { min-height:75px; padding:11px!important; }
+    .lca-heading { align-items:flex-start; flex-direction:column; padding:16px; }
+    .lca-heading__actions { display:flex; gap:8px; width:100%; flex-wrap:wrap; justify-content:flex-start; }
+    .lca-heading__actions button { flex:0 1 auto; min-height:42px; max-width:none; white-space:normal; }
+    .lca-log { min-height:360px; padding:18px 14px; }
+    .lca-message { max-width:94%; padding:13px 14px; }
+    .lca-message p { font-size:13px; }
+    .lca-composer-wrap { padding:13px 12px 16px; }
+    .lca-form { grid-template-columns:45px 45px minmax(0,1fr); }
+    .lca-submit { grid-column:1/-1; width:100%; }
+}
+@media(max-width:400px) {
+    .lca-top h1 { font-size:27px; }
+    .lca-presence { padding:12px; }
+    .lca-inbox__title span { font-size:9px; }
+    .lca-item { grid-template-columns:40px minmax(0,1fr) auto; }
+    .lca-item__avatar { width:40px; height:40px; }
+    .lca-message { max-width:97%; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .lca-top, .lca-stat, .lca-item, .lca-submit, .lca-message { transition:none!important; animation:none!important; }
+}
+
 </style>
 
 
@@ -3355,14 +3716,8 @@ body {
 
 
                 <div class="lca-stat__icon">
-
-
-
-                    💬
-
-
-
-                </div>
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.5 7.2L3 21l1.8-5.7A8 8 0 1 1 20 11.5Z"/><path d="M8 11.5h8M8 15h5"/></svg>
+</div>
 
 
 
@@ -3419,14 +3774,8 @@ body {
 
 
                 <div class="lca-stat__icon">
-
-
-
-                    ⚡
-
-
-
-                </div>
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-7V2Z"/></svg>
+</div>
 
 
 
@@ -3483,14 +3832,8 @@ body {
 
 
                 <div class="lca-stat__icon">
-
-
-
-                    🎙️
-
-
-
-                </div>
+<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-5 0h10"/></svg>
+</div>
 
 
 
@@ -4295,14 +4638,8 @@ body {
 
 
                             <div class="lca-empty-chat__icon">
-
-
-
-                                💬
-
-
-
-                            </div>
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.5 7.2L3 21l1.8-5.7A8 8 0 1 1 20 11.5Z"/><path d="M8 12h8"/></svg>
+</div>
 
 
 
