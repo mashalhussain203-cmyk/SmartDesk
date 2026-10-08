@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\TikTokVideoStatsService;
+use App\Services\ZefoyPublicService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,9 +23,17 @@ class TikTokCounterController extends Controller
         return view('tools.tiktok-counter');
     }
 
-    public function engagementIndex(): View
+    public function engagementIndex(Request $request): View
     {
-        return view('tools.tiktok-engagement');
+        $serviceKey = trim((string) $request->query('service', ''));
+
+        if (!in_array($serviceKey, ['hearts', 'comments', 'favorites'], true)) {
+            $serviceKey = '';
+        }
+
+        return view('tools.tiktok-engagement', [
+            'selectedService' => $serviceKey,
+        ]);
     }
 
     public function engagementLookup(
@@ -64,15 +73,15 @@ class TikTokCounterController extends Controller
         TikTokVideoStatsService $service
     ): Response|RedirectResponse {
         $videoUrl = trim((string) $request->query('url', ''));
-        $serviceKey = trim((string) $request->query('service', 'hearts'));
+        $serviceKey = trim((string) $request->query('service', 'comments'));
 
         if (!in_array($serviceKey, ['hearts', 'comments', 'favorites'], true)) {
-            $serviceKey = 'hearts';
+            $serviceKey = 'comments';
         }
 
         if ($videoUrl === '') {
             return redirect()
-                ->route('tiktok-engagement.index')
+                ->route('tiktok-engagement.index', ['service' => $serviceKey])
                 ->withErrors([
                     'url' => 'De TikTok URL ontbreekt. Plak de video opnieuw.',
                 ]);
@@ -84,7 +93,7 @@ class TikTokCounterController extends Controller
             report($e);
 
             return redirect()
-                ->route('tiktok-engagement.index')
+                ->route('tiktok-engagement.index', ['service' => $serviceKey])
                 ->withInput([
                     'url' => $videoUrl,
                     'service' => $serviceKey,
@@ -116,12 +125,41 @@ class TikTokCounterController extends Controller
             ->header('Expires', '0');
     }
 
+    public function engagementServices(
+        ZefoyPublicService $zefoy
+    ): JsonResponse {
+        try {
+            $payload = $zefoy->services();
+
+            return $this->noStore(
+                response()->json(array_merge(
+                    [
+                        'success' => (bool) ($payload['success'] ?? false),
+                    ],
+                    $payload
+                ))
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'state' => 'error',
+                    'message' => 'Zefoy status kon niet worden opgehaald.',
+                ], 502)
+            );
+        }
+    }
+
     public function engagementStats(
         string $videoId,
         Request $request,
-        TikTokVideoStatsService $service
+        TikTokVideoStatsService $tiktok,
+        ZefoyPublicService $zefoy
     ): JsonResponse {
         $videoUrl = trim((string) $request->query('url', ''));
+        $serviceKey = trim((string) $request->query('service', 'comments'));
 
         if ($videoUrl === '') {
             return $this->noStore(
@@ -132,27 +170,36 @@ class TikTokCounterController extends Controller
             );
         }
 
+        if (!in_array($serviceKey, ['hearts', 'comments', 'favorites'], true)) {
+            return $this->noStore(
+                response()->json([
+                    'success' => false,
+                    'message' => 'Ongeldige Zefoy-service.',
+                ], 422)
+            );
+        }
+
         try {
-            $stats = $service->getSupplementalTikTokStats(
-                $videoUrl,
-                $videoId
+            $video = $tiktok->resolveVideo($videoUrl);
+
+            if ((string) $video['video_id'] !== (string) $videoId) {
+                throw new \RuntimeException('De TikTok-link hoort niet bij deze video.');
+            }
+
+            $payload = $zefoy->search(
+                $serviceKey,
+                (string) $video['url']
             );
 
             return $this->noStore(
-                response()->json([
-                    'success' => true,
-                    'video_id' => $videoId,
-                    'stats' => [
-                        'hearts' => $stats['likes'] ?? null,
-                        'comments' => $stats['comments'] ?? null,
-                        'favorites' => $stats['favorites'] ?? null,
+                response()->json(array_merge(
+                    [
+                        'success' => (bool) ($payload['success'] ?? false),
+                        'video_id' => $videoId,
+                        'service' => $serviceKey,
                     ],
-                    'author_name' => $stats['author_name'] ?? null,
-                    'title' => $stats['title'] ?? null,
-                    'thumbnail_url' => $stats['thumbnail_url'] ?? null,
-                    'source' => $stats['source'] ?? 'tiktok-public-video-page',
-                    'updated_at' => now()->toIso8601String(),
-                ])
+                    $payload
+                ))
             );
         } catch (Throwable $e) {
             report($e);
@@ -160,6 +207,7 @@ class TikTokCounterController extends Controller
             return $this->noStore(
                 response()->json([
                     'success' => false,
+                    'state' => 'error',
                     'message' => $e->getMessage(),
                     'updated_at' => now()->toIso8601String(),
                 ], 502)
