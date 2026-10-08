@@ -1378,7 +1378,7 @@
 
             <div class="reset-eyebrow">
 
-                Secure recovery
+                {{ __('Secure recovery') }}
 
             </div>
 
@@ -1442,7 +1442,7 @@
 
                     <h2 class="reset-heading" id="resetHeading">
 
-                        Secure <strong>Reset</strong>
+                        {{ __('Secure') }} <strong>{{ __('Reset') }}</strong>
 
                     </h2>
 
@@ -1778,7 +1778,7 @@
 
                                 <small>
 
-                                    Password security
+                                    {{ __('Password security') }}
 
                                 </small>
 
@@ -1806,7 +1806,7 @@
 
                                 <small>
 
-                                    Recovery link
+                                    {{ __('Recovery link') }}
 
                                 </small>
 
