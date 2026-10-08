@@ -1906,15 +1906,15 @@
                         </h2>
 
                         <p class="glass-description">
-                            Registreer met wachtwoord, e-mailcode, magic link of je bestaande social account.
+                            {{ __('Registreer met wachtwoord, e-mailcode, magic link of je bestaande social account.') }}
                         </p>
 
                         <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
                             <a href="{{ route('login') }}">
-                                Inloggen
+                                {{ __('Inloggen') }}
                             </a>
                             <a class="active" href="{{ route('register') }}" aria-current="page">
-                                Registreren
+                                {{ __('Registreren') }}
                             </a>
                         </nav>
 
@@ -1932,7 +1932,7 @@
 
                         @if ($errors->any())
                             <div class="glass-message error" role="alert">
-                                <strong>Registreren is niet gelukt.</strong>
+                                <strong>{{ __('Registreren is niet gelukt.') }}</strong>
                                 <ul>
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -1984,7 +1984,7 @@
 
                                     <div class="glass-field">
                                         <div class="glass-label-row">
-                                            <label for="x_complete_name">Naam</label>
+                                            <label for="x_complete_name">{{ __('Naam') }}</label>
 
                                             @error('name')
                                                 <span class="glass-field-error">{{ $message }}</span>
@@ -2006,7 +2006,7 @@
 
                                     <div class="glass-field">
                                         <div class="glass-label-row">
-                                            <label for="x_complete_email">E-mailadres</label>
+                                            <label for="x_complete_email">{{ __('E-mailadres') }}</label>
 
                                             @error('email')
                                                 <span class="glass-field-error">{{ $message }}</span>
@@ -2031,7 +2031,7 @@
 
                                     <div class="glass-field">
                                         <div class="glass-label-row">
-                                            <label for="x_complete_password">Wachtwoord</label>
+                                            <label for="x_complete_password">{{ __('Wachtwoord') }}</label>
 
                                             @error('password')
                                                 <span class="glass-field-error">{{ $message }}</span>
@@ -2055,7 +2055,7 @@
                                                 type="button"
                                                 data-password-target="x_complete_password"
                                             >
-                                                Tonen
+                                                {{ __('Tonen') }}
                                             </button>
                                         </div>
                                     </div>
@@ -2063,7 +2063,7 @@
                                     <div class="glass-field">
                                         <div class="glass-label-row">
                                             <label for="x_complete_password_confirmation">
-                                                Wachtwoord bevestigen
+                                                {{ __('Wachtwoord bevestigen') }}
                                             </label>
                                         </div>
 
@@ -2084,7 +2084,7 @@
                                                 type="button"
                                                 data-password-target="x_complete_password_confirmation"
                                             >
-                                                Tonen
+                                                {{ __('Tonen') }}
                                             </button>
                                         </div>
                                     </div>
@@ -2107,7 +2107,7 @@
 
                         <div class="register-tabs" role="tablist" aria-label="Registratiemethode kiezen">
                             <button class="register-tab active" type="button" role="tab" aria-selected="true" data-register-tab="password">
-                                Wachtwoord
+                                {{ __('Wachtwoord') }}
                             </button>
                             <button class="register-tab" type="button" role="tab" aria-selected="false" data-register-tab="email">
                                 E-mail
@@ -2129,7 +2129,7 @@
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="name">Naam</label>
+                                        <label for="name">{{ __('Naam') }}</label>
                                         @error('name')
                                             <span class="glass-field-error">{{ $message }}</span>
                                         @enderror
@@ -2150,7 +2150,7 @@
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="email">E-mailadres</label>
+                                        <label for="email">{{ __('E-mailadres') }}</label>
                                         @error('email')
                                             <span class="glass-field-error">{{ $message }}</span>
                                         @enderror
@@ -2174,7 +2174,7 @@
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="password">Wachtwoord</label>
+                                        <label for="password">{{ __('Wachtwoord') }}</label>
                                         @error('password')
                                             <span class="glass-field-error">{{ $message }}</span>
                                         @enderror
@@ -2196,7 +2196,7 @@
                                             type="button"
                                             data-password-toggle="password"
                                         >
-                                            Tonen
+                                            {{ __('Tonen') }}
                                         </button>
                                     </div>
 
@@ -2205,15 +2205,15 @@
                                             <div class="register-strength-bar" id="passwordStrengthBar"></div>
                                         </div>
                                         <div class="register-strength-copy">
-                                            <span>Wachtwoordsterkte</span>
-                                            <span id="passwordStrengthLabel">Nog niet ingevuld</span>
+                                            <span>{{ __('Wachtwoordsterkte') }}</span>
+                                            <span id="passwordStrengthLabel">{{ __('Nog niet ingevuld') }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="glass-field">
                                     <div class="glass-label-row">
-                                        <label for="password_confirmation">Wachtwoord bevestigen</label>
+                                        <label for="password_confirmation">{{ __('Wachtwoord bevestigen') }}</label>
                                     </div>
 
                                     <div class="glass-input-wrap">
@@ -2232,7 +2232,7 @@
                                             type="button"
                                             data-password-toggle="password_confirmation"
                                         >
-                                            Tonen
+                                            {{ __('Tonen') }}
                                         </button>
                                     </div>
                                 </div>
@@ -2240,12 +2240,12 @@
                                 <label class="register-terms">
                                     <input type="checkbox" name="terms" value="1" @checked(old('terms')) required>
                                     <span>
-                                        Ik ga akkoord met de voorwaarden en begrijp dat mijn account via e-mail wordt geverifieerd.
+                                        {{ __('Ik ga akkoord met de voorwaarden en begrijp dat mijn account via e-mail wordt geverifieerd.') }}
                                     </span>
                                 </label>
 
                                 <button id="registerSubmitButton" class="glass-primary" type="submit">
-                                    Account aanmaken →
+                                    {{ __('Account aanmaken →') }}
                                 </button>
 
                                 <div id="registerSecurityStatus" class="register-status" aria-live="polite"></div>
@@ -2257,9 +2257,9 @@
                                 <div class="register-passwordless-head">
                                     <span class="register-passwordless-icon">6</span>
                                     <div class="register-passwordless-copy">
-                                        <strong>Registreren met e-mailcode</strong>
+                                        <strong>{{ __('Registreren met e-mailcode') }}</strong>
                                         <span>
-                                            Voer je e-mailadres in. Na de juiste 6-cijferige code wordt automatisch een Mashal-account gemaakt als het adres nog niet bestaat.
+                                            {{ __('Voer je e-mailadres in. Na de juiste 6-cijferige code wordt automatisch een Mashal-account gemaakt als het adres nog niet bestaat.') }}
                                         </span>
                                     </div>
                                 </div>
@@ -2283,7 +2283,7 @@
                                         required
                                     >
                                     <button class="glass-secondary" type="submit">
-                                        Stuur code
+                                        {{ __('Stuur code') }}
                                     </button>
                                 </form>
                             </div>
@@ -2292,9 +2292,9 @@
                                 <div class="register-passwordless-head">
                                     <span class="register-passwordless-icon">↗</span>
                                     <div class="register-passwordless-copy">
-                                        <strong>Registreren met magic link</strong>
+                                        <strong>{{ __('Registreren met magic link') }}</strong>
                                         <span>
-                                            Ontvang een veilige eenmalige loginlink. Als je nog geen account hebt, wordt dat na bevestiging aangemaakt.
+                                            {{ __('Ontvang een veilige eenmalige loginlink. Als je nog geen account hebt, wordt dat na bevestiging aangemaakt.') }}
                                         </span>
                                     </div>
                                 </div>
@@ -2318,7 +2318,7 @@
                                         required
                                     >
                                     <button class="glass-secondary" type="submit">
-                                        Stuur link
+                                        {{ __('Stuur link') }}
                                     </button>
                                 </form>
                             </div>
@@ -2342,7 +2342,7 @@
                                     </span>
                                     <span class="register-oauth-copy">
                                         <strong>Google / Gmail</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2354,7 +2354,7 @@
                                     </span>
                                     <span class="register-oauth-copy">
                                         <strong>GitHub</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2366,7 +2366,7 @@
                                     </span>
                                     <span class="register-oauth-copy">
                                         <strong>Facebook</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2379,7 +2379,7 @@
                                     </span>
                                     <span class="register-oauth-copy">
                                         <strong>TikTok</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2389,7 +2389,7 @@
                                     </span>
                                     <span class="register-oauth-copy">
                                         <strong>LinkedIn</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2411,7 +2411,7 @@
 
                                     <span class="register-oauth-copy">
                                         <strong>X</strong>
-                                        <span>Doorgaan</span>
+                                        <span>{{ __('Doorgaan') }}</span>
                                     </span>
                                 </a>
 
@@ -2433,7 +2433,7 @@
 
                                     <span class="register-oauth-copy">
                                         <strong>Microsoft / Hotmail</strong>
-                                        <span>Account maken</span>
+                                        <span>{{ __('Account maken') }}</span>
                                     </span>
                                 </a>
 
@@ -2476,7 +2476,7 @@
 
                                         <span class="register-oauth-copy">
                                             <strong>Telegram</strong>
-                                            <span>Open Telegram-app</span>
+                                            <span>{{ __('Open Telegram-app') }}</span>
                                         </span>
 
                                         <span
@@ -2501,7 +2501,7 @@
                                             >
 
                                             <span>
-                                                Telegram-registratie is nog niet geconfigureerd.
+                                                {{ __('Telegram-registratie is nog niet geconfigureerd.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -2510,15 +2510,15 @@
                         </section>
 
                         <div class="glass-divider">
-                            Al een Mashal-account?
+                            {{ __('Al een Mashal-account?') }}
                         </div>
 
                         <div class="register-login-row">
                             <span>
-                                Je kunt dezelfde methodes ook gebruiken om in te loggen.
+                                {{ __('Je kunt dezelfde methodes ook gebruiken om in te loggen.') }}
                             </span>
                             <a class="glass-small-link" href="{{ route('login') }}">
-                                Naar inloggen
+                                {{ __('Naar inloggen') }}
                             </a>
                         </div>
 
