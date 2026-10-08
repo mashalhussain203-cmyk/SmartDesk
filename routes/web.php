@@ -38,6 +38,7 @@ use App\Http\Controllers\SecurityController;
 
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
+use App\Http\Controllers\YouTubeSubscriberController;
 
 use App\Http\Controllers\TwoFactorAuthenticationController;
 
@@ -1069,6 +1070,17 @@ Route::post(
 | actuele statistieken voor de automatische refresh in de frontend.
 |
 */
+
+Route::get('/tools/youtube-subscribers', [YouTubeSubscriberController::class, 'index'])
+    ->name('youtube-subscribers.index');
+
+Route::get('/api/tools/youtube-subscribers/search', [YouTubeSubscriberController::class, 'lookup'])
+    ->middleware('throttle:15,1')
+    ->name('youtube-subscribers.lookup');
+
+Route::get('/api/tools/youtube-subscribers/{channelId}', [YouTubeSubscriberController::class, 'stats'])
+    ->middleware('throttle:60,1')
+    ->name('youtube-subscribers.stats');
 
 Route::get(
     '/tools/live',
