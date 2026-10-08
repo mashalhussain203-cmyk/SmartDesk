@@ -39,6 +39,7 @@ use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
 use App\Http\Controllers\YouTubeSubscriberController;
+use App\Http\Controllers\YouTubeViewCounterController;
 
 use App\Http\Controllers\TwoFactorAuthenticationController;
 
@@ -1090,6 +1091,26 @@ Route::get('/api/tools/youtube-subscribers/{channelId}', [YouTubeSubscriberContr
 Route::get('/embed/youtube-subscribers/{channelId}', [YouTubeSubscriberController::class, 'embed'])
     ->where('channelId', 'UC[A-Za-z0-9_-]{22}')
     ->name('youtube-subscribers.embed');
+
+Route::get('/tools/youtube-views', [YouTubeViewCounterController::class, 'index'])
+    ->name('youtube-views.index');
+
+Route::get('/tools/youtube-views/{videoId}', [YouTubeViewCounterController::class, 'show'])
+    ->where('videoId', '[A-Za-z0-9_-]{11}')
+    ->name('youtube-views.show');
+
+Route::get('/api/tools/youtube-views/search', [YouTubeViewCounterController::class, 'lookup'])
+    ->middleware('throttle:180,1')
+    ->name('youtube-views.lookup');
+
+Route::get('/api/tools/youtube-views/{videoId}', [YouTubeViewCounterController::class, 'stats'])
+    ->where('videoId', '[A-Za-z0-9_-]{11}')
+    ->middleware('throttle:60,1')
+    ->name('youtube-views.stats');
+
+Route::get('/embed/youtube-views/{videoId}', [YouTubeViewCounterController::class, 'embed'])
+    ->where('videoId', '[A-Za-z0-9_-]{11}')
+    ->name('youtube-views.embed');
 
 Route::get(
     '/tools/live',
