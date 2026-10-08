@@ -2210,8 +2210,7 @@
                             <h3>{{ __('Achtergrond') }}</h3>
 
                             <p>
-                                Verwijder de bestaande achtergrond met remove.bg en exporteer transparant,
-                                met een effen kleur of met een compleet nieuwe achtergrondafbeelding.
+                                {{ __('Verwijder de bestaande achtergrond met remove.bg en exporteer transparant, met een effen kleur of met een compleet nieuwe achtergrondafbeelding.') }}
                             </p>
 
                             <div class="background-mode-grid" role="radiogroup" aria-label="Achtergrondmodus">
@@ -2358,9 +2357,7 @@
 
                             <div class="background-api-note">
                                 <strong>{{ __('Automatische AI-preview:') }}</strong>
-                                zodra je deze tool of een achtergrondoptie wijzigt, start de preview automatisch.
-                                Er is geen aparte previewknop nodig. Kleur- en URL-wijzigingen worden kort gebundeld
-                                zodat de editor snel blijft en de externe background-API niet bij iedere toetsaanslag wordt aangeroepen.
+                                {{ __('zodra je deze tool of een achtergrondoptie wijzigt, start de preview automatisch. Er is geen aparte previewknop nodig. Kleur- en URL-wijzigingen worden kort gebundeld zodat de editor snel blijft en de externe background-API niet bij iedere toetsaanslag wordt aangeroepen.') }}
                             </div>
 
                             <input
@@ -2459,7 +2456,7 @@
                             </label>
 
                             <div class="editor-source-note">
-                                Het gekozen formaat wordt live in de browser gerenderd. Opslaan maakt daarna de definitieve serverversie.
+                                {{ __('Het gekozen formaat wordt live in de browser gerenderd. Opslaan maakt daarna de definitieve serverversie.') }}
                             </div>
 
                             <button class="editor-submit" type="submit">
@@ -2474,10 +2471,10 @@
                         hidden
                     >
                         <div class="property-card">
-                            <h3>Versiegeschiedenis</h3>
+                            <h3>{{ __('Versiegeschiedenis') }}</h3>
 
                             <p>
-                                Bekijk, gebruik, download of verwijder eerder opgeslagen versies.
+                                {{ __('Bekijk, gebruik, download of verwijder eerder opgeslagen versies.') }}
                             </p>
 
                             <div class="version-list">
@@ -2491,7 +2488,7 @@
                                     </div>
 
                                     <div class="version-copy">
-                                        <strong>Origineel</strong>
+                                        <strong>{{ __('Origineel') }}</strong>
                                         <span>
                                             {{ $image->width ?? '?' }} × {{ $image->height ?? '?' }}
                                             ·
@@ -2508,7 +2505,7 @@
                                             type="button"
                                             data-use-version=""
                                         >
-                                            Gebruiken
+                                            {{ __('Gebruiken') }}
                                         </button>
 
                                         <a href="{{ route('images.download', $image) }}">
@@ -2552,7 +2549,7 @@
                                                 type="button"
                                                 data-use-version="{{ $version->id }}"
                                             >
-                                                Gebruiken
+                                                {{ __('Gebruiken') }}
                                             </button>
 
                                             <a href="{{ route('images.versions.download', [$image, $version]) }}">
@@ -2564,13 +2561,13 @@
                                                 class="danger"
                                                 data-delete-version-form="delete-version-{{ $version->id }}"
                                             >
-                                                Verwijderen
+                                                {{ __('Verwijderen') }}
                                             </button>
                                         </div>
                                     </article>
                                 @empty
                                     <p>
-                                        Er zijn nog geen bewerkte versies opgeslagen.
+                                        {{ __('Er zijn nog geen bewerkte versies opgeslagen.') }}
                                     </p>
                                 @endforelse
                             </div>
