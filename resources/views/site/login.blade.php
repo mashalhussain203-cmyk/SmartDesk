@@ -1959,7 +1959,7 @@
                                     type="submit"
                                     data-submit-label="Inloggen bij Mashal Studio"
                                 >
-                                    {{ __('Inloggen &amp; doorgaan →') }}
+                                    {{ __('Inloggen & doorgaan →') }}
                                 </button>
                             </form>
                         </section>
