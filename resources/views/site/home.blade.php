@@ -1990,7 +1990,7 @@ body {
             <div class="ms-hero-grid">
                 <div class="ms-hero-copy" data-reveal>
                     <span class="ms-kicker">
-                        Mashal Image Workspace
+                        {{ __('Mashal Image Workspace') }}
                     </span>
 
                     <h1 class="ms-hero-title">
@@ -2072,7 +2072,7 @@ body {
                                 </div>
 
                                 <div class="ms-window-title">
-                                    Mashal / New project
+                                    {{ __('Mashal / New project') }}
                                 </div>
 
                                 <div class="ms-window-secure">
@@ -2126,7 +2126,7 @@ body {
                                         id="imageDropzone"
                                         role="button"
                                         tabindex="0"
-                                        aria-label="Selecteer of sleep een afbeelding hierheen"
+                                        aria-label="{{ __('Selecteer of sleep een afbeelding hierheen') }}"
                                     >
                                         <div class="ms-upload-empty">
                                             <div
@@ -2414,7 +2414,7 @@ body {
 
             <div class="ms-bento" data-stagger>
                 <article class="ms-bento-card">
-                    <span class="ms-bento-index">01 / ORIGINAL</span>
+                    <span class="ms-bento-index">{{ __('01 / ORIGINAL') }}</span>
 
                     <h3>
                         {{ __('Eén origineel als veilige basis.') }}
@@ -2434,7 +2434,7 @@ body {
                 </article>
 
                 <article class="ms-bento-card">
-                    <span class="ms-bento-index">02 / HISTORY</span>
+                    <span class="ms-bento-index">{{ __('02 / HISTORY') }}</span>
 
                     <h3>
                         {{ __('Bouw verder op eerdere versies.') }}
@@ -2448,7 +2448,7 @@ body {
                 </article>
 
                 <article class="ms-bento-card">
-                    <span class="ms-bento-index">03 / EXPORT</span>
+                    <span class="ms-bento-index">{{ __('03 / EXPORT') }}</span>
 
                     <h3>
                         {{ __('JPG, PNG en WEBP.') }}
@@ -2460,7 +2460,7 @@ body {
                 </article>
 
                 <article class="ms-bento-card">
-                    <span class="ms-bento-index">04 / PRIVATE</span>
+                    <span class="ms-bento-index">{{ __('04 / PRIVATE') }}</span>
 
                     <h3>
                         {{ __('Persoonlijke workspace.') }}
@@ -2472,7 +2472,7 @@ body {
                 </article>
 
                 <article class="ms-bento-card">
-                    <span class="ms-bento-index">05 / DOWNLOAD</span>
+                    <span class="ms-bento-index">{{ __('05 / DOWNLOAD') }}</span>
 
                     <h3>
                         {{ __('Elke versie apart downloaden.') }}
@@ -2491,7 +2491,7 @@ body {
             <div class="ms-flow">
                 <div class="ms-flow-copy" data-reveal="left">
                     <span class="ms-kicker">
-                        Workflow
+                        {{ __('Workflow') }}
                     </span>
 
                     <h2>
@@ -2622,7 +2622,7 @@ body {
             <div class="ms-faq-layout">
                 <div class="ms-faq-side" data-reveal="left">
                     <span class="ms-kicker">
-                        FAQ
+                        {{ __('FAQ') }}
                     </span>
 
                     <h2>
