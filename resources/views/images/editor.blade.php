@@ -1611,7 +1611,7 @@
             <aside class="editor-sidebar">
                 <div class="editor-sidebar-label">{{ __('Editor tools') }}</div>
 
-                <div class="editor-tool-list" role="tablist" aria-label="Editor tools">
+                <div class="editor-tool-list" role="tablist" aria-label="{{ __('Editor tools') }}">
                     <button type="button" class="editor-tool active" data-operation="resize" role="tab" aria-selected="true">
                         <span class="tool-icon">↔</span>
                         {{ __('Resize') }}
