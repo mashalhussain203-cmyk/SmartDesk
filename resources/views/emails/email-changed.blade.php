@@ -323,7 +323,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Hallo <strong>{{ $user->name }}</strong>,
+                            {{ __('Hallo') }} <strong>{{ $user->name }}</strong>,
                         </p>
 
                         <p
@@ -400,7 +400,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Oud e-mailadres
+                                        {{ __('Oud e-mailadres') }}
                                     </div>
 
                                     <div
@@ -435,7 +435,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Nieuw e-mailadres
+                                        {{ __('Nieuw e-mailadres') }}
                                     </div>
 
                                     <div
@@ -978,7 +978,7 @@
                                 font-weight: 800;
                             "
                         >
-                            Accountgegevens
+                            {{ __('Accountgegevens') }}
                         </div>
 
                         <table
@@ -1015,7 +1015,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Accountnaam
+                                        {{ __('Accountnaam') }}
                                     </div>
 
                                     <div
@@ -1049,7 +1049,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Oud e-mailadres
+                                        {{ __('Oud e-mailadres') }}
                                     </div>
 
                                     <div
@@ -1083,7 +1083,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        Nieuw e-mailadres
+                                        {{ __('Nieuw e-mailadres') }}
                                     </div>
 
                                     <div
@@ -1234,7 +1234,7 @@
                                     color: #1c1c1c;
                                 "
                             >
-                                Het Mashal Automotive-team
+                                {{ __('Het Mashal Automotive-team') }}
                             </strong>
                         </p>
 
