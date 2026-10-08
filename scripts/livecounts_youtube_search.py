@@ -304,13 +304,14 @@ def main():
             try:
                 page.goto(
                     "https://livecounts.io/youtube-live-subscriber-counter",
-                    wait_until="domcontentloaded",
-                    timeout=12000,
+                    wait_until="commit",
+                    timeout=5500,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
 
             selectors = [
+                'input[placeholder="Search Query / Channel URL / Username..."]',
                 'input[placeholder*="Search Query"]',
                 'input[placeholder*="Channel URL"]',
                 'input[placeholder*="Username"]',
@@ -319,7 +320,7 @@ def main():
             ]
 
             search_input = None
-            deadline = time.time() + 10
+            deadline = time.time() + 6
 
             while time.time() < deadline and search_input is None:
                 for selector in selectors:
@@ -332,7 +333,7 @@ def main():
                         pass
 
                 if search_input is None:
-                    page.wait_for_timeout(150)
+                    page.wait_for_timeout(80)
 
             if search_input is None:
                 browser.close()
@@ -344,7 +345,7 @@ def main():
 
             # Same interaction pattern as the working TikTok follower search:
             # allow hydration, then type into the exact public search field.
-            page.wait_for_timeout(700)
+            page.wait_for_timeout(250)
 
             try:
                 search_input.click(timeout=1200)
@@ -352,18 +353,14 @@ def main():
                 pass
 
             try:
-                search_input.press("Control+A")
-                search_input.press("Backspace")
+                search_input.fill(query, timeout=900)
             except Exception:
                 try:
-                    search_input.fill("")
+                    search_input.press("Control+A")
+                    search_input.press("Backspace")
+                    search_input.press_sequentially(query, delay=30)
                 except Exception:
-                    pass
-
-            try:
-                search_input.press_sequentially(query, delay=110)
-            except Exception:
-                search_input.type(query, delay=110)
+                    search_input.type(query, delay=30)
 
             def current_results():
                 results = normalize(captured.get("payload"))
@@ -381,12 +378,12 @@ def main():
 
             # Livecounts searches from its own input handlers. Give the
             # page one bounded window to return the real userData payload.
-            deadline = time.time() + 4
+            deadline = time.time() + 2.6
             while time.time() < deadline:
                 results, source = current_results()
                 if results:
                     break
-                page.wait_for_timeout(100)
+                page.wait_for_timeout(60)
 
             # Some builds submit the same search on Enter. This still uses
             # Livecounts' own page/JavaScript; no protected API is called
@@ -398,7 +395,7 @@ def main():
                 except Exception as exc:
                     debug["enter_warning"] = str(exc)
 
-                deadline = time.time() + 5
+                deadline = time.time() + 1.8
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
@@ -424,12 +421,12 @@ def main():
                 except Exception as exc:
                     debug["event_warning"] = str(exc)
 
-                deadline = time.time() + 3
+                deadline = time.time() + 1.0
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
                         break
-                    page.wait_for_timeout(120)
+                    page.wait_for_timeout(60)
 
             debug["search_url"] = captured.get("url")
             debug["search_status"] = captured.get("status")
