@@ -20,23 +20,23 @@
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            if (response.status === 419) throw new Error('Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw.');
-            if (response.status === 429) throw new Error('Te veel pogingen. Wacht een minuut en probeer opnieuw.');
-            if (response.status === 401) throw new Error('Log opnieuw in om je passkeys te beheren.');
-            if (response.status >= 500) throw new Error('Passkeys zijn tijdelijk niet beschikbaar. Gebruik een andere inlogmethode.');
-            throw new Error(Object.values(data.errors || {}).flat()[0] || data.message || 'Dit is niet gelukt. Probeer opnieuw.');
+            if (response.status === 419) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw.") : "Je sessie is verlopen. Vernieuw de pagina en probeer opnieuw."));
+            if (response.status === 429) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Te veel pogingen. Wacht een minuut en probeer opnieuw.") : "Te veel pogingen. Wacht een minuut en probeer opnieuw."));
+            if (response.status === 401) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Log opnieuw in om je passkeys te beheren.") : "Log opnieuw in om je passkeys te beheren."));
+            if (response.status >= 500) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Passkeys zijn tijdelijk niet beschikbaar. Gebruik een andere inlogmethode.") : "Passkeys zijn tijdelijk niet beschikbaar. Gebruik een andere inlogmethode."));
+            throw new Error(Object.values(data.errors || {}).flat()[0] || data.message || (window.smartDeskTranslate ? window.smartDeskTranslate("Dit is niet gelukt. Probeer opnieuw.") : "Dit is niet gelukt. Probeer opnieuw."));
         }
         return data;
     }
 
     function message(error) {
         if (error.name === 'NotAllowedError' || error.name === 'AbortError') {
-            return 'De aanvraag is geannuleerd of verlopen. Probeer opnieuw, of gebruik een andere inlogmethode.';
+            return (window.smartDeskTranslate ? window.smartDeskTranslate("De aanvraag is geannuleerd of verlopen. Probeer opnieuw, of gebruik een andere inlogmethode.") : "De aanvraag is geannuleerd of verlopen. Probeer opnieuw, of gebruik een andere inlogmethode.");
         }
-        if (error.name === 'InvalidStateError') return 'Er staat al een passkey voor dit account op je apparaat.';
-        if (error.name === 'SecurityError') return 'Passkeys werken alleen op het ingestelde beveiligde websiteadres.';
-        if (error.name === 'NotSupportedError') return 'Dit apparaat kan hier geen passkey gebruiken. Kies een andere inlogmethode.';
-        return error.message || 'Dit is niet gelukt. Probeer opnieuw.';
+        if (error.name === 'InvalidStateError') return (window.smartDeskTranslate ? window.smartDeskTranslate("Er staat al een passkey voor dit account op je apparaat.") : "Er staat al een passkey voor dit account op je apparaat.");
+        if (error.name === 'SecurityError') return (window.smartDeskTranslate ? window.smartDeskTranslate("Passkeys werken alleen op het ingestelde beveiligde websiteadres.") : "Passkeys werken alleen op het ingestelde beveiligde websiteadres.");
+        if (error.name === 'NotSupportedError') return (window.smartDeskTranslate ? window.smartDeskTranslate("Dit apparaat kan hier geen passkey gebruiken. Kies een andere inlogmethode.") : "Dit apparaat kan hier geen passkey gebruiken. Kies een andere inlogmethode.");
+        return error.message || (window.smartDeskTranslate ? window.smartDeskTranslate("Dit is niet gelukt. Probeer opnieuw.") : "Dit is niet gelukt. Probeer opnieuw.");
     }
 
     async function initialize(root) {
@@ -60,7 +60,7 @@
             list.replaceChildren();
             if (!passkeys.length) {
                 const empty = document.createElement('li');
-                empty.textContent = 'Je hebt nog geen passkey ingesteld.';
+                empty.textContent = (window.smartDeskTranslate ? window.smartDeskTranslate("Je hebt nog geen passkey ingesteld.") : "Je hebt nog geen passkey ingesteld.");
                 list.append(empty);
             }
             for (const key of passkeys) {
@@ -71,9 +71,9 @@
                 const remove = document.createElement('button');
                 remove.type = 'button';
                 remove.textContent = 'Verwijderen';
-                remove.setAttribute('aria-label', 'Verwijder passkey ' + key.name);
+                remove.setAttribute('aria-label', (window.smartDeskTranslate ? window.smartDeskTranslate("Verwijder passkey ") : "Verwijder passkey ") + key.name);
                 remove.addEventListener('click', async () => {
-                    if (!window.confirm('Passkey verwijderen? Je kunt daarna nog inloggen met je andere inlogmethoden.')) return;
+                    if (!window.confirm((window.smartDeskTranslate ? window.smartDeskTranslate("Passkey verwijderen? Je kunt daarna nog inloggen met je andere inlogmethoden.") : "Passkey verwijderen? Je kunt daarna nog inloggen met je andere inlogmethoden."))) return;
                     remove.disabled = true;
                     try {
                         const result = await api(root.dataset.list + '/' + key.id, {}, 'DELETE');
@@ -102,10 +102,10 @@
         start.addEventListener('click', async () => {
             if (start.disabled) return;
             start.disabled = true;
-            status.textContent = 'Bevestig de aanvraag op je apparaat…';
+            status.textContent = (window.smartDeskTranslate ? window.smartDeskTranslate("Bevestig de aanvraag op je apparaat…") : "Bevestig de aanvraag op je apparaat…");
             try {
                 const name = manage ? root.querySelector('[data-passkey-name]').value.trim() : '';
-                if (manage && !name) throw new Error('Geef je passkey een naam.');
+                if (manage && !name) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Geef je passkey een naam.") : "Geef je passkey een naam."));
                 const {publicKey} = await api(root.dataset.options);
                 publicKey.challenge = decode(publicKey.challenge);
                 if (manage) {
@@ -115,7 +115,7 @@
                 const credential = manage
                     ? await navigator.credentials.create({publicKey})
                     : await navigator.credentials.get({publicKey});
-                if (!credential) throw new Error('Er is geen passkey geselecteerd.');
+                if (!credential) throw new Error((window.smartDeskTranslate ? window.smartDeskTranslate("Er is geen passkey geselecteerd.") : "Er is geen passkey geselecteerd."));
                 const response = {clientDataJSON: encode(credential.response.clientDataJSON)};
                 if (manage) {
                     response.attestationObject = encode(credential.response.attestationObject);
@@ -129,7 +129,7 @@
                     status.textContent = result.message;
                     await refresh();
                 } else {
-                    status.textContent = 'Je bent ingelogd. Je wordt doorgestuurd…';
+                    status.textContent = (window.smartDeskTranslate ? window.smartDeskTranslate("Je bent ingelogd. Je wordt doorgestuurd…") : "Je bent ingelogd. Je wordt doorgestuurd…");
                     window.location.assign(result.redirect);
                 }
             } catch (error) {
