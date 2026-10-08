@@ -1,215 +1,237 @@
 @extends('layouts.site-layout')
 
-@section('title', 'TikTok Engagement | Mashal Studio')
-@section('meta_description', 'Bekijk publieke TikTok hearts, comments en favorites in een rustige live interface.')
+@php
+    $serviceMap = [
+        'hearts' => [
+            'label' => 'Hearts',
+            'icon' => '/icons/live-heart.svg?v=20261007-4',
+        ],
+        'comments' => [
+            'label' => 'Comments Hearts',
+            'icon' => '/icons/live-comment.svg?v=20261007-4',
+        ],
+        'favorites' => [
+            'label' => 'Favorites',
+            'icon' => '/icons/live-favorite.svg?v=1',
+        ],
+    ];
+
+    $currentService = $selectedService ?? '';
+    $currentLabel = $serviceMap[$currentService]['label'] ?? 'TikTok Services';
+@endphp
+
+@section('title', $currentLabel.' | Mashal Studio')
+@section('meta_description', 'Gebruik de publieke Zefoy-flow vanuit Mashal Studio voor TikTok service-status, lookup en cooldowninformatie.')
 
 @push('styles')
-<link rel="stylesheet" href="/vendor/odometer/odometer-theme-minimal.css?v=20261007-2">
 <style>
-    .teg-page {
-        --teg-bg: #050608;
-        --teg-panel: rgba(13,16,22,.9);
-        --teg-line: rgba(255,255,255,.08);
-        --teg-line-strong: rgba(255,255,255,.14);
-        --teg-text: #f4f6f8;
-        --teg-muted: #7b8492;
-        --teg-purple: #7b70ff;
-        --teg-green: #6ee7a8;
-        --teg-red: #ff718c;
-        --teg-blue: #67b7ff;
-        --teg-yellow: #f4c96b;
-
+    .zf-page {
         min-height: calc(100vh - 72px);
-        padding: 48px 0 96px;
-        color: var(--teg-text);
+        padding: 42px 0 96px;
+        color: #f3f5f7;
         background:
-            radial-gradient(circle at 50% -160px, rgba(123,112,255,.18), transparent 460px),
-            radial-gradient(circle at 92% 20%, rgba(103,183,255,.055), transparent 400px),
-            linear-gradient(180deg, #06070a 0%, #050608 100%);
+            radial-gradient(circle at 50% -150px, rgba(123,112,255,.16), transparent 460px),
+            linear-gradient(180deg, #07080b 0%, #050608 100%);
     }
 
-    .teg-shell {
-        width: min(calc(100% - 32px), 1180px);
+    .zf-shell {
+        width: min(calc(100% - 30px), 960px);
         margin: 0 auto;
     }
 
-    .teg-hero {
-        max-width: 760px;
-        margin: 0 auto 32px;
-        text-align: center;
+    .zf-top {
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
     }
 
-    .teg-eyebrow {
+    .zf-back {
+        color: #929aa6;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .zf-pill {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 7px 11px;
+        gap: 7px;
+        padding: 7px 10px;
         border: 1px solid rgba(123,112,255,.2);
         border-radius: 999px;
-        color: #aaa3ff;
-        background: rgba(123,112,255,.055);
-        font-size: 10px;
+        color: #a9a2ff;
+        background: rgba(123,112,255,.06);
+        font-size: 9px;
         font-weight: 850;
-        letter-spacing: .13em;
+        letter-spacing: .1em;
         text-transform: uppercase;
     }
 
-    .teg-eyebrow i {
+    .zf-pill i {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--teg-green);
-        box-shadow: 0 0 12px rgba(110,231,168,.65);
+        background: #6ee7a8;
+        box-shadow: 0 0 10px rgba(110,231,168,.7);
     }
 
-    .teg-title {
-        margin: 18px 0 0;
+    .zf-hero {
+        margin: 0 auto 28px;
+        text-align: center;
+    }
+
+    .zf-title {
+        margin: 0;
         color: #fff;
-        font-size: clamp(42px, 6vw, 72px);
-        line-height: .98;
-        font-weight: 720;
-        letter-spacing: -.055em;
+        font-size: clamp(38px, 6vw, 64px);
+        line-height: 1;
+        font-weight: 740;
+        letter-spacing: -.05em;
     }
 
-    .teg-title span { color: #737b88; }
-
-    .teg-subtitle {
-        max-width: 620px;
-        margin: 17px auto 0;
-        color: var(--teg-muted);
-        font-size: 13px;
-        line-height: 1.75;
+    .zf-subtitle {
+        max-width: 610px;
+        margin: 13px auto 0;
+        color: #737c89;
+        font-size: 11px;
+        line-height: 1.65;
     }
 
-    .teg-services {
-        max-width: 900px;
-        margin: 0 auto 18px;
+    .zf-services {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
+        gap: 12px;
     }
 
-    .teg-service {
+    .zf-service {
+        min-height: 142px;
+        padding: 20px;
         position: relative;
-        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 56px;
+        align-items: center;
+        gap: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 20px;
+        color: inherit;
+        background:
+            radial-gradient(circle at 100% 0%, rgba(123,112,255,.09), transparent 36%),
+            linear-gradient(180deg, rgba(15,18,24,.94), rgba(9,11,15,.96));
+        text-decoration: none;
+        box-shadow: 0 18px 44px rgba(0,0,0,.18);
     }
 
-    .teg-service input {
-        position: absolute;
-        opacity: 0;
+    .zf-service.is-disabled {
+        opacity: .56;
         pointer-events: none;
     }
 
-    .teg-service-card {
-        min-height: 122px;
-        padding: 16px;
-        display: flex;
+    .zf-service-name {
+        color: #f4f6f8;
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: -.035em;
+    }
+
+    .zf-service-copy {
+        margin-top: 9px;
+        color: #707986;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .zf-service-status {
+        margin-top: 14px;
+        display: inline-flex;
         align-items: center;
-        gap: 14px;
-        border: 1px solid var(--teg-line);
-        border-radius: 18px;
-        background:
-            radial-gradient(circle at 100% 0%, rgba(123,112,255,.08), transparent 40%),
-            rgba(12,15,20,.82);
-        cursor: pointer;
-        transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        padding: 6px 9px;
+        border-radius: 8px;
+        color: #9ea6b1;
+        background: rgba(255,255,255,.04);
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: .04em;
+        text-transform: uppercase;
     }
 
-    .teg-service-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(149,140,255,.22);
+    .zf-service-status.is-live {
+        color: #75dda1;
+        background: rgba(110,231,168,.08);
     }
 
-    .teg-service input:checked + .teg-service-card {
-        border-color: rgba(149,140,255,.5);
-        background:
-            radial-gradient(circle at 100% 0%, rgba(123,112,255,.16), transparent 45%),
-            rgba(15,18,25,.96);
-        box-shadow: 0 18px 42px rgba(0,0,0,.2);
+    .zf-service-status.is-off {
+        color: #ef9393;
+        background: rgba(244,125,125,.08);
     }
 
-    .teg-service-icon {
-        width: 48px;
-        height: 48px;
-        flex: 0 0 48px;
+    .zf-arrow {
+        width: 56px;
+        height: 56px;
         display: grid;
         place-items: center;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,.07);
-        background: rgba(255,255,255,.025);
+        border: 1px solid rgba(149,140,255,.3);
+        border-radius: 15px;
+        color: #fff;
+        background: linear-gradient(135deg, #7b70ff, #6258e8);
+        font-size: 28px;
+        font-weight: 700;
     }
 
-    .teg-service-icon img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
+    .zf-panel {
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 22px;
+        background:
+            radial-gradient(circle at 100% 0%, rgba(123,112,255,.08), transparent 38%),
+            linear-gradient(180deg, rgba(15,18,24,.95), rgba(9,11,15,.98));
+        box-shadow: 0 24px 64px rgba(0,0,0,.24);
     }
 
-    .teg-service:nth-child(1) .teg-service-icon { color: var(--teg-red); }
-    .teg-service:nth-child(2) .teg-service-icon { color: var(--teg-blue); }
-    .teg-service:nth-child(3) .teg-service-icon { color: var(--teg-yellow); }
-
-    .teg-service-copy strong {
-        display: block;
-        color: #eef1f5;
-        font-size: 13px;
-        font-weight: 800;
+    .zf-panel-head {
+        padding: 25px 22px 18px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,.065);
     }
 
-    .teg-service-copy span {
-        display: block;
-        margin-top: 4px;
-        color: #697281;
-        font-size: 9px;
-        line-height: 1.5;
+    .zf-panel-title {
+        margin: 0;
+        color: #fff;
+        font-size: 30px;
+        font-weight: 720;
+        letter-spacing: -.04em;
     }
 
-    .teg-search-wrap {
-        max-width: 900px;
-        margin: 0 auto 28px;
-    }
-
-    .teg-search {
-        padding: 8px;
+    .zf-search {
+        padding: 20px;
         display: grid;
         grid-template-columns: minmax(0,1fr) auto;
-        gap: 8px;
-        border: 1px solid var(--teg-line);
-        border-radius: 18px;
-        background: rgba(10,12,17,.9);
-        box-shadow: 0 26px 70px rgba(0,0,0,.28);
+        gap: 9px;
     }
 
-    .teg-input-shell {
-        min-width: 0;
-        padding: 0 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .teg-input-shell span {
-        color: #7d8693;
-        font-size: 12px;
-        font-weight: 900;
-    }
-
-    .teg-input {
+    .zf-input {
         width: 100%;
-        height: 54px;
-        border: 0;
+        min-width: 0;
+        height: 56px;
+        padding: 0 15px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 12px;
         outline: 0;
-        color: #edf0f4;
-        background: transparent;
-        font-size: 13px;
+        color: #eef1f5;
+        background: rgba(255,255,255,.025);
+        font-size: 12px;
     }
 
-    .teg-input::placeholder { color: #525b68; }
+    .zf-input::placeholder {
+        color: #5f6876;
+    }
 
-    .teg-button {
-        min-height: 54px;
-        padding: 0 22px;
-        border: 1px solid rgba(149,140,255,.45);
+    .zf-search-button {
+        min-height: 56px;
+        padding: 0 21px;
+        border: 1px solid rgba(149,140,255,.4);
         border-radius: 12px;
         color: #fff;
         background: linear-gradient(135deg, #7b70ff, #6157e9);
@@ -218,535 +240,436 @@
         cursor: pointer;
     }
 
-    .teg-error {
-        max-width: 900px;
-        margin: -12px auto 24px;
-        padding: 11px 14px;
-        border: 1px solid rgba(244,125,125,.18);
-        border-radius: 12px;
-        color: #f5a0a0;
-        background: rgba(244,125,125,.06);
+    .zf-error {
+        margin: 0 20px 20px;
+        padding: 11px 13px;
+        border: 1px solid rgba(244,125,125,.16);
+        border-radius: 11px;
+        color: #ef9b9b;
+        background: rgba(244,125,125,.055);
         font-size: 10px;
     }
 
-    .teg-note {
-        max-width: 900px;
-        margin: 0 auto 26px;
-        color: #606978;
-        font-size: 9px;
-        line-height: 1.6;
-        text-align: center;
-    }
-
-    .teg-result {
-        max-width: 1040px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 300px minmax(0,1fr);
-        gap: 16px;
-    }
-
-    .teg-card {
-        border: 1px solid var(--teg-line);
-        border-radius: 24px;
-        background:
-            radial-gradient(circle at 100% 0%, rgba(123,112,255,.08), transparent 38%),
-            linear-gradient(180deg, rgba(15,18,24,.95), rgba(9,11,15,.97));
-        box-shadow: 0 24px 60px rgba(0,0,0,.22);
-    }
-
-    .teg-video {
-        min-height: 410px;
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .teg-thumb {
-        aspect-ratio: 9 / 13;
-        width: 100%;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 16px;
-        background: rgba(255,255,255,.025);
-    }
-
-    .teg-thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .teg-video-title {
-        margin-top: 16px;
-        color: #e9edf2;
-        font-size: 11px;
-        line-height: 1.55;
-        font-weight: 760;
-    }
-
-    .teg-author {
-        margin-top: 6px;
-        color: #737c89;
-        font-size: 9px;
-    }
-
-    .teg-dashboard {
-        padding: 22px;
-    }
-
-    .teg-status {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        color: #66707e;
-        font-size: 9px;
-    }
-
-    .teg-status strong {
-        color: #77dca2;
-        font-weight: 850;
-    }
-
-    .teg-main {
-        padding: 28px 0 22px;
-        text-align: center;
-        border-bottom: 1px solid var(--teg-line);
-    }
-
-    .teg-main-label {
-        color: #767f8d;
-        font-size: 10px;
-        font-weight: 850;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-    }
-
-    .teg-main-value {
-        margin-top: 8px;
-        color: #fff;
-        font-size: clamp(48px, 8vw, 76px);
-        line-height: 1;
-        font-weight: 780;
-        letter-spacing: -.05em;
-    }
-
-    .teg-stats {
-        padding-top: 18px;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0,1fr));
-        gap: 10px;
-    }
-
-    .teg-stat {
-        min-height: 130px;
-        padding: 16px;
-        border: 1px solid rgba(255,255,255,.065);
+    .zf-result {
+        margin: 0 20px 20px;
+        padding: 20px;
+        border: 1px solid rgba(255,255,255,.075);
         border-radius: 16px;
         background: rgba(255,255,255,.018);
     }
 
-    .teg-stat-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-    }
-
-    .teg-stat-label {
-        color: #737c89;
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-    }
-
-    .teg-stat img {
-        width: 23px;
-        height: 23px;
-    }
-
-    .teg-stat-value {
-        margin-top: 24px;
-        color: #f4f6f8;
-        font-size: clamp(28px, 4vw, 42px);
-        font-weight: 760;
-        letter-spacing: -.04em;
-    }
-
-    .teg-empty {
-        max-width: 900px;
-        margin: 12px auto 0;
-        padding: 34px 20px;
-        border: 1px dashed rgba(255,255,255,.08);
-        border-radius: 20px;
+    .zf-loading {
+        color: #8490a0;
         text-align: center;
-        color: #6a7380;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .zf-cooldown {
+        color: #7eaef5;
+        text-align: center;
+        font-size: 18px;
+        line-height: 1.45;
+        font-weight: 780;
+    }
+
+    .zf-blocked {
+        color: #ec9a9a;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.55;
+        font-weight: 700;
+    }
+
+    .zf-video-card {
+        text-align: center;
+    }
+
+    .zf-username {
+        color: #8f83ff;
+        font-size: 19px;
+        font-weight: 850;
+    }
+
+    .zf-caption {
+        max-width: 560px;
+        margin: 9px auto 0;
+        color: #d9dde3;
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .zf-age {
+        margin-top: 7px;
+        color: #7c8592;
+        font-size: 10px;
+    }
+
+    .zf-hearts {
+        margin-top: 9px;
+        color: #6ee7a8;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .zf-limits {
+        margin-top: 18px;
+    }
+
+    .zf-limit-select {
+        width: 100%;
+        height: 52px;
+        padding: 0 13px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 11px;
+        color: #eef1f5;
+        background: #0d1117;
         font-size: 11px;
     }
 
-    .teg-loading {
-        opacity: .6;
-    }
-
-    .odometer {
-        font: inherit !important;
-        line-height: inherit !important;
-    }
-
-    @media (max-width: 820px) {
-        .teg-services { grid-template-columns: 1fr; }
-        .teg-search { grid-template-columns: 1fr; }
-        .teg-button { width: 100%; }
-        .teg-result { grid-template-columns: 1fr; }
-        .teg-video { min-height: 0; }
-        .teg-thumb { max-height: 420px; }
+    .zf-readonly {
+        margin-top: 11px;
+        color: #5e6875;
+        font-size: 8px;
+        line-height: 1.55;
     }
 
     @media (max-width: 620px) {
-        .teg-page { padding-top: 36px; }
-        .teg-stats { grid-template-columns: 1fr; }
+        .zf-page {
+            padding-top: 30px;
+        }
+
+        .zf-search {
+            grid-template-columns: 1fr;
+        }
+
+        .zf-search-button {
+            width: 100%;
+        }
+
+        .zf-service {
+            min-height: 128px;
+        }
+
+        .zf-service-name {
+            font-size: 23px;
+        }
     }
 </style>
 @endpush
 
 @section('content')
-<section class="teg-page">
-    <div class="teg-shell">
-        <header class="teg-hero">
-            <div class="teg-eyebrow"><i></i> Mashal Studio · TikTok Engagement</div>
-            <h1 class="teg-title">TikTok <span>Engagement.</span></h1>
-            <p class="teg-subtitle">
-                Kies Hearts, Comments of Favorites, plak een publieke TikTok-video en bekijk
-                de actuele publieke engagementcijfers in één dashboard.
-            </p>
-        </header>
-
-        <form class="teg-flow" method="POST" action="{{ route('tiktok-engagement.lookup') }}">
-            @csrf
-
-            @php
-                $currentService = old('service', $selectedService ?? 'hearts');
-            @endphp
-
-            <div class="teg-services">
-                <label class="teg-service">
-                    <input type="radio" name="service" value="hearts" {{ $currentService === 'hearts' ? 'checked' : '' }}>
-                    <span class="teg-service-card">
-                        <span class="teg-service-icon">
-                            <img src="/icons/live-heart.svg?v=20261007-4" alt="">
-                        </span>
-                        <span class="teg-service-copy">
-                            <strong>Hearts</strong>
-                            <span>Bekijk de publieke like count van de video.</span>
-                        </span>
-                    </span>
-                </label>
-
-                <label class="teg-service">
-                    <input type="radio" name="service" value="comments" {{ $currentService === 'comments' ? 'checked' : '' }}>
-                    <span class="teg-service-card">
-                        <span class="teg-service-icon">
-                            <img src="/icons/live-comment.svg?v=20261007-4" alt="">
-                        </span>
-                        <span class="teg-service-copy">
-                            <strong>Comments</strong>
-                            <span>Bekijk het actuele publieke aantal comments.</span>
-                        </span>
-                    </span>
-                </label>
-
-                <label class="teg-service">
-                    <input type="radio" name="service" value="favorites" {{ $currentService === 'favorites' ? 'checked' : '' }}>
-                    <span class="teg-service-card">
-                        <span class="teg-service-icon">
-                            <img src="/icons/live-favorite.svg?v=1" alt="">
-                        </span>
-                        <span class="teg-service-copy">
-                            <strong>Favorites</strong>
-                            <span>Bekijk hoe vaak de video publiek is opgeslagen.</span>
-                        </span>
-                    </span>
-                </label>
-            </div>
-
-            <div class="teg-search-wrap">
-                <div class="teg-search">
-                    <div class="teg-input-shell">
-                        <span>↗</span>
-                        <input
-                            class="teg-input"
-                            type="url"
-                            name="url"
-                            value="{{ old('url', $videoUrl ?? '') }}"
-                            placeholder="Plak TikTok video URL…"
-                            required
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    <button class="teg-button" type="submit">Search video →</button>
-                </div>
-            </div>
-        </form>
-
-        @error('url')
-            <div class="teg-error">{{ $message }}</div>
-        @enderror
-
-        <div class="teg-note">
-            Deze tool leest alleen publieke TikTok-videostatistieken. Hij verstuurt geen kunstmatige engagementacties.
+<section class="zf-page">
+    <div class="zf-shell">
+        <div class="zf-top">
+            <a class="zf-back" href="{{ route('live-counts.index') }}">← Live Counts</a>
+            <div class="zf-pill"><i></i> Zefoy public flow</div>
         </div>
 
-        @isset($videoId)
-            <script>
-                window.__tegInitialStatsPromise = fetch(
-                    @json(route('tiktok-engagement.stats', ['videoId' => $videoId]))
-                        + '?url=' + encodeURIComponent(@json($videoUrl))
-                        + '&_=' + encodeURIComponent(String(Date.now())),
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Cache-Control': 'no-cache'
-                        },
-                        cache: 'no-store',
-                        credentials: 'same-origin'
-                    }
-                ).then(function (response) {
-                    if (!response.ok) {
-                        throw new Error('Initial engagement request failed');
-                    }
-                    return response.json();
-                });
-            </script>
+        @if($currentService === '')
+            <header class="zf-hero">
+                <h1 class="zf-title">TikTok Services.</h1>
+                <p class="zf-subtitle">
+                    De status hieronder wordt opgehaald via de publieke Zefoy-pagina.
+                    Kies een ondersteunde service om dezelfde lookup/cooldown-flow vanuit Mashal te gebruiken.
+                </p>
+            </header>
 
             <div
-                class="teg-result"
-                id="teg-result"
-                data-endpoint="{{ route('tiktok-engagement.stats', ['videoId' => $videoId]) }}"
-                data-video-url="{{ $videoUrl }}"
-                data-selected-service="{{ $currentService }}"
-                data-ui-build="20261008-tiktok-engagement-v1"
+                class="zf-services"
+                id="zf-services"
+                data-status-endpoint="{{ route('tiktok-engagement.services') }}"
             >
-                <aside class="teg-card teg-video">
-                    <div class="teg-thumb">
-                        <img
-                            id="teg-thumbnail"
-                            src="/icons/follower-profile.svg?v=1"
-                            alt=""
-                            referrerpolicy="no-referrer"
+                @php
+                    $cards = [
+                        ['key' => 'followers', 'label' => 'Followers', 'enabled' => false, 'copy' => 'Zefoy service status'],
+                        ['key' => 'hearts', 'label' => 'Hearts', 'enabled' => true, 'copy' => 'Open de publieke Zefoy Hearts lookup'],
+                        ['key' => 'comments', 'label' => 'Comments Hearts', 'enabled' => true, 'copy' => 'Open de publieke Zefoy Comments Hearts lookup'],
+                        ['key' => 'views', 'label' => 'Views', 'enabled' => false, 'copy' => 'Zefoy service status'],
+                        ['key' => 'shares', 'label' => 'Shares', 'enabled' => false, 'copy' => 'Zefoy service status'],
+                        ['key' => 'favorites', 'label' => 'Favorites', 'enabled' => true, 'copy' => 'Open de publieke Zefoy Favorites lookup'],
+                    ];
+                @endphp
+
+                @foreach($cards as $card)
+                    @if($card['enabled'])
+                        <a
+                            class="zf-service"
+                            href="{{ route('tiktok-engagement.index', ['service' => $card['key']]) }}"
+                            data-zefoy-service="{{ $card['key'] }}"
                         >
-                    </div>
-                    <div class="teg-video-title" id="teg-video-title">TikTok video</div>
-                    <div class="teg-author" id="teg-author">Publieke video</div>
-                </aside>
-
-                <div class="teg-card teg-dashboard">
-                    <div class="teg-status">
-                        <span>Public TikTok data</span>
-                        <strong id="teg-status">Loading…</strong>
-                    </div>
-
-                    <div class="teg-main">
-                        <div class="teg-main-label" id="teg-main-label">
-                            {{ ucfirst($currentService) }}
-                        </div>
-                        <div class="teg-main-value teg-loading" id="teg-main-value">0</div>
-                    </div>
-
-                    <div class="teg-stats">
-                        <div class="teg-stat">
-                            <div class="teg-stat-head">
-                                <span class="teg-stat-label">Hearts</span>
-                                <img src="/icons/live-heart.svg?v=20261007-4" alt="">
+                    @else
+                        <div
+                            class="zf-service is-disabled"
+                            data-zefoy-service="{{ $card['key'] }}"
+                        >
+                    @endif
+                            <div>
+                                <div class="zf-service-name">{{ $card['label'] }}</div>
+                                <div class="zf-service-copy">{{ $card['copy'] }}</div>
+                                <span class="zf-service-status" data-zefoy-status>Checking Zefoy…</span>
                             </div>
-                            <div class="teg-stat-value teg-loading" data-teg-stat="hearts">0</div>
+                            <div class="zf-arrow" aria-hidden="true">→</div>
+                    @if($card['enabled'])
+                        </a>
+                    @else
                         </div>
-
-                        <div class="teg-stat">
-                            <div class="teg-stat-head">
-                                <span class="teg-stat-label">Comments</span>
-                                <img src="/icons/live-comment.svg?v=20261007-4" alt="">
-                            </div>
-                            <div class="teg-stat-value teg-loading" data-teg-stat="comments">0</div>
-                        </div>
-
-                        <div class="teg-stat">
-                            <div class="teg-stat-head">
-                                <span class="teg-stat-label">Favorites</span>
-                                <img src="/icons/live-favorite.svg?v=1" alt="">
-                            </div>
-                            <div class="teg-stat-value teg-loading" data-teg-stat="favorites">0</div>
-                        </div>
-                    </div>
-                </div>
+                    @endif
+                @endforeach
             </div>
         @else
-            <div class="teg-empty">
-                Kies een metric en plak een publieke TikTok-video om de engagementdata te openen.
+            <header class="zf-hero">
+                <h1 class="zf-title">{{ $currentLabel }}</h1>
+                <p class="zf-subtitle">
+                    Plak de TikTok-video. Mashal opent daarna de publieke Zefoy-flow,
+                    voert daar alleen de lookup uit en toont hier hun cooldown of video-resultaat.
+                </p>
+            </header>
+
+            <div class="zf-panel">
+                <div class="zf-panel-head">
+                    <h2 class="zf-panel-title">{{ $currentLabel }}</h2>
+                </div>
+
+                <form
+                    class="zf-search"
+                    method="POST"
+                    action="{{ route('tiktok-engagement.lookup') }}"
+                >
+                    @csrf
+                    <input type="hidden" name="service" value="{{ $currentService }}">
+                    <input
+                        class="zf-input"
+                        type="url"
+                        name="url"
+                        value="{{ old('url', $videoUrl ?? '') }}"
+                        placeholder="Enter Video URL"
+                        autocomplete="off"
+                        required
+                    >
+                    <button class="zf-search-button" type="submit">⌕ Search</button>
+                </form>
+
+                @error('url')
+                    <div class="zf-error">{{ $message }}</div>
+                @enderror
+
+                @isset($videoId)
+                    <div
+                        class="zf-result"
+                        id="zf-result"
+                        data-endpoint="{{ route('tiktok-engagement.stats', ['videoId' => $videoId]) }}"
+                        data-video-url="{{ $videoUrl }}"
+                        data-service="{{ $currentService }}"
+                    >
+                        <div class="zf-loading">Checking Zefoy…</div>
+                    </div>
+                @endisset
             </div>
-        @endisset
+        @endif
     </div>
 </section>
 @endsection
 
-@isset($videoId)
 @push('scripts')
-<script src="/vendor/odometer/odometer.min.js?v=20261007-2"></script>
 <script>
 (function () {
     'use strict';
 
-    var root = document.getElementById('teg-result');
+    var servicesRoot = document.getElementById('zf-services');
 
-    if (!root) {
+    if (servicesRoot) {
+        var statusEndpoint = servicesRoot.getAttribute('data-status-endpoint') || '';
+
+        if (statusEndpoint) {
+            fetch(statusEndpoint, {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store',
+                credentials: 'same-origin'
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Zefoy status failed');
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data || !Array.isArray(data.services)) {
+                        return;
+                    }
+
+                    data.services.forEach(function (service) {
+                        var card = servicesRoot.querySelector(
+                            '[data-zefoy-service="' + service.key + '"]'
+                        );
+
+                        if (!card) {
+                            return;
+                        }
+
+                        var status = card.querySelector('[data-zefoy-status]');
+
+                        if (!status) {
+                            return;
+                        }
+
+                        status.textContent = service.status
+                            || (service.state === 'available' ? 'Available' : service.state);
+
+                        status.classList.toggle(
+                            'is-live',
+                            service.state === 'available'
+                        );
+                        status.classList.toggle(
+                            'is-off',
+                            service.state === 'unavailable'
+                        );
+                    });
+                })
+                .catch(function () {
+                    servicesRoot
+                        .querySelectorAll('[data-zefoy-status]')
+                        .forEach(function (status) {
+                            status.textContent = 'Zefoy unavailable';
+                            status.classList.add('is-off');
+                        });
+                });
+        }
+    }
+
+    var result = document.getElementById('zf-result');
+
+    if (!result) {
         return;
     }
 
-    var endpoint = root.getAttribute('data-endpoint') || '';
-    var videoUrl = root.getAttribute('data-video-url') || '';
-    var selectedService = root.getAttribute('data-selected-service') || 'hearts';
-    var statusEl = document.getElementById('teg-status');
-    var mainLabel = document.getElementById('teg-main-label');
-    var mainValue = document.getElementById('teg-main-value');
-    var titleEl = document.getElementById('teg-video-title');
-    var authorEl = document.getElementById('teg-author');
-    var thumbEl = document.getElementById('teg-thumbnail');
-    var odometers = {};
+    var endpoint = result.getAttribute('data-endpoint') || '';
+    var videoUrl = result.getAttribute('data-video-url') || '';
+    var service = result.getAttribute('data-service') || 'comments';
 
-    var labels = {
-        hearts: 'Hearts',
-        comments: 'Comments',
-        favorites: 'Favorites'
-    };
-
-    function formatNumber(value) {
-        var number = Number(value);
-        return Number.isFinite(number)
-            ? Math.max(0, Math.trunc(number)).toLocaleString('en-US')
-            : '0';
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
-    function ensureOdometer(key, element) {
-        if (!element || typeof window.Odometer !== 'function') {
-            return null;
-        }
+    function renderPayload(data) {
+        var html = '';
 
-        if (!odometers[key]) {
-            element.textContent = '0';
-            odometers[key] = new window.Odometer({
-                el: element,
-                value: 0,
-                format: '(,ddd)',
-                duration: 900
-            });
-        }
-
-        return odometers[key];
-    }
-
-    function updateNumber(key, element, value) {
-        if (!element) {
+        if (!data) {
+            result.innerHTML = '<div class="zf-blocked">Geen Zefoy-response ontvangen.</div>';
             return;
         }
 
-        var number = Number(value);
-
-        if (!Number.isFinite(number)) {
+        if (data.state === 'cooldown' && data.cooldown) {
+            html = '<div class="zf-cooldown">'
+                + escapeHtml(data.cooldown.message || 'Please wait before trying again.')
+                + '</div>';
+            result.innerHTML = html;
             return;
         }
 
-        element.classList.remove('teg-loading');
+        if (data.state === 'blocked') {
+            result.innerHTML =
+                '<div class="zf-blocked">Zefoy vraagt browserverificatie voor deze serversessie. '
+                + 'Mashal omzeilt die verificatie niet.</div>';
+            return;
+        }
 
-        var odometer = ensureOdometer(key, element);
+        if (data.state === 'unavailable') {
+            result.innerHTML =
+                '<div class="zf-blocked">Deze Zefoy-service is momenteel niet beschikbaar.</div>';
+            return;
+        }
 
-        if (odometer) {
-            window.requestAnimationFrame(function () {
-                odometer.update(Math.max(0, Math.trunc(number)));
+        if (data.success !== true) {
+            result.innerHTML =
+                '<div class="zf-blocked">'
+                + escapeHtml(data.message || 'Zefoy lookup kon niet worden uitgevoerd.')
+                + '</div>';
+            return;
+        }
+
+        var video = data.video || {};
+        var limits = Array.isArray(data.limits) ? data.limits : [];
+
+        html += '<div class="zf-video-card">';
+
+        if (video.username) {
+            html += '<div class="zf-username">@' + escapeHtml(video.username) + '</div>';
+        }
+
+        if (video.caption) {
+            html += '<div class="zf-caption">' + escapeHtml(video.caption) + '</div>';
+        }
+
+        if (video.age) {
+            html += '<div class="zf-age">' + escapeHtml(video.age) + '</div>';
+        }
+
+        if (video.hearts != null) {
+            html += '<div class="zf-hearts">' + escapeHtml(video.hearts) + ' ♥</div>';
+        }
+
+        if (limits.length) {
+            html += '<div class="zf-limits">';
+            html += '<select class="zf-limit-select" aria-label="Zefoy limit">';
+            html += '<option value="">Select Limit</option>';
+
+            limits.forEach(function (limit) {
+                html += '<option value="' + escapeHtml(limit) + '">'
+                    + escapeHtml(limit)
+                    + '</option>';
             });
-        } else {
-            element.textContent = formatNumber(number);
+
+            html += '</select>';
+            html += '</div>';
         }
+
+        if (!video.username && !limits.length && data.message) {
+            html += '<div class="zf-caption">' + escapeHtml(data.message) + '</div>';
+        }
+
+        html += '<div class="zf-readonly">'
+            + 'Lookup, cooldown en beschikbare limieten komen uit de publieke Zefoy-flow. '
+            + 'De laatste send/boost-stap wordt niet automatisch uitgevoerd.'
+            + '</div>';
+
+        html += '</div>';
+
+        result.innerHTML = html;
     }
 
-    function applyData(data) {
-        if (!data || data.success !== true || !data.stats) {
-            throw new Error('Invalid engagement response');
+    fetch(
+        endpoint
+            + '?url=' + encodeURIComponent(videoUrl)
+            + '&service=' + encodeURIComponent(service)
+            + '&_=' + encodeURIComponent(String(Date.now())),
+        {
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            cache: 'no-store',
+            credentials: 'same-origin'
         }
-
-        ['hearts', 'comments', 'favorites'].forEach(function (key) {
-            updateNumber(
-                key,
-                root.querySelector('[data-teg-stat="' + key + '"]'),
-                data.stats[key]
-            );
-        });
-
-        mainLabel.textContent = labels[selectedService] || 'Hearts';
-        updateNumber('main', mainValue, data.stats[selectedService]);
-
-        if (data.title) {
-            titleEl.textContent = data.title;
-        }
-
-        if (data.author_name) {
-            authorEl.textContent = '@' + String(data.author_name).replace(/^@/, '');
-        }
-
-        if (data.thumbnail_url) {
-            thumbEl.src = data.thumbnail_url;
-        }
-
-        statusEl.textContent = 'Live';
-    }
-
-    function loadStats() {
-        if (!endpoint || !videoUrl) {
-            return Promise.resolve();
-        }
-
-        statusEl.textContent = 'Refreshing…';
-
-        return fetch(
-            endpoint
-                + '?url=' + encodeURIComponent(videoUrl)
-                + '&_=' + encodeURIComponent(String(Date.now())),
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache'
-                },
-                cache: 'no-store',
-                credentials: 'same-origin'
-            }
-        )
-            .then(function (response) {
-                if (!response.ok) {
-                    throw new Error('Engagement request failed');
+    )
+        .then(function (response) {
+            return response.json().then(function (body) {
+                if (!response.ok && !body) {
+                    throw new Error('Zefoy lookup failed');
                 }
-                return response.json();
-            })
-            .then(applyData)
-            .catch(function () {
-                statusEl.textContent = 'Retrying…';
+                return body;
             });
-    }
-
-    if (window.__tegInitialStatsPromise) {
-        window.__tegInitialStatsPromise
-            .then(applyData)
-            .catch(function () {
-                return loadStats();
-            });
-    } else {
-        loadStats();
-    }
-
-    window.setInterval(loadStats, 15000);
+        })
+        .then(renderPayload)
+        .catch(function () {
+            result.innerHTML =
+                '<div class="zf-blocked">Zefoy lookup kon niet worden geladen.</div>';
+        });
 }());
 </script>
 @endpush
-@endisset
