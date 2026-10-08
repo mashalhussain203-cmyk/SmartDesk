@@ -12,14 +12,14 @@ def emit(payload, code=0):
     raise SystemExit(code)
 
 
-def extract_items(payload):
+def extract_channel_list(payload):
     if isinstance(payload, list):
         return payload
 
     if not isinstance(payload, dict):
         return None
 
-    for key in ("userData", "users", "results", "items"):
+    for key in ("userData", "users", "results", "items", "channels"):
         value = payload.get(key)
         if isinstance(value, list):
             return value
@@ -29,7 +29,7 @@ def extract_items(payload):
         return data
 
     if isinstance(data, dict):
-        for key in ("userData", "users", "results", "items"):
+        for key in ("userData", "users", "results", "items", "channels"):
             value = data.get(key)
             if isinstance(value, list):
                 return value
@@ -37,24 +37,29 @@ def extract_items(payload):
     return None
 
 
-def normalize(payload):
-    items = extract_items(payload)
-    if not isinstance(items, list):
+def normalize_results(payload):
+    channels = extract_channel_list(payload)
+
+    if not isinstance(channels, list):
         return []
 
     out = []
     seen = set()
 
-    for item in items:
+    for item in channels:
         if not isinstance(item, dict):
             continue
 
-        channel_id = str(
+        channel_id = (
             item.get("id")
             or item.get("channelId")
             or item.get("channel_id")
-            or ""
-        ).strip()
+        )
+
+        if not channel_id:
+            continue
+
+        channel_id = str(channel_id).strip()
 
         if not re.fullmatch(r"UC[A-Za-z0-9_-]{22}", channel_id):
             continue
@@ -63,13 +68,14 @@ def normalize(payload):
             continue
         seen.add(channel_id)
 
-        title = str(
+        display_name = (
             item.get("username")
             or item.get("displayName")
             or item.get("display_name")
             or item.get("title")
+            or item.get("name")
             or "YouTube-kanaal"
-        ).strip()
+        )
 
         avatar = (
             item.get("avatar")
@@ -81,7 +87,7 @@ def normalize(payload):
 
         out.append({
             "id": channel_id,
-            "title": title or "YouTube-kanaal",
+            "title": str(display_name).strip() or "YouTube-kanaal",
             "avatar": str(avatar) if avatar else None,
         })
 
@@ -121,17 +127,32 @@ def parse_visible_results(page, query):
           || el.getAttribute('data-href')
           || '';
         const text = clean(el.textContent);
+
         if (!text || text.length > 300) continue;
 
-        const lower = text.toLowerCase();
+        const lowerText = text.toLowerCase();
+        if (
+          requested
+          && !lowerText.includes(requested)
+          && !href.toLowerCase().includes(requested)
+        ) {
+          continue;
+        }
 
         let id = null;
-        const hrefMatch = href.match(/\/youtube-live-subscriber-counter\/(UC[A-Za-z0-9_-]{22})/);
-        if (hrefMatch) id = decodeURIComponent(hrefMatch[1]);
+
+        const hrefMatch = href.match(
+          /\/youtube-live-subscriber-counter\/(UC[A-Za-z0-9_-]{22})/i
+        );
+        if (hrefMatch) {
+          id = decodeURIComponent(hrefMatch[1] || '');
+        }
 
         if (!id) {
-          const idMatch = text.match(/(UC[A-Za-z0-9_-]{22})/);
-          if (idMatch) id = idMatch[1];
+          const textMatch = text.match(/(UC[A-Za-z0-9_-]{22})/);
+          if (textMatch) {
+            id = textMatch[1];
+          }
         }
 
         if (!id || seen.has(id)) continue;
@@ -142,7 +163,7 @@ def parse_visible_results(page, query):
           ? (img.currentSrc || img.getAttribute('src') || img.src || null)
           : null;
 
-        const labels = Array.from(
+        const textNodes = Array.from(
           el.querySelectorAll('h1,h2,h3,h4,strong,p,span,div')
         )
           .filter(visible)
@@ -150,10 +171,10 @@ def parse_visible_results(page, query):
           .filter(Boolean);
 
         let title = null;
-        for (const label of labels) {
-          if (label === id || label.length > 100) continue;
-          if (/subscribers?|views?|videos?/i.test(label)) continue;
-          title = label;
+        for (const candidate of textNodes) {
+          if (candidate === id || candidate.length > 100) continue;
+          if (/subscribers?|views?|videos?|goal/i.test(candidate)) continue;
+          title = candidate;
           break;
         }
 
@@ -179,14 +200,23 @@ def parse_visible_results(page, query):
 
 def main():
     if len(sys.argv) < 2:
-        emit({"success": False, "message": "zoekterm ontbreekt"}, 2)
+        emit({
+            "success": False,
+            "message": "zoekterm ontbreekt",
+            "stage": "args",
+        }, 2)
 
     query = sys.argv[1].strip()
+
     if len(query) < 2 or len(query) > 255:
         emit({"success": True, "query": query, "results": []})
 
-    if re.search(r"[\\r\\n\\x00]", query):
-        emit({"success": False, "message": "ongeldige zoekterm"}, 2)
+    if re.search(r"[\r\n\x00]", query):
+        emit({
+            "success": False,
+            "message": "ongeldige zoekterm",
+            "stage": "args",
+        }, 2)
 
     try:
         from playwright.sync_api import sync_playwright
@@ -194,6 +224,7 @@ def main():
         emit({
             "success": False,
             "message": f"Playwright import mislukt: {exc}",
+            "stage": "import_playwright",
         }, 3)
 
     chromium = (
@@ -225,6 +256,7 @@ def main():
                     "--mute-audio",
                 ],
             }
+
             if chromium:
                 launch_args["executable_path"] = chromium
 
@@ -240,7 +272,7 @@ def main():
             )
             page = context.new_page()
 
-            def block_heavy(route):
+            def block_heavy_assets(route):
                 try:
                     if route.request.resource_type in ("image", "media", "font"):
                         route.abort()
@@ -252,10 +284,10 @@ def main():
                     except Exception:
                         pass
 
-            page.route("**/*", block_heavy)
+            page.route("**/*", block_heavy_assets)
 
             captured = {
-                "payload": None,
+                "search": None,
                 "url": None,
                 "status": None,
                 "json_candidates": [],
@@ -264,20 +296,14 @@ def main():
             def on_response(resp):
                 try:
                     url = resp.url
-                    lower = url.lower()
+                    lower_url = url.lower()
 
-                    is_youtube_search = (
-                        "api.livecounts.io/youtube-live-subscriber-counter/search/"
-                        in lower
-                    )
-
-                    if is_youtube_search:
+                    if "/youtube-live-subscriber-counter/search" in lower_url:
                         captured["url"] = url
                         captured["status"] = resp.status
 
-                    # A provider challenge/rate-limit response may arrive
-                    # first. Keep the listener active for a later successful
-                    # response initiated by Livecounts' own page JavaScript.
+                    # Ignore a temporary 429/error and keep listening. This
+                    # mirrors the working TikTok follower browser capture.
                     if not (200 <= resp.status < 300):
                         return
 
@@ -285,17 +311,23 @@ def main():
                         resp.headers.get("content-type") or ""
                     ).lower()
 
-                    if not is_youtube_search and "json" not in content_type:
+                    if (
+                        "json" not in content_type
+                        and "api.livecounts.io" not in lower_url
+                    ):
                         return
 
                     payload = resp.json()
-                    results = normalize(payload)
+                    channels = extract_channel_list(payload)
 
-                    if results:
-                        captured["payload"] = payload
-                        captured["url"] = url
-                        captured["status"] = resp.status
-                        captured["json_candidates"].append(url)
+                    if isinstance(channels, list):
+                        normalized = normalize_results(payload)
+
+                        if normalized:
+                            captured["search"] = payload
+                            captured["url"] = url
+                            captured["status"] = resp.status
+                            captured["json_candidates"].append(url)
                 except Exception:
                     pass
 
@@ -304,12 +336,15 @@ def main():
             try:
                 page.goto(
                     "https://livecounts.io/youtube-live-subscriber-counter",
-                    wait_until="commit",
-                    timeout=5500,
+                    wait_until="domcontentloaded",
+                    timeout=12000,
                 )
             except Exception as exc:
                 debug["navigation_warning"] = str(exc)
 
+            debug["stage"] = "find_search_input"
+
+            search_input = None
             selectors = [
                 'input[placeholder="Search Query / Channel URL / Username..."]',
                 'input[placeholder*="Search Query"]',
@@ -319,10 +354,9 @@ def main():
                 'input[type="text"]',
             ]
 
-            search_input = None
-            deadline = time.time() + 6
+            input_deadline = time.time() + 10
 
-            while time.time() < deadline and search_input is None:
+            while time.time() < input_deadline and search_input is None:
                 for selector in selectors:
                     try:
                         locator = page.locator(selector).first
@@ -333,19 +367,22 @@ def main():
                         pass
 
                 if search_input is None:
-                    page.wait_for_timeout(80)
+                    page.wait_for_timeout(150)
 
             if search_input is None:
                 browser.close()
                 emit({
                     "success": False,
-                    "message": "Livecounts YouTube zoekveld kon niet worden gevonden.",
+                    "message": (
+                        "Livecounts YouTube zoekveld kon niet worden gevonden."
+                    ),
+                    "stage": "search_input_missing",
                     "debug": debug,
                 }, 10)
 
-            # Same interaction pattern as the working TikTok follower search:
-            # allow hydration, then type into the exact public search field.
-            page.wait_for_timeout(250)
+            # Same reliable interaction sequence as TikTok Followers:
+            # wait for client hydration, then type like a real visitor.
+            page.wait_for_timeout(700)
 
             try:
                 search_input.click(timeout=1200)
@@ -353,19 +390,27 @@ def main():
                 pass
 
             try:
-                search_input.fill(query, timeout=900)
+                search_input.press("Control+A")
+                search_input.press("Backspace")
             except Exception:
                 try:
-                    search_input.press("Control+A")
-                    search_input.press("Backspace")
-                    search_input.press_sequentially(query, delay=30)
+                    search_input.fill("")
                 except Exception:
-                    search_input.type(query, delay=30)
+                    pass
+
+            try:
+                search_input.press_sequentially(query, delay=110)
+            except Exception:
+                search_input.type(query, delay=110)
+
+            debug["stage"] = "wait_for_livecounts_search"
 
             def current_results():
-                results = normalize(captured.get("payload"))
-                if results:
-                    return results, "livecounts-youtube-browser-search"
+                payload = captured.get("search")
+                normalized = normalize_results(payload)
+
+                if normalized:
+                    return normalized, "livecounts-youtube-browser-search"
 
                 visible = parse_visible_results(page, query)
                 if visible:
@@ -376,18 +421,15 @@ def main():
             results = []
             source = None
 
-            # Livecounts searches from its own input handlers. Give the
-            # page one bounded window to return the real userData payload.
-            deadline = time.time() + 2.6
+            # First wait for Livecounts' own debounce/onChange request.
+            deadline = time.time() + 4
             while time.time() < deadline:
                 results, source = current_results()
                 if results:
                     break
-                page.wait_for_timeout(60)
+                page.wait_for_timeout(120)
 
-            # Some builds submit the same search on Enter. This still uses
-            # Livecounts' own page/JavaScript; no protected API is called
-            # directly by this helper.
+            # Same Enter fallback as the working TikTok follower search.
             if not results:
                 try:
                     search_input.press("Enter")
@@ -395,15 +437,15 @@ def main():
                 except Exception as exc:
                     debug["enter_warning"] = str(exc)
 
-                deadline = time.time() + 1.8
+                deadline = time.time() + 5
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
                         break
-                    page.wait_for_timeout(100)
+                    page.wait_for_timeout(120)
 
-            # Last UI-only nudge for React-controlled inputs. The
-            # Livecounts page still creates the provider request itself.
+            # Final UI-only nudge for React-controlled inputs. We still do
+            # not call the protected provider endpoint directly.
             if not results:
                 try:
                     search_input.evaluate(
@@ -421,12 +463,12 @@ def main():
                 except Exception as exc:
                     debug["event_warning"] = str(exc)
 
-                deadline = time.time() + 1.0
+                deadline = time.time() + 3
                 while time.time() < deadline:
                     results, source = current_results()
                     if results:
                         break
-                    page.wait_for_timeout(60)
+                    page.wait_for_timeout(120)
 
             debug["search_url"] = captured.get("url")
             debug["search_status"] = captured.get("status")
@@ -441,16 +483,20 @@ def main():
                 "success": True,
                 "query": query,
                 "results": results,
-                "source": source or "livecounts-youtube-browser-search",
+                "source": (
+                    source or "livecounts-youtube-browser-search"
+                ),
                 "debug": debug,
             })
 
     except Exception as exc:
         debug["stage"] = "browser_exception"
         debug["message"] = str(exc)
+
         emit({
             "success": False,
             "message": "YouTube kanaal zoeken mislukt.",
+            "stage": "browser_exception",
             "debug": debug,
         }, 11)
 
