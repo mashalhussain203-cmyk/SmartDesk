@@ -1902,7 +1902,7 @@
                         </div>
 
                         <h2 class="glass-heading">
-                            Secure <strong>Register</strong>
+                            {{ __('Secure') }} <strong>Register</strong>
                         </h2>
 
                         <p class="glass-description">
@@ -1955,9 +1955,9 @@
                                     </span>
 
                                     <div class="x-complete-copy">
-                                        <strong id="x-complete-title">X-account bevestigd</strong>
+                                        <strong id="x-complete-title">{{ __('X-account bevestigd') }}</strong>
                                         <span>
-                                            Maak je Mashal-account af met je e-mailadres en wachtwoord.
+                                            {{ __('Maak je Mashal-account af met je e-mailadres en wachtwoord.') }}
                                         </span>
                                     </div>
                                 </div>
@@ -1970,7 +1970,7 @@
                                     @if (filled($xProfile['username'] ?? null))
                                         <span>{{ '@'.$xProfile['username'] }}</span>
                                     @else
-                                        <span>X-account succesvol bevestigd</span>
+                                        <span>{{ __('X-account succesvol bevestigd') }}</span>
                                     @endif
                                 </div>
 
@@ -2093,13 +2093,13 @@
                                         class="glass-primary"
                                         type="submit"
                                     >
-                                        X-registratie afronden →
+                                        {{ __('X-registratie afronden →') }}
                                     </button>
                                 </form>
 
                                 <div class="x-complete-actions">
                                     <a href="{{ route('login') }}">
-                                        Annuleren en terug naar inloggen
+                                        {{ __('Annuleren en terug naar inloggen') }}
                                     </a>
                                 </div>
                             </section>
@@ -2110,10 +2110,10 @@
                                 {{ __('Wachtwoord') }}
                             </button>
                             <button class="register-tab" type="button" role="tab" aria-selected="false" data-register-tab="email">
-                                E-mail
+                                {{ __('E-mail') }}
                             </button>
                             <button class="register-tab" type="button" role="tab" aria-selected="false" data-register-tab="social">
-                                Social
+                                {{ __('Social') }}
                             </button>
                         </div>
 
@@ -2326,8 +2326,7 @@
 
                         <section class="register-panel-section" data-register-panel="social" hidden>
                                                         <div class="glass-message info" role="note">
-                                X-login werkt voor reeds gekoppelde accounts. Maak zo nodig eerst je Mashal-account aan en koppel X daarna via je accountinstellingen.
-                                Telegram geeft bij deze login geen e-mailadres door. Nieuwe Telegram-gebruikers vullen daarom na de Telegram-controle nog hun e-mailadres in.
+                                {{ __('X-login werkt voor reeds gekoppelde accounts. Maak zo nodig eerst je Mashal-account aan en koppel X daarna via je accountinstellingen. Telegram geeft bij deze login geen e-mailadres door. Nieuwe Telegram-gebruikers vullen daarom na de Telegram-controle nog hun e-mailadres in.') }}
                             </div>
 
 <div class="register-oauth-grid">
@@ -2523,7 +2522,7 @@
                         </div>
 
                         <div class="register-security-note">
-                            ✓ Na wachtwoordregistratie bevestig je eerst je e-mail. Daarna zie je dezelfde groene succescheck voordat je workspace opent.
+                            {{ __('✓ Na wachtwoordregistratie bevestig je eerst je e-mail. Daarna zie je dezelfde groene succescheck voordat je workspace opent.') }}
                         </div>
                     </div>
                 </div>
