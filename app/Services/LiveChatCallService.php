@@ -96,6 +96,7 @@ class LiveChatCallService
     public function current(int $conversationId): ?stdClass
     {
         $this->expireStale($conversationId);
+        $this->expireUnansweredVideoUpgrades($conversationId);
 
         return DB::table('live_chat_calls')
             ->where('conversation_id', $conversationId)
@@ -192,6 +193,105 @@ class LiveChatCallService
             ]);
     }
 
+    /**
+     * A second, video-only WebRTC peer connection is negotiated while the
+     * existing audio peer remains connected. Neither party can remotely
+     * activate the other party's camera without its explicit approval.
+     */
+    public function videoUpgrade(
+        string $callId,
+        int $conversationId,
+        string $actor,
+        string $action,
+        ?array $description = null
+    ): stdClass {
+        return DB::transaction(function () use (
+            $callId, $conversationId, $actor, $action, $description
+        ): stdClass {
+            $call = DB::table('live_chat_calls')
+                ->where('id', $callId)
+                ->where('conversation_id', $conversationId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $call || $call->status !== 'accepted') {
+                throw new RuntimeException('Er is geen verbonden gesprek om naar video over te schakelen.');
+            }
+
+            if (! in_array($actor, ['visitor', 'admin'], true)) {
+                throw new RuntimeException('Ongeldige deelnemer.');
+            }
+
+            $status = (string) ($call->video_upgrade_status ?? '');
+            $initiator = (string) ($call->video_upgrade_requested_by ?? '');
+            $update = ['updated_at' => now()];
+
+            if ($action === 'request') {
+                if ($call->mode !== 'audio' || ($status !== '' && $status !== 'declined')) {
+                    throw new RuntimeException('Een video-omschakeling is al bezig of voltooid.');
+                }
+                if (($description['type'] ?? null) !== 'offer' || ! is_string($description['sdp'] ?? null)) {
+                    throw new RuntimeException('Ongeldig videoaanbod.');
+                }
+                $update += [
+                    'video_upgrade_status' => 'requested',
+                    'video_upgrade_requested_by' => $actor,
+                    'video_upgrade_version' => (int) $call->video_upgrade_version + 1,
+                    'video_upgrade_offer_json' => json_encode($description, JSON_UNESCAPED_SLASHES),
+                    'video_upgrade_answer_json' => null,
+                    'video_upgrade_requested_at' => now(),
+                ];
+            } elseif ($action === 'accept') {
+                if ($status !== 'requested' || $initiator === $actor) {
+                    throw new RuntimeException('Er is geen videoverzoek van de andere deelnemer.');
+                }
+                if (($description['type'] ?? null) !== 'answer' || ! is_string($description['sdp'] ?? null)) {
+                    throw new RuntimeException('Ongeldig videoantwoord.');
+                }
+                if ($call->video_upgrade_requested_at
+                    && \Illuminate\Support\Carbon::parse($call->video_upgrade_requested_at)
+                        ->lt(now()->subSeconds(90))) {
+                    throw new RuntimeException('Het videoverzoek is verlopen.');
+                }
+                $update += [
+                    'video_upgrade_status' => 'accepted',
+                    'video_upgrade_answer_json' => json_encode($description, JSON_UNESCAPED_SLASHES),
+                    'mode' => 'video',
+                ];
+            } elseif ($action === 'decline') {
+                if (! in_array($status, ['requested', 'accepted'], true)) {
+                    throw new RuntimeException('Er is geen videoverzoek om af te wijzen.');
+                }
+                $update += [
+                    'video_upgrade_status' => 'declined',
+                    'mode' => 'audio',
+                ];
+            } else {
+                throw new RuntimeException('Ongeldige videoactie.');
+            }
+
+            DB::table('live_chat_calls')
+                ->where('id', $callId)
+                ->where('conversation_id', $conversationId)
+                ->update($update);
+
+            return DB::table('live_chat_calls')->where('id', $callId)->first();
+        });
+    }
+
+    private function expireUnansweredVideoUpgrades(int $conversationId): void
+    {
+        DB::table('live_chat_calls')
+            ->where('conversation_id', $conversationId)
+            ->where('status', 'accepted')
+            ->where('video_upgrade_status', 'requested')
+            ->where('video_upgrade_requested_at', '<', now()->subSeconds(90))
+            ->update([
+                'video_upgrade_status' => 'declined',
+                'updated_at' => now(),
+            ]);
+    }
+
     public function payload(?stdClass $call): ?array
     {
         if (! $call) {
@@ -204,6 +304,13 @@ class LiveChatCallService
             'initiated_by' => (string) $call->initiated_by,
             'mode' => (string) $call->mode,
             'status' => (string) $call->status,
+            'video_upgrade' => (int) ($call->video_upgrade_version ?? 0) > 0 ? [
+                'version' => (int) $call->video_upgrade_version,
+                'status' => (string) $call->video_upgrade_status,
+                'requested_by' => (string) $call->video_upgrade_requested_by,
+                'offer' => $this->decodeDescription($call->video_upgrade_offer_json ?? null),
+                'answer' => $this->decodeDescription($call->video_upgrade_answer_json ?? null),
+            ] : null,
             'offer' => $this->decodeDescription($call->offer_json ?? null),
             'answer' => $this->decodeDescription($call->answer_json ?? null),
             'caller_name' => isset($call->caller_name) ? (string) $call->caller_name : null,

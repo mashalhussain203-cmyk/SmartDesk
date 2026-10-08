@@ -62,6 +62,7 @@ class LiveChatTest extends TestCase
                 'database/migrations/2026_10_03_200000_upgrade_live_chat_features.php',
                 'database/migrations/2026_10_03_220000_create_live_chat_calls_table.php',
                 'database/migrations/2026_10_08_210000_add_guest_presence_to_live_chat_conversations.php',
+                'database/migrations/2026_10_09_120000_add_video_upgrades_to_live_chat_calls.php',
 
             ],
 
@@ -1156,8 +1157,8 @@ class LiveChatTest extends TestCase
         $this->assertStringContainsString("root.dispatchEvent(new CustomEvent('live-chat:handoff'", $callsScript);
         $this->assertStringContainsString("root.querySelector('.lca-heading__actions')", $callsScript);
         $this->assertStringContainsString("side === 'admin' && call.initiated_by === 'visitor'", $callsScript);
-        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=8", $guestView);
-        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=7", $adminView);
+        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=9", $guestView);
+        $this->assertStringContainsString("js/live-chat-calls.js') }}?v=9", $adminView);
         $this->assertStringContainsString('data-default-mode="human"', $guestView);
     }
 
@@ -1205,6 +1206,122 @@ class LiveChatTest extends TestCase
         $this->assertStringContainsString("void startOutgoing(mode)", $calls);
         $this->assertStringContainsString("headerActions.dataset.lccReady = 'true'", $calls);
         $this->assertStringContainsString("endpoints().incoming", $calls);
+    }
+
+
+    public function test_guest_can_switch_connected_audio_call_to_video_when_admin_consents(): void
+    {
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+        $token = str_repeat('q', 64);
+        $offer = ['type' => 'offer', 'sdp' => "v=0\r\n"];
+        $answer = ['type' => 'answer', 'sdp' => "v=0\r\n"];
+
+        $created = $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson('/live-chat/calls', ['mode' => 'audio', 'offer' => $offer])
+            ->assertCreated();
+        $id = (string) $created->json('call.id');
+        $conversation = (int) $created->json('call.conversation_id');
+        $guestUrl = '/live-chat/calls/'.$id.'/video';
+        $adminUrl = '/admin/live-chat/conversations/'.$conversation.'/calls/'.$id.'/video';
+
+        // Only active and answered audio calls can be upgraded.
+        $this->postJson($guestUrl, ['action' => 'request', 'offer' => $offer])
+            ->assertStatus(409);
+        $this->actingAs($admin)
+            ->postJson('/admin/live-chat/conversations/'.$conversation.'/calls/'.$id.'/answer', [
+                'answer' => $answer,
+            ])->assertOk();
+        auth()->logout();
+
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson($guestUrl, ['action' => 'request', 'offer' => $offer])
+            ->assertOk()
+            ->assertJsonPath('call.mode', 'audio')
+            ->assertJsonPath('call.video_upgrade.requested_by', 'visitor')
+            ->assertJsonPath('call.video_upgrade.status', 'requested')
+            ->assertJsonPath('call.video_upgrade.version', 1);
+
+        // Caller cannot give camera permission on behalf of the recipient.
+        $this->postJson($guestUrl, ['action' => 'accept', 'answer' => $answer])
+            ->assertStatus(409);
+
+        $this->actingAs($admin)->postJson($adminUrl, [
+            'action' => 'accept', 'answer' => $answer,
+        ])->assertOk()
+            ->assertJsonPath('call.status', 'accepted')
+            ->assertJsonPath('call.mode', 'video')
+            ->assertJsonPath('call.video_upgrade.status', 'accepted');
+
+        $row = DB::table('live_chat_calls')->where('id', $id)->first();
+        $this->assertSame('accepted', $row->status);
+        $this->assertSame($offer, json_decode($row->offer_json, true));
+        $this->assertSame($answer, json_decode($row->answer_json, true));
+
+        auth()->logout();
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->getJson('/live-chat/calls/current')
+            ->assertOk()
+            ->assertJsonPath('call.mode', 'video');
+
+        $this->withSession(['live_chat.guest_token' => str_repeat('z', 64)])
+            ->postJson($guestUrl, ['action' => 'decline'])->assertNotFound();
+    }
+
+    public function test_admin_can_request_video_and_guest_can_refuse_then_accept_retry(): void
+    {
+        $admin = UserFactory::new()->create(['is_admin' => true]);
+        $token = str_repeat('r', 64);
+        $offer = ['type' => 'offer', 'sdp' => "v=0\r\n"];
+        $answer = ['type' => 'answer', 'sdp' => "v=0\r\n"];
+        $created = $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson('/live-chat/calls', ['mode' => 'audio', 'offer' => $offer])
+            ->assertCreated();
+        $id = (string) $created->json('call.id');
+        $conversation = (int) $created->json('call.conversation_id');
+        $adminUrl = '/admin/live-chat/conversations/'.$conversation.'/calls/'.$id.'/video';
+        $guestUrl = '/live-chat/calls/'.$id.'/video';
+        $this->actingAs($admin)
+            ->postJson('/admin/live-chat/conversations/'.$conversation.'/calls/'.$id.'/answer', [
+                'answer' => $answer,
+            ])->assertOk();
+
+        $this->postJson($adminUrl, ['action' => 'request', 'offer' => $offer])
+            ->assertOk()->assertJsonPath('call.video_upgrade.version', 1);
+        auth()->logout();
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson($guestUrl, ['action' => 'decline'])
+            ->assertOk()
+            ->assertJsonPath('call.mode', 'audio')
+            ->assertJsonPath('call.video_upgrade.status', 'declined');
+
+        $this->actingAs($admin)
+            ->postJson($adminUrl, ['action' => 'request', 'offer' => $offer])
+            ->assertOk()->assertJsonPath('call.video_upgrade.version', 2);
+        auth()->logout();
+        $this->withSession(['live_chat.guest_token' => $token])
+            ->postJson($guestUrl, ['action' => 'accept', 'answer' => $answer])
+            ->assertOk()->assertJsonPath('call.mode', 'video')
+            ->assertJsonPath('call.video_upgrade.version', 2);
+        $this->postJson($guestUrl, ['action' => 'request', 'offer' => $offer])
+            ->assertStatus(409);
+    }
+
+    public function test_video_upgrade_ui_requires_consent_and_preserves_original_audio_peer(): void
+    {
+        $script = file_get_contents(public_path('js/live-chat-calls.js'));
+        $this->assertIsString($script);
+        foreach ([
+            'data-lcc-upgrade',
+            'async function requestVideoUpgrade()',
+            'async function acceptVideoUpgrade(upgrade)',
+            'Video toestaan',
+            'Alleen audio',
+            'audioOutput.srcObject = state.remoteStream',
+            'async function createVideoPeer(stream)',
+            'function showAudioCallUI()',
+        ] as $fragment) {
+            $this->assertStringContainsString($fragment, $script);
+        }
     }
 
 }

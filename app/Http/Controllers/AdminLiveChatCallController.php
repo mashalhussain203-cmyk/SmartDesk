@@ -119,6 +119,39 @@ class AdminLiveChatCallController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    public function videoUpgrade(
+        Request $request,
+        LiveChatCallService $calls,
+        int $conversation,
+        string $call
+    ): JsonResponse {
+        $this->authorizeAdmin($request);
+        $this->conversation($conversation);
+
+        $data = $request->validate([
+            'action' => ['required', Rule::in(['request', 'accept', 'decline'])],
+            'offer.type' => ['required_if:action,request', 'in:offer'],
+            'offer.sdp' => ['required_if:action,request', 'string', 'max:200000'],
+            'answer.type' => ['required_if:action,accept', 'in:answer'],
+            'answer.sdp' => ['required_if:action,accept', 'string', 'max:200000'],
+        ]);
+
+        try {
+            $record = $calls->videoUpgrade(
+                $call,
+                $conversation,
+                'admin',
+                $data['action'],
+                $data['offer'] ?? $data['answer'] ?? null
+            );
+        } catch (RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 409);
+        }
+
+        return response()->json(['call' => $calls->payload($record)])
+            ->header('Cache-Control', 'no-store');
+    }
+
     public function end(
         Request $request,
         LiveChatCallService $calls,

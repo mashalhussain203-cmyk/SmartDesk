@@ -138,6 +138,43 @@ class LiveChatCallController extends Controller
             ->header('Cache-Control', 'no-store');
     }
 
+    public function videoUpgrade(
+        Request $request,
+        LiveChatService $chat,
+        LiveChatCallService $calls,
+        string $call
+    ): JsonResponse {
+        $conversation = $chat->visitorConversation($request);
+        abort_unless($conversation, 404);
+
+        if ($chat->visitorBlocked($request)) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'action' => ['required', Rule::in(['request', 'accept', 'decline'])],
+            'offer.type' => ['required_if:action,request', 'in:offer'],
+            'offer.sdp' => ['required_if:action,request', 'string', 'max:200000'],
+            'answer.type' => ['required_if:action,accept', 'in:answer'],
+            'answer.sdp' => ['required_if:action,accept', 'string', 'max:200000'],
+        ]);
+
+        try {
+            $record = $calls->videoUpgrade(
+                $call,
+                (int) $conversation->id,
+                'visitor',
+                $data['action'],
+                $data['offer'] ?? $data['answer'] ?? null
+            );
+        } catch (RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 409);
+        }
+
+        return response()->json(['call' => $calls->payload($record)])
+            ->header('Cache-Control', 'no-store');
+    }
+
     public function end(
         Request $request,
         LiveChatService $chat,

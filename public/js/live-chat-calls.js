@@ -29,6 +29,13 @@
         peer: null,
         localStream: null,
         remoteStream: null,
+        videoPeer: null,
+        videoLocalStream: null,
+        videoRemoteStream: null,
+        upgradeBusy: false,
+        upgradePromptVersion: 0,
+        upgradeAnswerAppliedVersion: 0,
+        upgradeDeclinedVersion: 0,
         isCaller: false,
         connectedAt: 0,
         pollTimer: null,
@@ -56,6 +63,7 @@
         '#guest-chat .gc-actions .gc-call-quick svg{width:19px;height:19px;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}',
         '@media(max-width:390px){#guest-chat .gc-actions{gap:2px}#guest-chat .gc-actions .gc-call-quick{width:35px;height:39px;flex-basis:35px;border-radius:10px}#guest-chat .gc-actions .gc-reset{display:none}}',
     ].join('\n');
+    style.textContent += "\n.lcc-upgrade-prompt{position:absolute;z-index:6;left:50%;bottom:104px;transform:translateX(-50%);width:min(435px,calc(100% - 28px));padding:17px;border:1px solid rgba(164,152,255,.44);border-radius:18px;background:#141a2b;color:#fff;box-shadow:0 15px 60px rgba(0,0,0,.6)}\n.lcc-upgrade-prompt strong{font-size:16px}.lcc-upgrade-prompt p{color:#c4cada;font-size:13px;line-height:1.5;margin:8px 0 16px}.lcc-upgrade-prompt>div{display:flex;gap:10px}\n.lcc-upgrade-prompt button{flex:1;min-height:42px;padding:9px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:#29304a;color:#fff;cursor:pointer;font-weight:700}\n.lcc-upgrade-prompt .lcc-upgrade-accept{background:#8171ff;border-color:#8171ff}\n.lcc-upgrade-prompt button:focus-visible{outline:2px solid #fff;outline-offset:3px}\n@media(max-width:480px){.lcc-upgrade-prompt{bottom:100px;padding:14px}.lcc-controls{gap:6px}.lcc-control{width:49px;height:49px}}\n";
     document.head.append(style);
 
     const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -106,6 +114,7 @@
                 answer: callId ? `/live-chat/calls/${callId}/answer` : null,
                 decline: callId ? `/live-chat/calls/${callId}/decline` : null,
                 end: callId ? `/live-chat/calls/${callId}/end` : null,
+                videoUpgrade: callId ? `/live-chat/calls/${callId}/video` : null,
             };
         }
 
@@ -118,6 +127,7 @@
             answer: c && callId ? `/admin/live-chat/conversations/${c}/calls/${callId}/answer` : null,
             decline: c && callId ? `/admin/live-chat/conversations/${c}/calls/${callId}/decline` : null,
             end: c && callId ? `/admin/live-chat/conversations/${c}/calls/${callId}/end` : null,
+            videoUpgrade: c && callId ? `/admin/live-chat/conversations/${c}/calls/${callId}/video` : null,
         };
     }
 
@@ -303,6 +313,7 @@
                 setStatus('Verbonden');
                 playConnectedSound();
                 startTimer();
+                updateVideoUpgradeButton();
             }
 
             if (['failed', 'closed'].includes(pc.connectionState)) {
@@ -326,6 +337,9 @@
     let muteButton = null;
     let cameraButton = null;
     let switchButton = null;
+    let upgradeButton = null;
+    let audioOutput = null;
+    let upgradePrompt = null;
 
     function ensureOverlay(mode) {
         if (overlay) return;
@@ -338,6 +352,7 @@
                     <video class="lcc-remote" autoplay playsinline></video>
                     <div class="lcc-audio-avatar">${side === 'admin' ? 'U' : 'M'}</div>
                     <video class="lcc-local" autoplay playsinline muted></video>
+                    <audio class="lcc-remote-audio" autoplay playsinline></audio>
                 </div>
                 <div class="lcc-top">
                     <div><h2 class="lcc-title">${mode === 'video' ? 'Videogesprek' : 'Audiogesprek'}</h2><p class="lcc-status">Verbinden…</p></div>
@@ -345,6 +360,7 @@
                 </div>
                 <div class="lcc-controls">
                     <button type="button" class="lcc-control" data-lcc-mute title="Microfoon">🎙</button>
+                    <button type="button" class="lcc-control" data-lcc-upgrade title="Video aanzetten" aria-label="Overschakelen naar videobellen">🎥</button>
                     <button type="button" class="lcc-control" data-lcc-camera title="Camera">📷</button>
                     <button type="button" class="lcc-control" data-lcc-switch title="Camera wisselen">🔄</button>
                     <button type="button" class="lcc-control lcc-control--end" data-lcc-end title="Ophangen">☎</button>
@@ -359,6 +375,8 @@
         muteButton = overlay.querySelector('[data-lcc-mute]');
         cameraButton = overlay.querySelector('[data-lcc-camera]');
         switchButton = overlay.querySelector('[data-lcc-switch]');
+        upgradeButton = overlay.querySelector('[data-lcc-upgrade]');
+        audioOutput = overlay.querySelector('.lcc-remote-audio');
 
         const avatar = overlay.querySelector('.lcc-audio-avatar');
         if (mode !== 'video') {
@@ -369,8 +387,17 @@
             avatar.classList.remove('lcc-hidden');
         } else {
             avatar.classList.add('lcc-hidden');
+            upgradeButton.classList.add('lcc-hidden');
         }
 
+        upgradeButton.addEventListener('click', () => {
+            const pending = state.call?.video_upgrade;
+            if (pending?.status === 'requested' && pending.requested_by === side) {
+                void declineVideoUpgrade('Videoverzoek geannuleerd; audio blijft actief.');
+            } else {
+                void requestVideoUpgrade();
+            }
+        });
         muteButton.addEventListener('click', toggleMute);
         cameraButton.addEventListener('click', toggleCamera);
         switchButton.addEventListener('click', () => void switchCamera());
@@ -383,14 +410,32 @@
     }
 
     function syncMediaElements() {
-        if (localVideo && state.localStream && localVideo.srcObject !== state.localStream) {
-            localVideo.srcObject = state.localStream;
+        // The original peer continues carrying audio after the video upgrade.
+        const upgraded = Boolean(state.videoPeer && state.call?.mode === 'video');
+        const local = upgraded ? state.videoLocalStream : state.localStream;
+        const remote = upgraded ? state.videoRemoteStream : state.remoteStream;
+        if (localVideo && local && localVideo.srcObject !== local) {
+            localVideo.srcObject = local;
+            localVideo.play().catch(() => {});
         }
-        if (remoteVideo && state.remoteStream && remoteVideo.srcObject !== state.remoteStream) {
-            remoteVideo.srcObject = state.remoteStream;
+        if (remoteVideo && remote && remoteVideo.srcObject !== remote) {
+            remoteVideo.srcObject = remote;
             remoteVideo.muted = false;
             remoteVideo.volume = 1;
             remoteVideo.play().catch(() => {});
+        }
+        if (audioOutput) {
+            if (upgraded && state.remoteStream) {
+                if (audioOutput.srcObject !== state.remoteStream) {
+                    audioOutput.srcObject = state.remoteStream;
+                    audioOutput.muted = false;
+                    audioOutput.volume = 1;
+                    audioOutput.play().catch(() => {});
+                }
+            } else if (audioOutput.srcObject) {
+                audioOutput.pause();
+                audioOutput.srcObject = null;
+            }
         }
     }
 
@@ -420,7 +465,7 @@
 
     function toggleCamera() {
         state.cameraOff = !state.cameraOff;
-        state.localStream?.getVideoTracks().forEach(track => { track.enabled = !state.cameraOff; });
+        (state.videoPeer ? state.videoLocalStream : state.localStream)?.getVideoTracks().forEach(track => { track.enabled = !state.cameraOff; });
         cameraButton?.setAttribute('data-active', String(!state.cameraOff));
         if (cameraButton) cameraButton.textContent = state.cameraOff ? '🚫' : '📷';
     }
@@ -434,19 +479,279 @@
                 audio: false,
             });
             const newTrack = replacement.getVideoTracks()[0];
-            const sender = state.peer.getSenders().find(item => item.track?.kind === 'video');
+            const pc = state.videoPeer || state.peer;
+            const sender = pc.getSenders().find(item => item.track?.kind === 'video');
             if (sender && newTrack) await sender.replaceTrack(newTrack);
-            state.localStream?.getVideoTracks().forEach(track => track.stop());
-            const audioTracks = state.localStream?.getAudioTracks() || [];
-            state.localStream = new MediaStream([...audioTracks, newTrack]);
+            if (state.videoPeer) {
+                state.videoLocalStream?.getVideoTracks().forEach(track => track.stop());
+                state.videoLocalStream = new MediaStream([newTrack]);
+            } else {
+                state.localStream?.getVideoTracks().forEach(track => track.stop());
+                const audioTracks = state.localStream?.getAudioTracks() || [];
+                state.localStream = new MediaStream([...audioTracks, newTrack]);
+            }
             syncMediaElements();
         } catch {
             toast('Camera wisselen is niet beschikbaar op dit apparaat.');
         }
     }
 
+    function removeUpgradePrompt() {
+        upgradePrompt?.remove();
+        upgradePrompt = null;
+        state.upgradePromptVersion = 0;
+    }
+
+    function cleanupVideoPeer() {
+        const pc = state.videoPeer;
+        state.videoPeer = null;
+        try { pc?.close(); } catch {}
+        state.videoLocalStream?.getTracks().forEach(track => track.stop());
+        state.videoRemoteStream?.getTracks().forEach(track => track.stop());
+        state.videoLocalStream = null;
+        state.videoRemoteStream = null;
+        state.upgradeAnswerAppliedVersion = 0;
+    }
+
+    function showAudioCallUI() {
+        if (!overlay) return;
+        overlay.querySelector('.lcc-title').textContent = 'Audiogesprek';
+        overlay.querySelector('.lcc-audio-avatar').classList.remove('lcc-hidden');
+        remoteVideo?.classList.add('lcc-hidden');
+        localVideo?.classList.add('lcc-hidden');
+        cameraButton?.classList.add('lcc-hidden');
+        switchButton?.classList.add('lcc-hidden');
+        upgradeButton?.classList.remove('lcc-hidden');
+        state.cameraOff = false;
+        syncMediaElements();
+        setStatus('Verbonden');
+    }
+
+    function showVideoCallUI() {
+        if (!overlay) return;
+        overlay.querySelector('.lcc-title').textContent = 'Videogesprek';
+        overlay.querySelector('.lcc-audio-avatar').classList.add('lcc-hidden');
+        remoteVideo?.classList.remove('lcc-hidden');
+        localVideo?.classList.remove('lcc-hidden');
+        cameraButton?.classList.remove('lcc-hidden');
+        switchButton?.classList.remove('lcc-hidden');
+        upgradeButton?.classList.add('lcc-hidden');
+        syncMediaElements();
+        setStatus('Video ingeschakeld');
+    }
+
+    function updateVideoUpgradeButton() {
+        if (!upgradeButton || !state.call) return;
+        const requestPending = state.call.video_upgrade?.status === 'requested';
+        const ownPending = requestPending && state.call.video_upgrade?.requested_by === side;
+        const audioOnly = state.call.mode === 'audio';
+        upgradeButton.classList.toggle('lcc-hidden', !audioOnly);
+        upgradeButton.disabled = state.upgradeBusy || (!ownPending &&
+            (!audioOnly || requestPending || state.call.status !== 'accepted' ||
+                state.peer?.connectionState !== 'connected'));
+        const label = ownPending ? 'Videoverzoek annuleren' : 'Overschakelen naar videobellen';
+        upgradeButton.title = label;
+        upgradeButton.setAttribute('aria-label', label);
+        upgradeButton.textContent = ownPending ? '✕' : '🎥';
+    }
+
+    async function createVideoPeer(stream) {
+        const pc = new RTCPeerConnection({ iceServers: await getIceServers() });
+        state.videoPeer = pc;
+        state.videoRemoteStream = new MediaStream();
+        pc.addEventListener('track', event => {
+            if (state.videoPeer !== pc) return;
+            for (const track of event.streams?.[0]?.getVideoTracks?.() || [event.track]) {
+                if (track.kind === 'video' && !state.videoRemoteStream.getTracks().some(item => item.id === track.id)) {
+                    state.videoRemoteStream.addTrack(track);
+                }
+            }
+            syncMediaElements();
+            if (remoteVideo) remoteVideo.play().catch(() => {});
+        });
+        pc.addEventListener('connectionstatechange', () => {
+            if (pc !== state.videoPeer) return;
+            if (pc.connectionState === 'connected') {
+                setStatus('Videogesprek verbonden');
+            } else if (pc.connectionState === 'failed' && state.call?.id) {
+                void declineVideoUpgrade('Videoverbinding mislukt. Het audiogesprek blijft actief.');
+            }
+        });
+        stream.getVideoTracks().forEach(track => pc.addTrack(track, stream));
+        return pc;
+    }
+
+    async function videoUpgradeRequest(action, description = null) {
+        const call = state.call;
+        if (!call?.id) throw new Error('Er is geen actieve oproep.');
+        const ep = endpoints(call.conversation_id, call.id);
+        const payload = { action };
+        if (action === 'request') payload.offer = description;
+        if (action === 'accept') payload.answer = description;
+        const data = await request(ep.videoUpgrade, 'POST', payload);
+        if (state.call?.id === call.id) state.call = data.call;
+        return data.call;
+    }
+
+    async function requestVideoUpgrade() {
+        if (state.upgradeBusy || state.busy || !state.call?.id ||
+            state.call.mode !== 'audio' || state.call.status !== 'accepted' ||
+            state.peer?.connectionState !== 'connected') return;
+        state.upgradeBusy = true;
+        updateVideoUpgradeButton();
+        const callId = state.call.id;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: state.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+            });
+            if (state.call?.id !== callId) {
+                stream.getTracks().forEach(track => track.stop());
+                return;
+            }
+            state.videoLocalStream = stream;
+            const pc = await createVideoPeer(stream);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            await waitForIce(pc);
+            if (state.call?.id !== callId) { cleanupVideoPeer(); return; }
+            await videoUpgradeRequest('request', pc.localDescription.toJSON());
+            setStatus('Wachten op toestemming voor video…');
+            toast('Videoverzoek verstuurd. Je blijft ondertussen gewoon bellen.');
+        } catch (error) {
+            if (state.call?.video_upgrade?.status === 'requested') {
+                await declineVideoUpgrade();
+            } else {
+                cleanupVideoPeer();
+            }
+            toast(error.name === 'NotAllowedError'
+                ? 'Geef cameratoegang om naar video over te schakelen.'
+                : error.message || 'Videoverzoek kon niet worden gestart.');
+            setStatus('Verbonden');
+        } finally {
+            state.upgradeBusy = false;
+            updateVideoUpgradeButton();
+        }
+    }
+
+    function showUpgradePrompt(upgrade) {
+        if (!overlay || !upgrade || state.upgradeBusy || state.upgradePromptVersion === upgrade.version) return;
+        removeUpgradePrompt();
+        state.upgradePromptVersion = upgrade.version;
+        const prompt = document.createElement('section');
+        prompt.className = 'lcc-upgrade-prompt';
+        prompt.setAttribute('role', 'group');
+        prompt.setAttribute('aria-label', 'Verzoek om video aan te zetten');
+        prompt.innerHTML =
+            '<strong>Videogesprek starten?</strong>' +
+            '<p>De andere deelnemer vraagt om tijdens dit gesprek video aan te zetten. Je camera wordt pas ingeschakeld als je toestemt.</p>' +
+            '<div><button type="button" class="lcc-upgrade-reject">Alleen audio</button>' +
+            '<button type="button" class="lcc-upgrade-accept">Video toestaan</button></div>';
+        overlay.querySelector('.lcc-card').append(prompt);
+        upgradePrompt = prompt;
+        prompt.querySelector('.lcc-upgrade-accept').addEventListener('click', () => {
+            void acceptVideoUpgrade(upgrade);
+        });
+        prompt.querySelector('.lcc-upgrade-reject').addEventListener('click', () => {
+            void declineVideoUpgrade('Je hebt video geweigerd; audio blijft actief.');
+        });
+        toast('De andere deelnemer wil overschakelen naar video.');
+    }
+
+    async function acceptVideoUpgrade(upgrade) {
+        if (state.upgradeBusy || !state.call?.id || state.call.mode !== 'audio') return;
+        state.upgradeBusy = true;
+        removeUpgradePrompt();
+        updateVideoUpgradeButton();
+        const callId = state.call.id;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: state.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+            });
+            if (state.call?.id !== callId) {
+                stream.getTracks().forEach(track => track.stop());
+                return;
+            }
+            state.videoLocalStream = stream;
+            const pc = await createVideoPeer(stream);
+            await pc.setRemoteDescription(normalizeDescription(upgrade.offer, 'offer'));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            await waitForIce(pc);
+            if (state.call?.id !== callId) { cleanupVideoPeer(); return; }
+            await videoUpgradeRequest('accept', pc.localDescription.toJSON());
+            showVideoCallUI();
+        } catch (error) {
+            toast(error.name === 'NotAllowedError'
+                ? 'Cameratoegang geweigerd. Audio blijft werken.'
+                : error.message || 'Video kon niet worden ingeschakeld.');
+            await declineVideoUpgrade();
+        } finally {
+            state.upgradeBusy = false;
+            updateVideoUpgradeButton();
+        }
+    }
+
+    async function declineVideoUpgrade(message = '') {
+        removeUpgradePrompt();
+        const call = state.call;
+        if (call?.id && ['requested', 'accepted'].includes(call.video_upgrade?.status)) {
+            try { await videoUpgradeRequest('decline'); } catch {}
+        }
+        cleanupVideoPeer();
+        if (state.call?.id) {
+            state.call.mode = 'audio';
+            if (state.call.video_upgrade) state.call.video_upgrade.status = 'declined';
+        }
+        showAudioCallUI();
+        updateVideoUpgradeButton();
+        if (message) toast(message);
+    }
+
+    async function syncVideoUpgrade(call) {
+        const upgrade = call.video_upgrade;
+        if (!upgrade) {
+            updateVideoUpgradeButton();
+            return;
+        }
+
+        if (upgrade.status === 'requested' && upgrade.requested_by !== side && call.status === 'accepted') {
+            showUpgradePrompt(upgrade);
+        } else {
+            removeUpgradePrompt();
+        }
+
+        if (upgrade.status === 'accepted' && state.videoPeer) {
+            if (upgrade.requested_by === side && upgrade.answer &&
+                state.upgradeAnswerAppliedVersion !== upgrade.version) {
+                state.upgradeAnswerAppliedVersion = upgrade.version;
+                try {
+                    await state.videoPeer.setRemoteDescription(normalizeDescription(upgrade.answer, 'answer'));
+                    showVideoCallUI();
+                } catch {
+                    await declineVideoUpgrade('Video kon niet worden verbonden. Audio blijft werken.');
+                }
+            } else if (upgrade.requested_by !== side && !state.upgradeBusy) {
+                showVideoCallUI();
+            }
+        }
+
+        if (upgrade.status === 'declined' && state.upgradeDeclinedVersion !== upgrade.version) {
+            state.upgradeDeclinedVersion = upgrade.version;
+            if (state.videoPeer || state.videoLocalStream) {
+                cleanupVideoPeer();
+                showAudioCallUI();
+                toast('Video is niet gestart. Het audiogesprek loopt door.');
+            }
+        }
+        updateVideoUpgradeButton();
+    }
+
     function cleanupMedia() {
         stopCallSound();
+        cleanupVideoPeer();
+        removeUpgradePrompt();
         try { state.peer?.close(); } catch {}
         state.peer = null;
         state.localStream?.getTracks().forEach(track => track.stop());
@@ -456,7 +761,11 @@
         stopTimer();
         overlay?.remove();
         overlay = null;
-        remoteVideo = localVideo = statusNode = timerNode = muteButton = cameraButton = switchButton = null;
+        remoteVideo = localVideo = statusNode = timerNode = muteButton = cameraButton = switchButton = upgradeButton = audioOutput = null;
+        state.upgradeBusy = false;
+        state.upgradePromptVersion = 0;
+        state.upgradeAnswerAppliedVersion = 0;
+        state.upgradeDeclinedVersion = 0;
     }
 
     async function startOutgoing(mode) {
@@ -582,6 +891,7 @@
             }
 
             state.call = call;
+            await syncVideoUpgrade(call);
 
             if (state.isCaller && call.answer && state.peer && !state.peer.remoteDescription) {
                 await state.peer.setRemoteDescription(normalizeDescription(call.answer, 'answer'));

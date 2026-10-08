@@ -31,6 +31,11 @@ Route::prefix('live-chat')->name('live-chat.')->group(function (): void {
         ->middleware('throttle:30,1,visitor-live-chat-call-decline')
         ->name('calls.decline');
 
+    Route::post('/calls/{call}/video', [LiveChatCallController::class, 'videoUpgrade'])
+        ->whereUuid('call')
+        ->middleware('throttle:15,1,visitor-live-chat-call-video')
+        ->name('calls.video-upgrade');
+
     Route::post('/calls/{call}/end', [LiveChatCallController::class, 'end'])
         ->whereUuid('call')
         ->middleware('throttle:60,1,visitor-live-chat-call-end')
@@ -132,6 +137,12 @@ Route::middleware('auth')
             ->whereUuid('call')
             ->middleware('throttle:30,1,admin-live-chat-call-decline')
             ->name('calls.decline');
+
+        Route::post('/conversations/{conversation}/calls/{call}/video', [AdminLiveChatCallController::class, 'videoUpgrade'])
+            ->whereNumber('conversation')
+            ->whereUuid('call')
+            ->middleware('throttle:15,1,admin-live-chat-call-video')
+            ->name('calls.video-upgrade');
 
         Route::post('/conversations/{conversation}/calls/{call}/end', [AdminLiveChatCallController::class, 'end'])
             ->whereNumber('conversation')
