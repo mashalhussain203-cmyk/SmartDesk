@@ -969,6 +969,9 @@
   "Schrijven": "نئی ای میل لکھیں",
   "Gmail-mappen": "Gmail فولڈرز"
 };
+    Object.keys(translations).forEach(function (key) {
+        if (key.indexOf('&amp;') !== -1) translations[key.replace(/&amp;/g, '&')] = translations[key];
+    });
     var storageKey = 'smartdesk-interface-language';
     var mode = 'nl';
     try { mode = window.localStorage.getItem(storageKey) === 'ur' ? 'ur' : 'nl'; } catch (error) {}
@@ -1063,7 +1066,7 @@
     function initialize() {
         if (!document.body) return;
         var css = document.createElement('style');
-        css.textContent = 'html[lang="ur"] body{direction:rtl}html[lang="ur"] input[type=email],html[lang="ur"] input[type=url],html[lang="ur"] input[type=tel],html[lang="ur"] input[type=number]{direction:ltr;text-align:left}[data-smartdesk-language-toggle]{position:fixed;left:16px;bottom:18px;z-index:2147483000;background:#171b28;color:#f5f5ff;border:1px solid #988dff;border-radius:12px;padding:9px 14px;font:600 13px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 18px #0009}[data-smartdesk-language-toggle]:focus-visible{outline:3px solid #ab9dff;outline-offset:3px}';
+        css.textContent = 'html[lang="ur"] body{direction:rtl}html[lang="ur"] input[type=password],html[lang="ur"] input[type=email],html[lang="ur"] input[type=url],html[lang="ur"] input[type=tel],html[lang="ur"] input[type=number]{direction:ltr;text-align:left}[data-smartdesk-language-toggle]{position:fixed;left:16px;bottom:18px;z-index:2147483000;background:#171b28;color:#f5f5ff;border:1px solid #988dff;border-radius:12px;padding:9px 14px;font:600 13px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 18px #0009}[data-smartdesk-language-toggle]:focus-visible{outline:3px solid #ab9dff;outline-offset:3px}';
         document.head.appendChild(css);
         switcher = document.createElement('button');
         switcher.type = 'button';
@@ -1076,16 +1079,28 @@
         });
         document.body.appendChild(switcher);
         update();
+        var changed = new Set();
         observer = new MutationObserver(function (mutations) {
-            if (pending) return;
-            var relevant = mutations.some(function (mutation) {
-                return !excluded(mutation.target) && mutation.type !== 'attributes';
+            mutations.forEach(function (mutation) {
+                if (excluded(mutation.target)) return;
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function (node) {
+                        if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) changed.add(node);
+                    });
+                } else {
+                    changed.add(mutation.target);
+                }
             });
-            if (!relevant) return;
+            if (pending || changed.size === 0) return;
             pending = true;
-            window.requestAnimationFrame(function () { pending = false; update(); });
+            window.requestAnimationFrame(function () {
+                pending = false;
+                var targets = Array.from(changed);
+                changed.clear();
+                targets.forEach(walk);
+            });
         });
-        observer.observe(document.body, { subtree: true, childList: true, characterData: true });
+        observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: attributes });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize);
     else initialize();
