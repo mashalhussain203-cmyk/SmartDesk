@@ -2714,7 +2714,7 @@
 
                     ? nameInput.value.trim()
 
-                    : 'Nieuwe gebruiker';
+                    : @json(__('Nieuwe gebruiker'));
 
 
 
@@ -2768,7 +2768,7 @@
 
                         ? 'Geverifieerd'
 
-                        : 'Niet geverifieerd';
+                        : @json(__('Niet geverifieerd'));
 
 
 
@@ -3048,7 +3048,7 @@
 
                 const labels = {
 
-                    0: 'Gebruik minimaal 8 tekens.',
+                    0: @json(__('Gebruik minimaal 8 tekens.')),
 
                     1: 'Basiswachtwoord.',
 
