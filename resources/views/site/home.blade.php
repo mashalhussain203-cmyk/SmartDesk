@@ -1620,7 +1620,7 @@ body {
 }
 
 /* ==========================================================================
-   SCROLL PROGRESS + STICKY
+   SCROLL PROGRESS
    ========================================================================== */
 
 .ms-scroll-progress {
@@ -1642,68 +1642,6 @@ body {
     box-shadow: 0 0 18px rgba(122,108,255,.42);
 }
 
-.ms-sticky {
-    position: fixed;
-    z-index: 950;
-    left: 50%;
-    bottom: 16px;
-    width: min(calc(100% - 28px), 560px);
-    transform: translateX(-50%) translateY(130%);
-    opacity: 0;
-    pointer-events: none;
-    transition:
-        transform .28s var(--ms-ease-out),
-        opacity .28s ease;
-}
-
-.ms-sticky.visible {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.ms-sticky-inner {
-    min-height: 62px;
-    padding: 8px 8px 8px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    border: 1px solid rgba(255,255,255,.13);
-    border-radius: 16px;
-    background: rgba(13,16,22,.96);
-    box-shadow: 0 22px 70px rgba(0,0,0,.44);
-}
-
-.ms-sticky-copy {
-    min-width: 0;
-}
-
-.ms-sticky-copy strong {
-    display: block;
-    color: #e4e8ee;
-    font-size: 10px;
-}
-
-.ms-sticky-copy span {
-    display: block;
-    margin-top: 3px;
-    color: #626b78;
-    font-size: 8px;
-}
-
-.ms-sticky-link {
-    min-height: 42px;
-    padding: 0 15px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 9px;
-    color: #fff;
-    background: linear-gradient(135deg,#7867ff,#4f8fff);
-    text-decoration: none;
-    font-size: 9px;
-    font-weight: 800;
-}
 
 /* ==========================================================================
    REVEAL STATES (JS)
@@ -1950,10 +1888,6 @@ body {
         min-height: auto;
         padding: 48px 22px;
         border-radius: 22px;
-    }
-
-    .ms-sticky-copy span {
-        display: none;
     }
 }
 
@@ -2764,24 +2698,6 @@ body {
         </div>
     </section>
 
-    <div
-        class="ms-sticky"
-        id="stickyUpload"
-    >
-        <div class="ms-sticky-inner">
-            <div class="ms-sticky-copy">
-                <strong>{{ __('Klaar voor een nieuwe afbeelding?') }}</strong>
-                <span>{{ __('JPG, PNG of WEBP · maximaal 20 MB') }}</span>
-            </div>
-
-            <a
-                class="ms-sticky-link"
-                href="#upload"
-            >
-                {{ __('Upload') }}
-            </a>
-        </div>
-    </div>
 </div>
 @endsection
 
@@ -2827,12 +2743,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitButton =
         doc.getElementById('submitImageButton');
 
-    const stickyUpload =
-        doc.getElementById('stickyUpload');
-
-    const uploadSection =
-        doc.getElementById('upload');
-
     const scrollProgress =
         doc.getElementById('msScrollProgress');
 
@@ -2861,9 +2771,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let previewUrl =
         null;
-
-    let uploadVisible =
-        true;
 
     let rafPending =
         false;
@@ -3485,43 +3392,6 @@ document.addEventListener('DOMContentLoaded', function () {
             '%';
     }
 
-    function updateSticky() {
-        if (!stickyUpload) {
-            return;
-        }
-
-        stickyUpload.classList.toggle(
-            'visible',
-            window.scrollY > 760 &&
-            !uploadVisible
-        );
-    }
-
-    if (
-        uploadSection &&
-        'IntersectionObserver' in window
-    ) {
-        const uploadObserver =
-            new IntersectionObserver(
-                function (entries) {
-                    uploadVisible =
-                        Boolean(
-                            entries[0]
-                                ?.isIntersecting
-                        );
-
-                    updateSticky();
-                },
-                {
-                    threshold:
-                        0
-                }
-            );
-
-        uploadObserver.observe(
-            uploadSection
-        );
-    }
 
     function scheduleScrollWork() {
         if (rafPending) {
@@ -3534,7 +3404,6 @@ document.addEventListener('DOMContentLoaded', function () {
         window.requestAnimationFrame(
             function () {
                 updateScrollProgress();
-                updateSticky();
 
                 rafPending =
                     false;
@@ -3992,7 +3861,6 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     updateScrollProgress();
-    updateSticky();
 });
 </script>
 @endpush
