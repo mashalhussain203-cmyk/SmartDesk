@@ -1079,6 +1079,7 @@ Route::get('/api/tools/youtube-subscribers/search', [YouTubeSubscriberController
     ->name('youtube-subscribers.lookup');
 
 Route::get('/api/tools/youtube-subscribers/{channelId}', [YouTubeSubscriberController::class, 'stats'])
+    ->where('channelId', 'UC[A-Za-z0-9_-]{22}')
     ->middleware('throttle:60,1')
     ->name('youtube-subscribers.stats');
 
