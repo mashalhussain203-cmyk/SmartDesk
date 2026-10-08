@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>YouTube Live Subscribers</title>
+    <title>{{ __('YouTube Live Subscribers') }}</title>
     <link rel="stylesheet" href="/vendor/odometer/odometer-theme-minimal.css?v=20261007-2">
     <style>
         * { box-sizing: border-box; }
@@ -78,8 +78,8 @@
             referrerpolicy="no-referrer"
         >
         <div>
-            <div class="name" id="embed-name">YouTube channel</div>
-            <div class="label">Subscribers</div>
+            <div class="name" id="embed-name">{{ __('YouTube channel') }}</div>
+            <div class="label">{{ __('Subscribers') }}</div>
             <div class="count" id="embed-count">0</div>
         </div>
     </main>
