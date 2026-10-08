@@ -234,7 +234,7 @@
                                                         text-transform: uppercase;
                                                     "
                                                 >
-                                                    Account
+                                                    {{ __('Account') }}
                                                 </div>
 
                                                 <div
