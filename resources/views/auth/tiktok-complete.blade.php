@@ -1528,7 +1528,7 @@
 
                     <div class="tiktok-profile-badge">
 
-                        Verbonden
+                        {{ __('Verbonden') }}
 
                     </div>
 
@@ -1656,7 +1656,7 @@
 
                             <label for="email">
 
-                                E-mailadres
+                                {{ __('E-mailadres') }}
 
                             </label>
 
@@ -1800,7 +1800,7 @@
 
                     <a href="{{ route('login') }}">
 
-                        ← Terug naar inloggen
+                        {{ __('← Terug naar inloggen') }}
 
                     </a>
 
