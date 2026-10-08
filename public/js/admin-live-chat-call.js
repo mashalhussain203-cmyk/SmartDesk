@@ -171,7 +171,7 @@
             }
 
             if (['failed', 'closed'].includes(pc.connectionState)) {
-                void finishCall(false, 'Verbinding beëindigd');
+                void finishCall(false, (window.smartDeskTranslate ? window.smartDeskTranslate("Verbinding beëindigd") : "Verbinding beëindigd"));
             }
         });
 
@@ -303,7 +303,7 @@
             state.localStream = new MediaStream([...audioTracks, newTrack]);
             syncMediaElements();
         } catch {
-            toast('Camera wisselen is niet beschikbaar op dit apparaat.');
+            toast((window.smartDeskTranslate ? window.smartDeskTranslate("Camera wisselen is niet beschikbaar op dit apparaat.") : "Camera wisselen is niet beschikbaar op dit apparaat."));
         }
     }
 
@@ -324,7 +324,7 @@
         if (state.busy || state.call) return;
         const conversationId = side === 'admin' ? selectedConversationId() : null;
         if (side === 'admin' && !conversationId) {
-            toast('Selecteer eerst een gesprek.');
+            toast((window.smartDeskTranslate ? window.smartDeskTranslate("Selecteer eerst een gesprek.") : "Selecteer eerst een gesprek."));
             return;
         }
 
@@ -354,8 +354,8 @@
         } catch (error) {
             cleanupMedia();
             toast(error.name === 'NotAllowedError'
-                ? 'Geef toegang tot microfoon/camera om te bellen.'
-                : error.message || 'Oproep kon niet worden gestart.');
+                ? (window.smartDeskTranslate ? window.smartDeskTranslate("Geef toegang tot microfoon/camera om te bellen.") : "Geef toegang tot microfoon/camera om te bellen.")
+                : error.message || (window.smartDeskTranslate ? window.smartDeskTranslate("Oproep kon niet worden gestart.") : "Oproep kon niet worden gestart."));
         } finally {
             state.busy = false;
         }
@@ -391,8 +391,8 @@
             cleanupMedia();
             state.call = null;
             toast(error.name === 'NotAllowedError'
-                ? 'Geef toegang tot microfoon/camera om op te nemen.'
-                : error.message || 'Oproep kon niet worden opgenomen.');
+                ? (window.smartDeskTranslate ? window.smartDeskTranslate("Geef toegang tot microfoon/camera om op te nemen.") : "Geef toegang tot microfoon/camera om op te nemen.")
+                : error.message || (window.smartDeskTranslate ? window.smartDeskTranslate("Oproep kon niet worden opgenomen.") : "Oproep kon niet worden opgenomen."));
         } finally {
             state.busy = false;
         }
@@ -427,7 +427,7 @@
             const call = data.call;
 
             if (!call || call.id !== state.call.id) {
-                await finishCall(false, state.peer?.connectionState === 'connected' ? 'Oproep beëindigd' : 'Geen antwoord');
+                await finishCall(false, state.peer?.connectionState === 'connected' ? (window.smartDeskTranslate ? window.smartDeskTranslate("Oproep beëindigd") : "Oproep beëindigd") : (window.smartDeskTranslate ? window.smartDeskTranslate("Geen antwoord") : "Geen antwoord"));
                 return;
             }
 
@@ -443,7 +443,7 @@
             }
         } catch (error) {
             if (error.status === 401 || error.status === 403 || error.status === 419) {
-                await finishCall(false, 'Sessie verlopen');
+                await finishCall(false, (window.smartDeskTranslate ? window.smartDeskTranslate("Sessie verlopen") : "Sessie verlopen"));
             }
         }
     }
@@ -462,11 +462,11 @@
         incomingNode?.remove();
         incomingNode = document.createElement('section');
         incomingNode.className = 'lcc-incoming';
-        const caller = side === 'admin' ? (call.caller_name || 'Bezoeker') : 'Mashal Support';
+        const caller = side === 'admin' ? (call.caller_name || 'Bezoeker') : (window.smartDeskTranslate ? window.smartDeskTranslate("Mashal Support") : "Mashal Support");
         incomingNode.innerHTML = `
             <div class="lcc-incoming__head">
                 <div class="lcc-incoming__icon">${call.mode === 'video' ? '🎥' : '📞'}</div>
-                <div><strong>${escapeHtml(caller)} belt je</strong><p>${call.mode === 'video' ? 'Inkomend videogesprek' : 'Inkomend audiogesprek'}</p></div>
+                <div><strong>${escapeHtml(caller)} belt je</strong><p>${call.mode === 'video' ? (window.smartDeskTranslate ? window.smartDeskTranslate("Inkomend videogesprek") : "Inkomend videogesprek") : (window.smartDeskTranslate ? window.smartDeskTranslate("Inkomend audiogesprek") : "Inkomend audiogesprek")}</p></div>
             </div>
             <div class="lcc-incoming__actions">
                 <button type="button" class="lcc-decline">Weigeren</button>
@@ -554,16 +554,16 @@
         audio.type = 'button';
         audio.className = 'gc-action';
         audio.dataset.lccAudio = '';
-        audio.title = 'Audiobellen met support';
-        audio.setAttribute('aria-label', 'Audiobellen met support');
+        audio.title = (window.smartDeskTranslate ? window.smartDeskTranslate("Audiobellen met support") : "Audiobellen met support");
+        audio.setAttribute('aria-label', (window.smartDeskTranslate ? window.smartDeskTranslate("Audiobellen met support") : "Audiobellen met support"));
         audio.textContent = '📞';
 
         const video = document.createElement('button');
         video.type = 'button';
         video.className = 'gc-action';
         video.dataset.lccVideo = '';
-        video.title = 'Videobellen met support';
-        video.setAttribute('aria-label', 'Videobellen met support');
+        video.title = (window.smartDeskTranslate ? window.smartDeskTranslate("Videobellen met support") : "Videobellen met support");
+        video.setAttribute('aria-label', (window.smartDeskTranslate ? window.smartDeskTranslate("Videobellen met support") : "Videobellen met support"));
         video.textContent = '🎥';
 
         actions.prepend(video);
