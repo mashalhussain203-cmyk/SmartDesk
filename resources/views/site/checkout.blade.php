@@ -1214,7 +1214,7 @@
                             </span>
 
                             <strong>
-                                Geverifieerd
+                                {{ __('Geverifieerd') }}
                             </strong>
 
                         </div>
