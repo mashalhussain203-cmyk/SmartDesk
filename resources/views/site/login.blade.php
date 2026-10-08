@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Inloggen | Mashal Studio')
+@section('title', __('Inloggen') . ' | Mashal Studio')
 
 @section(
     'meta_description',
