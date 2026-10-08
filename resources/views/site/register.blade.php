@@ -1909,7 +1909,7 @@
                             {{ __('Registreer met wachtwoord, e-mailcode, magic link of je bestaande social account.') }}
                         </p>
 
-                        <nav class="glass-auth-switch" aria-label="Inloggen of registreren">
+                        <nav class="glass-auth-switch" aria-label="{{ __('Inloggen of registreren') }}">
                             <a href="{{ route('login') }}">
                                 {{ __('Inloggen') }}
                             </a>
@@ -1997,7 +1997,7 @@
                                             type="text"
                                             name="name"
                                             value="{{ old('name', $xProfile['name'] ?? '') }}"
-                                            placeholder="Je volledige naam"
+                                            placeholder="{{ __('Je volledige naam') }}"
                                             autocomplete="name"
                                             maxlength="255"
                                             required
@@ -2044,7 +2044,7 @@
                                                 id="x_complete_password"
                                                 type="password"
                                                 name="password"
-                                                placeholder="Minimaal 8 tekens"
+                                                placeholder="{{ __('Minimaal 8 tekens') }}"
                                                 autocomplete="new-password"
                                                 minlength="8"
                                                 required
@@ -2073,7 +2073,7 @@
                                                 id="x_complete_password_confirmation"
                                                 type="password"
                                                 name="password_confirmation"
-                                                placeholder="Herhaal je wachtwoord"
+                                                placeholder="{{ __('Herhaal je wachtwoord') }}"
                                                 autocomplete="new-password"
                                                 minlength="8"
                                                 required
@@ -2105,7 +2105,7 @@
                             </section>
                         @endif
 
-                        <div class="register-tabs" role="tablist" aria-label="Registratiemethode kiezen">
+                        <div class="register-tabs" role="tablist" aria-label="{{ __('Registratiemethode kiezen') }}">
                             <button class="register-tab active" type="button" role="tab" aria-selected="true" data-register-tab="password">
                                 {{ __('Wachtwoord') }}
                             </button>
@@ -2141,7 +2141,7 @@
                                         type="text"
                                         name="name"
                                         value="{{ old('name') }}"
-                                        placeholder="Jouw volledige naam"
+                                        placeholder="{{ __('Jouw volledige naam') }}"
                                         autocomplete="name"
                                         maxlength="255"
                                         required
@@ -2186,7 +2186,7 @@
                                             id="password"
                                             type="password"
                                             name="password"
-                                            placeholder="Minimaal 8 tekens"
+                                            placeholder="{{ __('Minimaal 8 tekens') }}"
                                             autocomplete="new-password"
                                             minlength="8"
                                             required
@@ -2222,7 +2222,7 @@
                                             id="password_confirmation"
                                             type="password"
                                             name="password_confirmation"
-                                            placeholder="Herhaal je wachtwoord"
+                                            placeholder="{{ __('Herhaal je wachtwoord') }}"
                                             autocomplete="new-password"
                                             minlength="8"
                                             required
@@ -2382,7 +2382,7 @@
                                     </span>
                                 </a>
 
-                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('linkedin.redirect') }}" aria-label="Account maken met LinkedIn">
+                                <a class="register-oauth" data-auth-transition-link data-login-security-oauth href="{{ route('linkedin.redirect') }}" aria-label="{{ __('Account maken met LinkedIn') }}">
                                     <span class="register-oauth-icon" aria-hidden="true">
                                         <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#0A66C2;color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;">in</span>
                                     </span>
@@ -2397,7 +2397,7 @@
                                     data-login-security-oauth
                                     data-auth-transition-link
                                     href="{{ route('x.redirect') }}"
-                                    aria-label="Doorgaan met X"
+                                    aria-label="{{ __('Doorgaan met X') }}"
                                 >
                                     <span class="register-oauth-icon" aria-hidden="true">
                                         <svg viewBox="0 0 24 24">
@@ -2419,7 +2419,7 @@
                                     data-login-security-oauth
                                     data-auth-transition-link
                                     href="{{ route('auth.microsoft.redirect') }}"
-                                    aria-label="Account maken met Microsoft"
+                                    aria-label="{{ __('Account maken met Microsoft') }}"
                                 >
                                     <span class="register-oauth-icon" aria-hidden="true">
                                         <svg viewBox="0 0 24 24">
@@ -2458,7 +2458,7 @@
                                         data-telegram-mini-app
                                         data-telegram-bot="{{ $telegramBotUsername }}"
                                         href="{{ $telegramMiniAppUrl }}"
-                                        aria-label="Account maken met Telegram"
+                                        aria-label="{{ __('Account maken met Telegram') }}"
                                     >
                                         <span
                                             class="register-telegram-logo-shell"
@@ -2551,7 +2551,7 @@
         </div>
 
         <div class="glass-footer">
-            Mashal Studio · Secure registration
+            {{ __('Mashal Studio · Secure registration') }}
         </div>
     </main>
 </section>
