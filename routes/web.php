@@ -155,7 +155,7 @@ Route::post(
 
 )
 
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:contact-form')
 
     ->name('contact.send');
 
