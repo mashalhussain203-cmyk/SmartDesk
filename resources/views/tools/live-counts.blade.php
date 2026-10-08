@@ -313,7 +313,7 @@
 
         <div class="livehub-section-head">
             <h2>{{ __('Choose a live counter') }}</h2>
-            <p>{{ __('TikTok &amp; YouTube tools') }}</p>
+            <p>{{ __('TikTok & YouTube tools') }}</p>
         </div>
 
         <div class="livehub-grid">
