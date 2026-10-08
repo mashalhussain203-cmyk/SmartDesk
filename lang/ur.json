@@ -440,7 +440,6 @@
   "Verificatie is niet gelukt.": "تصدیق مکمل نہیں ہو سکی۔",
   "Geen code ontvangen?": "کوڈ نہیں ملا؟",
   "Opnieuw sturen": "دوبارہ بھیجیں",
-  "Verifieer &amp; ga verder →": "تصدیق کریں اور آگے بڑھیں ←",
   "Code": "کوڈ",
   "controleren": "چیک کیا جا رہا ہے",
   "Een moment. We controleren je beveiligingscode.": "ایک لمحہ۔ ہم آپ کے سیکیورٹی کوڈ کی تصدیق کر رہے ہیں۔",
@@ -837,7 +836,6 @@
   "Rustige interface": "سادہ انٹرفیس",
   "Donkere Mashal UI met de belangrijkste statistieken voorop.": "Mashal کا گہرا ڈیزائن جہاں اہم اعداد سامنے رہتے ہیں۔",
   "Choose a live counter": "لائیو کاؤنٹر منتخب کریں",
-  "TikTok &amp; YouTube tools": "TikTok اور YouTube ٹولز",
   "YouTube Live Subscribers": "YouTube لائیو سبسکرائبرز",
   "YouTube Live Views": "YouTube لائیو ویوز",
   "Zoek een YouTube-kanaal en volg abonnees, weergaven en video's met een automatisch vernieuwende teller.": "YouTube چینل تلاش کریں اور خودکار کاؤنٹر کے ذریعے سبسکرائبرز، ویوز اور ویڈیوز دیکھیں۔",
@@ -879,7 +877,6 @@
   "Remaining to goal": "ہدف تک باقی",
   "↺ Change User": "↺ صارف تبدیل کریں",
   "⇄ Compare": "⇄ موازنہ کریں",
-  "&lt;/&gt; Embed": "&lt;/&gt; ایمبیڈ",
   "▦ Advanced Metrics": "▦ تفصیلی اعدادوشمار",
   "Compare channels": "چینلز کا موازنہ کریں",
   "Live subscriber counts": "لائیو سبسکرائبر تعداد",
@@ -1290,5 +1287,8 @@
   "Gebruiken": "استعمال کریں",
   "Er zijn nog geen bewerkte versies opgeslagen.": "ابھی کوئی ترمیم شدہ ورژن محفوظ نہیں۔",
   "Online": "آن لائن",
-  "Account aanmaken": "اکاؤنٹ بنائیں"
+  "Account aanmaken": "اکاؤنٹ بنائیں",
+  "Verifieer & ga verder →": "تصدیق کریں اور آگے بڑھیں ←",
+  "TikTok & YouTube tools": "TikTok اور YouTube ٹولز",
+  "</> Embed": "&lt;/&gt; ایمبیڈ"
 }
