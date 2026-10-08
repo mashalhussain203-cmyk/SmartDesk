@@ -12,7 +12,7 @@
     >
 
     <title>
-        Je veilige loginlink voor Mashal Automotive
+        {{ __('Je veilige loginlink voor Mashal Automotive') }}
     </title>
 </head>
 
@@ -115,7 +115,7 @@
                                     text-transform: uppercase;
                                 "
                             >
-                                Secure account access
+                                {{ __('Secure account access') }}
                             </div>
                         </td>
                     </tr>
@@ -177,7 +177,7 @@
                                                 text-transform: uppercase;
                                             "
                                         >
-                                            Veilige login
+                                            {{ __('Veilige login') }}
                                         </div>
 
                                         <h1
@@ -193,7 +193,7 @@
                                                 letter-spacing: -1px;
                                             "
                                         >
-                                            Log in met één veilige klik
+                                            {{ __('Log in met één veilige klik') }}
                                         </h1>
 
                                         <p
@@ -207,9 +207,7 @@
                                                 line-height: 1.75;
                                             "
                                         >
-                                            We hebben een veilige loginlink
-                                            aangemaakt voor je
-                                            Mashal Automotive-account.
+                                            {{ __('We hebben een veilige loginlink aangemaakt voor je Mashal Automotive-account.') }}
                                         </p>
 
                                         @if (! empty($email))
@@ -291,7 +289,7 @@
                                                                 rgba(215,164,95,.20);
                                                         "
                                                     >
-                                                        Inloggen bij Mashal Automotive
+                                                        {{ __('Inloggen bij Mashal Automotive') }}
                                                     </a>
                                                 </td>
                                             </tr>
@@ -309,7 +307,7 @@
                                                 text-align: center;
                                             "
                                         >
-                                            Deze link is
+                                            {{ __('Deze link is') }}
                                             <strong
                                                 style="
                                                     color: #c8c5be;
@@ -318,7 +316,7 @@
                                                 {{ $expiresInMinutes ?? 10 }}
                                                 minuten geldig
                                             </strong>
-                                            en kan maar één keer worden gebruikt.
+                                            {{ __('en kan maar één keer worden gebruikt.') }}
                                         </p>
 
                                         {{-- SECURITY --}}
@@ -341,7 +339,7 @@
                                                     font-weight: 800;
                                                 "
                                             >
-                                                ✓ Beveiligde toegang
+                                                {{ __('✓ Beveiligde toegang') }}
                                             </div>
 
                                             <p
@@ -355,10 +353,7 @@
                                                     line-height: 1.65;
                                                 "
                                             >
-                                                Deel deze e-mail of loginlink
-                                                nooit met iemand anders.
-                                                Mashal Automotive zal je nooit
-                                                vragen om deze link door te sturen.
+                                                {{ __('Deel deze e-mail of loginlink nooit met iemand anders. Mashal Automotive zal je nooit vragen om deze link door te sturen.') }}
                                             </p>
                                         </div>
 
@@ -380,9 +375,7 @@
                                                     line-height: 1.65;
                                                 "
                                             >
-                                                Werkt de knop niet?
-                                                Kopieer dan onderstaande link
-                                                en plak hem in je browser:
+                                                {{ __('Werkt de knop niet? Kopieer dan onderstaande link en plak hem in je browser:') }}
                                             </p>
 
                                             <p
@@ -413,11 +406,7 @@
                                                 line-height: 1.7;
                                             "
                                         >
-                                            Heb jij deze loginlink niet
-                                            aangevraagd? Dan kun je deze e-mail
-                                            veilig negeren. Er wordt niets
-                                            gewijzigd zolang de link niet wordt
-                                            gebruikt.
+                                            {{ __('Heb jij deze loginlink niet aangevraagd? Dan kun je deze e-mail veilig negeren. Er wordt niets gewijzigd zolang de link niet wordt gebruikt.') }}
                                         </p>
                                     </td>
                                 </tr>
@@ -454,8 +443,7 @@
                                     line-height: 1.6;
                                 "
                             >
-                                Deze e-mail is automatisch verzonden
-                                voor beveiligde toegang tot je account.
+                                {{ __('Deze e-mail is automatisch verzonden voor beveiligde toegang tot je account.') }}
                             </div>
                         </td>
                     </tr>
