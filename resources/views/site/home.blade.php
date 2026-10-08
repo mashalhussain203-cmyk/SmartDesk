@@ -2004,9 +2004,7 @@ body {
                     </h1>
 
                     <p class="ms-hero-lead">
-                        Eén snelle workspace voor resize, crop, rotate, flip,
-                        compress en convert. Elke bewerking wordt een nieuwe versie,
-                        zodat je altijd terug kunt naar het origineel.
+                        {{ __('Eén snelle workspace voor resize, crop, rotate, flip, compress en convert. Elke bewerking wordt een nieuwe versie, zodat je altijd terug kunt naar het origineel.') }}
                     </p>
 
                     <div class="ms-hero-actions">
@@ -2014,7 +2012,7 @@ body {
                             class="ms-button ms-button--primary js-magnetic"
                             href="#upload"
                         >
-                            Start met een afbeelding
+                            {{ __('Start met een afbeelding') }}
                             <span aria-hidden="true">↗</span>
                         </a>
 
@@ -2024,7 +2022,7 @@ body {
                                     class="ms-button ms-button--ghost js-magnetic"
                                     href="{{ route('images.index') }}"
                                 >
-                                    Mijn afbeeldingen
+                                    {{ __('Mijn afbeeldingen') }}
                                 </a>
                             @endif
                         @else
@@ -2033,7 +2031,7 @@ body {
                                     class="ms-button ms-button--ghost js-magnetic"
                                     href="{{ route('register') }}"
                                 >
-                                    Gratis account
+                                    {{ __('Gratis account') }}
                                 </a>
                             @endif
                         @endauth
@@ -2045,11 +2043,11 @@ body {
                         </span>
 
                         <span class="ms-proof-item">
-                            Maximaal 20 MB
+                            {{ __('Maximaal 20 MB') }}
                         </span>
 
                         <span class="ms-proof-item">
-                            Versies blijven apart
+                            {{ __('Versies blijven apart') }}
                         </span>
                     </div>
                 </div>
@@ -2097,7 +2095,7 @@ body {
 
                                 @if ($errors->any())
                                     <div class="ms-alert ms-alert--error">
-                                        <strong>Upload controleren</strong>
+                                        <strong>{{ __('Upload controleren') }}</strong>
 
                                         <ul>
                                             @foreach ($errors->all() as $error)
@@ -2140,7 +2138,7 @@ body {
                                             </div>
 
                                             <h2>
-                                                Drop je afbeelding hier
+                                                {{ __('Drop je afbeelding hier') }}
                                             </h2>
 
                                             <p>
@@ -2153,7 +2151,7 @@ body {
                                                 id="chooseImageButton"
                                                 type="button"
                                             >
-                                                Kies afbeelding
+                                                {{ __('Kies afbeelding') }}
                                             </button>
 
                                             <div class="ms-format-row">
@@ -2197,7 +2195,7 @@ body {
                                                         id="changeImageButton"
                                                         type="button"
                                                     >
-                                                        Wijzigen
+                                                        {{ __('Wijzigen') }}
                                                     </button>
 
                                                     <button
@@ -2205,7 +2203,7 @@ body {
                                                         id="submitImageButton"
                                                         type="submit"
                                                     >
-                                                        Open editor
+                                                        {{ __('Open editor') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -2214,8 +2212,8 @@ body {
                                 </form>
 
                                 <div class="ms-upload-foot">
-                                    <span>Client + servervalidatie</span>
-                                    <span>Origineel blijft behouden</span>
+                                    <span>{{ __('Client + servervalidatie') }}</span>
+                                    <span>{{ __('Origineel blijft behouden') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -2232,7 +2230,7 @@ body {
                     <div class="ms-signal-icon">↔</div>
                     <div>
                         <strong>Resize</strong>
-                        <span>Exacte afmetingen</span>
+                        <span>{{ __('Exacte afmetingen') }}</span>
                     </div>
                 </div>
 
@@ -2240,7 +2238,7 @@ body {
                     <div class="ms-signal-icon">⌗</div>
                     <div>
                         <strong>Crop</strong>
-                        <span>Snijd gericht uit</span>
+                        <span>{{ __('Snijd gericht uit') }}</span>
                     </div>
                 </div>
 
@@ -2248,7 +2246,7 @@ body {
                     <div class="ms-signal-icon">↻</div>
                     <div>
                         <strong>Rotate</strong>
-                        <span>Draai zonder verlies</span>
+                        <span>{{ __('Draai zonder verlies') }}</span>
                     </div>
                 </div>
 
@@ -2256,7 +2254,7 @@ body {
                     <div class="ms-signal-icon">⇆</div>
                     <div>
                         <strong>Flip</strong>
-                        <span>Horizontaal / verticaal</span>
+                        <span>{{ __('Horizontaal / verticaal') }}</span>
                     </div>
                 </div>
 
@@ -2264,7 +2262,7 @@ body {
                     <div class="ms-signal-icon">↓</div>
                     <div>
                         <strong>Compress</strong>
-                        <span>Kleinere export</span>
+                        <span>{{ __('Kleinere export') }}</span>
                     </div>
                 </div>
 
@@ -2287,14 +2285,12 @@ body {
                 </span>
 
                 <h2 class="ms-heading">
-                    Niet zes losse tools.
-                    <em>Eén editor.</em>
+                    {{ __('Niet zes losse tools.') }}
+                    <em>{{ __('Eén editor.') }}</em>
                 </h2>
 
                 <p class="ms-copy">
-                    De interface voelt als één echte beeldworkspace:
-                    bron selecteren, bewerking kiezen, instellingen aanpassen
-                    en een nieuwe versie opslaan.
+                    {{ __('De interface voelt als één echte beeldworkspace: bron selecteren, bewerking kiezen, instellingen aanpassen en een nieuwe versie opslaan.') }}
                 </p>
             </header>
 
@@ -2408,13 +2404,12 @@ body {
                 </span>
 
                 <h2 class="ms-heading">
-                    Bewerk vrij.
-                    <em>Verlies niets.</em>
+                    {{ __('Bewerk vrij.') }}
+                    <em>{{ __('Verlies niets.') }}</em>
                 </h2>
 
                 <p class="ms-copy">
-                    Mashal Studio behandelt elke bewerking als een nieuwe versie.
-                    Daardoor kun je blijven experimenteren zonder je bron te overschrijven.
+                    {{ __('Mashal Studio behandelt elke bewerking als een nieuwe versie. Daardoor kun je blijven experimenteren zonder je bron te overschrijven.') }}
                 </p>
             </header>
 
@@ -2423,12 +2418,11 @@ body {
                     <span class="ms-bento-index">01 / ORIGINAL</span>
 
                     <h3>
-                        Eén origineel als veilige basis.
+                        {{ __('Eén origineel als veilige basis.') }}
                     </h3>
 
                     <p>
-                        Je upload blijft beschikbaar terwijl je nieuwe varianten maakt.
-                        Geen destructieve edits, geen twijfel over welke versie de bron was.
+                        {{ __('Je upload blijft beschikbaar terwijl je nieuwe varianten maakt. Geen destructieve edits, geen twijfel over welke versie de bron was.') }}
                     </p>
 
                     <div class="ms-bento-visual" aria-hidden="true">
@@ -2444,12 +2438,11 @@ body {
                     <span class="ms-bento-index">02 / HISTORY</span>
 
                     <h3>
-                        Bouw verder op eerdere versies.
+                        {{ __('Bouw verder op eerdere versies.') }}
                     </h3>
 
                     <p>
-                        Gebruik later opnieuw het origineel of een bestaande versie
-                        als bron voor je volgende edit.
+                        {{ __('Gebruik later opnieuw het origineel of een bestaande versie als bron voor je volgende edit.') }}
                     </p>
 
                     <div class="ms-bento-orbit" aria-hidden="true"></div>
@@ -2463,7 +2456,7 @@ body {
                     </h3>
 
                     <p>
-                        Kies het formaat dat bij je volgende gebruiksmoment past.
+                        {{ __('Kies het formaat dat bij je volgende gebruiksmoment past.') }}
                     </p>
                 </article>
 
@@ -2471,11 +2464,11 @@ body {
                     <span class="ms-bento-index">04 / PRIVATE</span>
 
                     <h3>
-                        Persoonlijke workspace.
+                        {{ __('Persoonlijke workspace.') }}
                     </h3>
 
                     <p>
-                        Projecten worden gekoppeld aan jouw account en blijven overzichtelijk bij elkaar.
+                        {{ __('Projecten worden gekoppeld aan jouw account en blijven overzichtelijk bij elkaar.') }}
                     </p>
                 </article>
 
@@ -2483,11 +2476,11 @@ body {
                     <span class="ms-bento-index">05 / DOWNLOAD</span>
 
                     <h3>
-                        Elke versie apart downloaden.
+                        {{ __('Elke versie apart downloaden.') }}
                     </h3>
 
                     <p>
-                        Pak precies het bestand dat je nodig hebt zonder het project te verliezen.
+                        {{ __('Pak precies het bestand dat je nodig hebt zonder het project te verliezen.') }}
                     </p>
                 </article>
             </div>
@@ -2503,35 +2496,34 @@ body {
                     </span>
 
                     <h2>
-                        Van upload naar versie zonder omwegen.
+                        {{ __('Van upload naar versie zonder omwegen.') }}
                     </h2>
 
                     <p>
-                        De workflow is bewust lineair. Upload, kies een bewerking,
-                        maak een nieuwe versie en ga verder vanuit je bibliotheek.
+                        {{ __('De workflow is bewust lineair. Upload, kies een bewerking, maak een nieuwe versie en ga verder vanuit je bibliotheek.') }}
                     </p>
                 </div>
 
                 <div class="ms-flow-list" data-stagger>
                     <article class="ms-flow-step">
                         <div class="ms-flow-number">01</div>
-                        <h3>Upload je bronbestand</h3>
+                        <h3>{{ __('Upload je bronbestand') }}</h3>
                         <p>
-                            Kies een JPG, PNG of WEBP-afbeelding tot maximaal 20 MB.
+                            {{ __('Kies een JPG, PNG of WEBP-afbeelding tot maximaal 20 MB.') }}
                         </p>
                     </article>
 
                     <article class="ms-flow-step">
                         <div class="ms-flow-number">02</div>
-                        <h3>Koppel aan je workspace</h3>
+                        <h3>{{ __('Koppel aan je workspace') }}</h3>
                         <p>
-                            Wanneer login nodig is, wordt je tijdelijke upload na authenticatie aan je account gekoppeld.
+                            {{ __('Wanneer login nodig is, wordt je tijdelijke upload na authenticatie aan je account gekoppeld.') }}
                         </p>
                     </article>
 
                     <article class="ms-flow-step">
                         <div class="ms-flow-number">03</div>
-                        <h3>Bewerk in de editor</h3>
+                        <h3>{{ __('Bewerk in de editor') }}</h3>
                         <p>
                             Resize, crop, rotate, flip, compress of convert vanuit één consistente editorflow.
                         </p>
@@ -2539,9 +2531,9 @@ body {
 
                     <article class="ms-flow-step">
                         <div class="ms-flow-number">04</div>
-                        <h3>Maak een nieuwe versie</h3>
+                        <h3>{{ __('Maak een nieuwe versie') }}</h3>
                         <p>
-                            Het resultaat komt naast je bestaande bestanden te staan en kan later opnieuw als bron dienen.
+                            {{ __('Het resultaat komt naast je bestaande bestanden te staan en kan later opnieuw als bron dienen.') }}
                         </p>
                     </article>
                 </div>
@@ -2558,12 +2550,11 @@ body {
                     </span>
 
                     <h2>
-                        Al je beeldprojecten op één plek.
+                        {{ __('Al je beeldprojecten op één plek.') }}
                     </h2>
 
                     <p>
-                        Open je originelen, bekijk gemaakte versies, download specifieke bestanden
-                        of ga terug de editor in wanneer je verder wilt werken.
+                        {{ __('Open je originelen, bekijk gemaakte versies, download specifieke bestanden of ga terug de editor in wanneer je verder wilt werken.') }}
                     </p>
 
                     <div class="ms-workspace-actions">
@@ -2573,7 +2564,7 @@ body {
                                     class="ms-button ms-button--primary js-magnetic"
                                     href="{{ route('images.index') }}"
                                 >
-                                    Mijn afbeeldingen
+                                    {{ __('Mijn afbeeldingen') }}
                                 </a>
                             @endif
 
@@ -2582,7 +2573,7 @@ body {
                                     class="ms-button js-magnetic"
                                     href="{{ route('account') }}"
                                 >
-                                    Mijn account
+                                    {{ __('Mijn account') }}
                                 </a>
                             @endif
                         @else
@@ -2591,7 +2582,7 @@ body {
                                     class="ms-button ms-button--primary js-magnetic"
                                     href="{{ route('register') }}"
                                 >
-                                    Gratis registreren
+                                    {{ __('Gratis registreren') }}
                                 </a>
                             @endif
 
@@ -2600,7 +2591,7 @@ body {
                                     class="ms-button js-magnetic"
                                     href="{{ route('login') }}"
                                 >
-                                    Inloggen
+                                    {{ __('Inloggen') }}
                                 </a>
                             @endif
                         @endauth
@@ -2609,7 +2600,7 @@ body {
 
                 <div class="ms-library-window" aria-hidden="true">
                     <div class="ms-library-head">
-                        <strong>Mijn afbeeldingen</strong>
+                        <strong>{{ __('Mijn afbeeldingen') }}</strong>
                         <span>Private library</span>
                     </div>
 
@@ -2641,7 +2632,7 @@ body {
                     </h2>
 
                     <p>
-                        Alles wat je moet weten over bestanden, versies en je persoonlijke workspace.
+                        {{ __('Alles wat je moet weten over bestanden, versies en je persoonlijke workspace.') }}
                     </p>
                 </div>
 
@@ -2652,7 +2643,7 @@ body {
                             type="button"
                             aria-expanded="true"
                         >
-                            <span>Welke bestanden kan ik uploaden?</span>
+                            <span>{{ __('Welke bestanden kan ik uploaden?') }}</span>
                             <span class="ms-faq-icon" aria-hidden="true"></span>
                         </button>
 
@@ -2671,14 +2662,14 @@ body {
                             type="button"
                             aria-expanded="false"
                         >
-                            <span>Wordt mijn origineel overschreven?</span>
+                            <span>{{ __('Wordt mijn origineel overschreven?') }}</span>
                             <span class="ms-faq-icon" aria-hidden="true"></span>
                         </button>
 
                         <div class="ms-faq-answer">
                             <div>
                                 <div class="ms-faq-answer-inner">
-                                    Nee. Elke edit wordt als aparte versie opgeslagen.
+                                    {{ __('Nee. Elke edit wordt als aparte versie opgeslagen.') }}
                                 </div>
                             </div>
                         </div>
@@ -2690,14 +2681,14 @@ body {
                             type="button"
                             aria-expanded="false"
                         >
-                            <span>Kan ik een eerdere versie opnieuw bewerken?</span>
+                            <span>{{ __('Kan ik een eerdere versie opnieuw bewerken?') }}</span>
                             <span class="ms-faq-icon" aria-hidden="true"></span>
                         </button>
 
                         <div class="ms-faq-answer">
                             <div>
                                 <div class="ms-faq-answer-inner">
-                                    Ja. Zowel je origineel als bestaande versies kunnen opnieuw als bron worden gebruikt.
+                                    {{ __('Ja. Zowel je origineel als bestaande versies kunnen opnieuw als bron worden gebruikt.') }}
                                 </div>
                             </div>
                         </div>
@@ -2709,14 +2700,14 @@ body {
                             type="button"
                             aria-expanded="false"
                         >
-                            <span>Waar vind ik mijn projecten terug?</span>
+                            <span>{{ __('Waar vind ik mijn projecten terug?') }}</span>
                             <span class="ms-faq-icon" aria-hidden="true"></span>
                         </button>
 
                         <div class="ms-faq-answer">
                             <div>
                                 <div class="ms-faq-answer-inner">
-                                    Na login vind je ze onder “Mijn afbeeldingen”.
+                                    {{ __('Na login vind je ze onder “Mijn afbeeldingen”.') }}
                                 </div>
                             </div>
                         </div>
@@ -2740,7 +2731,7 @@ body {
                     </h2>
 
                     <p>
-                        Upload je afbeelding, open de editor en bouw je eigen versiegeschiedenis op binnen Mashal Studio.
+                        {{ __('Upload je afbeelding, open de editor en bouw je eigen versiegeschiedenis op binnen Mashal Studio.') }}
                     </p>
 
                     <div class="ms-final-actions">
@@ -2748,7 +2739,7 @@ body {
                             class="ms-button ms-button--primary js-magnetic"
                             href="#upload"
                         >
-                            Upload afbeelding
+                            {{ __('Upload afbeelding') }}
                         </a>
 
                         @guest
@@ -2757,7 +2748,7 @@ body {
                                     class="ms-button js-magnetic"
                                     href="{{ route('register') }}"
                                 >
-                                    Account maken
+                                    {{ __('Account maken') }}
                                 </a>
                             @endif
                         @else
@@ -2766,7 +2757,7 @@ body {
                                     class="ms-button js-magnetic"
                                     href="{{ route('images.index') }}"
                                 >
-                                    Mijn bibliotheek
+                                    {{ __('Mijn bibliotheek') }}
                                 </a>
                             @endif
                         @endguest
@@ -2782,7 +2773,7 @@ body {
     >
         <div class="ms-sticky-inner">
             <div class="ms-sticky-copy">
-                <strong>Klaar voor een nieuwe afbeelding?</strong>
+                <strong>{{ __('Klaar voor een nieuwe afbeelding?') }}</strong>
                 <span>JPG, PNG of WEBP · maximaal 20 MB</span>
             </div>
 

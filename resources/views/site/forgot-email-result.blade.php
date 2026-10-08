@@ -1830,7 +1830,7 @@
 
                         >
 
-                            Account
+                            {{ __('Account') }}
 
                             <strong>gevonden</strong>
 
@@ -1946,7 +1946,7 @@
 
                             >
 
-                                Wachtwoord vergeten?
+                                {{ __('Wachtwoord vergeten?') }}
 
                             </a>
 

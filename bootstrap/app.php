@@ -45,6 +45,10 @@ return Application::configure(
         $middleware->trustProxies(
             at: '*'
         );
+
+        // The web session is available to this middleware after StartSession.
+        // Apply visitor language preference to public and authenticated pages.
+        $middleware->web(append: [\App\Http\Middleware\SetSiteLocale::class]);
     })
 
     ->withExceptions(function (Exceptions $exceptions): void {

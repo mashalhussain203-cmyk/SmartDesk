@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal Studio | Voorwaarden')
+@section('title', 'Mashal Studio | ' . __('Voorwaarden'))
 
 @push('styles')
 
@@ -131,144 +131,125 @@
             <span class="legal-kicker">Mashal Studio</span>
 
             <h1 class="legal-title">
-                Gebruiks<span>voorwaarden.</span>
+                {{ __('Gebruiks') }}<span>{{ __('voorwaarden.') }}</span>
             </h1>
 
             <p class="legal-intro">
-                Deze gebruiksvoorwaarden zijn van toepassing op het gebruik van Mashal Studio
-                en beschrijven de rechten en verantwoordelijkheden van gebruikers van onze dienst.
+                {{ __('Deze gebruiksvoorwaarden zijn van toepassing op het gebruik van Mashal Studio en beschrijven de rechten en verantwoordelijkheden van gebruikers van onze dienst.') }}
             </p>
         </header>
 
         <section class="legal-card">
-            <h2>1. Gebruik van Mashal Studio</h2>
+            <h2>{{ __('1. Gebruik van Mashal Studio') }}</h2>
 
             <p>
-                Mashal Studio biedt een online workspace waarmee gebruikers afbeeldingen kunnen
-                uploaden, beheren en bewerken en gebruik kunnen maken van beschikbare AI-functionaliteiten.
+                {{ __('Mashal Studio biedt een online workspace waarmee gebruikers afbeeldingen kunnen uploaden, beheren en bewerken en gebruik kunnen maken van beschikbare AI-functionaliteiten.') }}
             </p>
 
             <p>
-                Je mag Mashal Studio uitsluitend gebruiken voor rechtmatige doeleinden en op een manier
-                die de werking, beveiliging of beschikbaarheid van de dienst niet verstoort.
+                {{ __('Je mag Mashal Studio uitsluitend gebruiken voor rechtmatige doeleinden en op een manier die de werking, beveiliging of beschikbaarheid van de dienst niet verstoort.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>2. Accounts en beveiliging</h2>
+            <h2>{{ __('2. Accounts en beveiliging') }}</h2>
 
             <p>
-                Wanneer je een account gebruikt, ben je verantwoordelijk voor het beschermen van je
-                accountgegevens en authenticatiemiddelen.
+                {{ __('Wanneer je een account gebruikt, ben je verantwoordelijk voor het beschermen van je accountgegevens en authenticatiemiddelen.') }}
             </p>
 
             <p>
-                Deel geen wachtwoorden, passkeys, Authenticator-codes of recovery codes met anderen.
-                Neem contact met ons op wanneer je vermoedt dat iemand ongeautoriseerde toegang tot
-                je account heeft verkregen.
+                {{ __('Deel geen wachtwoorden, passkeys, Authenticator-codes of recovery codes met anderen. Neem contact met ons op wanneer je vermoedt dat iemand ongeautoriseerde toegang tot je account heeft verkregen.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>3. Verboden gebruik</h2>
+            <h2>{{ __('3. Verboden gebruik') }}</h2>
 
-            <p>Het is onder andere niet toegestaan om:</p>
+            <p>{{ __('Het is onder andere niet toegestaan om:') }}</p>
 
             <ul>
-                <li>Mashal Studio te gebruiken voor illegale, frauduleuze of schadelijke activiteiten;</li>
-                <li>beveiligingsmaatregelen te omzeilen of ongeautoriseerde toegang te verkrijgen;</li>
-                <li>malware, schadelijke code, spam of misleidende inhoud te verspreiden;</li>
-                <li>de beschikbaarheid of werking van Mashal Studio opzettelijk te verstoren;</li>
-                <li>inbreuk te maken op intellectuele eigendomsrechten, privacyrechten of andere rechten van derden;</li>
-                <li>de dienst te gebruiken op een manier die strijdig is met toepasselijke wet- en regelgeving.</li>
+                <li>{{ __('Mashal Studio te gebruiken voor illegale, frauduleuze of schadelijke activiteiten;') }}</li>
+                <li>{{ __('beveiligingsmaatregelen te omzeilen of ongeautoriseerde toegang te verkrijgen;') }}</li>
+                <li>{{ __('malware, schadelijke code, spam of misleidende inhoud te verspreiden;') }}</li>
+                <li>{{ __('de beschikbaarheid of werking van Mashal Studio opzettelijk te verstoren;') }}</li>
+                <li>{{ __('inbreuk te maken op intellectuele eigendomsrechten, privacyrechten of andere rechten van derden;') }}</li>
+                <li>{{ __('de dienst te gebruiken op een manier die strijdig is met toepasselijke wet- en regelgeving.') }}</li>
             </ul>
         </section>
 
         <section class="legal-card">
-            <h2>4. Inhoud van gebruikers</h2>
+            <h2>{{ __('4. Inhoud van gebruikers') }}</h2>
 
             <p>
-                Je behoudt de verantwoordelijkheid voor afbeeldingen, teksten en andere inhoud die je
-                uploadt, invoert of verwerkt via Mashal Studio.
+                {{ __('Je behoudt de verantwoordelijkheid voor afbeeldingen, teksten en andere inhoud die je uploadt, invoert of verwerkt via Mashal Studio.') }}
             </p>
 
             <p>
-                Je verklaart dat je voldoende rechten of toestemming hebt voor materiaal dat je via
-                onze dienst gebruikt.
+                {{ __('Je verklaart dat je voldoende rechten of toestemming hebt voor materiaal dat je via onze dienst gebruikt.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>5. Beschikbaarheid en onderhoud</h2>
+            <h2>{{ __('5. Beschikbaarheid en onderhoud') }}</h2>
 
             <p>
-                Mashal Studio is een actieve online dienst die regelmatig wordt onderhouden en verbeterd.
-                We kunnen functies aanpassen, verbeteren, toevoegen of verwijderen wanneer dit nodig is
-                voor de werking, beveiliging of verdere verbetering van de dienst.
+                {{ __('Mashal Studio is een actieve online dienst die regelmatig wordt onderhouden en verbeterd. We kunnen functies aanpassen, verbeteren, toevoegen of verwijderen wanneer dit nodig is voor de werking, beveiliging of verdere verbetering van de dienst.') }}
             </p>
 
             <p>
-                De dienst kan tijdelijk geheel of gedeeltelijk niet beschikbaar zijn vanwege gepland
-                onderhoud, beveiligingsmaatregelen, technische storingen of omstandigheden buiten onze controle.
+                {{ __('De dienst kan tijdelijk geheel of gedeeltelijk niet beschikbaar zijn vanwege gepland onderhoud, beveiligingsmaatregelen, technische storingen of omstandigheden buiten onze controle.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>6. Diensten en integraties van derden</h2>
+            <h2>{{ __('6. Diensten en integraties van derden') }}</h2>
 
             <p>
-                Mashal Studio kan integraties of functionaliteiten bevatten die worden geleverd door
-                externe dienstverleners of platforms.
+                {{ __('Mashal Studio kan integraties of functionaliteiten bevatten die worden geleverd door externe dienstverleners of platforms.') }}
             </p>
 
             <p>
-                Voor het gebruik van dergelijke externe diensten kunnen aanvullende voorwaarden en
-                privacyregels van de betreffende aanbieder gelden.
+                {{ __('Voor het gebruik van dergelijke externe diensten kunnen aanvullende voorwaarden en privacyregels van de betreffende aanbieder gelden.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>7. Aansprakelijkheid</h2>
+            <h2>{{ __('7. Aansprakelijkheid') }}</h2>
 
             <p>
-                We streven ernaar Mashal Studio veilig en betrouwbaar beschikbaar te stellen.
-                We kunnen echter niet garanderen dat de dienst altijd zonder onderbrekingen, fouten
-                of technische problemen functioneert.
+                {{ __('We streven ernaar Mashal Studio veilig en betrouwbaar beschikbaar te stellen. We kunnen echter niet garanderen dat de dienst altijd zonder onderbrekingen, fouten of technische problemen functioneert.') }}
             </p>
 
             <p>
-                Voor zover toegestaan onder toepasselijk recht is onze aansprakelijkheid beperkt tot
-                directe schade waarvoor wij wettelijk aansprakelijk kunnen worden gehouden.
+                {{ __('Voor zover toegestaan onder toepasselijk recht is onze aansprakelijkheid beperkt tot directe schade waarvoor wij wettelijk aansprakelijk kunnen worden gehouden.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>8. Opschorting of beëindiging</h2>
+            <h2>{{ __('8. Opschorting of beëindiging') }}</h2>
 
             <p>
-                We kunnen toegang tot Mashal Studio tijdelijk beperken, opschorten of beëindigen wanneer
-                een gebruiker deze voorwaarden schendt, de beveiliging van de dienst in gevaar brengt,
-                de dienst misbruikt of handelt in strijd met toepasselijke wet- en regelgeving.
+                {{ __('We kunnen toegang tot Mashal Studio tijdelijk beperken, opschorten of beëindigen wanneer een gebruiker deze voorwaarden schendt, de beveiliging van de dienst in gevaar brengt, de dienst misbruikt of handelt in strijd met toepasselijke wet- en regelgeving.') }}
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>9. Privacy</h2>
+            <h2>{{ __('9. Privacy') }}</h2>
 
             <p>
-                Informatie over de verwerking en bescherming van persoonsgegevens staat beschreven in ons
+                {{ __('Informatie over de verwerking en bescherming van persoonsgegevens staat beschreven in ons') }}
                 <a class="legal-link" href="{{ route('privacy') }}">
-                    privacybeleid
+                    {{ __('privacybeleid') }}
                 </a>.
             </p>
         </section>
 
         <section class="legal-card">
-            <h2>10. Wijzigingen van deze voorwaarden</h2>
+            <h2>{{ __('10. Wijzigingen van deze voorwaarden') }}</h2>
 
             <p>
-                We kunnen deze gebruiksvoorwaarden aanpassen wanneer Mashal Studio, onze dienstverlening
-                of toepasselijke regelgeving verandert.
+                {{ __('We kunnen deze gebruiksvoorwaarden aanpassen wanneer Mashal Studio, onze dienstverlening of toepasselijke regelgeving verandert.') }}
             </p>
 
             <p>
@@ -283,7 +264,7 @@
                 Heb je vragen over deze gebruiksvoorwaarden of over Mashal Studio?
                 Neem dan contact met ons op via onze
                 <a class="legal-link" href="{{ route('contact') }}">
-                    contactpagina
+                    {{ __('contactpagina') }}
                 </a>.
             </p>
         </section>

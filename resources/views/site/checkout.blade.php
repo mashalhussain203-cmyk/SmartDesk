@@ -846,7 +846,7 @@
                 </span>
 
                 <span>
-                    Selectie
+                    {{ __('Selectie') }}
                 </span>
 
             </div>
@@ -859,7 +859,7 @@
                 </span>
 
                 <span>
-                    Account
+                    {{ __('Account') }}
                 </span>
 
             </div>
@@ -872,7 +872,7 @@
                 </span>
 
                 <span>
-                    Bevestigen
+                    {{ __('Bevestigen') }}
                 </span>
 
             </div>
@@ -889,7 +889,7 @@
             <div class="checkout-message success">
 
                 <strong>
-                    Gelukt.
+                    {{ __('Gelukt.') }}
                 </strong>
 
                 {{ session('success') }}
@@ -904,7 +904,7 @@
             <div class="checkout-message error">
 
                 <strong>
-                    Er ging iets mis.
+                    {{ __('Er ging iets mis.') }}
                 </strong>
 
                 <ul>
@@ -949,7 +949,7 @@
                     class="primary-btn"
                     href="{{ route('catalog') }}"
                 >
-                    Ontdek de collectie
+                    {{ __('Ontdek de collectie') }}
                 </a>
 
             </div>
@@ -987,7 +987,7 @@
                             <div class="account-field">
 
                                 <small>
-                                    Naam
+                                    {{ __('Naam') }}
                                 </small>
 
                                 <strong>
@@ -1000,7 +1000,7 @@
                             <div class="account-field">
 
                                 <small>
-                                    E-mailadres
+                                    {{ __('E-mailadres') }}
                                 </small>
 
                                 <strong>
@@ -1096,7 +1096,7 @@
                                     <div class="order-item-total">
 
                                         <small>
-                                            Subtotaal
+                                            {{ __('Subtotaal') }}
                                         </small>
 
                                         <strong>
@@ -1197,7 +1197,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Totaal aantal
+                                {{ __('Totaal aantal') }}
                             </span>
 
                             <strong>
@@ -1210,7 +1210,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Account
+                                {{ __('Account') }}
                             </span>
 
                             <strong>
@@ -1228,7 +1228,7 @@
                     <div class="summary-total">
 
                         <span>
-                            Totaal
+                            {{ __('Totaal') }}
                         </span>
 
                         <strong>

@@ -1287,7 +1287,7 @@
                         class="account-action"
                         href="{{ route('images.index') }}"
                     >
-                        Mijn afbeeldingen
+                        {{ __('Mijn afbeeldingen') }}
                     </a>
                 @endif
 
@@ -1296,7 +1296,7 @@
                         class="account-action"
                         href="{{ route('security.index') }}"
                     >
-                        Beveiliging
+                        {{ __('Beveiliging') }}
                     </a>
                 @endif
             </div>
@@ -1340,7 +1340,7 @@
             </article>
 
             <article class="stat-card">
-                <small>Account</small>
+                <small>{{ __('Account') }}</small>
                 <div class="stat-value">#{{ $user->id }}</div>
                 <div class="stat-foot">Lid sinds {{ $memberSince }}</div>
             </article>
@@ -1432,7 +1432,7 @@
                         </a>
 
                         <a class="account-nav-link" href="#password">
-                            <span>Wachtwoord</span>
+                            <span>{{ __('Wachtwoord') }}</span>
                             <span>→</span>
                         </a>
 
@@ -1447,7 +1447,7 @@
                         </a>
 
                         <a class="account-nav-link" href="#security">
-                            <span>Beveiliging</span>
+                            <span>{{ __('Beveiliging') }}</span>
                             <span>→</span>
                         </a>
                     </nav>
@@ -1570,7 +1570,7 @@
                             <div class="field">
                                 <div class="field-label">
                                     <label for="name">
-                                        Naam
+                                        {{ __('Naam') }}
                                     </label>
 
                                     @error('name')
@@ -1594,7 +1594,7 @@
                             <div class="field">
                                 <div class="field-label">
                                     <label for="email">
-                                        E-mailadres
+                                        {{ __('E-mailadres') }}
                                     </label>
 
                                     @error('email')
@@ -1924,7 +1924,7 @@
                                         type="button"
                                         data-toggle-password="current_password"
                                     >
-                                        Tonen
+                                        {{ __('Tonen') }}
                                     </button>
                                 </div>
                             </div>
@@ -1958,7 +1958,7 @@
                                         type="button"
                                         data-toggle-password="password"
                                     >
-                                        Tonen
+                                        {{ __('Tonen') }}
                                     </button>
                                 </div>
                             </div>
@@ -1966,7 +1966,7 @@
                             <div class="field">
                                 <div class="field-label">
                                     <label for="password_confirmation">
-                                        Wachtwoord bevestigen
+                                        {{ __('Wachtwoord bevestigen') }}
                                     </label>
                                 </div>
 
@@ -1986,7 +1986,7 @@
                                         type="button"
                                         data-toggle-password="password_confirmation"
                                     >
-                                        Tonen
+                                        {{ __('Tonen') }}
                                     </button>
                                 </div>
                             </div>
@@ -2036,14 +2036,14 @@
 
                     <div class="overview-grid">
                         <div class="overview-card">
-                            <small>Naam</small>
+                            <small>{{ __('Naam') }}</small>
                             <strong title="{{ $user->name }}">
                                 {{ $user->name }}
                             </strong>
                         </div>
 
                         <div class="overview-card">
-                            <small>E-mailadres</small>
+                            <small>{{ __('E-mailadres') }}</small>
                             <strong title="{{ $user->email }}">
                                 {{ $user->email }}
                             </strong>
@@ -2173,7 +2173,7 @@
                                                     class="project-link"
                                                     href="{{ route('images.editor', $image) }}"
                                                 >
-                                                    Open editor
+                                                    {{ __('Open editor') }}
                                                 </a>
                                             @endif
 

@@ -836,9 +836,9 @@
                 </span>
 
                 <h1 class="cart-title">
-                    Jouw selectie.
+                    {{ __('Jouw selectie.') }}
                     <span>
-                        Klaar voor de volgende stap.
+                        {{ __('Klaar voor de volgende stap.') }}
                     </span>
                 </h1>
 
@@ -856,7 +856,7 @@
                 <div class="cart-count-card">
 
                     <small>
-                        In jouw selectie
+                        {{ __('In jouw selectie') }}
                     </small>
 
                     <strong>
@@ -884,7 +884,7 @@
                 </span>
 
                 <span>
-                    Selectie
+                    {{ __('Selectie') }}
                 </span>
 
             </div>
@@ -897,7 +897,7 @@
                 </span>
 
                 <span>
-                    Account
+                    {{ __('Account') }}
                 </span>
 
             </div>
@@ -927,7 +927,7 @@
             <div class="cart-message success">
 
                 <strong>
-                    Gelukt.
+                    {{ __('Gelukt.') }}
                 </strong>
 
                 {{ session('success') }}
@@ -942,7 +942,7 @@
             <div class="cart-message error">
 
                 <strong>
-                    Er ging iets mis.
+                    {{ __('Er ging iets mis.') }}
                 </strong>
 
                 <ul>
@@ -975,7 +975,7 @@
                 </div>
 
                 <h2>
-                    Jouw selectie wacht nog.
+                    {{ __('Jouw selectie wacht nog.') }}
                 </h2>
 
                 <p>
@@ -988,7 +988,7 @@
                     class="primary-btn"
                     href="{{ route('catalog') }}"
                 >
-                    Ontdek de collectie
+                    {{ __('Ontdek de collectie') }}
                 </a>
 
             </div>
@@ -1008,7 +1008,7 @@
                     </span>
 
                     <h2 class="cart-section-title">
-                        Jouw voertuigen
+                        {{ __('Jouw voertuigen') }}
                     </h2>
 
                     <p class="cart-section-copy">
@@ -1057,7 +1057,7 @@
                                         <div class="cart-meta-block">
 
                                             <span>
-                                                Aantal
+                                                {{ __('Aantal') }}
                                             </span>
 
                                             <strong>
@@ -1070,7 +1070,7 @@
                                         <div class="cart-meta-block">
 
                                             <span>
-                                                Prijs per stuk
+                                                {{ __('Prijs per stuk') }}
                                             </span>
 
                                             <strong>
@@ -1087,7 +1087,7 @@
                                 <div class="cart-item-total">
 
                                     <span>
-                                        Subtotaal
+                                        {{ __('Subtotaal') }}
                                     </span>
 
                                     <strong>
@@ -1211,7 +1211,7 @@
                     </span>
 
                     <h2 class="summary-title">
-                        Overzicht
+                        {{ __('Overzicht') }}
                     </h2>
 
 
@@ -1220,7 +1220,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Verschillende modellen
+                                {{ __('Verschillende modellen') }}
                             </span>
 
                             <strong>
@@ -1233,7 +1233,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Totaal aantal
+                                {{ __('Totaal aantal') }}
                             </span>
 
                             <strong>
@@ -1246,7 +1246,7 @@
                         <div class="summary-row">
 
                             <span>
-                                Checkoutstatus
+                                {{ __('Checkoutstatus') }}
                             </span>
 
                             <strong>
@@ -1268,7 +1268,7 @@
                     <div class="summary-total">
 
                         <span>
-                            Totaal
+                            {{ __('Totaal') }}
                         </span>
 
                         <strong>
@@ -1293,7 +1293,7 @@
                                     class="cart-primary"
                                     href="{{ route('checkout') }}"
                                 >
-                                    Naar checkout
+                                    {{ __('Naar checkout') }}
                                     <span aria-hidden="true">→</span>
                                 </a>
 
@@ -1303,7 +1303,7 @@
                                     class="cart-primary"
                                     href="{{ route('verification.notice') }}"
                                 >
-                                    E-mail verifiëren
+                                    {{ __('E-mail verifiëren') }}
                                     <span aria-hidden="true">→</span>
                                 </a>
 
@@ -1315,7 +1315,7 @@
                                 class="cart-primary"
                                 href="{{ route('login') }}"
                             >
-                                Inloggen om af te rekenen
+                                {{ __('Inloggen om af te rekenen') }}
                                 <span aria-hidden="true">→</span>
                             </a>
 
@@ -1326,7 +1326,7 @@
                             class="cart-secondary"
                             href="{{ route('catalog') }}"
                         >
-                            ← Verder winkelen
+                            {{ __('← Verder winkelen') }}
                         </a>
 
                     </div>
@@ -1365,7 +1365,7 @@
                 </small>
 
                 <strong>
-                    Premium voertuigselectie
+                    {{ __('Premium voertuigselectie') }}
                 </strong>
 
                 <span>
@@ -1382,7 +1382,7 @@
                 </small>
 
                 <strong>
-                    Beveiligde accountflow
+                    {{ __('Beveiligde accountflow') }}
                 </strong>
 
                 <span>
@@ -1399,7 +1399,7 @@
                 </small>
 
                 <strong>
-                    Directe bestelbevestiging
+                    {{ __('Directe bestelbevestiging') }}
                 </strong>
 
                 <span>

@@ -1151,11 +1151,11 @@
 
                 <h1 class="catalog-title">
 
-                    Niet zomaar auto's.
+                    {{ __('Niet zomaar auto\'s.') }}
 
                     <span>
 
-                        Een selectie met karakter.
+                        {{ __('Een selectie met karakter.') }}
 
                     </span>
 
@@ -1181,7 +1181,7 @@
 
                 <small>
 
-                    Beschikbaar
+                    {{ __('Beschikbaar') }}
 
                 </small>
 
@@ -1257,7 +1257,7 @@
 
                 <h3>
 
-                    De collectie wordt voorbereid.
+                    {{ __('De collectie wordt voorbereid.') }}
 
                 </h3>
 
@@ -1377,7 +1377,7 @@
 
                                     <small>
 
-                                        Vanaf
+                                        {{ __('Vanaf') }}
 
                                     </small>
 
@@ -1401,7 +1401,7 @@
 
                                     >
 
-                                        Bekijk model
+                                        {{ __('Bekijk model') }}
 
                                         <span aria-hidden="true">→</span>
 
@@ -1480,7 +1480,7 @@
 
                                         >
 
-                                            Toevoegen
+                                            {{ __('Toevoegen') }}
 
                                         </button>
 
@@ -1514,7 +1514,7 @@
 
                 <small>
 
-                    Account
+                    {{ __('Account') }}
 
                 </small>
 
@@ -1532,7 +1532,7 @@
 
                 <small>
 
-                    Selectie
+                    {{ __('Selectie') }}
 
                 </small>
 
@@ -1550,7 +1550,7 @@
 
                 <small>
 
-                    Bestelling
+                    {{ __('Bestelling') }}
 
                 </small>
 
