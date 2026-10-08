@@ -8949,6 +8949,7 @@
     @include('site.partials.guest-chat')
 
     @include('partials.auth-success-overlay')
+    <script src="{{ asset('js/smartdesk-urdu.js') }}" defer></script>
 </body>
 </html>
 
