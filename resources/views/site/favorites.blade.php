@@ -634,7 +634,7 @@
                     class="favorites-empty-link"
                     href="{{ route('catalog') }}"
                 >
-                    Ontdek de collectie
+                    {{ __('Ontdek de collectie') }}
                     <span aria-hidden="true">→</span>
                 </a>
             </div>
@@ -687,7 +687,7 @@
 
                                 <div class="favorite-price">
                                     <small>
-                                        Vanaf
+                                        {{ __('Vanaf') }}
                                     </small>
 
                                     <strong>
@@ -701,7 +701,7 @@
                                         class="favorite-link"
                                         href="{{ route('car', ['id' => $car['id']]) }}"
                                     >
-                                        Bekijk model
+                                        {{ __('Bekijk model') }}
                                         <span aria-hidden="true">→</span>
                                     </a>
 
@@ -715,7 +715,7 @@
                                             class="favorite-cart"
                                             type="submit"
                                         >
-                                            Toevoegen
+                                            {{ __('Toevoegen') }}
                                         </button>
                                     </form>
 
