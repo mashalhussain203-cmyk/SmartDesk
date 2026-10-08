@@ -1899,7 +1899,7 @@
 
                 <span class="recovery-kicker">
 
-                    Mashal Studio security
+                    {{ __('Mashal Studio security') }}
 
                 </span>
 
@@ -1917,13 +1917,7 @@
 
                 <p>
 
-                    Ben je je wachtwoord vergeten? Vraag veilig een
-
-                    resetlink aan via het e-mailadres van je account.
-
-                    Je afbeeldingsprojecten en opgeslagen versies blijven
-
-                    gewoon aan hetzelfde account gekoppeld.
+                    {{ __('Ben je je wachtwoord vergeten? Vraag veilig een resetlink aan via het e-mailadres van je account. Je afbeeldingsprojecten en opgeslagen versies blijven gewoon aan hetzelfde account gekoppeld.') }}
 
                 </p>
 
@@ -1939,7 +1933,7 @@
 
                     <span class="recovery-trust">
 
-                        Secure reset
+                        {{ __('Secure reset') }}
 
                     </span>
 
@@ -1947,7 +1941,7 @@
 
                     <span class="recovery-trust">
 
-                        Private account
+                        {{ __('Private account') }}
 
                     </span>
 
@@ -1955,7 +1949,7 @@
 
                     <span class="recovery-trust">
 
-                        E-mail verification
+                        {{ __('E-mail verification') }}
 
                     </span>
 
@@ -2077,7 +2071,7 @@
 
                 <span class="recovery-section-kicker">
 
-                    Password recovery
+                    {{ __('Password recovery') }}
 
                 </span>
 
