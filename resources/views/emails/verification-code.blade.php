@@ -829,7 +829,7 @@
                                             text-transform: uppercase;
                                         "
                                     >
-                                        E-mailadres
+                                        {{ __('E-mailadres') }}
                                     </div>
 
                                     <div
@@ -924,7 +924,7 @@
                                             font-weight: 800;
                                         "
                                     >
-                                        Heb jij deze code niet aangevraagd?
+                                        {{ __('Heb jij deze code niet aangevraagd?') }}
                                     </div>
 
                                     <div
@@ -1072,7 +1072,7 @@
                                 line-height: 1.75;
                             "
                         >
-                            Met vriendelijke groet,
+                            {{ __('Met vriendelijke groet,') }}
                             <br>
 
                             <strong
