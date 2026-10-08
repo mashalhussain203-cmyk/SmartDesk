@@ -351,3 +351,67 @@ html[dir="rtl"] :is(input[type="email"], input[type="url"], input[type="tel"]) {
     direction: ltr;
     text-align: start;
 }
+
+
+/*
+ * Contact form on phones: keep the 419-recovery message and CSRF form
+ * usable without side-scrolling or iOS Safari field zoom.
+ * These rules apply only to the existing Blade frontend (not desktop).
+ */
+@media (max-width: 767px) {
+    .legal-page .legal-shell,
+    .legal-page .legal-card,
+    .legal-page .contact-form-card,
+    .legal-page .contact-field {
+        box-sizing: border-box;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .legal-page .contact-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .legal-page .contact-input,
+    .legal-page .contact-textarea {
+        box-sizing: border-box;
+        min-width: 0;
+        max-width: 100%;
+        font-size: 16px;
+        scroll-margin-block: 80px;
+    }
+
+    .legal-page .contact-alert,
+    .legal-page .contact-note,
+    .legal-page .contact-box {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 480px) {
+    .legal-page {
+        padding: 42px 0 max(64px, env(safe-area-inset-bottom));
+    }
+
+    .legal-page .legal-shell {
+        width: calc(100% - 24px);
+    }
+
+    .legal-page .legal-title {
+        font-size: clamp(36px, 11vw, 52px);
+        line-height: 1.06;
+    }
+
+    .legal-page .contact-form-card {
+        padding: clamp(14px, 4vw, 20px);
+    }
+
+    .legal-page .contact-submit {
+        width: 100%;
+        min-height: 48px;
+    }
+
+    .legal-page .contact-button {
+        min-height: 44px;
+    }
+}

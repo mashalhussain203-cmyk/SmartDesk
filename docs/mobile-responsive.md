@@ -41,3 +41,16 @@ Also verify:
 `php artisan test --filter=MobileResponsiveStylesTest`
 
 This static regression test checks the stylesheet path, breakpoints, and inclusion order. **No real-device or browser screenshot tests have been executed by this GitHub-only workflow**, and these should be completed before claiming pixel-perfect mobile support.
+
+## Extra telefoonverbeteringen bovenop de 419-fix
+
+- Contactformulier op schermen tot 767px: tekstvelden van minimaal 16px, zodat Safari niet automatisch inzoomt, en foutmeldingen die binnen het scherm afbreken.
+- Op schermen tot 480px: compacte marges, leesbare titel en een verzendknop over de volledige breedte.
+- De bestaande CSRF-/sessieoplossing uit commit `1589e0619fcce8460dda144bcca4bff03a1d75c9` is ongewijzigd.
+- De versiestring van de mobiele CSS is opgehoogd, zodat browsers bij deployment het nieuwe bestand ophalen.
+
+Controleer handmatig een verlopen contactformulier op een telefoon en test indien mogelijk ook:
+
+`php artisan test --filter=ContactFormReliabilityTest`
+
+`php artisan test --filter=MobileResponsiveStylesTest`

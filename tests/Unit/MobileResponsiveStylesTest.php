@@ -29,6 +29,21 @@ class MobileResponsiveStylesTest extends TestCase
         $this->assertSame(substr_count($css, '{'), substr_count($css, '}'));
     }
 
+
+    public function test_contact_form_has_phone_safe_fields_and_full_width_submit_button(): void
+    {
+        $css = file_get_contents($this->projectRoot().'/public/css/mobile-responsive.css');
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('.legal-page .contact-input', $css);
+        $this->assertStringContainsString('.legal-page .contact-textarea', $css);
+        $this->assertStringContainsString('.legal-page .contact-alert', $css);
+        $this->assertStringContainsString('.legal-page .contact-submit', $css);
+        $this->assertStringContainsString('scroll-margin-block: 80px', $css);
+        $this->assertStringContainsString('font-size: 16px', $css);
+        $this->assertStringContainsString('width: 100%', $css);
+    }
+
     public function test_all_web_layouts_load_mobile_rules_after_their_page_styles(): void
     {
         $paths = [

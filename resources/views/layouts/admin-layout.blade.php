@@ -2903,7 +2903,7 @@
     </style>
 
     @stack('styles')
-    <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008">
+    <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008-2">
 </head>
 
 
