@@ -11,6 +11,7 @@ import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
+import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
@@ -163,6 +164,21 @@ async function main() {
     args: ['--window-position=0,0', '--window-size=1280,720', '--autoplay-policy=no-user-gesture-required'],
   });
   const page = browser.pages()[0] || await browser.newPage();
+  // Safe HTTP diagnostics: count only response statuses and resource types.
+  // Do not log URLs, cookies, response bodies, or stream addresses.
+  let network = newNetworkSummary();
+  page.on('response', response => {
+    try {
+      const request = response.request();
+      const isMain = request.isNavigationRequest() && request.frame() === page.mainFrame();
+      recordHttpResponse(network, response.status(), request.resourceType(), isMain);
+    } catch { /* Browser may detach a frame while a response arrives. */ }
+  });
+  page.on('requestfailed', request => {
+    if (['document', 'media', 'xhr', 'fetch', 'script'].includes(request.resourceType())) {
+      network.failedRequests++;
+    }
+  });
   let offlineCount = 0;
   let playbackMissingCount = 0;
 
@@ -171,7 +187,14 @@ async function main() {
     try {
       let ageConsent = { detected: false, clicked: false };
       if (!recording) {
-        await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+        network = newNetworkSummary();
+        const response = await page.goto('https://chaturbate.com/' + account + '/', {
+          waitUntil: 'domcontentloaded', timeout: 30000,
+        });
+        // A navigation response can arrive before the event handler attaches to the frame.
+        if (network.mainHttpStatus === null && response) {
+          recordHttpResponse(network, response.status(), 'document', true);
+        }
         await pause(7000);
         // User expressly confirmed they are 18+ and agreed to these terms.
         // Click only the real Chaturbate age/terms modal, never other gates.
@@ -181,9 +204,10 @@ async function main() {
           await pause(5000);
         }
       }
-      const result = ageConsent.detected && !ageConsent.clicked
+      const playback = ageConsent.detected && !ageConsent.clicked
         ? { kind: 'needs_setup', detail: '18+-voorwaarden zichtbaar maar niet bevestigd' }
         : await detect(page);
+      const result = diagnoseAccess(playback, network);
 
       if (recording) await recording.check();
       if (!recording && result.kind === 'live') {
