@@ -43,7 +43,7 @@ final class LiveArchiveS3
      * Only server-side code calls this method; keys and object URLs are never
      * sent to browsers or included in HTML.
      */
-    private function request(string $method, ?string $key = null, array $query = [], array $extraHeaders = []): \Psr\Http\Message\ResponseInterface
+    private function request(string $method, ?string $key = null, array $query = [], array $extraHeaders = [], ?string $bodyFilePath = null): \Psr\Http\Message\ResponseInterface
     {
         $cfg = $this->config();
         $endpoint = parse_url($cfg['endpoint']);
@@ -64,7 +64,8 @@ final class LiveArchiveS3
         ));
         $now = gmdate('Ymd\THis\Z');
         $date = substr($now, 0, 8);
-        $payloadHash = hash('sha256', '');
+        $payloadHash = $bodyFilePath === null ? hash('sha256', '') : hash_file('sha256', $bodyFilePath);
+        if ($payloadHash === false) throw new RuntimeException('Unable to read private video upload.');
         $canonicalHeaders = "host:{$host}\nx-amz-content-sha256:{$payloadHash}\nx-amz-date:{$now}\n";
         $headersList = 'host;x-amz-content-sha256;x-amz-date';
         $canonical = implode("\n", [$method, $uri, $qs, $canonicalHeaders, $headersList, $payloadHash]);
@@ -85,13 +86,27 @@ final class LiveArchiveS3
             'X-Amz-Content-Sha256' => $payloadHash,
             'Authorization' => $authorization,
         ], $extraHeaders);
-        return $this->client->request($method, 'https://'.$host.$uri.($qs ? '?'.$qs : ''), [
-            'headers' => $requestHeaders,
-            'stream' => true,
-            'allow_redirects' => false,
-            // Downloading long MP4 files must not stop after the default 20 seconds.
-            'timeout' => ($method === 'GET' && str_starts_with((string) $key, 'recordings/')) ? 0 : 20,
-        ]);
+        $body = null;
+        if ($bodyFilePath !== null) {
+            $body = fopen($bodyFilePath, 'rb');
+            if ($body === false) throw new RuntimeException('Unable to open private video upload.');
+            $size = filesize($bodyFilePath);
+            if ($size === false) throw new RuntimeException('Unable to determine private video size.');
+            $requestHeaders['Content-Length'] = (string) $size;
+        }
+        try {
+            return $this->client->request($method, 'https://'.$host.$uri.($qs ? '?'.$qs : ''), [
+                'headers' => $requestHeaders,
+                'body' => $body,
+                'stream' => true,
+                'allow_redirects' => false,
+                // Streaming video uploads and downloads may exceed the default 20 seconds.
+                'timeout' => ($method === 'GET' && str_starts_with((string) $key, 'recordings/'))
+                    ? 0 : (($method === 'PUT' && str_starts_with((string) $key, 'recordings/')) ? 180 : 20),
+            ]);
+        } finally {
+            if (is_resource($body)) fclose($body);
+        }
     }
 
     public function listVideos(string $account): array
@@ -131,6 +146,45 @@ final class LiveArchiveS3
             abort(404);
         }
         return "recordings/{$account}/{$filename}";
+    }
+
+    /**
+     * Store a privately staged MP4 in Railway S3 using a signed streaming PUT.
+     * Only server-side code sees S3 credentials; the browser uploads small
+     * chunks to the admin-only endpoint instead of accessing S3 directly.
+     */
+    public function storeVideoFromPath(string $account, string $filename, string $filePath): int
+    {
+        $key = $this->objectKey($account, $filename);
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new RuntimeException('Private MP4 upload is unavailable.');
+        }
+        $size = filesize($filePath);
+        if ($size === false || $size < 1024 || $size > 250 * 1024 * 1024) {
+            throw new RuntimeException('Private MP4 upload size is invalid.');
+        }
+
+        $existing = $this->request('HEAD', $key);
+        if ($existing->getStatusCode() === 200) {
+            throw new RuntimeException('This recording already exists.');
+        }
+        if ($existing->getStatusCode() !== 404) {
+            throw new RuntimeException('Unable to check private MP4 destination.');
+        }
+
+        $response = $this->request('PUT', $key, [], [
+            'Content-Type' => 'video/mp4',
+            'Cache-Control' => 'private, no-store',
+        ], $filePath);
+        if (!in_array($response->getStatusCode(), [200, 201, 204], true)) {
+            throw new RuntimeException('Private MP4 upload failed (HTTP '.$response->getStatusCode().').');
+        }
+
+        $head = $this->request('HEAD', $key);
+        if ($head->getStatusCode() !== 200 || (int) $head->getHeaderLine('Content-Length') !== $size) {
+            throw new RuntimeException('Uploaded private MP4 could not be verified.');
+        }
+        return $size;
     }
 
     public function streamVideo(Request $request, string $account, string $filename, bool $download): StreamedResponse

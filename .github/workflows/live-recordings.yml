@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'app/Http/Controllers/LiveRecordingController.php'
+      - 'app/Http/Controllers/LiveRecordingUploadController.php'
       - 'app/Services/LiveArchiveS3.php'
       - 'routes/live-recordings.php'
       - 'routes/web.php'
@@ -15,6 +16,7 @@ on:
       - 'resources/views/admin/live-recordings.blade.php'
       - 'scripts/live-recorder/**'
       - 'tests/Feature/LiveRecordingsTest.php'
+      - 'tests/Feature/LiveArchiveS3UploadTest.php'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
@@ -59,6 +61,7 @@ jobs:
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
+          php -l app/Http/Controllers/LiveRecordingUploadController.php
           php -l routes/live-recordings.php
           php -l app/Services/LiveArchiveS3.php
           php -l app/Http/Controllers/LiveRecorderIngestController.php
@@ -70,7 +73,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
       - name: Test admin-only private media access
-        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest'
+        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest'
 
   recorder-docker:
     runs-on: ubuntu-latest
