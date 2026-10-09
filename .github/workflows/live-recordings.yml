@@ -19,6 +19,7 @@ on:
       - 'tests/Feature/LiveArchiveS3UploadTest.php'
       - 'package.json'
       - 'package-lock.json'
+      - 'railpack.json'
   workflow_dispatch:
 
 jobs:
@@ -72,6 +73,10 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+      - name: Check FFmpeg conversion is available
+        run: |
+          ffmpeg -version
+          ffprobe -version
       - name: Test admin-only private media access
         run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest'
 
