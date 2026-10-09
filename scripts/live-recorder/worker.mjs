@@ -12,7 +12,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { nextPollDelay } from './schedule.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
-if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
+if (!['knock1knock', 'emyii', 'leo_kitty'].includes(account)) throw new Error('Invalid account');
 const env = process.env;
 for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE_S3_ACCESS_KEY_ID', 'LIVE_S3_SECRET_ACCESS_KEY', 'DISPLAY', 'PULSE_SOURCE']) {
   if (!env[key]) throw new Error('Missing required configuration: ' + key);
@@ -30,6 +30,9 @@ const audio = env.PULSE_SOURCE;
 const executablePath = env.CHROME_PATH || '/usr/bin/chromium';
 const interval = 60000, width = 1280, height = 720;
 const maxSeconds = Math.max(0, Number(env.LIVE_TEST_SECONDS || 0));
+// Explicit one-shot diagnostic: capture Chrome display even if the site refuses to play video.
+// Never enable for a continuously running recorder.
+const forceTestCapture = account === 'leo_kitty' && env.LIVE_FORCE_TEST_CAPTURE === '1' && maxSeconds === 60;
 let exiting = false, recording = null, browser, interrupt;
 const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
@@ -56,7 +59,7 @@ function untilExit(proc) {
   });
 }
 async function capture() {
-  const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
+  const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + (forceTestCapture ? '_diagnostic' : '') + '.mp4';
   const key = 'recordings/' + account + '/' + filename;
   const args = [
     '-hide_banner', '-loglevel', 'warning', '-nostdin',
@@ -175,11 +178,13 @@ async function main() {
       const result = await detect(page);
 
       if (recording) await recording.check();
-      if (!recording && result.kind === 'live') {
+      if (!recording && (result.kind === 'live' || forceTestCapture)) {
         recording = await capture();
         offlineCount = 0;
         playbackMissingCount = 0;
-        await update('recording', 'Opname gestart; wacht op het einde van de livestream');
+        await update('recording', forceTestCapture
+          ? 'TEST: 60 seconden Chrome-scherm en geluid; de livestream kan ontbreken'
+          : 'Opname gestart; wacht op het einde van de livestream');
       } else if (recording) {
         if (result.kind === 'offline') offlineCount += 1;
         else if (result.kind === 'live') offlineCount = 0;
@@ -192,7 +197,8 @@ async function main() {
           recording = null;
           await update('live', 'MP4 wordt afgerond');
           const key = await done.stop();
-          await update(result.kind === 'offline' ? 'offline' : 'live', 'Opname opgeslagen: ' + key.split('/').at(-1));
+          await update(result.kind === 'offline' ? 'offline' : 'live',
+            (forceTestCapture ? 'Testopname opgeslagen: ' : 'Opname opgeslagen: ') + key.split('/').at(-1));
           offlineCount = 0;
           playbackMissingCount = 0;
           if (maxSeconds > 0) exiting = true; // One test clip only.
