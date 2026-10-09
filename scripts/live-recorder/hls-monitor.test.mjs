@@ -117,6 +117,39 @@ test('leo_kitty can be monitored independently on the emyii Railway worker', asy
   assert.equal(stopped, 1);
 });
 
+test('mon1_day continuously records complete streams and reports online status', async () => {
+  const controller = new AbortController();
+  const states = [];
+  const started = [];
+  const saved = [];
+  let poll = 0;
+  const sources = [source, source, { kind: 'offline' }, { kind: 'offline' }, source];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'mon1_day', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'mon1_day');
+      return sources[Math.min(poll, sources.length - 1)];
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, 'mon1_day');
+      assert.deepEqual(urls, source.urls);
+      const key = 'recordings/mon1_day/full-' + (started.length + 1) + '.mp4';
+      started.push(key);
+      return {
+        check: async () => false,
+        stop: async () => { saved.push(key); return key; },
+      };
+    },
+    report: async ({ state }) => states.push(state),
+    sleep: async () => { poll++; if (poll >= sources.length) controller.abort(); },
+  });
+  assert.deepEqual(saved, started);
+  assert.equal(started.length, 2);
+  assert.ok(states.includes('recording'));
+  assert.ok(states.includes('uploading'));
+  assert.ok(states.includes('offline'));
+});
+
 test('the extra monitor cannot be configured for a different account', async () => {
   const controller = new AbortController();
   await assert.rejects(
