@@ -51,6 +51,8 @@ jobs:
         run: node --test scripts/live-recorder/access-diagnostics.test.mjs
       - name: Test strict one-minute polling schedule
         run: node --test scripts/live-recorder/schedule.test.mjs
+      - name: Test 30-second browser capture JavaScript
+        run: node --test scripts/live-recorder/admin-capture-syntax.test.mjs
       - name: Check recorder JavaScript syntax
         run: |
           node --check scripts/live-recorder/worker.mjs
