@@ -28,6 +28,17 @@
         .live-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
         .live-btn { display: inline-flex; align-items: center; justify-content: center; background: #7767e9; border-radius: 10px; border: 0; padding: 10px 14px; text-decoration: none; color: white; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
         .live-btn.danger { background: #513037; }
+        .live-item video { min-height: 180px; }
+        .live-video-error { display: none; padding: 10px 0; font-size: 13px; color: #ffb3a7; }
+        .live-video-error[data-visible="true"] { display: block; }
+        @media (max-width: 640px) {
+            .live-head { padding: 18px; }
+            .live-body { padding: 14px; }
+            .live-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .live-actions .live-btn { width: 100%; min-height: 48px; text-align: center; }
+            .live-actions form { grid-column: 1 / -1; }
+            .live-actions form button { width: 100%; }
+        }
         .live-empty { padding: 28px; border: 1px dashed #3d4350; border-radius: 18px; color: #b9c2cf; }
         .live-upload { border: 1px solid #303542; background: #11151d; border-radius: 18px; padding: 20px; margin-bottom: 24px; }
         .live-upload h2 { margin: 0 0 8px; font-size: 20px; }
@@ -130,15 +141,19 @@
     @forelse($recordings as $recording)
         @if($loop->first)<div class="live-items">@endif
         <article class="live-item">
-            <video controls preload="none" playsinline controlsList="nodownload" src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}"></video>
+            <video controls preload="metadata" playsinline webkit-playsinline
+                src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}"
+                aria-label="Privéopname van {{ $recording['account'] }}"></video>
             <div class="live-body">
                 <h3>{{ $recording['account'] }}</h3>
                 <div class="live-muted">
                     {{ date('d-m-Y H:i', $recording['created_at']) }} ·
                     {{ number_format($recording['bytes'] / (1024 * 1024), 1, ',', '.') }} MB
                 </div>
+                <p class="live-video-error" data-video-error role="status">De videospeler kon dit bestand niet laden. Probeer ‘Open video’ of ‘Download MP4’.</p>
                 <div class="live-actions">
-                    <a class="live-btn" href="{{ route('live.download', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}">Download MP4</a>
+                    <a class="live-btn" href="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" target="_blank" rel="noopener">Open video</a>
+                    <a class="live-btn" href="{{ route('live.download', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" download="{{ $recording['filename'] }}">Download MP4</a>
                     <form action="{{ route('live.destroy', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" method="POST" onsubmit="return confirm('Deze privéopname definitief verwijderen?');">
                         @csrf
                         @method('DELETE')
@@ -154,6 +169,12 @@
 </div>
 <script>
     (() => {
+        document.querySelectorAll('.live-item video').forEach(video => {
+            video.addEventListener('error', () => {
+                const error = video.closest('.live-item')?.querySelector('[data-video-error]');
+                if (error) error.dataset.visible = 'true';
+            });
+        });
         const url = @json(route('live.status'));
         const labels = { recording: 'OPNAME LOOPT', uploading: 'BEZIG MET OPSLAAN', live: 'LIVE', offline: 'OFFLINE', unknown: 'ONBEKEND', error: 'FOUT', needs_setup: 'INSTELLEN' };
         async function refresh() {

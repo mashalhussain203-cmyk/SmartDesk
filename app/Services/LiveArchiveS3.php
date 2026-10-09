@@ -191,7 +191,8 @@ final class LiveArchiveS3
     {
         $key = $this->objectKey($account, $filename);
         $headers = [];
-        if (!$download && $request->hasHeader('Range')) {
+        // iOS Safari and mobile download managers both use byte ranges.
+        if ($request->hasHeader('Range')) {
             $range = (string) $request->header('Range');
             if (!preg_match('/^bytes=(?:\d+-\d*|\d*-\d+)$/D', $range)) abort(416);
             $headers['Range'] = $range;
@@ -214,11 +215,23 @@ final class LiveArchiveS3
             if ($res->hasHeader($keyHeader)) $responseHeaders[$keyHeader] = $res->getHeaderLine($keyHeader);
         }
         return response()->stream(static function () use ($res): void {
+            // Large private recordings can take minutes or hours to send over
+            // mobile networks. PHP's default 30-second execution limit used to
+            // terminate this response mid-video (production fatal error).
+            if (function_exists('set_time_limit')) {
+                @set_time_limit(120);
+            }
             $body = $res->getBody();
+            $chunks = 0;
             try {
                 while (!$body->eof()) {
-                    echo $body->read(65536);
                     if (connection_aborted()) break;
+                    $chunk = $body->read(65536);
+                    if ($chunk === '') break;
+                    echo $chunk;
+                    if (function_exists('set_time_limit') && ++$chunks % 16 === 0) {
+                        @set_time_limit(120);
+                    }
                     flush();
                 }
             } finally {
