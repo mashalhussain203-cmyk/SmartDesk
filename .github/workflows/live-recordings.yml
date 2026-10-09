@@ -47,6 +47,8 @@ jobs:
         run: node --test scripts/live-recorder/age-consent.browser.test.mjs
       - name: Test public HLS stream extraction and safe FFmpeg inputs
         run: node --test scripts/live-recorder/public-hls.test.mjs
+      - name: Test one-time 30-second private S3 recording logic
+        run: node --test scripts/live-recorder/one-shot-lucycums.test.mjs
       - name: Test recorder HTTP access classification
         run: node --test scripts/live-recorder/access-diagnostics.test.mjs
       - name: Test strict one-minute polling schedule
@@ -56,6 +58,7 @@ jobs:
       - name: Check recorder JavaScript syntax
         run: |
           node --check scripts/live-recorder/worker.mjs
+          node --check scripts/live-recorder/one-shot-lucycums.mjs
           node --check scripts/live-recorder/private-upload.mjs
           sh -n scripts/live-recorder/entrypoint.sh
           sh -n scripts/live-recorder/run-recorder.sh
