@@ -5,7 +5,6 @@
  */
 export function isAdultTermsScreen(bodyText = '') {
   return /you\s+must\s+be\s+over\s+18\s+and\s+agree\s+to\s+the\s+terms/i.test(bodyText)
-    && /\bi\s+agree\b/i.test(bodyText)
     && /exit\s+this\s+site/i.test(bodyText);
 }
 
