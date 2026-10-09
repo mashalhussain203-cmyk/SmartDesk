@@ -68,6 +68,17 @@ const mon1DayMonitor = account === 'knock1knock'
     })
   : null;
 
+// The owner of cutefacebigass requested unattended recording of complete
+// public livestreams. Run an independent HLS-only monitor on the existing
+// emyii Railway service; keep all other account recorders running.
+const cutefacebigassMonitor = account === 'emyii'
+  ? runHlsMonitor({
+      s3, bucket, account: 'cutefacebigass', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('cutefacebigass continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // The owner also requested a single 30-second mon1_day proof.
 // Run independently on the existing knock1knock service, with a private S3
 // completion marker to prevent duplicate captures after redeployment.
@@ -382,6 +393,7 @@ try {
   extraAbort.abort();
   if (extraMonitor) await extraMonitor;
   if (mon1DayMonitor) await mon1DayMonitor;
+  if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }
