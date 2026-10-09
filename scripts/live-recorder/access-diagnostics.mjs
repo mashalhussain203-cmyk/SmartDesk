@@ -13,10 +13,13 @@ export function newNetworkSummary() {
     scriptErrors: 0,
     otherErrors: 0,
     failedRequests: 0,
+    pageScriptErrors: 0,
+    apiErrorCodes: {},
+    mediaErrorCodes: {},
   };
 }
 
-export function recordHttpResponse(summary, status, type, isMainDocument = false) {
+export function recordHttpResponse(summary, status, type, isMainDocument = false, origin = 'other') {
   if (isMainDocument) summary.mainHttpStatus = status;
   if (!Number.isInteger(status) || status < 400) return;
   const key = {
@@ -27,6 +30,14 @@ export function recordHttpResponse(summary, status, type, isMainDocument = false
     script: 'scriptErrors',
   }[type] || 'otherErrors';
   summary[key]++;
+  // Only HTTP code + broad host category; never record actual request URLs.
+  const codes = ['xhr', 'fetch'].includes(type) ? summary.apiErrorCodes
+    : type === 'media' ? summary.mediaErrorCodes : null;
+  if (codes && Object.keys(codes).length < 12) {
+    const safeOrigin = ['site', 'media-network'].includes(origin) ? origin : 'other';
+    const label = String(status) + ':' + safeOrigin;
+    codes[label] = (codes[label] || 0) + 1;
+  }
 }
 
 export function diagnoseAccess(result, summary) {
@@ -50,11 +61,14 @@ export function diagnoseAccess(result, summary) {
   if (result.kind !== 'unknown') return result;
   const issues = [];
   if (status !== null) issues.push('pagina HTTP ' + status);
-  if (summary.mediaErrors) issues.push('mediafouten HTTP ' + summary.mediaErrors);
+  if (summary.mediaErrors) issues.push('mediafouten HTTP ' + summary.mediaErrors +
+    ' (' + Object.entries(summary.mediaErrorCodes).map(([code, n]) => code + ' x' + n).join(', ') + ')');
   if (summary.xhrErrors + summary.fetchErrors) {
-    issues.push('XHR/fetch HTTP-fouten ' + (summary.xhrErrors + summary.fetchErrors));
+    issues.push('XHR/fetch HTTP-fouten ' + (summary.xhrErrors + summary.fetchErrors) +
+      ' (' + Object.entries(summary.apiErrorCodes).map(([code, n]) => code + ' x' + n).join(', ') + ')');
   }
   if (summary.scriptErrors) issues.push('script HTTP-fouten ' + summary.scriptErrors);
   if (summary.failedRequests) issues.push('netwerkverzoeken mislukt ' + summary.failedRequests);
+  if (summary.pageScriptErrors) issues.push('browser-scriptfouten ' + summary.pageScriptErrors);
   return { ...result, detail: result.detail + (issues.length ? '; ' + issues.join(', ') : '') };
 }
