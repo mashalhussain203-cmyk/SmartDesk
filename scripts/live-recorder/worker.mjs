@@ -104,11 +104,12 @@ async function capture(mediaUrls = null) {
     async stop() {
       if (stopped) return key;
       stopped = true;
-      if (proc.exitCode === null) proc.kill('SIGINT');
+      const requestedStop = proc.exitCode === null;
+      if (requestedStop) proc.kill('SIGINT');
       const exit = await exited;
       const result = await uploaded;
       if (!result.ok) throw new Error('MP4 upload failed (private S3 upload)');
-      if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') {
+      if (exit.code !== 0 && !(requestedStop && (exit.code === 255 || exit.signal === 'SIGINT'))) {
         await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key })).catch(() => {});
         throw new Error('FFmpeg failed to finalize');
       }
