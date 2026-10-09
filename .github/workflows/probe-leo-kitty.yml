@@ -1,6 +1,9 @@
 name: One-time leo_kitty Chrome playback probe
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - 'test/leo-kitty-browser-probe-20261009'
