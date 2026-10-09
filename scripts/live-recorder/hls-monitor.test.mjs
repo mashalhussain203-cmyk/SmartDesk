@@ -182,3 +182,39 @@ test('stream end finalizes an MP4 and allows a subsequent live to be recorded', 
   assert.equal(captures, 2);
   assert.equal(saved, 2);
 });
+
+test('cutefacebigass runs as an independent full-length private monitor', async () => {
+  const controller = new AbortController();
+  let started = 0;
+  let saved = 0;
+  const statuses = [];
+  let polls = 0;
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'cutefacebigass', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'cutefacebigass');
+      return polls === 0 ? source : { kind: 'offline' };
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, 'cutefacebigass');
+      assert.ok(!hlsContinuousArgs(urls).includes('-t'));
+      started++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          saved++;
+          return 'recordings/cutefacebigass/full.mp4';
+        },
+      };
+    },
+    report: async ({ state }) => statuses.push(state),
+    sleep: async () => {
+      polls++;
+      if (polls >= 3) controller.abort();
+    },
+  });
+  assert.equal(started, 1);
+  assert.equal(saved, 1);
+  assert.ok(statuses.includes('recording'));
+  assert.ok(statuses.includes('uploading'));
+});
