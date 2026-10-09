@@ -43,9 +43,13 @@ final class LiveRecordingUploadController extends Controller
         return $meta;
     }
 
-    public function begin(Request $request): JsonResponse
+    public function begin(Request $request, LiveArchiveS3 $archive): JsonResponse
     {
         $this->requireAdmin();
+        // Never pretend a temporary Railway filesystem is a durable private archive.
+        if (app()->environment('production') && !$archive->configured()) {
+            abort(503, 'Privéopslag is niet ingesteld; upload niet gestart.');
+        }
         $validated = $request->validate([
             'account' => ['required', 'in:'.implode(',', self::ACCOUNTS)],
             'bytes' => ['required', 'integer', 'min:1024', 'max:'.self::MAX_BYTES],
