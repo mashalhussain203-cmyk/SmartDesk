@@ -15,7 +15,8 @@
   "deploy": {
     "aptPackages": [
       "...",
-      "chromium"
+      "chromium",
+      "ffmpeg"
     ]
   }
 }
