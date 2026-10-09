@@ -6,6 +6,11 @@ on:
       - 'app/Http/Controllers/LiveRecordingController.php'
       - 'routes/live-recordings.php'
       - 'routes/web.php'
+      - 'routes/api.php'
+      - 'bootstrap/app.php'
+      - 'config/live_recorder.php'
+      - 'app/Http/Controllers/LiveRecorderIngestController.php'
+      - 'tests/Feature/LiveRecorderIngestTest.php'
       - 'resources/views/admin/live-recordings.blade.php'
       - 'scripts/live-recorder/**'
       - 'tests/Feature/LiveRecordingsTest.php'
@@ -31,11 +36,17 @@ jobs:
       - name: Check web dependency lockfile
         run: npm ci --ignore-scripts
       - name: Check recorder JavaScript syntax
-        run: node --check scripts/live-recorder/worker.mjs
+        run: |
+          node --check scripts/live-recorder/worker.mjs
+          node --check scripts/live-recorder/private-upload.mjs
+          sh -n scripts/live-recorder/entrypoint.sh
+          sh -n scripts/live-recorder/run-recorder.sh
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
           php -l routes/live-recordings.php
+          php -l app/Http/Controllers/LiveRecorderIngestController.php
+          php -l routes/api.php
       - name: Install Laravel dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
       - name: Prepare Laravel environment
@@ -43,4 +54,4 @@ jobs:
           cp .env.example .env
           php artisan key:generate
       - name: Test admin-only private media access
-        run: php artisan test --filter=LiveRecordingsTest
+        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest'
