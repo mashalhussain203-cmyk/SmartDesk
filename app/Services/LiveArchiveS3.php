@@ -89,6 +89,8 @@ final class LiveArchiveS3
             'headers' => $requestHeaders,
             'stream' => true,
             'allow_redirects' => false,
+            // Downloading long MP4 files must not stop after the default 20 seconds.
+            'timeout' => ($method === 'GET' && str_starts_with((string) $key, 'recordings/')) ? 0 : 20,
         ]);
     }
 
@@ -137,7 +139,7 @@ final class LiveArchiveS3
         $headers = [];
         if (!$download && $request->hasHeader('Range')) {
             $range = (string) $request->header('Range');
-            if (!preg_match('/^bytes=\d*-\d*$/D', $range)) abort(416);
+            if (!preg_match('/^bytes=(?:\d+-\d*|\d*-\d+)$/D', $range)) abort(416);
             $headers['Range'] = $range;
         }
         $res = $this->request('GET', $key, [], $headers);

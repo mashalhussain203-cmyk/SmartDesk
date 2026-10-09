@@ -36,6 +36,10 @@
         <p>Alleen SmartDesk-beheerders hebben toegang tot deze pagina en de videobestanden. De Chrome-recorder controleert iedere 60 seconden of je livestream actief is en bewaart voltooide opnames privé als MP4. Het eerste minuutje kan ontbreken. Een onbekende status is niet hetzelfde als offline.</p>
     </div>
 
+    @if(!empty($archiveError))
+        <p role="alert" style="padding:12px;border:1px solid #f19c91;border-radius:12px;color:#ffab9d;">{{ $archiveError }}</p>
+    @endif
+
     <div class="live-status-grid">
         @foreach($accounts as $account)
             <div class="live-status-box" data-live-account="{{ $account }}">
