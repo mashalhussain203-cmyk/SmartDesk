@@ -139,6 +139,10 @@ final class LiveRecordingUploadController extends Controller
             }
             abort_unless($webmHeader === "\x1A\x45\xDF\xA3", 422, 'Dit bestand is geen WebM-opname.');
 
+            // Transcoding may take longer than PHP's default web request limit.
+            if (function_exists('set_time_limit')) {
+                @set_time_limit(150);
+            }
             // Browser screen recording is most reliably available as WebM.
             // Convert to an actual MP4 before it enters the private S3 archive.
             $convertedPath = $disk->path($directory.'/converted.mp4');
