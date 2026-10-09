@@ -30,11 +30,11 @@ export function hlsContinuousArgs(urls) {
   return args;
 }
 
-export async function reportHlsStatus({ s3, bucket, account, state, message }) {
+export async function reportHlsStatus({ s3, bucket, account, state, message, lastSaved = null }) {
   const checked_at = new Date().toISOString();
   await s3.send(new PutObjectCommand({
     Bucket: bucket, Key: 'status/' + account + '.json',
-    Body: JSON.stringify({ account, status: state, message, checked_at }),
+    Body: JSON.stringify({ account, status: state, message, checked_at, last_saved: lastSaved }),
     ContentType: 'application/json', CacheControl: 'no-store',
   }));
   console.log(checked_at, account, state, message);
@@ -132,12 +132,13 @@ export async function runHlsMonitor({
   if (!signal) throw new Error('Abort signal required');
   let recording = null;
   let missing = 0;
+  let lastSaved = null;
   const abort = new Promise(resolve => {
     if (signal.aborted) resolve();
     else signal.addEventListener('abort', resolve, { once: true });
   });
   const publish = async (state, message) => {
-    try { await report({ s3, bucket, account, state, message }); }
+    try { await report({ s3, bucket, account, state, message, lastSaved }); }
     catch { console.error(account, 'status update failed; retrying next poll'); }
   };
 
@@ -154,6 +155,7 @@ export async function runHlsMonitor({
         await publish('uploading', 'Livestream beëindigd; MP4 wordt gecontroleerd');
         const key = await done.stop();
         console.log(account, 'completed', key.split('/').at(-1));
+        lastSaved = key.split('/').at(-1);
         missing = 0;
         await publish('unknown', 'Opname opgeslagen; wachten op volgende live');
       } else if (!recording && live) {
@@ -168,6 +170,7 @@ export async function runHlsMonitor({
           await publish('uploading', 'Stream niet meer beschikbaar; MP4 wordt afgerond');
           const key = await done.stop();
           console.log(account, 'completed', key.split('/').at(-1));
+          lastSaved = key.split('/').at(-1);
           missing = 0;
           await publish('offline', 'Opname opgeslagen; wachten op volgende live');
         } else {
@@ -204,6 +207,7 @@ export async function runHlsMonitor({
     try {
       const key = await recording.stop();
       console.log(account, 'completed on shutdown', key.split('/').at(-1));
+      lastSaved = key.split('/').at(-1);
       await publish('offline', 'Opname opgeslagen; recorder herstart');
     } catch {
       await publish('error', 'Huidige MP4 kon niet worden afgerond tijdens herstart');

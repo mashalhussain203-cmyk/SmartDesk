@@ -147,6 +147,9 @@ class LiveRecordingController extends Controller
                 'status' => $state,
                 'checked_at' => gmdate('c', $updatedAt),
                 'message' => mb_substr((string) ($status['message'] ?? ''), 0, 180),
+                'last_saved' => is_string($status['last_saved'] ?? null)
+                    && preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/D', $status['last_saved'])
+                    ? $status['last_saved'] : null,
             ];
         }
 

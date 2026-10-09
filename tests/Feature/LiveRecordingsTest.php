@@ -48,7 +48,7 @@ class LiveRecordingsTest extends TestCase
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/lucycums/clip.mp4', 'test');
 
-        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@lucycums')->assertSee('Neem 30 seconden op en sla privé op');
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@lucycums')->assertSee('Neem 30 seconden op en sla privé op')->assertSee('Automatisch de volledige livestream opnemen')->assertSee('Opnameduur: geen limiet van 30 sec.');
         $this->actingAs($admin)->get('/live/lucycums/clip.mp4/watch')->assertOk();
         $this->actingAs($admin)->get('/live/lucycums/clip.mp4/download')->assertOk();
         $this->actingAs($admin)->delete('/live/lucycums/clip.mp4')->assertRedirect('/live');
@@ -64,7 +64,7 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin)->get('/live')
             ->assertOk()
             ->assertSee('@leo_kitty')
-            ->assertSee('automatisch iedere 60 seconden gecontroleerd');
+            ->assertSee('Automatisch de volledige livestream opnemen');
         $this->actingAs($admin)->get('/live/status')
             ->assertOk()
             ->assertJsonPath('leo_kitty.status', 'unknown');

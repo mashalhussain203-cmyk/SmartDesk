@@ -33,6 +33,7 @@ test('continuous recording includes both tracks, no 30-second limit', () => {
 test('every new live starts recording, offline finishes private MP4, and shutdown finalizes', async () => {
   const controller = new AbortController();
   const states = [];
+  const reported = [];
   const started = [];
   const stopped = [];
   let polls = 0;
@@ -59,9 +60,10 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
         stop: async () => { stopped.push(key); return key; },
       };
     },
-    report: async ({ account, state }) => {
+    report: async ({ account, state, lastSaved }) => {
       assert.equal(account, 'lucycums');
       states.push(state);
+      reported.push({ state, lastSaved });
     },
     sleep: async () => {
       polls++;
@@ -73,6 +75,8 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   assert.ok(states.includes('offline'));
   assert.ok(states.includes('recording'));
   assert.ok(states.includes('uploading'));
+  assert.ok(reported.some(x => x.lastSaved === 'stream-1.mp4'));
+  assert.ok(reported.some(x => x.lastSaved === 'stream-2.mp4'));
 });
 
 test('unavailable HLS source shows unknown, not falsely offline', async () => {
