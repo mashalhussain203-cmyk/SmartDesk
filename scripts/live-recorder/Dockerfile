@@ -3,8 +3,12 @@ FROM node:22-bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       chromium ffmpeg xvfb pulseaudio pulseaudio-utils util-linux ca-certificates fonts-liberation \
+       chromium ffmpeg xvfb pulseaudio pulseaudio-utils util-linux ca-certificates fonts-liberation python3 python3-venv \
     && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m venv /opt/yt-dlp \
+    && /opt/yt-dlp/bin/pip install --no-cache-dir 'yt-dlp>=2026.06.01,<2027' curl_cffi
+ENV PATH="/opt/yt-dlp/bin:${PATH}"
 
 WORKDIR /app
 COPY scripts/live-recorder/package.json /app/package.json
@@ -13,6 +17,7 @@ COPY scripts/live-recorder/worker.mjs /app/worker.mjs
 COPY scripts/live-recorder/schedule.mjs /app/schedule.mjs
 COPY scripts/live-recorder/age-consent.mjs /app/age-consent.mjs
 COPY scripts/live-recorder/access-diagnostics.mjs /app/access-diagnostics.mjs
+COPY scripts/live-recorder/public-hls.mjs /app/public-hls.mjs
 COPY scripts/live-recorder/docker-entrypoint.sh /usr/local/bin/live-recorder-start
 COPY scripts/live-recorder/docker-root-entrypoint.sh /usr/local/bin/live-recorder-root-start
 RUN chmod +x /usr/local/bin/live-recorder-start /usr/local/bin/live-recorder-root-start \
