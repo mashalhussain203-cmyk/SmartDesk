@@ -1,0 +1,23 @@
+name: TEMP lucycums Chrome playback diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Chrome worker dependencies
+        run: npm install --prefix scripts/live-recorder --ignore-scripts --no-audit --no-fund
+      - name: Verify Chrome and Xvfb
+        run: |
+          which google-chrome
+          which xvfb-run
+      - name: Check actual Chrome playback after consent (read only)
+        run: xvfb-run -a node scripts/live-recorder/probe-lucycums.mjs
