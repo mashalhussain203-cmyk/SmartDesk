@@ -180,32 +180,36 @@ async function detect(page) {
 
 async function main() {
   await update('unknown', 'Chrome-recorder wordt gestart');
-  browser = await chromium.launchPersistentContext(profile, {
+  const launchBrowser = () => chromium.launchPersistentContext(profile, {
     executablePath, headless: false,
     viewport: { width, height },
     args: ['--window-position=0,0', '--window-size=1280,720', '--autoplay-policy=no-user-gesture-required'],
   });
-  const page = browser.pages()[0] || await browser.newPage();
+  browser = await launchBrowser();
+  let page = browser.pages()[0] || await browser.newPage();
   // Safe HTTP diagnostics: count only response statuses and resource types.
   // Do not log URLs, cookies, response bodies, or stream addresses.
   let network = newNetworkSummary();
-  page.on('response', response => {
-    try {
-      const request = response.request();
-      const isMain = request.isNavigationRequest() && request.frame() === page.mainFrame();
-      const hostname = new URL(response.url()).hostname.toLowerCase();
-      const origin = hostname === 'chaturbate.com' || hostname.endsWith('.chaturbate.com')
-        ? 'site' : hostname === 'highwebmedia.com' || hostname.endsWith('.highwebmedia.com')
-          ? 'media-network' : 'other';
-      recordHttpResponse(network, response.status(), request.resourceType(), isMain, origin);
-    } catch { /* Browser may detach a frame while a response arrives. */ }
-  });
-  page.on('pageerror', () => { network.pageScriptErrors++; });
-  page.on('requestfailed', request => {
-    if (['document', 'media', 'xhr', 'fetch', 'script'].includes(request.resourceType())) {
-      network.failedRequests++;
-    }
-  });
+  function attachNetworkDiagnostics(targetPage) {
+    targetPage.on('response', response => {
+      try {
+        const request = response.request();
+        const isMain = request.isNavigationRequest() && request.frame() === targetPage.mainFrame();
+        const hostname = new URL(response.url()).hostname.toLowerCase();
+        const origin = hostname === 'chaturbate.com' || hostname.endsWith('.chaturbate.com')
+          ? 'site' : hostname === 'highwebmedia.com' || hostname.endsWith('.highwebmedia.com')
+            ? 'media-network' : 'other';
+        recordHttpResponse(network, response.status(), request.resourceType(), isMain, origin);
+      } catch { /* Browser may detach a frame while a response arrives. */ }
+    });
+    targetPage.on('pageerror', () => { network.pageScriptErrors++; });
+    targetPage.on('requestfailed', request => {
+      if (['document', 'media', 'xhr', 'fetch', 'script'].includes(request.resourceType())) {
+        network.failedRequests++;
+      }
+    });
+  }
+  attachNetworkDiagnostics(page);
   let offlineCount = 0;
   let playbackMissingCount = 0;
 
@@ -292,7 +296,20 @@ async function main() {
         recording = null;
         try { await failed.stop(); } catch { /* The failed stream is not a valid recording. */ }
       }
-      await update('error', message.slice(0, 150));
+      if (/Page crashed|Target page, context or browser has been closed|Browser closed/i.test(message)) {
+        try {
+          await browser?.close().catch(() => {});
+          browser = await launchBrowser();
+          page = browser.pages()[0] || await browser.newPage();
+          network = newNetworkSummary();
+          attachNetworkDiagnostics(page);
+          await update('unknown', 'Chrome herstart na browserfout; opnamecontrole wordt hervat');
+        } catch {
+          await update('error', 'Chrome kon niet opnieuw worden gestart');
+        }
+      } else {
+        await update('error', message.slice(0, 150));
+      }
       // Temporary browser/network errors must not discard a healthy HLS recording.
     }
     if (!exiting) {
