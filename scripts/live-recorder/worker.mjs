@@ -15,6 +15,7 @@ import { mkdir, writeFile, rename, unlink, stat, readdir } from 'node:fs/promise
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
+import { PrivateUploadClient } from './private-upload.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid LIVE_ACCOUNT');
@@ -41,6 +42,11 @@ if (!audio) throw new Error('Set PULSE_SOURCE to your display audio monitor devi
 await mkdir(root, { recursive: true, mode: 0o700 });
 await mkdir(profile, { recursive: true, mode: 0o700 });
 
+const uploadClient = new PrivateUploadClient({
+  base: process.env.LIVE_RECORDER_INGEST_URL,
+  secret: process.env.LIVE_RECORDER_SECRET,
+  account,
+});
 const statusPath = join(root, 'status.json');
 async function update(status, message) {
   const checked_at = new Date().toISOString();
@@ -48,6 +54,11 @@ async function update(status, message) {
   await writeFile(tmp, JSON.stringify({ account, status, message, checked_at }), { mode: 0o600 });
   await rename(tmp, statusPath);
   console.log(checked_at, account, status, message);
+  try {
+    await uploadClient.status(status, message);
+  } catch (error) {
+    console.error('Cannot report status to SmartDesk:', error.message);
+  }
 }
 function shell(name, args) {
   const proc = spawn(name, args, { stdio: ['pipe', 'ignore', 'pipe'] });
@@ -155,6 +166,8 @@ async function detect(page) {
 
 async function main() {
   await recoverOrphanedRecordings();
+  try { await uploadClient.flushPending(root); }
+  catch (error) { console.error('Pending upload will retry:', error.message); }
   await update('unknown', 'Chrome-recorder wordt gestart');
   browser = await chromium.launchPersistentContext(profile, {
     executablePath, headless: false,
@@ -168,6 +181,8 @@ async function main() {
   while (!exiting) {
     try {
       if (!recording) {
+        try { await uploadClient.flushPending(root); }
+        catch (error) { console.error('Pending upload will retry:', error.message); }
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
         await pause(7000);
       }
@@ -189,8 +204,8 @@ async function main() {
           const done = recording;
           recording = null;
           await update('live', 'MP4 wordt afgerond');
-          const path = await done.stop();
-          await update('offline', 'Opname opgeslagen: ' + path.split('/').at(-1));
+          await done.stop();
+          await uploadClient.flushPending(root);
           offlineCount = 0;
           playbackMissingCount = 0;
           if (maxSeconds > 0) exiting = true; // One test clip only.
@@ -209,7 +224,12 @@ async function main() {
       await pause(Math.max(1000, Math.min(interval, remaining)));
     }
   }
-  if (recording) await recording.stop();
+  if (recording) {
+    await update('uploading', 'Afgebroken stream afronden');
+    await recording.stop();
+  }
+  try { await uploadClient.flushPending(root); }
+  catch (error) { await update('error', 'Upload mislukt; lokaal bewaard: ' + error.message); }
   await browser.close();
 }
 
