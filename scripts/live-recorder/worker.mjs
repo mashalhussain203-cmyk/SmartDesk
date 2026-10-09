@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -105,6 +105,12 @@ async function capture(mediaUrls = null) {
       const result = await uploaded;
       if (!result.ok) throw new Error('MP4 upload failed: ' + result.error?.message);
       if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') throw new Error('FFmpeg failed to finalize');
+      // A completed multipart upload must also exist as a nonempty private object.
+      const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      if (!head.ContentLength || head.ContentLength < 100_000) {
+        throw new Error('MP4 upload exists but is unexpectedly small');
+      }
+      console.log(new Date().toISOString(), account, 'saved', 'Private S3 MP4 verified:', head.ContentLength, 'bytes');
       return key;
     },
   };
