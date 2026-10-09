@@ -1,6 +1,6 @@
 {
   "name": "smartdesk-live-recorder",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,8 @@
     "check": "node --check worker.mjs"
   },
   "dependencies": {
-    "playwright-core": "^1.56.0"
+    "playwright-core": "^1.56.0",
+    "@aws-sdk/client-s3": "^3.850.0",
+    "@aws-sdk/lib-storage": "^3.850.0"
   }
 }
