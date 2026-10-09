@@ -13,7 +13,7 @@ import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
-import { runHlsMonitor } from './hls-monitor.mjs';
+import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -43,8 +43,7 @@ await mkdir(profile, { recursive: true, mode: 0o700 });
 // knock1knock + lucycums on one Railway service; emyii + leo_kitty on the other.
 // All four streams use independent S3 prefixes and statuses.
 const extraAbort = new AbortController();
-const extraAccount = account === 'knock1knock' ? 'lucycums'
-  : account === 'emyii' ? 'leo_kitty' : null;
+const extraAccount = extraAccountFor(account);
 let extraMonitor = null;
 if (extraAccount) {
   extraMonitor = runHlsMonitor({
