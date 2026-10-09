@@ -137,7 +137,7 @@ final class LiveRecordingUploadController extends Controller
             } finally {
                 fclose($input);
             }
-            abort_unless($webmHeader === "\\x1A\\x45\\xDF\\xA3", 422, 'Dit bestand is geen WebM-opname.');
+            abort_unless($webmHeader === "\x1A\x45\xDF\xA3", 422, 'Dit bestand is geen WebM-opname.');
 
             // Browser screen recording is most reliably available as WebM.
             // Convert to an actual MP4 before it enters the private S3 archive.
