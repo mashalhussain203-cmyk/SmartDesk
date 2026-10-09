@@ -13,6 +13,7 @@ import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
+import { recordLucycumsOnce } from './one-shot-lucycums.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -37,6 +38,16 @@ let exiting = false, recording = null, browser, interrupt;
 const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
 await mkdir(profile, { recursive: true, mode: 0o700 });
+
+// One explicit 30-second capture request for the owner of lucycums.
+// Reuse the existing private S3 recorder; do not alter either LIVE_ACCOUNT.
+// The S3 marker ensures restarts cannot create duplicate recordings.
+if (account === 'knock1knock') {
+  void recordLucycumsOnce({ s3, bucket }).catch(error => {
+    // Never include signed stream URLs or credentials in the logs.
+    console.error('lucycums ONE_SHOT_FAILED', String(error?.message || 'capture failed').slice(0, 140));
+  });
+}
 
 async function update(status, message) {
   const checked_at = new Date().toISOString();
