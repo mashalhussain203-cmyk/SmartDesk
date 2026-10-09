@@ -13,7 +13,7 @@ import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
-import { recordLucycumsOnce } from './one-shot-lucycums.mjs';
+import { runHlsMonitor } from './hls-monitor.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -39,13 +39,17 @@ const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
 await mkdir(profile, { recursive: true, mode: 0o700 });
 
-// One explicit 30-second capture request for the owner of lucycums.
-// Reuse the existing private S3 recorder; do not alter either LIVE_ACCOUNT.
-// The S3 marker ensures restarts cannot create duplicate recordings.
+// The existing knock1knock recorder also supervises a lightweight HLS-only
+// recorder for the owner's lucycums room. Each room has its own S3 status and
+// recording prefix. emyii continues on its own existing Railway service.
+const extraAbort = new AbortController();
+let extraMonitor = null;
 if (account === 'knock1knock') {
-  void recordLucycumsOnce({ s3, bucket }).catch(error => {
-    // Never include signed stream URLs or credentials in the logs.
-    console.error('lucycums ONE_SHOT_FAILED', String(error?.message || 'capture failed').slice(0, 140));
+  extraMonitor = runHlsMonitor({
+    s3, bucket, account: 'lucycums', signal: extraAbort.signal,
+  }).catch(() => {
+    // Do not log exception text: upstream media failures may contain signed URLs.
+    console.error('lucycums continuous monitor unexpectedly stopped');
   });
 }
 
@@ -338,11 +342,15 @@ async function main() {
   await browser.close();
 }
 
-process.on('SIGTERM', () => { exiting = true; interrupt(); });
-process.on('SIGINT', () => { exiting = true; interrupt(); });
+process.on('SIGTERM', () => { exiting = true; interrupt(); extraAbort.abort(); });
+process.on('SIGINT', () => { exiting = true; interrupt(); extraAbort.abort(); });
 try {
   await main();
 } catch (error) {
   await update('error', String(error?.message || error).slice(0, 150));
   process.exitCode = 1;
+} finally {
+  // Finish an in-flight lucycums MP4 before Railway stops the container.
+  extraAbort.abort();
+  if (extraMonitor) await extraMonitor;
 }
