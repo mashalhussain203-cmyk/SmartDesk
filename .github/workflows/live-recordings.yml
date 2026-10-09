@@ -45,6 +45,7 @@ jobs:
           sh -n scripts/live-recorder/entrypoint.sh
           sh -n scripts/live-recorder/run-recorder.sh
           sh -n scripts/live-recorder/docker-entrypoint.sh
+          sh -n scripts/live-recorder/docker-root-entrypoint.sh
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
