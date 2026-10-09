@@ -14,6 +14,7 @@ import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
+import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -53,6 +54,14 @@ if (extraAccount) {
     console.error('Additional continuous monitor unexpectedly stopped');
   });
 }
+
+// A one-time 30-second emyii proof, independent of the ongoing recorder.
+// It waits until the public stream becomes playable, then saves to private S3.
+const emyiiOneShot = account === 'emyii'
+  ? runEmyiiOneShot({ s3, bucket, signal: extraAbort.signal }).catch(() => {
+      console.error('emyii one-shot monitor unexpectedly stopped');
+    })
+  : null;
 
 async function update(status, message) {
   const checked_at = new Date().toISOString();
@@ -354,4 +363,5 @@ try {
   // Finish an in-flight additional-account MP4 before Railway stops the container.
   extraAbort.abort();
   if (extraMonitor) await extraMonitor;
+  if (emyiiOneShot) await emyiiOneShot;
 }
