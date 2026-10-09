@@ -15,7 +15,7 @@ import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
-if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
+if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
 const env = process.env;
 for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE_S3_ACCESS_KEY_ID', 'LIVE_S3_SECRET_ACCESS_KEY', 'DISPLAY', 'PULSE_SOURCE']) {
   if (!env[key]) throw new Error('Missing required configuration: ' + key);
@@ -86,7 +86,8 @@ async function capture(mediaUrls = null) {
   await delay(1500);
   if (proc.exitCode !== null) {
     const result = await uploaded;
-    throw new Error('FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
+    throw new Error(mediaUrls ? 'HLS FFmpeg kon niet starten (geen afspeelbare stream)' :
+      'FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
   }
   let stopped = false;
   return {
@@ -103,7 +104,7 @@ async function capture(mediaUrls = null) {
       if (proc.exitCode === null) proc.kill('SIGINT');
       const exit = await exited;
       const result = await uploaded;
-      if (!result.ok) throw new Error('MP4 upload failed: ' + result.error?.message);
+      if (!result.ok) throw new Error('MP4 upload failed (private S3 upload)');
       if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') throw new Error('FFmpeg failed to finalize');
       // A completed multipart upload must also exist as a nonempty private object.
       const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
