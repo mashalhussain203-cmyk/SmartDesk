@@ -65,7 +65,7 @@ try {
     const ok = ff.status === 0 && video && audio && seconds >= 50 && bytes > 100000;
     console.log('ONE_MINUTE_RESULT ' + JSON.stringify({
       account, status: ok ? 'VALID_MP4_VIDEO_AUDIO' : 'FAILED',
-      ffmpegExitCode: ff.status, ffmpegErrorCategory: ff.status === 0 ? null : category(String(ff.stderr || '')),
+      ffmpegExitCode: ff.status, ffmpegSpawnError: ff.error?.code || null, ffmpegErrorCategory: ff.status === 0 ? null : category(String(ff.stderr || '')),
       wallClockSeconds: Math.round(durationMs / 1000), mp4Seconds: seconds,
       bytes, video, audio, tracks,
     }));
