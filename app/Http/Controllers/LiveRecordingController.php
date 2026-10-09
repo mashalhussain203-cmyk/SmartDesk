@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\LiveArchiveS3;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -17,12 +18,16 @@ class LiveRecordingController extends Controller
         abort_unless(auth()->user()?->isAdmin() === true, 403);
     }
 
-    public function index(): View
+    public function index(LiveArchiveS3 $archive): View
     {
         $this->requireAdmin();
 
         $recordings = [];
-        foreach (self::ACCOUNTS as $account) {
+        if ($archive->configured()) {
+            foreach (self::ACCOUNTS as $account) {
+                $recordings = array_merge($recordings, $archive->listVideos($account));
+            }
+        } else foreach (self::ACCOUNTS as $account) {
             foreach (Storage::disk('local')->files("live-recordings/{$account}") as $path) {
                 $filename = basename($path);
                 if (! preg_match('/^[A-Za-z0-9_.-]+\.mp4$/', $filename)) {
@@ -43,21 +48,22 @@ class LiveRecordingController extends Controller
         return view('admin.live-recordings', [
             'recordings' => $recordings,
             'accounts' => self::ACCOUNTS,
-            'statuses' => $this->statuses(),
+            'statuses' => $this->statuses($archive),
         ]);
     }
 
-    public function status()
+    public function status(LiveArchiveS3 $archive)
     {
         $this->requireAdmin();
 
-        return response()->json($this->statuses())->header('Cache-Control', 'private, no-store');
+        return response()->json($this->statuses($archive))->header('Cache-Control', 'private, no-store');
     }
 
-    public function play(string $account, string $filename): BinaryFileResponse
+    public function play(Request $request, LiveArchiveS3 $archive, string $account, string $filename)
     {
         $this->requireAdmin();
 
+        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, false);
         return response()->file($this->safePath($account, $filename), [
             'Content-Type' => 'video/mp4',
             'Cache-Control' => 'private, no-store, max-age=0',
@@ -66,22 +72,26 @@ class LiveRecordingController extends Controller
         ]);
     }
 
-    public function download(string $account, string $filename): BinaryFileResponse
+    public function download(Request $request, LiveArchiveS3 $archive, string $account, string $filename)
     {
         $this->requireAdmin();
 
+        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, true);
         return response()->download($this->safePath($account, $filename), $filename, [
             'Cache-Control' => 'private, no-store, max-age=0',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
-    public function destroy(Request $request, string $account, string $filename)
+    public function destroy(Request $request, LiveArchiveS3 $archive, string $account, string $filename)
     {
         $this->requireAdmin();
-        $this->safePath($account, $filename);
-
-        Storage::disk('local')->delete("live-recordings/{$account}/{$filename}");
+        if ($archive->configured()) {
+            $archive->removeVideo($account, $filename);
+        } else {
+            $this->safePath($account, $filename);
+            Storage::disk('local')->delete("live-recordings/{$account}/{$filename}");
+        }
 
         return redirect()->route('live.index')->with('success', 'Opname verwijderd.');
     }
@@ -97,17 +107,17 @@ class LiveRecordingController extends Controller
         return Storage::disk('local')->path($path);
     }
 
-    private function statuses(): array
+    private function statuses(LiveArchiveS3 $archive): array
     {
         $data = [];
         foreach (self::ACCOUNTS as $account) {
             $path = "live-recordings/{$account}/status.json";
             $status = null;
-            if (Storage::disk('local')->exists($path)) {
+            if ($archive->configured()) {
+                $status = $archive->getStatus($account);
+            } elseif (Storage::disk('local')->exists($path)) {
                 $parsed = json_decode(Storage::disk('local')->get($path), true);
-                if (is_array($parsed)) {
-                    $status = $parsed;
-                }
+                if (is_array($parsed)) $status = $parsed;
             }
 
             $updatedAt = isset($status['checked_at']) ? strtotime((string) $status['checked_at']) : false;

@@ -1,68 +1,51 @@
 /**
- * SmartDesk local Chrome recorder — no Chaturbate API.
- *
- * Runs as a separate persistent process on the same host/volume as Laravel.
- * A headful Chrome browser must have a private X11 display; ffmpeg captures
- * that display and its PulseAudio monitor source. This does NOT defeat login,
- * consent gates, DRM or stream permissions.
- *
- * One worker + one X11 display per channel. Example:
- * LIVE_ACCOUNT=knock1knock DISPLAY=:99 PULSE_SOURCE=monitor-source node scripts/live-recorder/worker.mjs
+ * SmartDesk private live recorder - Chrome + FFmpeg + Railway bucket.
+ * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rename, unlink, stat, readdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { PrivateUploadClient } from './private-upload.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
-if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid LIVE_ACCOUNT');
-
-const appRoot = fileURLToPath(new URL('../../', import.meta.url));
-const root = resolve(process.env.LIVE_STORAGE_ROOT || join(appRoot, 'storage/app/private/live-recordings'), account);
-const profile = resolve(process.env.LIVE_PROFILE_ROOT || join(appRoot, 'storage/app/private/live-chrome-profiles'), account);
-const display = process.env.DISPLAY;
-const audio = process.env.PULSE_SOURCE;
-const executablePath = process.env.CHROME_PATH || '/usr/bin/chromium';
-const interval = 60000;
-const width = 1280;
-const height = 720;
-const maxSeconds = Math.max(0, Number(process.env.LIVE_TEST_SECONDS || 0));
-let exiting = false;
-let recording = null;
-let browser;
-let interrupt;
+if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
+const env = process.env;
+for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE_S3_ACCESS_KEY_ID', 'LIVE_S3_SECRET_ACCESS_KEY', 'DISPLAY', 'PULSE_SOURCE']) {
+  if (!env[key]) throw new Error('Missing required configuration: ' + key);
+}
+if (!env.LIVE_S3_ENDPOINT.startsWith('https://')) throw new Error('Private bucket must use HTTPS');
+const bucket = env.LIVE_S3_BUCKET;
+const s3 = new S3Client({
+  endpoint: env.LIVE_S3_ENDPOINT, region: env.LIVE_S3_REGION,
+  forcePathStyle: env.LIVE_S3_URL_STYLE !== 'virtual-host', maxAttempts: 5,
+  credentials: { accessKeyId: env.LIVE_S3_ACCESS_KEY_ID, secretAccessKey: env.LIVE_S3_SECRET_ACCESS_KEY },
+});
+const profile = resolve(env.LIVE_PROFILE_ROOT || '/tmp/live-chrome-profiles', account);
+const display = env.DISPLAY;
+const audio = env.PULSE_SOURCE;
+const executablePath = env.CHROME_PATH || '/usr/bin/chromium';
+const interval = 60000, width = 1280, height = 720;
+const maxSeconds = Math.max(0, Number(env.LIVE_TEST_SECONDS || 0));
+let exiting = false, recording = null, browser, interrupt;
 const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
-
-if (!display || !/^:[0-9]+$/.test(display)) throw new Error('Set DISPLAY to a dedicated X11 display such as :99');
-if (!audio) throw new Error('Set PULSE_SOURCE to your display audio monitor device (for sound)');
-await mkdir(root, { recursive: true, mode: 0o700 });
 await mkdir(profile, { recursive: true, mode: 0o700 });
 
-const uploadClient = new PrivateUploadClient({
-  base: process.env.LIVE_RECORDER_INGEST_URL,
-  secret: process.env.LIVE_RECORDER_SECRET,
-  account,
-});
-const statusPath = join(root, 'status.json');
 async function update(status, message) {
   const checked_at = new Date().toISOString();
-  const tmp = join(root, 'status.json.tmp');
-  await writeFile(tmp, JSON.stringify({ account, status, message, checked_at }), { mode: 0o600 });
-  await rename(tmp, statusPath);
+  await s3.send(new PutObjectCommand({
+    Bucket: bucket, Key: 'status/' + account + '.json',
+    Body: JSON.stringify({ account, status, message, checked_at }),
+    ContentType: 'application/json', CacheControl: 'no-store',
+  }));
   console.log(checked_at, account, status, message);
-  try {
-    await uploadClient.status(status, message);
-  } catch (error) {
-    console.error('Cannot report status to SmartDesk:', error.message);
-  }
 }
-function shell(name, args) {
-  const proc = spawn(name, args, { stdio: ['pipe', 'ignore', 'pipe'] });
-  proc.stderr?.on('data', chunk => console.error(String(chunk).slice(0, 800)));
+function shell(name, args, capture = false) {
+  const proc = spawn(name, args, { stdio: ['ignore', capture ? 'pipe' : 'ignore', 'pipe'] });
+  proc.stderr?.on('data', chunk => console.error(name + ': ' + String(chunk).slice(0, 800)));
   return proc;
 }
 function untilExit(proc) {
@@ -71,68 +54,46 @@ function untilExit(proc) {
     proc.once('exit', (code, signal) => done({ code, signal }));
   });
 }
-async function finalize(raw) {
-  const final = raw.replace(/\.mkv$/, '.mp4');
-  const tmp = raw.replace(/\.mkv$/, '.temporary.mp4');
-  const stats = await stat(raw);
-  if (stats.size < 1024) throw new Error('Recorded file is empty');
-  const convert = shell('ffmpeg', ['-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', raw, '-c', 'copy', '-movflags', '+faststart', tmp]);
-  const result = await untilExit(convert);
-  if (result.code !== 0) throw new Error('MP4 remux failed');
-  await rename(tmp, final);
-  await unlink(raw);
-  return final;
-}
-
-async function recoverOrphanedRecordings() {
-  for (const file of await readdir(root)) {
-    if (!file.endsWith('.mkv') || !/^[A-Za-z0-9_.-]+\.mkv$/.test(file)) continue;
-    try {
-      const final = await finalize(join(root, file));
-      console.log('Recovered interrupted recording:', final);
-    } catch (error) {
-      console.error('Unable to restore', file, error);
-    }
-  }
-}
-
 async function capture() {
-  const now = new Date().toISOString().replace(/[:.]/g, '-');
-  const basename = now + '_' + account;
-  const raw = join(root, basename + '.mkv');
-
+  const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
+  const key = 'recordings/' + account + '/' + filename;
   const args = [
-    '-nostdin', '-hide_banner', '-loglevel', 'warning', '-y',
-    '-f', 'x11grab', '-framerate', '20', '-video_size', width + 'x' + height,
-    '-i', display + '.0+0,0',
-    '-f', 'pulse', '-i', audio,
-    '-map', '0:v:0', '-map', '1:a:0',
-    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '26', '-pix_fmt', 'yuv420p',
-    '-c:a', 'aac', '-b:a', '128k', raw,
+    '-hide_banner', '-loglevel', 'warning', '-nostdin',
+    '-f', 'x11grab', '-framerate', '20', '-video_size', width + 'x' + height, '-i', display + '.0+0,0',
+    '-f', 'pulse', '-i', audio, '-map', '0:v:0', '-map', '1:a:0',
+    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '27', '-pix_fmt', 'yuv420p', '-g', '40',
+    '-c:a', 'aac', '-b:a', '128k',
+    '-movflags', '+frag_keyframe+empty_moov+default_base_moof', '-f', 'mp4', 'pipe:1',
   ];
-  // -nostdin prevents graceful q; use SIGINT and wait for ffmpeg to close Matroska.
-  const proc = shell('ffmpeg', args);
+  const proc = shell('ffmpeg', args, true);
   const exited = untilExit(proc);
-  await delay(1200);
-  if (proc.exitCode !== null) throw new Error('FFmpeg could not start; check X11 display and PulseAudio');
+  const upload = new Upload({
+    client: s3, params: { Bucket: bucket, Key: key, Body: proc.stdout, ContentType: 'video/mp4', CacheControl: 'private, no-store' },
+    queueSize: 2, partSize: 8 * 1024 * 1024, leavePartsOnError: false,
+  });
+  const uploaded = upload.done().then(() => ({ ok: true }), error => ({ ok: false, error }));
+  await delay(1500);
+  if (proc.exitCode !== null) {
+    const result = await uploaded;
+    throw new Error('FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
+  }
   let stopped = false;
-
   return {
     started: Date.now(),
+    async check() {
+      const result = await Promise.race([uploaded, delay(30).then(() => null)]);
+      if (result && !result.ok) throw new Error('Upload failed: ' + result.error?.message);
+      if (proc.exitCode !== null && proc.exitCode !== 255) throw new Error('FFmpeg stopped unexpectedly');
+    },
     async stop() {
-      if (stopped) return;
+      if (stopped) return key;
       stopped = true;
-      proc.kill('SIGINT');
-      const end = await exited;
-      if (end.code !== 0 && end.signal !== 'SIGINT' && end.code !== 255) {
-        console.error('Recording ffmpeg exit:', end);
-      }
-      try {
-        return await finalize(raw);
-      } catch (error) {
-        await update('error', 'Opslaan naar MP4 mislukt: ' + error.message);
-        throw error;
-      }
+      if (proc.exitCode === null) proc.kill('SIGINT');
+      const exit = await exited;
+      const result = await uploaded;
+      if (!result.ok) throw new Error('MP4 upload failed: ' + result.error?.message);
+      if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') throw new Error('FFmpeg failed to finalize');
+      return key;
     },
   };
 }
@@ -165,9 +126,6 @@ async function detect(page) {
 }
 
 async function main() {
-  await recoverOrphanedRecordings();
-  try { await uploadClient.flushPending(root); }
-  catch (error) { console.error('Pending upload will retry:', error.message); }
   await update('unknown', 'Chrome-recorder wordt gestart');
   browser = await chromium.launchPersistentContext(profile, {
     executablePath, headless: false,
@@ -181,13 +139,12 @@ async function main() {
   while (!exiting) {
     try {
       if (!recording) {
-        try { await uploadClient.flushPending(root); }
-        catch (error) { console.error('Pending upload will retry:', error.message); }
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
         await pause(7000);
       }
       const result = await detect(page);
 
+      if (recording) await recording.check();
       if (!recording && result.kind === 'live') {
         recording = await capture();
         offlineCount = 0;
@@ -204,8 +161,8 @@ async function main() {
           const done = recording;
           recording = null;
           await update('live', 'MP4 wordt afgerond');
-          await done.stop();
-          await uploadClient.flushPending(root);
+          const key = await done.stop();
+          await update(result.kind === 'offline' ? 'offline' : 'live', 'Opname opgeslagen: ' + key.split('/').at(-1));
           offlineCount = 0;
           playbackMissingCount = 0;
           if (maxSeconds > 0) exiting = true; // One test clip only.
@@ -224,12 +181,7 @@ async function main() {
       await pause(Math.max(1000, Math.min(interval, remaining)));
     }
   }
-  if (recording) {
-    await update('uploading', 'Afgebroken stream afronden');
-    await recording.stop();
-  }
-  try { await uploadClient.flushPending(root); }
-  catch (error) { await update('error', 'Upload mislukt; lokaal bewaard: ' + error.message); }
+  if (recording) await recording.stop();
   await browser.close();
 }
 

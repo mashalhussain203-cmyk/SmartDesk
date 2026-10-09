@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'app/Http/Controllers/LiveRecordingController.php'
+      - 'app/Services/LiveArchiveS3.php'
       - 'routes/live-recordings.php'
       - 'routes/web.php'
       - 'routes/api.php'
@@ -35,16 +36,20 @@ jobs:
           cache: npm
       - name: Check web dependency lockfile
         run: npm ci --ignore-scripts
+      - name: Install separate S3 worker dependencies
+        run: npm install --prefix scripts/live-recorder --ignore-scripts --no-audit --no-fund
       - name: Check recorder JavaScript syntax
         run: |
           node --check scripts/live-recorder/worker.mjs
           node --check scripts/live-recorder/private-upload.mjs
           sh -n scripts/live-recorder/entrypoint.sh
           sh -n scripts/live-recorder/run-recorder.sh
+          sh -n scripts/live-recorder/docker-entrypoint.sh
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
           php -l routes/live-recordings.php
+          php -l app/Services/LiveArchiveS3.php
           php -l app/Http/Controllers/LiveRecorderIngestController.php
           php -l routes/api.php
       - name: Install Laravel dependencies
