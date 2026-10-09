@@ -10,6 +10,7 @@ WORKDIR /app
 COPY scripts/live-recorder/package.json /app/package.json
 RUN npm install --omit=dev --no-audit --no-fund
 COPY scripts/live-recorder/worker.mjs /app/worker.mjs
+COPY scripts/live-recorder/schedule.mjs /app/schedule.mjs
 COPY scripts/live-recorder/docker-entrypoint.sh /usr/local/bin/live-recorder-start
 COPY scripts/live-recorder/docker-root-entrypoint.sh /usr/local/bin/live-recorder-root-start
 RUN chmod +x /usr/local/bin/live-recorder-start /usr/local/bin/live-recorder-root-start \
