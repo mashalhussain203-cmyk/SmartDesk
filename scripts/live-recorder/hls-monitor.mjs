@@ -176,7 +176,8 @@ export async function runHlsMonitor({
             : 'Opname loopt; tijdelijke onderbreking van de statuscontrole');
         }
       } else {
-        const offline = /stream niet publiek beschikbaar|offline|not broadcasting/i.test(source?.detail || '');
+        // An inaccessible public HLS source does not prove the broadcaster is offline.
+        const offline = source?.kind === 'offline';
         await publish(offline ? 'offline' : 'unknown',
           offline ? 'Stream is offline; automatisch wachten op volgende live'
             : 'Geen afspeelbare publieke video en audio; volgende controle over een minuut');
