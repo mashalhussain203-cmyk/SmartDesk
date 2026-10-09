@@ -9,6 +9,14 @@ De uitbreiding neemt via een zelfstandig draaiende Google Chrome-recorder video 
 3. Railway recorder workers: één onafhankelijke Docker-service per account, gebouwd uit scripts/live-recorder/Dockerfile. Die start Chromium, FFmpeg, Xvfb en PulseAudio. De worker controleert ongeveer elke minuut of video in Chrome speelt en streamt beeld plus geluid rechtstreeks via S3 multipart-upload naar de bucket. Daardoor is geen grote lokale opnameschijf nodig.
 4. Live status in status/<account>.json en privé MP4's verschijnen na het afronden van de multipart-upload automatisch op /live.
 
+## Extra livestreamaccounts
+
+Naast de primaire Chrome-workers lopen aparte HLS-monitoren voor extra accounts.
+De bestaande `emyii`-service neemt ook `leo_kitty`, `cutefacebigass` en `ricasashaa` op;
+de `knock1knock`-service bewaakt `lucycums` en `mon1_day`.
+Elke account heeft een eigen statusbestand en S3-map. Een extra Railway-service is
+voor `ricasashaa` niet nodig zolang de bestaande worker voldoende capaciteit heeft.
+
 ## Railway instellingen
 
 Maak een private Railway Storage Bucket, bijvoorbeeld genaamd smartdesk-live-private. Zet zowel op SmartDesk als op de twee recorder services deze vijf omgevingsvariabelen met Railway bucket-reference variables: LIVE_S3_ENDPOINT, LIVE_S3_BUCKET, LIVE_S3_REGION, LIVE_S3_ACCESS_KEY_ID en LIVE_S3_SECRET_ACCESS_KEY. Gebruik de referenties van de aangemaakte bucket; schrijf de geheime sleutel nooit in GitHub-code.
