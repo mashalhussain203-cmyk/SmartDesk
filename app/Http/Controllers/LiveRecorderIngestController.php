@@ -121,7 +121,19 @@ class LiveRecorderIngestController extends Controller
 
         abort_unless($bytesWritten === (int) $validated['bytes'], 422);
         $disk->makeDirectory("live-recordings/{$account}");
-        abort_unless($disk->move($temporary, $target), 500);
+
+        // Staging and recordings may live on different Railway filesystem mounts.
+        // Copy to a temporary filename INSIDE the recordings volume, then atomically
+        // rename within that same volume. Never serve files with .partial extension.
+        $incoming = "live-recordings/{$account}/{$upload}.incoming";
+        $stream = $disk->readStream($temporary);
+        abort_unless($stream !== false, 500);
+        try {
+            abort_unless($disk->writeStream($incoming, $stream), 500);
+        } finally {
+            fclose($stream);
+        }
+        abort_unless($disk->move($incoming, $target), 500);
         $disk->deleteDirectory($directory);
 
         return response()->json(['ok' => true, 'filename' => $meta['filename']]);
