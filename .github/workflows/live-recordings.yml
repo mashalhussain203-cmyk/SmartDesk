@@ -19,6 +19,7 @@ on:
       - 'tests/Feature/LiveArchiveS3UploadTest.php'
       - 'package.json'
       - 'package-lock.json'
+      - 'railpack.json'
   workflow_dispatch:
 
 jobs:
@@ -50,6 +51,8 @@ jobs:
         run: node --test scripts/live-recorder/access-diagnostics.test.mjs
       - name: Test strict one-minute polling schedule
         run: node --test scripts/live-recorder/schedule.test.mjs
+      - name: Test 30-second browser capture JavaScript
+        run: node --test scripts/live-recorder/admin-capture-syntax.test.mjs
       - name: Check recorder JavaScript syntax
         run: |
           node --check scripts/live-recorder/worker.mjs
@@ -72,6 +75,12 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+      - name: Install FFmpeg for conversion tests
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Check FFmpeg conversion is available
+        run: |
+          ffmpeg -version
+          ffprobe -version
       - name: Test admin-only private media access
         run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest'
 

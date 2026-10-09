@@ -6,6 +6,7 @@ use App\Services\LiveArchiveS3;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
 
 final class LiveRecordingUploadController extends Controller
@@ -53,6 +54,7 @@ final class LiveRecordingUploadController extends Controller
         $validated = $request->validate([
             'account' => ['required', 'in:'.implode(',', self::ACCOUNTS)],
             'bytes' => ['required', 'integer', 'min:1024', 'max:'.self::MAX_BYTES],
+            'format' => ['sometimes', 'in:mp4,webm'],
         ]);
 
         $disk = Storage::disk('local');
@@ -74,6 +76,7 @@ final class LiveRecordingUploadController extends Controller
         abort_unless($disk->put($directory.'/meta.json', json_encode([
             'owner' => $this->owner(), 'account' => $account,
             'filename' => $filename, 'bytes' => $bytes, 'parts' => $parts,
+            'format' => $validated['format'] ?? 'mp4',
         ], JSON_THROW_ON_ERROR)), 500);
 
         return response()->json(['id' => $upload, 'parts' => $parts, 'chunk_bytes' => self::CHUNK_BYTES], 201);
@@ -125,7 +128,43 @@ final class LiveRecordingUploadController extends Controller
         }
         abort_unless($written === $meta['bytes'], 422);
 
-        $input = fopen($path, 'rb');
+        $finalPath = $path;
+        if (($meta['format'] ?? 'mp4') === 'webm') {
+            $input = fopen($path, 'rb');
+            abort_unless($input !== false, 500);
+            try {
+                $webmHeader = fread($input, 4);
+            } finally {
+                fclose($input);
+            }
+            abort_unless($webmHeader === "\x1A\x45\xDF\xA3", 422, 'Dit bestand is geen WebM-opname.');
+
+            // Transcoding may take longer than PHP's default web request limit.
+            if (function_exists('set_time_limit')) {
+                @set_time_limit(150);
+            }
+            // Browser screen recording is most reliably available as WebM.
+            // Convert to an actual MP4 before it enters the private S3 archive.
+            $convertedPath = $disk->path($directory.'/converted.mp4');
+            $result = Process::timeout(120)->run([
+                'ffmpeg', '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
+                '-i', $path, '-t', '30',
+                '-map', '0:v:0', '-map', '0:a:0?',
+                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '26',
+                '-pix_fmt', 'yuv420p', '-threads', '2',
+                '-c:a', 'aac', '-b:a', '128k',
+                '-movflags', '+faststart', '-fs', (string) self::MAX_BYTES,
+                $convertedPath,
+            ]);
+            abort_unless($result->successful() && is_file($convertedPath), 422,
+                'De browseropname kon niet naar MP4 worden omgezet.');
+            $finalPath = $convertedPath;
+        }
+
+        $size = filesize($finalPath);
+        abort_unless($size !== false && $size >= 1024 && $size <= self::MAX_BYTES, 422,
+            'De MP4-opname is leeg of te groot.');
+        $input = fopen($finalPath, 'rb');
         abort_unless($input !== false, 500);
         try {
             fseek($input, 4);
@@ -136,12 +175,12 @@ final class LiveRecordingUploadController extends Controller
         abort_unless($mp4Header === 'ftyp', 422, 'Dit bestand is geen geldig MP4-containerbestand.');
 
         if ($archive->configured()) {
-            $archive->storeVideoFromPath($meta['account'], $meta['filename'], $path);
+            $archive->storeVideoFromPath($meta['account'], $meta['filename'], $finalPath);
         } else {
             $destination = 'live-recordings/'.$meta['account'];
             $disk->makeDirectory($destination);
             $incoming = $destination.'/'.$upload.'.incoming';
-            $stream = $disk->readStream($directory.'/assembled.partial');
+            $stream = fopen($finalPath, 'rb');
             abort_unless($stream !== false, 500);
             try {
                 abort_unless($disk->writeStream($incoming, $stream), 500);
