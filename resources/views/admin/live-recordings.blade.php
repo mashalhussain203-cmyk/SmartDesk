@@ -71,7 +71,7 @@
 
     <section class="live-capture" aria-labelledby="live-capture-title">
         <h2 id="live-capture-title">30 seconden tab-opname van lucycums</h2>
-        <p>Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
+        <p>Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
         <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
         <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
         <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
