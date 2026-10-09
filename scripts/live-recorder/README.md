@@ -10,7 +10,7 @@ scripts/live-recorder/worker.mjs uses Google Chrome/Chromium + Playwright Core +
 
 Prerequisites, which are not installed automatically by this pull request:
 
-- Node.js with npm install (playwright-core dependency).
+- Node.js. Install the recorder package separately: `npm install --prefix scripts/live-recorder`. Do not add recorder dependencies to the main SmartDesk npm lockfile.
 - Chrome/Chromium, with CHROME_PATH pointing at the executable.
 - A dedicated 1280x720 X11 display for each channel (Xvfb or a desktop).
 - FFmpeg with x11grab, libx264, AAC, and PulseAudio input.
@@ -20,7 +20,7 @@ Prerequisites, which are not installed automatically by this pull request:
 
 Example commands for one account, on a Linux server with these packages installed:
 
-    npm install
+    npm install --prefix scripts/live-recorder
     Xvfb :99 -screen 0 1280x720x24 &
     pulseaudio --start
     pactl load-module module-null-sink sink_name=LiveKnock
@@ -28,17 +28,18 @@ Example commands for one account, on a Linux server with these packages installe
 
 To monitor emyii simultaneously, start another process on its own display (:100), sink (LiveEmyii), and LIVE_ACCOUNT=emyii. Only run one worker per channel. The persistent browser profile lives under storage/app/private/live-chrome-profiles/<channel>/.
 
-For a short recording test, set LIVE_TEST_SECONDS=30 in the worker's environment. By default, the recorder continues until offline is confirmed twice. A check runs every 60 seconds, so the first 0–60 seconds and browser startup may be missed.
+For a short **single** recording test, set LIVE_TEST_SECONDS=30 in the worker's environment. The worker finishes one 30-second clip, saves it to MP4, and exits. By default, the recorder continues until offline is confirmed twice. A check runs every 60 seconds, so the first 0–60 seconds and browser startup may be missed.
 
 ## Behaviour, privacy, limitations
 
 - The admin-only /live page refreshes recording status every 60 seconds, without refreshing the playing video.
 - Status is OFFLINE only when the browser shows offline. Uncertain video playback is UNKNOWN and browser errors are ERROR.
-- FFmpeg first writes an MKV. At the end, it remuxes this to MP4; only completed MP4s are shown in the private gallery. If remuxing fails, the MKV remains for recovery.
+- FFmpeg first writes an MKV. At the end, it remuxes this to MP4; only completed MP4s are shown in the private gallery. On restart it attempts to recover interrupted MKVs. If remuxing fails, the MKV remains for manual recovery.
 - The worker captures the full browser display, including any visible UI, at 1280x720. Audio is captured only when the Chrome audio route and PulseAudio monitor are correctly configured.
 - Browser detection or recording is not guaranteed; the external site may require prompts or change its player. This feature does not bypass access controls, paywalls, or restrictions. Make sure recording is permitted under the platform terms.
 - No HTTP video upload is included. Files become visible to SmartDesk because the worker saves them directly to the private storage mounted by the Laravel app.
 - Every playback, download and delete endpoint requires the existing SmartDesk admin login. Files must stay outside public/ and storage/app/public.
+- New completed MP4 files are picked up by the admin page's status polling, refreshing the library when no video is currently playing.
 - Long streams need substantial disk space and persistent storage. Configure backups and a supervisor/systemd to restart the worker.
 
 ## Run authorization tests
@@ -46,3 +47,9 @@ For a short recording test, set LIVE_TEST_SECONDS=30 in the worker's environment
     php artisan test --filter=LiveRecordingsTest
 
 These tests do not validate Chrome playback or an actual livestream; perform a real recording test before relying on this tool.
+
+## Deployment blockers to verify
+
+This branch DOES NOT automatically launch the recorder on the hosted website. The current SmartDesk nixpacks.toml does not install FFmpeg, Xvfb and PulseAudio or register a supervised worker. Deploy the worker only after those dependencies and its persistent storage are configured. It will not record anything until this is done.
+
+On Railway, filesystem volumes cannot be assumed to be shared across independent services. A detached recorder requires an explicit secure upload pipeline or shared storage accessible to Laravel; neither is provided by this change. Running browser + recorder alongside the web app in one service must also be tested for sufficient CPU/RAM and persistence. Never point the worker at storage/app/public.
