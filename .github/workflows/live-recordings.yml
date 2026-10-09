@@ -20,6 +20,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  ytdlp-metadata-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install yt-dlp and HTTP transport
+        run: python -m pip install --disable-pip-version-check yt-dlp curl_cffi
+      - name: Test public metadata without recording or printing media URLs
+        run: node scripts/live-recorder/probe-ytdlp.mjs
+
   live-recording-checks:
     runs-on: ubuntu-latest
     steps:
