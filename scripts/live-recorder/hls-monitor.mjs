@@ -11,7 +11,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { nextPollDelay } from './schedule.mjs';
 
-const ALLOWED_EXTRA_ACCOUNTS = new Set(['lucycums', 'leo_kitty', 'mon1_day', 'cutefacebigass']);
+const ALLOWED_EXTRA_ACCOUNTS = new Set(['lucycums', 'leo_kitty', 'mon1_day', 'cutefacebigass', 'ricasashaa']);
 const POLL_MS = 60_000;
 
 export function extraAccountFor(primary) {

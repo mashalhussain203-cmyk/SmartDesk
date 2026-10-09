@@ -96,6 +96,29 @@ class LiveRecordingsTest extends TestCase
         $this->assertFalse(Storage::disk('local')->exists('live-recordings/cutefacebigass/'.$filename));
     }
 
+    public function test_ricasashaa_records_are_private_and_visible_in_live_library(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-09T21-30-00-000Z_ricasashaa.mp4';
+        Storage::disk('local')->put('live-recordings/ricasashaa/'.$filename, 'test');
+        $watch = '/live/ricasashaa/'.$filename.'/watch';
+        $download = '/live/ricasashaa/'.$filename.'/download';
+
+        $this->get($watch)->assertRedirect('/login');
+        $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
+        $this->actingAs($viewer)->get($watch)->assertForbidden();
+        $this->actingAs($viewer)->get($download)->assertForbidden();
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@ricasashaa');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('ricasashaa.status', 'unknown');
+        $this->actingAs($admin)->get($watch)->assertOk();
+        $this->actingAs($admin)->get($download)->assertOk();
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'ricasashaa', 'bytes' => 2048])->assertCreated();
+        $this->actingAs($admin)->delete('/live/ricasashaa/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/ricasashaa/'.$filename));
+    }
+
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
