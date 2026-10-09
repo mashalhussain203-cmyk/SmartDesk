@@ -117,7 +117,7 @@ class LiveRecordingController extends Controller
             }
 
             $state = (string) ($status['status'] ?? 'unknown');
-            if (! in_array($state, ['offline', 'live', 'recording', 'error', 'needs_setup', 'unknown'], true)) {
+            if (! in_array($state, ['offline', 'live', 'recording', 'uploading', 'error', 'needs_setup', 'unknown'], true)) {
                 $state = 'unknown';
             }
             $data[$account] = [
