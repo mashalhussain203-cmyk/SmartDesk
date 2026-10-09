@@ -218,3 +218,44 @@ test('cutefacebigass runs as an independent full-length private monitor', async 
   assert.ok(statuses.includes('recording'));
   assert.ok(statuses.includes('uploading'));
 });
+
+test('ricasashaa records full sessions independently and saves the finished MP4', async () => {
+  const controller = new AbortController();
+  let polls = 0;
+  let started = 0;
+  let saved = 0;
+  const states = [];
+  const filenames = [];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'ricasashaa', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'ricasashaa');
+      return polls === 0 ? source : { kind: 'offline' };
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, 'ricasashaa');
+      assert.ok(!hlsContinuousArgs(urls).includes('-t'));
+      started++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          saved++;
+          return 'recordings/ricasashaa/full.mp4';
+        },
+      };
+    },
+    report: async ({ state, lastSaved }) => {
+      states.push(state);
+      filenames.push(lastSaved);
+    },
+    sleep: async () => {
+      polls++;
+      if (polls >= 3) controller.abort();
+    },
+  });
+  assert.equal(started, 1);
+  assert.equal(saved, 1);
+  assert.ok(states.includes('recording'));
+  assert.ok(states.includes('uploading'));
+  assert.ok(filenames.includes('full.mp4'));
+});
