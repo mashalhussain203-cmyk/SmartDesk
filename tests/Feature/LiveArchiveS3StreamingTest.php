@@ -13,6 +13,24 @@ use Tests\TestCase;
 
 class LiveArchiveS3StreamingTest extends TestCase
 {
+    private array $previousEnv = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->previousEnv as $name => $values) {
+            if ($values['putenv'] === false) putenv($name);
+            else putenv($name.'='.$values['putenv']);
+            foreach (['_ENV', '_SERVER'] as $global) {
+                if ($values[$global]['exists']) {
+                    $GLOBALS[$global][$name] = $values[$global]['value'];
+                } else {
+                    unset($GLOBALS[$global][$name]);
+                }
+            }
+        }
+        parent::tearDown();
+    }
+
     private function archiveWithResponses(array $responses): LiveArchiveS3
     {
         foreach ([
@@ -23,6 +41,13 @@ class LiveArchiveS3StreamingTest extends TestCase
             'LIVE_S3_SECRET_ACCESS_KEY' => 'testing',
             'LIVE_S3_URL_STYLE' => 'virtual-host',
         ] as $name => $value) {
+            if (!isset($this->previousEnv[$name])) {
+                $this->previousEnv[$name] = [
+                    'putenv' => getenv($name),
+                    '_ENV' => ['exists' => array_key_exists($name, $_ENV), 'value' => $_ENV[$name] ?? null],
+                    '_SERVER' => ['exists' => array_key_exists($name, $_SERVER), 'value' => $_SERVER[$name] ?? null],
+                ];
+            }
             putenv($name.'='.$value);
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
