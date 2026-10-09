@@ -12,9 +12,11 @@ test('never stores URL or request headers and counts HTTP errors by type', () =>
   assert.equal(s.fetchErrors, 1);
   assert.equal(s.scriptErrors, 1);
   assert.equal(s.mediaErrors, 1);
+  assert.deepEqual(s.apiErrorCodes, { '403:other': 1 });
+  assert.deepEqual(s.mediaErrorCodes, { '503:other': 1 });
   assert.deepEqual(Object.keys(s).sort(), [
-    'documentErrors', 'failedRequests', 'fetchErrors', 'mainHttpStatus',
-    'mediaErrors', 'otherErrors', 'scriptErrors', 'xhrErrors',
+    'apiErrorCodes', 'documentErrors', 'failedRequests', 'fetchErrors', 'mainHttpStatus',
+    'mediaErrorCodes', 'mediaErrors', 'otherErrors', 'pageScriptErrors', 'scriptErrors', 'xhrErrors',
   ]);
 });
 
@@ -30,11 +32,12 @@ test('403 means recorder access failure, not broadcaster offline', () => {
 test('HTTP 200 with no media remains unknown and exposes safe request counts', () => {
   const s = newNetworkSummary();
   recordHttpResponse(s, 200, 'document', true);
-  recordHttpResponse(s, 403, 'xhr');
+  recordHttpResponse(s, 403, 'xhr', false, 'site');
   const r = diagnoseAccess({ kind: 'unknown', detail: 'Geen video' }, s);
   assert.equal(r.kind, 'unknown');
   assert.match(r.detail, /pagina HTTP 200/);
   assert.match(r.detail, /XHR\/fetch HTTP-fouten 1/);
+  assert.match(r.detail, /403:site x1/);
 });
 
 test('verified video and age gate are never overridden by a navigation error', () => {
