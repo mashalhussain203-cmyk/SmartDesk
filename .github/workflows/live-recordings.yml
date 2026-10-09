@@ -55,3 +55,11 @@ jobs:
           php artisan key:generate
       - name: Test admin-only private media access
         run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest'
+
+  recorder-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Chrome/FFmpeg recorder image
+        run: docker build -f scripts/live-recorder/Dockerfile -t smartdesk-recorder-ci .
