@@ -47,13 +47,16 @@ final class LiveArchiveS3
     {
         $cfg = $this->config();
         $endpoint = parse_url($cfg['endpoint']);
+        $virtual = env('LIVE_S3_URL_STYLE', 'path') === 'virtual-host';
         $host = (string) ($endpoint['host'] ?? '');
         if ($host === '') throw new RuntimeException('S3 endpoint has no host.');
+        if ($virtual) $host = $cfg['bucket'].'.'.$host;
         if (isset($endpoint['port'])) $host .= ':'.$endpoint['port'];
         $prefix = rtrim((string) ($endpoint['path'] ?? ''), '/');
-        $segments = array_map('rawurlencode', explode('/', $cfg['bucket'].($key === null ? '' : '/'.$key)));
-        $uri = $prefix.'/'.implode('/', $segments);
-        if ($key === null) $uri .= '/';
+        $object = $key === null ? '' : implode('/', array_map('rawurlencode', explode('/', $key)));
+        $uri = $virtual
+            ? ($prefix.'/'.($object ?: ''))
+            : ($prefix.'/'.rawurlencode($cfg['bucket']).'/'.$object);
         ksort($query, SORT_STRING);
         $qs = implode('&', array_map(
             static fn ($k) => rawurlencode((string) $k).'='.rawurlencode((string) $query[$k]),
@@ -82,7 +85,7 @@ final class LiveArchiveS3
             'X-Amz-Content-Sha256' => $payloadHash,
             'Authorization' => $authorization,
         ], $extraHeaders);
-        return $this->client->request($method, $cfg['endpoint'].$uri.($qs ? '?'.$qs : ''), [
+        return $this->client->request($method, 'https://'.$host.$uri.($qs ? '?'.$qs : ''), [
             'headers' => $requestHeaders,
             'stream' => true,
             'allow_redirects' => false,
