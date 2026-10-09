@@ -42,6 +42,8 @@ jobs:
         run: node --test scripts/live-recorder/age-consent.test.mjs
       - name: Test consent click in real Chrome with local fixture
         run: node --test scripts/live-recorder/age-consent.browser.test.mjs
+      - name: Test public HLS stream extraction and safe FFmpeg inputs
+        run: node --test scripts/live-recorder/public-hls.test.mjs
       - name: Test recorder HTTP access classification
         run: node --test scripts/live-recorder/access-diagnostics.test.mjs
       - name: Test strict one-minute polling schedule

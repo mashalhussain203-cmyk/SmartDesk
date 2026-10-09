@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -12,6 +12,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
+import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
@@ -46,9 +47,16 @@ async function update(status, message) {
   }));
   console.log(checked_at, account, status, message);
 }
-function shell(name, args, capture = false) {
+function shell(name, args, capture = false, privateMediaUrls = false) {
   const proc = spawn(name, args, { stdio: ['ignore', capture ? 'pipe' : 'ignore', 'pipe'] });
-  proc.stderr?.on('data', chunk => console.error(name + ': ' + String(chunk).slice(0, 800)));
+  proc.stderr?.on('data', chunk => {
+    if (privateMediaUrls) {
+      // FFmpeg diagnostics can contain signed HLS URLs: never print raw stderr.
+      const message = String(chunk);
+      console.error(name + ': ' + (/403|Forbidden/i.test(message) ? 'HTTP 403' :
+        /404|Not Found/i.test(message) ? 'HTTP 404' : 'HLS media processing warning'));
+    } else console.error(name + ': ' + String(chunk).slice(0, 800));
+  });
   return proc;
 }
 function untilExit(proc) {
@@ -57,10 +65,10 @@ function untilExit(proc) {
     proc.once('exit', (code, signal) => done({ code, signal }));
   });
 }
-async function capture() {
+async function capture(mediaUrls = null) {
   const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
   const key = 'recordings/' + account + '/' + filename;
-  const args = [
+  const args = mediaUrls ? hlsFfmpegArgs(mediaUrls) : [
     '-hide_banner', '-loglevel', 'warning', '-nostdin',
     '-f', 'x11grab', '-framerate', '20', '-video_size', width + 'x' + height, '-i', display + '.0+0,0',
     '-f', 'pulse', '-i', audio, '-map', '0:v:0', '-map', '1:a:0',
@@ -68,7 +76,7 @@ async function capture() {
     '-c:a', 'aac', '-b:a', '128k',
     '-movflags', '+frag_keyframe+empty_moov+default_base_moof', '-f', 'mp4', 'pipe:1',
   ];
-  const proc = shell('ffmpeg', args, true);
+  const proc = shell('ffmpeg', args, true, Boolean(mediaUrls));
   const exited = untilExit(proc);
   const upload = new Upload({
     client: s3, params: { Bucket: bucket, Key: key, Body: proc.stdout, ContentType: 'video/mp4', CacheControl: 'private, no-store' },
@@ -78,11 +86,13 @@ async function capture() {
   await delay(1500);
   if (proc.exitCode !== null) {
     const result = await uploaded;
-    throw new Error('FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
+    throw new Error(mediaUrls ? 'HLS FFmpeg kon niet starten (geen afspeelbare stream)' :
+      'FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
   }
   let stopped = false;
   return {
     started: Date.now(),
+    mode: mediaUrls ? 'hls' : 'chrome',
     async check() {
       const result = await Promise.race([uploaded, delay(30).then(() => null)]);
       if (result && !result.ok) throw new Error('Upload failed: ' + result.error?.message);
@@ -94,8 +104,14 @@ async function capture() {
       if (proc.exitCode === null) proc.kill('SIGINT');
       const exit = await exited;
       const result = await uploaded;
-      if (!result.ok) throw new Error('MP4 upload failed: ' + result.error?.message);
+      if (!result.ok) throw new Error('MP4 upload failed (private S3 upload)');
       if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') throw new Error('FFmpeg failed to finalize');
+      // A completed multipart upload must also exist as a nonempty private object.
+      const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      if (!head.ContentLength || head.ContentLength < 100_000) {
+        throw new Error('MP4 upload exists but is unexpectedly small');
+      }
+      console.log(new Date().toISOString(), account, 'saved', 'Private S3 MP4 verified:', head.ContentLength, 'bytes');
       return key;
     },
   };
@@ -212,14 +228,28 @@ async function main() {
       const playback = ageConsent.detected && !ageConsent.clicked
         ? { kind: 'needs_setup', detail: '18+-voorwaarden zichtbaar maar niet bevestigd' }
         : await detect(page);
-      const result = diagnoseAccess(playback, network);
+      let result = diagnoseAccess(playback, network);
+      let publicMediaUrls = null;
+      // Chrome can show an empty player even while a public broadcast is live.
+      // Try the actual public HLS source without an API token or bypassing
+      // a visible age/login requirement. This never logs signed stream URLs.
+      if (env.LIVE_USE_HLS !== '0' && playback.kind !== 'needs_setup' &&
+          (playback.kind !== 'live' || recording?.mode === 'hls')) {
+        const hls = await findPublicMedia(account);
+        if (hls.kind === 'live') {
+          publicMediaUrls = hls.urls;
+          result = { kind: 'live', detail: hls.detail };
+        } else if (result.kind === 'unknown') {
+          result = { ...result, detail: result.detail + '; ' + hls.detail };
+        }
+      }
 
       if (recording) await recording.check();
       if (!recording && result.kind === 'live') {
-        recording = await capture();
+        recording = await capture(publicMediaUrls);
         offlineCount = 0;
         playbackMissingCount = 0;
-        await update('recording', 'Opname gestart; wacht op het einde van de livestream');
+        await update('recording', 'Opname gestart via ' + recording.mode + '; wacht op het einde van de livestream');
       } else if (recording) {
         if (result.kind === 'offline') offlineCount += 1;
         else if (result.kind === 'live') offlineCount = 0;
