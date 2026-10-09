@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mon1_dayThirtySecondArgs, runMon1DayOneShot } from './one-shot-mon1_day.mjs';
+import { mon1_dayThirtySecondArgs, runMon1DayOneShot } from './one-shot-mon1-day.mjs';
 
 const urls = ['https://a.mmcdn.com/video.m3u8?secret=hidden', 'https://a.mmcdn.com/audio.m3u8?secret=hidden'];
 
