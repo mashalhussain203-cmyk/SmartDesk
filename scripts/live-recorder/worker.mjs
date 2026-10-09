@@ -10,6 +10,7 @@ import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { nextPollDelay } from './schedule.mjs';
+import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
@@ -101,7 +102,7 @@ async function capture() {
 
 async function detect(page) {
   const content = (await page.locator('body').innerText({ timeout: 12000 }).catch(() => '')).slice(0, 9000);
-  if (/verify.{0,35}age|age verification|confirm.{0,35}18|you must be 18|log in to continue/i.test(content)) {
+  if (isAdultTermsScreen(content) || /verify.{0,35}age|age verification|confirm.{0,35}18|you must be 18|log in to continue/i.test(content)) {
     return { kind: 'needs_setup', detail: 'Leeftijdsbevestiging of login nodig in de Chrome-browser' };
   }
   // Only detect playing video; a LIVE label alone cannot prove usable recording.
@@ -171,6 +172,15 @@ async function main() {
       if (!recording) {
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
         await pause(7000);
+        // User expressly confirmed they are 18+ and agreed to these terms.
+        // Click only the real Chaturbate age/terms modal, never other gates.
+        const ageConsent = await acceptAdultTerms(page, env.LIVE_ACCEPT_ADULT_TERMS === '1');
+        if (ageConsent.clicked) {
+          await update('unknown', '18+-voorwaarden bevestigd; videospeler opnieuw laden');
+          await pause(5000);
+        } else if (ageConsent.detected) {
+          await update('needs_setup', '18+-voorwaarden zichtbaar maar niet bevestigd');
+        }
       }
       const result = await detect(page);
 
