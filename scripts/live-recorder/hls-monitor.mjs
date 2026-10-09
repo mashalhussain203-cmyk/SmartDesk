@@ -1,5 +1,5 @@
 /**
- * Continuous HLS-only recorder for the owner's additional room.
+ * Continuous HLS-only recorder for the owner's additional rooms.
  * Shares the existing Railway recorder's private S3 connection but does not
  * share its browser, Xvfb display or PulseAudio sink.
  * Never log signed HLS URLs, FFmpeg arguments, cookies or credentials.
@@ -11,7 +11,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { nextPollDelay } from './schedule.mjs';
 
-const ALLOWED_EXTRA_ACCOUNT = 'lucycums';
+const ALLOWED_EXTRA_ACCOUNTS = new Set(['lucycums', 'leo_kitty']);
 const POLL_MS = 60_000;
 
 export function isPlayable(source) {
@@ -53,7 +53,7 @@ async function bounded(promise, ms, onTimeout) {
 }
 
 export async function startHlsCapture({ s3, bucket, account, urls }) {
-  if (account !== ALLOWED_EXTRA_ACCOUNT) throw new Error('Unexpected extra account');
+  if (!ALLOWED_EXTRA_ACCOUNTS.has(account)) throw new Error('Unexpected extra account');
   const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
   const key = 'recordings/' + account + '/' + filename;
   // Never print the signed URLs embedded in these process arguments.
@@ -114,12 +114,12 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
 }
 
 /**
- * Monitor an additional owner-controlled live room every minute.
+ * Monitor each additional owner-controlled live room every minute.
  * Starts when public video+audio become playable and finishes on stream end,
  * with tolerance for brief missing status checks.
  */
 export async function runHlsMonitor({
-  s3, bucket, account = ALLOWED_EXTRA_ACCOUNT, signal,
+  s3, bucket, account = 'lucycums', signal,
   discover = findPublicMedia, startCapture = startHlsCapture,
   report = reportHlsStatus, sleep = delay, intervalMs = POLL_MS,
 }) {
