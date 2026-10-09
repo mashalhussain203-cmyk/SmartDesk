@@ -1,0 +1,24 @@
+name: One-time leo_kitty Chrome playback probe
+
+on:
+  push:
+    branches:
+      - 'test/leo-kitty-browser-probe-20261009'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install recorder browser dependencies
+        run: npm install --prefix scripts/live-recorder --ignore-scripts --no-audit --no-fund
+      - name: Check browser availability
+        run: |
+          which google-chrome
+          which xvfb-run
+      - name: Test actual browser video playback without recording
+        run: xvfb-run -a node scripts/live-recorder/probe-leo-kitty.mjs
