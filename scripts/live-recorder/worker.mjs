@@ -9,6 +9,7 @@ import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { nextPollDelay } from './schedule.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
@@ -109,6 +110,13 @@ async function detect(page) {
     const ok = await frame.evaluate(async () => {
       const videos = [...document.querySelectorAll('video')];
       const states = await Promise.all(videos.map(async v => {
+        // Normal browser autoplay attempt; never bypass an age/login gate.
+        if (v.paused && !v.ended && (v.currentSrc || v.srcObject)) {
+          await Promise.race([
+            v.play().catch(() => {}),
+            new Promise(r => setTimeout(r, 1500)),
+          ]);
+        }
         if (v.paused || v.ended || v.readyState < 2) return false;
         const t = v.currentTime;
         await new Promise(r => setTimeout(r, 1200));
@@ -123,7 +131,7 @@ async function detect(page) {
     return { kind: 'offline', detail: 'De pagina toont offline' };
   }
   // Safe diagnostics only: counts and playback state, never page text or images.
-  const counts = { total: 0, visible: 0, paused: 0, ready: 0 };
+  const counts = { total: 0, visible: 0, paused: 0, ready: 0, withSource: 0, mediaErrors: 0 };
   for (const frame of page.frames()) {
     const info = await frame.evaluate(() => {
       const videos = Array.from(document.querySelectorAll('video'));
@@ -132,6 +140,8 @@ async function detect(page) {
         visible: videos.filter(v => v.getBoundingClientRect().width >= 240 && v.getBoundingClientRect().height >= 135).length,
         paused: videos.filter(v => v.paused).length,
         ready: videos.filter(v => v.readyState >= 2).length,
+        withSource: videos.filter(v => !!(v.currentSrc || v.srcObject)).length,
+        mediaErrors: videos.filter(v => !!v.error).length,
       };
     }).catch(() => null);
     if (info) for (const key of Object.keys(counts)) counts[key] += info[key] || 0;
@@ -139,7 +149,8 @@ async function detect(page) {
   return {
     kind: 'unknown',
     detail: 'Geen afspelende video (videospelers: ' + counts.total + ', zichtbaar: ' + counts.visible +
-      ', gepauzeerd: ' + counts.paused + ', geladen: ' + counts.ready + ')',
+      ', gepauzeerd: ' + counts.paused + ', geladen: ' + counts.ready +
+      ', mediabron: ' + counts.withSource + ', mediafouten: ' + counts.mediaErrors + ')',
   };
 }
 
@@ -155,6 +166,7 @@ async function main() {
   let playbackMissingCount = 0;
 
   while (!exiting) {
+    const pollStartedAt = Date.now();
     try {
       if (!recording) {
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -195,8 +207,13 @@ async function main() {
       // Do not discard an ongoing recording due to temporary browser failures.
     }
     if (!exiting) {
-      const remaining = recording && maxSeconds > 0 ? maxSeconds * 1000 - (Date.now() - recording.started) : interval;
-      await pause(Math.max(1000, Math.min(interval, remaining)));
+      // Poll once per minute from poll START, including page navigation,
+      // player checks, and status upload. Do not add 60 seconds afterward.
+      const nextCheckMs = nextPollDelay(pollStartedAt, Date.now(), interval);
+      const testRemainingMs = recording && maxSeconds > 0
+        ? maxSeconds * 1000 - (Date.now() - recording.started)
+        : Infinity;
+      await pause(Math.max(1000, Math.min(nextCheckMs, testRemainingMs)));
     }
   }
   if (recording) await recording.stop();
