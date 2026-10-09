@@ -11,15 +11,17 @@
  */
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rename, unlink, stat } from 'node:fs/promises';
+import { mkdir, writeFile, rename, unlink, stat, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid LIVE_ACCOUNT');
 
-const root = resolve(process.env.LIVE_STORAGE_ROOT || 'storage/app/private/live-recordings', account);
-const profile = resolve(process.env.LIVE_PROFILE_ROOT || 'storage/app/private/live-chrome-profiles', account);
+const appRoot = fileURLToPath(new URL('../../', import.meta.url));
+const root = resolve(process.env.LIVE_STORAGE_ROOT || join(appRoot, 'storage/app/private/live-recordings'), account);
+const profile = resolve(process.env.LIVE_PROFILE_ROOT || join(appRoot, 'storage/app/private/live-chrome-profiles'), account);
 const display = process.env.DISPLAY;
 const audio = process.env.PULSE_SOURCE;
 const executablePath = process.env.CHROME_PATH || '/usr/bin/chromium';
@@ -30,6 +32,9 @@ const maxSeconds = Math.max(0, Number(process.env.LIVE_TEST_SECONDS || 0));
 let exiting = false;
 let recording = null;
 let browser;
+let interrupt;
+const interrupted = new Promise(resolve => { interrupt = resolve; });
+const pause = ms => Promise.race([delay(ms), interrupted]);
 
 if (!display || !/^:[0-9]+$/.test(display)) throw new Error('Set DISPLAY to a dedicated X11 display such as :99');
 if (!audio) throw new Error('Set PULSE_SOURCE to your display audio monitor device (for sound)');
@@ -55,12 +60,35 @@ function untilExit(proc) {
     proc.once('exit', (code, signal) => done({ code, signal }));
   });
 }
+async function finalize(raw) {
+  const final = raw.replace(/\.mkv$/, '.mp4');
+  const tmp = raw.replace(/\.mkv$/, '.temporary.mp4');
+  const stats = await stat(raw);
+  if (stats.size < 1024) throw new Error('Recorded file is empty');
+  const convert = shell('ffmpeg', ['-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', raw, '-c', 'copy', '-movflags', '+faststart', tmp]);
+  const result = await untilExit(convert);
+  if (result.code !== 0) throw new Error('MP4 remux failed');
+  await rename(tmp, final);
+  await unlink(raw);
+  return final;
+}
+
+async function recoverOrphanedRecordings() {
+  for (const file of await readdir(root)) {
+    if (!file.endsWith('.mkv') || !/^[A-Za-z0-9_.-]+\.mkv$/.test(file)) continue;
+    try {
+      const final = await finalize(join(root, file));
+      console.log('Recovered interrupted recording:', final);
+    } catch (error) {
+      console.error('Unable to restore', file, error);
+    }
+  }
+}
+
 async function capture() {
   const now = new Date().toISOString().replace(/[:.]/g, '-');
   const basename = now + '_' + account;
   const raw = join(root, basename + '.mkv');
-  const tmp = join(root, basename + '.temporary.mp4');
-  const final = join(root, basename + '.mp4');
 
   const args = [
     '-nostdin', '-hide_banner', '-loglevel', 'warning', '-y',
@@ -89,14 +117,7 @@ async function capture() {
         console.error('Recording ffmpeg exit:', end);
       }
       try {
-        const stats = await stat(raw);
-        if (stats.size < 1024) throw new Error('Recorded file is empty');
-        const convert = shell('ffmpeg', ['-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', raw, '-c', 'copy', '-movflags', '+faststart', tmp]);
-        const result = await untilExit(convert);
-        if (result.code !== 0) throw new Error('MP4 remux failed');
-        await rename(tmp, final);
-        await unlink(raw);
-        return final;
+        return await finalize(raw);
       } catch (error) {
         await update('error', 'Opslaan naar MP4 mislukt: ' + error.message);
         throw error;
@@ -133,6 +154,7 @@ async function detect(page) {
 }
 
 async function main() {
+  await recoverOrphanedRecordings();
   await update('unknown', 'Chrome-recorder wordt gestart');
   browser = await chromium.launchPersistentContext(profile, {
     executablePath, headless: false,
@@ -147,7 +169,7 @@ async function main() {
     try {
       if (!recording) {
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await delay(7000);
+        await pause(7000);
       }
       const result = await detect(page);
 
@@ -171,6 +193,7 @@ async function main() {
           await update('offline', 'Opname opgeslagen: ' + path.split('/').at(-1));
           offlineCount = 0;
           playbackMissingCount = 0;
+          if (maxSeconds > 0) exiting = true; // One test clip only.
         } else {
           await update('recording', result.kind === 'live' ? 'Livestream wordt opgenomen' : 'Opname loopt; status niet zeker (' + result.kind + ')');
         }
@@ -183,15 +206,15 @@ async function main() {
     }
     if (!exiting) {
       const remaining = recording && maxSeconds > 0 ? maxSeconds * 1000 - (Date.now() - recording.started) : interval;
-      await delay(Math.max(1000, Math.min(interval, remaining)));
+      await pause(Math.max(1000, Math.min(interval, remaining)));
     }
   }
   if (recording) await recording.stop();
   await browser.close();
 }
 
-process.on('SIGTERM', () => { exiting = true; });
-process.on('SIGINT', () => { exiting = true; });
+process.on('SIGTERM', () => { exiting = true; interrupt(); });
+process.on('SIGINT', () => { exiting = true; interrupt(); });
 try {
   await main();
 } catch (error) {

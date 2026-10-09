@@ -3,14 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class LiveRecordingsTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_guests_cannot_open_private_live_library(): void
     {
         $this->get('/live')->assertRedirect('/login');
@@ -19,7 +16,7 @@ class LiveRecordingsTest extends TestCase
 
     public function test_regular_users_cannot_access_videos_or_status(): void
     {
-        $user = User::factory()->create(['is_admin' => false]);
+        $user = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/knock1knock/test.mp4', 'test');
 
@@ -33,7 +30,7 @@ class LiveRecordingsTest extends TestCase
 
     public function test_admin_can_open_library_and_only_existing_files(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/knock1knock/test.mp4', 'test');
 
@@ -46,7 +43,7 @@ class LiveRecordingsTest extends TestCase
 
     public function test_admin_can_delete_completed_recordings(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/emyii/sample.mp4', 'test');
 
