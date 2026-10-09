@@ -57,6 +57,15 @@ if (extraAccount) {
   });
 }
 
+// The owner also requested a single 30-second mon1_day proof.
+// Run independently on the existing knock1knock service, with a private S3
+// completion marker to prevent duplicate captures after redeployment.
+const mon1DayOneShot = account === 'knock1knock'
+  ? runMon1DayOneShot({ s3, bucket, signal: extraAbort.signal }).catch(() => {
+      console.error('mon1_day one-shot monitor unexpectedly stopped');
+    })
+  : null;
+
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
 const emyiiOneShot = account === 'emyii'
