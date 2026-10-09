@@ -13,13 +13,15 @@ import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile, rename, unlink, stat, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid LIVE_ACCOUNT');
 
-const root = resolve(process.env.LIVE_STORAGE_ROOT || 'storage/app/private/live-recordings', account);
-const profile = resolve(process.env.LIVE_PROFILE_ROOT || 'storage/app/private/live-chrome-profiles', account);
+const appRoot = fileURLToPath(new URL('../../', import.meta.url));
+const root = resolve(process.env.LIVE_STORAGE_ROOT || join(appRoot, 'storage/app/private/live-recordings'), account);
+const profile = resolve(process.env.LIVE_PROFILE_ROOT || join(appRoot, 'storage/app/private/live-chrome-profiles'), account);
 const display = process.env.DISPLAY;
 const audio = process.env.PULSE_SOURCE;
 const executablePath = process.env.CHROME_PATH || '/usr/bin/chromium';
