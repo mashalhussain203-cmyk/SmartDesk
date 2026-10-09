@@ -55,6 +55,25 @@ class LiveRecordingsTest extends TestCase
         $this->assertFalse(Storage::disk('local')->exists('live-recordings/lucycums/clip.mp4'));
     }
 
+    public function test_leo_kitty_is_in_automatic_status_and_private_archive(): void
+    {
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        Storage::fake('local');
+        Storage::disk('local')->put('live-recordings/leo_kitty/clip.mp4', 'test');
+
+        $this->actingAs($admin)->get('/live')
+            ->assertOk()
+            ->assertSee('@leo_kitty')
+            ->assertSee('automatisch iedere 60 seconden gecontroleerd');
+        $this->actingAs($admin)->get('/live/status')
+            ->assertOk()
+            ->assertJsonPath('leo_kitty.status', 'unknown');
+        $this->actingAs($admin)->get('/live/leo_kitty/clip.mp4/watch')->assertOk();
+        $this->actingAs($admin)->get('/live/leo_kitty/clip.mp4/download')->assertOk();
+        $this->actingAs($admin)->delete('/live/leo_kitty/clip.mp4')->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/leo_kitty/clip.mp4'));
+    }
+
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
