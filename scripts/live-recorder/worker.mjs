@@ -74,6 +74,8 @@ async function capture() {
   // -nostdin prevents graceful q; use SIGINT and wait for ffmpeg to close Matroska.
   const proc = shell('ffmpeg', args);
   const exited = untilExit(proc);
+  await delay(1200);
+  if (proc.exitCode !== null) throw new Error('FFmpeg could not start; check X11 display and PulseAudio');
   let stopped = false;
 
   return {
@@ -113,12 +115,13 @@ async function detect(page) {
   for (const frame of page.frames()) {
     const ok = await frame.evaluate(async () => {
       const videos = [...document.querySelectorAll('video')];
-      return await Promise.any(videos.map(async v => {
+      const states = await Promise.all(videos.map(async v => {
         if (v.paused || v.ended || v.readyState < 2) return false;
         const t = v.currentTime;
         await new Promise(r => setTimeout(r, 1200));
         return !v.paused && v.readyState >= 2 && v.currentTime > t;
-      })).catch(() => false);
+      }));
+      return states.some(Boolean);
     }).catch(() => false);
     if (ok) { playing = true; break; }
   }
@@ -172,7 +175,10 @@ async function main() {
       await update('error', String(err?.message || err).slice(0, 150));
       // Do not discard an ongoing recording due to temporary browser failures.
     }
-    if (!exiting) await delay(interval);
+    if (!exiting) {
+      const remaining = recording && maxSeconds > 0 ? maxSeconds * 1000 - (Date.now() - recording.started) : interval;
+      await delay(Math.max(1000, Math.min(interval, remaining)));
+    }
   }
   if (recording) await recording.stop();
   await browser.close();
