@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
-import { acceptAdultTerms } from './age-consent.mjs';
+import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 
 const url = 'https://chaturbate.com/knock1knock/';
 const fixture = '<!doctype html><html><body><section id="gate">' +
@@ -20,7 +20,10 @@ test('real Chrome clicks 18+ consent and remembers it only after opt-in', async 
     await page.route(url, route => route.fulfill({ status: 200, contentType: 'text/html', body: fixture }));
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     assert.equal(new URL(page.url()).hostname, 'chaturbate.com');
-    assert.match(await page.locator('body').innerText(), /you must be over 18/i);
+    const rendered = await page.locator('body').innerText();
+    assert.match(rendered, /you must be over 18/i);
+    assert.equal(isAdultTermsScreen(rendered), true, JSON.stringify(rendered));
+    assert.equal(page.frames().length, 1);
 
     assert.deepEqual(await acceptAdultTerms(page, false), { detected: true, clicked: false });
     assert.equal(await page.locator('#gate').count(), 1);
