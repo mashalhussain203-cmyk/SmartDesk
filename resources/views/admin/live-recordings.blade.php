@@ -97,6 +97,16 @@
                     pill.className = 'live-pill ' + status.status;
                     pill.textContent = labels[status.status] || 'ONBEKEND';
                     card.querySelector('[data-live-message]').textContent = status.message || '';
+                    if ((status.message || '').startsWith('Opname opgeslagen: ')) {
+                        const filename = status.message.slice('Opname opgeslagen: '.length).trim();
+                        if (/^[A-Za-z0-9_.-]+\.mp4$/.test(filename)) {
+                            const exists = Array.from(document.querySelectorAll('.live-item video')).some(video =>
+                                decodeURIComponent(new URL(video.src).pathname).endsWith('/' + filename + '/watch')
+                            );
+                            const playing = Array.from(document.querySelectorAll('.live-item video')).some(video => !video.paused);
+                            if (!exists && !playing) window.location.reload();
+                        }
+                    }
                 });
             } catch (_error) {
                 // Keep previous status; do not falsely report OFFLINE on network failure.
