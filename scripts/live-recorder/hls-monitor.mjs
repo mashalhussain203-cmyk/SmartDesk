@@ -14,6 +14,11 @@ import { nextPollDelay } from './schedule.mjs';
 const ALLOWED_EXTRA_ACCOUNTS = new Set(['lucycums', 'leo_kitty']);
 const POLL_MS = 60_000;
 
+export function extraAccountFor(primary) {
+  return primary === 'knock1knock' ? 'lucycums'
+    : primary === 'emyii' ? 'leo_kitty' : null;
+}
+
 export function isPlayable(source) {
   return source?.kind === 'live' && Array.isArray(source.urls) && source.urls.length >= 2;
 }
