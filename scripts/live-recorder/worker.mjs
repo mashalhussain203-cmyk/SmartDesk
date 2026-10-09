@@ -57,6 +57,17 @@ if (extraAccount) {
   });
 }
 
+// Also monitor mon1_day for complete streams on the existing knock1knock
+// Railway worker. This is independent of the one-time proof and keeps running
+// after the proof has already been saved.
+const mon1DayMonitor = account === 'knock1knock'
+  ? runHlsMonitor({
+      s3, bucket, account: 'mon1_day', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('mon1_day continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // The owner also requested a single 30-second mon1_day proof.
 // Run independently on the existing knock1knock service, with a private S3
 // completion marker to prevent duplicate captures after redeployment.
