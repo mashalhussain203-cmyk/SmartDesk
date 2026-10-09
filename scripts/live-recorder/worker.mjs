@@ -122,7 +122,25 @@ async function detect(page) {
   if (/this room is (currently )?offline|user is currently offline|is offline|room is offline/i.test(content)) {
     return { kind: 'offline', detail: 'De pagina toont offline' };
   }
-  return { kind: 'unknown', detail: 'Geen afspelende video gevonden; pagina of leeftijdscontrole nakijken' };
+  // Safe diagnostics only: counts and playback state, never page text or images.
+  const counts = { total: 0, visible: 0, paused: 0, ready: 0 };
+  for (const frame of page.frames()) {
+    const info = await frame.evaluate(() => {
+      const videos = Array.from(document.querySelectorAll('video'));
+      return {
+        total: videos.length,
+        visible: videos.filter(v => v.getBoundingClientRect().width >= 240 && v.getBoundingClientRect().height >= 135).length,
+        paused: videos.filter(v => v.paused).length,
+        ready: videos.filter(v => v.readyState >= 2).length,
+      };
+    }).catch(() => null);
+    if (info) for (const key of Object.keys(counts)) counts[key] += info[key] || 0;
+  }
+  return {
+    kind: 'unknown',
+    detail: 'Geen afspelende video (videospelers: ' + counts.total + ', zichtbaar: ' + counts.visible +
+      ', gepauzeerd: ' + counts.paused + ', geladen: ' + counts.ready + ')',
+  };
 }
 
 async function main() {
