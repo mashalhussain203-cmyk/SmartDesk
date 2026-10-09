@@ -169,20 +169,21 @@ async function main() {
   while (!exiting) {
     const pollStartedAt = Date.now();
     try {
+      let ageConsent = { detected: false, clicked: false };
       if (!recording) {
         await page.goto('https://chaturbate.com/' + account + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
         await pause(7000);
         // User expressly confirmed they are 18+ and agreed to these terms.
         // Click only the real Chaturbate age/terms modal, never other gates.
-        const ageConsent = await acceptAdultTerms(page, env.LIVE_ACCEPT_ADULT_TERMS === '1');
+        ageConsent = await acceptAdultTerms(page, env.LIVE_ACCEPT_ADULT_TERMS === '1');
         if (ageConsent.clicked) {
           await update('unknown', '18+-voorwaarden bevestigd; videospeler opnieuw laden');
           await pause(5000);
-        } else if (ageConsent.detected) {
-          await update('needs_setup', '18+-voorwaarden zichtbaar maar niet bevestigd');
         }
       }
-      const result = await detect(page);
+      const result = ageConsent.detected && !ageConsent.clicked
+        ? { kind: 'needs_setup', detail: '18+-voorwaarden zichtbaar maar niet bevestigd' }
+        : await detect(page);
 
       if (recording) await recording.check();
       if (!recording && result.kind === 'live') {
