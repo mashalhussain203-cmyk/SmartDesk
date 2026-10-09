@@ -141,6 +141,7 @@ async function main() {
   });
   const page = browser.pages()[0] || await browser.newPage();
   let offlineCount = 0;
+  let playbackMissingCount = 0;
 
   while (!exiting) {
     try {
@@ -153,18 +154,23 @@ async function main() {
       if (!recording && result.kind === 'live') {
         recording = await capture();
         offlineCount = 0;
+        playbackMissingCount = 0;
         await update('recording', 'Opname gestart; wacht op het einde van de livestream');
       } else if (recording) {
         if (result.kind === 'offline') offlineCount += 1;
         else if (result.kind === 'live') offlineCount = 0;
-        // An uncertain player/network state is not evidence that the show ended.
-        if (offlineCount >= 2 || (maxSeconds > 0 && Date.now() - recording.started >= maxSeconds * 1000)) {
+        if (result.kind === 'unknown') playbackMissingCount += 1;
+        else if (result.kind === 'live') playbackMissingCount = 0;
+        // Two explicit OFFLINE polls or three consecutive missed playback checks
+        // end the recording instead of allowing endless blank capture.
+        if (offlineCount >= 2 || playbackMissingCount >= 3 || (maxSeconds > 0 && Date.now() - recording.started >= maxSeconds * 1000)) {
           const done = recording;
           recording = null;
           await update('live', 'MP4 wordt afgerond');
           const path = await done.stop();
           await update('offline', 'Opname opgeslagen: ' + path.split('/').at(-1));
           offlineCount = 0;
+          playbackMissingCount = 0;
         } else {
           await update('recording', result.kind === 'live' ? 'Livestream wordt opgenomen' : 'Opname loopt; status niet zeker (' + result.kind + ')');
         }
