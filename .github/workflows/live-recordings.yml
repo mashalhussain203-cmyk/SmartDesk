@@ -30,12 +30,15 @@ jobs:
           cache: npm
       - name: Check web dependency lockfile
         run: npm ci --ignore-scripts
+      - name: Install isolated recorder dependencies
+        run: npm install --prefix scripts/live-recorder --ignore-scripts --no-audit --no-fund
       - name: Check recorder JavaScript syntax
         run: node --check scripts/live-recorder/worker.mjs
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
           php -l routes/live-recordings.php
+          php -l app/Services/LiveArchiveS3.php
       - name: Install Laravel dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
       - name: Prepare Laravel environment
