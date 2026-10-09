@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -86,6 +86,7 @@ async function capture(mediaUrls = null) {
   await delay(1500);
   if (proc.exitCode !== null) {
     const result = await uploaded;
+    if (result.ok) await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key })).catch(() => {});
     throw new Error(mediaUrls ? 'HLS FFmpeg kon niet starten (geen afspeelbare stream)' :
       'FFmpeg startup failed: ' + (result.error?.message || proc.exitCode));
   }
@@ -96,7 +97,9 @@ async function capture(mediaUrls = null) {
     async check() {
       const result = await Promise.race([uploaded, delay(30).then(() => null)]);
       if (result && !result.ok) throw new Error('Upload failed: ' + result.error?.message);
+      if (proc.exitCode === 0) return 'ended';
       if (proc.exitCode !== null && proc.exitCode !== 255) throw new Error('FFmpeg stopped unexpectedly');
+      return null;
     },
     async stop() {
       if (stopped) return key;
@@ -105,7 +108,10 @@ async function capture(mediaUrls = null) {
       const exit = await exited;
       const result = await uploaded;
       if (!result.ok) throw new Error('MP4 upload failed (private S3 upload)');
-      if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') throw new Error('FFmpeg failed to finalize');
+      if (![0, 255].includes(exit.code) && exit.signal !== 'SIGINT') {
+        await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key })).catch(() => {});
+        throw new Error('FFmpeg failed to finalize');
+      }
       // A completed multipart upload must also exist as a nonempty private object.
       const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
       if (!head.ContentLength || head.ContentLength < 100_000) {
@@ -244,8 +250,15 @@ async function main() {
         }
       }
 
-      if (recording) await recording.check();
-      if (!recording && result.kind === 'live') {
+      const recorderEnded = recording ? await recording.check() === 'ended' : false;
+      if (recorderEnded) {
+        const done = recording;
+        recording = null;
+        await update('uploading', 'Stream gestopt; MP4 wordt gecontroleerd en opgeslagen');
+        const key = await done.stop();
+        await update('live', 'Opname opgeslagen: ' + key.split('/').at(-1));
+        if (maxSeconds > 0) exiting = true;
+      } else if (!recording && result.kind === 'live') {
         recording = await capture(publicMediaUrls);
         offlineCount = 0;
         playbackMissingCount = 0;
@@ -273,8 +286,14 @@ async function main() {
         await update(result.kind, result.detail);
       }
     } catch (err) {
-      await update('error', String(err?.message || err).slice(0, 150));
-      // Do not discard an ongoing recording due to temporary browser failures.
+      const message = String(err?.message || err);
+      if (recording && /FFmpeg stopped unexpectedly|Upload failed/.test(message)) {
+        const failed = recording;
+        recording = null;
+        try { await failed.stop(); } catch { /* The failed stream is not a valid recording. */ }
+      }
+      await update('error', message.slice(0, 150));
+      // Temporary browser/network errors must not discard a healthy HLS recording.
     }
     if (!exiting) {
       // Poll once per minute from poll START, including page navigation,
