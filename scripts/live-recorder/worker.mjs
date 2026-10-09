@@ -39,17 +39,19 @@ const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
 await mkdir(profile, { recursive: true, mode: 0o700 });
 
-// The existing knock1knock recorder also supervises a lightweight HLS-only
-// recorder for the owner's lucycums room. Each room has its own S3 status and
-// recording prefix. emyii continues on its own existing Railway service.
+// Run one lightweight HLS-only monitor beside each existing Chrome recorder:
+// knock1knock + lucycums on one Railway service; emyii + leo_kitty on the other.
+// All four streams use independent S3 prefixes and statuses.
 const extraAbort = new AbortController();
+const extraAccount = account === 'knock1knock' ? 'lucycums'
+  : account === 'emyii' ? 'leo_kitty' : null;
 let extraMonitor = null;
-if (account === 'knock1knock') {
+if (extraAccount) {
   extraMonitor = runHlsMonitor({
-    s3, bucket, account: 'lucycums', signal: extraAbort.signal,
+    s3, bucket, account: extraAccount, signal: extraAbort.signal,
   }).catch(() => {
     // Do not log exception text: upstream media failures may contain signed URLs.
-    console.error('lucycums continuous monitor unexpectedly stopped');
+    console.error('Additional continuous monitor unexpectedly stopped');
   });
 }
 
@@ -350,7 +352,7 @@ try {
   await update('error', String(error?.message || error).slice(0, 150));
   process.exitCode = 1;
 } finally {
-  // Finish an in-flight lucycums MP4 before Railway stops the container.
+  // Finish an in-flight additional-account MP4 before Railway stops the container.
   extraAbort.abort();
   if (extraMonitor) await extraMonitor;
 }
