@@ -19,6 +19,8 @@ test('real Chrome clicks 18+ consent and remembers it only after opt-in', async 
     const page = await browser.newPage();
     await page.route(url, route => route.fulfill({ status: 200, contentType: 'text/html', body: fixture }));
     await page.goto(url, { waitUntil: 'domcontentloaded' });
+    assert.equal(new URL(page.url()).hostname, 'chaturbate.com');
+    assert.match(await page.locator('body').innerText(), /you must be over 18/i);
 
     assert.deepEqual(await acceptAdultTerms(page, false), { detected: true, clicked: false });
     assert.equal(await page.locator('#gate').count(), 1);
