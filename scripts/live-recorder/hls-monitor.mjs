@@ -35,6 +35,23 @@ export async function reportHlsStatus({ s3, bucket, account, state, message }) {
   console.log(checked_at, account, state, message);
 }
 
+async function bounded(promise, ms, onTimeout) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => {
+          onTimeout?.();
+          reject(new Error('Recorder operation timed out'));
+        }, ms);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function startHlsCapture({ s3, bucket, account, urls }) {
   if (account !== ALLOWED_EXTRA_ACCOUNT) throw new Error('Unexpected extra account');
   const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
@@ -76,14 +93,8 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
       if (!exitInfo && proc.exitCode === null) proc.kill('SIGINT');
       try {
         // On a stopped stream, FFmpeg must finalize the MP4 and close stdout.
-        const exit = await Promise.race([
-          exited,
-          delay(30_000).then(() => { proc.kill('SIGKILL'); throw new Error('FFmpeg shutdown timeout'); }),
-        ]);
-        const result = await Promise.race([
-          uploaded,
-          delay(30_000).then(() => { throw new Error('Private upload timeout'); }),
-        ]);
+        const exit = await bounded(exited, 30_000, () => proc.kill('SIGKILL'));
+        const result = await bounded(uploaded, 30_000);
         if (!result.ok) throw new Error('Private S3 upload failed');
         if (exit.code !== 0 && exit.code !== 255 && exit.signal !== 'SIGINT') {
           throw new Error('FFmpeg could not finalize MP4');
