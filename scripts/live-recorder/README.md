@@ -1,55 +1,31 @@
-# SmartDesk – private live recordings (/live)
+# SmartDesk – automatische privé livestreamopnames
 
-This adds an admin-only /live page inside SmartDesk (Laravel), using the existing login and users.is_admin check. It lists, plays, downloads and deletes finalized MP4 files. Recordings are on the Laravel private local disk and are never public web files.
+De uitbreiding neemt via een zelfstandig draaiende Google Chrome-recorder video en geluid op van knock1knock of emyii. Geen Chaturbate-API. De videospeler moet normaal toegankelijk zijn; de implementatie omzeilt geen toegang, leeftijdsbevestiging, DRM of platformrestricties.
 
-Accounts: knock1knock and emyii.
+## Bouwstenen
 
-## Recorder setup (separate always-on service)
+1. Laravel SmartDesk: /live is afgeschermd met de bestaande login en is_admin-controle. Streaming, downloaden en verwijderen blijven via admin-only routes lopen.
+2. Railway private storage bucket: langdurige opnames staan niet op de 500 MB applicatievolume maar als een MP4 per uitzending in de bucket, onder recordings/<account>/<filename>.mp4. De browser krijgt nooit bucket-sleutels of publieke S3-URL's.
+3. Railway recorder workers: één onafhankelijke Docker-service per account, gebouwd uit scripts/live-recorder/Dockerfile. Die start Chromium, FFmpeg, Xvfb en PulseAudio. De worker controleert ongeveer elke minuut of video in Chrome speelt en streamt beeld plus geluid rechtstreeks via S3 multipart-upload naar de bucket. Daardoor is geen grote lokale opnameschijf nodig.
+4. Live status in status/<account>.json en privé MP4's verschijnen na het afronden van de multipart-upload automatisch op /live.
 
-scripts/live-recorder/worker.mjs uses Google Chrome/Chromium + Playwright Core + FFmpeg, without a Chaturbate API token. It must run continuously on a machine that can write to the SAME Laravel storage volume. Visiting the admin page does not start the recorder.
+## Railway instellingen
 
-Prerequisites, which are not installed automatically by this pull request:
+Maak een private Railway Storage Bucket, bijvoorbeeld genaamd smartdesk-live-private. Zet zowel op SmartDesk als op de twee recorder services deze vijf omgevingsvariabelen met Railway bucket-reference variables: LIVE_S3_ENDPOINT, LIVE_S3_BUCKET, LIVE_S3_REGION, LIVE_S3_ACCESS_KEY_ID en LIVE_S3_SECRET_ACCESS_KEY. Gebruik de referenties van de aangemaakte bucket; schrijf de geheime sleutel nooit in GitHub-code.
 
-- Node.js. Install the recorder package separately: `npm install --prefix scripts/live-recorder`. Do not add recorder dependencies to the main SmartDesk npm lockfile.
-- Chrome/Chromium, with CHROME_PATH pointing at the executable.
-- A dedicated 1280x720 X11 display for each channel (Xvfb or a desktop).
-- FFmpeg with x11grab, libx264, AAC, and PulseAudio input.
-- An audio sink and matching PulseAudio monitor source per channel.
-- Persistent writable Laravel storage; if using Railway, configure a persistent volume accessible to the app AND the worker. In unrelated containers without shared storage, uploaded/recorded files will NOT appear in /live.
-- A working playback stream in Chrome. Normal age confirmation or login may need to be completed in the persistent Chrome profile first. This does not bypass those restrictions.
+Maak twee Railway services met GitHub-bron mashalhussain203-cmyk/SmartDesk, branch main, Dockerfile-pad scripts/live-recorder/Dockerfile. Zet LIVE_ACCOUNT=knock1knock op de eerste en LIVE_ACCOUNT=emyii op de tweede. Laat geen publiek domein aan de workers koppelen. Laat de workers continu draaien; gebruik geen Railway cronjob (minimale interval vijf minuten) of slaapstand.
 
-Example commands for one account, on a Linux server with these packages installed:
+Voor een eenmalige opname van 30 seconden: LIVE_TEST_SECONDS=30. Verwijder deze instelling voor normale, volledige streams. Een worker stopt na twee expliciete offlinecontroles of drie opeenvolgende onzekere playbackcontroles om eindeloze lege bestanden te voorkomen.
 
-    npm install --prefix scripts/live-recorder
-    Xvfb :99 -screen 0 1280x720x24 &
-    pulseaudio --start
-    pactl load-module module-null-sink sink_name=LiveKnock
-    LIVE_ACCOUNT=knock1knock DISPLAY=:99 PULSE_SINK=LiveKnock PULSE_SOURCE=LiveKnock.monitor CHROME_PATH=/usr/bin/google-chrome node scripts/live-recorder/worker.mjs
+## Belangrijke grenzen
 
-To monitor emyii simultaneously, start another process on its own display (:100), sink (LiveEmyii), and LIVE_ACCOUNT=emyii. Only run one worker per channel. The persistent browser profile lives under storage/app/private/live-chrome-profiles/<channel>/.
+- Alle privacy- en downloadcontroles vinden plaats in Laravel. De privébucket is niet openbaar.
+- Een live pagina of tekst met 'LIVE' is niet genoeg: er moet daadwerkelijk een video afspelen in Chrome. Zonder afspeelbare livestream wordt niet opgenomen.
+- Chaturbate kan leeftijdsbevestiging, login en autoplay blokkeren. De code omzeilt deze controles niet en kan alleen worden gebruikt wanneer de website toestemming geeft om op te nemen.
+- De opslagbucket en twee continu actieve Railway worker-services maken extra gebruikskosten. Railway Buckets worden per GB-maand belast en worker CPU, RAM en egress afzonderlijk.
+- Bij een workercrash of uploadstoring vóór het afronden kan de lopende MP4 verloren gaan. Volledige crashbestendigheid vereist een uitgebreider segment-/herstelmechanisme.
+- De eerste 0-60 seconden plus de browserlaadtijd kunnen ontbreken. Na een stream moet de MP4 met geluid tijdens een echte opname worden getest.
 
-For a short **single** recording test, set LIVE_TEST_SECONDS=30 in the worker's environment. The worker finishes one 30-second clip, saves it to MP4, and exits. By default, the recorder continues until offline is confirmed twice. A check runs every 60 seconds, so the first 0–60 seconds and browser startup may be missed.
+## Tests
 
-## Behaviour, privacy, limitations
-
-- The admin-only /live page refreshes recording status every 60 seconds, without refreshing the playing video.
-- Status is OFFLINE only when the browser shows offline. Uncertain video playback is UNKNOWN and browser errors are ERROR.
-- FFmpeg first writes an MKV. At the end, it remuxes this to MP4; only completed MP4s are shown in the private gallery. On restart it attempts to recover interrupted MKVs. If remuxing fails, the MKV remains for manual recovery.
-- The worker captures the full browser display, including any visible UI, at 1280x720. Audio is captured only when the Chrome audio route and PulseAudio monitor are correctly configured.
-- Browser detection or recording is not guaranteed; the external site may require prompts or change its player. This feature does not bypass access controls, paywalls, or restrictions. Make sure recording is permitted under the platform terms.
-- No HTTP video upload is included. Files become visible to SmartDesk because the worker saves them directly to the private storage mounted by the Laravel app.
-- Every playback, download and delete endpoint requires the existing SmartDesk admin login. Files must stay outside public/ and storage/app/public.
-- New completed MP4 files are picked up by the admin page's status polling, refreshing the library when no video is currently playing.
-- Long streams need substantial disk space and persistent storage. Configure backups and a supervisor/systemd to restart the worker.
-
-## Run authorization tests
-
-    php artisan test --filter=LiveRecordingsTest
-
-These tests do not validate Chrome playback or an actual livestream; perform a real recording test before relying on this tool.
-
-## Deployment blockers to verify
-
-This branch DOES NOT automatically launch the recorder on the hosted website. The current SmartDesk nixpacks.toml does not install FFmpeg, Xvfb and PulseAudio or register a supervised worker. Deploy the worker only after those dependencies and its persistent storage are configured. It will not record anything until this is done.
-
-On Railway, filesystem volumes cannot be assumed to be shared across independent services. A detached recorder requires an explicit secure upload pipeline or shared storage accessible to Laravel; neither is provided by this change. Running browser + recorder alongside the web app in one service must also be tested for sufficient CPU/RAM and persistence. Never point the worker at storage/app/public.
+De GitHub workflow in .github/workflows/live-recordings.yml installeert de Node recorder-afhankelijkheden, controleert JavaScript en PHP syntax en test de adminbeveiliging. Dat vervangt niet een end-to-end test met een echte livestream.
