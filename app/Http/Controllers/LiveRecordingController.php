@@ -23,9 +23,15 @@ class LiveRecordingController extends Controller
         $this->requireAdmin();
 
         $recordings = [];
+        $archiveError = null;
         if ($archive->configured()) {
-            foreach (self::ACCOUNTS as $account) {
-                $recordings = array_merge($recordings, $archive->listVideos($account));
+            try {
+                foreach (self::ACCOUNTS as $account) {
+                    $recordings = array_merge($recordings, $archive->listVideos($account));
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
+                $archiveError = 'De privéopslag is tijdelijk niet bereikbaar.';
             }
         } else foreach (self::ACCOUNTS as $account) {
             foreach (Storage::disk('local')->files("live-recordings/{$account}") as $path) {
@@ -49,6 +55,7 @@ class LiveRecordingController extends Controller
             'recordings' => $recordings,
             'accounts' => self::ACCOUNTS,
             'statuses' => $this->statuses($archive),
+            'archiveError' => $archiveError,
         ]);
     }
 
@@ -114,7 +121,13 @@ class LiveRecordingController extends Controller
             $path = "live-recordings/{$account}/status.json";
             $status = null;
             if ($archive->configured()) {
-                $status = $archive->getStatus($account);
+                try {
+                    $status = $archive->getStatus($account);
+                } catch (\Throwable $exception) {
+                    report($exception);
+                    $data[$account] = ['status' => 'error', 'message' => 'Privéopslag tijdelijk niet bereikbaar'];
+                    continue;
+                }
             } elseif (Storage::disk('local')->exists($path)) {
                 $parsed = json_decode(Storage::disk('local')->get($path), true);
                 if (is_array($parsed)) $status = $parsed;
