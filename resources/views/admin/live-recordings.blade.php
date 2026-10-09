@@ -47,7 +47,7 @@
 
     <div class="live-head">
         <h1>Privé livestreamopnames</h1>
-        <p>Alleen SmartDesk-beheerders hebben toegang tot deze pagina en de videobestanden. De actieve recorders voor knock1knock en emyii controleren iedere 60 seconden of de stream toegankelijk is en bewaren voltooide opnames privé als MP4. Voor lucycums kun je hieronder zelf een MP4 toevoegen; daarvoor draait nog geen automatische recorder. Een onbekende status betekent niet automatisch offline.</p>
+        <p>De livestreams van <strong>knock1knock</strong>, <strong>emyii</strong>, <strong>lucycums</strong> en <strong>leo_kitty</strong> worden automatisch iedere 60 seconden gecontroleerd. Zodra de publieke stream met beeld en geluid beschikbaar is, begint de server met opnemen. De opname wordt na afloop privé als MP4 opgeslagen. Je hoeft geen browser te openen of toestemming voor tabdeling te geven. Alleen SmartDesk-beheerders kunnen de bestanden bekijken. Een onbekende status betekent niet automatisch offline.</p>
     </div>
 
     @if(!empty($archiveError))
@@ -70,8 +70,8 @@
     </div>
 
     <section class="live-capture" aria-labelledby="live-capture-title">
-        <h2 id="live-capture-title">30 seconden tab-opname van lucycums</h2>
-        <p>Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
+        <h2 id="live-capture-title">Optioneel: handmatige 30-secondenopname van lucycums</h2>
+        <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
         <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
         <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
         <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
