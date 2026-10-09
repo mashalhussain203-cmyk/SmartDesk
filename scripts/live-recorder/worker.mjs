@@ -79,6 +79,16 @@ const cutefacebigassMonitor = account === 'emyii'
     })
   : null;
 
+// ricasashaa: independently record complete public livestreams on the existing
+// emyii Railway service, without interrupting any of the other account monitors.
+const ricasashaaMonitor = account === 'emyii'
+  ? runHlsMonitor({
+      s3, bucket, account: 'ricasashaa', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('ricasashaa continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // The owner also requested a single 30-second mon1_day proof.
 // Run independently on the existing knock1knock service, with a private S3
 // completion marker to prevent duplicate captures after redeployment.
@@ -394,6 +404,7 @@ try {
   if (extraMonitor) await extraMonitor;
   if (mon1DayMonitor) await mon1DayMonitor;
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
+  if (ricasashaaMonitor) await ricasashaaMonitor;
   if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }
