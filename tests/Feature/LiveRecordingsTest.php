@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Process;
 use Tests\TestCase;
 
 class LiveRecordingsTest extends TestCase
@@ -47,7 +48,7 @@ class LiveRecordingsTest extends TestCase
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/lucycums/clip.mp4', 'test');
 
-        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@lucycums');
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@lucycums')->assertSee('Neem 30 seconden op en sla privé op');
         $this->actingAs($admin)->get('/live/lucycums/clip.mp4/watch')->assertOk();
         $this->actingAs($admin)->get('/live/lucycums/clip.mp4/download')->assertOk();
         $this->actingAs($admin)->delete('/live/lucycums/clip.mp4')->assertRedirect('/live');
@@ -118,6 +119,66 @@ class LiveRecordingsTest extends TestCase
         $this->assertSame([], Storage::disk('local')->files('live-recordings/lucycums'));
         $this->delete('/live/uploads/'.$id)->assertOk();
         $this->assertFalse(Storage::disk('local')->exists('live-recording-uploads/manual/'.$id.'/meta.json'));
+    }
+
+    public function test_invalid_webm_capture_is_rejected_before_ffmpeg_and_never_published(): void
+    {
+        Storage::fake('local');
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin);
+        $bytes = str_repeat('x', 2048);
+        $id = $this->postJson('/live/uploads', [
+            'account' => 'lucycums', 'bytes' => strlen($bytes), 'format' => 'webm',
+        ])->assertCreated()->json('id');
+
+        $this->call('PUT', '/live/uploads/'.$id.'/parts/0', [], [], [], [
+            'CONTENT_TYPE' => 'application/octet-stream',
+        ], $bytes)->assertOk();
+        $this->postJson('/live/uploads/'.$id.'/complete', [])->assertUnprocessable();
+        $this->assertSame([], Storage::disk('local')->files('live-recordings/lucycums'));
+    }
+
+    public function test_browser_webm_with_audio_is_converted_to_private_mp4(): void
+    {
+        Storage::fake('local');
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin);
+
+        $source = tempnam(sys_get_temp_dir(), 'live-test-');
+        try {
+            $generated = Process::timeout(30)->run([
+                'ffmpeg', '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
+                '-f', 'lavfi', '-i', 'color=c=black:s=160x90:r=10',
+                '-f', 'lavfi', '-i', 'sine=frequency=440:sample_rate=48000',
+                '-t', '1', '-c:v', 'libvpx', '-b:v', '150k',
+                '-c:a', 'libopus', '-shortest', '-f', 'webm', $source,
+            ]);
+            $this->assertTrue($generated->successful(), $generated->errorOutput());
+            $bytes = file_get_contents($source);
+            $this->assertStringStartsWith("\x1A\x45\xDF\xA3", $bytes);
+
+            $id = $this->postJson('/live/uploads', [
+                'account' => 'lucycums', 'bytes' => strlen($bytes), 'format' => 'webm',
+            ])->assertCreated()->json('id');
+            $this->call('PUT', '/live/uploads/'.$id.'/parts/0', [], [], [], [
+                'CONTENT_TYPE' => 'application/octet-stream',
+            ], $bytes)->assertOk();
+            $this->postJson('/live/uploads/'.$id.'/complete', [])->assertOk();
+
+            $files = Storage::disk('local')->files('live-recordings/lucycums');
+            $this->assertCount(1, $files);
+            $this->assertSame('ftyp', substr(Storage::disk('local')->get($files[0]), 4, 4));
+            $probe = Process::timeout(15)->run([
+                'ffprobe', '-v', 'error', '-select_streams', 'a:0',
+                '-show_entries', 'stream=codec_name', '-of', 'default=noprint_wrappers=1',
+                Storage::disk('local')->path($files[0]),
+            ]);
+            $this->assertTrue($probe->successful(), $probe->errorOutput());
+            $this->assertStringContainsString('codec_name=aac', $probe->output());
+            $this->assertFalse(Storage::disk('local')->exists('live-recording-uploads/manual/'.$id.'/meta.json'));
+        } finally {
+            @unlink($source);
+        }
     }
 
     public function test_one_admin_cannot_modify_another_admin_upload(): void
