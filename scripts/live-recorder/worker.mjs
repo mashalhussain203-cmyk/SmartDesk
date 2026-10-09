@@ -15,7 +15,7 @@ import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
-if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
+if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
 const env = process.env;
 for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE_S3_ACCESS_KEY_ID', 'LIVE_S3_SECRET_ACCESS_KEY', 'DISPLAY', 'PULSE_SOURCE']) {
   if (!env[key]) throw new Error('Missing required configuration: ' + key);

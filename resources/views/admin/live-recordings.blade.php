@@ -33,7 +33,7 @@
 
     <div class="live-head">
         <h1>Privé livestreamopnames</h1>
-        <p>Alleen SmartDesk-beheerders hebben toegang tot deze pagina en de videobestanden. De Chrome-recorder controleert iedere 60 seconden of je livestream actief is en bewaart voltooide opnames privé als MP4. Het eerste minuutje kan ontbreken. Een onbekende status is niet hetzelfde als offline.</p>
+        <p>Alleen SmartDesk-beheerders hebben toegang tot deze pagina en de videobestanden. De recorder controleert iedere 60 seconden of je livestream actief is en bewaart voltooide opnames privé als MP4. Het eerste minuutje kan ontbreken. Een onbekende status is niet hetzelfde als offline.</p>
     </div>
 
     @if(!empty($archiveError))
@@ -82,7 +82,7 @@
         </article>
         @if($loop->last)</div>@endif
     @empty
-        <div class="live-empty">Nog geen voltooide MP4-opnames. Controleer of de Chrome-worker actief is en of er een livestream in de browser wordt afgespeeld.</div>
+        <div class="live-empty">Nog geen voltooide MP4-opnames. Controleer de recorderstatus en of de livestream toegankelijk is.</div>
     @endforelse
 </div>
 <script>
