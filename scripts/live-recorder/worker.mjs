@@ -171,9 +171,14 @@ async function main() {
     try {
       const request = response.request();
       const isMain = request.isNavigationRequest() && request.frame() === page.mainFrame();
-      recordHttpResponse(network, response.status(), request.resourceType(), isMain);
+      const hostname = new URL(response.url()).hostname.toLowerCase();
+      const origin = hostname === 'chaturbate.com' || hostname.endsWith('.chaturbate.com')
+        ? 'site' : hostname === 'highwebmedia.com' || hostname.endsWith('.highwebmedia.com')
+          ? 'media-network' : 'other';
+      recordHttpResponse(network, response.status(), request.resourceType(), isMain, origin);
     } catch { /* Browser may detach a frame while a response arrives. */ }
   });
+  page.on('pageerror', () => { network.pageScriptErrors++; });
   page.on('requestfailed', request => {
     if (['document', 'media', 'xhr', 'fetch', 'script'].includes(request.resourceType())) {
       network.failedRequests++;
