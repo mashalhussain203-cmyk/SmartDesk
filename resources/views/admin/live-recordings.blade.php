@@ -43,12 +43,32 @@
         .live-capture progress { width: 100%; max-width: 440px; height: 12px; margin-top: 10px; }
         .live-capture .live-capture-message { margin: 12px 0 0; font-size: 14px; color: #cbd2de; }
         .live-capture button:disabled, .live-upload button:disabled { opacity: .55; cursor: wait; }
+        .live-automatic { padding: 20px 24px; background: #141e1b; border: 1px solid #3d7562; border-radius: 18px; margin: 0 0 24px; }
+        .live-automatic h2 { margin: 0 0 10px; font-size: 20px; color: #a5f0c9; }
+        .live-automatic p { margin: 0; color: #d1e0d9; line-height: 1.6; }
+        .live-automatic .live-automatic-facts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .live-automatic-facts span { padding: 7px 11px; background: #233b32; border-radius: 9px; font-size: 13px; color: #d7f5e5; }
+        .live-last-check { display: block; margin-top: 8px; color: #8c9bad; font-size: 12px; }
+        .live-last-saved { display: block; margin-top: 6px; color: #a5f0c9; font-size: 12px; overflow-wrap: anywhere; }
+        .live-capture summary { cursor: pointer; color: #c6d1f5; font-weight: 650; }
+        .live-capture .live-capture-inner { padding-top: 14px; }
     </style>
 
     <div class="live-head">
         <h1>Privé livestreamopnames</h1>
-        <p>De livestreams van <strong>knock1knock</strong>, <strong>emyii</strong>, <strong>lucycums</strong> en <strong>leo_kitty</strong> worden automatisch iedere 60 seconden gecontroleerd. Zodra de publieke stream met beeld en geluid beschikbaar is, begint de server met opnemen. De opname wordt na afloop privé als MP4 opgeslagen. Je hoeft geen browser te openen of toestemming voor tabdeling te geven. Alleen SmartDesk-beheerders kunnen de bestanden bekijken. Een onbekende status betekent niet automatisch offline.</p>
+        <p>Automatische privéopnames van jouw livestreams. De Railway-server blijft controleren en opnemen, ook wanneer deze pagina gesloten is. Hieronder zie je de actuele status en de opgeslagen MP4-bestanden.</p>
     </div>
+
+    <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
+        <h2>Automatisch de volledige livestream opnemen</h2>
+        <p>De server controleert <strong>knock1knock, emyii, lucycums en leo_kitty</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
+        <div class="live-automatic-facts">
+            <span>Automatische achtergrondcontrole: 60 sec.</span>
+            <span>Opnameduur: geen limiet van 30 sec.</span>
+            <span>Opslag: privé-MP4 na afloop</span>
+            <span>Status ververst: 15 sec.</span>
+        </div>
+    </section>
 
     @if(!empty($archiveError))
         <p role="alert" style="padding:12px;border:1px solid #f19c91;border-radius:12px;color:#ffab9d;">{{ $archiveError }}</p>
@@ -62,6 +82,8 @@
                 </span>
                 <strong>{{ '@' . $account }}</strong>
                 <small data-live-message>{{ $statuses[$account]['message'] ?? '' }}</small>
+                <small class="live-last-check" data-live-checked>@if(!empty($statuses[$account]['checked_at']))Laatst gecontroleerd: {{ $statuses[$account]['checked_at'] }}@else Nog geen actuele controle @endif</small>
+                <small class="live-last-saved" data-live-saved>@if(!empty($statuses[$account]['last_saved']))Laatst opgeslagen: {{ $statuses[$account]['last_saved'] }}@endif</small>
                 <div style="margin-top: 10px;">
                     <a href="https://chaturbate.com/{{ $account }}/" target="_blank" rel="noopener noreferrer" class="live-muted">Bekijk bronpagina ↗</a>
                 </div>
@@ -69,13 +91,15 @@
         @endforeach
     </div>
 
-    <section class="live-capture" aria-labelledby="live-capture-title">
-        <h2 id="live-capture-title">Optioneel: handmatige 30-secondenopname van lucycums</h2>
+    <details class="live-capture">
+        <summary id="live-capture-title">Extra optie: handmatige 30-secondenopname (niet nodig voor automatische opnames)</summary>
+        <div class="live-capture-inner">
         <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
         <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
         <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
         <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
-    </section>
+        </div>
+    </details>
 
     <section class="live-upload" aria-labelledby="live-upload-title">
         <h2 id="live-upload-title">MP4 privé toevoegen</h2>
@@ -143,8 +167,16 @@
                     pill.className = 'live-pill ' + status.status;
                     pill.textContent = labels[status.status] || 'ONBEKEND';
                     card.querySelector('[data-live-message]').textContent = status.message || '';
-                    if ((status.message || '').startsWith('Opname opgeslagen: ')) {
-                        const filename = status.message.slice('Opname opgeslagen: '.length).trim();
+                    const checked = card.querySelector('[data-live-checked]');
+                    checked.textContent = status.checked_at
+                        ? 'Laatst gecontroleerd: ' + new Date(status.checked_at).toLocaleString('nl-NL')
+                        : 'Nog geen actuele controle';
+                    const saved = card.querySelector('[data-live-saved]');
+                    saved.textContent = status.last_saved ? 'Laatst opgeslagen: ' + status.last_saved : '';
+                    const filename = status.last_saved ||
+                        ((status.message || '').startsWith('Opname opgeslagen: ')
+                            ? status.message.slice('Opname opgeslagen: '.length).trim() : '');
+                    if (filename) {
                         if (/^[A-Za-z0-9_.-]+\.mp4$/.test(filename)) {
                             const exists = Array.from(document.querySelectorAll('.live-item video')).some(video =>
                                 decodeURIComponent(new URL(video.src).pathname).endsWith('/' + filename + '/watch')
@@ -158,7 +190,8 @@
                 // Keep previous status; do not falsely report OFFLINE on network failure.
             }
         }
-        setInterval(refresh, 60000);
+        refresh();
+        setInterval(refresh, 15000);
     })();
 </script>
 <script>
