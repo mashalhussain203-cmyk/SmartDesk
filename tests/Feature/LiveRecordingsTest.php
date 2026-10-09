@@ -43,7 +43,7 @@ class LiveRecordingsTest extends TestCase
 
     public function test_admin_can_delete_completed_recordings(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         Storage::fake('local');
         Storage::disk('local')->put('live-recordings/emyii/sample.mp4', 'test');
 
