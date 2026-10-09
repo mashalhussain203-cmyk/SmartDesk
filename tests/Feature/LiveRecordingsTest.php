@@ -64,7 +64,7 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin)->get('/live')
             ->assertOk()
             ->assertSee('@leo_kitty')
-            ->assertSee('automatisch iedere 60 seconden gecontroleerd');
+            ->assertSee('Automatisch de volledige livestream opnemen');
         $this->actingAs($admin)->get('/live/status')
             ->assertOk()
             ->assertJsonPath('leo_kitty.status', 'unknown');
