@@ -13,6 +13,7 @@ import { nextPollDelay } from './schedule.mjs';
 import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
+import { mergePlaybackStatus } from './playback-status.mjs';
 import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 
@@ -272,12 +273,8 @@ async function main() {
       if (env.LIVE_USE_HLS !== '0' && playback.kind !== 'needs_setup' &&
           (playback.kind !== 'live' || recording?.mode === 'hls')) {
         const hls = await findPublicMedia(account);
-        if (hls.kind === 'live') {
-          publicMediaUrls = hls.urls;
-          result = { kind: 'live', detail: hls.detail };
-        } else if (result.kind === 'unknown') {
-          result = { ...result, detail: result.detail + '; ' + hls.detail };
-        }
+        if (hls.kind === 'live') publicMediaUrls = hls.urls;
+        result = mergePlaybackStatus(result, hls);
       }
 
       const recorderEnded = recording ? await recording.check() === 'ended' : false;
