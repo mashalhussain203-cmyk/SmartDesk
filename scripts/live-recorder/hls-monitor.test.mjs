@@ -1,11 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isPlayable, hlsContinuousArgs, runHlsMonitor } from './hls-monitor.mjs';
+import { isPlayable, hlsContinuousArgs, runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
 
 const source = {
   kind: 'live',
   urls: ['https://a.mmcdn.com/video.m3u8?token=private', 'https://a.mmcdn.com/audio.m3u8?token=private'],
 };
+
+test('two Railway services continuously cover all four owner accounts', () => {
+  assert.equal(extraAccountFor('knock1knock'), 'lucycums');
+  assert.equal(extraAccountFor('emyii'), 'leo_kitty');
+  assert.equal(extraAccountFor('lucycums'), null);
+  assert.equal(extraAccountFor('leo_kitty'), null);
+});
 
 test('only real separate HLS video and audio starts a recording', () => {
   assert.equal(isPlayable(source), true);
