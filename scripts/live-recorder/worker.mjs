@@ -19,7 +19,8 @@ for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE
 if (!env.LIVE_S3_ENDPOINT.startsWith('https://')) throw new Error('Private bucket must use HTTPS');
 const bucket = env.LIVE_S3_BUCKET;
 const s3 = new S3Client({
-  endpoint: env.LIVE_S3_ENDPOINT, region: env.LIVE_S3_REGION, forcePathStyle: true, maxAttempts: 5,
+  endpoint: env.LIVE_S3_ENDPOINT, region: env.LIVE_S3_REGION,
+  forcePathStyle: env.LIVE_S3_URL_STYLE !== 'virtual-host', maxAttempts: 5,
   credentials: { accessKeyId: env.LIVE_S3_ACCESS_KEY_ID, secretAccessKey: env.LIVE_S3_SECRET_ACCESS_KEY },
 });
 const profile = resolve(env.LIVE_PROFILE_ROOT || '/tmp/live-chrome-profiles', account);
