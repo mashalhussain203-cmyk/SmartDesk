@@ -2065,3 +2065,6 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/passkeys.php';
 
 require __DIR__ . '/live-chat.php';
+
+// Afgeschermde live-opnames; eigen admincontrole per endpoint.
+require __DIR__ . '/live-recordings.php';
