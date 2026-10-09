@@ -17,6 +17,7 @@ on:
       - 'scripts/live-recorder/**'
       - 'tests/Feature/LiveRecordingsTest.php'
       - 'tests/Feature/LiveArchiveS3UploadTest.php'
+      - 'tests/Feature/LiveArchiveS3StreamingTest.php'
       - 'package.json'
       - 'package-lock.json'
       - 'railpack.json'
@@ -93,7 +94,7 @@ jobs:
           ffmpeg -version
           ffprobe -version
       - name: Test admin-only private media access
-        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest'
+        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest|LiveArchiveS3StreamingTest'
 
   recorder-docker:
     runs-on: ubuntu-latest
