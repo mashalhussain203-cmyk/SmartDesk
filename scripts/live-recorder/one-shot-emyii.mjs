@@ -90,6 +90,10 @@ export async function runEmyiiOneShot({
     }
   }
   console.log(ACCOUNT, '30-second private one-shot waiting for playable public livestream');
+  const aborted = new Promise(resolve => {
+    if (signal.aborted) resolve();
+    else signal.addEventListener('abort', resolve, { once: true });
+  });
   while (!signal.aborted) {
     try {
       const source = await discover(ACCOUNT);
@@ -106,7 +110,7 @@ export async function runEmyiiOneShot({
     if (signal.aborted) break;
     await Promise.race([
       sleep(intervalMs),
-      new Promise(resolve => signal.addEventListener('abort', resolve, { once: true })),
+      aborted,
     ]);
   }
   return { kind: 'stopped' };
