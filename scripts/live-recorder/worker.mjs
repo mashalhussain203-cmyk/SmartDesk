@@ -98,7 +98,7 @@ async function capture(mediaUrls = null) {
       const result = await Promise.race([uploaded, delay(30).then(() => null)]);
       if (result && !result.ok) throw new Error('Upload failed: ' + result.error?.message);
       if (proc.exitCode === 0) return 'ended';
-      if (proc.exitCode !== null && proc.exitCode !== 255) throw new Error('FFmpeg stopped unexpectedly');
+      if (proc.exitCode !== null) throw new Error('FFmpeg stopped unexpectedly');
       return null;
     },
     async stop() {
