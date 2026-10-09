@@ -61,8 +61,8 @@
 
     <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
         <h2>Automatisch de volledige livestream opnemen</h2>
-        <p>De server controleert <strong>knock1knock, emyii, lucycums en leo_kitty</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
-        <p>Voor <strong>mon1_day</strong> staat daarnaast een eenmalige opname van 30 seconden klaar zodra de publieke stream afspeelbaar is. Die opname wordt privé opgeslagen en gecontroleerd.</p>
+        <p>De server controleert <strong>knock1knock, emyii, lucycums, leo_kitty en mon1_day</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
+        <p>Ook <strong>mon1_day</strong> wordt automatisch van begin tot eind opgenomen zodra de publieke video en audio bereikbaar zijn. De eerdere opname van 30 seconden was alleen een technische proef; de volledige opname heeft geen tijdslimiet.</p>
         <div class="live-automatic-facts">
             <span>Automatische achtergrondcontrole: 60 sec.</span>
             <span>Opnameduur: geen limiet van 30 sec.</span>
