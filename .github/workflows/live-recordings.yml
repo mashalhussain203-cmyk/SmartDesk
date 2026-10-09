@@ -38,6 +38,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Install separate S3 worker dependencies
         run: npm install --prefix scripts/live-recorder --ignore-scripts --no-audit --no-fund
+      - name: Test explicit 18+ terms consent handling
+        run: node --test scripts/live-recorder/age-consent.test.mjs
       - name: Test strict one-minute polling schedule
         run: node --test scripts/live-recorder/schedule.test.mjs
       - name: Check recorder JavaScript syntax
