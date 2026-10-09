@@ -74,6 +74,28 @@ class LiveRecordingsTest extends TestCase
         $this->assertFalse(Storage::disk('local')->exists('live-recordings/leo_kitty/clip.mp4'));
     }
 
+    public function test_cutefacebigass_archive_is_playable_downloadable_and_admin_only(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-09T20-22-00-000Z_cutefacebigass.mp4';
+        Storage::disk('local')->put('live-recordings/cutefacebigass/'.$filename, 'test');
+        $watch = '/live/cutefacebigass/'.$filename.'/watch';
+        $download = '/live/cutefacebigass/'.$filename.'/download';
+
+        $this->get($watch)->assertRedirect('/login');
+        $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
+        $this->actingAs($viewer)->get($watch)->assertForbidden();
+        $this->actingAs($viewer)->get($download)->assertForbidden();
+        $this->actingAs($viewer)->delete('/live/cutefacebigass/'.$filename)->assertForbidden();
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@cutefacebigass');
+        $this->actingAs($admin)->get($watch)->assertOk();
+        $this->actingAs($admin)->get($download)->assertOk();
+        $this->actingAs($admin)->delete('/live/cutefacebigass/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/cutefacebigass/'.$filename));
+    }
+
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
