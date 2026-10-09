@@ -18,6 +18,7 @@ COPY scripts/live-recorder/schedule.mjs /app/schedule.mjs
 COPY scripts/live-recorder/age-consent.mjs /app/age-consent.mjs
 COPY scripts/live-recorder/access-diagnostics.mjs /app/access-diagnostics.mjs
 COPY scripts/live-recorder/public-hls.mjs /app/public-hls.mjs
+COPY scripts/live-recorder/playback-status.mjs /app/playback-status.mjs
 COPY scripts/live-recorder/hls-monitor.mjs /app/hls-monitor.mjs
 COPY scripts/live-recorder/one-shot-emyii.mjs /app/one-shot-emyii.mjs
 COPY scripts/live-recorder/docker-entrypoint.sh /usr/local/bin/live-recorder-start
