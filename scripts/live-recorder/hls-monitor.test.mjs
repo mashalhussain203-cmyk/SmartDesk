@@ -68,6 +68,32 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   assert.ok(states.includes('uploading'));
 });
 
+test('leo_kitty can be monitored independently on the emyii Railway worker', async () => {
+  const controller = new AbortController();
+  let started = 0;
+  let stopped = 0;
+  let checked = 0;
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'leo_kitty', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'leo_kitty');
+      return source;
+    },
+    startCapture: async ({ account }) => {
+      assert.equal(account, 'leo_kitty');
+      started++;
+      return {
+        check: async () => false,
+        stop: async () => { stopped++; return 'recordings/leo_kitty/saved.mp4'; },
+      };
+    },
+    report: async ({ account }) => { assert.equal(account, 'leo_kitty'); },
+    sleep: async () => { checked++; if (checked === 2) controller.abort(); },
+  });
+  assert.equal(started, 1);
+  assert.equal(stopped, 1);
+});
+
 test('the extra monitor cannot be configured for a different account', async () => {
   const controller = new AbortController();
   await assert.rejects(
