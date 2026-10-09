@@ -84,7 +84,7 @@
 <script>
     (() => {
         const url = @json(route('live.status'));
-        const labels = { recording: 'OPNAME LOOPT', live: 'LIVE', offline: 'OFFLINE', unknown: 'ONBEKEND', error: 'FOUT', needs_setup: 'INSTELLEN' };
+        const labels = { recording: 'OPNAME LOOPT', uploading: 'BEZIG MET OPSLAAN', live: 'LIVE', offline: 'OFFLINE', unknown: 'ONBEKEND', error: 'FOUT', needs_setup: 'INSTELLEN' };
         async function refresh() {
             try {
                 const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } });
