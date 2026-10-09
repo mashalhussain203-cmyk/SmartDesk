@@ -59,6 +59,7 @@ export async function findPublicMedia(account, run = exec) {
           : /offline|not broadcasting|not online/i.test(stderr) ? 'stream niet publiek beschikbaar'
             : /timeout|timed out|ETIMEDOUT/i.test(stderr) ? 'time-out'
               : 'geen toegang tot publieke HLS-bron';
-    return { kind: 'unknown', detail: 'HLS-controle: ' + reason };
+    const explicitlyOffline = /offline|not broadcasting|not online/i.test(stderr) && !/403|429|forbidden|too many requests/i.test(stderr);
+    return { kind: explicitlyOffline ? 'offline' : 'unknown', detail: 'HLS-controle: ' + reason };
   }
 }
