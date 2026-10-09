@@ -18,6 +18,7 @@ COPY scripts/live-recorder/schedule.mjs /app/schedule.mjs
 COPY scripts/live-recorder/age-consent.mjs /app/age-consent.mjs
 COPY scripts/live-recorder/access-diagnostics.mjs /app/access-diagnostics.mjs
 COPY scripts/live-recorder/public-hls.mjs /app/public-hls.mjs
+COPY scripts/live-recorder/one-shot-lucycums.mjs /app/one-shot-lucycums.mjs
 COPY scripts/live-recorder/docker-entrypoint.sh /usr/local/bin/live-recorder-start
 COPY scripts/live-recorder/docker-root-entrypoint.sh /usr/local/bin/live-recorder-root-start
 RUN chmod +x /usr/local/bin/live-recorder-start /usr/local/bin/live-recorder-root-start \
