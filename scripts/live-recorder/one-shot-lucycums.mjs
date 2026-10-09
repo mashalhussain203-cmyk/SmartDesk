@@ -32,7 +32,7 @@ async function status(s3, bucket, state, message) {
   console.log(checked_at, target, state, message);
 }
 
-export async function recordLucycumsOnce({ s3, bucket, discover = findPublicMedia }) {
+export async function recordLucycumsOnce({ s3, bucket, discover = findPublicMedia, retryDelay = delay }) {
   try {
     await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: marker }));
     console.log(target, 'one-shot already saved in private S3; skipping');
@@ -49,7 +49,7 @@ export async function recordLucycumsOnce({ s3, bucket, discover = findPublicMedi
     found = await discover(target);
     if (found.kind === 'live' && Array.isArray(found.urls) && found.urls.length >= 2) break;
     console.log(target, 'public stream not playable (attempt ' + attempt + '/3)');
-    if (attempt < 3) await delay(8000);
+    if (attempt < 3) await retryDelay(8000);
   }
   if (found?.kind !== 'live' || !Array.isArray(found.urls) || found.urls.length < 2) {
     await status(s3, bucket, 'unknown', '30-secondenproef niet opgeslagen: geen toegankelijke livestream');
