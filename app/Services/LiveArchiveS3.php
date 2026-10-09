@@ -101,7 +101,8 @@ final class LiveArchiveS3
                 'stream' => true,
                 'allow_redirects' => false,
                 // Streaming video uploads and downloads may exceed the default 20 seconds.
-                'timeout' => str_starts_with((string) $key, 'recordings/') ? 180 : 20,
+                'timeout' => ($method === 'GET' && str_starts_with((string) $key, 'recordings/'))
+                    ? 0 : (($method === 'PUT' && str_starts_with((string) $key, 'recordings/')) ? 180 : 20),
             ]);
         } finally {
             if (is_resource($body)) fclose($body);
