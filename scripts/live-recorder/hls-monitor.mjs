@@ -123,7 +123,7 @@ export async function runHlsMonitor({
   discover = findPublicMedia, startCapture = startHlsCapture,
   report = reportHlsStatus, sleep = delay, intervalMs = POLL_MS,
 }) {
-  if (account !== ALLOWED_EXTRA_ACCOUNT) throw new Error('Unexpected extra account');
+  if (!ALLOWED_EXTRA_ACCOUNTS.has(account)) throw new Error('Unexpected extra account');
   if (!signal) throw new Error('Abort signal required');
   let recording = null;
   let missing = 0;
