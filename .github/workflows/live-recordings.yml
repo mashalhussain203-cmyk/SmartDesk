@@ -16,6 +16,7 @@ on:
       - 'resources/views/admin/live-recordings.blade.php'
       - 'scripts/live-recorder/**'
       - 'tests/Feature/LiveRecordingsTest.php'
+      - 'tests/Feature/LiveArchiveS3UploadTest.php'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
@@ -72,7 +73,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
       - name: Test admin-only private media access
-        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest'
+        run: php artisan test --filter='LiveRecordingsTest|LiveRecorderIngestTest|LiveArchiveS3UploadTest'
 
   recorder-docker:
     runs-on: ubuntu-latest
