@@ -381,5 +381,7 @@ try {
   // Finish an in-flight additional-account MP4 before Railway stops the container.
   extraAbort.abort();
   if (extraMonitor) await extraMonitor;
+  if (mon1DayMonitor) await mon1DayMonitor;
+  if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }
