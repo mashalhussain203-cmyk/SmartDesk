@@ -76,16 +76,20 @@ class LiveRecordingsTest extends TestCase
         Storage::fake('local');
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         $this->actingAs($admin);
-        $bytes = "\0\0\0\x18ftypisom".str_repeat('v', 2100);
+        $bytes = "\0\0\0\x18ftypisom".str_repeat('v', 2 * 1024 * 1024 + 1500);
         $begin = $this->postJson('/live/uploads', [
             'account' => 'lucycums', 'bytes' => strlen($bytes),
         ])->assertCreated();
         $id = $begin->json('id');
-        $this->assertSame(1, $begin->json('parts'));
+        $this->assertSame(2, $begin->json('parts'));
 
         $this->call('PUT', '/live/uploads/'.$id.'/parts/0', [], [], [], [
             'CONTENT_TYPE' => 'application/octet-stream',
-        ], $bytes)->assertOk();
+        ], substr($bytes, 0, 2 * 1024 * 1024))->assertOk();
+        $this->postJson('/live/uploads/'.$id.'/complete', [])->assertStatus(409);
+        $this->call('PUT', '/live/uploads/'.$id.'/parts/1', [], [], [], [
+            'CONTENT_TYPE' => 'application/octet-stream',
+        ], substr($bytes, 2 * 1024 * 1024))->assertOk();
 
         $this->postJson('/live/uploads/'.$id.'/complete', [])->assertOk();
         $files = Storage::disk('local')->files('live-recordings/lucycums');
