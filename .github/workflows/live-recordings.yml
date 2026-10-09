@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'app/Http/Controllers/LiveRecordingController.php'
+      - 'app/Http/Controllers/LiveRecordingUploadController.php'
       - 'app/Services/LiveArchiveS3.php'
       - 'routes/live-recordings.php'
       - 'routes/web.php'
@@ -59,6 +60,7 @@ jobs:
       - name: PHP syntax checks
         run: |
           php -l app/Http/Controllers/LiveRecordingController.php
+          php -l app/Http/Controllers/LiveRecordingUploadController.php
           php -l routes/live-recordings.php
           php -l app/Services/LiveArchiveS3.php
           php -l app/Http/Controllers/LiveRecorderIngestController.php
