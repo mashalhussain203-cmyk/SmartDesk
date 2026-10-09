@@ -16,6 +16,7 @@ import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { mergePlaybackStatus } from './playback-status.mjs';
 import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
+import { runMon1DayOneShot } from './one-shot-mon1-day.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -55,6 +56,15 @@ if (extraAccount) {
     console.error('Additional continuous monitor unexpectedly stopped');
   });
 }
+
+// The owner also requested a single 30-second mon1_day proof.
+// Run independently on the existing knock1knock service, with a private S3
+// completion marker to prevent duplicate captures after redeployment.
+const mon1DayOneShot = account === 'knock1knock'
+  ? runMon1DayOneShot({ s3, bucket, signal: extraAbort.signal }).catch(() => {
+      console.error('mon1_day one-shot monitor unexpectedly stopped');
+    })
+  : null;
 
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
