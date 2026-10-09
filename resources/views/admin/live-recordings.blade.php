@@ -37,6 +37,12 @@
         .live-upload input, .live-upload select { max-width: 100%; background: #202633; color: #f6f7fa; border: 1px solid #505869; border-radius: 9px; padding: 10px; font: inherit; }
         .live-upload progress { width: 100%; max-width: 440px; height: 12px; margin-top: 12px; }
         .live-upload .live-upload-message { margin-top: 9px; font-size: 13px; color: #cbd2de; }
+        .live-capture { border: 1px solid #45506a; background: #141a26; border-radius: 18px; padding: 20px; margin-bottom: 24px; }
+        .live-capture h2 { margin: 0 0 8px; font-size: 20px; }
+        .live-capture p { color: #c2cad7; margin: 0 0 12px; line-height: 1.55; }
+        .live-capture progress { width: 100%; max-width: 440px; height: 12px; margin-top: 10px; }
+        .live-capture .live-capture-message { margin: 12px 0 0; font-size: 14px; color: #cbd2de; }
+        .live-capture button:disabled, .live-upload button:disabled { opacity: .55; cursor: wait; }
     </style>
 
     <div class="live-head">
@@ -62,6 +68,14 @@
             </div>
         @endforeach
     </div>
+
+    <section class="live-capture" aria-labelledby="live-capture-title">
+        <h2 id="live-capture-title">30 seconden tab-opname van lucycums</h2>
+        <p>Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
+        <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
+        <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
+        <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
+    </section>
 
     <section class="live-upload" aria-labelledby="live-upload-title">
         <h2 id="live-upload-title">MP4 privé toevoegen</h2>
@@ -149,16 +163,18 @@
 </script>
 <script>
     (() => {
-        const form = document.getElementById('live-manual-upload');
-        if (!form) return;
         const base = @json(route('live.upload.begin'));
         const csrf = @json(csrf_token());
+        const headers = { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' };
+        const form = document.getElementById('live-manual-upload');
         const fileInput = document.getElementById('live-upload-file');
         const accountInput = document.getElementById('live-upload-account');
         const button = document.getElementById('live-upload-button');
         const progress = document.getElementById('live-upload-progress');
         const message = document.getElementById('live-upload-message');
-        const headers = { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' };
+        const captureButton = document.getElementById('live-capture-button');
+        const captureProgress = document.getElementById('live-capture-progress');
+        const captureMessage = document.getElementById('live-capture-message');
 
         async function checked(response) {
             if (response.ok) return response.json();
@@ -167,23 +183,16 @@
             throw new Error(detail || 'Upload mislukt (HTTP ' + response.status + ')');
         }
 
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const file = fileInput.files?.[0];
-            if (!file || !/\.mp4$/i.test(file.name) || file.size < 1024 || file.size > 250 * 1024 * 1024) {
-                message.textContent = 'Kies een MP4-bestand van maximaal 250 MB.';
-                return;
+        async function uploadPrivate(file, account, format, onProgress) {
+            if (file.size < 1024 || file.size > 250 * 1024 * 1024) {
+                throw new Error('Opname moet tussen 1 KB en 250 MB zijn.');
             }
-            button.disabled = true;
-            progress.hidden = false;
-            progress.value = 0;
-            message.textContent = 'Privé-upload voorbereiden…';
             let uploadId = null;
             try {
                 const begin = await checked(await fetch(base, {
                     method: 'POST', credentials: 'same-origin',
                     headers: { ...headers, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ account: accountInput.value, bytes: file.size }),
+                    body: JSON.stringify({ account, bytes: file.size, format }),
                 }));
                 uploadId = begin.id;
                 const chunkSize = begin.chunk_bytes;
@@ -194,25 +203,136 @@
                         headers: { ...headers, 'Content-Type': 'application/octet-stream' },
                         body: chunk,
                     }));
-                    progress.value = Math.round((i + 1) / begin.parts * 95);
-                    message.textContent = 'Uploaden: ' + progress.value + '%';
+                    onProgress(Math.round((i + 1) / begin.parts * 95), 'Uploaden');
                 }
-                message.textContent = 'MP4 privé opslaan en controleren…';
+                onProgress(96, format === 'webm' ? 'Omzetten naar MP4 en privé opslaan' : 'Privé opslaan en controleren');
                 await checked(await fetch(base + '/' + encodeURIComponent(uploadId) + '/complete', {
                     method: 'POST', credentials: 'same-origin', headers,
                 }));
-                progress.value = 100;
+                onProgress(100, 'MP4 veilig opgeslagen');
+            } catch (error) {
+                if (uploadId) {
+                    await fetch(base + '/' + encodeURIComponent(uploadId), {
+                        method: 'DELETE', credentials: 'same-origin', headers,
+                    }).catch(() => {});
+                }
+                throw error;
+            }
+        }
+
+        form?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const file = fileInput.files?.[0];
+            if (!file || !/\.mp4$/i.test(file.name)) {
+                message.textContent = 'Kies een MP4-bestand.';
+                return;
+            }
+            button.disabled = true;
+            progress.hidden = false;
+            progress.value = 0;
+            message.textContent = 'Privé-upload voorbereiden…';
+            try {
+                await uploadPrivate(file, accountInput.value, 'mp4', (percent, stage) => {
+                    progress.value = percent;
+                    message.textContent = stage + ': ' + percent + '%';
+                });
                 message.textContent = 'MP4 veilig opgeslagen. Archief wordt vernieuwd…';
                 window.location.reload();
             } catch (error) {
                 message.textContent = 'Upload niet opgeslagen: ' + (error?.message || 'onbekende fout');
-                if (uploadId) {
-                    fetch(base + '/' + encodeURIComponent(uploadId), {
-                        method: 'DELETE', credentials: 'same-origin', headers,
-                    }).catch(() => {});
-                }
             } finally {
                 button.disabled = false;
+            }
+        });
+
+        captureButton?.addEventListener('click', async () => {
+            if (!navigator.mediaDevices?.getDisplayMedia || typeof MediaRecorder === 'undefined') {
+                captureMessage.textContent = 'Gebruik Chrome op een computer: deze browser ondersteunt geen tab-opname.';
+                return;
+            }
+            captureButton.disabled = true;
+            captureProgress.hidden = true;
+            let stream = null;
+            let stopTimer = null;
+            let countdown = null;
+            try {
+                // Browser permission is always user-initiated. Never auto-select or inspect tabs.
+                stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { frameRate: 25 },
+                    audio: { echoCancellation: false, noiseSuppression: false },
+                    systemAudio: 'include',
+                    preferCurrentTab: false,
+                    selfBrowserSurface: 'exclude',
+                });
+                const videoTrack = stream.getVideoTracks()[0];
+                if (!videoTrack) throw new Error('Geen videotab geselecteerd.');
+                const surface = videoTrack.getSettings()?.displaySurface;
+                if (surface && surface !== 'browser') {
+                    throw new Error('Kies de Chrome-tab met lucycums, niet je hele scherm of venster.');
+                }
+                if (!stream.getAudioTracks().length) {
+                    throw new Error('Tabgeluid ontbreekt. Selecteer Chrome-tab en vink Tabgeluid delen aan.');
+                }
+
+                const mime = [
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm',
+                    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+                    'video/mp4',
+                ].find(type => MediaRecorder.isTypeSupported(type));
+                if (!mime) throw new Error('Deze browser kan geen opnamebestand maken. Gebruik Chrome.');
+                const recorder = new MediaRecorder(stream, {
+                    mimeType: mime, videoBitsPerSecond: 2500000, audioBitsPerSecond: 128000,
+                });
+                const chunks = [];
+                const stopped = new Promise((resolve, reject) => {
+                    recorder.addEventListener('dataavailable', event => {
+                        if (event.data?.size) chunks.push(event.data);
+                    });
+                    recorder.addEventListener('error', event => {
+                        reject(event.error || new Error('Opname gestopt door browserfout.'));
+                    }, { once: true });
+                    recorder.addEventListener('stop', resolve, { once: true });
+                });
+                videoTrack.addEventListener('ended', () => {
+                    if (recorder.state !== 'inactive') recorder.stop();
+                }, { once: true });
+                recorder.start(1000);
+                const started = performance.now();
+                captureMessage.textContent = 'Opname loopt: nog 30 seconden. Laat de lucycums-tab afspelen.';
+                countdown = setInterval(() => {
+                    const remaining = Math.max(0, 30 - Math.floor((performance.now() - started) / 1000));
+                    captureMessage.textContent = 'Opname loopt: nog ' + remaining + ' seconden.';
+                }, 500);
+                stopTimer = setTimeout(() => {
+                    if (recorder.state !== 'inactive') recorder.stop();
+                }, 30000);
+                await stopped;
+                if (performance.now() - started < 28500) {
+                    throw new Error('Tabdeling voortijdig gestopt; geen onvolledige opname opgeslagen.');
+                }
+                const recordedMime = recorder.mimeType || mime;
+                const format = recordedMime.startsWith('video/mp4') ? 'mp4' : 'webm';
+                const blob = new Blob(chunks, { type: recordedMime });
+                captureProgress.hidden = false;
+                captureProgress.value = 0;
+                captureMessage.textContent = '30 seconden opgenomen. MP4 wordt privé opgeslagen…';
+                await uploadPrivate(blob, 'lucycums', format, (percent, stage) => {
+                    captureProgress.value = percent;
+                    captureMessage.textContent = stage + ': ' + percent + '%';
+                });
+                captureMessage.textContent = 'Opname opgeslagen. Privéarchief wordt vernieuwd…';
+                window.location.reload();
+            } catch (error) {
+                captureMessage.textContent = error?.name === 'NotAllowedError'
+                    ? 'Geen tab gedeeld. Klik opnieuw en geef Chrome toestemming om de tab op te nemen.'
+                    : 'Geen opname opgeslagen: ' + (error?.message || 'onbekende fout');
+            } finally {
+                clearTimeout(stopTimer);
+                clearInterval(countdown);
+                stream?.getTracks().forEach(track => track.stop());
+                captureButton.disabled = false;
             }
         });
     })();
