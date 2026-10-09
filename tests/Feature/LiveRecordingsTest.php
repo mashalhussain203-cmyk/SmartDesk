@@ -57,7 +57,7 @@ class LiveRecordingsTest extends TestCase
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
-        $this->postJson('/live/uploads', ['account' => 'lucycums', 'bytes' => 2048])
+        $this->post('/live/uploads', ['account' => 'lucycums', 'bytes' => 2048])
             ->assertRedirect('/login');
 
         $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
