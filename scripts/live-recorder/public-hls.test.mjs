@@ -45,6 +45,21 @@ test('403 is not mistaken for a broadcaster being offline', async () => {
   assert.ok(!('urls' in result));
 });
 
+test('explicit broadcaster offline is distinct from an inaccessible public stream', async () => {
+  const offline = await findPublicMedia('emyii', async () => {
+    const e = new Error('offline');
+    e.stderr = 'This model is currently offline';
+    throw e;
+  });
+  assert.equal(offline.kind, 'offline');
+  const blocked = await findPublicMedia('emyii', async () => {
+    const e = new Error('forbidden');
+    e.stderr = 'HTTP Error 403: Forbidden';
+    throw e;
+  });
+  assert.equal(blocked.kind, 'unknown');
+});
+
 test('never accepts an unsafe stream URL', async () => {
   const result = await findPublicMedia('lucycums', async () => ({ stdout: video + '\nhttps://evil.example/private\n' }));
   assert.equal(result.kind, 'unknown');

@@ -75,6 +75,18 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   assert.ok(states.includes('uploading'));
 });
 
+test('unavailable HLS source shows unknown, not falsely offline', async () => {
+  const controller = new AbortController();
+  const states = [];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'leo_kitty', signal: controller.signal,
+    discover: async () => ({ kind: 'unknown', detail: 'HLS-controle: stream niet publiek beschikbaar' }),
+    report: async ({ state }) => states.push(state),
+    sleep: async () => controller.abort(),
+  });
+  assert.deepEqual(states, ['unknown', 'unknown']);
+});
+
 test('leo_kitty can be monitored independently on the emyii Railway worker', async () => {
   const controller = new AbortController();
   let started = 0;
