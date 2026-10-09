@@ -3174,6 +3174,22 @@
                         @endif
 
 
+                        @if (\Illuminate\Support\Facades\Route::has('live.index'))
+                            <a
+                                class="admin-nav-link {{ request()->routeIs('live.*') ? 'active' : '' }}"
+                                href="{{ route('live.index') }}"
+                                data-admin-menu-item
+                                data-search="live opnames video recorder knock1knock emyii privé"
+                                title="Privé live-opnames"
+                            >
+                                <span class="admin-nav-icon" aria-hidden="true">●</span>
+                                <span class="admin-nav-copy">
+                                    <strong>{{ __('Live-opnames') }}</strong>
+                                    <span>{{ __('Alleen admin · privévideo’s') }}</span>
+                                </span>
+                            </a>
+                        @endif
+
                         <div class="admin-nav-label">
                             {{ __('Gebruikers') }}
                         </div>
