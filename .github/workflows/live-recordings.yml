@@ -45,6 +45,8 @@ jobs:
         run: node --test scripts/live-recorder/age-consent.test.mjs
       - name: Test consent click in real Chrome with local fixture
         run: node --test scripts/live-recorder/age-consent.browser.test.mjs
+      - name: Test confirmed offline status and HTTP error distinction
+        run: node --test scripts/live-recorder/playback-status.test.mjs
       - name: Test public HLS stream extraction and safe FFmpeg inputs
         run: node --test scripts/live-recorder/public-hls.test.mjs
       - name: Test continuous lucycums recording across live sessions
