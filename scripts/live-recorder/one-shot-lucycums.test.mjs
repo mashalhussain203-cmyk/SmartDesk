@@ -36,7 +36,7 @@ test('unavailable source never uploads a video or starts FFmpeg', async () => {
     return {};
   }};
   const result = await recordLucycumsOnce({
-    s3, bucket: 'private', discover: async () => ({ kind: 'unknown' }),
+    s3, bucket: 'private', discover: async () => ({ kind: 'unknown' }), retryDelay: async () => {},
   });
   assert.equal(result.kind, 'unavailable');
   assert.deepEqual(requests, ['HeadObjectCommand', 'PutObjectCommand']);
