@@ -135,11 +135,8 @@ class LiveRecordingController extends Controller
 
             $updatedAt = isset($status['checked_at']) ? strtotime((string) $status['checked_at']) : false;
             if (! $updatedAt || $updatedAt < time() - 180) {
-                // Dellris uses the separate owner-controlled OBS helper. Without a
-                // fresh heartbeat, never report OFFLINE or suggest monitoring is active.
-                $data[$account] = $account === 'dellris'
-                    ? ['status' => 'needs_setup', 'message' => 'OBS-helper niet verbonden; automatische controle en opname staan uit']
-                    : ['status' => 'unknown', 'message' => 'Recorder niet actief of status verouderd'];
+                // Do not claim OFFLINE until an active recorder has checked the stream.
+                $data[$account] = ['status' => 'unknown', 'message' => 'Recorder niet actief of status verouderd'];
                 continue;
             }
 

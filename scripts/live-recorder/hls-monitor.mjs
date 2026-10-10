@@ -11,7 +11,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { nextPollDelay } from './schedule.mjs';
 
-const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa', 'emyii', 'julesxdann']);
+const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa', 'emyii', 'julesxdann', 'dellris']);
 const POLL_MS = 60_000;
 
 export function isPlayable(source) {

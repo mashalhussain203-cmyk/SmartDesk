@@ -62,7 +62,7 @@ class LiveRecordingsTest extends TestCase
     }
 
 
-    public function test_dellris_obs_recordings_are_private_and_visible_in_live_library(): void
+    public function test_dellris_automatic_recordings_are_private_and_visible_in_live_library(): void
     {
         Storage::fake('local');
         $filename = '2026-10-10T16-00-00-000Z_dellris_obs.mp4';
@@ -77,12 +77,12 @@ class LiveRecordingsTest extends TestCase
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@dellris')->assertDontSee('PROFIELLINK');
         $this->actingAs($admin)->get('/live/status')->assertOk()
-            ->assertJsonPath('dellris.status', 'needs_setup')
+            ->assertJsonPath('dellris.status', 'unknown')
             ->assertJsonPath('julesxdann.status', 'unknown');
 
-        // A real, recent heartbeat is required before reporting OFFLINE.
+        // A fresh HLS heartbeat is required before reporting OFFLINE.
         Storage::disk('local')->put('live-recordings/dellris/status.json', json_encode([
-            'status' => 'offline', 'message' => 'OBS heeft momenteel geen actieve uitzending',
+            'status' => 'offline', 'message' => 'Stream is offline; automatisch wachten op volgende live',
             'checked_at' => now()->toIso8601String(),
         ], JSON_THROW_ON_ERROR));
         $this->actingAs($admin)->get('/live/status')->assertOk()
@@ -93,7 +93,7 @@ class LiveRecordingsTest extends TestCase
             'checked_at' => now()->subMinutes(10)->toIso8601String(),
         ], JSON_THROW_ON_ERROR));
         $this->actingAs($admin)->get('/live/status')->assertOk()
-            ->assertJsonPath('dellris.status', 'needs_setup');
+            ->assertJsonPath('dellris.status', 'unknown');
         $this->actingAs($admin)->get($watch)->assertOk();
         $this->actingAs($admin)->get($download)->assertOk();
         $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'dellris', 'bytes' => 2048])->assertCreated();

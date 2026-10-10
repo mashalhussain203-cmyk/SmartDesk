@@ -12,7 +12,9 @@ De uitbreiding neemt via een zelfstandig draaiende Google Chrome-recorder video 
 ## Extra livestreamaccounts
 
 Naast de primaire Chrome-workers lopen aparte HLS-monitoren voor extra accounts.
-De bestaande `emyii`-service bewaakt `cutefacebigass`, `ricasashaa` en `julesxdann`.
+De bestaande `emyii`-service bewaakt `cutefacebigass`, `ricasashaa`, `julesxdann` en `dellris`.
+Voor `dellris` is geen OBS-helper of extra Railway-service nodig. De bestaande
+`emyii`-worker controleert ook dit account om de 60 seconden.
 De `knock1knock`-service neemt uitsluitend het primaire account op.
 Elke account heeft een eigen statusbestand en S3-map. Een extra Railway-service is
 voor `ricasashaa` niet nodig zolang de bestaande worker voldoende capaciteit heeft.
