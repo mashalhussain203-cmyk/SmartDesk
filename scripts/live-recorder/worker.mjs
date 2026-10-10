@@ -14,12 +14,11 @@ import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { mergePlaybackStatus } from './playback-status.mjs';
-import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
+import { runHlsMonitor } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
-import { runMon1DayOneShot } from './one-shot-mon1-day.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
-if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
+if (!['knock1knock', 'emyii'].includes(account)) throw new Error('Invalid account');
 const env = process.env;
 for (const key of ['LIVE_S3_ENDPOINT', 'LIVE_S3_BUCKET', 'LIVE_S3_REGION', 'LIVE_S3_ACCESS_KEY_ID', 'LIVE_S3_SECRET_ACCESS_KEY', 'DISPLAY', 'PULSE_SOURCE']) {
   if (!env[key]) throw new Error('Missing required configuration: ' + key);
@@ -42,31 +41,8 @@ const interrupted = new Promise(resolve => { interrupt = resolve; });
 const pause = ms => Promise.race([delay(ms), interrupted]);
 await mkdir(profile, { recursive: true, mode: 0o700 });
 
-// Run one lightweight HLS-only monitor beside each existing Chrome recorder:
-// knock1knock + lucycums on one Railway service; emyii + leo_kitty on the other.
-// All four streams use independent S3 prefixes and statuses.
+// Shared abort signal for the remaining extra live-room monitors.
 const extraAbort = new AbortController();
-const extraAccount = extraAccountFor(account);
-let extraMonitor = null;
-if (extraAccount) {
-  extraMonitor = runHlsMonitor({
-    s3, bucket, account: extraAccount, signal: extraAbort.signal,
-  }).catch(() => {
-    // Do not log exception text: upstream media failures may contain signed URLs.
-    console.error('Additional continuous monitor unexpectedly stopped');
-  });
-}
-
-// Also monitor mon1_day for complete streams on the existing knock1knock
-// Railway worker. This is independent of the one-time proof and keeps running
-// after the proof has already been saved.
-const mon1DayMonitor = account === 'knock1knock'
-  ? runHlsMonitor({
-      s3, bucket, account: 'mon1_day', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('mon1_day continuous monitor unexpectedly stopped');
-    })
-  : null;
 
 // The owner of cutefacebigass requested unattended recording of complete
 // public livestreams. Run an independent HLS-only monitor on the existing
@@ -86,15 +62,6 @@ const ricasashaaMonitor = account === 'emyii'
       s3, bucket, account: 'ricasashaa', signal: extraAbort.signal,
     }).catch(() => {
       console.error('ricasashaa continuous monitor unexpectedly stopped');
-    })
-  : null;
-
-// The owner also requested a single 30-second mon1_day proof.
-// Run independently on the existing knock1knock service, with a private S3
-// completion marker to prevent duplicate captures after redeployment.
-const mon1DayOneShot = account === 'knock1knock'
-  ? runMon1DayOneShot({ s3, bucket, signal: extraAbort.signal }).catch(() => {
-      console.error('mon1_day one-shot monitor unexpectedly stopped');
     })
   : null;
 
@@ -401,10 +368,7 @@ try {
 } finally {
   // Finish an in-flight additional-account MP4 before Railway stops the container.
   extraAbort.abort();
-  if (extraMonitor) await extraMonitor;
-  if (mon1DayMonitor) await mon1DayMonitor;
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
-  if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }

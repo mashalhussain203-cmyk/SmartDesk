@@ -42,36 +42,36 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin)->get('/live/not-an-account/test.mp4/download')->assertNotFound();
     }
 
-    public function test_lucycums_recordings_can_be_played_downloaded_and_deleted_by_admin(): void
+    public function test_removed_accounts_are_absent_from_the_library_and_not_accessible(): void
     {
-        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         Storage::fake('local');
-        Storage::disk('local')->put('live-recordings/lucycums/clip.mp4', 'test');
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin);
+        $page = $this->get('/live')->assertOk();
+        $statuses = $this->get('/live/status')->assertOk()->json();
 
-        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@lucycums')->assertSee('Neem 30 seconden op en sla privé op')->assertSee('Automatisch de volledige livestream opnemen')->assertSee('Opnameduur: geen limiet van 30 sec.');
-        $this->actingAs($admin)->get('/live/lucycums/clip.mp4/watch')->assertOk();
-        $this->actingAs($admin)->get('/live/lucycums/clip.mp4/download')->assertOk();
-        $this->actingAs($admin)->delete('/live/lucycums/clip.mp4')->assertRedirect('/live');
-        $this->assertFalse(Storage::disk('local')->exists('live-recordings/lucycums/clip.mp4'));
+        foreach (['mon1_day', 'lucycums', 'leo_kitty', '_frankie_rivers'] as $account) {
+            Storage::disk('local')->put('live-recordings/'.$account.'/old.mp4', 'old');
+            $page->assertDontSee('@'.$account);
+            $this->assertArrayNotHasKey($account, $statuses);
+            $this->get('/live/'.$account.'/old.mp4/download')->assertNotFound();
+            $this->postJson('/live/uploads', ['account' => $account, 'bytes' => 2048])
+                ->assertUnprocessable();
+            $this->assertTrue(Storage::disk('local')->exists('live-recordings/'.$account.'/old.mp4'));
+        }
     }
 
-    public function test_leo_kitty_is_in_automatic_status_and_private_archive(): void
+    public function test_knock1knock_recordings_can_be_played_downloaded_and_deleted_by_admin(): void
     {
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         Storage::fake('local');
-        Storage::disk('local')->put('live-recordings/leo_kitty/clip.mp4', 'test');
+        Storage::disk('local')->put('live-recordings/knock1knock/clip.mp4', 'test');
 
-        $this->actingAs($admin)->get('/live')
-            ->assertOk()
-            ->assertSee('@leo_kitty')
-            ->assertSee('Automatisch de volledige livestream opnemen');
-        $this->actingAs($admin)->get('/live/status')
-            ->assertOk()
-            ->assertJsonPath('leo_kitty.status', 'unknown');
-        $this->actingAs($admin)->get('/live/leo_kitty/clip.mp4/watch')->assertOk();
-        $this->actingAs($admin)->get('/live/leo_kitty/clip.mp4/download')->assertOk();
-        $this->actingAs($admin)->delete('/live/leo_kitty/clip.mp4')->assertRedirect('/live');
-        $this->assertFalse(Storage::disk('local')->exists('live-recordings/leo_kitty/clip.mp4'));
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@knock1knock')->assertSee('Neem 30 seconden op en sla privé op')->assertSee('Automatisch de volledige livestream opnemen')->assertSee('Opnameduur: geen limiet van 30 sec.');
+        $this->actingAs($admin)->get('/live/knock1knock/clip.mp4/watch')->assertOk();
+        $this->actingAs($admin)->get('/live/knock1knock/clip.mp4/download')->assertOk();
+        $this->actingAs($admin)->delete('/live/knock1knock/clip.mp4')->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/knock1knock/clip.mp4'));
     }
 
     public function test_cutefacebigass_archive_is_playable_downloadable_and_admin_only(): void
@@ -122,17 +122,17 @@ class LiveRecordingsTest extends TestCase
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
-        $this->post('/live/uploads', ['account' => 'lucycums', 'bytes' => 2048])
+        $this->post('/live/uploads', ['account' => 'knock1knock', 'bytes' => 2048])
             ->assertRedirect('/login');
 
         $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
-        $this->actingAs($viewer)->postJson('/live/uploads', ['account' => 'lucycums', 'bytes' => 2048])
+        $this->actingAs($viewer)->postJson('/live/uploads', ['account' => 'knock1knock', 'bytes' => 2048])
             ->assertForbidden();
 
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'not-an-account', 'bytes' => 2048])
             ->assertUnprocessable();
-        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'lucycums', 'bytes' => 300 * 1024 * 1024])
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'knock1knock', 'bytes' => 300 * 1024 * 1024])
             ->assertUnprocessable();
     }
 
@@ -143,7 +143,7 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin);
         $bytes = "\0\0\0\x18ftypisom".str_repeat('v', 2 * 1024 * 1024 + 1500);
         $begin = $this->postJson('/live/uploads', [
-            'account' => 'lucycums', 'bytes' => strlen($bytes),
+            'account' => 'knock1knock', 'bytes' => strlen($bytes),
         ])->assertCreated();
         $id = $begin->json('id');
         $this->assertSame(2, $begin->json('parts'));
@@ -157,11 +157,11 @@ class LiveRecordingsTest extends TestCase
         ], substr($bytes, 2 * 1024 * 1024))->assertOk();
 
         $this->postJson('/live/uploads/'.$id.'/complete', [])->assertOk();
-        $files = Storage::disk('local')->files('live-recordings/lucycums');
+        $files = Storage::disk('local')->files('live-recordings/knock1knock');
         $this->assertCount(1, $files);
         $this->assertSame($bytes, Storage::disk('local')->get($files[0]));
         $this->assertFalse(Storage::disk('local')->exists('live-recording-uploads/manual/'.$id.'/meta.json'));
-        $this->get('/live/lucycums/'.basename($files[0]).'/download')->assertOk();
+        $this->get('/live/knock1knock/'.basename($files[0]).'/download')->assertOk();
     }
 
     public function test_incomplete_or_non_mp4_upload_is_not_published(): void
@@ -171,7 +171,7 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin);
         $bytes = str_repeat('x', 2048);
         $begin = $this->postJson('/live/uploads', [
-            'account' => 'lucycums', 'bytes' => strlen($bytes),
+            'account' => 'knock1knock', 'bytes' => strlen($bytes),
         ])->assertCreated();
         $id = $begin->json('id');
 
@@ -180,7 +180,7 @@ class LiveRecordingsTest extends TestCase
             'CONTENT_TYPE' => 'application/octet-stream',
         ], $bytes)->assertOk();
         $this->postJson('/live/uploads/'.$id.'/complete', [])->assertUnprocessable();
-        $this->assertSame([], Storage::disk('local')->files('live-recordings/lucycums'));
+        $this->assertSame([], Storage::disk('local')->files('live-recordings/knock1knock'));
         $this->delete('/live/uploads/'.$id)->assertOk();
         $this->assertFalse(Storage::disk('local')->exists('live-recording-uploads/manual/'.$id.'/meta.json'));
     }
@@ -192,14 +192,14 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($admin);
         $bytes = str_repeat('x', 2048);
         $id = $this->postJson('/live/uploads', [
-            'account' => 'lucycums', 'bytes' => strlen($bytes), 'format' => 'webm',
+            'account' => 'knock1knock', 'bytes' => strlen($bytes), 'format' => 'webm',
         ])->assertCreated()->json('id');
 
         $this->call('PUT', '/live/uploads/'.$id.'/parts/0', [], [], [], [
             'CONTENT_TYPE' => 'application/octet-stream',
         ], $bytes)->assertOk();
         $this->postJson('/live/uploads/'.$id.'/complete', [])->assertUnprocessable();
-        $this->assertSame([], Storage::disk('local')->files('live-recordings/lucycums'));
+        $this->assertSame([], Storage::disk('local')->files('live-recordings/knock1knock'));
     }
 
     public function test_browser_webm_with_audio_is_converted_to_private_mp4(): void
@@ -222,14 +222,14 @@ class LiveRecordingsTest extends TestCase
             $this->assertStringStartsWith("\x1A\x45\xDF\xA3", $bytes);
 
             $id = $this->postJson('/live/uploads', [
-                'account' => 'lucycums', 'bytes' => strlen($bytes), 'format' => 'webm',
+                'account' => 'knock1knock', 'bytes' => strlen($bytes), 'format' => 'webm',
             ])->assertCreated()->json('id');
             $this->call('PUT', '/live/uploads/'.$id.'/parts/0', [], [], [], [
                 'CONTENT_TYPE' => 'application/octet-stream',
             ], $bytes)->assertOk();
             $this->postJson('/live/uploads/'.$id.'/complete', [])->assertOk();
 
-            $files = Storage::disk('local')->files('live-recordings/lucycums');
+            $files = Storage::disk('local')->files('live-recordings/knock1knock');
             $this->assertCount(1, $files);
             $this->assertSame('ftyp', substr(Storage::disk('local')->get($files[0]), 4, 4));
             $probe = Process::timeout(15)->run([
@@ -251,7 +251,7 @@ class LiveRecordingsTest extends TestCase
         $admin = new User(['name' => 'First Admin', 'email' => 'first@example.test', 'is_admin' => true]);
         $other = new User(['name' => 'Second Admin', 'email' => 'second@example.test', 'is_admin' => true]);
         $id = $this->actingAs($admin)->postJson('/live/uploads', [
-            'account' => 'lucycums', 'bytes' => 2048,
+            'account' => 'knock1knock', 'bytes' => 2048,
         ])->assertCreated()->json('id');
 
         $this->actingAs($other)->delete('/live/uploads/'.$id)->assertNotFound();

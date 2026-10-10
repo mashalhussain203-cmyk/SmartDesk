@@ -11,13 +11,8 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { nextPollDelay } from './schedule.mjs';
 
-const ALLOWED_EXTRA_ACCOUNTS = new Set(['lucycums', 'leo_kitty', 'mon1_day', 'cutefacebigass', 'ricasashaa']);
+const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa']);
 const POLL_MS = 60_000;
-
-export function extraAccountFor(primary) {
-  return primary === 'knock1knock' ? 'lucycums'
-    : primary === 'emyii' ? 'leo_kitty' : null;
-}
 
 export function isPlayable(source) {
   return source?.kind === 'live' && Array.isArray(source.urls) && source.urls.length >= 2;
@@ -124,7 +119,7 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
  * with tolerance for brief missing status checks.
  */
 export async function runHlsMonitor({
-  s3, bucket, account = 'lucycums', signal,
+  s3, bucket, account = 'cutefacebigass', signal,
   discover = findPublicMedia, startCapture = startHlsCapture,
   report = reportHlsStatus, sleep = delay, intervalMs = POLL_MS,
 }) {

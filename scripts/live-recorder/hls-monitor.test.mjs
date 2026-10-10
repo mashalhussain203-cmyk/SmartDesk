@@ -1,18 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isPlayable, hlsContinuousArgs, runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
+import { isPlayable, hlsContinuousArgs, runHlsMonitor } from './hls-monitor.mjs';
 
 const source = {
   kind: 'live',
   urls: ['https://a.mmcdn.com/video.m3u8?token=private', 'https://a.mmcdn.com/audio.m3u8?token=private'],
 };
-
-test('two Railway services continuously cover all four owner accounts', () => {
-  assert.equal(extraAccountFor('knock1knock'), 'lucycums');
-  assert.equal(extraAccountFor('emyii'), 'leo_kitty');
-  assert.equal(extraAccountFor('lucycums'), null);
-  assert.equal(extraAccountFor('leo_kitty'), null);
-});
 
 test('only real separate HLS video and audio starts a recording', () => {
   assert.equal(isPlayable(source), true);
@@ -47,13 +40,13 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   await runHlsMonitor({
     s3: {}, bucket: 'private', signal: controller.signal,
     discover: async account => {
-      assert.equal(account, 'lucycums');
+      assert.equal(account, 'cutefacebigass');
       return broadcasts[polls] || broadcasts.at(-1);
     },
     startCapture: async ({ account, urls }) => {
-      assert.equal(account, 'lucycums');
+      assert.equal(account, 'cutefacebigass');
       assert.deepEqual(urls, source.urls);
-      const key = 'recordings/lucycums/stream-' + (started.length + 1) + '.mp4';
+      const key = 'recordings/cutefacebigass/stream-' + (started.length + 1) + '.mp4';
       started.push(key);
       return {
         check: async () => false,
@@ -61,7 +54,7 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
       };
     },
     report: async ({ account, state, lastSaved }) => {
-      assert.equal(account, 'lucycums');
+      assert.equal(account, 'cutefacebigass');
       states.push(state);
       reported.push({ state, lastSaved });
     },
@@ -83,7 +76,7 @@ test('unavailable HLS source shows unknown, not falsely offline', async () => {
   const controller = new AbortController();
   const states = [];
   await runHlsMonitor({
-    s3: {}, bucket: 'private', account: 'leo_kitty', signal: controller.signal,
+    s3: {}, bucket: 'private', account: 'ricasashaa', signal: controller.signal,
     discover: async () => ({ kind: 'unknown', detail: 'HLS-controle: stream niet publiek beschikbaar' }),
     report: async ({ state }) => states.push(state),
     sleep: async () => controller.abort(),
@@ -91,33 +84,33 @@ test('unavailable HLS source shows unknown, not falsely offline', async () => {
   assert.deepEqual(states, ['unknown', 'unknown']);
 });
 
-test('leo_kitty can be monitored independently on the emyii Railway worker', async () => {
+test('ricasashaa can be monitored independently on the emyii Railway worker', async () => {
   const controller = new AbortController();
   let started = 0;
   let stopped = 0;
   let checked = 0;
   await runHlsMonitor({
-    s3: {}, bucket: 'private', account: 'leo_kitty', signal: controller.signal,
+    s3: {}, bucket: 'private', account: 'ricasashaa', signal: controller.signal,
     discover: async account => {
-      assert.equal(account, 'leo_kitty');
+      assert.equal(account, 'ricasashaa');
       return source;
     },
     startCapture: async ({ account }) => {
-      assert.equal(account, 'leo_kitty');
+      assert.equal(account, 'ricasashaa');
       started++;
       return {
         check: async () => false,
-        stop: async () => { stopped++; return 'recordings/leo_kitty/saved.mp4'; },
+        stop: async () => { stopped++; return 'recordings/ricasashaa/saved.mp4'; },
       };
     },
-    report: async ({ account }) => { assert.equal(account, 'leo_kitty'); },
+    report: async ({ account }) => { assert.equal(account, 'ricasashaa'); },
     sleep: async () => { checked++; if (checked === 2) controller.abort(); },
   });
   assert.equal(started, 1);
   assert.equal(stopped, 1);
 });
 
-test('mon1_day continuously records complete streams and reports online status', async () => {
+test('cutefacebigass continuously records complete streams and reports online status', async () => {
   const controller = new AbortController();
   const states = [];
   const started = [];
@@ -125,15 +118,15 @@ test('mon1_day continuously records complete streams and reports online status',
   let poll = 0;
   const sources = [source, source, { kind: 'offline' }, { kind: 'offline' }, source];
   await runHlsMonitor({
-    s3: {}, bucket: 'private', account: 'mon1_day', signal: controller.signal,
+    s3: {}, bucket: 'private', account: 'cutefacebigass', signal: controller.signal,
     discover: async account => {
-      assert.equal(account, 'mon1_day');
+      assert.equal(account, 'cutefacebigass');
       return sources[Math.min(poll, sources.length - 1)];
     },
     startCapture: async ({ account, urls }) => {
-      assert.equal(account, 'mon1_day');
+      assert.equal(account, 'cutefacebigass');
       assert.deepEqual(urls, source.urls);
-      const key = 'recordings/mon1_day/full-' + (started.length + 1) + '.mp4';
+      const key = 'recordings/cutefacebigass/full-' + (started.length + 1) + '.mp4';
       started.push(key);
       return {
         check: async () => false,
@@ -170,7 +163,7 @@ test('stream end finalizes an MP4 and allows a subsequent live to be recorded', 
       captures++;
       return {
         check: async () => true,
-        stop: async () => { saved++; return 'recordings/lucycums/saved.mp4'; },
+        stop: async () => { saved++; return 'recordings/cutefacebigass/saved.mp4'; },
       };
     },
     report: async () => {},

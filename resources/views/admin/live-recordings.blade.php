@@ -72,8 +72,7 @@
 
     <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
         <h2>Automatisch de volledige livestream opnemen</h2>
-        <p>De server controleert <strong>knock1knock, emyii, lucycums, leo_kitty, mon1_day, cutefacebigass en ricasashaa</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
-        <p>Ook <strong>mon1_day</strong> wordt automatisch van begin tot eind opgenomen zodra de publieke video en audio bereikbaar zijn. De eerdere opname van 30 seconden was alleen een technische proef; de volledige opname heeft geen tijdslimiet.</p>
+        <p>De server controleert <strong>knock1knock, emyii, cutefacebigass en ricasashaa</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
         <div class="live-automatic-facts">
             <span>Automatische achtergrondcontrole: 60 sec.</span>
             <span>Opnameduur: geen limiet van 30 sec.</span>
@@ -106,7 +105,7 @@
     <details class="live-capture">
         <summary id="live-capture-title">Extra optie: handmatige 30-secondenopname (niet nodig voor automatische opnames)</summary>
         <div class="live-capture-inner">
-        <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/lucycums/" target="_blank" rel="noopener noreferrer">de lucycums-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → lucycums → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
+        <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/knock1knock/" target="_blank" rel="noopener noreferrer">de knock1knock-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → knock1knock → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
         <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
         <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
         <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
@@ -120,7 +119,7 @@
             <label>Account
                 <select id="live-upload-account" required>
                     @foreach($accounts as $account)
-                        <option value="{{ $account }}" @selected($account === 'lucycums')>{{ '@' . $account }}</option>
+                        <option value="{{ $account }}" @selected($account === 'knock1knock')>{{ '@' . $account }}</option>
                     @endforeach
                 </select>
             </label>
@@ -323,7 +322,7 @@
                 if (!videoTrack) throw new Error('Geen videotab geselecteerd.');
                 const surface = videoTrack.getSettings()?.displaySurface;
                 if (surface && surface !== 'browser') {
-                    throw new Error('Kies de Chrome-tab met lucycums, niet je hele scherm of venster.');
+                    throw new Error('Kies de Chrome-tab met knock1knock, niet je hele scherm of venster.');
                 }
                 if (!stream.getAudioTracks().length) {
                     throw new Error('Tabgeluid ontbreekt. Selecteer Chrome-tab en vink Tabgeluid delen aan.');
@@ -355,7 +354,7 @@
                 }, { once: true });
                 recorder.start(1000);
                 const started = performance.now();
-                captureMessage.textContent = 'Opname loopt: nog 30 seconden. Laat de lucycums-tab afspelen.';
+                captureMessage.textContent = 'Opname loopt: nog 30 seconden. Laat de knock1knock-tab afspelen.';
                 countdown = setInterval(() => {
                     const remaining = Math.max(0, 30 - Math.floor((performance.now() - started) / 1000));
                     captureMessage.textContent = 'Opname loopt: nog ' + remaining + ' seconden.';
@@ -373,7 +372,7 @@
                 captureProgress.hidden = false;
                 captureProgress.value = 0;
                 captureMessage.textContent = '30 seconden opgenomen. MP4 wordt privé opgeslagen…';
-                await uploadPrivate(blob, 'lucycums', format, (percent, stage) => {
+                await uploadPrivate(blob, 'knock1knock', format, (percent, stage) => {
                     captureProgress.value = percent;
                     captureMessage.textContent = stage + ': ' + percent + '%';
                 });
