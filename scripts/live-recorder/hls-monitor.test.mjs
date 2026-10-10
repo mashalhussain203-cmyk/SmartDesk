@@ -219,6 +219,45 @@ test('cutefacebigass runs as an independent full-length private monitor', async 
   assert.ok(statuses.includes('uploading'));
 });
 
+test('_frankie_rivers automatically records full livestreams independently', async () => {
+  const controller = new AbortController();
+  let polls = 0;
+  let started = 0;
+  let saved = 0;
+  const statuses = [];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: '_frankie_rivers', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, '_frankie_rivers');
+      return polls === 0 ? source : { kind: 'offline' };
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, '_frankie_rivers');
+      assert.ok(!hlsContinuousArgs(urls).includes('-t'));
+      started++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          saved++;
+          return 'recordings/_frankie_rivers/stream.mp4';
+        },
+      };
+    },
+    report: async ({ account, state }) => {
+      assert.equal(account, '_frankie_rivers');
+      statuses.push(state);
+    },
+    sleep: async () => {
+      polls++;
+      if (polls >= 3) controller.abort();
+    },
+  });
+  assert.equal(started, 1);
+  assert.equal(saved, 1);
+  assert.ok(statuses.includes('recording'));
+  assert.ok(statuses.includes('uploading'));
+});
+
 test('ricasashaa records full sessions independently and saves the finished MP4', async () => {
   const controller = new AbortController();
   let polls = 0;

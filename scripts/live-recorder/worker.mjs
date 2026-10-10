@@ -89,6 +89,16 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
+// Monitor _frankie_rivers on the existing knock1knock Railway worker
+// without interrupting any existing account recorder.
+const frankieRiversMonitor = account === 'knock1knock'
+  ? runHlsMonitor({
+      s3, bucket, account: '_frankie_rivers', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('_frankie_rivers continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // The owner also requested a single 30-second mon1_day proof.
 // Run independently on the existing knock1knock service, with a private S3
 // completion marker to prevent duplicate captures after redeployment.
@@ -405,6 +415,7 @@ try {
   if (mon1DayMonitor) await mon1DayMonitor;
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
+  if (frankieRiversMonitor) await frankieRiversMonitor;
   if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }

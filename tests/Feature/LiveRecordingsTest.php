@@ -119,6 +119,31 @@ class LiveRecordingsTest extends TestCase
         $this->assertFalse(Storage::disk('local')->exists('live-recordings/ricasashaa/'.$filename));
     }
 
+    public function test_frankie_rivers_private_archive_and_automatic_status(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-10T02-50-00-000Z__frankie_rivers.mp4';
+        Storage::disk('local')->put('live-recordings/_frankie_rivers/'.$filename, 'test');
+        $watch = '/live/_frankie_rivers/'.$filename.'/watch';
+        $download = '/live/_frankie_rivers/'.$filename.'/download';
+
+        $this->get($watch)->assertRedirect('/login');
+        $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
+        $this->actingAs($viewer)->get('/live')->assertForbidden();
+        $this->actingAs($viewer)->get($watch)->assertForbidden();
+        $this->actingAs($viewer)->get($download)->assertForbidden();
+        $this->actingAs($viewer)->delete('/live/_frankie_rivers/'.$filename)->assertForbidden();
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@_frankie_rivers');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('_frankie_rivers.status', 'unknown');
+        $this->actingAs($admin)->get($watch)->assertOk();
+        $this->actingAs($admin)->get($download)->assertOk();
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => '_frankie_rivers', 'bytes' => 2048])->assertCreated();
+        $this->actingAs($admin)->delete('/live/_frankie_rivers/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/_frankie_rivers/'.$filename));
+    }
+
     public function test_only_admin_can_begin_a_manual_private_upload(): void
     {
         Storage::fake('local');
