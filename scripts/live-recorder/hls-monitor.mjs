@@ -1,5 +1,5 @@
 /**
- * Continuous HLS-only recorder for the owner's additional rooms.
+ * Continuous HLS-only recorder for the owner's publicly playable rooms.
  * Shares the existing Railway recorder's private S3 connection but does not
  * share its browser, Xvfb display or PulseAudio sink.
  * Never log signed HLS URLs, FFmpeg arguments, cookies or credentials.
@@ -11,7 +11,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { nextPollDelay } from './schedule.mjs';
 
-const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa']);
+const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa', 'emyii']);
 const POLL_MS = 60_000;
 
 export function isPlayable(source) {

@@ -361,7 +361,14 @@ async function main() {
 process.on('SIGTERM', () => { exiting = true; interrupt(); extraAbort.abort(); });
 process.on('SIGINT', () => { exiting = true; interrupt(); extraAbort.abort(); });
 try {
-  await main();
+  // Use the same browser-independent HLS workflow as the other rooms for
+  // emyii. This prevents recurring Chromium page.goto/ERR_ABORTED failures
+  // from hiding public stream activity or interrupting live capture.
+  if (account === 'emyii') {
+    await runHlsMonitor({ s3, bucket, account, signal: extraAbort.signal });
+  } else {
+    await main();
+  }
 } catch (error) {
   await update('error', String(error?.message || error).slice(0, 150));
   process.exitCode = 1;

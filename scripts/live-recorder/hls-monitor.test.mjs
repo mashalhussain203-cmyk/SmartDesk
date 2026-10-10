@@ -143,12 +143,53 @@ test('cutefacebigass continuously records complete streams and reports online st
   assert.ok(states.includes('offline'));
 });
 
-test('the extra monitor cannot be configured for a different account', async () => {
+test('the HLS monitor cannot be configured for an unapproved account', async () => {
   const controller = new AbortController();
   await assert.rejects(
-    runHlsMonitor({ s3: {}, bucket: 'private', account: 'emyii', signal: controller.signal }),
+    runHlsMonitor({ s3: {}, bucket: 'private', account: 'unknown_broadcaster', signal: controller.signal }),
     /Unexpected extra account/,
   );
+});
+
+test('emyii uses the same continuous HLS capture flow without Chromium navigation', async () => {
+  const controller = new AbortController();
+  const statuses = [];
+  const saved = [];
+  let poll = 0;
+  let starts = 0;
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'emyii', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'emyii');
+      return poll === 0 ? source : { kind: 'offline' };
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, 'emyii');
+      assert.deepEqual(urls, source.urls);
+      assert.equal(hlsContinuousArgs(urls).includes('-t'), false);
+      starts++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          saved.push('recordings/emyii/complete.mp4');
+          return 'recordings/emyii/complete.mp4';
+        },
+      };
+    },
+    report: async ({ account, state, lastSaved }) => {
+      assert.equal(account, 'emyii');
+      statuses.push({ state, lastSaved });
+    },
+    sleep: async () => {
+      poll++;
+      if (poll >= 3) controller.abort();
+    },
+  });
+  assert.equal(starts, 1);
+  assert.deepEqual(saved, ['recordings/emyii/complete.mp4']);
+  assert.ok(statuses.some(item => item.state === 'recording'));
+  assert.ok(statuses.some(item => item.state === 'uploading'));
+  assert.ok(statuses.some(item => item.lastSaved === 'complete.mp4'));
 });
 
 test('stream end finalizes an MP4 and allows a subsequent live to be recorded', async () => {
