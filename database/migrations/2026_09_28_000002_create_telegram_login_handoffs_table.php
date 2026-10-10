@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('telegram_login_handoffs')) {
+            return;
+        }
+
         Schema::create('telegram_login_handoffs', function (Blueprint $table) {
             $table->id();
 
