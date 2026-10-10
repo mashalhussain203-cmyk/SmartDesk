@@ -378,6 +378,23 @@
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
 
+            <a class="livehub-tool" href="{{ route('tiktok-live.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <img src="/icons/live-eye.svg?v=20261007-5" alt="">
+                    </div>
+                    <div class="livehub-live"><i></i> {{ __('TikTok LIVE') }}</div>
+                </div>
+                <h3>{{ __('TikTok LIVE delen') }}</h3>
+                <p>{{ __('Plak een LIVE-link en nodig echte kijkers uit via WhatsApp, Telegram of je telefoon.') }}</p>
+                <div class="livehub-metrics">
+                    <span>{{ __('LIVE-link') }}</span>
+                    <span>{{ __('Delen') }}</span>
+                    <span>{{ __('Echte kijkers') }}</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
             <a class="livehub-tool" href="{{ route('tiktok-counter.index') }}">
                 <div class="livehub-tool-top">
                     <div class="livehub-icon-wrap">

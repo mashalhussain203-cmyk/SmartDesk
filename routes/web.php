@@ -1144,6 +1144,9 @@ Route::get(
     [TikTokCounterController::class, 'liveCountsIndex']
 )->name('live-counts.index');
 
+Route::view('/tools/tiktok-live', 'tools.tiktok-live')
+    ->name('tiktok-live.index');
+
 Route::get(
     '/tools/tiktok-counter',
     [TikTokCounterController::class, 'index']
