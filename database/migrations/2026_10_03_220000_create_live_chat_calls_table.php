@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('live_chat_calls')) {
+            return;
+        }
+
         Schema::create('live_chat_calls', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->unsignedBigInteger('conversation_id')->index();
