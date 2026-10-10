@@ -62,10 +62,10 @@ class LiveRecordingsTest extends TestCase
     }
 
 
-    public function test_dellris_automatic_recordings_are_private_and_visible_in_live_library(): void
+    public function test_dellris_is_removed_from_monitoring_while_existing_private_recordings_remain(): void
     {
         Storage::fake('local');
-        $filename = '2026-10-10T16-00-00-000Z_dellris_obs.mp4';
+        $filename = '2026-10-10T16-00-00-000Z_dellris.mp4';
         Storage::disk('local')->put('live-recordings/dellris/'.$filename, 'test');
         $watch = '/live/dellris/'.$filename.'/watch';
         $download = '/live/dellris/'.$filename.'/download';
@@ -75,28 +75,13 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($viewer)->get($watch)->assertForbidden();
 
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
-        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@dellris')->assertDontSee('PROFIELLINK');
-        $this->actingAs($admin)->get('/live/status')->assertOk()
-            ->assertJsonPath('dellris.status', 'unknown')
-            ->assertJsonPath('julesxdann.status', 'unknown');
-
-        // A fresh HLS heartbeat is required before reporting OFFLINE.
-        Storage::disk('local')->put('live-recordings/dellris/status.json', json_encode([
-            'status' => 'offline', 'message' => 'Stream is offline; automatisch wachten op volgende live',
-            'checked_at' => now()->toIso8601String(),
-        ], JSON_THROW_ON_ERROR));
-        $this->actingAs($admin)->get('/live/status')->assertOk()
-            ->assertJsonPath('dellris.status', 'offline');
-
-        Storage::disk('local')->put('live-recordings/dellris/status.json', json_encode([
-            'status' => 'offline', 'message' => 'Oude melding',
-            'checked_at' => now()->subMinutes(10)->toIso8601String(),
-        ], JSON_THROW_ON_ERROR));
-        $this->actingAs($admin)->get('/live/status')->assertOk()
-            ->assertJsonPath('dellris.status', 'unknown');
-        $this->actingAs($admin)->get($watch)->assertOk();
-        $this->actingAs($admin)->get($download)->assertOk();
-        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'dellris', 'bytes' => 2048])->assertCreated();
+        $page = $this->actingAs($admin)->get('/live')->assertOk()->assertDontSee('@dellris');
+        $page->assertSee($filename);
+        $statuses = $this->get('/live/status')->assertOk()->json();
+        $this->assertArrayNotHasKey('dellris', $statuses);
+        $this->assertSame('unknown', $statuses['julesxdann']['status']);
+        $this->get($watch)->assertOk();
+        $this->get($download)->assertOk();
     }
 
     public function test_julesxdann_has_an_admin_only_private_archive_and_status(): void

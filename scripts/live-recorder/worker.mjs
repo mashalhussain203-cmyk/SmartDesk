@@ -75,15 +75,6 @@ const julesxdannMonitor = account === 'emyii'
     })
   : null;
 
-// dellris uses the same unattended HLS workflow as julesxdann, without OBS.
-const dellrisMonitor = account === 'emyii'
-  ? runHlsMonitor({
-      s3, bucket, account: 'dellris', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('dellris continuous monitor unexpectedly stopped');
-    })
-  : null;
-
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
 const emyiiOneShot = account === 'emyii'
@@ -397,6 +388,5 @@ try {
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
   if (julesxdannMonitor) await julesxdannMonitor;
-  if (dellrisMonitor) await dellrisMonitor;
   if (emyiiOneShot) await emyiiOneShot;
 }

@@ -12,6 +12,8 @@ class LiveRecordingController extends Controller
 {
     private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'dellris'];
 
+    private const MONITORED_ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann'];
+
     /** Only the existing SmartDesk admin account may access this controller. */
     private function requireAdmin(): void
     {
@@ -53,7 +55,7 @@ class LiveRecordingController extends Controller
 
         return view('admin.live-recordings', [
             'recordings' => $recordings,
-            'accounts' => self::ACCOUNTS,
+            'accounts' => self::MONITORED_ACCOUNTS,
             'statuses' => $this->statuses($archive),
             'archiveError' => $archiveError,
         ]);
@@ -117,7 +119,7 @@ class LiveRecordingController extends Controller
     private function statuses(LiveArchiveS3 $archive): array
     {
         $data = [];
-        foreach (self::ACCOUNTS as $account) {
+        foreach (self::MONITORED_ACCOUNTS as $account) {
             $path = "live-recordings/{$account}/status.json";
             $status = null;
             if ($archive->configured()) {

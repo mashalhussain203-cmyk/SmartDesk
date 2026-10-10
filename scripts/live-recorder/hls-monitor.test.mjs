@@ -144,48 +144,14 @@ test('cutefacebigass continuously records complete streams and reports online st
 });
 
 
-test('dellris has independent automatic HLS capture and a real offline heartbeat', async () => {
-  const controller = new AbortController();
-  const states = [];
-  let polls = 0;
-  let captures = 0;
-  let saves = 0;
-  await runHlsMonitor({
-    s3: {}, bucket: 'private', account: 'dellris', signal: controller.signal,
-    discover: async account => {
-      assert.equal(account, 'dellris');
-      return polls === 0 ? source : { kind: 'offline' };
-    },
-    startCapture: async ({ account, urls }) => {
-      assert.equal(account, 'dellris');
-      assert.deepEqual(urls, source.urls);
-      captures++;
-      return {
-        check: async () => false,
-        stop: async () => { saves++; return 'recordings/dellris/full.mp4'; },
-      };
-    },
-    report: async ({ account, state, lastSaved }) => {
-      assert.equal(account, 'dellris');
-      states.push({ state, lastSaved });
-    },
-    sleep: async () => {
-      polls++;
-      if (polls >= 3) controller.abort();
-    },
-  });
-  assert.equal(captures, 1);
-  assert.equal(saves, 1);
-  assert.ok(states.some(item => item.state === 'recording'));
-  assert.ok(states.some(item => item.state === 'offline' && item.lastSaved === 'full.mp4'));
-});
-
-test('the HLS monitor cannot be configured for an unapproved account', async () => {
-  const controller = new AbortController();
-  await assert.rejects(
-    runHlsMonitor({ s3: {}, bucket: 'private', account: 'unknown_broadcaster', signal: controller.signal }),
-    /Unexpected extra account/,
-  );
+test('the HLS monitor rejects dellris and other unapproved accounts', async () => {
+  for (const account of ['dellris', 'unknown_broadcaster']) {
+    const controller = new AbortController();
+    await assert.rejects(
+      runHlsMonitor({ s3: {}, bucket: 'private', account, signal: controller.signal }),
+      /Unexpected extra account/,
+    );
+  }
 });
 
 test('emyii uses the same continuous HLS capture flow without Chromium navigation', async () => {
