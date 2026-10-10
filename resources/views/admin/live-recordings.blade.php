@@ -81,6 +81,15 @@
         </div>
     </section>
 
+    <section class="live-automatic" aria-label="Eigen OBS-uitzending bewaren">
+        <h2>@dellris – opname via eigen OBS-uitzending</h2>
+        <p>Dit account gebruikt de afzonderlijke OBS-helper, niet de publieke streammonitor. Zodra je in OBS zelf begint met streamen, kan de helper de opname automatisch starten en na het beëindigen van je uitzending als MP4 privé opslaan. Hiervoor moeten OBS en de helper op je eigen computer draaien. Zonder die verbinding staat de status op ONBEKEND; een GitHub-deploy begint geen opname.</p>
+        <div class="live-automatic-facts">
+            <span>Bron: eigen OBS-uitzending</span>
+            <span>Opslag: privé-MP4 na afloop</span>
+        </div>
+    </section>
+
     @if(!empty($archiveError))
         <p role="alert" style="padding:12px;border:1px solid #f19c91;border-radius:12px;color:#ffab9d;">{{ $archiveError }}</p>
     @endif

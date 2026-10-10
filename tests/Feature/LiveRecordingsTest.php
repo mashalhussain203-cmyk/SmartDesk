@@ -62,6 +62,26 @@ class LiveRecordingsTest extends TestCase
     }
 
 
+    public function test_dellris_obs_recordings_are_private_and_visible_in_live_library(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-10T16-00-00-000Z_dellris_obs.mp4';
+        Storage::disk('local')->put('live-recordings/dellris/'.$filename, 'test');
+        $watch = '/live/dellris/'.$filename.'/watch';
+        $download = '/live/dellris/'.$filename.'/download';
+
+        $this->get($watch)->assertRedirect('/login');
+        $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
+        $this->actingAs($viewer)->get($watch)->assertForbidden();
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@dellris')->assertDontSee('PROFIELLINK');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('dellris.status', 'unknown');
+        $this->actingAs($admin)->get($watch)->assertOk();
+        $this->actingAs($admin)->get($download)->assertOk();
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'dellris', 'bytes' => 2048])->assertCreated();
+    }
+
     public function test_julesxdann_has_an_admin_only_private_archive_and_status(): void
     {
         Storage::fake('local');

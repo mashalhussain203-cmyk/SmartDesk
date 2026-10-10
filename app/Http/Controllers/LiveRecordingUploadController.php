@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 final class LiveRecordingUploadController extends Controller
 {
-    private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann'];
+    private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'dellris'];
     private const CHUNK_BYTES = 2 * 1024 * 1024;
     private const MAX_BYTES = 250 * 1024 * 1024;
     private const ROOT = 'live-recording-uploads/manual';

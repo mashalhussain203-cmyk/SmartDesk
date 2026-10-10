@@ -27,14 +27,14 @@ Route::middleware('auth')->prefix('live')->group(function () {
         ->middleware('throttle:20,1')->name('live.upload.cancel');
 
     Route::get('/{account}/{filename}/watch', [LiveRecordingController::class, 'play'])
-        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
+        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann|dellris', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
         ->name('live.play');
 
     Route::get('/{account}/{filename}/download', [LiveRecordingController::class, 'download'])
-        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
+        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann|dellris', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
         ->name('live.download');
 
     Route::delete('/{account}/{filename}', [LiveRecordingController::class, 'destroy'])
-        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
+        ->where(['account' => 'knock1knock|emyii|cutefacebigass|ricasashaa|julesxdann|dellris', 'filename' => '[A-Za-z0-9_.-]+\.mp4'])
         ->name('live.destroy');
 });

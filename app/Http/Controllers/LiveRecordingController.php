@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LiveRecordingController extends Controller
 {
-    private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann'];
+    private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'dellris'];
 
     /** Only the existing SmartDesk admin account may access this controller. */
     private function requireAdmin(): void
