@@ -293,3 +293,45 @@ test('ricasashaa records full sessions independently and saves the finished MP4'
   assert.ok(states.includes('uploading'));
   assert.ok(filenames.includes('full.mp4'));
 });
+
+test('gimbobar records an entire playable live, finalizes the private MP4 and keeps its own status', async () => {
+  const controller = new AbortController();
+  const states = [];
+  const saved = [];
+  let poll = 0;
+  let starts = 0;
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'gimbobar', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'gimbobar');
+      return poll === 0 ? source : { kind: 'offline' };
+    },
+    startCapture: async ({ account, urls }) => {
+      assert.equal(account, 'gimbobar');
+      assert.deepEqual(urls, source.urls);
+      assert.equal(hlsContinuousArgs(urls).includes('-t'), false);
+      starts++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          const key = 'recordings/gimbobar/complete.mp4';
+          saved.push(key);
+          return key;
+        },
+      };
+    },
+    report: async ({ account, state, lastSaved }) => {
+      assert.equal(account, 'gimbobar');
+      states.push({ state, lastSaved });
+    },
+    sleep: async () => {
+      poll++;
+      if (poll >= 3) controller.abort();
+    },
+  });
+  assert.equal(starts, 1);
+  assert.deepEqual(saved, ['recordings/gimbobar/complete.mp4']);
+  assert.ok(states.some(item => item.state === 'recording'));
+  assert.ok(states.some(item => item.state === 'uploading'));
+  assert.ok(states.some(item => item.lastSaved === 'complete.mp4'));
+});

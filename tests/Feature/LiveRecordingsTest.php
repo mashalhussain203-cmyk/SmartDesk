@@ -61,6 +61,32 @@ class LiveRecordingsTest extends TestCase
         }
     }
 
+
+    public function test_gimbobar_has_an_admin_only_private_archive_and_status(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-10T15-00-00-000Z_gimbobar.mp4';
+        Storage::disk('local')->put('live-recordings/gimbobar/'.$filename, 'test');
+
+        $watch = '/live/gimbobar/'.$filename.'/watch';
+        $download = '/live/gimbobar/'.$filename.'/download';
+
+        $this->get($watch)->assertRedirect('/login');
+
+        $viewer = new User(['name' => 'Viewer', 'email' => 'viewer@example.test', 'is_admin' => false]);
+        $this->actingAs($viewer)->get($watch)->assertForbidden();
+        $this->actingAs($viewer)->get($download)->assertForbidden();
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@gimbobar');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('gimbobar.status', 'unknown');
+        $this->actingAs($admin)->get($watch)->assertOk();
+        $this->actingAs($admin)->get($download)->assertOk();
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'gimbobar', 'bytes' => 2048])->assertCreated();
+        $this->actingAs($admin)->delete('/live/gimbobar/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/gimbobar/'.$filename));
+    }
+
     public function test_knock1knock_recordings_can_be_played_downloaded_and_deleted_by_admin(): void
     {
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);

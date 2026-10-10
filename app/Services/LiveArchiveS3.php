@@ -141,7 +141,7 @@ final class LiveArchiveS3
 
     private function objectKey(string $account, string $filename): string
     {
-        if (!in_array($account, ['knock1knock','emyii', 'cutefacebigass', 'ricasashaa'], true) ||
+        if (!in_array($account, ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'gimbobar'], true) ||
             !preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename)) {
             abort(404);
         }

@@ -65,6 +65,16 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
+// gimbobar: monitor its public, playable livestream separately while sharing
+// the existing emyii worker's private S3 configuration.
+const gimbobarMonitor = account === 'emyii'
+  ? runHlsMonitor({
+      s3, bucket, account: 'gimbobar', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('gimbobar continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
 const emyiiOneShot = account === 'emyii'
@@ -377,5 +387,6 @@ try {
   extraAbort.abort();
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
+  if (gimbobarMonitor) await gimbobarMonitor;
   if (emyiiOneShot) await emyiiOneShot;
 }
