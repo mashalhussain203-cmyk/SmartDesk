@@ -65,13 +65,13 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
-// gimbobar: monitor its public, playable livestream separately while sharing
+// julesxdann: monitor its public, playable livestream separately while sharing
 // the existing emyii worker's private S3 configuration.
-const gimbobarMonitor = account === 'emyii'
+const julesxdannMonitor = account === 'emyii'
   ? runHlsMonitor({
-      s3, bucket, account: 'gimbobar', signal: extraAbort.signal,
+      s3, bucket, account: 'julesxdann', signal: extraAbort.signal,
     }).catch(() => {
-      console.error('gimbobar continuous monitor unexpectedly stopped');
+      console.error('julesxdann continuous monitor unexpectedly stopped');
     })
   : null;
 
@@ -387,6 +387,6 @@ try {
   extraAbort.abort();
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
-  if (gimbobarMonitor) await gimbobarMonitor;
+  if (julesxdannMonitor) await julesxdannMonitor;
   if (emyiiOneShot) await emyiiOneShot;
 }

@@ -294,34 +294,34 @@ test('ricasashaa records full sessions independently and saves the finished MP4'
   assert.ok(filenames.includes('full.mp4'));
 });
 
-test('gimbobar records an entire playable live, finalizes the private MP4 and keeps its own status', async () => {
+test('julesxdann records an entire playable live, finalizes the private MP4 and keeps its own status', async () => {
   const controller = new AbortController();
   const states = [];
   const saved = [];
   let poll = 0;
   let starts = 0;
   await runHlsMonitor({
-    s3: {}, bucket: 'private', account: 'gimbobar', signal: controller.signal,
+    s3: {}, bucket: 'private', account: 'julesxdann', signal: controller.signal,
     discover: async account => {
-      assert.equal(account, 'gimbobar');
+      assert.equal(account, 'julesxdann');
       return poll === 0 ? source : { kind: 'offline' };
     },
     startCapture: async ({ account, urls }) => {
-      assert.equal(account, 'gimbobar');
+      assert.equal(account, 'julesxdann');
       assert.deepEqual(urls, source.urls);
       assert.equal(hlsContinuousArgs(urls).includes('-t'), false);
       starts++;
       return {
         check: async () => false,
         stop: async () => {
-          const key = 'recordings/gimbobar/complete.mp4';
+          const key = 'recordings/julesxdann/complete.mp4';
           saved.push(key);
           return key;
         },
       };
     },
     report: async ({ account, state, lastSaved }) => {
-      assert.equal(account, 'gimbobar');
+      assert.equal(account, 'julesxdann');
       states.push({ state, lastSaved });
     },
     sleep: async () => {
@@ -330,7 +330,7 @@ test('gimbobar records an entire playable live, finalizes the private MP4 and ke
     },
   });
   assert.equal(starts, 1);
-  assert.deepEqual(saved, ['recordings/gimbobar/complete.mp4']);
+  assert.deepEqual(saved, ['recordings/julesxdann/complete.mp4']);
   assert.ok(states.some(item => item.state === 'recording'));
   assert.ok(states.some(item => item.state === 'uploading'));
   assert.ok(states.some(item => item.lastSaved === 'complete.mp4'));

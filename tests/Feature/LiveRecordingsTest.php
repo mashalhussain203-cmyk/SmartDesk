@@ -50,7 +50,7 @@ class LiveRecordingsTest extends TestCase
         $page = $this->get('/live')->assertOk();
         $statuses = $this->get('/live/status')->assertOk()->json();
 
-        foreach (['mon1_day', 'lucycums', 'leo_kitty', '_frankie_rivers'] as $account) {
+        foreach (['mon1_day', 'lucycums', 'leo_kitty', '_frankie_rivers', 'gimbobar'] as $account) {
             Storage::disk('local')->put('live-recordings/'.$account.'/old.mp4', 'old');
             $page->assertDontSee('@'.$account);
             $this->assertArrayNotHasKey($account, $statuses);
@@ -62,14 +62,14 @@ class LiveRecordingsTest extends TestCase
     }
 
 
-    public function test_gimbobar_has_an_admin_only_private_archive_and_status(): void
+    public function test_julesxdann_has_an_admin_only_private_archive_and_status(): void
     {
         Storage::fake('local');
-        $filename = '2026-10-10T15-00-00-000Z_gimbobar.mp4';
-        Storage::disk('local')->put('live-recordings/gimbobar/'.$filename, 'test');
+        $filename = '2026-10-10T15-00-00-000Z_julesxdann.mp4';
+        Storage::disk('local')->put('live-recordings/julesxdann/'.$filename, 'test');
 
-        $watch = '/live/gimbobar/'.$filename.'/watch';
-        $download = '/live/gimbobar/'.$filename.'/download';
+        $watch = '/live/julesxdann/'.$filename.'/watch';
+        $download = '/live/julesxdann/'.$filename.'/download';
 
         $this->get($watch)->assertRedirect('/login');
 
@@ -78,13 +78,13 @@ class LiveRecordingsTest extends TestCase
         $this->actingAs($viewer)->get($download)->assertForbidden();
 
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
-        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@gimbobar');
-        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('gimbobar.status', 'unknown');
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@julesxdann');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('julesxdann.status', 'unknown');
         $this->actingAs($admin)->get($watch)->assertOk();
         $this->actingAs($admin)->get($download)->assertOk();
-        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'gimbobar', 'bytes' => 2048])->assertCreated();
-        $this->actingAs($admin)->delete('/live/gimbobar/'.$filename)->assertRedirect('/live');
-        $this->assertFalse(Storage::disk('local')->exists('live-recordings/gimbobar/'.$filename));
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'julesxdann', 'bytes' => 2048])->assertCreated();
+        $this->actingAs($admin)->delete('/live/julesxdann/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/julesxdann/'.$filename));
     }
 
     public function test_knock1knock_recordings_can_be_played_downloaded_and_deleted_by_admin(): void
