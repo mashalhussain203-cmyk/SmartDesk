@@ -49,10 +49,10 @@
             <form id="live-share-form" novalidate>
                 <label for="live-share-input">{{ __('TikTok LIVE-link') }}</label>
                 <div class="live-share-input-row">
-                    <input class="live-share-input" id="live-share-input" type="url" placeholder="https://www.tiktok.com/@gebruikersnaam/live" autocomplete="url" required maxlength="2048" aria-describedby="live-share-help live-share-error">
+                    <input class="live-share-input" id="live-share-input" type="url" placeholder="https://vm.tiktok.com/t/..." autocomplete="url" required maxlength="2048" aria-describedby="live-share-help live-share-error">
                     <button class="live-share-primary" type="submit">{{ __('Link instellen') }}</button>
                 </div>
-                <p class="live-share-help" id="live-share-help">{{ __('Gebruik een rechtstreekse TikTok-profiel- of LIVE-link. Verkorte links worden niet ondersteund.') }}</p>
+                <p class="live-share-help" id="live-share-help">{{ __('TikTok-profiel-, LIVE- en verkorte vm.tiktok.com- of vt.tiktok.com-links worden ondersteund.') }}</p>
                 <p class="live-share-error" id="live-share-error" role="alert" hidden></p>
             </form>
 
@@ -68,7 +68,7 @@
                 </div>
                 <p class="live-share-feedback" id="live-share-feedback" role="status" aria-live="polite"></p>
             </section>
-            <p class="live-share-note">{{ __('Deze tool deelt je link met mensen die zelf besluiten te kijken. TikTok toont de echte LIVE-status en het kijkersaantal; deze pagina verzint geen cijfers en voegt geen automatische kijkers toe.') }}</p>
+            <p class="live-share-note">{{ __('Deze tool deelt je link met mensen die zelf besluiten te kijken. Bij verkorte links controleren we niet of de bestemming LIVE is. TikTok toont zelf de echte LIVE-status en het kijkersaantal; deze pagina voegt geen automatische kijkers toe.') }}</p>
         </div>
     </div>
 </section>
@@ -95,9 +95,18 @@
     function canonicalize(value) {
         try {
             const url = new URL(value.trim());
-            if (url.protocol !== 'https:' || !['tiktok.com', 'www.tiktok.com', 'm.tiktok.com'].includes(url.hostname.toLowerCase()) || url.username || url.password || url.port) return null;
+            if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
+            const hostname = url.hostname.toLowerCase();
+
+            // TikTok-sharelinks are redirects; preserve them without guessing their destination.
+            if (['vm.tiktok.com', 'vt.tiktok.com'].includes(hostname)) {
+                if (!/^\/(?:t\/)?[A-Za-z0-9_-]{6,128}\/?$/.test(url.pathname)) return null;
+                return { name: 'TikTok-link (verkort)', url: url.origin + url.pathname };
+            }
+
+            if (!['tiktok.com', 'www.tiktok.com', 'm.tiktok.com'].includes(hostname)) return null;
             const match = url.pathname.match(/^\/@([A-Za-z0-9._]{2,24})(?:\/live)?\/?$/);
-            return match ? { name: match[1], url: 'https://www.tiktok.com/@' + match[1] + '/live' } : null;
+            return match ? { name: '@' + match[1], url: 'https://www.tiktok.com/@' + match[1] + '/live' } : null;
         } catch (_) {
             return null;
         }
@@ -109,13 +118,13 @@
         if (!parsed) {
             currentUrl = '';
             result.hidden = true;
-            error.textContent = 'Vul een geldige TikTok-profiel- of LIVE-link in.';
+            error.textContent = 'Vul een geldige TikTok-profiel-, LIVE- of verkorte TikTok-link in.';
             error.hidden = false;
             return;
         }
         error.hidden = true;
         currentUrl = parsed.url;
-        account.textContent = '@' + parsed.name;
+        account.textContent = parsed.name;
         shownUrl.textContent = currentUrl;
         openLink.href = currentUrl;
         const invitation = 'Bekijk deze TikTok LIVE: ' + currentUrl;
