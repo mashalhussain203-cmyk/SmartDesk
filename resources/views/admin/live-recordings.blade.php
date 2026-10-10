@@ -100,6 +100,14 @@
                 </div>
             </div>
         @endforeach
+        <div class="live-status-box">
+            <span class="live-pill">PROFIELLINK</span>
+            <strong>@dellris</strong>
+            <small>Account toegevoegd als snelkoppeling. Automatische monitoring en opname zijn niet ingesteld.</small>
+            <div style="margin-top: 10px;">
+                <a href="https://chaturbate.com/dellris/" target="_blank" rel="noopener noreferrer" class="live-muted">Bekijk bronpagina ↗</a>
+            </div>
+        </div>
     </div>
 
     <details class="live-capture">
