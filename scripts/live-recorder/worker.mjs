@@ -17,6 +17,7 @@ import { mergePlaybackStatus } from './playback-status.mjs';
 import { runHlsMonitor, extraAccountFor } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 import { runMon1DayOneShot } from './one-shot-mon1-day.mjs';
+import { runFrankieRiversOneShot } from './one-shot-frankie-rivers.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
 if (!['knock1knock', 'emyii', 'lucycums'].includes(account)) throw new Error('Invalid account');
@@ -89,13 +90,11 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
-// Monitor _frankie_rivers on the existing knock1knock Railway worker
-// without interrupting any existing account recorder.
-const frankieRiversMonitor = account === 'knock1knock'
-  ? runHlsMonitor({
-      s3, bucket, account: '_frankie_rivers', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('_frankie_rivers continuous monitor unexpectedly stopped');
+// One-time 30-second proof for _frankie_rivers on the existing knock1knock worker.
+// Other accounts keep their continuous recording; S3 marker prevents duplicate proofs.
+const frankieRiversOneShot = account === 'knock1knock'
+  ? runFrankieRiversOneShot({ s3, bucket, signal: extraAbort.signal }).catch(() => {
+      console.error('_frankie_rivers one-shot proof stopped unexpectedly');
     })
   : null;
 
@@ -415,7 +414,7 @@ try {
   if (mon1DayMonitor) await mon1DayMonitor;
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
-  if (frankieRiversMonitor) await frankieRiversMonitor;
+  if (frankieRiversOneShot) await frankieRiversOneShot;
   if (mon1DayOneShot) await mon1DayOneShot;
   if (emyiiOneShot) await emyiiOneShot;
 }

@@ -13,7 +13,7 @@ De uitbreiding neemt via een zelfstandig draaiende Google Chrome-recorder video 
 
 Naast de primaire Chrome-workers lopen aparte HLS-monitoren voor extra accounts.
 De bestaande `emyii`-service neemt ook `leo_kitty`, `cutefacebigass` en `ricasashaa` op;
-de `knock1knock`-service bewaakt `lucycums`, `mon1_day` en `_frankie_rivers`.
+de `knock1knock`-service bewaakt `lucycums` en `mon1_day`. Voor `_frankie_rivers` loopt tijdelijk uitsluitend een eenmalige proef van 30 seconden op deze worker; een S3-marker verhindert herhaling na nieuwe deploys.
 Elke account heeft een eigen statusbestand en S3-map. Een extra Railway-service is
 voor deze extra accounts niet nodig zolang de bestaande workers voldoende capaciteit hebben.
 

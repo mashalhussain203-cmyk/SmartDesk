@@ -56,6 +56,8 @@ jobs:
         run: node --test scripts/live-recorder/one-shot-emyii.test.mjs
       - name: Test additional 30-second private S3 capture
         run: node --test scripts/live-recorder/one-shot-mon1-day.test.mjs
+      - name: Test _frankie_rivers 30-second proof
+        run: node --test scripts/live-recorder/one-shot-frankie-rivers.test.mjs
       - name: Test recorder HTTP access classification
         run: node --test scripts/live-recorder/access-diagnostics.test.mjs
       - name: Test strict one-minute polling schedule
@@ -67,6 +69,7 @@ jobs:
           node --check scripts/live-recorder/worker.mjs
           node --check scripts/live-recorder/one-shot-emyii.mjs
           node --check scripts/live-recorder/one-shot-mon1-day.mjs
+          node --check scripts/live-recorder/one-shot-frankie-rivers.mjs
           node --check scripts/live-recorder/hls-monitor.mjs
           node --check scripts/live-recorder/private-upload.mjs
           sh -n scripts/live-recorder/entrypoint.sh
