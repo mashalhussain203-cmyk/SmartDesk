@@ -74,7 +74,6 @@
         <h2>Automatisch de volledige livestream opnemen</h2>
         <p>De server controleert <strong>knock1knock, emyii, lucycums, leo_kitty, mon1_day, cutefacebigass en ricasashaa</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
         <p>Ook <strong>mon1_day</strong> wordt automatisch van begin tot eind opgenomen zodra de publieke video en audio bereikbaar zijn. De eerdere opname van 30 seconden was alleen een technische proef; de volledige opname heeft geen tijdslimiet.</p>
-        <p><strong>_frankie_rivers</strong> is tijdelijk ingesteld op slechts één proefopname van maximaal 30 seconden, die na controle als privé-MP4 verschijnt. Voor dit account draait nu geen doorlopende opname.</p>
         <div class="live-automatic-facts">
             <span>Automatische achtergrondcontrole: 60 sec.</span>
             <span>Opnameduur: geen limiet van 30 sec.</span>
