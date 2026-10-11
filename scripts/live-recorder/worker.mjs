@@ -374,7 +374,7 @@ try {
   // Use the same browser-independent HLS workflow as the other rooms for
   // emyii. This prevents recurring Chromium page.goto/ERR_ABORTED failures
   // from hiding public stream activity or interrupting live capture.
-  if (account === 'emyii') {
+  if (account === 'emyii' || account === 'knock1knock') {
     await runHlsMonitor({ s3, bucket, account, signal: extraAbort.signal });
   } else {
     await main();
