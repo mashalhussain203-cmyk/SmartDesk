@@ -50,7 +50,7 @@ class LiveRecordingsTest extends TestCase
         $page = $this->get('/live')->assertOk();
         $statuses = $this->get('/live/status')->assertOk()->json();
 
-        foreach (['mon1_day', 'lucycums', 'leo_kitty', '_frankie_rivers', 'gimbobar'] as $account) {
+        foreach (['mon1_day', 'lucycums', '_frankie_rivers', 'gimbobar'] as $account) {
             Storage::disk('local')->put('live-recordings/'.$account.'/old.mp4', 'old');
             $page->assertDontSee('@'.$account);
             $this->assertArrayNotHasKey($account, $statuses);
@@ -82,6 +82,22 @@ class LiveRecordingsTest extends TestCase
         $this->assertSame('unknown', $statuses['julesxdann']['status']);
         $this->get($watch)->assertOk();
         $this->get($download)->assertOk();
+    }
+
+    public function test_leo_kitty_is_monitored_and_its_recordings_are_private(): void
+    {
+        Storage::fake('local');
+        $filename = '2026-10-11T10-00-00-000Z_leo_kitty.mp4';
+        Storage::disk('local')->put('live-recordings/leo_kitty/'.$filename, 'test');
+
+        $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
+        $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@leo_kitty');
+        $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('leo_kitty.status', 'unknown');
+        $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/watch')->assertOk();
+        $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/download')->assertOk();
+        $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'leo_kitty', 'bytes' => 2048])->assertCreated();
+        $this->actingAs($admin)->delete('/live/leo_kitty/'.$filename)->assertRedirect('/live');
+        $this->assertFalse(Storage::disk('local')->exists('live-recordings/leo_kitty/'.$filename));
     }
 
     public function test_julesxdann_has_an_admin_only_private_archive_and_status(): void
