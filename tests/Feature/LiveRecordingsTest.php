@@ -93,8 +93,10 @@ class LiveRecordingsTest extends TestCase
         $admin = new User(['name' => 'Admin', 'email' => 'admin@example.test', 'is_admin' => true]);
         $this->actingAs($admin)->get('/live')->assertOk()->assertSee('@leo_kitty');
         $this->actingAs($admin)->get('/live/status')->assertOk()->assertJsonPath('leo_kitty.status', 'unknown');
-        $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/watch')->assertOk();
-        $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/download')->assertOk();
+        $watch = $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/watch')->assertOk();
+        $this->assertSame('video/mp4', $watch->headers->get('Content-Type'));
+        $download = $this->actingAs($admin)->get('/live/leo_kitty/'.$filename.'/download')->assertOk();
+        $this->assertStringContainsString($filename, $download->headers->get('Content-Disposition'));
         $this->actingAs($admin)->postJson('/live/uploads', ['account' => 'leo_kitty', 'bytes' => 2048])->assertCreated();
         $this->actingAs($admin)->delete('/live/leo_kitty/'.$filename)->assertRedirect('/live');
         $this->assertFalse(Storage::disk('local')->exists('live-recordings/leo_kitty/'.$filename));
