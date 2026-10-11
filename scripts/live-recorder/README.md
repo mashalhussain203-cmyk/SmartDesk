@@ -12,10 +12,10 @@ De uitbreiding neemt via een zelfstandig draaiende recorder video en geluid op v
 ## Extra livestreamaccounts
 
 Naast de primaire Chrome-workers lopen aparte HLS-monitoren voor extra accounts.
-De bestaande `emyii`-service bewaakt `cutefacebigass`, `ricasashaa` en `julesxdann`.
+De bestaande `emyii`-service bewaakt `cutefacebigass`, `ricasashaa`, `julesxdann` en `leo_kitty`.
 De automatische monitor voor `dellris` is uitgeschakeld. Bestaande privéopnames
 blijven in het archief staan.
-De `knock1knock`-service gebruikt dezelfde HLS-controle en opnameflow als `emyii`, voor het primaire account.
+De `knock1knock`-service gebruikt dezelfde HLS-controle en opnameflow als `emyii`, voor het primaire account. `leo_kitty` krijgt een eigen status en privéarchief via de bestaande `emyii`-worker.
 Elke account heeft een eigen statusbestand en S3-map. Een extra Railway-service is
 voor `ricasashaa` niet nodig zolang de bestaande worker voldoende capaciteit heeft.
 
