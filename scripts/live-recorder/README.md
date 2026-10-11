@@ -1,6 +1,6 @@
 # SmartDesk – automatische privé livestreamopnames
 
-De uitbreiding neemt via een zelfstandig draaiende Google Chrome-recorder video en geluid op van knock1knock of emyii. Geen Chaturbate-API. De videospeler moet normaal toegankelijk zijn; de implementatie omzeilt geen toegang, leeftijdsbevestiging, DRM of platformrestricties.
+De uitbreiding neemt via een zelfstandig draaiende recorder video en geluid op van knock1knock of emyii met publiek afspeelbare HLS-bronnen. Geen Chaturbate-API. De implementatie omzeilt geen toegang, leeftijdsbevestiging, DRM of platformrestricties.
 
 ## Bouwstenen
 
@@ -15,7 +15,7 @@ Naast de primaire Chrome-workers lopen aparte HLS-monitoren voor extra accounts.
 De bestaande `emyii`-service bewaakt `cutefacebigass`, `ricasashaa` en `julesxdann`.
 De automatische monitor voor `dellris` is uitgeschakeld. Bestaande privéopnames
 blijven in het archief staan.
-De `knock1knock`-service neemt uitsluitend het primaire account op.
+De `knock1knock`-service gebruikt dezelfde HLS-controle en opnameflow als `emyii`, voor het primaire account.
 Elke account heeft een eigen statusbestand en S3-map. Een extra Railway-service is
 voor `ricasashaa` niet nodig zolang de bestaande worker voldoende capaciteit heeft.
 
