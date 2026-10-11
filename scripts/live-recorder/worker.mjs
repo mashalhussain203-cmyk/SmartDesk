@@ -75,6 +75,15 @@ const julesxdannMonitor = account === 'emyii'
     })
   : null;
 
+// leo_kitty: monitor the owner's public stream through the same HLS flow.
+const leoKittyMonitor = account === 'emyii'
+  ? runHlsMonitor({
+      s3, bucket, account: 'leo_kitty', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('leo_kitty continuous monitor unexpectedly stopped');
+    })
+  : null;
+
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
 const emyiiOneShot = account === 'emyii'
@@ -388,5 +397,6 @@ try {
   if (cutefacebigassMonitor) await cutefacebigassMonitor;
   if (ricasashaaMonitor) await ricasashaaMonitor;
   if (julesxdannMonitor) await julesxdannMonitor;
+  if (leoKittyMonitor) await leoKittyMonitor;
   if (emyiiOneShot) await emyiiOneShot;
 }
