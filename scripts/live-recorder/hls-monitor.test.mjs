@@ -154,6 +154,31 @@ test('the HLS monitor rejects dellris and other unapproved accounts', async () =
   }
 });
 
+test('knock1knock publishes a fresh offline status through the HLS monitor', async () => {
+  const controller = new AbortController();
+  const statuses = [];
+  let polls = 0;
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'knock1knock', signal: controller.signal,
+    discover: async account => {
+      assert.equal(account, 'knock1knock');
+      return { kind: 'offline' };
+    },
+    report: async ({ account, state, message }) => {
+      assert.equal(account, 'knock1knock');
+      statuses.push({ state, message });
+    },
+    sleep: async () => {
+      polls++;
+      if (polls >= 1) controller.abort();
+    },
+  });
+  assert.deepEqual(statuses, [
+    { state: 'unknown', message: 'Automatische recorder gestart; controle elke minuut' },
+    { state: 'offline', message: 'Stream is offline; automatisch wachten op volgende live' },
+  ]);
+});
+
 test('emyii uses the same continuous HLS capture flow without Chromium navigation', async () => {
   const controller = new AbortController();
   const statuses = [];
