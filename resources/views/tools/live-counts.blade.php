@@ -292,7 +292,7 @@
             <h1 class="livehub-title">{{ __('Live') }} <span>{{ __('Counts.') }}</span></h1>
 
             <p class="livehub-copy">
-                {{ __('Kies een live counter en volg publieke TikTok- en YouTube-statistieken zonder handmatig te refreshen. De cijfers bewegen automatisch zodra nieuwe data binnenkomt.') }}
+                {{ __('Volg publieke TikTok- en YouTube-cijfers automatisch en analyseer je video’s of beste uploadtijden met Mashal Studio.') }}
             </p>
         </header>
 
@@ -312,7 +312,7 @@
         </div>
 
         <div class="livehub-section-head">
-            <h2>{{ __('Choose a live counter') }}</h2>
+            <h2>{{ __('Choose a social tool') }}</h2>
             <p>{{ __('TikTok & YouTube tools') }}</p>
         </div>
 
@@ -400,6 +400,43 @@
 
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
+
+
+            <a class="livehub-tool" href="{{ route('tiktok-analytics.video') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <span style="font-size:31px;color:#aaa0ff" aria-hidden="true">▤</span>
+                    </div>
+                    <div class="livehub-live" style="color:#b3a8ff"><i style="background:#9988ff"></i> Analytics</div>
+                </div>
+                <h3>{{ __('TikTok Video Analyzer') }}</h3>
+                <p>{{ __('Plak een TikTok-videolink en bekijk openbare views, likes, reacties en beschikbare videometadata zoals resolutie en FPS.') }}</p>
+                <div class="livehub-metrics">
+                    <span>{{ __('Views') }}</span>
+                    <span>{{ __('Engagement') }}</span>
+                    <span>{{ __('Resolution') }}</span>
+                    <span>FPS</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a class="livehub-tool" href="{{ route('tiktok-analytics.times') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <span style="font-size:31px;color:#aaa0ff" aria-hidden="true">◷</span>
+                    </div>
+                    <div class="livehub-live" style="color:#b3a8ff"><i style="background:#9988ff"></i> v2.0</div>
+                </div>
+                <h3>{{ __('Best Upload Times') }}</h3>
+                <p>{{ __('Voer je TikTok-gebruikersnaam in en ontdek op welke dagen en tijden jouw openbare video’s de meeste weergaven haalden.') }}</p>
+                <div class="livehub-metrics">
+                    <span>{{ __('TikTok Username') }}</span>
+                    <span>{{ __('Best Hours') }}</span>
+                    <span>{{ __('7-Day Heatmap') }}</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
 
         </div>
     </div>

@@ -37,6 +37,7 @@ use App\Http\Controllers\SecurityController;
 
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
+use App\Http\Controllers\TikTokAnalyticsController;
 use App\Http\Controllers\YouTubeSubscriberController;
 use App\Http\Controllers\YouTubeViewCounterController;
 
@@ -1143,6 +1144,21 @@ Route::get(
     '/tools/live',
     [TikTokCounterController::class, 'liveCountsIndex']
 )->name('live-counts.index');
+
+/*
+|--------------------------------------------------------------------------
+| TikTok Video Analyzer & Best Upload Times
+|--------------------------------------------------------------------------
+| Read public TikTok metadata. No private stats or API keys required.
+*/
+Route::get('/tools/tiktok-analyzer', [TikTokAnalyticsController::class, 'video'])
+    ->middleware('throttle:30,1')
+    ->name('tiktok-analytics.video');
+
+Route::get('/tools/best-upload-times', [TikTokAnalyticsController::class, 'postingTimes'])
+    ->middleware('throttle:20,1')
+    ->name('tiktok-analytics.times');
+
 
 Route::get(
     '/tools/tiktok-counter',
