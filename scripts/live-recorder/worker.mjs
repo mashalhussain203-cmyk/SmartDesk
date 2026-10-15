@@ -14,7 +14,7 @@ import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { mergePlaybackStatus } from './playback-status.mjs';
-import { runHlsMonitor } from './hls-monitor.mjs';
+import { runHlsMonitor, reportHlsStatus } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
@@ -44,15 +44,23 @@ await mkdir(profile, { recursive: true, mode: 0o700 });
 // Shared abort signal for the remaining extra live-room monitors.
 const extraAbort = new AbortController();
 
-// The owner of cutefacebigass requested unattended recording of complete
-// public livestreams. Run an independent HLS-only monitor on the existing
-// emyii Railway service; keep all other account recorders running.
+// The administrator can pause only this account without disabling other
+// monitors. Change LIVE_PAUSE_CUTEFACEBIGASS back to 0 to resume it.
+// Railway gives the previous worker time to finalize its in-flight MP4 on SIGTERM.
 const cutefacebigassMonitor = account === 'emyii'
-  ? runHlsMonitor({
-      s3, bucket, account: 'cutefacebigass', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('cutefacebigass continuous monitor unexpectedly stopped');
-    })
+  ? (env.LIVE_PAUSE_CUTEFACEBIGASS === '1'
+      ? (async () => {
+          while (!extraAbort.signal.aborted) {
+            await reportHlsStatus({
+              s3, bucket, account: 'cutefacebigass', state: 'offline',
+              message: 'Automatische opname tijdelijk gepauzeerd op verzoek; bestaande MP4-bestanden bewaard',
+            });
+            await pause(60_000);
+          }
+        })().catch(() => console.error('cutefacebigass paused status update failed'))
+      : runHlsMonitor({
+          s3, bucket, account: 'cutefacebigass', signal: extraAbort.signal,
+        }).catch(() => console.error('cutefacebigass continuous monitor unexpectedly stopped')))
   : null;
 
 // ricasashaa: independently record complete public livestreams on the existing
