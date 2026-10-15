@@ -208,15 +208,16 @@
                         <div class="ms-spec">
                             <small>Resolution</small>
                             <strong>{{ $result['quality'] ? $result['quality'].' · ' : '' }}{{ $result['resolution'] ?? 'Niet beschikbaar' }}</strong>
+                            <span class="ms-subtext">{{ $result['video_version'] }} · {{ $result['technical_source'] }}</span>
                         </div>
                         <div class="ms-spec">
                             <small>FPS</small>
-                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], 2, ',', '.').' fps' : 'FPS niet beschikbaar' }}</strong>
+                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], (floor($result['fps']) == $result['fps'] ? 0 : 2), ',', '.').' fps' : 'FPS niet beschikbaar' }}</strong>
                             <span class="ms-subtext">{{ $result['fps_source'] ?? 'Geen FPS beschikbaar in de openbare videometadata of onderzochte stream.' }}</span>
                         </div>
                         <div class="ms-spec"><small>Engine / encodeerformaat</small><strong>{{ $result['engine'] ?? 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : 'Niet beschikbaar' }}</strong><span class="ms-subtext">Van de geselecteerde videoversie, indien gemeten</span></div>
+                        <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : 'Niet beschikbaar' }}</strong><span class="ms-subtext">Beschikbare streamingversie, niet noodzakelijk het uploadbestand</span></div>
                         <div class="ms-spec"><small>Codec</small><strong>{{ $result['codec'] ?? 'Niet beschikbaar' }}</strong></div>
                         <div class="ms-spec">
                             <small>Region</small>
@@ -261,7 +262,7 @@
                     @endif
                     @if($result['download_url'])
                         <a class="ms-download" href="{{ $result['download_url'] }}" target="_blank" rel="nofollow noopener noreferrer">
-                            ↓ {{ __('Open video download') }}{{ $result['download_quality'] ? ' · '.$result['download_quality'] : '' }}
+                            ↓ {{ __('Download HD Video') }}{{ $result['download_quality'] ? ' ('.$result['download_quality'].' · beschikbare versie)' : '' }}
                         </a>
                         <p class="ms-download-note">{{ __('Beste beschikbare publieke videoversie. Dit is niet gegarandeerd het originele uploadbestand; sommige browsers openen de video eerst.') }}</p>
                     @else
@@ -339,6 +340,18 @@
                 </div>
             @endif
         </section>
+        @if($isVideo)
+            <section class="ms-panel" style="margin-top:24px">
+                <h2>Best Upload Times <span class="ms-version">v2.0</span></h2>
+                <p class="ms-panel-desc">Enter your TikTok username to see when your public videos historically performed best.</p>
+                <form method="GET" class="ms-form" action="{{ route('tiktok-analytics.times') }}">
+                    <input class="ms-field" type="text" name="username" placeholder="&#64;yourusername" required maxlength="255" aria-label="TikTok username">
+                    <input type="hidden" name="timezone" value="Europe/Amsterdam">
+                    <button class="ms-action" type="submit">CHECK →</button>
+                </form>
+                <p class="ms-hint">Resultaten tonen de gegevensbron en steekproefbetrouwbaarheid. Dit zijn geen officiële TikTok-volgersactiviteitstijden.</p>
+            </section>
+        @endif
     </div>
 </main>
 @unless($isVideo)

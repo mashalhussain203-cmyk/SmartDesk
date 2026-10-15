@@ -17,7 +17,7 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v6:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
+        return Cache::remember('mashal:video-analyzer:v7:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
             // Use the public page first. Third-party metadata is always labeled
             // and used only when the official public page lacks fields.
             $state = $this->publicPage($videoUrl);
@@ -82,15 +82,39 @@ class TikTokAnalyticsService
             $fpsSource = $fpsOfficial !== null
                 ? 'TikTok openbare videometadata'
                 : ($fps !== null ? 'TikWM onafhankelijke metadata' : null);
+
+            // The public TikTok "video.width" describes one rendering, not
+            // necessarily the highest playable version. Probe actual media
+            // candidates (HD first) and keep all specs from the SAME rendition.
+            $stream = $this->probePublicStreams($technical, $mirror);
             $probe = [];
-            if ($width === null || $height === null || $fps === null || $codec === null || $size === null) {
+            $specSource = isset($technical['width'])
+                ? 'TikTok publieke metadata · standaardvariant'
+                : 'TikWM publieke metadata · standaardvariant';
+            if ($stream !== []) {
+                $width = $this->number($stream['width'] ?? null) ?? $width;
+                $height = $this->number($stream['height'] ?? null) ?? $height;
+                $streamRate = $this->frameRate($stream['fps'] ?? null);
+                // FPS of the standard rendition must not be attributed to
+                // a different HD rendition if that stream omits framerate.
+                $fps = $streamRate;
+                $fpsSource = $streamRate !== null ? $stream['source'] : null;
+                // Do not mix the bitrate/size of a 576P variant into 720P.
+                $bitrate = $this->number($stream['bitrate'] ?? null);
+                $size = $this->number($stream['file_size'] ?? null);
+                $codec = $this->normalizeCodec($stream['codec'] ?? null) ?? $codec;
+                $specSource = (string) $stream['source'];
+            }
+
+            // Legacy extractor remains an optional fallback for missing fields.
+            if ($stream === [] && $publicMedia === null && $alternateMedia === null && ($fps === null || $width === null || $height === null)) {
                 $probe = $this->metadataProbe($videoUrl, $videoId, $publicMedia, $alternateMedia);
                 $width ??= $this->number($probe['width'] ?? null);
                 $height ??= $this->number($probe['height'] ?? null);
-                if ($fps === null && isset($probe['fps'])) {
-                    $fps = $this->frameRate($probe['fps']);
+                if ($fps === null) {
+                    $fps = $this->frameRate($probe['fps'] ?? null);
                     if ($fps !== null) {
-                        $fpsSource = $probe['source'] ?? 'Video-streammetadata';
+                        $fpsSource = $probe['source'] ?? 'Publieke videometadata';
                     }
                 }
                 $bitrate ??= $this->number($probe['bitrate'] ?? null);
@@ -140,9 +164,10 @@ class TikTokAnalyticsService
             $shares = $this->number($stats['shareCount'] ?? $mirror['shares'] ?? null);
             $duration = $this->number($technical['duration'] ?? $item['videoDuration'] ?? $mirror['duration'] ?? $probe['duration'] ?? null);
 
-            $videoAvailable = is_array($item) || is_array($embed) || $mirror !== [] || ($probe['success'] ?? false) === true;
+            $videoAvailable = is_array($item) || is_array($embed) || $mirror !== [] || $stream !== [] || ($probe['success'] ?? false) === true;
             $quality = $width && $height ? min($width, $height) : null;
-            $download = $this->safeMediaUrl($mirror['hdplay'] ?? null)
+            $download = $this->safeMediaUrl($stream['url'] ?? null)
+                ?? $this->safeMediaUrl($mirror['hdplay'] ?? null)
                 ?? $this->safeMediaUrl($probe['direct_url'] ?? null)
                 ?? $this->safeMediaUrl($mirror['play'] ?? null);
 
@@ -167,13 +192,15 @@ class TikTokAnalyticsService
                 'quality' => $quality !== null ? $quality.'P' : null,
                 'fps' => $fps,
                 'fps_source' => $fpsSource,
+                'technical_source' => $specSource,
+                'video_version' => $stream !== [] ? 'Gemeten videoversie' : 'Openbare standaardvariant',
                 'fps_status' => $fps === null ? 'niet uit openbare mediabron te bepalen'
                     : (str_contains((string) $fpsSource, 'ffprobe') ? 'gemeten' : 'uit metadata'),
                 'duration' => $duration,
                 'bitrate' => $bitrate,
                 'codec' => $codec,
                 'engine' => match ($codec) {
-                    'H.264' => 'Standard (H.264)',
+                    'H.264' => 'Standard',
                     'H.265 / HEVC' => 'HEVC',
                     'AV1' => 'AV1',
                     default => null,
@@ -558,6 +585,186 @@ class TikTokAnalyticsService
         } catch (Throwable $e) {
             return [];
         }
+    }
+
+
+    /**
+     * Measure metadata of the highest publicly accessible rendition.
+     * If a host blocks external inspection, never fabricate FPS or quality.
+     * Streaming probes are capped to avoid large downloads and long requests.
+     */
+    private function probePublicStreams(array $video, array $mirror): array
+    {
+        $candidateUrls = [];
+        $add = function (mixed $value, string $label) use (&$candidateUrls): void {
+            $url = $this->publicVideoAddress($value);
+            if ($url !== null && !isset($candidateUrls[$url])) {
+                $candidateUrls[$url] = $label;
+            }
+        };
+
+        $add($mirror['hdplay'] ?? null, 'TikWM HD');
+        $bitrates = is_array($video['bitrateInfo'] ?? null) ? $video['bitrateInfo'] : [];
+        usort($bitrates, fn ($a, $b) => ((int) ($b['Bitrate'] ?? 0)) <=> ((int) ($a['Bitrate'] ?? 0)));
+        foreach (array_slice($bitrates, 0, 3) as $rate) {
+            if (is_array($rate)) {
+                $add($rate['PlayAddr'] ?? $rate['playAddr'] ?? null, 'TikTok HD');
+            }
+        }
+        $add($mirror['play'] ?? null, 'TikWM Standard');
+        $add($video['playAddrH264'] ?? null, 'TikTok H.264');
+        $add($video['playAddr'] ?? null, 'TikTok Standard');
+        $add($video['downloadAddr'] ?? null, 'TikTok download');
+
+        $results = [];
+        $beganAt = microtime(true);
+        $idx = 0;
+        foreach (array_slice($candidateUrls, 0, 3, true) as $url => $label) {
+            if (microtime(true) - $beganAt > 18) {
+                break;
+            }
+            $result = $this->probeMediaUrl($url, $label, $idx < 2);
+            $idx++;
+            if ($result !== []) {
+                $results[] = $result;
+            }
+        }
+        if ($results === []) {
+            return [];
+        }
+        usort($results, static function ($a, $b) {
+            $pixelsA = (int) ($a['width'] ?? 0) * (int) ($a['height'] ?? 0);
+            $pixelsB = (int) ($b['width'] ?? 0) * (int) ($b['height'] ?? 0);
+            return ($pixelsB <=> $pixelsA) ?: ((int) isset($b['fps']) <=> (int) isset($a['fps']));
+        });
+
+        return $results[0];
+    }
+
+    private function probeMediaUrl(string $url, string $label, bool $allowDownload): array
+    {
+        if ($this->safeMediaUrl($url) === null) {
+            return [];
+        }
+
+        $data = $this->runFfprobe($url);
+        if ($data === [] && $allowDownload) {
+            // MP4 files whose moov atom is not at the start may need local
+            // probing. Strict 12 MiB limit, no redirects, disposable temp file.
+            $file = tempnam(sys_get_temp_dir(), 'ms_probe_');
+            if ($file === false) {
+                return [];
+            }
+            try {
+                $response = Http::withOptions(['stream' => true, 'allow_redirects' => false])
+                    ->withHeaders([
+                        'Accept' => 'video/mp4,*/*',
+                        'Referer' => 'https://www.tiktok.com/',
+                        'User-Agent' => 'Mozilla/5.0',
+                    ])->connectTimeout(3)->timeout(7)->get($url);
+                if ($response->status() !== 200) {
+                    return [];
+                }
+                $length = (int) ($response->header('Content-Length') ?? 0);
+                if ($length > 12 * 1048576) {
+                    return [];
+                }
+                $input = $response->toPsrResponse()->getBody();
+                $out = fopen($file, 'wb');
+                if ($out === false) {
+                    return [];
+                }
+                $bytes = 0;
+                try {
+                    while (!$input->eof() && $bytes <= 12 * 1048576) {
+                        $chunk = $input->read(65536);
+                        if ($chunk === '') {
+                            break;
+                        }
+                        $bytes += strlen($chunk);
+                        if ($bytes > 12 * 1048576) {
+                            break;
+                        }
+                        fwrite($out, $chunk);
+                    }
+                } finally {
+                    fclose($out);
+                }
+                if ($bytes > 0 && $bytes <= 12 * 1048576 && $input->eof()) {
+                    $data = $this->runFfprobe($file);
+                    if ($data !== []) {
+                        $data['file_size'] = $bytes;
+                    }
+                }
+            } catch (Throwable $e) {
+                // No invented technical values on stream failure.
+            } finally {
+                @unlink($file);
+            }
+        }
+
+        if ($data === []) {
+            return [];
+        }
+        $data['url'] = $url;
+        $data['source'] = 'ffprobe · '.$label;
+        return $data;
+    }
+
+    private function runFfprobe(string $target): array
+    {
+        try {
+            $args = ['ffprobe', '-v', 'error', '-rw_timeout', '4500000'];
+            if (str_starts_with($target, 'https://')) {
+                array_push($args, '-user_agent', 'Mozilla/5.0',
+                    '-headers', 'Referer: https://www.tiktok.com/'."\r\n");
+            }
+            array_push($args,
+                '-probesize', '1000000', '-analyzeduration', '1200000',
+                '-select_streams', 'v:0',
+                '-show_entries',
+                'stream=avg_frame_rate,r_frame_rate,width,height,codec_name,bit_rate:format=duration,size,bit_rate',
+                '-of', 'json', $target);
+            $proc = new Process($args);
+            $proc->setTimeout(5);
+            $proc->run();
+            if (!$proc->isSuccessful()) {
+                return [];
+            }
+            $meta = json_decode($proc->getOutput(), true);
+            $stream = $meta['streams'][0] ?? null;
+            if (!is_array($stream) || !is_array($meta)) {
+                return [];
+            }
+            $fps = $this->parseFfprobeRate($stream['avg_frame_rate'] ?? null)
+                ?? $this->parseFfprobeRate($stream['r_frame_rate'] ?? null);
+            $width = $this->number($stream['width'] ?? null);
+            $height = $this->number($stream['height'] ?? null);
+            if (!$width || !$height) {
+                return [];
+            }
+            return [
+                'width' => $width,
+                'height' => $height,
+                'fps' => $fps,
+                'codec' => $stream['codec_name'] ?? null,
+                'bitrate' => $this->number($stream['bit_rate'] ?? $meta['format']['bit_rate'] ?? null),
+                'file_size' => $this->number($meta['format']['size'] ?? null),
+            ];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    private function parseFfprobeRate(mixed $rate): ?float
+    {
+        if (is_string($rate) && preg_match('~^(\d+)/(\d+)$~', $rate, $m)) {
+            if ((int) $m[2] === 0) {
+                return null;
+            }
+            return $this->frameRate((int) $m[1] / (int) $m[2]);
+        }
+        return $this->frameRate($rate);
     }
 
     private function metadataProbe(string $url, string $videoId, ?string $publicMediaUrl = null, ?string $alternateMediaUrl = null): array
