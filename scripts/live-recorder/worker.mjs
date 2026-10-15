@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, ListObjectsV2Command, ListMultipartUploadsCommand, ListPartsCommand, CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -14,7 +14,7 @@ import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { mergePlaybackStatus } from './playback-status.mjs';
-import { runHlsMonitor, reportHlsStatus } from './hls-monitor.mjs';
+import { runHlsMonitor } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
@@ -30,114 +30,6 @@ const s3 = new S3Client({
   forcePathStyle: env.LIVE_S3_URL_STYLE !== 'virtual-host', maxAttempts: 5,
   credentials: { accessKeyId: env.LIVE_S3_ACCESS_KEY_ID, secretAccessKey: env.LIVE_S3_SECRET_ACCESS_KEY },
 });
-// One-shot read-only inspection of the private archive. Never log credentials,
-// signed stream addresses, or upload IDs. Only examine the requested account.
-async function inspectMissingRecording() {
-  const prefix = 'recordings/cutefacebigass/';
-  console.log('RECOVERY_AUDIT_START');
-  // Restore the single verified interrupted archive without downloading it.
-  // This is idempotent: it never changes an existing completed object.
-  try {
-    const expectedFile = '2026-10-15T18-24-55-172Z_cutefacebigass.mp4';
-    const key = prefix + expectedFile;
-    let exists = false;
-    try {
-      await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
-      exists = true;
-    } catch (error) {
-      if (error?.$metadata?.httpStatusCode !== 404 && error?.name !== 'NotFound' && error?.name !== 'NoSuchKey') throw error;
-    }
-    if (exists) {
-      console.log('RECOVERY_RESTORE_ALREADY_COMPLETE', expectedFile);
-    } else {
-      const pending = await s3.send(new ListMultipartUploadsCommand({ Bucket: bucket, Prefix: key, MaxUploads: 100 }));
-      const matches = (pending.Uploads || []).filter(up =>
-        up.Key === key && up.Initiated?.toISOString().startsWith('2026-10-15'));
-      if (matches.length !== 1) throw new Error('Expected one matching incomplete upload, found ' + matches.length);
-      const upload = matches[0];
-      const response = await s3.send(new ListPartsCommand({
-        Bucket: bucket, Key: key, UploadId: upload.UploadId, MaxParts: 1000,
-      }));
-      const parts = response.Parts || [];
-      const bytes = parts.reduce((total, part) => total + (part.Size || 0), 0);
-      if (response.IsTruncated || parts.length !== 342 || bytes !== 2868903936 ||
-          parts.some((part, i) => part.PartNumber !== i + 1 || !part.ETag ||
-            (i < parts.length - 1 && part.Size < 5 * 1024 * 1024))) {
-        throw new Error('Multipart validation failed: ' + parts.length + ' parts and ' + bytes + ' bytes');
-      }
-      console.log('RECOVERY_RESTORE_VERIFIED_PARTS', parts.length, bytes);
-      await s3.send(new CompleteMultipartUploadCommand({
-        Bucket: bucket, Key: key, UploadId: upload.UploadId,
-        MultipartUpload: { Parts: parts.map(part => ({ PartNumber: part.PartNumber, ETag: part.ETag })) },
-      }));
-      const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
-      if (Number(head.ContentLength) !== bytes) throw new Error('Completed archive has unexpected size');
-      console.log('RECOVERY_SUCCESS_MP4_SAVED', expectedFile, head.ContentLength);
-    }
-  } catch (error) {
-    console.error('RECOVERY_RESTORE_FAILED', error?.name || 'Error', String(error?.message || '').slice(0, 140));
-  }
-  try {
-    let next, scanned = 0, recent = 0;
-    do {
-      const result = await s3.send(new ListObjectsV2Command({
-        Bucket: bucket, Prefix: prefix, MaxKeys: 500, ContinuationToken: next,
-      }));
-      for (const item of result.Contents || []) {
-        scanned++;
-        const modified = item.LastModified?.toISOString() || '';
-        if (modified.startsWith('2026-10-15') || modified.startsWith('2026-10-16')) {
-          recent++;
-          console.log('RECOVERY_ARCHIVE_OBJECT', JSON.stringify({
-            file: item.Key?.slice(prefix.length), modified, bytes: item.Size,
-          }));
-        }
-      }
-      next = result.NextContinuationToken;
-    } while (next && scanned < 3000);
-    console.log('RECOVERY_OBJECTS_SUMMARY', JSON.stringify({ scanned, recent }));
-  } catch (error) {
-    console.error('RECOVERY_OBJECTS_ERROR', error?.name || 'UnknownError');
-  }
-  try {
-    let keyMarker, uploadIdMarker, scanned = 0, more;
-    do {
-      const result = await s3.send(new ListMultipartUploadsCommand({
-        Bucket: bucket, Prefix: prefix, MaxUploads: 100,
-        KeyMarker: keyMarker, UploadIdMarker: uploadIdMarker,
-      }));
-      for (const pending of result.Uploads || []) {
-        scanned++;
-        const file = pending.Key?.slice(prefix.length);
-        const initiated = pending.Initiated?.toISOString() || '';
-        const item = { file, initiated };
-        try {
-          const parts = await s3.send(new ListPartsCommand({
-            Bucket: bucket, Key: pending.Key, UploadId: pending.UploadId, MaxParts: 1000,
-          }));
-          item.parts = parts.Parts?.length || 0;
-          item.bytes = (parts.Parts || []).reduce((sum, part) => sum + (part.Size || 0), 0);
-          item.moreParts = Boolean(parts.IsTruncated);
-        } catch (error) {
-          item.partsError = error?.name || 'UnknownError';
-        }
-        console.log('RECOVERY_PENDING_MULTIPART', JSON.stringify(item));
-      }
-      keyMarker = result.NextKeyMarker;
-      uploadIdMarker = result.NextUploadIdMarker;
-      more = Boolean(result.IsTruncated);
-    } while (more && scanned < 500);
-    console.log('RECOVERY_MULTIPART_SUMMARY', JSON.stringify({ scanned }));
-  } catch (error) {
-    console.error('RECOVERY_MULTIPART_ERROR', error?.name || 'UnknownError');
-  }
-  console.log('RECOVERY_AUDIT_DONE');
-}
-
-if (account === 'emyii' && env.LIVE_RECOVERY_INSPECT === '1') {
-  void inspectMissingRecording().catch(() => console.error('RECOVERY_AUDIT_FATAL'));
-}
-
 const profile = resolve(env.LIVE_PROFILE_ROOT || '/tmp/live-chrome-profiles', account);
 const display = env.DISPLAY;
 const audio = env.PULSE_SOURCE;
@@ -152,23 +44,15 @@ await mkdir(profile, { recursive: true, mode: 0o700 });
 // Shared abort signal for the remaining extra live-room monitors.
 const extraAbort = new AbortController();
 
-// The administrator can pause only this account without disabling other
-// monitors. Change LIVE_PAUSE_CUTEFACEBIGASS back to 0 to resume it.
-// Railway gives the previous worker time to finalize its in-flight MP4 on SIGTERM.
+// The owner of cutefacebigass requested unattended recording of complete
+// public livestreams. Run an independent HLS-only monitor on the existing
+// emyii Railway service; keep all other account recorders running.
 const cutefacebigassMonitor = account === 'emyii'
-  ? (env.LIVE_PAUSE_CUTEFACEBIGASS === '1'
-      ? (async () => {
-          while (!extraAbort.signal.aborted) {
-            await reportHlsStatus({
-              s3, bucket, account: 'cutefacebigass', state: 'offline',
-              message: 'Automatische opname tijdelijk gepauzeerd op verzoek; bestaande MP4-bestanden bewaard',
-            });
-            await pause(60_000);
-          }
-        })().catch(() => console.error('cutefacebigass paused status update failed'))
-      : runHlsMonitor({
-          s3, bucket, account: 'cutefacebigass', signal: extraAbort.signal,
-        }).catch(() => console.error('cutefacebigass continuous monitor unexpectedly stopped')))
+  ? runHlsMonitor({
+      s3, bucket, account: 'cutefacebigass', signal: extraAbort.signal,
+    }).catch(() => {
+      console.error('cutefacebigass continuous monitor unexpectedly stopped');
+    })
   : null;
 
 // ricasashaa: independently record complete public livestreams on the existing
