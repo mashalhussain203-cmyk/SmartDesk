@@ -211,7 +211,7 @@
                         </div>
                         <div class="ms-spec">
                             <small>FPS</small>
-                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], 0, ',', '.').' fps' : 'Niet uit te lezen' }}</strong>
+                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], 2, ',', '.').' fps' : 'FPS niet beschikbaar' }}</strong>
                             <span class="ms-subtext">{{ $result['fps_source'] ?? 'TikTok heeft de framerate niet vrijgegeven en de openbare videostream kon niet worden geanalyseerd.' }}</span>
                         </div>
                         <div class="ms-spec"><small>Engine / encodeerformaat</small><strong>{{ $result['engine'] ?? 'Niet beschikbaar' }}</strong></div>
@@ -236,6 +236,16 @@
                         <div class="ms-spec">
                             <small>Status</small>
                             <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility'] }}</strong>
+                        </div>
+                        <div class="ms-spec">
+                            <small>Upload date</small>
+                            <strong>{{ $result['published_at'] ?? 'Niet beschikbaar' }}</strong>
+                            <span class="ms-subtext">Tijdzone Nederland {{ $result['published_estimated'] ? '· datum afgeleid uit video-ID' : '' }}</span>
+                        </div>
+                        <div class="ms-spec">
+                            <small>Video ID</small>
+                            <strong>{{ $result['video_id'] }}</strong>
+                            <span class="ms-subtext">TikTok openbaar video-ID · gecontroleerd {{ $result['checked_at'] }}</span>
                         </div>
                     </div>
                     <h3 class="ms-subhead">{{ __('Public video statistics') }}</h3>

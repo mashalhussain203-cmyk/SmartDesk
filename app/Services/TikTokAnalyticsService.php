@@ -17,7 +17,7 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v5:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
+        return Cache::remember('mashal:video-analyzer:v6:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
             // Use the public page first. Third-party metadata is always labeled
             // and used only when the official public page lacks fields.
             $state = $this->publicPage($videoUrl);
@@ -63,7 +63,7 @@ class TikTokAnalyticsService
             $bitrateInfo = is_array($bitrateInfo) ? $bitrateInfo : [];
             $width = $this->number($technical['width'] ?? $mirror['width'] ?? null);
             $height = $this->number($technical['height'] ?? $mirror['height'] ?? null);
-            $fps = $this->number($technical['fps'] ?? $technical['frameRate'] ?? $mirror['fps'] ?? null);
+            $fps = $this->frameRate($technical['fps'] ?? $technical['frameRate'] ?? $mirror['fps'] ?? null);
             $bitrate = $this->number($bitrateInfo['Bitrate'] ?? $bitrateInfo['bitrate'] ?? $mirror['bitrate'] ?? null);
             $size = $this->number($technical['size'] ?? $mirror['file_size'] ?? null);
             $codec = $this->normalizeCodec($technical['codecType'] ?? $technical['codec'] ?? $mirror['codec'] ?? null);
@@ -71,16 +71,21 @@ class TikTokAnalyticsService
             // FPS is often absent from TikTok's JSON. When a public CDN
             // video is available, ffprobe can read the actual video-stream
             // header without downloading or transcoding the full MP4.
-            $publicMedia = $this->safeMediaUrl($mirror['hdplay'] ?? null)
+            $publicMedia = $this->publicVideoAddress($technical['playAddr'] ?? null)
+                ?? $this->publicVideoAddress($technical['playAddrH264'] ?? null)
+                ?? $this->safeMediaUrl($mirror['hdplay'] ?? null)
+                ?? $this->safeMediaUrl($mirror['play'] ?? null);
+            $alternateMedia = $this->publicVideoAddress($technical['downloadAddr'] ?? null)
+                ?? $this->safeMediaUrl($mirror['hdplay'] ?? null)
                 ?? $this->safeMediaUrl($mirror['play'] ?? null);
             $fpsSource = $fps !== null ? 'TikTok openbare videometadata' : null;
             $probe = [];
             if ($width === null || $height === null || $fps === null || $codec === null || $size === null) {
-                $probe = $this->metadataProbe($videoUrl, $videoId, $publicMedia);
+                $probe = $this->metadataProbe($videoUrl, $videoId, $publicMedia, $alternateMedia);
                 $width ??= $this->number($probe['width'] ?? null);
                 $height ??= $this->number($probe['height'] ?? null);
                 if ($fps === null && isset($probe['fps'])) {
-                    $fps = $this->number($probe['fps']);
+                    $fps = $this->frameRate($probe['fps']);
                     if ($fps !== null) {
                         $fpsSource = $probe['source'] ?? 'Video-streammetadata';
                     }
@@ -159,6 +164,7 @@ class TikTokAnalyticsService
                 'quality' => $quality !== null ? $quality.'P' : null,
                 'fps' => $fps,
                 'fps_source' => $fpsSource,
+                'fps_status' => $fps !== null ? 'gemeten' : 'niet uit openbare mediabron te bepalen',
                 'duration' => $duration,
                 'bitrate' => $bitrate,
                 'codec' => $codec,
@@ -173,10 +179,10 @@ class TikTokAnalyticsService
                 'region_name' => $regionName,
                 'region_flag' => $regionFlag,
                 'region_source' => $regionSource,
-                'shadowban' => $videoAvailable ? 'Geen publieke blokkade zichtbaar' : 'Niet gecontroleerd',
+                'shadowban' => $videoAvailable ? 'Geen publieke blokkade aangetoond' : 'Niet te controleren',
                 'shadowban_detail' => $videoAvailable
-                    ? 'Deze video is openbaar bereikbaar. Dit bevestigt NIET of de video geschikt is voor de Voor jou-feed; controleer TikTok Studio.'
-                    : 'Openbare bereikbaarheid kon niet bevestigd worden. De Voor jou-status is alleen bij TikTok zelf in te zien.',
+                    ? 'Openbaar vindbaar; de Voor jou-feedgeschiktheid is alleen zichtbaar in TikTok Studio.'
+                    : 'Geen bevestigde publieke status; kijk in TikTok Studio voor aanbevelingsbeperkingen.',
                 'public_visibility' => $videoAvailable ? 'Public' : 'Onbekend',
                 'download_url' => $download,
                 'download_quality' => $quality,
@@ -482,7 +488,7 @@ class TikTokAnalyticsService
         }
     }
 
-    private function metadataProbe(string $url, string $videoId, ?string $publicMediaUrl = null): array
+    private function metadataProbe(string $url, string $videoId, ?string $publicMediaUrl = null, ?string $alternateMediaUrl = null): array
     {
         $script = base_path('scripts/tiktok_video_metadata.py');
         if (!is_file($script)) {
@@ -497,14 +503,26 @@ class TikTokAnalyticsService
             if ($publicMediaUrl !== null) {
                 $arguments[] = $publicMediaUrl;
             }
+            if ($alternateMediaUrl !== null && $alternateMediaUrl !== $publicMediaUrl) {
+                $arguments[] = $alternateMediaUrl;
+            }
             $process = new Process($arguments);
-            $process->setTimeout(27);
+            $process->setTimeout(42);
             $process->run();
             $payload = $process->isSuccessful() ? json_decode($process->getOutput(), true) : null;
             return is_array($payload) && ($payload['success'] ?? false) === true ? $payload : [];
         } catch (Throwable $e) {
             return [];
         }
+    }
+
+    private function frameRate(mixed $value): ?float
+    {
+        if (!is_numeric($value)) {
+            return null;
+        }
+        $fps = round((float) $value, 2);
+        return $fps >= 1 && $fps <= 240 ? $fps : null;
     }
 
     private function normalizeCodec(mixed $codec): ?string
@@ -528,16 +546,38 @@ class TikTokAnalyticsService
         return strlen($codec) <= 25 ? $codec : null;
     }
 
+    private function publicVideoAddress(mixed $value): ?string
+    {
+        if (is_string($value)) {
+            return $this->safeMediaUrl($value);
+        }
+        if (!is_array($value)) {
+            return null;
+        }
+        foreach ([
+            $value['urlList'][0] ?? null,
+            $value['UrlList'][0] ?? null,
+            $value['url_list'][0] ?? null,
+            $value[0] ?? null,
+        ] as $candidate) {
+            $safe = $this->safeMediaUrl($candidate);
+            if ($safe !== null) {
+                return $safe;
+            }
+        }
+        return null;
+    }
+
     private function safeMediaUrl(mixed $url): ?string
     {
-        if (!is_string($url) || strlen($url) > 3000 || !filter_var($url, FILTER_VALIDATE_URL)) {
+        if (!is_string($url) || strlen($url) > 8000 || !filter_var($url, FILTER_VALIDATE_URL)) {
             return null;
         }
         if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') {
             return null;
         }
         $host = strtolower((string) parse_url($url, PHP_URL_HOST));
-        $allowed = ['tiktokcdn.com', 'tiktokv.com', 'tikwm.com', 'akamaized.net', 'byteoversea.com', 'ibytedtos.com'];
+        $allowed = ['tiktokcdn.com', 'tiktokcdn-us.com', 'tiktokcdn-eu.com', 'tiktokcdn-in.com', 'tiktokv.com', 'tiktokv.us', 'tikwm.com', 'akamaized.net', 'byteoversea.com', 'ibytedtos.com', 'tiktok.com', 'muscdn.com'];
         foreach ($allowed as $suffix) {
             if ($host === $suffix || str_ends_with($host, '.'.$suffix)) {
                 return $url;

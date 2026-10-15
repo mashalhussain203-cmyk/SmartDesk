@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Extract public video metadata without downloading the full video.
+"""Best-effort public TikTok video metadata.
 
-Try ffprobe on a validated CDN stream before yt-dlp. ffprobe only reads
-container/stream headers; it does not transcode or download a complete MP4.
-All results are from real metadata, never guessed from resolution/bitrate.
+Uses TikTok's own public extractor and ffprobe against validated video CDN URLs.
+No credentials, no fabricated values, no full-video download.
 """
 import json
 import math
@@ -15,196 +14,253 @@ from urllib.parse import urlsplit
 
 
 CDN_SUFFIXES = (
-    "tiktokcdn.com", "tiktokv.com", "tikwm.com", "akamaized.net",
-    "byteoversea.com", "ibytedtos.com",
+    "tiktokcdn.com", "tiktokcdn-us.com", "tiktokcdn-eu.com",
+    "tiktokcdn-in.com", "tiktokv.com", "tiktokv.us", "tikwm.com",
+    "akamaized.net", "byteoversea.com", "ibytedtos.com",
+    "tiktok.com", "muscdn.com",
 )
 
 
-def emit(result):
-    print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
+def emit(value):
+    print(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
 
 
 def safe_media_url(value):
-    if not isinstance(value, str) or len(value) > 3000:
+    if not isinstance(value, str) or len(value) > 4000:
         return False
     try:
-        parts = urlsplit(value)
-        if parts.scheme != "https" or not parts.hostname or parts.username or parts.password:
+        parsed = urlsplit(value)
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
             return False
-        host = parts.hostname.lower().rstrip(".")
-        return any(host == suffix or host.endswith("." + suffix) for suffix in CDN_SUFFIXES)
-    except (ValueError, TypeError):
+        hostname = parsed.hostname.lower().rstrip(".")
+        return any(hostname == suffix or hostname.endswith("." + suffix) for suffix in CDN_SUFFIXES)
+    except ValueError:
         return False
 
 
 def number(value):
-    if isinstance(value, str) and value.strip():
+    if isinstance(value, str):
         try:
             value = float(value)
         except ValueError:
             return None
-    if isinstance(value, (float, int)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0:
-        return value
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if math.isfinite(value) and value >= 0:
+            return value
     return None
 
 
-def frame_rate(value):
-    if isinstance(value, (float, int)):
-        rate = float(value)
-    elif isinstance(value, str):
+def rate(value):
+    if isinstance(value, str) and "/" in value:
         try:
-            if "/" in value:
-                numerator, denominator = value.split("/", 1)
-                den = float(denominator)
-                rate = float(numerator) / den if den else 0.0
-            else:
-                rate = float(value)
+            a, b = value.split("/", 1)
+            value = float(a) / float(b)
         except (ValueError, ZeroDivisionError):
             return None
-    else:
-        return None
-    if not math.isfinite(rate) or rate < 1 or rate > 240:
-        return None
-    return int(round(rate))
+    value = number(value)
+    if value is not None and 1 <= value <= 240:
+        return round(value, 3)
+    return None
 
 
-def ffprobe_media(url):
-    if not safe_media_url(url) or not shutil.which("ffprobe"):
+def stream_probe(media_url):
+    """Ask ffprobe for MP4/HLS headers, without saving the entire media."""
+    if not shutil.which("ffprobe") or not safe_media_url(media_url):
         return {}
     args = [
-        "ffprobe", "-v", "error",
-        "-rw_timeout", "5000000",
-        "-probesize", "2000000", "-analyzeduration", "1000000",
+        "ffprobe", "-v", "error", "-rw_timeout", "4000000",
+        "-user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36",
+        "-headers", "Referer: https://www.tiktok.com/\r\n",
+        "-probesize", "800000",
+        "-analyzeduration", "700000",
         "-select_streams", "v:0",
         "-show_entries", "stream=avg_frame_rate,r_frame_rate,width,height,codec_name,bit_rate:format=duration,size,bit_rate",
-        "-of", "json", url,
+        "-of", "json", media_url,
     ]
     try:
-        process = subprocess.run(
-            args, capture_output=True, text=True, timeout=9, check=False
-        )
-        if process.returncode != 0 or len(process.stdout) > 50000:
+        proc = subprocess.run(args, capture_output=True, text=True, timeout=6, check=False)
+        if proc.returncode != 0 or len(proc.stdout) > 60000:
             return {}
-        payload = json.loads(process.stdout)
+        data = json.loads(proc.stdout)
     except (OSError, ValueError, subprocess.TimeoutExpired):
         return {}
-
-    streams = payload.get("streams", [])
-    if not isinstance(streams, list) or not streams or not isinstance(streams[0], dict):
+    streams = data.get("streams", [])
+    if not streams or not isinstance(streams[0], dict):
         return {}
     stream = streams[0]
-    fmt = payload.get("format", {}) if isinstance(payload.get("format"), dict) else {}
-    fps = frame_rate(stream.get("avg_frame_rate")) or frame_rate(stream.get("r_frame_rate"))
+    fmt = data.get("format") if isinstance(data.get("format"), dict) else {}
     return {
+        "fps": rate(stream.get("avg_frame_rate")) or rate(stream.get("r_frame_rate")),
         "width": number(stream.get("width")),
         "height": number(stream.get("height")),
-        "fps": fps,
+        "codec": stream.get("codec_name"),
         "bitrate": number(stream.get("bit_rate")) or number(fmt.get("bit_rate")),
         "file_size": number(fmt.get("size")),
-        "codec": stream.get("codec_name"),
         "duration": number(fmt.get("duration")),
+        "source": "ffprobe (MP4-stream)",
     }
 
 
-def youtube_dl_info(url, wanted_id):
+def partial_download_probe(media_url):
+    """Fallback: read at most the first 5 MiB of a CDN file with byte ranges."""
+    if not safe_media_url(media_url) or not shutil.which("ffprobe"):
+        return {}
+    try:
+        from curl_cffi import requests
+    except ImportError:
+        return {}
+    import tempfile
+    import os
+    name = None
+    try:
+        response = requests.get(
+            media_url,
+            impersonate="chrome",
+            headers={
+                "Range": "bytes=0-5242879",
+                "Referer": "https://www.tiktok.com/",
+                "Accept": "*/*",
+            },
+            timeout=7,
+            allow_redirects=True,
+            stream=True,
+        )
+        if not safe_media_url(response.url) or response.status_code != 206:
+            return {}
+        total = 0
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp:
+            name = temp.name
+            for chunk in response.iter_content(chunk_size=65536):
+                total += len(chunk)
+                if total > 5242880:
+                    return {}
+                temp.write(chunk)
+        args = [
+            "ffprobe", "-v", "error", "-probesize", "1000000",
+            "-analyzeduration", "700000", "-select_streams", "v:0",
+            "-show_entries", "stream=avg_frame_rate,r_frame_rate,width,height,codec_name,bit_rate",
+            "-of", "json", name,
+        ]
+        completed = subprocess.run(args, capture_output=True, text=True, timeout=5)
+        if completed.returncode != 0:
+            return {}
+        result = json.loads(completed.stdout)
+        streams = result.get("streams", [])
+        if not streams or not isinstance(streams[0], dict):
+            return {}
+        stream = streams[0]
+        return {
+            "fps": rate(stream.get("avg_frame_rate")) or rate(stream.get("r_frame_rate")),
+            "width": number(stream.get("width")),
+            "height": number(stream.get("height")),
+            "codec": stream.get("codec_name"),
+            "bitrate": number(stream.get("bit_rate")),
+            "source": "ffprobe (eerste 5 MB van MP4)",
+        }
+    except Exception:
+        return {}
+    finally:
+        if name:
+            try:
+                os.unlink(name)
+            except OSError:
+                pass
+
+
+def ytdlp_info(public_url, video_id):
     try:
         import yt_dlp
     except ImportError:
-        return None
-    opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        "noplaylist": True,
-        "cachedir": False,
-        "socket_timeout": 7,
-        "retries": 1,
-        "extractor_retries": 1,
-    }
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-    except Exception:
-        return None
-    if not isinstance(info, dict) or str(info.get("id") or "") != wanted_id:
-        return None
-    return info
-
-
-def extract_ytdlp(info):
-    if not info:
         return {}
-    formats = [
-        f for f in info.get("formats") or []
-        if isinstance(f, dict)
-        and f.get("vcodec") not in ("none", None)
-        and number(f.get("height")) is not None
-    ]
-    formats.sort(
-        key=lambda f: (
-            number(f.get("height")) or 0,
-            number(f.get("width")) or 0,
-            number(f.get("fps")) or 0,
-            number(f.get("tbr")) or 0,
-        ), reverse=True,
-    )
-    selected = formats[0] if formats else {}
-    tbr = number(selected.get("tbr")) or number(info.get("tbr"))
-    direct_url = selected.get("url")
-    return {
-        "width": number(selected.get("width")) or number(info.get("width")),
-        "height": number(selected.get("height")) or number(info.get("height")),
-        "fps": frame_rate(selected.get("fps")) or frame_rate(info.get("fps")),
-        "bitrate": round(tbr * 1000) if tbr else None,
-        "file_size": number(selected.get("filesize"))
-                    or number(selected.get("filesize_approx"))
-                    or number(info.get("filesize")),
-        "codec": selected.get("vcodec") or info.get("vcodec"),
-        "duration": number(info.get("duration")),
-        "published_at": number(info.get("timestamp")) or number(info.get("release_timestamp")),
-        "description": info.get("description") if isinstance(info.get("description"), str) else None,
-        "author": info.get("uploader_id") or info.get("channel_id"),
-        "tags": info.get("tags") if isinstance(info.get("tags"), list) else [],
-        "direct_url": direct_url if safe_media_url(direct_url) else None,
-    }
+    try:
+        opts = {
+            "quiet": True, "no_warnings": True,
+            "skip_download": True, "noplaylist": True,
+            "cachedir": False, "socket_timeout": 6,
+            "retries": 0, "extractor_retries": 0,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            result = ydl.extract_info(public_url, download=False)
+        return result if isinstance(result, dict) and str(result.get("id")) == video_id else {}
+    except Exception:
+        return {}
 
 
 def main():
-    if len(sys.argv) not in (3, 4):
-        emit({"success": False, "message": "Invalid arguments"})
+    if len(sys.argv) < 3 or len(sys.argv) > 5:
+        emit({"success": False, "reason": "arguments"})
         return
-    url, wanted_id = sys.argv[1:3]
+    url, video_id = sys.argv[1:3]
     parsed = urlsplit(url)
     if parsed.scheme != "https" or parsed.hostname not in {
         "www.tiktok.com", "tiktok.com", "m.tiktok.com"
-    } or not re.fullmatch(r"\d{10,30}", wanted_id):
-        emit({"success": False, "message": "Unsupported TikTok URL"})
+    } or not re.fullmatch(r"\d{10,30}", video_id):
+        emit({"success": False, "reason": "invalid_video_url"})
         return
 
-    media_url = sys.argv[3] if len(sys.argv) == 4 else None
-    direct = ffprobe_media(media_url)
-    # Prefer probing the actual video stream: yt-dlp's generic format often
-    # does not carry FPS even though the downloaded container does.
-    if direct.get("fps") is not None:
-        emit({"success": True, "source": "ffprobe public video headers", **direct})
-        return
+    media = []
+    for item in sys.argv[3:]:
+        if safe_media_url(item) and item not in media:
+            media.append(item)
 
-    info = youtube_dl_info(url, wanted_id)
-    extracted = extract_ytdlp(info)
-    # If TikWM did not supply a compatible CDN URL, try the validated direct
-    # stream returned by TikTok's public yt-dlp extractor.
-    secondary = ffprobe_media(extracted.get("direct_url")) if extracted.get("direct_url") != media_url else {}
-    result = {
-        key: direct.get(key) or secondary.get(key) or extracted.get(key)
-        for key in (
-            "width", "height", "fps", "bitrate", "file_size", "codec", "duration",
-            "published_at", "description", "author", "tags", "direct_url",
+    result = {}
+    info = {}
+    # Prefer the already-known public CDN stream to avoid slow extraction.
+    for candidate in media[:2]:
+        result = stream_probe(candidate)
+        if result.get("fps"):
+            break
+
+    if not result.get("fps"):
+        info = ytdlp_info(url, video_id)
+        formats = info.get("formats") or []
+        usable = [
+            x for x in formats
+            if isinstance(x, dict) and x.get("vcodec") not in (None, "none")
+        ]
+        usable.sort(
+            key=lambda f: (number(f.get("height")) or 0, number(f.get("tbr")) or 0),
+            reverse=True
         )
-    }
-    if result.get("fps") is None and not extracted and not direct:
-        emit({"success": False, "message": "No public video metadata available"})
-        return
-    emit({"success": True, "source": "ffprobe + yt-dlp public video metadata", **result})
+        if usable:
+            selected = usable[0]
+            metadata = {
+                "fps": rate(selected.get("fps")) or rate(info.get("fps")),
+                "width": number(selected.get("width")) or number(info.get("width")),
+                "height": number(selected.get("height")) or number(info.get("height")),
+                "codec": selected.get("vcodec") or info.get("vcodec"),
+                "bitrate": round((number(selected.get("tbr")) or 0) * 1000) or None,
+                "file_size": number(selected.get("filesize")) or number(selected.get("filesize_approx")),
+                "duration": number(info.get("duration")),
+                "source": "yt-dlp openbare TikTok-metadata",
+            }
+            result = {key: result.get(key) or val for key, val in metadata.items()}
+            stream_url = selected.get("url")
+            if not result.get("fps") and safe_media_url(stream_url):
+                probe = stream_probe(stream_url)
+                if not probe.get("fps"):
+                    probe = partial_download_probe(stream_url)
+                if probe.get("fps"):
+                    result = {key: result.get(key) or val for key, val in probe.items()}
+                    result["source"] = probe.get("source")
+        elif info:
+            result["fps"] = rate(info.get("fps"))
+            result["source"] = "yt-dlp openbare TikTok-metadata"
+
+    # Bounded partial fetch of the best media source for opaque CDN responses.
+    if not result.get("fps") and media:
+        probe = partial_download_probe(media[0])
+        if probe.get("fps"):
+            result = {key: result.get(key) or val for key, val in probe.items()}
+            result["source"] = probe.get("source")
+
+    # Return partial fields (fps may still be unavailable).
+    result["success"] = bool(result) or bool(info)
+    result["fps_status"] = (
+        "measured" if result.get("fps") is not None
+        else "unavailable_in_public_media"
+    )
+    emit(result)
 
 
 if __name__ == "__main__":
