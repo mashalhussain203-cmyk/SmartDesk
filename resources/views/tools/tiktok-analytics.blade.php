@@ -15,7 +15,7 @@
     .ms-analysis-shell { width: min(100%, 1060px); margin: 0 auto; }
     .ms-back { display: inline-flex; gap: 9px; align-items: center; margin-bottom: 32px; color: #979fb2; text-decoration: none; font-size: 12px; }
     .ms-back:hover { color: #fff; }
-    .ms-analysis-kicker { color: #a69cff; font-size: 11px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+    .ms-analysis-kicker { color: #97d32f; font-size: 11px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
     .ms-analysis h1 { margin: 12px 0 12px; color: #fff; font-size: clamp(38px, 6vw, 62px); line-height: 1.05; letter-spacing: -.055em; }
     .ms-analysis h1 span { color: #9097a4; }
     .ms-analysis-intro { max-width: 690px; color: #99a1b2; font-size: 14px; line-height: 1.75; margin-bottom: 27px; }
@@ -29,8 +29,8 @@
     .ms-form { display: flex; gap: 10px; align-items: stretch; }
     .ms-field { width: 100%; min-width: 0; border: 1px solid #383f52; background: #090c13; color: #fff; border-radius: 12px; padding: 15px 16px; font: inherit; font-size: 13px; outline: none; }
     .ms-field:focus { border-color: #9d8cff; box-shadow: 0 0 0 3px rgba(149,134,255,.12); }
-    .ms-action { white-space: nowrap; border: 0; cursor: pointer; border-radius: 12px; padding: 0 29px; min-height: 49px; background: #9285ff; color: #090b10; font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .04em; }
-    .ms-action:hover { background: #b0a8ff; }
+    .ms-action { white-space: nowrap; border: 0; cursor: pointer; border-radius: 12px; padding: 0 29px; min-height: 49px; background: #8bd211; color: #080b05; font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .04em; }
+    .ms-action:hover { background: #a8ed35; }
     .ms-hint { margin: 12px 0 0; font-size: 11px; line-height: 1.6; color: #878fa0; }
     .ms-error { background: rgba(250,89,101,.08); border: 1px solid rgba(255,114,127,.37); color: #ffb0b7; border-radius: 12px; padding: 15px 17px; font-size: 12px; margin: 18px 0 0; }
     .ms-results { margin-top: 24px; }
@@ -46,10 +46,42 @@
     .ms-metric small { color: #9ca4b7; display: block; font-size: 11px; }
     .ms-metric strong { color: #fff; font-size: clamp(20px, 2.8vw, 29px); display: block; padding-top: 8px; font-weight: 850; overflow-wrap: anywhere; }
     .ms-subhead { margin: 29px 0 15px; font-size: 17px; }
-    .ms-spec-grid { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .ms-spec-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
     .ms-spec { border: 1px solid #2c3040; border-radius: 13px; padding: 15px; background: rgba(255,255,255,.018); min-width: 0; }
     .ms-spec small { color: #8f98ad; display: block; font-size: 11px; }
     .ms-spec strong { color: #f0f0f8; display: block; margin-top: 8px; font-size: 14px; overflow-wrap: anywhere; }
+
+    .ms-profile-card {
+        display: flex; align-items: center; gap: 15px;
+        padding: 17px; border: 1px solid #292d3b; border-radius: 18px;
+        background: #0b0d13; margin: 22px 0 14px;
+    }
+    .ms-profile-card .ms-cover { width: 79px; height: 100px; flex-basis: 79px; }
+    .ms-profile-card h3 { font-size: 21px; color: #fff; margin: 0 0 5px; letter-spacing: -.03em; overflow-wrap: anywhere; }
+    .ms-profile-card .ms-handle { color: #a4a6b2; font-size: 12px; }
+    .ms-badge-public { display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; padding: 6px 11px; border: 1px solid #375018; background: #1c280c; color: #92db27; border-radius: 999px; font-size: 12px; font-weight: 850; }
+    .ms-date-line { display: flex; flex-wrap: wrap; gap: 16px; padding: 6px 3px 18px; color: #9ea4b4; font-size: 12px; }
+    .ms-caption-box { border: 1px solid #282b37; background: #0a0c11; border-radius: 17px; padding: 19px; margin: 0 0 21px; }
+    .ms-caption-box p { margin: 0; color: #dedee5; line-height: 1.75; font-size: 13px; overflow-wrap: anywhere; }
+    .ms-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .ms-tags span { display: inline-flex; align-items: center; color: #101710; background: #6ee7a0; font-size: 11px; font-weight: 820; padding: 7px 10px; border-radius: 100px; }
+    .ms-spec-grid .ms-spec { min-height: 98px; border-radius: 18px; padding: 21px; }
+    .ms-spec-grid .ms-spec small:first-child { text-transform: uppercase; letter-spacing: .16em; font-size: 10px; font-weight: 850; color: #95939e; }
+    .ms-spec-grid .ms-spec strong { font-size: clamp(15px, 2vw, 20px); margin-top: 16px; line-height: 1.45; }
+    .ms-spec-grid .ms-spec strong.ms-success { color: #95d42f; }
+    .ms-spec-grid .ms-spec .ms-flag { margin-right: 7px; white-space: nowrap; font-size: 23px; vertical-align: -2px; }
+    .ms-spec-grid .ms-spec .ms-subtext { margin-top: 8px; display: block; color: #81899b; line-height: 1.6; font-size: 10px; }
+    .ms-download { display: flex; align-items: center; justify-content: center; width: 100%; background: #89cc07; color: #080a06; border-radius: 18px; min-height: 62px; margin: 24px 0 0; padding: 14px 17px; font-weight: 900; font-size: clamp(13px,2vw,18px); text-decoration: none; text-align: center; }
+    .ms-download:hover { background: #a5ee30; color: #080a06; }
+    .ms-download-note { color: #8d94a3; font-size: 11px; text-align: center; line-height: 1.65; margin: 10px 0 0; }
+    @media(max-width:480px) {
+       .ms-spec-grid { gap: 10px; }
+       .ms-spec-grid .ms-spec { min-height: 108px; padding: 14px 13px; }
+       .ms-profile-card h3 { font-size: 18px; }
+       .ms-profile-card .ms-cover { width: 62px; height: 82px; flex-basis: 62px; }
+       .ms-spec-grid .ms-spec strong { font-size: 15px; overflow-wrap: anywhere; }
+    }
+
     .ms-note { border: 1px solid #343447; background: #151626; border-radius: 12px; padding: 15px 17px; margin-top: 22px; color: #b4b6d0; font-size: 12px; line-height: 1.7; }
     .ms-times-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; }
     .ms-times-top strong { color: #fff; font-size: 19px; display: block; }
@@ -62,7 +94,7 @@
     .ms-best small { color: #9b9fb0; }
     .ms-best p { font-size: 11px; color: #b9becb; margin: 9px 0; }
     .ms-progress { background: #252a39; border-radius: 100px; overflow: hidden; height: 5px; }
-    .ms-progress > span { display: block; height: 100%; background: #9c8aff; border-radius: 100px; }
+    .ms-progress > span { display: block; height: 100%; background: #92d820; border-radius: 100px; }
     .ms-heat-scroll { margin-top: 12px; width: 100%; overflow-x: auto; }
     .ms-heatmap { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 5px; table-layout: fixed; }
     .ms-heatmap th { font-weight: 700; font-size: 10px; color: #9fa7b9; padding: 8px 2px; }
@@ -136,17 +168,71 @@
 
             @if($result && $isVideo)
                 <div class="ms-results">
-                    <div class="ms-identity">
+                    <div class="ms-profile-card">
                         @if($result['thumbnail'])
-                            <img class="ms-cover" src="{{ $result['thumbnail'] }}" alt="TikTok thumbnail" loading="lazy">
+                            <img class="ms-cover" src="{{ $result['thumbnail'] }}" alt="TikTok-video omslag" loading="lazy">
                         @endif
-                        <div>
-                            <strong>{{ $result['author'] ? '@'.ltrim($result['author'], '@') : 'TikTok video' }}</strong>
-                            <p>{{ $result['title'] ?: __('Geen publieke beschrijving beschikbaar') }}</p>
-                            <a href="{{ $result['video_url'] }}" target="_blank" rel="noopener noreferrer">Bekijk video op TikTok ↗</a>
+                        <div style="min-width:0">
+                            <h3>{{ $result['nickname'] ?: ($result['author'] ?: 'TikTok creator') }}</h3>
+                            @if($result['author'])
+                                <div class="ms-handle">&#64;{{ ltrim($result['author'], '@') }}</div>
+                            @endif
+                            <span class="ms-badge-public">{{ $result['public_visibility'] === 'Public' ? '● PUBLIC' : '● ONBEKEND' }}</span>
+                            <div style="margin-top:10px">
+                                <a class="ms-link" href="{{ $result['video_url'] }}" rel="noopener noreferrer" target="_blank">Bekijk op TikTok ↗</a>
+                            </div>
                         </div>
                     </div>
-                    <h3 class="ms-results-title">{{ __('Engagement statistics') }}</h3>
+                    <div class="ms-date-line">
+                        @if($result['duration'] !== null)
+                            <span>◷ {{ gmdate('i:s', (int) $result['duration']) }} {{ __('video') }}</span>
+                        @endif
+                        @if($result['published_at'])
+                            <span>▣ {{ $result['published_at'] }} {{ $result['published_estimated'] ? '(geschat)' : '(NL)' }}</span>
+                        @endif
+                    </div>
+                    @if($result['title'] || $result['hashtags'])
+                        <div class="ms-caption-box">
+                            <p>{{ $result['title'] ?: 'TikTok video' }}</p>
+                            @if(count($result['hashtags']))
+                                <div class="ms-tags">
+                                    @foreach($result['hashtags'] as $hashtag)
+                                        <span>{{ $hashtag }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                    <h3 class="ms-results-title">{{ __('Video analysis') }}</h3>
+                    <div class="ms-spec-grid">
+                        <div class="ms-spec">
+                            <small>Resolution</small>
+                            <strong>{{ $result['quality'] ? $result['quality'].' · ' : '' }}{{ $result['resolution'] ?? 'Niet beschikbaar' }}</strong>
+                        </div>
+                        <div class="ms-spec"><small>FPS</small><strong>{{ $result['fps'] !== null ? number_format($result['fps'], 0, ',', '.').' fps' : 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>Engine / encodeerformaat</small><strong>{{ $result['engine'] ?? 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>Codec</small><strong>{{ $result['codec'] ?? 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec">
+                            <small>Region</small>
+                            <strong>
+                                @if($result['region_flag'])<span class="ms-flag" aria-hidden="true">{{ $result['region_flag'] }}</span>@endif
+                                {{ $result['region_name'] ?? 'Niet bekend' }}
+                            </strong>
+                            <span class="ms-subtext">{{ $result['region_source'] ?? 'TikTok heeft voor deze post geen landcode gedeeld' }}</span>
+                        </div>
+                        <div class="ms-spec">
+                            <small>Shadow ban</small>
+                            <strong>Niet vast te stellen</strong>
+                            <span class="ms-subtext">Publiek zichtbaar betekent niet automatisch geschikt voor de Voor jou-feed. <a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">Controleer via TikTok Studio ↗</a></span>
+                        </div>
+                        <div class="ms-spec">
+                            <small>Status</small>
+                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility'] }}</strong>
+                        </div>
+                    </div>
+                    <h3 class="ms-subhead">{{ __('Public video statistics') }}</h3>
                     <div class="ms-metrics">
                         @foreach(['views' => 'Views', 'likes' => 'Likes', 'comments' => 'Comments', 'shares' => 'Shares'] as $field => $label)
                             <div class="ms-metric">
@@ -155,22 +241,20 @@
                             </div>
                         @endforeach
                     </div>
-                    <h3 class="ms-subhead">{{ __('Video details') }}</h3>
-                    <div class="ms-spec-grid">
-                        <div class="ms-spec"><small>Resolution</small><strong>{{ $result['resolution'] ?? 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>FPS</small><strong>{{ $result['fps'] !== null ? $result['fps'].' FPS' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Video duration</small><strong>{{ $result['duration'] !== null ? $result['duration'].' sec' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000000, 2, ',', '.').' Mbps' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Codec</small><strong>{{ $result['codec'] ?? 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 2, ',', '.').' MB' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Region (TikTok post)</small><strong>{{ $result['region'] ?? 'Niet meegestuurd' }}</strong><small>{{ $result['region_source'] ?? 'TikTok heeft geen regio voor deze post gepubliceerd' }}</small></div>
-                        <div class="ms-spec"><small>Engagement rate</small><strong>{{ $result['engagement'] !== null ? number_format($result['engagement'], 2, ',', '.').'%' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Openbare vindbaarheid</small><strong>{{ $result['public_visibility'] }}</strong></div>
-                        <div class="ms-spec"><small>Shadow ban / For You-status</small><strong>{{ $result['shadowban'] }}</strong><small><a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">TikTok: bekijk officiële geschiktheid ↗</a></small></div>
-                    </div>
+                    @if($result['engagement'] !== null)
+                        <div class="ms-note">Engagement rate: <strong>{{ number_format($result['engagement'], 2, ',', '.') }}%</strong> (likes + comments + shares / views).</div>
+                    @endif
+                    @if($result['download_url'])
+                        <a class="ms-download" href="{{ $result['download_url'] }}" target="_blank" rel="nofollow noopener noreferrer">
+                            ↓ {{ __('Open video download') }}{{ $result['download_quality'] ? ' · '.$result['download_quality'] : '' }}
+                        </a>
+                        <p class="ms-download-note">{{ __('Beste beschikbare publieke videoversie. Dit is niet gegarandeerd het originele uploadbestand; sommige browsers openen de video eerst.') }}</p>
+                    @else
+                        <p class="ms-download-note">{{ __('Voor deze video is geen gecontroleerde publieke downloadlink beschikbaar. Je kunt de video wel op TikTok bekijken.') }}</p>
+                    @endif
                     <div class="ms-note">
                         <strong>{{ $result['availability'] }}</strong> · {{ __('Bijgewerkt') }} {{ $result['checked_at'] }}.
-                        {{ __('De getoonde regio komt rechtstreeks uit openbare postmetadata, niet uit je IP-adres. TikTok geeft niet voor elke video een regio mee. De officiële For You-feedgeschiktheid is alleen zichtbaar voor de eigenaar in TikTok Studio. Publieke vindbaarheid is geen bewijs dat aanbevelingen actief zijn.') }}
+                        {{ __('Metadata verschilt per video en bron. Resolutie en bestandsgrootte kunnen betrekking hebben op de beschikbare streamingversie, niet op het oorspronkelijke uploadbestand. Landvlaggen worden alleen getoond bij een echte landcode uit openbare videometadata.') }}
                     </div>
                 </div>
             @elseif($result && !$isVideo)

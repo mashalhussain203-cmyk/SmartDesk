@@ -17,42 +17,33 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v2:'.$videoId, now()->addMinutes(2), function () use ($videoUrl, $videoId, $counter) {
-            $item = null;
+        return Cache::remember('mashal:video-analyzer:v4:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
+            // Use the public page first. Third-party metadata is always labeled
+            // and used only when the official public page lacks fields.
             $state = $this->publicPage($videoUrl);
-
-            if ($state !== null) {
+            $item = null;
+            if (is_array($state)) {
                 $scope = $state['__DEFAULT_SCOPE__'] ?? [];
                 $item = $scope['webapp.video-detail']['itemInfo']['itemStruct']
                     ?? $scope['webapp.video-detail']['item_info']['item_struct']
-                    ?? $state['ItemModule'][$videoId]
-                    ?? null;
+                    ?? $state['ItemModule'][$videoId] ?? null;
                 if (!is_array($item) || (string) ($item['id'] ?? '') !== $videoId) {
                     $item = $this->findVideo($state, $videoId);
                 }
             }
 
-            // The rendered public TikTok page can contain data not in the
-            // initial HTTP HTML (including a video's posted region).
-            if (!is_array($item)) {
+            $mirror = $this->mirrorVideoDetails($videoUrl, $videoId);
+
+            if (!is_array($item) && $mirror === []) {
                 $browser = $this->browserData('video', $videoUrl, $videoId);
                 if (is_array($browser['item'] ?? null)) {
-                    $browserItem = $browser['item'];
-                    if (!is_array($item)) {
-                        $item = $browserItem;
-                    } else {
-                        $item = array_replace_recursive($browserItem, $item);
-                    }
+                    $item = $browser['item'];
                 }
             }
 
             $embed = $this->oembed($videoUrl);
             $stats = is_array($item) ? ($item['stats'] ?? $item['statsV2'] ?? []) : [];
-            if (!is_array($stats)) {
-                $stats = [];
-            }
-
-            // Reuse the same public TikTok source already used by Live Counts.
+            $stats = is_array($stats) ? $stats : [];
             if ($stats === []) {
                 try {
                     $extra = $counter->getSupplementalTikTokStats($videoUrl, $videoId);
@@ -63,42 +54,92 @@ class TikTokAnalyticsService
                         'shareCount' => $extra['shares'] ?? null,
                     ];
                 } catch (Throwable $e) {
-                    // TikTok sometimes challenges server requests. Never invent values.
+                    // An absent public response is not zero views.
                 }
             }
 
-            if (!is_array($item) && $embed === null && $this->numbers($stats) === 0) {
-                throw new RuntimeException('TikTok kon deze publieke video niet laden. Controleer de link of probeer het later.');
-            }
-
-            $region = $this->postRegion($item);
-            $regionSource = $region !== null ? 'TikTok openbare postmetadata' : null;
-            if ($region === null) {
-                $mirrorRegion = $this->mirrorVideoRegion($videoUrl, $videoId);
-                if ($mirrorRegion !== null) {
-                    $region = $mirrorRegion;
-                    $regionSource = 'Publieke videometadata via TikWM';
-                }
-            }
             $technical = is_array($item['video'] ?? null) ? $item['video'] : [];
-            $bitrateInfo = $technical['bitrateInfo'][0] ?? null;
-            $bitrate = is_array($bitrateInfo) ? $this->number($bitrateInfo['Bitrate'] ?? $bitrateInfo['bitrate'] ?? null) : null;
-            $width = $this->number($technical['width'] ?? null);
-            $height = $this->number($technical['height'] ?? null);
-            $fps = $this->number($technical['fps'] ?? $technical['frameRate'] ?? null);
-            $views = $this->number($stats['playCount'] ?? $stats['viewCount'] ?? null);
-            $likes = $this->number($stats['diggCount'] ?? $stats['likeCount'] ?? null);
-            $comments = $this->number($stats['commentCount'] ?? null);
-            $shares = $this->number($stats['shareCount'] ?? null);
+            $bitrateInfo = $technical['bitrateInfo'][0] ?? [];
+            $bitrateInfo = is_array($bitrateInfo) ? $bitrateInfo : [];
+            $width = $this->number($technical['width'] ?? $mirror['width'] ?? null);
+            $height = $this->number($technical['height'] ?? $mirror['height'] ?? null);
+            $fps = $this->number($technical['fps'] ?? $technical['frameRate'] ?? $mirror['fps'] ?? null);
+            $bitrate = $this->number($bitrateInfo['Bitrate'] ?? $bitrateInfo['bitrate'] ?? $mirror['bitrate'] ?? null);
+            $size = $this->number($technical['size'] ?? $mirror['file_size'] ?? null);
+            $codec = $this->normalizeCodec($technical['codecType'] ?? $technical['codec'] ?? $mirror['codec'] ?? null);
+
+            // A metadata-only yt-dlp probe can expose actual dimensions, FPS,
+            // video codec and approximate size without downloading the video.
+            $probe = [];
+            if ($width === null || $height === null || $fps === null || $codec === null || $size === null) {
+                $probe = $this->metadataProbe($videoUrl, $videoId);
+                $width ??= $this->number($probe['width'] ?? null);
+                $height ??= $this->number($probe['height'] ?? null);
+                $fps ??= $this->number($probe['fps'] ?? null);
+                $bitrate ??= $this->number($probe['bitrate'] ?? null);
+                $size ??= $this->number($probe['file_size'] ?? null);
+                $codec ??= $this->normalizeCodec($probe['codec'] ?? null);
+            }
+
+            if (!is_array($item) && $embed === null && $mirror === [] && ($probe['success'] ?? false) !== true && $this->numbers($stats) === 0) {
+                throw new RuntimeException('TikTok kon deze openbare video niet laden. Controleer de link en probeer het opnieuw.');
+            }
+
+            $postRegion = $this->postRegion($item);
+            $region = $postRegion ?? ($mirror['region'] ?? null);
+            $regionSource = $postRegion !== null
+                ? 'Officiële openbare TikTok-postmetadata'
+                : ($region !== null ? 'Onafhankelijke publieke videobron' : null);
+            $regionName = $this->regionName($region);
+            $regionFlag = $this->regionFlag($region);
+
             $author = $item['author'] ?? null;
+            $mirrorAuthor = $mirror['author'] ?? [];
+            $username = (is_array($author) ? ($author['uniqueId'] ?? $author['unique_id'] ?? null) : $author)
+                ?? (is_array($mirrorAuthor) ? ($mirrorAuthor['unique_id'] ?? $mirrorAuthor['uniqueId'] ?? null) : null)
+                ?? ($probe['author'] ?? null);
+            $nickname = (is_array($author) ? ($author['nickname'] ?? null) : null)
+                ?? (is_array($mirrorAuthor) ? ($mirrorAuthor['nickname'] ?? null) : null)
+                ?? ($embed['author_name'] ?? null) ?? $username;
+
+            $caption = $item['desc'] ?? ($mirror['title'] ?? null)
+                ?? ($probe['description'] ?? null) ?? ($embed['title'] ?? null);
+            $caption = is_string($caption) ? trim($caption) : '';
+            preg_match_all('/#[\p{L}\p{N}_.]+/u', $caption, $matches);
+            $hashtags = array_values(array_unique(array_slice($matches[0] ?? [], 0, 16)));
+            $publishedAt = $this->number($item['createTime'] ?? $item['create_time'] ?? $mirror['published_at'] ?? $probe['published_at'] ?? null);
+            $estimatedDate = false;
+            if ($publishedAt === null && preg_match('/^[0-9]{15,22}$/', $videoId)) {
+                $publishedAt = intdiv((int) $videoId, 4294967296);
+                $estimatedDate = true;
+            }
+            $published = $publishedAt !== null && $publishedAt > 1577836800 && $publishedAt <= time() + 86400
+                ? CarbonImmutable::createFromTimestampUTC($publishedAt)->setTimezone('Europe/Amsterdam')->format('d-m-Y H:i')
+                : null;
+
+            $views = $this->number($stats['playCount'] ?? $stats['viewCount'] ?? $mirror['views'] ?? null);
+            $likes = $this->number($stats['diggCount'] ?? $stats['likeCount'] ?? $mirror['likes'] ?? null);
+            $comments = $this->number($stats['commentCount'] ?? $mirror['comments'] ?? null);
+            $shares = $this->number($stats['shareCount'] ?? $mirror['shares'] ?? null);
+            $duration = $this->number($technical['duration'] ?? $item['videoDuration'] ?? $mirror['duration'] ?? $probe['duration'] ?? null);
+
+            $videoAvailable = is_array($item) || is_array($embed) || $mirror !== [] || ($probe['success'] ?? false) === true;
+            $quality = $width && $height ? min($width, $height) : null;
+            $download = $this->safeMediaUrl($mirror['hdplay'] ?? null)
+                ?? $this->safeMediaUrl($probe['direct_url'] ?? null)
+                ?? $this->safeMediaUrl($mirror['play'] ?? null);
 
             return [
                 'video_id' => $videoId,
                 'video_url' => $videoUrl,
-                'author' => (is_array($author) ? ($author['uniqueId'] ?? $author['nickname'] ?? null) : $author)
-                    ?? ($embed['author_name'] ?? null),
-                'title' => $item['desc'] ?? ($embed['title'] ?? null),
-                'thumbnail' => $technical['cover'] ?? ($embed['thumbnail_url'] ?? null),
+                'author' => is_string($username) ? ltrim($username, '@') : null,
+                'nickname' => is_string($nickname) ? $nickname : null,
+                'title' => $caption,
+                'hashtags' => $hashtags,
+                'published_at' => $published,
+                'published_estimated' => $estimatedDate,
+                'thumbnail' => $technical['cover'] ?? $technical['originCover']
+                    ?? ($mirror['cover'] ?? null) ?? ($embed['thumbnail_url'] ?? null),
                 'views' => $views,
                 'likes' => $likes,
                 'comments' => $comments,
@@ -106,17 +147,27 @@ class TikTokAnalyticsService
                 'engagement' => $views > 0 && $likes !== null && $comments !== null && $shares !== null
                     ? round(100 * ($likes + $comments + $shares) / $views, 2) : null,
                 'resolution' => $width && $height ? $width.' × '.$height : null,
+                'quality' => $quality !== null ? $quality.'P' : null,
                 'fps' => $fps,
-                'duration' => $this->number($technical['duration'] ?? $item['videoDuration'] ?? null),
+                'duration' => $duration,
                 'bitrate' => $bitrate,
-                'codec' => $technical['codecType'] ?? $technical['codec'] ?? null,
-                'file_size' => $this->number($technical['size'] ?? null),
+                'codec' => $codec,
+                'engine' => match ($codec) {
+                    'H.264' => 'Standard (H.264)',
+                    'H.265 / HEVC' => 'HEVC',
+                    'AV1' => 'AV1',
+                    default => null,
+                },
+                'file_size' => $size,
                 'region' => $region,
+                'region_name' => $regionName,
+                'region_flag' => $regionFlag,
                 'region_source' => $regionSource,
-                'shadowban' => 'Alleen in TikTok Studio te controleren',
-                'public_visibility' => is_array($item)
-                    ? 'Openbare video gevonden' : ($embed !== null ? 'Embed publiek beschikbaar' : 'Onbekend'),
-                'availability' => is_array($item) ? 'Publieke videodata gevonden' : 'Beperkte openbare gegevens',
+                'shadowban' => 'Niet publiek vast te stellen',
+                'public_visibility' => $videoAvailable ? 'Public' : 'Onbekend',
+                'download_url' => $download,
+                'download_quality' => $quality,
+                'availability' => $videoAvailable ? 'Openbare video gevonden' : 'Beperkte openbare gegevens',
                 'checked_at' => now()->format('d-m-Y H:i'),
             ];
         });
@@ -376,30 +427,151 @@ class TikTokAnalyticsService
         }
     }
 
-    private function mirrorVideoRegion(string $url, string $videoId): ?string
+    private function mirrorVideoDetails(string $url, string $videoId): array
     {
         try {
             $response = Http::withHeaders(['Accept' => 'application/json'])
-                ->connectTimeout(4)->timeout(8)->get('https://www.tikwm.com/api/', [
-                    'url' => $url,
-                ]);
+                ->connectTimeout(4)->timeout(9)->get('https://www.tikwm.com/api/', ['url' => $url, 'hd' => 1]);
 
             $payload = $response->successful() ? $response->json() : null;
             if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
-                return null;
+                return [];
             }
 
             $data = $payload['data'] ?? null;
             if (!is_array($data) || (string) ($data['id'] ?? $data['video_id'] ?? '') !== $videoId) {
-                return null;
+                return [];
             }
 
-            $value = $data['region'] ?? $data['locationCreated'] ?? null;
-            return is_string($value) && preg_match('/^[A-Z]{2}$/i', $value)
-                ? strtoupper($value) : null;
+            $region = $data['region'] ?? $data['locationCreated'] ?? null;
+            return [
+                'region' => is_string($region) && preg_match('/^[A-Z]{2}$/i', $region) ? strtoupper($region) : null,
+                'author' => $data['author'] ?? [],
+                'title' => $data['title'] ?? null,
+                'cover' => $data['cover'] ?? $data['origin_cover'] ?? null,
+                'width' => $this->number($data['width'] ?? null),
+                'height' => $this->number($data['height'] ?? null),
+                'fps' => $this->number($data['fps'] ?? null),
+                'codec' => $data['codec'] ?? null,
+                'bitrate' => $this->number($data['bitrate'] ?? null),
+                'file_size' => $this->number($data['hd_size'] ?? $data['size'] ?? null),
+                'duration' => $this->number($data['duration'] ?? null),
+                'published_at' => $this->number($data['create_time'] ?? null),
+                'views' => $this->number($data['play_count'] ?? null),
+                'likes' => $this->number($data['digg_count'] ?? null),
+                'comments' => $this->number($data['comment_count'] ?? null),
+                'shares' => $this->number($data['share_count'] ?? null),
+                'hdplay' => $data['hdplay'] ?? null,
+                'play' => $data['play'] ?? null,
+            ];
         } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    private function metadataProbe(string $url, string $videoId): array
+    {
+        $script = base_path('scripts/tiktok_video_metadata.py');
+        if (!is_file($script)) {
+            return [];
+        }
+        $python = base_path('.venv/bin/python');
+        if (!is_file($python)) {
+            $python = is_file('/opt/tiktok-venv/bin/python') ? '/opt/tiktok-venv/bin/python' : 'python3';
+        }
+        try {
+            $process = new Process([$python, $script, $url, $videoId]);
+            $process->setTimeout(23);
+            $process->run();
+            $payload = $process->isSuccessful() ? json_decode($process->getOutput(), true) : null;
+            return is_array($payload) && ($payload['success'] ?? false) === true ? $payload : [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    private function normalizeCodec(mixed $codec): ?string
+    {
+        if (!is_string($codec) || $codec === '') {
             return null;
         }
+        $value = strtolower($codec);
+        if (str_contains($value, 'avc') || str_contains($value, 'h264') || str_contains($value, 'h.264')) {
+            return 'H.264';
+        }
+        if (str_contains($value, 'hev') || str_contains($value, 'h265') || str_contains($value, 'h.265')) {
+            return 'H.265 / HEVC';
+        }
+        if (str_contains($value, 'av01') || str_contains($value, 'av1')) {
+            return 'AV1';
+        }
+        if (str_contains($value, 'vp9')) {
+            return 'VP9';
+        }
+        return strlen($codec) <= 25 ? $codec : null;
+    }
+
+    private function safeMediaUrl(mixed $url): ?string
+    {
+        if (!is_string($url) || strlen($url) > 3000 || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+        if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') {
+            return null;
+        }
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $allowed = ['tiktokcdn.com', 'tiktokv.com', 'tikwm.com', 'akamaized.net', 'byteoversea.com', 'ibytedtos.com'];
+        foreach ($allowed as $suffix) {
+            if ($host === $suffix || str_ends_with($host, '.'.$suffix)) {
+                return $url;
+            }
+        }
+        return null;
+    }
+
+    private function regionName(?string $region): ?string
+    {
+        if (!is_string($region) || !preg_match('/^[A-Z]{2}$/', $region)) {
+            return null;
+        }
+
+        $names = [
+            'NL' => 'Nederland', 'BE' => 'België', 'DE' => 'Duitsland',
+            'US' => 'Verenigde Staten', 'GB' => 'Verenigd Koninkrijk',
+            'PK' => 'Pakistan', 'FR' => 'Frankrijk', 'IT' => 'Italië',
+            'ES' => 'Spanje', 'CA' => 'Canada', 'AU' => 'Australië',
+            'IN' => 'India', 'AE' => 'Verenigde Arabische Emiraten',
+            'SA' => 'Saoedi-Arabië', 'TR' => 'Turkije', 'MA' => 'Marokko',
+            'BR' => 'Brazilië', 'JP' => 'Japan', 'KR' => 'Zuid-Korea',
+            'ID' => 'Indonesië', 'PH' => 'Filipijnen', 'MX' => 'Mexico',
+            'ZA' => 'Zuid-Afrika', 'EG' => 'Egypte', 'PT' => 'Portugal',
+        ];
+        if (isset($names[$region])) {
+            return $names[$region];
+        }
+        if (class_exists(\Locale::class)) {
+            $name = \Locale::getDisplayRegion('und-'.$region, 'nl');
+            if (is_string($name) && $name !== '' && $name !== $region) {
+                return ucfirst($name);
+            }
+        }
+        return $region;
+    }
+
+    private function regionFlag(?string $region): ?string
+    {
+        if (!is_string($region) || !preg_match('/^[A-Z]{2}$/', $region)) {
+            return null;
+        }
+        // Unicode regional indicators without depending on PHP mb_chr.
+        $flagPoint = static function (int $point): string {
+            return chr(0xF0 | ($point >> 18))
+                .chr(0x80 | (($point >> 12) & 0x3F))
+                .chr(0x80 | (($point >> 6) & 0x3F))
+                .chr(0x80 | ($point & 0x3F));
+        };
+        return $flagPoint(0x1F1E6 + ord($region[0]) - 65)
+            .$flagPoint(0x1F1E6 + ord($region[1]) - 65);
     }
 
     private function browserData(string $mode, string $target, ?string $videoId = null): array
