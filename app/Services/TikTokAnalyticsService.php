@@ -63,7 +63,8 @@ class TikTokAnalyticsService
             $bitrateInfo = is_array($bitrateInfo) ? $bitrateInfo : [];
             $width = $this->number($technical['width'] ?? $mirror['width'] ?? null);
             $height = $this->number($technical['height'] ?? $mirror['height'] ?? null);
-            $fps = $this->frameRate($technical['fps'] ?? $technical['frameRate'] ?? $mirror['fps'] ?? null);
+            $fpsOfficial = $this->frameRate($technical['fps'] ?? $technical['frameRate'] ?? null);
+            $fps = $fpsOfficial ?? $this->frameRate($mirror['fps'] ?? null);
             $bitrate = $this->number($bitrateInfo['Bitrate'] ?? $bitrateInfo['bitrate'] ?? $mirror['bitrate'] ?? null);
             $size = $this->number($technical['size'] ?? $mirror['file_size'] ?? null);
             $codec = $this->normalizeCodec($technical['codecType'] ?? $technical['codec'] ?? $mirror['codec'] ?? null);
@@ -78,7 +79,9 @@ class TikTokAnalyticsService
             $alternateMedia = $this->publicVideoAddress($technical['downloadAddr'] ?? null)
                 ?? $this->safeMediaUrl($mirror['hdplay'] ?? null)
                 ?? $this->safeMediaUrl($mirror['play'] ?? null);
-            $fpsSource = $fps !== null ? 'TikTok openbare videometadata' : null;
+            $fpsSource = $fpsOfficial !== null
+                ? 'TikTok openbare videometadata'
+                : ($fps !== null ? 'TikWM onafhankelijke metadata' : null);
             $probe = [];
             if ($width === null || $height === null || $fps === null || $codec === null || $size === null) {
                 $probe = $this->metadataProbe($videoUrl, $videoId, $publicMedia, $alternateMedia);
@@ -164,7 +167,8 @@ class TikTokAnalyticsService
                 'quality' => $quality !== null ? $quality.'P' : null,
                 'fps' => $fps,
                 'fps_source' => $fpsSource,
-                'fps_status' => $fps !== null ? 'gemeten' : 'niet uit openbare mediabron te bepalen',
+                'fps_status' => $fps === null ? 'niet uit openbare mediabron te bepalen'
+                    : (str_contains((string) $fpsSource, 'ffprobe') ? 'gemeten' : 'uit metadata'),
                 'duration' => $duration,
                 'bitrate' => $bitrate,
                 'codec' => $codec,
