@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, ListObjectsV2Command, ListMultipartUploadsCommand, ListPartsCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -30,6 +30,72 @@ const s3 = new S3Client({
   forcePathStyle: env.LIVE_S3_URL_STYLE !== 'virtual-host', maxAttempts: 5,
   credentials: { accessKeyId: env.LIVE_S3_ACCESS_KEY_ID, secretAccessKey: env.LIVE_S3_SECRET_ACCESS_KEY },
 });
+// One-shot read-only inspection of the private archive. Never log credentials,
+// signed stream addresses, or upload IDs. Only examine the requested account.
+async function inspectMissingRecording() {
+  const prefix = 'recordings/cutefacebigass/';
+  console.log('RECOVERY_AUDIT_START');
+  try {
+    let next, scanned = 0, recent = 0;
+    do {
+      const result = await s3.send(new ListObjectsV2Command({
+        Bucket: bucket, Prefix: prefix, MaxKeys: 500, ContinuationToken: next,
+      }));
+      for (const item of result.Contents || []) {
+        scanned++;
+        const modified = item.LastModified?.toISOString() || '';
+        if (modified.startsWith('2026-10-15') || modified.startsWith('2026-10-16')) {
+          recent++;
+          console.log('RECOVERY_ARCHIVE_OBJECT', JSON.stringify({
+            file: item.Key?.slice(prefix.length), modified, bytes: item.Size,
+          }));
+        }
+      }
+      next = result.NextContinuationToken;
+    } while (next && scanned < 3000);
+    console.log('RECOVERY_OBJECTS_SUMMARY', JSON.stringify({ scanned, recent }));
+  } catch (error) {
+    console.error('RECOVERY_OBJECTS_ERROR', error?.name || 'UnknownError');
+  }
+  try {
+    let keyMarker, uploadIdMarker, scanned = 0, more;
+    do {
+      const result = await s3.send(new ListMultipartUploadsCommand({
+        Bucket: bucket, Prefix: prefix, MaxUploads: 100,
+        KeyMarker: keyMarker, UploadIdMarker: uploadIdMarker,
+      }));
+      for (const pending of result.Uploads || []) {
+        scanned++;
+        const file = pending.Key?.slice(prefix.length);
+        const initiated = pending.Initiated?.toISOString() || '';
+        const item = { file, initiated };
+        try {
+          const parts = await s3.send(new ListPartsCommand({
+            Bucket: bucket, Key: pending.Key, UploadId: pending.UploadId, MaxParts: 1000,
+          }));
+          item.parts = parts.Parts?.length || 0;
+          item.bytes = (parts.Parts || []).reduce((sum, part) => sum + (part.Size || 0), 0);
+          item.moreParts = Boolean(parts.IsTruncated);
+        } catch (error) {
+          item.partsError = error?.name || 'UnknownError';
+        }
+        console.log('RECOVERY_PENDING_MULTIPART', JSON.stringify(item));
+      }
+      keyMarker = result.NextKeyMarker;
+      uploadIdMarker = result.NextUploadIdMarker;
+      more = Boolean(result.IsTruncated);
+    } while (more && scanned < 500);
+    console.log('RECOVERY_MULTIPART_SUMMARY', JSON.stringify({ scanned }));
+  } catch (error) {
+    console.error('RECOVERY_MULTIPART_ERROR', error?.name || 'UnknownError');
+  }
+  console.log('RECOVERY_AUDIT_DONE');
+}
+
+if (account === 'emyii' && env.LIVE_RECOVERY_INSPECT === '1') {
+  void inspectMissingRecording().catch(() => console.error('RECOVERY_AUDIT_FATAL'));
+}
+
 const profile = resolve(env.LIVE_PROFILE_ROOT || '/tmp/live-chrome-profiles', account);
 const display = env.DISPLAY;
 const audio = env.PULSE_SOURCE;
