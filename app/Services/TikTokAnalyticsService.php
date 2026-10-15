@@ -34,7 +34,7 @@ class TikTokAnalyticsService
 
             // The rendered public TikTok page can contain data not in the
             // initial HTTP HTML (including a video's posted region).
-            if (!is_array($item) || empty($item['region'])) {
+            if (!is_array($item)) {
                 $browser = $this->browserData('video', $videoUrl, $videoId);
                 if (is_array($browser['item'] ?? null)) {
                     $browserItem = $browser['item'];
@@ -71,6 +71,15 @@ class TikTokAnalyticsService
                 throw new RuntimeException('TikTok kon deze publieke video niet laden. Controleer de link of probeer het later.');
             }
 
+            $region = $this->postRegion($item);
+            $regionSource = $region !== null ? 'TikTok openbare postmetadata' : null;
+            if ($region === null) {
+                $mirrorRegion = $this->mirrorVideoRegion($videoUrl, $videoId);
+                if ($mirrorRegion !== null) {
+                    $region = $mirrorRegion;
+                    $regionSource = 'Publieke videometadata via TikWM';
+                }
+            }
             $technical = is_array($item['video'] ?? null) ? $item['video'] : [];
             $bitrateInfo = $technical['bitrateInfo'][0] ?? null;
             $bitrate = is_array($bitrateInfo) ? $this->number($bitrateInfo['Bitrate'] ?? $bitrateInfo['bitrate'] ?? null) : null;
@@ -102,9 +111,8 @@ class TikTokAnalyticsService
                 'bitrate' => $bitrate,
                 'codec' => $technical['codecType'] ?? $technical['codec'] ?? null,
                 'file_size' => $this->number($technical['size'] ?? null),
-                'region' => $this->postRegion($item),
-                'region_source' => $this->postRegion($item) !== null
-                    ? 'TikTok openbare postmetadata' : null,
+                'region' => $region,
+                'region_source' => $regionSource,
                 'shadowban' => 'Alleen in TikTok Studio te controleren',
                 'public_visibility' => is_array($item)
                     ? 'Openbare video gevonden' : ($embed !== null ? 'Embed publiek beschikbaar' : 'Onbekend'),
@@ -172,6 +180,14 @@ class TikTokAnalyticsService
                 }
             }
 
+            // When TikTok blocks its own endpoint on Railway, try a read-only
+            // public third-party mirror; never send user credentials to it.
+            if (count($posts) < 10) {
+                foreach ($this->mirrorUserPosts($username) as $post) {
+                    $posts[$post['id']] = $post;
+                }
+            }
+
             // Browser fallback observes publicly loaded TikTok data with the
             // same Chromium dependencies already installed on Railway.
             if (count($posts) < 10) {
@@ -191,7 +207,7 @@ class TikTokAnalyticsService
 
             if ($posts === []) {
                 throw new RuntimeException(
-                    'TikTok heeft geen recente openbare videostatistieken vrijgegeven. '.
+                    'Geen openbare videostatistieken beschikbaar via TikTok of de aanvullende publieke bron. '.
                     'We hebben zowel het profiel als de publieke videofeed gecontroleerd. '.
                     'Bij een TikTok-verificatie of afgeschermd account kan dit niet automatisch.'
                 );
@@ -298,6 +314,92 @@ class TikTokAnalyticsService
         }
 
         return $pages;
+    }
+
+
+    /**
+     * Optional fallback for publicly posted videos. TikWM is an independent
+     * public mirror, not TikTok's official API. Never pass tokens or cookies.
+     */
+    private function mirrorUserPosts(string $username): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'MashalStudio/1.0 (public TikTok analytics)',
+            ])->connectTimeout(5)->timeout(10)->get('https://www.tikwm.com/api/user/posts', [
+                'unique_id' => $username,
+                'count' => 30,
+                'cursor' => 0,
+            ]);
+
+            $payload = $response->successful() ? $response->json() : null;
+            if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
+                return [];
+            }
+
+            $videos = $payload['data']['videos'] ?? [];
+            if (!is_array($videos)) {
+                return [];
+            }
+
+            $posts = [];
+            foreach (array_slice($videos, 0, 60) as $video) {
+                if (!is_array($video)) {
+                    continue;
+                }
+
+                $author = $video['author']['unique_id'] ?? $video['author']['uniqueId'] ?? null;
+                if (is_string($author) && strcasecmp(ltrim($author, '@'), $username) !== 0) {
+                    continue;
+                }
+
+                $id = (string) ($video['video_id'] ?? $video['id'] ?? '');
+                if (!preg_match('/^[0-9]{15,22}$/', $id)) {
+                    continue;
+                }
+
+                $views = $this->number($video['play_count'] ?? $video['playCount'] ?? $video['stats']['playCount'] ?? null);
+                $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
+                if ($published === null) {
+                    $published = intdiv((int) $id, 4294967296);
+                }
+
+                if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
+                    $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published];
+                }
+            }
+
+            return array_values($posts);
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    private function mirrorVideoRegion(string $url, string $videoId): ?string
+    {
+        try {
+            $response = Http::withHeaders(['Accept' => 'application/json'])
+                ->connectTimeout(4)->timeout(8)->get('https://www.tikwm.com/api/', [
+                    'url' => $url,
+                ]);
+
+            $payload = $response->successful() ? $response->json() : null;
+            if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
+                return null;
+            }
+
+            $data = $payload['data'] ?? null;
+            if (!is_array($data) || (string) ($data['id'] ?? $data['video_id'] ?? '') !== $videoId) {
+                return null;
+            }
+
+            $value = $data['region'] ?? $data['locationCreated'] ?? null;
+            return is_string($value) && preg_match('/^[A-Z]{2}$/i', $value)
+                ? strtoupper($value) : null;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     private function browserData(string $mode, string $target, ?string $videoId = null): array

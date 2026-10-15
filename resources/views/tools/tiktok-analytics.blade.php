@@ -128,7 +128,7 @@
             </form>
             <p class="ms-hint">{{ $isVideo
                 ? __('Alleen openbaar beschikbare data; niet-gepubliceerde technische metadata en shadowban-status zijn niet te bevestigen.')
-                : __('We vergelijken de views van je recente openbare video’s op basis van hun plaatsingsmoment. Geen TikTok-login nodig.') }}</p>
+                : __('We vergelijken de views van je recente openbare video’s op basis van hun plaatsingsmoment. Geen TikTok-login nodig. Als TikTok dit blokkeert, probeert de tool ook een externe openbare videofeed (TikWM).') }}</p>
 
             @if($error)
                 <div class="ms-error" role="alert">{{ $error }}</div>
