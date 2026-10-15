@@ -17,7 +17,7 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v4:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
+        return Cache::remember('mashal:video-analyzer:v5:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
             // Use the public page first. Third-party metadata is always labeled
             // and used only when the official public page lacks fields.
             $state = $this->publicPage($videoUrl);
@@ -68,14 +68,23 @@ class TikTokAnalyticsService
             $size = $this->number($technical['size'] ?? $mirror['file_size'] ?? null);
             $codec = $this->normalizeCodec($technical['codecType'] ?? $technical['codec'] ?? $mirror['codec'] ?? null);
 
-            // A metadata-only yt-dlp probe can expose actual dimensions, FPS,
-            // video codec and approximate size without downloading the video.
+            // FPS is often absent from TikTok's JSON. When a public CDN
+            // video is available, ffprobe can read the actual video-stream
+            // header without downloading or transcoding the full MP4.
+            $publicMedia = $this->safeMediaUrl($mirror['hdplay'] ?? null)
+                ?? $this->safeMediaUrl($mirror['play'] ?? null);
+            $fpsSource = $fps !== null ? 'TikTok openbare videometadata' : null;
             $probe = [];
             if ($width === null || $height === null || $fps === null || $codec === null || $size === null) {
-                $probe = $this->metadataProbe($videoUrl, $videoId);
+                $probe = $this->metadataProbe($videoUrl, $videoId, $publicMedia);
                 $width ??= $this->number($probe['width'] ?? null);
                 $height ??= $this->number($probe['height'] ?? null);
-                $fps ??= $this->number($probe['fps'] ?? null);
+                if ($fps === null && isset($probe['fps'])) {
+                    $fps = $this->number($probe['fps']);
+                    if ($fps !== null) {
+                        $fpsSource = $probe['source'] ?? 'Video-streammetadata';
+                    }
+                }
                 $bitrate ??= $this->number($probe['bitrate'] ?? null);
                 $size ??= $this->number($probe['file_size'] ?? null);
                 $codec ??= $this->normalizeCodec($probe['codec'] ?? null);
@@ -149,6 +158,7 @@ class TikTokAnalyticsService
                 'resolution' => $width && $height ? $width.' × '.$height : null,
                 'quality' => $quality !== null ? $quality.'P' : null,
                 'fps' => $fps,
+                'fps_source' => $fpsSource,
                 'duration' => $duration,
                 'bitrate' => $bitrate,
                 'codec' => $codec,
@@ -163,7 +173,10 @@ class TikTokAnalyticsService
                 'region_name' => $regionName,
                 'region_flag' => $regionFlag,
                 'region_source' => $regionSource,
-                'shadowban' => 'Niet publiek vast te stellen',
+                'shadowban' => $videoAvailable ? 'Geen publieke blokkade zichtbaar' : 'Niet gecontroleerd',
+                'shadowban_detail' => $videoAvailable
+                    ? 'Deze video is openbaar bereikbaar. Dit bevestigt NIET of de video geschikt is voor de Voor jou-feed; controleer TikTok Studio.'
+                    : 'Openbare bereikbaarheid kon niet bevestigd worden. De Voor jou-status is alleen bij TikTok zelf in te zien.',
                 'public_visibility' => $videoAvailable ? 'Public' : 'Onbekend',
                 'download_url' => $download,
                 'download_quality' => $quality,
@@ -469,7 +482,7 @@ class TikTokAnalyticsService
         }
     }
 
-    private function metadataProbe(string $url, string $videoId): array
+    private function metadataProbe(string $url, string $videoId, ?string $publicMediaUrl = null): array
     {
         $script = base_path('scripts/tiktok_video_metadata.py');
         if (!is_file($script)) {
@@ -480,8 +493,12 @@ class TikTokAnalyticsService
             $python = is_file('/opt/tiktok-venv/bin/python') ? '/opt/tiktok-venv/bin/python' : 'python3';
         }
         try {
-            $process = new Process([$python, $script, $url, $videoId]);
-            $process->setTimeout(23);
+            $arguments = [$python, $script, $url, $videoId];
+            if ($publicMediaUrl !== null) {
+                $arguments[] = $publicMediaUrl;
+            }
+            $process = new Process($arguments);
+            $process->setTimeout(27);
             $process->run();
             $payload = $process->isSuccessful() ? json_decode($process->getOutput(), true) : null;
             return is_array($payload) && ($payload['success'] ?? false) === true ? $payload : [];

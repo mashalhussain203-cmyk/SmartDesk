@@ -209,7 +209,11 @@
                             <small>Resolution</small>
                             <strong>{{ $result['quality'] ? $result['quality'].' · ' : '' }}{{ $result['resolution'] ?? 'Niet beschikbaar' }}</strong>
                         </div>
-                        <div class="ms-spec"><small>FPS</small><strong>{{ $result['fps'] !== null ? number_format($result['fps'], 0, ',', '.').' fps' : 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec">
+                            <small>FPS</small>
+                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], 0, ',', '.').' fps' : 'Niet uit te lezen' }}</strong>
+                            <span class="ms-subtext">{{ $result['fps_source'] ?? 'TikTok heeft de framerate niet vrijgegeven en de openbare videostream kon niet worden geanalyseerd.' }}</span>
+                        </div>
                         <div class="ms-spec"><small>Engine / encodeerformaat</small><strong>{{ $result['engine'] ?? 'Niet beschikbaar' }}</strong></div>
                         <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : 'Niet beschikbaar' }}</strong></div>
                         <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : 'Niet beschikbaar' }}</strong></div>
@@ -223,9 +227,11 @@
                             <span class="ms-subtext">{{ $result['region_source'] ?? 'TikTok heeft voor deze post geen landcode gedeeld' }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Shadow ban</small>
-                            <strong>Niet vast te stellen</strong>
-                            <span class="ms-subtext">Publiek zichtbaar betekent niet automatisch geschikt voor de Voor jou-feed. <a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">Controleer via TikTok Studio ↗</a></span>
+                            <small>Shadow ban / openbare check</small>
+                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['shadowban'] }}</strong>
+                            <span class="ms-subtext">{{ $result['shadowban_detail'] }}
+                                <a class="ms-link" href="https://support.tiktok.com/nl/safety-hc/account-and-user-safety/why-is-my-account-not-being-recommended" target="_blank" rel="noopener noreferrer">Zo check je dit in TikTok ↗</a>
+                            </span>
                         </div>
                         <div class="ms-spec">
                             <small>Status</small>
