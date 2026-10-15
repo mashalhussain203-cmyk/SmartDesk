@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, ListObjectsV2Command, ListMultipartUploadsCommand, ListPartsCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, ListObjectsV2Command, ListMultipartUploadsCommand, ListPartsCommand, CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -35,6 +35,48 @@ const s3 = new S3Client({
 async function inspectMissingRecording() {
   const prefix = 'recordings/cutefacebigass/';
   console.log('RECOVERY_AUDIT_START');
+  // Restore the single verified interrupted archive without downloading it.
+  // This is idempotent: it never changes an existing completed object.
+  try {
+    const expectedFile = '2026-10-15T18-24-55-172Z_cutefacebigass.mp4';
+    const key = prefix + expectedFile;
+    let exists = false;
+    try {
+      await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      exists = true;
+    } catch (error) {
+      if (error?.$metadata?.httpStatusCode !== 404 && error?.name !== 'NotFound' && error?.name !== 'NoSuchKey') throw error;
+    }
+    if (exists) {
+      console.log('RECOVERY_RESTORE_ALREADY_COMPLETE', expectedFile);
+    } else {
+      const pending = await s3.send(new ListMultipartUploadsCommand({ Bucket: bucket, Prefix: key, MaxUploads: 100 }));
+      const matches = (pending.Uploads || []).filter(up =>
+        up.Key === key && up.Initiated?.toISOString().startsWith('2026-10-15'));
+      if (matches.length !== 1) throw new Error('Expected one matching incomplete upload, found ' + matches.length);
+      const upload = matches[0];
+      const response = await s3.send(new ListPartsCommand({
+        Bucket: bucket, Key: key, UploadId: upload.UploadId, MaxParts: 1000,
+      }));
+      const parts = response.Parts || [];
+      const bytes = parts.reduce((total, part) => total + (part.Size || 0), 0);
+      if (response.IsTruncated || parts.length !== 342 || bytes !== 2868903936 ||
+          parts.some((part, i) => part.PartNumber !== i + 1 || !part.ETag ||
+            (i < parts.length - 1 && part.Size < 5 * 1024 * 1024))) {
+        throw new Error('Multipart validation failed: ' + parts.length + ' parts and ' + bytes + ' bytes');
+      }
+      console.log('RECOVERY_RESTORE_VERIFIED_PARTS', parts.length, bytes);
+      await s3.send(new CompleteMultipartUploadCommand({
+        Bucket: bucket, Key: key, UploadId: upload.UploadId,
+        MultipartUpload: { Parts: parts.map(part => ({ PartNumber: part.PartNumber, ETag: part.ETag })) },
+      }));
+      const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      if (Number(head.ContentLength) !== bytes) throw new Error('Completed archive has unexpected size');
+      console.log('RECOVERY_SUCCESS_MP4_SAVED', expectedFile, head.ContentLength);
+    }
+  } catch (error) {
+    console.error('RECOVERY_RESTORE_FAILED', error?.name || 'Error', String(error?.message || '').slice(0, 140));
+  }
   try {
     let next, scanned = 0, recent = 0;
     do {
