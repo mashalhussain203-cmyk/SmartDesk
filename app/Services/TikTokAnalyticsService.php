@@ -198,7 +198,7 @@ class TikTokAnalyticsService
             $timezone = 'UTC';
         }
 
-        $posts = Cache::remember('mashal:posting-times:v2:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
+        $posts = Cache::remember('mashal:posting-times:v3:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
             $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en') ?? [];
             $scope = $state['__DEFAULT_SCOPE__'] ?? [];
             $sources = [
@@ -275,11 +275,25 @@ class TikTokAnalyticsService
                 }
             }
 
+            // Independent public profile extractor as a final fallback.
+            if (count($posts) < 10) {
+                foreach ($this->ytDlpUserPosts($username) as $entry) {
+                    $id = (string) ($entry['id'] ?? '');
+                    $views = $this->number($entry['views'] ?? null);
+                    $date = $this->number($entry['published_at'] ?? null);
+                    if (preg_match('/^[0-9]{15,22}$/', $id) &&
+                        $views !== null && $date !== null &&
+                        $date > 1577836800 && $date <= time() + 86400) {
+                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $date];
+                    }
+                }
+            }
+
             if ($posts === []) {
                 throw new RuntimeException(
-                    'Geen openbare videostatistieken beschikbaar via TikTok of de aanvullende publieke bron. '.
-                    'We hebben zowel het profiel als de publieke videofeed gecontroleerd. '.
-                    'Bij een TikTok-verificatie of afgeschermd account kan dit niet automatisch.'
+                    'Er zijn geen verifieerbare openbare videostatistieken ontvangen voor @'.$username.'. '.
+                    'Het profiel, de videofeed en aanvullende bronnen geven geen bruikbare weergavecijfers terug. '.
+                    'Dit kan gebeuren bij een privéaccount, regiobeperking of TikTok-blokkade.'
                 );
             }
 
@@ -393,54 +407,85 @@ class TikTokAnalyticsService
      */
     private function mirrorUserPosts(string $username): array
     {
+        // The independent public service documents unique_id in both
+        // @username and username forms. Retry only if the first is empty.
+        foreach ([$username, '@'.$username] as $identifier) {
+            try {
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'Mozilla/5.0 (compatible; MashalStudio/1.0)',
+                ])->connectTimeout(4)->timeout(8)->get('https://www.tikwm.com/api/user/posts', [
+                    'unique_id' => $identifier,
+                    'count' => 30,
+                    'cursor' => 0,
+                ]);
+
+                $payload = $response->successful() ? $response->json() : null;
+                if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
+                    continue;
+                }
+                $items = $payload['data']['videos'] ?? [];
+                if (!is_array($items)) {
+                    continue;
+                }
+
+                $posts = [];
+                foreach (array_slice($items, 0, 60) as $video) {
+                    if (!is_array($video)) {
+                        continue;
+                    }
+                    $author = $video['author']['unique_id'] ?? $video['author']['uniqueId'] ?? null;
+                    if (is_string($author) && strcasecmp(ltrim($author, '@'), $username) !== 0) {
+                        continue;
+                    }
+
+                    $id = (string) ($video['video_id'] ?? $video['id'] ?? '');
+                    if (!preg_match('/^[0-9]{15,22}$/', $id)) {
+                        continue;
+                    }
+                    $views = $this->number($video['play_count'] ?? $video['playCount'] ?? $video['stats']['playCount'] ?? null);
+                    $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
+                    if ($published === null) {
+                        $published = intdiv((int) $id, 4294967296);
+                    }
+                    if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
+                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published];
+                    }
+                }
+
+                if ($posts !== []) {
+                    return array_values($posts);
+                }
+            } catch (Throwable $e) {
+                // Do not invent posts when TikWM is rate-limited or unavailable.
+            }
+        }
+        return [];
+    }
+
+    private function ytDlpUserPosts(string $username): array
+    {
+        if (!preg_match('/^[A-Za-z0-9._]{1,24}$/', $username)) {
+            return [];
+        }
+        $script = base_path('scripts/tiktok_profile_fetch.py');
+        if (!is_file($script)) {
+            return [];
+        }
+        $python = base_path('.venv/bin/python');
+        if (!is_file($python)) {
+            $python = is_file('/opt/tiktok-venv/bin/python') ? '/opt/tiktok-venv/bin/python' : 'python3';
+        }
         try {
-            $response = Http::withHeaders([
-                'Accept' => 'application/json',
-                'User-Agent' => 'MashalStudio/1.0 (public TikTok analytics)',
-            ])->connectTimeout(5)->timeout(10)->get('https://www.tikwm.com/api/user/posts', [
-                'unique_id' => $username,
-                'count' => 30,
-                'cursor' => 0,
-            ]);
-
-            $payload = $response->successful() ? $response->json() : null;
-            if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
+            $proc = new Process([$python, $script, $username]);
+            $proc->setTimeout(23);
+            $proc->run();
+            if (!$proc->isSuccessful()) {
                 return [];
             }
-
-            $videos = $payload['data']['videos'] ?? [];
-            if (!is_array($videos)) {
-                return [];
-            }
-
-            $posts = [];
-            foreach (array_slice($videos, 0, 60) as $video) {
-                if (!is_array($video)) {
-                    continue;
-                }
-
-                $author = $video['author']['unique_id'] ?? $video['author']['uniqueId'] ?? null;
-                if (is_string($author) && strcasecmp(ltrim($author, '@'), $username) !== 0) {
-                    continue;
-                }
-
-                $id = (string) ($video['video_id'] ?? $video['id'] ?? '');
-                if (!preg_match('/^[0-9]{15,22}$/', $id)) {
-                    continue;
-                }
-
-                $views = $this->number($video['play_count'] ?? $video['playCount'] ?? $video['stats']['playCount'] ?? null);
-                $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
-                if ($published === null) {
-                    $published = intdiv((int) $id, 4294967296);
-                }
-
-                if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
-                    $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published];
-                }
-            }
-
-            return array_values($posts);
+            $result = json_decode($proc->getOutput(), true);
+            return is_array($result) && is_array($result['posts'] ?? null)
+                ? $result['posts'] : [];
         } catch (Throwable $e) {
             return [];
         }
