@@ -159,8 +159,8 @@
                 <button class="ms-action" type="submit">{{ $isVideo ? 'ANALYZE' : 'CHECK' }} →</button>
             </form>
             <p class="ms-hint">{{ $isVideo
-                ? __('Alleen openbaar beschikbare data; niet-gepubliceerde technische metadata en shadowban-status zijn niet te bevestigen.')
-                : __('We vergelijken de views van je recente openbare video’s op basis van hun plaatsingsmoment. Geen TikTok-login nodig. Als TikTok dit blokkeert, probeert de tool ook een externe openbare videofeed (TikWM).') }}</p>
+                ? __('De framerate komt uit publieke videometadata of een echte meting met ffprobe. Zonder toegang tot de mediastream kunnen we geen FPS bevestigen.')
+                : __('Deze tool gebruikt uitsluitend verzamelde openbare posts. Het zijn historische weergavecijfers per uploadmoment, niet de officiële volgersactiviteit uit TikTok Studio. Zonder beschikbare posts tonen we geen verzonnen tijden.') }}</p>
 
             @if($error)
                 <div class="ms-error" role="alert">{{ $error }}</div>
@@ -281,7 +281,20 @@
                         </div>
                         <span class="ms-timezone">🕓 {{ $result['timezone'] }}</span>
                     </div>
-                    <h3 class="ms-subhead">{{ __('Best performing upload times') }}</h3>
+                    <div class="ms-note">
+                        <strong>Betrouwbaarheid: {{ $result['sample_reliable'] ? 'redelijke steekproef' : 'indicatief / beperkte steekproef' }}.</strong>
+                        Gebaseerd op {{ $result['post_count'] }} echt opgehaalde openbare video's.
+                        {{ $result['estimated_dates'] }} uploaddatums zijn afgeleid uit video-ID's en niet rechtstreeks bevestigd.
+                        {{ $result['repeated_slots'] }} uploaduren bevatten minstens twee video's.
+                        <div style="margin-top:9px">
+                            <strong>Databronnen:</strong>
+                            @foreach($result['source_counts'] as $source => $count)
+                                <span style="display:inline-block;margin:3px 8px 0 0">{{ $source }}: {{ $count }}</span>
+                            @endforeach
+                        </div>
+                        <span style="display:block;margin-top:9px">De aanbevelingen vergelijken al behaalde views en voorspellen niet wanneer je volgers online zijn. Een virale of oudere video kan de ranglijst vertekenen.</span>
+                    </div>
+                    <h3 class="ms-subhead">{{ __('Historisch best presterende uploadmomenten (indicatief)') }}</h3>
                     <div class="ms-best-list">
                         @foreach($result['best'] as $i => $slot)
                             <div class="ms-best">
@@ -319,9 +332,9 @@
                     </div>
                     <div class="ms-note">
                         {{ __('Dit zijn historische resultaten van openbare posts, geen garantie voor toekomstige views. Eén virale video kan een tijdslot sterk beïnvloeden. De tijden zijn omgerekend naar de getoonde tijdzone, niet naar de tijdzone van je TikTok-publiek.') }}
-                        @if($result['post_count'] < 10)
-                            <strong>{{ __('Er zijn weinig video’s beschikbaar, dus deze schatting is minder betrouwbaar.') }}</strong>
-                        @endif
+                        @unless($result['sample_reliable'])
+                            <strong>{{ __('Te weinig herhaalde uploadmomenten of te veel onbevestigde datums voor een betrouwbare ranglijst. Gebruik de uitkomsten alleen als aanwijzing.') }}</strong>
+                        @endunless
                     </div>
                 </div>
             @endif

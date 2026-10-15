@@ -198,12 +198,11 @@ class TikTokAnalyticsService
             $timezone = 'UTC';
         }
 
-        $posts = Cache::remember('mashal:posting-times:v3:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
+        $posts = Cache::remember('mashal:posting-times:v4:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
             $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en') ?? [];
             $scope = $state['__DEFAULT_SCOPE__'] ?? [];
             $sources = [
                 $scope['webapp.user-post'] ?? [],
-                $state['ItemModule'] ?? [],
                 $scope['webapp.user-detail'] ?? [],
             ];
             $posts = [];
@@ -221,12 +220,14 @@ class TikTokAnalyticsService
                     if ($authorId === null || strcasecmp(ltrim((string) $authorId, '@'), $username) === 0) {
                         $views = $this->number($stats['playCount'] ?? $stats['viewCount'] ?? null);
                         $published = $this->number($node['createTime'] ?? $node['create_time'] ?? null);
+                        $dateEstimated = $published === null;
                         if ($published === null) {
                             // TikTok's video snowflake id stores creation time in its high 32 bits.
                             $published = intdiv((int) $id, 4294967296);
                         }
                         if ($views !== null && $published > 1577836800 && $published < time() + 86400) {
-                            $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published];
+                            $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published,
+                                'source' => 'TikTok', 'date_estimated' => $dateEstimated];
                         }
                     }
                 }
@@ -254,7 +255,8 @@ class TikTokAnalyticsService
             // public third-party mirror; never send user credentials to it.
             if (count($posts) < 10) {
                 foreach ($this->mirrorUserPosts($username) as $post) {
-                    $posts[$post['id']] = $post;
+                    // An official TikTok observation takes precedence over a mirror.
+                    $posts[$post['id']] ??= $post;
                 }
             }
 
@@ -270,7 +272,8 @@ class TikTokAnalyticsService
                     $views = $this->number($row['views'] ?? null);
                     $date = $this->number($row['published_at'] ?? null);
                     if ($views !== null && $date !== null && $date > 1577836800 && $date <= time() + 86400) {
-                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $date];
+                        $posts[$id] ??= ['id' => $id, 'views' => $views, 'published_at' => $date,
+                            'source' => 'TikTok browser', 'date_estimated' => true];
                     }
                 }
             }
@@ -284,7 +287,8 @@ class TikTokAnalyticsService
                     if (preg_match('/^[0-9]{15,22}$/', $id) &&
                         $views !== null && $date !== null &&
                         $date > 1577836800 && $date <= time() + 86400) {
-                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $date];
+                        $posts[$id] ??= ['id' => $id, 'views' => $views, 'published_at' => $date,
+                            'source' => 'yt-dlp', 'date_estimated' => true];
                     }
                 }
             }
@@ -303,6 +307,17 @@ class TikTokAnalyticsService
             return array_slice($posts, 0, 60);
         });
 
+        // Audit the origin of the observations. This is historical post
+        // performance, NOT TikTok's private follower-active-hours analytics.
+        $sources = [];
+        $estimatedDates = 0;
+        foreach ($posts as $post) {
+            $origin = (string) ($post['source'] ?? 'Onbekende openbare bron');
+            $sources[$origin] = ($sources[$origin] ?? 0) + 1;
+            if ($post['date_estimated'] ?? true) {
+                $estimatedDates++;
+            }
+        }
         $slots = [];
         $daily = array_fill(0, 7, ['views' => 0, 'count' => 0]);
         foreach ($posts as $post) {
@@ -326,6 +341,8 @@ class TikTokAnalyticsService
         uasort($slots, fn ($a, $b) => $b['average'] <=> $a['average'] ?: $b['count'] <=> $a['count']);
 
         $best = array_slice(array_values($slots), 0, 5);
+        $repeatSlots = count(array_filter($slots, fn ($slot) => $slot['count'] >= 2));
+        $sampleReliable = count($posts) >= 20 && $repeatSlots >= 3 && $estimatedDates <= count($posts) / 4;
         $maximum = max(array_column($slots, 'average') ?: [1]);
         $matrix = [];
         for ($day = 0; $day < 7; $day++) {
@@ -343,6 +360,10 @@ class TikTokAnalyticsService
             'username' => $username,
             'timezone' => $timezone,
             'post_count' => count($posts),
+            'source_counts' => $sources,
+            'estimated_dates' => $estimatedDates,
+            'repeated_slots' => $repeatSlots,
+            'sample_reliable' => $sampleReliable,
             'best' => $best,
             'matrix' => $matrix,
             'daily' => $daily,
@@ -445,11 +466,13 @@ class TikTokAnalyticsService
                     }
                     $views = $this->number($video['play_count'] ?? $video['playCount'] ?? $video['stats']['playCount'] ?? null);
                     $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
+                    $dateEstimated = $published === null;
                     if ($published === null) {
                         $published = intdiv((int) $id, 4294967296);
                     }
                     if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
-                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published];
+                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published,
+                            'source' => 'TikWM', 'date_estimated' => $dateEstimated];
                     }
                 }
 
