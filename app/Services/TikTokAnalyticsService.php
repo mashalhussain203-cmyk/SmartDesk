@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 class TikTokAnalyticsService
@@ -16,7 +17,7 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v1:'.$videoId, now()->addMinutes(2), function () use ($videoUrl, $videoId, $counter) {
+        return Cache::remember('mashal:video-analyzer:v2:'.$videoId, now()->addMinutes(2), function () use ($videoUrl, $videoId, $counter) {
             $item = null;
             $state = $this->publicPage($videoUrl);
 
@@ -28,6 +29,20 @@ class TikTokAnalyticsService
                     ?? null;
                 if (!is_array($item) || (string) ($item['id'] ?? '') !== $videoId) {
                     $item = $this->findVideo($state, $videoId);
+                }
+            }
+
+            // The rendered public TikTok page can contain data not in the
+            // initial HTTP HTML (including a video's posted region).
+            if (!is_array($item) || empty($item['region'])) {
+                $browser = $this->browserData('video', $videoUrl, $videoId);
+                if (is_array($browser['item'] ?? null)) {
+                    $browserItem = $browser['item'];
+                    if (!is_array($item)) {
+                        $item = $browserItem;
+                    } else {
+                        $item = array_replace_recursive($browserItem, $item);
+                    }
                 }
             }
 
@@ -87,7 +102,12 @@ class TikTokAnalyticsService
                 'bitrate' => $bitrate,
                 'codec' => $technical['codecType'] ?? $technical['codec'] ?? null,
                 'file_size' => $this->number($technical['size'] ?? null),
-                'region' => $item['region'] ?? null,
+                'region' => $this->postRegion($item),
+                'region_source' => $this->postRegion($item) !== null
+                    ? 'TikTok openbare postmetadata' : null,
+                'shadowban' => 'Alleen in TikTok Studio te controleren',
+                'public_visibility' => is_array($item)
+                    ? 'Openbare video gevonden' : ($embed !== null ? 'Embed publiek beschikbaar' : 'Onbekend'),
                 'availability' => is_array($item) ? 'Publieke videodata gevonden' : 'Beperkte openbare gegevens',
                 'checked_at' => now()->format('d-m-Y H:i'),
             ];
@@ -100,16 +120,8 @@ class TikTokAnalyticsService
             $timezone = 'UTC';
         }
 
-        $posts = Cache::remember('mashal:posting-times:v1:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
-            $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en');
-            if ($state === null) {
-                // The public creator embed can expose recent videos when profile SSR is blocked.
-                $state = $this->publicPage('https://www.tiktok.com/embed/@'.rawurlencode($username));
-            }
-            if ($state === null) {
-                throw new RuntimeException('TikTok geeft momenteel geen openbare profieldata terug. Probeer het later opnieuw.');
-            }
-
+        $posts = Cache::remember('mashal:posting-times:v2:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
+            $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en') ?? [];
             $scope = $state['__DEFAULT_SCOPE__'] ?? [];
             $sources = [
                 $scope['webapp.user-post'] ?? [],
@@ -152,15 +164,37 @@ class TikTokAnalyticsService
                 $collect($source);
             }
 
-            if ($posts === []) {
-                $embedded = $this->publicPage('https://www.tiktok.com/embed/@'.rawurlencode($username));
-                if ($embedded !== null) {
-                    $collect($embedded);
+            // TikTok places the profile's post list behind /api/post/item_list.
+            // The initial server-rendered HTML often contains *no* video cards.
+            if (count($posts) < 15) {
+                foreach ($this->publicPostPages($state) as $publicFeed) {
+                    $collect($publicFeed);
+                }
+            }
+
+            // Browser fallback observes publicly loaded TikTok data with the
+            // same Chromium dependencies already installed on Railway.
+            if (count($posts) < 10) {
+                $browser = $this->browserData('posts', $username);
+                foreach ($browser['posts'] ?? [] as $row) {
+                    if (!is_array($row) || !preg_match('/^[0-9]{15,22}$/', (string) ($row['id'] ?? ''))) {
+                        continue;
+                    }
+                    $id = (string) $row['id'];
+                    $views = $this->number($row['views'] ?? null);
+                    $date = $this->number($row['published_at'] ?? null);
+                    if ($views !== null && $date !== null && $date > 1577836800 && $date <= time() + 86400) {
+                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $date];
+                    }
                 }
             }
 
             if ($posts === []) {
-                throw new RuntimeException('Geen recente openbare video’s met weergavecijfers gevonden. TikTok kan profielgegevens beperken.');
+                throw new RuntimeException(
+                    'TikTok heeft geen recente openbare videostatistieken vrijgegeven. '.
+                    'We hebben zowel het profiel als de publieke videofeed gecontroleerd. '.
+                    'Bij een TikTok-verificatie of afgeschermd account kan dit niet automatisch.'
+                );
             }
 
             $posts = array_values($posts);
@@ -214,6 +248,106 @@ class TikTokAnalyticsService
             'daily' => $daily,
             'checked_at' => now()->format('d-m-Y H:i'),
         ];
+    }
+
+
+    /**
+     * Public web post feed. Some users have only a userInfo/secUid in
+     * server-rendered HTML; itemList is loaded later through the web API.
+     */
+    private function publicPostPages(array $state): array
+    {
+        $scope = $state['__DEFAULT_SCOPE__'] ?? [];
+        $user = $scope['webapp.user-detail']['userInfo']['user']
+            ?? $scope['webapp.user-detail']['user_info']['user'] ?? [];
+        $secUid = is_array($user) ? ($user['secUid'] ?? $user['sec_uid'] ?? null) : null;
+        if (!is_string($secUid) || !preg_match('/^[\w-]{12,150}$/', $secUid)) {
+            return [];
+        }
+
+        $pages = [];
+        $cursor = 0;
+        for ($batch = 0; $batch < 2; $batch++) {
+            try {
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Referer' => 'https://www.tiktok.com/',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36',
+                ])->connectTimeout(5)->timeout(11)->get('https://www.tiktok.com/api/post/item_list/', [
+                    'aid' => 1988,
+                    'app_name' => 'tiktok_web',
+                    'device_platform' => 'web_pc',
+                    'from_page' => 'user',
+                    'count' => 30,
+                    'cursor' => $cursor,
+                    'secUid' => $secUid,
+                ]);
+
+                $data = $response->successful() ? $response->json() : null;
+                if (!is_array($data) || !is_array($data['itemList'] ?? null)) {
+                    break;
+                }
+                $pages[] = $data;
+                if (empty($data['hasMore']) || !isset($data['cursor']) || (string) $data['cursor'] === (string) $cursor) {
+                    break;
+                }
+                $cursor = (string) $data['cursor'];
+            } catch (Throwable $e) {
+                break;
+            }
+        }
+
+        return $pages;
+    }
+
+    private function browserData(string $mode, string $target, ?string $videoId = null): array
+    {
+        $script = base_path('scripts/tiktok_analytics_browser.py');
+        if (!is_file($script)) {
+            return [];
+        }
+
+        $python = base_path('.venv/bin/python');
+        if (!is_file($python)) {
+            $python = is_file('/opt/tiktok-venv/bin/python')
+                ? '/opt/tiktok-venv/bin/python' : 'python3';
+        }
+
+        $arguments = [$python, $script, $mode, $target];
+        if ($mode === 'video') {
+            $arguments[] = (string) $videoId;
+        }
+
+        try {
+            $process = new Process($arguments);
+            $process->setTimeout(30);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return [];
+            }
+
+            $result = json_decode($process->getOutput(), true);
+            return is_array($result) ? $result : [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    private function postRegion(mixed $item): ?string
+    {
+        if (!is_array($item)) {
+            return null;
+        }
+
+        // This is the region field of the *post*, not the creator's IP,
+        // phone country code, account country or their audience's country.
+        foreach ([$item['region'] ?? null, $item['locationCreated'] ?? null] as $value) {
+            if (is_string($value) && preg_match('/^[A-Z]{2}$/i', $value)) {
+                return strtoupper($value);
+            }
+        }
+
+        return null;
     }
 
     private function publicPage(string $url): ?array

@@ -163,13 +163,14 @@
                         <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000000, 2, ',', '.').' Mbps' : 'Niet beschikbaar' }}</strong></div>
                         <div class="ms-spec"><small>Codec</small><strong>{{ $result['codec'] ?? 'Niet beschikbaar' }}</strong></div>
                         <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 2, ',', '.').' MB' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Region</small><strong>{{ $result['region'] ?? 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>Region (TikTok post)</small><strong>{{ $result['region'] ?? 'Niet meegestuurd' }}</strong><small>{{ $result['region_source'] ?? 'TikTok heeft geen regio voor deze post gepubliceerd' }}</small></div>
                         <div class="ms-spec"><small>Engagement rate</small><strong>{{ $result['engagement'] !== null ? number_format($result['engagement'], 2, ',', '.').'%' : 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Shadow ban</small><strong>Niet betrouwbaar meetbaar</strong></div>
+                        <div class="ms-spec"><small>Openbare vindbaarheid</small><strong>{{ $result['public_visibility'] }}</strong></div>
+                        <div class="ms-spec"><small>Shadow ban / For You-status</small><strong>{{ $result['shadowban'] }}</strong><small><a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">TikTok: bekijk officiële geschiktheid ↗</a></small></div>
                     </div>
                     <div class="ms-note">
                         <strong>{{ $result['availability'] }}</strong> · {{ __('Bijgewerkt') }} {{ $result['checked_at'] }}.
-                        {{ __('TikTok toont niet altijd FPS, bitrate of werkelijke afspeelresolutie. Ontbrekende gegevens betekenen niet dat een video lage kwaliteit heeft. Een shadowban kan niet uit deze gegevens worden vastgesteld.') }}
+                        {{ __('De getoonde regio komt rechtstreeks uit openbare postmetadata, niet uit je IP-adres. TikTok geeft niet voor elke video een regio mee. De officiële For You-feedgeschiktheid is alleen zichtbaar voor de eigenaar in TikTok Studio. Publieke vindbaarheid is geen bewijs dat aanbevelingen actief zijn.') }}
                     </div>
                 </div>
             @elseif($result && !$isVideo)
