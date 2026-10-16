@@ -3176,7 +3176,7 @@
 
             <div class="edit-hero-copy">
 
-                <span class="edit-hero-kicker">Mashal User Management</span>
+                <span class="edit-hero-kicker">{{ __("Mashal User Management") }}</span>
 
 
 
@@ -3606,7 +3606,7 @@
 
 
 
-                            01 / Identity
+                            {{ __("01 / Identity") }}
 
 
 
@@ -3918,7 +3918,7 @@
 
 
 
-                            02 / Credentials
+                            {{ __("02 / Credentials") }}
 
 
 
@@ -4314,7 +4314,7 @@
 
 
 
-                            03 / Access
+                            {{ __("03 / Access") }}
 
 
 
@@ -4714,7 +4714,7 @@
 
 
 
-                        Annuleren
+                        {{ __("Annuleren") }}
 
 
 
@@ -5404,7 +5404,7 @@
 
 
 
-                Account protection
+                {{ __("Account protection") }}
 
 
 

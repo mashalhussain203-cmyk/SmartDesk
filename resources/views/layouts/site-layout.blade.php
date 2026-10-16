@@ -7046,7 +7046,7 @@
             <div class="expert-command-head">
                 <div>
                     <span class="expert-command-kicker">
-                        Navigation
+                        {{ __("Navigation") }}
                     </span>
 
                     <strong id="studioCommandTitle">
@@ -7604,7 +7604,7 @@
                             </strong>
 
                             <small>
-                                Image workspace
+                                {{ __("Image workspace") }}
                             </small>
                         </span>
                     </a>
@@ -7625,12 +7625,12 @@
 
                     <div class="studio-footer-links">
                         <a href="{{ route('home') }}">
-                            Home
+                            {{ __("Home") }}
                         </a>
 
                         @if ($hasLiveCounts)
                             <a href="{{ route('live-counts.index') }}">
-                                Live Counts
+                                {{ __("Live Counts") }}
                             </a>
                         @endif
 

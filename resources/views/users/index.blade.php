@@ -3792,7 +3792,7 @@
 
 
 
-                E-mailcode
+                {{ __("E-mailcode") }}
 
 
 
@@ -3804,7 +3804,7 @@
 
 
 
-                Magic link
+                {{ __("Magic link") }}
 
 
 
@@ -4592,7 +4592,7 @@
 
 
 
-                                        Onbekend
+                                        {{ __("Onbekend") }}
 
 
 
@@ -4728,7 +4728,7 @@
 
 
 
-                                                Verwijderen
+                                                {{ __("Verwijderen") }}
 
 
 

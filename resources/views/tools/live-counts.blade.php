@@ -363,7 +363,7 @@
                     <div class="livehub-live"><i></i> {{ __('Live') }}</div>
                 </div>
 
-                <h3>TikTok Live Followers</h3>
+                <h3>{{ __("TikTok Live Followers") }}</h3>
                 <p>
                     {{ __('Volg de follower count van een publiek TikTok-account samen met likes, following en het aantal videos.') }}
                 </p>
@@ -415,7 +415,7 @@
                     <span>{{ __('Views') }}</span>
                     <span>{{ __('Engagement') }}</span>
                     <span>{{ __('Resolution') }}</span>
-                    <span>FPS</span>
+                    <span>{{ __("FPS") }}</span>
                 </div>
                 <span class="livehub-arrow" aria-hidden="true">→</span>
             </a>
