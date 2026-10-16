@@ -374,7 +374,9 @@ class VideoOptimizerController extends Controller
             $result['download_url'] = route('video-optimizer.download', ['token' => $token]);
             $result['verify_url'] = route('video-optimizer.verify', ['token' => $token]);
             $result['token'] = $token;
-            $result['note'] = __('Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.');
+            $result['note'] = __('Verified 4K at 120 FPS with motion-compensated intermediate frames, Lanczos upscaling and moderate sharpening. This is not AI detail restoration.');
+            $result['frame_generation'] = (string) ($state['frame_generation'] ?? 'unknown');
+            $result['upscaling'] = (string) ($state['upscaling'] ?? 'unknown');
             $result['width'] = (int) ($state['width'] ?? 0);
             $result['height'] = (int) ($state['height'] ?? 0);
             $result['fps'] = (float) ($state['fps'] ?? 0);
