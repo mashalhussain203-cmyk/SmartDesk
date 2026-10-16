@@ -306,7 +306,7 @@ class VideoOptimizerController extends Controller
             $state = json_decode((string) file_get_contents($expected), true);
             $created = (int) ($state['created_at'] ?? 0);
             if (! is_array($state) || $created < $newest
-                || ! in_array($state['status'] ?? '', ['queued', 'processing', 'ready'], true)) {
+                || ! in_array($state['status'] ?? '', ['queued', 'processing', 'ready', 'failed'], true)) {
                 continue;
             }
 
@@ -353,6 +353,16 @@ class VideoOptimizerController extends Controller
             'message' => (string) ($state['message'] ?? ''),
         ];
 
+        $phonePath = $directory.'/'.$token.'.iphone.mp4';
+        if (($state['iphone_ready'] ?? false) === true && is_file($phonePath)) {
+            $result['iphone_download_url'] = route('video-optimizer.download', [
+                'token' => $token, 'version' => 'iphone',
+            ]);
+            $result['iphone_width'] = (int) ($state['iphone_width'] ?? 0);
+            $result['iphone_height'] = (int) ($state['iphone_height'] ?? 0);
+            $result['iphone_fps'] = (float) ($state['iphone_fps'] ?? 0);
+        }
+
         if ($status === 'ready' && is_file($directory.'/'.$token.'.mp4')) {
             $result['download_url'] = route('video-optimizer.download', ['token' => $token]);
             $result['token'] = $token;
@@ -373,8 +383,17 @@ class VideoOptimizerController extends Controller
             abort(404);
         }
 
-        $expected = storage_path('app/private/video-optimizer/'.$token.'.mp4');
-        if (($entry['path'] ?? '') !== $expected || ! is_file($expected)) {
+        $master = storage_path('app/private/video-optimizer/'.$token.'.mp4');
+        if (($entry['path'] ?? '') !== $master) {
+            abort(404);
+        }
+
+        $iphone = $request->query('version') === 'iphone';
+        $expected = $iphone
+            ? storage_path('app/private/video-optimizer/'.$token.'.iphone.mp4')
+            : $master;
+
+        if (! is_file($expected)) {
             abort(404);
         }
 
@@ -383,14 +402,20 @@ class VideoOptimizerController extends Controller
                 ? json_decode((string) file_get_contents($entry['status_file']), true)
                 : null;
 
-            if (($state['status'] ?? '') !== 'ready') {
+            if (! is_array($state)) {
                 abort(404);
             }
+            if ($iphone ? ($state['iphone_ready'] ?? false) !== true
+                : ($state['status'] ?? '') !== 'ready') {
+                abort(404);
+            }
+        } elseif ($iphone) {
+            abort(404);
         }
 
-        $filename = isset($entry['status_file'])
-            ? 'mashal-4k-120fps.mp4'
-            : 'mashal-optimized-original.mp4';
+        $filename = $iphone
+            ? 'mashal-iphone-compatible-1080p60.mp4'
+            : (isset($entry['status_file']) ? 'mashal-4k-120fps.mp4' : 'mashal-optimized-original.mp4');
 
         return response()->download($expected, $filename, [
             'Content-Type' => 'video/mp4',
@@ -408,7 +433,7 @@ class VideoOptimizerController extends Controller
 
             $name = basename($file);
             if (! preg_match('/^([a-f0-9]{40})(?:\.source)?\.(?:mp4|mov)$/', $name)
-                && ! preg_match('/^[a-f0-9]{40}\.(?:status\.json|log|partial\.mp4)$/', $name)) {
+                && ! preg_match('/^[a-f0-9]{40}\.(?:status\.json|log|partial\.mp4|iphone\.mp4|iphone\.partial\.mp4)$/', $name)) {
                 continue;
             }
 

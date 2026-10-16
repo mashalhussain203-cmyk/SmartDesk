@@ -74,6 +74,8 @@
     .vo-result h2{font-size:21px;margin:0 0 9px;color:#b5f0c5}
     .vo-result p{margin:0 0 16px;color:#b6cebd;font-size:13px;line-height:1.6}
     .vo-result .vo-verified-spec{color:#eaf8cf;font-size:15px;font-weight:800}
+    .vo-phone-link{display:block;padding:14px 16px;margin-top:12px;border-radius:12px;background:#202e42;border:1px solid #5f8ac5;color:#e4efff;font-weight:800;text-align:center;text-decoration:none}
+    .vo-phone-link[hidden]{display:none!important}
     .vo-download{display:block;border-radius:12px;padding:18px;background:#95d60d;color:#152500;text-decoration:none;font-size:16px;font-weight:900}
     .vo-more{margin-top:12px;background:transparent;border:1px solid #617e6c;color:#daefe0;border-radius:12px;padding:12px 17px;cursor:pointer}
     .vo-tiktok{display:inline-block;margin-top:16px;color:#c9bfff;font-weight:650}
@@ -147,6 +149,7 @@
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
                 <div class="vo-status" id="vo-status" role="status" aria-live="polite"></div>
+                <a id="vo-phone-ready" class="vo-phone-link" hidden href="#">{{ __('Download iPhone-compatible video (1080p / 60 FPS)') }} ↓</a>
             </form>
 
             <div class="vo-result" id="vo-result" aria-live="polite">
@@ -154,6 +157,7 @@
                 <p id="vo-result-note"></p>
                 <p class="vo-verified-spec" id="vo-verified-spec" aria-live="polite"></p>
                 <a class="vo-download" href="#" id="vo-download" download="mashal-optimized-video.mp4">{{ __('Download optimized MP4') }} ↓</a>
+                <a class="vo-phone-link" href="#" hidden id="vo-phone-download">{{ __('Download iPhone-compatible video (1080p / 60 FPS)') }} ↓</a>
                 <a class="vo-tiktok" href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer">{{ __('Open TikTok uploader') }} ↗</a>
                 <details class="vo-autopost" id="vo-auto-post">
                     <summary>{{ __('Auto Post via Zernio (optional)') }}</summary>
@@ -181,6 +185,7 @@
             <ul>
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
                 <li>{{ __('4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.') }}</li>
+                <li>{{ __('4K/120 FPS MP4 may be unsupported by iPhone Photos. Download the separate 1080p/60 FPS iPhone-compatible MP4 for saving to your camera roll and sharing.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
                 <li>{{ __('Your video is processed privately. 4K exports remain temporarily available for up to 6 hours.') }}</li>
                 <li>{{ __('Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.') }}</li>
@@ -208,6 +213,23 @@
     var renderTimer = null;
     var measuredDuration = null;
     var labels = @json($videoOptimizerLabels);
+    var phoneInProgress = document.getElementById('vo-phone-ready');
+    var phoneFinal = document.getElementById('vo-phone-download');
+    function showPhoneDownload(response) {
+        if (!response || !response.iphone_download_url) { return; }
+        phoneInProgress.href = response.iphone_download_url;
+        phoneInProgress.hidden = false;
+        phoneInProgress.download = 'mashal-iphone-compatible-1080p60.mp4';
+        phoneFinal.href = response.iphone_download_url;
+        phoneFinal.hidden = false;
+        phoneFinal.download = 'mashal-iphone-compatible-1080p60.mp4';
+    }
+    function resetPhoneLinks() {
+        phoneInProgress.hidden = true;
+        phoneFinal.hidden = true;
+        phoneInProgress.removeAttribute('href');
+        phoneFinal.removeAttribute('href');
+    }
 
     function setStatus(text, error) {
         status.textContent = text || '';
@@ -222,6 +244,7 @@
 
     function showFile(file) {
         if (busy) { return; }
+        resetPhoneLinks();
         result.classList.remove('is-visible');
         progress.classList.remove('is-visible');
         setStatus('', false);
@@ -305,6 +328,7 @@
     });
 
     function ready(response) {
+        showPhoneDownload(response);
         if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
         busy = false;
         submit.disabled = !currentFile;
@@ -354,6 +378,7 @@
                 return response.json();
             }).then(function (state) {
                 errors = 0;
+                showPhoneDownload(state);
                 if (state.status === 'ready' && state.download_url) {
                     ready(state);
                 } else if (state.status === 'failed') {
@@ -396,6 +421,7 @@
         setProgress(1);
         setStatus(labels.upload, false);
         result.classList.remove('is-visible');
+        resetPhoneLinks();
 
         var data = new FormData(form);
         data.set('video', currentFile, currentFile.name);
@@ -548,6 +574,7 @@
     });
 
     document.getElementById('vo-again').addEventListener('click', function () {
+        resetPhoneLinks();
         if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
         result.classList.remove('is-visible');
         progress.classList.remove('is-visible');

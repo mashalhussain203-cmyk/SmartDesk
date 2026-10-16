@@ -61,6 +61,21 @@ class VideoOptimizerTest extends TestCase
             ->assertJsonPath('active', false);
     }
 
+    public function test_iphone_variant_requires_a_private_export_session(): void
+    {
+        $token = str_repeat('a', 40);
+        $this->get('/tools/video-optimizer/download/'.$token.'?version=iphone')
+            ->assertNotFound();
+    }
+
+    public function test_video_optimizer_has_a_separate_iphone_download_link(): void
+    {
+        $this->get('/tools/video-optimizer')
+            ->assertOk()
+            ->assertSee('id="vo-phone-ready"', false)
+            ->assertSee('id="vo-phone-download"', false);
+    }
+
     public function test_render_status_is_private_to_the_upload_session(): void
     {
         $this->get('/tools/video-optimizer/status/'.str_repeat('a', 40))

@@ -25,6 +25,8 @@ class Render4k120Video extends Command
         $statusFile = $directory.'/'.$token.'.status.json';
         $output = $directory.'/'.$token.'.mp4';
         $partial = $directory.'/'.$token.'.partial.mp4';
+        $iphoneOutput = $directory.'/'.$token.'.iphone.mp4';
+        $iphonePartial = $directory.'/'.$token.'.iphone.partial.mp4';
 
         if (! is_file($statusFile)) {
             return self::FAILURE;
@@ -72,6 +74,98 @@ class Render4k120Video extends Command
             $width = $portrait ? 2160 : 3840;
             $height = $portrait ? 3840 : 2160;
             $duration = (float) ($state['duration'] ?? 0);
+            $renderState = $state;
+
+            // Export a separate Photos-compatible MP4 from the ORIGINAL source.
+            // H.264 Main@4.2, 1080p/60 FPS, 8-bit yuv420p and AAC-LC are
+            // dramatically more broadly decodable on iOS than 4K/120 AVC.
+            // Never relabel this copy as 4K/120 FPS.
+            try {
+                $phoneWidth = $portrait ? 1080 : 1920;
+                $phoneHeight = $portrait ? 1920 : 1080;
+                $phoneFilter = 'fps=60,scale='.$phoneWidth.':'.$phoneHeight
+                    .':force_original_aspect_ratio=decrease:force_divisible_by=2:flags=bicubic,'
+                    .'setsar=1,format=yuv420p';
+
+                $phoneEncode = new Process([
+                    'ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y',
+                    '-threads', '1', '-filter_threads', '1', '-i', $source,
+                    '-map', '0:v:0', '-map', '0:a?', '-sn', '-dn',
+                    '-map_metadata', '-1', '-map_chapters', '-1',
+                    '-vf', $phoneFilter, '-fps_mode', 'cfr',
+                    '-c:v', 'libx264', '-threads:v', '2', '-preset', 'veryfast',
+                    '-profile:v', 'main', '-level:v', '4.2', '-pix_fmt', 'yuv420p',
+                    '-maxrate', '3M', '-bufsize', '6M', '-r', '60',
+                    '-c:a', 'aac', '-b:a', '160k', '-ar', '48000',
+                    '-movflags', '+faststart', '-video_track_timescale', '60000',
+                    '-f', 'mp4', $iphonePartial,
+                ]);
+                $phoneEncode->setTimeout(3600);
+                $phoneEncode->run();
+
+                if (! $phoneEncode->isSuccessful() || ! is_file($iphonePartial)
+                    || filesize($iphonePartial) < 1024) {
+                    throw new \RuntimeException('iPhone MP4 encoding failed: '
+                        .mb_substr($phoneEncode->getErrorOutput(), 0, 250));
+                }
+
+                $checkPhone = new Process([
+                    'ffprobe', '-v', 'error', '-select_streams', 'v:0',
+                    '-show_entries', 'stream=codec_name,profile,level,width,height,pix_fmt,avg_frame_rate:format=duration',
+                    '-of', 'json', $iphonePartial,
+                ]);
+                $checkPhone->setTimeout(30);
+                $checkPhone->mustRun();
+                $phoneInfo = json_decode($checkPhone->getOutput(), true);
+                $phoneVideo = $phoneInfo['streams'][0] ?? [];
+                $phoneRate = explode('/', (string) ($phoneVideo['avg_frame_rate'] ?? '0/1'));
+                $phoneFps = (float) ($phoneRate[1] ?? 0) > 0
+                    ? (float) $phoneRate[0] / (float) $phoneRate[1] : 0.0;
+
+                if (($phoneVideo['codec_name'] ?? null) !== 'h264'
+                    || ($phoneVideo['pix_fmt'] ?? null) !== 'yuv420p'
+                    || (int) ($phoneVideo['level'] ?? 999) > 42
+                    || (int) ($phoneVideo['width'] ?? 0) > 1920
+                    || (int) ($phoneVideo['height'] ?? 0) > 1920
+                    || abs($phoneFps - 60) > 0.1
+                    || abs((float) ($phoneInfo['format']['duration'] ?? 0) - $duration) > 1.0) {
+                    throw new \RuntimeException('iPhone MP4 profile verification failed.');
+                }
+
+                // Verify actual decoder compatibility, not merely MP4 metadata.
+                $decodePhone = new Process([
+                    'ffmpeg', '-v', 'error', '-xerror', '-threads', '1',
+                    '-i', $iphonePartial, '-map', '0:v:0',
+                    '-t', '2', '-f', 'null', '-',
+                ]);
+                $decodePhone->setTimeout(90);
+                $decodePhone->mustRun();
+
+                if (! rename($iphonePartial, $iphoneOutput)) {
+                    throw new \RuntimeException('Cannot finalize iPhone-compatible MP4.');
+                }
+
+                $renderState = array_merge($state, [
+                    'iphone_ready' => true,
+                    'iphone_width' => (int) $phoneVideo['width'],
+                    'iphone_height' => (int) $phoneVideo['height'],
+                    'iphone_fps' => round($phoneFps, 2),
+                ]);
+                $this->saveStatus($statusFile, array_merge($renderState, [
+                    'status' => 'processing', 'progress' => 5,
+                ]));
+            } catch (Throwable $phoneError) {
+                @unlink($iphonePartial);
+                @unlink($iphoneOutput);
+                Log::warning('Phone-compatible MP4 export failed', [
+                    'render_token' => $token,
+                    'reason' => mb_substr($phoneError->getMessage(), 0, 300),
+                ]);
+                $renderState['iphone_error'] = 'Could not produce the phone-compatible video.';
+                $this->saveStatus($statusFile, array_merge($renderState, [
+                    'status' => 'processing', 'progress' => 1,
+                ]));
+            }
 
             // Interpolate at source size before the resource-intensive upscale.
             $filter = 'minterpolate=fps=120:mi_mode=blend,'
@@ -95,7 +189,7 @@ class Render4k120Video extends Command
             ]);
             $ffmpeg->setTimeout(10800);
             $previousProgress = 1;
-            $ffmpeg->run(function (string $type, string $buffer) use ($statusFile, $state, $duration, &$previousProgress): void {
+            $ffmpeg->run(function (string $type, string $buffer) use ($statusFile, $renderState, $duration, &$previousProgress): void {
                 if ($type !== Process::OUT || $duration <= 0) {
                     return;
                 }
@@ -105,7 +199,7 @@ class Render4k120Video extends Command
                     $progress = min(98, max(1, (int) (($microseconds / 1000000) / $duration * 98)));
                     if ($progress >= $previousProgress + 3) {
                         $previousProgress = $progress;
-                        $this->saveStatus($statusFile, array_merge($state, [
+                        $this->saveStatus($statusFile, array_merge($renderState, [
                             'status' => 'processing', 'progress' => $progress,
                         ]));
                     }
@@ -146,7 +240,7 @@ class Render4k120Video extends Command
                 throw new \RuntimeException('Unable to finalize MP4.');
             }
 
-            $this->saveStatus($statusFile, array_merge($state, [
+            $this->saveStatus($statusFile, array_merge($renderState, [
                 'status' => 'ready', 'progress' => 100,
                 'width' => $width, 'height' => $height, 'fps' => round($fps, 2),
                 'duration' => $finishedDuration,
@@ -157,7 +251,7 @@ class Render4k120Video extends Command
             Log::warning('4K 120 FPS processing failed', [
                 'render_token' => $token, 'message' => mb_substr($e->getMessage(), 0, 300),
             ]);
-            $this->saveStatus($statusFile, array_merge($state, [
+            $this->saveStatus($statusFile, array_merge($renderState ?? $state, [
                 'status' => 'failed', 'progress' => 0,
                 'message' => match ($e->getMessage()) {
                     'RENDER_STORAGE_LOW' => 'The Railway volume has insufficient space for 4K rendering.',
@@ -172,6 +266,7 @@ class Render4k120Video extends Command
         } finally {
             @unlink($source);
             @unlink($partial);
+            @unlink($iphonePartial);
             if (is_resource($lock)) {
                 flock($lock, LOCK_UN);
                 fclose($lock);
