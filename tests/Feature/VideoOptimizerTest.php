@@ -41,6 +41,11 @@ class VideoOptimizerTest extends TestCase
         }
     }
 
+    public function test_4k120_page_supports_3_minute_clips(): void
+    {
+        $this->get('/tools/video-optimizer')->assertOk()->assertSee('max 3 minutes');
+    }
+
     public function test_4k120_mode_is_accepted_by_validation(): void
     {
         $this->postJson('/tools/video-optimizer', [

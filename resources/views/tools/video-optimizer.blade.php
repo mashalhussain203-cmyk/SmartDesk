@@ -13,10 +13,10 @@
         'failure' => __('The video could not be optimized. Please try again.'),
         'network' => __('Network error or processing timeout. Try a shorter video.'),
         'other' => __('FFmpeg mode re-encodes using H.264 with high quality. Original frame timing is retained.'),
-        'fourK' => __('Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.'),
+        'fourK' => __('Export a 4K 120 FPS MP4 without slow motion. Background rendering on this server can take hours. Maximum 3 minutes.'),
         'rendering' => __('Rendering 4K 120 FPS. You can keep this page open to follow the progress.'),
-        'renderFailed' => __('4K processing could not finish. Please try a shorter clip.'),
-        'tooLong' => __('The 4K / 120 FPS mode currently supports videos of up to 90 seconds.'),
+        'renderFailed' => __('4K processing could not finish. Check the reported server error and try again.'),
+        'tooLong' => __('The 4K / 120 FPS mode supports videos of up to 3 minutes (180 seconds).'),
         'unverified' => __('Export failed verification: this download is not 4K at 120 FPS.'),
         'exportOriginal' => __('Original export: this mode does not upgrade resolution or FPS.'),
         'original' => __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.'),
@@ -122,13 +122,13 @@
                     </button>
                 </div>
 
-                <div class="vo-notice" id="vo-mode-description">{{ __('Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.') }}</div>
+                <div class="vo-notice" id="vo-mode-description">{{ __('Export a 4K 120 FPS MP4 without slow motion. Background rendering on this server can take hours. Maximum 3 minutes.') }}</div>
 
                 <label class="vo-drop" for="vo-file" id="vo-drop" tabindex="0">
                     <span class="vo-drop-icon" aria-hidden="true">↓</span>
                     <strong>{{ __('Drop your video here') }}</strong>
                     <span>{{ __('or tap to browse · MP4 / MOV — H.264 or H.265 (HEVC)') }}</span>
-                    <b>{{ __('Max 100 MB · 4K/120 FPS: max 90 seconds · Other modes: max 15 minutes') }}</b>
+                    <b>{{ __('Max 100 MB · 4K/120 FPS: max 3 minutes · Other modes: max 15 minutes') }}</b>
                     <input id="vo-file" name="video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 </label>
 
@@ -142,7 +142,7 @@
                     <div><small>{{ __('File size') }}</small><strong id="vo-size">—</strong></div>
                 </div>
 
-                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS mode outputs a 4K file with generated intermediate frames. It cannot restore detail that is not in the original. This mode is limited to 90 seconds.') }}</p>
+                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS mode generates intermediate frames while preserving original speed and audio. Clips up to 3 minutes (180 seconds), max 100 MB. Rendering can take hours on this server.') }}</p>
                 <label class="vo-check" id="vo-hevc-row" hidden><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
@@ -182,7 +182,7 @@
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
                 <li>{{ __('4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
-                <li>{{ __('Your file is processed privately. Exports are kept for up to 1 hour before cleanup.') }}</li>
+                <li>{{ __('Your video is processed privately. 4K exports remain temporarily available for up to 6 hours.') }}</li>
                 <li>{{ __('Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.') }}</li>
             </ul>
         </div>
@@ -268,7 +268,7 @@
 
     function checkLength() {
         if (!currentFile || busy) { return; }
-        var tooLong = modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 90;
+        var tooLong = modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 180;
         submit.disabled = tooLong;
         if (tooLong) {
             setStatus(labels.tooLong, true);
@@ -387,7 +387,7 @@
     form.addEventListener('submit', function (event) {
         event.preventDefault();
         if (!currentFile || busy) { return; }
-        if (modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 90) {
+        if (modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 180) {
             setStatus(labels.tooLong, true);
             return;
         }

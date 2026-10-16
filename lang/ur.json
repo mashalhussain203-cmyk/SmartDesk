@@ -1672,5 +1672,13 @@
     "The 4K / 120 FPS mode currently supports videos of up to 90 seconds.": "4K / 120 FPS موڈ فی الحال 90 سیکنڈ تک کی ویڈیوز قبول کرتا ہے۔",
     "Export failed verification: this download is not 4K at 120 FPS.": "ویڈیو کی تصدیق ناکام ہوئی؛ یہ 4K 120 FPS نہیں ہے۔",
     "Original export: this mode does not upgrade resolution or FPS.": "اصل موڈ ریزولوشن یا FPS میں اضافہ نہیں کرتا۔",
-    "Max 100 MB · 4K/120 FPS: max 90 seconds · Other modes: max 15 minutes": "زیادہ سے زیادہ 100 ایم بی۔ 4K/120: 90 سیکنڈ؛ دیگر موڈ: 15 منٹ۔"
+    "Max 100 MB · 4K/120 FPS: max 90 seconds · Other modes: max 15 minutes": "زیادہ سے زیادہ 100 ایم بی۔ 4K/120: 90 سیکنڈ؛ دیگر موڈ: 15 منٹ۔",
+    "The 4K / 120 FPS mode supports videos of up to 3 minutes (180 seconds).": "4K / 120 FPS موڈ 3 منٹ (180 سیکنڈ) تک کی ویڈیو قبول کرتا ہے۔",
+    "4K processing could not finish. Check the reported server error and try again.": "4K ویڈیو تیار نہیں ہو سکی۔ سرور کی خرابی دیکھیں اور دوبارہ کوشش کریں۔",
+    "Export a 4K 120 FPS MP4 without slow motion. Background rendering on this server can take hours. Maximum 3 minutes.": "4K 120 FPS MP4 بغیر سلو موشن کے بنائیں۔ رینڈر کرنے میں کئی گھنٹے لگ سکتے ہیں۔ حد 3 منٹ۔",
+    "4K 120 FPS mode generates intermediate frames while preserving original speed and audio. Clips up to 3 minutes (180 seconds), max 100 MB. Rendering can take hours on this server.": "4K 120 FPS نئے درمیانی فریم بناتا ہے اور اصل رفتار اور آواز برقرار رکھتا ہے۔ زیادہ سے زیادہ 3 منٹ اور 100 MB۔",
+    "Max 100 MB · 4K/120 FPS: max 3 minutes · Other modes: max 15 minutes": "زیادہ سے زیادہ 100 MB · 4K/120 FPS: 3 منٹ · دیگر: 15 منٹ",
+    "Your video is processed privately. 4K exports remain temporarily available for up to 6 hours.": "ویڈیو نجی طور پر پروسیس ہوتی ہے۔ 4K فائل 6 گھنٹے تک دستیاب رہتی ہے۔",
+    "4K 120 FPS supports videos up to 3 minutes (180 seconds) on this server.": "اس سرور پر 4K 120 FPS ویڈیو 3 منٹ (180 سیکنڈ) تک ہو سکتی ہے۔",
+    "Not enough free storage for a 4K render. Clear old exports or expand the Railway volume.": "4K ویڈیو کے لیے اسٹوریج کم ہے۔ پرانی فائلیں حذف کریں یا Railway اسٹوریج بڑھائیں۔"
 }
