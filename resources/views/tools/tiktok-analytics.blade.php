@@ -96,14 +96,19 @@
     .ms-times-top strong { color: #fff; font-size: 19px; display: block; }
     .ms-times-top p { margin: 5px 0 0; color: #a1a8b9; font-size: 12px; }
     .ms-timezone { display: inline-flex; border-radius: 9px; background: #272941; padding: 8px 11px; color: #c7c4ff; font-weight: 700; font-size: 11px; }
-    .ms-best-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-    .ms-best { padding: 15px 17px; background: #0c1018; border: 1px solid #292e40; border-radius: 13px; }
-    .ms-best-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .ms-best strong { font-size: 15px; }
-    .ms-best small { color: #9b9fb0; }
-    .ms-best p { font-size: 11px; color: #b9becb; margin: 9px 0; }
-    .ms-progress { background: #252a39; border-radius: 100px; overflow: hidden; height: 5px; }
-    .ms-progress > span { display: block; height: 100%; background: #92d820; border-radius: 100px; }
+    .ms-best-list { display: grid; grid-template-columns: 1fr; gap: 19px; margin-top: 22px; }
+    .ms-best { padding: 0; min-width: 0; }
+    .ms-best-top { display: flex; justify-content: space-between; gap: 13px; align-items: center; margin-bottom: 11px; }
+    .ms-best strong { font-size: 14px; font-weight: 750; }
+    .ms-best .ms-best-score { font-size: 17px; font-weight: 850; color: #f4f3ff; white-space: nowrap; }
+    .ms-progress { background: #28252e; border-radius: 100px; overflow: hidden; height: 10px; }
+    .ms-progress > span { display: block; height: 100%; background: #9465f6; border-radius: 100px; }
+    .ms-times-confidence { margin-top: 7px; color: #9093a2; font-size: 12px; }
+    .ms-times-provenance { margin-top: 19px; font-size: 12px; color: #adb1c2; }
+    .ms-times-provenance summary { cursor: pointer; color: #b6a7f3; }
+    .ms-times-provenance .ms-note { margin-top: 10px; }
+    .ms-results.is-times .ms-times-top { margin-bottom: 9px; }
+    .ms-results.is-times .ms-times-top > div > strong { display: none; }
     .ms-heat-scroll { margin-top: 12px; width: 100%; overflow-x: auto; }
     .ms-heatmap { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 5px; table-layout: fixed; }
     .ms-heatmap th { font-weight: 700; font-size: 10px; color: #9fa7b9; padding: 8px 2px; }
@@ -128,6 +133,7 @@
 @php
     $isVideo = $mode === 'video';
     $weekDays = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'];
+    $weekDaysEN = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 @endphp
 <main class="ms-analysis">
     <div class="ms-analysis-shell">
@@ -163,7 +169,7 @@
                        placeholder="{{ $isVideo ? 'https://www.tiktok.com/@user/video/...' : '@yourusername' }}"
                        value="{{ $input }}" required autocomplete="off" maxlength="{{ $isVideo ? '2048' : '255' }}">
                 @unless($isVideo)
-                    <input type="hidden" name="timezone" id="ms-timezone-input" value="{{ $result['timezone'] ?? '' }}">
+                    <input type="hidden" name="timezone" id="ms-timezone-input" value="{{ $result['timezone'] ?? 'UTC' }}">
                 @endunless
                 <button class="ms-action" type="submit">{{ $isVideo ? 'ANALYZE' : 'CHECK' }} →</button>
             </form>
@@ -283,7 +289,7 @@
                     </div>
                 </div>
             @elseif($result && !$isVideo)
-                <div class="ms-results">
+                <div class="ms-results is-times">
                     <div class="ms-times-top">
                         <div>
                             <strong>Resultaten voor &#64;{{ $result['username'] }}</strong>
@@ -291,61 +297,37 @@
                         </div>
                         <span class="ms-timezone">🕓 {{ $result['timezone'] }}</span>
                     </div>
-                    <div class="ms-note">
-                        <strong>Betrouwbaarheid: {{ $result['sample_reliable'] ? 'redelijke steekproef' : 'indicatief / beperkte steekproef' }}.</strong>
-                        Gebaseerd op {{ $result['post_count'] }} echt opgehaalde openbare video's.
-                        {{ $result['estimated_dates'] }} uploaddatums zijn afgeleid uit video-ID's en niet rechtstreeks bevestigd.
-                        {{ $result['repeated_slots'] }} uploaduren bevatten minstens twee video's.
-                        <div style="margin-top:9px">
-                            <strong>Databronnen:</strong>
-                            @foreach($result['source_counts'] as $source => $count)
-                                <span style="display:inline-block;margin:3px 8px 0 0">{{ $source }}: {{ $count }}</span>
-                            @endforeach
-                        </div>
-                        <span style="display:block;margin-top:9px">De aanbevelingen vergelijken al behaalde views en voorspellen niet wanneer je volgers online zijn. Een virale of oudere video kan de ranglijst vertekenen.</span>
+                    <div class="ms-times-confidence">
+                        Based on {{ $result['post_count'] }} recent videos ·
+                        {{ $result['sample_reliable'] ? 'high confidence' : 'limited sample' }}
                     </div>
-                    <h3 class="ms-subhead">{{ __('Historisch best presterende uploadmomenten (indicatief)') }}</h3>
                     <div class="ms-best-list">
-                        @foreach($result['best'] as $i => $slot)
+                        @foreach($result['best'] as $slot)
                             <div class="ms-best">
                                 <div class="ms-best-top">
-                                    <strong>#{{ $i + 1 }} {{ $weekDays[$slot['day']] }} · {{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00</strong>
-                                    <small>{{ $slot['count'] }} {{ $slot['count'] === 1 ? 'video' : "video's" }}</small>
+                                    <strong>{{ $weekDaysEN[$slot['day']] }} {{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00–{{ str_pad(($slot['hour'] + 1) % 24, 2, '0', STR_PAD_LEFT) }}:00 {{ $result['timezone'] }}</strong>
+                                    <span class="ms-best-score">{{ number_format($slot['score_percent'], 2, '.', '') }}%</span>
                                 </div>
-                                <p>{{ number_format($slot['average'], 0, ',', '.') }} {{ __('gemiddelde views') }}</p>
-                                <div class="ms-progress"><span style="width: {{ round($slot['average'] * 100 / max(1, $result['best'][0]['average'])) }}%"></span></div>
+                                <div class="ms-progress" role="img" aria-label="{{ $slot['score_percent'] }} procent historisch relatief prestatieniveau"><span style="width: {{ round($slot['score_percent'] / max(1, $result['score_scale']) * 100, 1) }}%"></span></div>
                             </div>
                         @endforeach
                     </div>
-                    <h3 class="ms-subhead">{{ __('Performance per day and hour') }}</h3>
-                    <p class="ms-hint">{{ __('Elke gekleurde cel heeft minimaal één video. Meer paars betekent hogere gemiddelde views. Lege cellen bevatten geen waargenomen upload.') }}</p>
-                    <div class="ms-heat-scroll">
-                        <table class="ms-heatmap">
-                            <thead><tr><th scope="col">{{ __('Dag') }}</th>
-                                @for($hour = 0; $hour < 24; $hour++)
-                                    <th scope="col">{{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}</th>
-                                @endfor
-                            </tr></thead>
-                            <tbody>
-                            @foreach($weekDays as $dayIndex => $dayName)
-                                <tr><th scope="row">{{ mb_substr($dayName, 0, 2) }}</th>
-                                    @for($hour = 0; $hour < 24; $hour++)
-                                        @php($cell = $result['matrix'][$dayIndex][$hour])
-                                        <td class="{{ $cell['count'] ? 'has-post' : '' }}"
-                                            style="--opacity:{{ number_format($cell['intensity'] / 100, 2, '.', '') }}"
-                                            title="{{ $dayName }} {{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}:00 · {{ $cell['count'] }} video's · {{ $cell['average'] !== null ? number_format($cell['average'], 0, ',', '.') : '—' }} views"></td>
-                                    @endfor
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="ms-note">
-                        {{ __('Dit zijn historische resultaten van openbare posts, geen garantie voor toekomstige views. Eén virale video kan een tijdslot sterk beïnvloeden. De tijden zijn omgerekend naar de getoonde tijdzone, niet naar de tijdzone van je TikTok-publiek.') }}
-                        @unless($result['sample_reliable'])
-                            <strong>{{ __('Te weinig herhaalde uploadmomenten of te veel onbevestigde datums voor een betrouwbare ranglijst. Gebruik de uitkomsten alleen als aanwijzing.') }}</strong>
-                        @endunless
-                    </div>
+                    <details class="ms-times-provenance">
+                        <summary>Hoe zijn de tijden berekend? · brongegevens</summary>
+                        <div class="ms-note">
+                            Deze percentages zijn berekend uit echte openbare videoweergaven: het aandeel van de gemiddelde weergaven per uploaduur binnen alle waargenomen uren. Het is geen kans op viraliteit en geen officiële activiteit van TikTok-volgers.
+                            <div style="margin-top:8px">
+                                {{ $result['estimated_dates'] }} uploaddatums zijn uit video-ID's afgeleid;
+                                {{ $result['repeated_slots'] }} uploaduren komen meerdere keren voor.
+                                @foreach($result['source_counts'] as $source => $count)
+                                    <span style="display:inline-block; margin:3px 8px 0 0">{{ $source }}: {{ $count }}</span>
+                                @endforeach
+                            </div>
+                            @unless($result['sample_reliable'])
+                                <strong>Deze steekproef is beperkt. Gebruik de uitkomst alleen als indicatie.</strong>
+                            @endunless
+                        </div>
+                    </details>
                 </div>
             @endif
         </section>
@@ -355,7 +337,7 @@
                 <p class="ms-panel-desc">Enter your TikTok username to see when your public videos historically performed best.</p>
                 <form id="ms-secondary-form" method="GET" class="ms-form" action="{{ route('tiktok-analytics.times') }}">
                     <input class="ms-field" type="text" name="username" placeholder="&#64;yourusername" required maxlength="255" aria-label="TikTok username">
-                    <input type="hidden" name="timezone" value="Europe/Amsterdam">
+                    <input type="hidden" name="timezone" value="UTC">
                     <button class="ms-action" type="submit">CHECK →</button>
                 </form>
                 <div class="ms-fetch-indicator" id="ms-secondary-loading" hidden role="status" aria-live="polite">
