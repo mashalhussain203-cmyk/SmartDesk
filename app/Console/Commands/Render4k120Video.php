@@ -75,20 +75,25 @@ class Render4k120Video extends Command
 
             // Interpolate at source size before the resource-intensive upscale.
             $filter = 'minterpolate=fps=120:mi_mode=blend,'
-                .'scale='.$width.':'.$height.':force_original_aspect_ratio=decrease:flags=lanczos,'
+                .'scale='.$width.':'.$height.':force_original_aspect_ratio=decrease:flags=bicubic,'
                 .'pad='.$width.':'.$height.':(ow-iw)/2:(oh-ih)/2,setsar=1';
 
+            // Constrain x264 encoder threads (not only input decoder threads)
+            // to stay within the 1 GB Railway container memory limit.
             $ffmpeg = new Process([
                 'ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y',
-                '-threads', '2', '-filter_threads', '2',
+                '-threads', '1', '-filter_threads', '1',
                 '-i', $source, '-map', '0:v:0', '-map', '0:a?', '-sn', '-dn',
                 '-vf', $filter, '-fps_mode', 'cfr', '-r', '120',
-                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '19',
-                '-maxrate', '18M', '-bufsize', '36M', '-pix_fmt', 'yuv420p',
-                '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
+                '-c:v', 'libx264', '-threads:v', '2',
+                '-preset', 'ultrafast', '-tune', 'zerolatency', '-crf', '20',
+                '-maxrate', $duration > 90 ? '8M' : '12M',
+                '-bufsize', $duration > 90 ? '16M' : '24M',
+                '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
                 '-progress', 'pipe:1', '-nostats', '-f', 'mp4', $partial,
             ]);
-            $ffmpeg->setTimeout(3600);
+            $ffmpeg->setTimeout(10800);
             $previousProgress = 1;
             $ffmpeg->run(function (string $type, string $buffer) use ($statusFile, $state, $duration, &$previousProgress): void {
                 if ($type !== Process::OUT || $duration <= 0) {
@@ -108,7 +113,14 @@ class Render4k120Video extends Command
             });
 
             if (! $ffmpeg->isSuccessful() || ! is_file($partial) || filesize($partial) < 1024) {
-                throw new \RuntimeException('FFmpeg error: '.mb_substr($ffmpeg->getErrorOutput(), 0, 300));
+                $stderr = $ffmpeg->getErrorOutput();
+                if (str_contains($stderr, 'No space left on device')) {
+                    throw new \RuntimeException('RENDER_STORAGE_LOW');
+                }
+                if (str_contains($stderr, 'Cannot allocate memory') || $ffmpeg->getExitCode() === 137) {
+                    throw new \RuntimeException('RENDER_MEMORY_LOW');
+                }
+                throw new \RuntimeException('FFmpeg error: '.mb_substr($stderr, 0, 300));
             }
 
             $verification = new Process([
@@ -147,7 +159,13 @@ class Render4k120Video extends Command
             ]);
             $this->saveStatus($statusFile, array_merge($state, [
                 'status' => 'failed', 'progress' => 0,
-                'message' => '4K 120 FPS render failed. Try a shorter clip.',
+                'message' => match ($e->getMessage()) {
+                    'RENDER_STORAGE_LOW' => 'The Railway volume has insufficient space for 4K rendering.',
+                    'RENDER_MEMORY_LOW' => 'The server has insufficient memory for 4K rendering. Upgrade RAM.',
+                    default => str_contains(strtolower($e->getMessage()), 'timed out')
+                        ? 'The 4K render exceeded its processing time limit.'
+                        : 'The 4K encoding failed. Try a different H.264/HEVC video or a larger worker.',
+                },
             ]));
 
             return self::FAILURE;

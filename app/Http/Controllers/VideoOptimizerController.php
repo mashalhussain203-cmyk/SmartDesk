@@ -185,9 +185,9 @@ class VideoOptimizerController extends Controller
         string $output,
         float $duration
     ): JsonResponse {
-        if ($duration > 90) {
+        if ($duration > 180) {
             return response()->json([
-                'message' => __('4K 120 FPS supports videos up to 90 seconds on this server.'),
+                'message' => __('4K 120 FPS supports videos up to 3 minutes (180 seconds) on this server.'),
             ], 422);
         }
 
@@ -200,11 +200,23 @@ class VideoOptimizerController extends Controller
             if (is_string($previousFile) && is_file($previousFile)) {
                 $state = json_decode((string) file_get_contents($previousFile), true);
                 if (in_array($state['status'] ?? null, ['queued', 'processing'], true)
-                    && (int) ($state['created_at'] ?? 0) > time() - 3600) {
+                    && (int) ($state['created_at'] ?? 0) > time() - 11400) {
                     return response()->json([
                         'message' => __('You already have a 4K 120 FPS render running.'),
                     ], 429);
                 }
+            }
+        }
+
+        // Avoid competing 4K jobs on this memory-constrained Railway instance.
+        foreach (glob($directory.'/*.status.json') ?: [] as $jobFile) {
+            $job = json_decode((string) @file_get_contents($jobFile), true);
+            if (is_array($job)
+                && in_array($job['status'] ?? null, ['queued', 'processing'], true)
+                && (int) ($job['created_at'] ?? 0) > time() - 11400) {
+                return response()->json([
+                    'message' => __('The 4K renderer is busy. Wait for the current export to finish.'),
+                ], 429);
             }
         }
 
@@ -219,6 +231,12 @@ class VideoOptimizerController extends Controller
 
         try {
             $uploaded->move($directory, $filename);
+
+            // The mounted private volume is only 500 MB. Leave room for output.
+            $freeBytes = disk_free_space($directory);
+            if ($freeBytes !== false && $freeBytes < ($duration > 90 ? 205 : 150) * 1048576) {
+                throw new \RuntimeException('RENDER_STORAGE_LOW');
+            }
             File::put($statusFile, json_encode([
                 'status' => 'queued',
                 'progress' => 0,
@@ -261,7 +279,9 @@ class VideoOptimizerController extends Controller
             @unlink($statusFile);
 
             return response()->json([
-                'message' => __('Unable to start the 4K render on this server.'),
+                'message' => $exception->getMessage() === 'RENDER_STORAGE_LOW'
+                    ? __('Not enough free storage for a 4K render. Clear old exports or expand the Railway volume.')
+                    : __('Unable to start the 4K render on this server.'),
             ], 503);
         }
     }
@@ -322,7 +342,7 @@ class VideoOptimizerController extends Controller
 
         $status = (string) ($state['status'] ?? 'failed');
         if (in_array($status, ['queued', 'processing'], true)
-            && (int) ($state['created_at'] ?? 0) < time() - 3600) {
+            && (int) ($state['created_at'] ?? 0) < time() - 11400) {
             $status = 'failed';
             $state['message'] = __('4K processing timed out. Try a shorter clip.');
         }
