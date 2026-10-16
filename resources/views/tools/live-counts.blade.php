@@ -402,6 +402,25 @@
             </a>
 
 
+
+            <a class="livehub-tool" href="{{ route('video-optimizer.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap">
+                        <span style="font-size:31px;color:#b09dff" aria-hidden="true">⚡</span>
+                    </div>
+                    <div class="livehub-live" style="color:#b09dff"><i style="background:#b09dff"></i> {{ __('Video Tool') }}</div>
+                </div>
+                <h3>{{ __('TikTok Video Optimizer') }}</h3>
+                <p>{{ __('Optimaliseer je eigen MP4/MOV-video met behoud van de originele frames, of gebruik FFmpeg voor een compatibele H.264-export.') }}</p>
+                <div class="livehub-metrics">
+                    <span>MP4 / MOV</span>
+                    <span>H.264 / HEVC</span>
+                    <span>{{ __('Original') }} / FFmpeg</span>
+                    <span>{{ __('Download') }}</span>
+                </div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
             <a class="livehub-tool" href="{{ route('tiktok-analytics.video') }}">
                 <div class="livehub-tool-top">
                     <div class="livehub-icon-wrap">

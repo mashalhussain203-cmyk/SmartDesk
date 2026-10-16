@@ -38,6 +38,7 @@ use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
 use App\Http\Controllers\TikTokAnalyticsController;
+use App\Http\Controllers\VideoOptimizerController;
 use App\Http\Controllers\YouTubeSubscriberController;
 use App\Http\Controllers\YouTubeViewCounterController;
 
@@ -1152,6 +1153,17 @@ Route::get(
 |--------------------------------------------------------------------------
 | Read public TikTok metadata. No private stats or API keys required.
 */
+Route::get('/tools/video-optimizer', [VideoOptimizerController::class, 'index'])
+    ->name('video-optimizer.index');
+
+Route::post('/tools/video-optimizer', [VideoOptimizerController::class, 'optimize'])
+    ->middleware('throttle:3,60')
+    ->name('video-optimizer.optimize');
+
+Route::get('/tools/video-optimizer/download/{token}', [VideoOptimizerController::class, 'download'])
+    ->where('token', '[a-f0-9]{40}')
+    ->name('video-optimizer.download');
+
 Route::get('/tools/tiktok-analyzer', [TikTokAnalyticsController::class, 'video'])
     ->middleware('throttle:30,1')
     ->name('tiktok-analytics.video');

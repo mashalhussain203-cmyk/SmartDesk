@@ -6769,6 +6769,8 @@
                         <span>Studio</span>
                     </a>
 
+                    <a class="expert-nav-link {{ request()->routeIs('video-optimizer.*') ? 'active' : '' }}" href="{{ route('video-optimizer.index') }}"><span class="expert-nav-link-icon" aria-hidden="true">⚡</span><span>{{ __('Video Optimizer') }}</span></a>
+
                     @if ($hasLiveCounts)
                         <a
                             class="expert-nav-link {{ request()->routeIs('live-counts.*') || request()->routeIs('tiktok-counter.*') || request()->routeIs('tiktok-follower-counter.*') ? 'active' : '' }}"
@@ -7096,6 +7098,11 @@
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
 
+                    <a class="expert-command-item" href="{{ route('video-optimizer.index') }}" data-command-search="video optimizer tiktok mp4 mov ffmpeg hevc compression export">
+                        <span class="expert-command-item-icon">⚡</span>
+                        <span><strong>{{ __('Video Optimizer') }}</strong><small>{{ __('Optimaliseer en download een video') }}</small></span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
                     @if ($hasLiveCounts)
                         <a
                             class="expert-command-item"
@@ -7329,6 +7336,12 @@
                     <strong>Studio</strong>
                     <small>{{ __('Home en editor-start') }}</small>
                 </span>
+                <span>→</span>
+            </a>
+
+            <a class="expert-mobile-link {{ request()->routeIs('video-optimizer.*') ? 'active' : '' }}" href="{{ route('video-optimizer.index') }}">
+                <span class="expert-mobile-link-icon">⚡</span>
+                <span><strong>{{ __('Video Optimizer') }}</strong><small>{{ __('MP4/MOV optimaliseren') }}</small></span>
                 <span>→</span>
             </a>
 
@@ -7628,6 +7641,7 @@
                             {{ __("Home") }}
                         </a>
 
+                        <a href="{{ route('video-optimizer.index') }}">{{ __('Video Optimizer') }}</a>
                         @if ($hasLiveCounts)
                             <a href="{{ route('live-counts.index') }}">
                                 {{ __("Live Counts") }}
