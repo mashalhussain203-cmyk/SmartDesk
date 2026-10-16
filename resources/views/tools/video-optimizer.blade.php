@@ -109,9 +109,9 @@
         <section class="vo-panel" aria-label="{{ __('Video optimization') }}">
             <form id="vo-form" action="{{ route('video-optimizer.optimize') }}" method="post" enctype="multipart/form-data">
                 @csrf
-                <input id="vo-mode-value" type="hidden" name="mode" value="4k120">
+                <input id="vo-mode-value" type="hidden" name="mode" value="original">
                 <div class="vo-modes" role="group" aria-label="{{ __('Processing method') }}">
-                    <button class="vo-mode" type="button" data-vo-mode="original" aria-pressed="false">
+                    <button class="vo-mode" type="button" data-vo-mode="original" aria-pressed="true">
                         {{ __('Original') }}
                         <small>{{ __('NO RE-ENCODING') }}</small>
                     </button>
@@ -119,13 +119,13 @@
                         {{ __('FFmpeg') }}
                         <small>{{ __('HIGH QUALITY') }}</small>
                     </button>
-                    <button class="vo-mode" type="button" data-vo-mode="4k120" aria-pressed="true">
+                    <button class="vo-mode" type="button" data-vo-mode="4k120" aria-pressed="false">
                         4K / 120 FPS
                         <small>{{ __('ENHANCE') }}</small>
                     </button>
                 </div>
 
-                <div class="vo-notice" id="vo-mode-description">{{ __('Create 4K at 120 FPS using motion-compensated frame interpolation and sharpened Lanczos scaling. No slow motion. CPU rendering can take hours; max 3 minutes.') }}</div>
+                <div class="vo-notice" id="vo-mode-description">{{ __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.') }}</div>
 
                 <label class="vo-drop" for="vo-file" id="vo-drop" tabindex="0">
                     <span class="vo-drop-icon" aria-hidden="true">↓</span>
@@ -145,8 +145,8 @@
                     <div><small>{{ __('File size') }}</small><strong id="vo-size">—</strong></div>
                 </div>
 
-                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS uses motion estimation rather than blended/duplicated frames, with denoising and sharpening. This improves appearance but cannot recreate original detail lost in a low-resolution source. Maximum 3 minutes / 100 MB. Long clips require substantially more RAM, CPU and disk space than this server has.') }}</p>
-                <label class="vo-check" id="vo-hevc-row" hidden><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
+                <p class="vo-4k-note" id="vo-4k-note" hidden>{{ __('4K 120 FPS uses motion estimation rather than blended/duplicated frames, with denoising and sharpening. This improves appearance but cannot recreate original detail lost in a low-resolution source. Maximum 3 minutes / 100 MB. Long clips require substantially more RAM, CPU and disk space than this server has.') }}</p>
+                <label class="vo-check" id="vo-hevc-row"><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
                 <div class="vo-status" id="vo-status" role="status" aria-live="polite"></div>
