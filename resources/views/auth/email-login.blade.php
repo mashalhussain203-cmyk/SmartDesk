@@ -594,7 +594,7 @@
 
         <div class="email-verify-kicker">
 
-            Secure access
+            {{ __("Secure access") }}
 
         </div>
 
@@ -604,7 +604,7 @@
 
         <h1 class="email-verify-title">
 
-            Vul je code in
+            {{ __("Vul je code in") }}
 
         </h1>
 
@@ -750,7 +750,7 @@
 
                 >
 
-                    6-cijferige code
+                    {{ __("6-cijferige code") }}
 
                 </label>
 
@@ -800,7 +800,7 @@
 
             >
 
-                Code controleren
+                {{ __("Code controleren") }}
 
             </button>
 
@@ -852,7 +852,7 @@
 
         <div class="email-security-note">
 
-            <strong>Loginbeveiliging:</strong>
+            <strong>{{ __("Loginbeveiliging:") }}</strong>
 
             bij een succesvolle login registreren we onder andere
 

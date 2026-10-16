@@ -758,7 +758,7 @@
 
         <span class="magic-confirm-kicker">
 
-            Secure magic link
+            {{ __("Secure magic link") }}
 
         </span>
 
@@ -768,7 +768,7 @@
 
         <h1 class="magic-confirm-title">
 
-            Bevestig je login
+            {{ __("Bevestig je login") }}
 
         </h1>
 
@@ -796,7 +796,7 @@
 
                 <small>
 
-                    Inloggen als
+                    {{ __("Inloggen als") }}
 
                 </small>
 
@@ -834,7 +834,7 @@
 
             <strong>
 
-                Wat wordt gecontroleerd?
+                {{ __("Wat wordt gecontroleerd?") }}
 
             </strong>
 
@@ -894,7 +894,7 @@
 
             >
 
-                Veilig inloggen
+                {{ __("Veilig inloggen") }}
 
             </button>
 

@@ -850,7 +850,7 @@
 
             <p class="telegram-mini-kicker">
 
-                Telegram Secure Login
+                {{ __("Telegram Secure Login") }}
 
             </p>
 
@@ -858,7 +858,7 @@
 
             <h1 class="telegram-mini-title">
 
-                Inloggen bij Mashal Studio
+                {{ __("Inloggen bij Mashal Studio") }}
 
             </h1>
 
@@ -902,7 +902,7 @@
 
                 <span id="telegramMiniStatusText">
 
-                    Telegram-account controleren…
+                    {{ __("Telegram-account controleren…") }}
 
                 </span>
 
@@ -940,7 +940,7 @@
 
                 <span id="telegramMiniContinueText">
 
-                    Doorgaan naar Mashal Studio
+                    {{ __("Doorgaan naar Mashal Studio") }}
 
                 </span>
 
@@ -958,7 +958,7 @@
 
             >
 
-                Opnieuw proberen
+                {{ __("Opnieuw proberen") }}
 
             </button>
 

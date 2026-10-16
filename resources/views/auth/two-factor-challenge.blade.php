@@ -800,7 +800,7 @@
 
                     >
 
-                        6-cijferige Authenticator-code
+                        {{ __("6-cijferige Authenticator-code") }}
 
                     </label>
 
@@ -858,7 +858,7 @@
 
                     >
 
-                        Login bevestigen
+                        {{ __("Login bevestigen") }}
 
                     </button>
 
@@ -940,7 +940,7 @@
 
                             >
 
-                                Herstelcode
+                                {{ __("Herstelcode") }}
 
                             </label>
 
@@ -990,7 +990,7 @@
 
                             >
 
-                                Inloggen met herstelcode
+                                {{ __("Inloggen met herstelcode") }}
 
                             </button>
 
@@ -1000,7 +1000,7 @@
 
                         <p class="small" style="margin-bottom: 0;">
 
-                            Een herstelcode kan maar één keer worden gebruikt.
+                            {{ __("Een herstelcode kan maar één keer worden gebruikt.") }}
 
                         </p>
 

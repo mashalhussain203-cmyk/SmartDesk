@@ -1342,7 +1342,7 @@
 
                     Nog één
 
-                    <span>veilige stap.</span>
+                    <span>{{ __("veilige stap.") }}</span>
 
                 </h2>
 
@@ -1364,7 +1364,7 @@
 
                     <span class="tiktok-complete-trust">
 
-                        TikTok Login Kit
+                        {{ __("TikTok Login Kit") }}
 
                     </span>
 
@@ -1372,7 +1372,7 @@
 
                     <span class="tiktok-complete-trust">
 
-                        Secure account
+                        {{ __("Secure account") }}
 
                     </span>
 
@@ -1380,7 +1380,7 @@
 
                     <span class="tiktok-complete-trust">
 
-                        Privacy first
+                        {{ __("Privacy first") }}
 
                     </span>
 
@@ -1444,7 +1444,7 @@
 
                 <span class="tiktok-complete-kicker">
 
-                    TikTok login
+                    {{ __("TikTok login") }}
 
                 </span>
 
@@ -1452,7 +1452,7 @@
 
                 <h1 class="tiktok-complete-title">
 
-                    Account afronden
+                    {{ __("Account afronden") }}
 
                 </h1>
 
@@ -1510,7 +1510,7 @@
 
                         <small>
 
-                            TikTok-account
+                            {{ __("TikTok-account") }}
 
                         </small>
 
@@ -1598,7 +1598,7 @@
 
                         <strong>
 
-                            Je account kon nog niet worden afgerond.
+                            {{ __("Je account kon nog niet worden afgerond.") }}
 
                         </strong>
 
@@ -1728,7 +1728,7 @@
 
                             <strong>
 
-                                Bestaande Mashal-accounts worden niet automatisch gekoppeld.
+                                {{ __("Bestaande Mashal-accounts worden niet automatisch gekoppeld.") }}
 
                             </strong>
 
@@ -1748,7 +1748,7 @@
 
                     >
 
-                        TikTok-account afronden
+                        {{ __("TikTok-account afronden") }}
 
                     </button>
 

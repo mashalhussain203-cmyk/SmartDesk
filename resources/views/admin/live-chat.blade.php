@@ -3584,7 +3584,7 @@ body {
 
 
 
-                    Live Support
+                    {{ __("Live Support") }}
 
 
 
@@ -3600,7 +3600,7 @@ body {
 
 
 
-                    Beheer realtime klantgesprekken, media en e-mailhandoff vanuit één professionele supportworkspace.
+                    {{ __("Beheer realtime klantgesprekken, media en e-mailhandoff vanuit één professionele supportworkspace.") }}
 
 
 
@@ -3652,7 +3652,7 @@ body {
 
 
 
-                        Beschikbaar voor live chat
+                        {{ __("Beschikbaar voor live chat") }}
 
 
 
@@ -3668,7 +3668,7 @@ body {
 
 
 
-                        Presence blijft actief zolang dit tabblad zichtbaar is.
+                        {{ __("Presence blijft actief zolang dit tabblad zichtbaar is.") }}
 
 
 
@@ -3750,7 +3750,7 @@ body {
 
 
 
-                        Gesprekken in deze inbox
+                        {{ __("Gesprekken in deze inbox") }}
 
 
 
@@ -3792,7 +3792,7 @@ body {
 
 
 
-                        Realtime
+                        {{ __("Realtime") }}
 
 
 
@@ -3808,7 +3808,7 @@ body {
 
 
 
-                        Realtime synchronisatie actief
+                        {{ __("Realtime synchronisatie actief") }}
 
 
 
@@ -3850,7 +3850,7 @@ body {
 
 
 
-                        Bestanden & media
+                        {{ __("Bestanden & media") }}
 
 
 
@@ -3866,7 +3866,7 @@ body {
 
 
 
-                        Afbeeldingen, video, voice en documenten
+                        {{ __("Afbeeldingen, video, voice en documenten") }}
 
 
 
@@ -4002,7 +4002,7 @@ body {
 
 
 
-                            Inbox
+                            {{ __("Inbox") }}
 
 
 
@@ -4018,7 +4018,7 @@ body {
 
 
 
-                            Live support
+                            {{ __("Live support") }}
 
 
 
@@ -4214,7 +4214,7 @@ body {
 
 
 
-                        Gesprekken laden…
+                        {{ __("Gesprekken laden…") }}
 
 
 
@@ -4274,7 +4274,7 @@ body {
 
 
 
-                        Pagina —
+                        {{ __("Pagina —") }}
 
 
 
@@ -4390,7 +4390,7 @@ body {
 
 
 
-                                Kies een gesprek
+                                {{ __("Kies een gesprek") }}
 
 
 
@@ -4410,7 +4410,7 @@ body {
 
 
 
-                            Selecteer links een gesprek om de berichten te openen.
+                            {{ __("Selecteer links een gesprek om de berichten te openen.") }}
 
 
 
@@ -4438,7 +4438,7 @@ body {
 
 
 
-                            Geen gesprek geselecteerd
+                            {{ __("Geen gesprek geselecteerd") }}
 
 
 
@@ -4486,7 +4486,7 @@ body {
 
 
 
-                            Verder via e-mail
+                            {{ __("Verder via e-mail") }}
 
 
 
@@ -4526,7 +4526,7 @@ body {
 
 
 
-                            E-mail en titel
+                            {{ __("E-mail en titel") }}
 
 
 
@@ -4562,7 +4562,7 @@ body {
 
 
 
-                            Afsluiten
+                            {{ __("Afsluiten") }}
 
 
 
@@ -4652,7 +4652,7 @@ body {
 
 
 
-                                Selecteer een gesprek
+                                {{ __("Selecteer een gesprek") }}
 
 
 
@@ -4668,7 +4668,7 @@ body {
 
 
 
-                                Berichten, documenten, afbeeldingen en spraakberichten verschijnen hier.
+                                {{ __("Berichten, documenten, afbeeldingen en spraakberichten verschijnen hier.") }}
 
 
 
@@ -4868,7 +4868,7 @@ body {
 
 
 
-                        Bezoeker typt…
+                        {{ __("Bezoeker typt…") }}
 
 
 
@@ -4904,7 +4904,7 @@ body {
 
 
 
-                            Selecteer een gesprek om te antwoorden.
+                            {{ __("Selecteer een gesprek om te antwoorden.") }}
 
 
 
@@ -5116,7 +5116,7 @@ body {
 
 
 
-                            Verstuur
+                            {{ __("Verstuur") }}
 
 
 
