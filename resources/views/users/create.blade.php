@@ -1420,7 +1420,7 @@
 
             <span class="create-hero-kicker">
 
-                Mashal User Management
+                {{ __("Mashal User Management") }}
 
             </span>
 
@@ -1606,7 +1606,7 @@
 
                         <span class="form-section-kicker">
 
-                            01 / Identity
+                            {{ __("01 / Identity") }}
 
                         </span>
 
@@ -1830,7 +1830,7 @@
 
                         <span class="form-section-kicker">
 
-                            02 / Credentials
+                            {{ __("02 / Credentials") }}
 
                         </span>
 
@@ -2110,7 +2110,7 @@
 
                         <span class="form-section-kicker">
 
-                            03 / Access
+                            {{ __("03 / Access") }}
 
                         </span>
 
@@ -2306,7 +2306,7 @@
 
                     >
 
-                        Annuleren
+                        {{ __("Annuleren") }}
 
                     </a>
 
@@ -2472,7 +2472,7 @@
 
                 <span class="aside-kicker">
 
-                    Account flow
+                    {{ __("Account flow") }}
 
                 </span>
 

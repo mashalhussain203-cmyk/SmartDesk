@@ -832,7 +832,7 @@
             <div>
 
                 <span class="cart-kicker">
-                    Mashal Selection
+                    {{ __("Mashal Selection") }}
                 </span>
 
                 <h1 class="cart-title">
@@ -1000,7 +1000,7 @@
                 <div class="cart-main">
 
                     <span class="cart-section-kicker">
-                        01 / Selected vehicles
+                        {{ __("01 / Selected vehicles") }}
                     </span>
 
                     <h2 class="cart-section-title">
@@ -1030,7 +1030,7 @@
                                     >
 
                                     <span class="cart-item-badge">
-                                        Mashal Selection
+                                        {{ __("Mashal Selection") }}
                                     </span>
 
                                 </div>
@@ -1039,7 +1039,7 @@
                                 <div class="cart-item-content">
 
                                     <small>
-                                        Selected vehicle
+                                        {{ __("Selected vehicle") }}
                                     </small>
 
                                     <h3>
@@ -1111,7 +1111,7 @@
                     <div class="account-readiness">
 
                         <span class="cart-section-kicker">
-                            02 / Account readiness
+                            {{ __("02 / Account readiness") }}
                         </span>
 
                         @auth
@@ -1198,7 +1198,7 @@
                 <aside class="cart-summary">
 
                     <span class="summary-kicker">
-                        Selection summary
+                        {{ __("Selection summary") }}
                     </span>
 
                     <h2 class="summary-title">

@@ -796,7 +796,7 @@
             <div>
 
                 <span class="checkout-kicker">
-                    Mashal Secure Checkout
+                    {{ __("Mashal Secure Checkout") }}
                 </span>
 
                 <h1 class="checkout-title">
@@ -965,7 +965,7 @@
                     <section class="checkout-section">
 
                         <span class="checkout-section-label">
-                            01 / Account
+                            {{ __("01 / Account") }}
                         </span>
 
                         <h2>
@@ -1027,7 +1027,7 @@
                     <section class="checkout-section">
 
                         <span class="checkout-section-label">
-                            02 / Selection
+                            {{ __("02 / Selection") }}
                         </span>
 
                         <h2>
@@ -1069,7 +1069,7 @@
                                     <div class="order-item-copy">
 
                                         <small>
-                                            Selected vehicle
+                                            {{ __("Selected vehicle") }}
                                         </small>
 
                                         <strong>
@@ -1117,7 +1117,7 @@
                     <section class="checkout-section">
 
                         <span class="checkout-section-label">
-                            03 / Confirmation
+                            {{ __("03 / Confirmation") }}
                         </span>
 
                         <h2>

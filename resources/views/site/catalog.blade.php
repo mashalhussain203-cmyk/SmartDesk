@@ -1145,7 +1145,7 @@
 
                 <span class="catalog-kicker">
 
-                    Mashal Collection
+                    {{ __("Mashal Collection") }}
 
                 </span>
 
@@ -1217,7 +1217,7 @@
 
                 <span class="catalog-badge">
 
-                    Premium
+                    {{ __("Premium") }}
 
                 </span>
 
@@ -1229,7 +1229,7 @@
 
                 <span class="catalog-badge">
 
-                    Secure checkout
+                    {{ __("Secure checkout") }}
 
                 </span>
 
@@ -1520,7 +1520,7 @@
 
                 <strong>
 
-                    Veilig beheer met e-mailverificatie
+                    {{ __("Veilig beheer met e-mailverificatie") }}
 
                 </strong>
 
@@ -1538,7 +1538,7 @@
 
                 <strong>
 
-                    Duidelijke voertuiggegevens en prijzen
+                    {{ __("Duidelijke voertuiggegevens en prijzen") }}
 
                 </strong>
 
@@ -1556,7 +1556,7 @@
 
                 <strong>
 
-                    Bevestiging direct na checkout
+                    {{ __("Bevestiging direct na checkout") }}
 
                 </strong>
 

@@ -1258,7 +1258,7 @@
         <header class="account-hero studio-reveal">
             <div>
                 <span class="account-kicker">
-                    Mashal Studio account
+                    {{ __("Mashal Studio account") }}
                 </span>
 
                 <h1 class="account-title">
@@ -1460,7 +1460,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                01 / Profile
+                                {{ __("01 / Profile") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -1473,7 +1473,7 @@
                         </div>
 
                         <span class="panel-badge">
-                            Personal
+                            {{ __("Personal") }}
                         </span>
                     </div>
 
@@ -1636,7 +1636,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                02 / Verification
+                                {{ __("02 / Verification") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -1649,7 +1649,7 @@
                         </div>
 
                         <span class="panel-badge">
-                            Security
+                            {{ __("Security") }}
                         </span>
                     </div>
 
@@ -1710,7 +1710,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                03 / Account recovery
+                                {{ __("03 / Account recovery") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -1857,7 +1857,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                04 / Password
+                                {{ __("04 / Password") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -1870,7 +1870,7 @@
                         </div>
 
                         <span class="panel-badge">
-                            Protected
+                            {{ __("Protected") }}
                         </span>
                     </div>
 
@@ -2006,7 +2006,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                05 / Overview
+                                {{ __("05 / Overview") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -2070,7 +2070,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                06 / Image library
+                                {{ __("06 / Image library") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -2217,7 +2217,7 @@
                     <div class="panel-head">
                         <div>
                             <span class="panel-index">
-                                07 / Security
+                                {{ __("07 / Security") }}
                             </span>
 
                             <h2 class="panel-title">
@@ -2267,7 +2267,7 @@
                         </article>
 
                         <article class="security-card">
-                            <small>Password</small>
+                            <small>{{ __("Password") }}</small>
                             <strong>{{ __('Persoonlijk wachtwoord') }}</strong>
                             <p>
                                 {{ __('Je kunt je wachtwoord hierboven wijzigen zonder afbeeldingsprojecten of versies kwijt te raken.') }}
@@ -2275,7 +2275,7 @@
                         </article>
 
                         <article class="security-card">
-                            <small>Image ownership</small>
+                            <small>{{ __("Image ownership") }}</small>
                             <strong>{{ __('Projecten gekoppeld aan jouw account') }}</strong>
                             <p>
                                 {{ __('Afbeeldingen en bewerkingsversies blijven gekoppeld aan de ingelogde gebruiker.') }}
