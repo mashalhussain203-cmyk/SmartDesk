@@ -17,7 +17,7 @@ class TikTokAnalyticsService
      */
     public function video(string $videoUrl, string $videoId, TikTokVideoStatsService $counter): array
     {
-        return Cache::remember('mashal:video-analyzer:v7:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
+        return Cache::remember('mashal:video-analyzer:v8:'.$videoId, now()->addMinutes(3), function () use ($videoUrl, $videoId, $counter) {
             // Use the public page first. Third-party metadata is always labeled
             // and used only when the official public page lacks fields.
             $state = $this->publicPage($videoUrl);
@@ -164,7 +164,26 @@ class TikTokAnalyticsService
             $shares = $this->number($stats['shareCount'] ?? $mirror['shares'] ?? null);
             $duration = $this->number($technical['duration'] ?? $item['videoDuration'] ?? $mirror['duration'] ?? $probe['duration'] ?? null);
 
-            $videoAvailable = is_array($item) || is_array($embed) || $mirror !== [] || $stream !== [] || ($probe['success'] ?? false) === true;
+            // External mirrors and downloadable media are not independent proof
+            // that TikTok itself currently exposes the post to the public.
+            // Likewise, a publicly accessible post may still be ineligible
+            // for the For You feed; TikTok only reports that to its owner.
+            $privateItem = (bool) ($item['privateItem'] ?? $item['status']['privateItem'] ?? false);
+            $officialPageAvailable = is_array($item) && ! $privateItem;
+            $officialEmbedAvailable = is_array($embed);
+            $officialPublic = $officialPageAvailable || $officialEmbedAvailable;
+            $otherPublicData = $mirror !== [] || $stream !== [] || ($probe['success'] ?? false) === true;
+            $videoAvailable = $officialPublic || $otherPublicData;
+            $visibilitySource = $officialPageAvailable
+                ? 'TikTok openbare videopagina'
+                : ($officialEmbedAvailable
+                    ? 'TikTok officiële embed'
+                    : ($otherPublicData ? 'Externe videobron (niet door TikTok bevestigd)' : 'Geen bevestigde openbare bron'));
+            $visibilityDescription = $officialPublic
+                ? 'TikTok heeft openbare videogegevens geleverd. Dit bewijst niet of de video in de Voor jou-feed wordt aanbevolen.'
+                : ($otherPublicData
+                    ? 'Er zijn videogegevens via een externe bron gevonden, maar de huidige openbare bereikbaarheid bij TikTok kon niet worden bevestigd.'
+                    : 'TikTok heeft geen controleerbare openbare videogegevens geleverd. Dat is op zichzelf geen bewijs voor een blokkade.');
             $quality = $width && $height ? min($width, $height) : null;
             $download = $this->safeMediaUrl($stream['url'] ?? null)
                 ?? $this->safeMediaUrl($mirror['hdplay'] ?? null)
@@ -210,14 +229,19 @@ class TikTokAnalyticsService
                 'region_name' => $regionName,
                 'region_flag' => $regionFlag,
                 'region_source' => $regionSource,
-                'shadowban' => $videoAvailable ? 'Geen publieke blokkade aangetoond' : 'Niet te controleren',
-                'shadowban_detail' => $videoAvailable
-                    ? 'Openbaar vindbaar; de Voor jou-feedgeschiktheid is alleen zichtbaar in TikTok Studio.'
-                    : 'Geen bevestigde publieke status; kijk in TikTok Studio voor aanbevelingsbeperkingen.',
-                'public_visibility' => $videoAvailable ? 'Public' : 'Onbekend',
+                'shadowban' => 'Niet vast te stellen',
+                'shadowban_detail' => 'Openbare bronnen geven niet aan of TikTok deze video uitsluit van de Voor jou-feed. De eigenaar kan dit controleren via Meer inzichten → Analytics in TikTok Studio.',
+                'shadowban_source' => 'Alleen TikTok Studio kan een officiële aanbevelingsbeperking bevestigen',
+                'public_visibility' => $officialPublic ? 'Public' : 'Onbekend',
+                'public_visibility_label' => $officialPublic
+                    ? 'Openbaar bevestigd ✓'
+                    : ($otherPublicData ? 'Alleen externe gegevens' : 'Niet bevestigd'),
+                'public_visibility_detail' => $visibilityDescription,
+                'public_visibility_source' => $visibilitySource,
                 'download_url' => $download,
                 'download_quality' => $quality,
-                'availability' => $videoAvailable ? 'Openbare video gevonden' : 'Beperkte openbare gegevens',
+                'availability' => $officialPublic ? 'Door TikTok openbaar bevestigd'
+                    : ($otherPublicData ? 'Gegevens gevonden via externe bron' : 'Beperkte openbare gegevens'),
                 'checked_at' => now()->format('d-m-Y H:i'),
             ];
         });
