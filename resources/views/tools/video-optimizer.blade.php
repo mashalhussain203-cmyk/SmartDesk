@@ -13,7 +13,7 @@
         'failure' => __('The video could not be optimized. Please try again.'),
         'network' => __('Network error or processing timeout. Try a shorter video.'),
         'other' => __('FFmpeg mode re-encodes using H.264 with high quality. Original frame timing is retained.'),
-        'fourK' => __('Export a 4K 120 FPS MP4 without slow motion. Background rendering on this server can take hours. Maximum 3 minutes.'),
+        'fourK' => __('Create 4K at 120 FPS using motion-compensated frame interpolation and sharpened Lanczos scaling. No slow motion. CPU rendering can take hours; max 3 minutes.'),
         'rendering' => __('Rendering 4K 120 FPS. You can keep this page open to follow the progress.'),
         'renderFailed' => __('4K processing could not finish. Check the reported server error and try again.'),
         'tooLong' => __('The 4K / 120 FPS mode supports videos of up to 3 minutes (180 seconds).'),
@@ -125,7 +125,7 @@
                     </button>
                 </div>
 
-                <div class="vo-notice" id="vo-mode-description">{{ __('Export a 4K 120 FPS MP4 without slow motion. Background rendering on this server can take hours. Maximum 3 minutes.') }}</div>
+                <div class="vo-notice" id="vo-mode-description">{{ __('Create 4K at 120 FPS using motion-compensated frame interpolation and sharpened Lanczos scaling. No slow motion. CPU rendering can take hours; max 3 minutes.') }}</div>
 
                 <label class="vo-drop" for="vo-file" id="vo-drop" tabindex="0">
                     <span class="vo-drop-icon" aria-hidden="true">↓</span>
@@ -145,7 +145,7 @@
                     <div><small>{{ __('File size') }}</small><strong id="vo-size">—</strong></div>
                 </div>
 
-                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS mode generates intermediate frames while preserving original speed and audio. Clips up to 3 minutes (180 seconds), max 100 MB. Rendering can take hours on this server.') }}</p>
+                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS uses motion estimation rather than blended/duplicated frames, with denoising and sharpening. This improves appearance but cannot recreate original detail lost in a low-resolution source. Maximum 3 minutes / 100 MB. Long clips require substantially more RAM, CPU and disk space than this server has.') }}</p>
                 <label class="vo-check" id="vo-hevc-row" hidden><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
@@ -186,7 +186,7 @@
             <strong>{{ __('Important notes') }}</strong>
             <ul>
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
-                <li>{{ __('4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.') }}</li>
+                <li>{{ __('4K 120 FPS uses motion-compensated frames and Lanczos scaling with mild sharpening; it is not Real-ESRGAN AI super-resolution. Source detail cannot be guaranteed. The normal modes leave FPS unchanged.') }}</li>
                 <li>{{ __('4K/120 FPS MP4 may be unsupported by iPhone Photos. Download the separate 1080p/60 FPS iPhone-compatible MP4 for saving to your camera roll and sharing.') }}</li>
                 <li>{{ __('Video uploads to chat and social apps may be compressed to 30 FPS and a smaller resolution. To check the original export, inspect the MP4 downloaded directly from this website in Files, not an app-generated preview.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
