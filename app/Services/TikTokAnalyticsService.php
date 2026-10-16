@@ -180,7 +180,7 @@ class TikTokAnalyticsService
                     ? 'TikTok officiële embed'
                     : ($otherPublicData ? 'Externe videobron (niet door TikTok bevestigd)' : 'Geen bevestigde openbare bron'));
             $visibilityDescription = $officialPublic
-                ? 'TikTok heeft openbare videogegevens geleverd. Dit bewijst niet of de video in de Voor jou-feed wordt aanbevolen.'
+                ? 'TikTok heeft openbare videogegevens geleverd. Daarmee is openbare bereikbaarheid bevestigd.'
                 : ($otherPublicData
                     ? 'Er zijn videogegevens via een externe bron gevonden, maar de huidige openbare bereikbaarheid bij TikTok kon niet worden bevestigd.'
                     : 'TikTok heeft geen controleerbare openbare videogegevens geleverd. Dat is op zichzelf geen bewijs voor een blokkade.');
@@ -229,9 +229,6 @@ class TikTokAnalyticsService
                 'region_name' => $regionName,
                 'region_flag' => $regionFlag,
                 'region_source' => $regionSource,
-                'shadowban' => 'Niet vast te stellen',
-                'shadowban_detail' => 'Openbare bronnen geven niet aan of TikTok deze video uitsluit van de Voor jou-feed. De eigenaar kan dit controleren via Meer inzichten → Analytics in TikTok Studio.',
-                'shadowban_source' => 'Alleen TikTok Studio kan een officiële aanbevelingsbeperking bevestigen',
                 'public_visibility' => $officialPublic ? 'Public' : 'Onbekend',
                 'public_visibility_label' => $officialPublic
                     ? 'Openbaar bevestigd ✓'
