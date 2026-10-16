@@ -62,7 +62,7 @@ class Render4k120Video extends Command
 
             $probe = new Process([
                 'ffprobe', '-v', 'error', '-select_streams', 'v:0',
-                '-show_entries', 'stream=width,height', '-of', 'json', $source,
+                '-show_entries', 'stream=width,height,avg_frame_rate', '-of', 'json', $source,
             ]);
             $probe->setTimeout(30);
             $probe->mustRun();
@@ -75,6 +75,10 @@ class Render4k120Video extends Command
             $width = $portrait ? 2160 : 3840;
             $height = $portrait ? 3840 : 2160;
             $duration = (float) ($state['duration'] ?? 0);
+            $sourceRate = explode('/', (string) ($stream['avg_frame_rate'] ?? '0/1'));
+            $sourceFps = (float) ($sourceRate[1] ?? 0) > 0
+                ? (float) ($sourceRate[0] ?? 0) / (float) $sourceRate[1] : 0.0;
+            $needsInterpolation = $sourceFps < 119.5;
             $renderState = $state;
 
             // Export a separate Photos-compatible MP4 from the ORIGINAL source.
@@ -168,10 +172,36 @@ class Render4k120Video extends Command
                 ]));
             }
 
-            // Interpolate at source size before the resource-intensive upscale.
-            $filter = 'minterpolate=fps=120:mi_mode=blend,'
-                .'scale='.$width.':'.$height.':force_original_aspect_ratio=decrease:flags=bicubic,'
-                .'pad='.$width.':'.$height.':(ow-iw)/2:(oh-ih)/2,setsar=1';
+            // Motion-compensated interpolation creates intermediate frames from estimated
+            // motion, not simply blending two frames (which causes ghosting).
+            // Work at source size: doing motion search on 4K frames exhausts 1 GB RAM.
+            // Lanczos + moderate sharpening improves perceived clarity but is NOT
+            // learned AI super-resolution and cannot recover lost source detail.
+            $filters = [];
+            if ((int) $stream['width'] < 1920 || (int) $stream['height'] < 1080) {
+                $filters[] = 'hqdn3d=1.2:1.2:4:4';
+            }
+            if ($needsInterpolation) {
+                $filters[] = 'minterpolate=fps=120:mi_mode=mci:mc_mode=obmc:'
+                    .'me_mode=bidir:me=epzs:mb_size=16:vsbmc=1:'
+                    .'scd=fdiff:scd_threshold=10';
+            }
+            $filters[] = 'scale='.$width.':'.$height
+                .':force_original_aspect_ratio=decrease:flags=lanczos';
+            $filters[] = 'pad='.$width.':'.$height.':(ow-iw)/2:(oh-ih)/2';
+            $filters[] = 'setsar=1';
+            $filters[] = 'unsharp=5:5:0.55:5:5:0.0';
+            $filters[] = 'format=yuv420p';
+            $filter = implode(',', $filters);
+
+            // Do not silently lower the quality to ultrafast / 8 Mbit for longer
+            // clips. Reject insufficient disk space with a clear error instead.
+            $maxRateMbps = $duration > 90 ? 12 : 18;
+            $estimatedBytes = (int) ceil($duration * (($maxRateMbps + 0.4) * 1000000 / 8) * 1.2);
+            $freeBytes = disk_free_space($directory);
+            if ($freeBytes !== false && $freeBytes < $estimatedBytes + (20 * 1048576)) {
+                throw new \RuntimeException('RENDER_STORAGE_LOW');
+            }
 
             // Constrain x264 encoder threads (not only input decoder threads)
             // to stay within the 1 GB Railway container memory limit.
@@ -181,9 +211,9 @@ class Render4k120Video extends Command
                 '-i', $source, '-map', '0:v:0', '-map', '0:a?', '-sn', '-dn',
                 '-vf', $filter, '-fps_mode', 'cfr', '-r', '120',
                 '-c:v', 'libx264', '-threads:v', '2',
-                '-preset', 'ultrafast', '-tune', 'zerolatency', '-crf', '20',
-                '-maxrate', $duration > 90 ? '8M' : '12M',
-                '-bufsize', $duration > 90 ? '16M' : '24M',
+                '-preset', 'veryfast', '-crf', '18',
+                '-maxrate', $maxRateMbps.'M',
+                '-bufsize', ($maxRateMbps * 2).'M',
                 '-pix_fmt', 'yuv420p',
                 '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
                 '-progress', 'pipe:1', '-nostats', '-f', 'mp4', $partial,
@@ -248,6 +278,8 @@ class Render4k120Video extends Command
                 'status' => 'ready', 'progress' => 100,
                 'width' => $width, 'height' => $height, 'fps' => round($fps, 2),
                 'duration' => $finishedDuration,
+                'frame_generation' => $needsInterpolation ? 'motion_compensated' : 'source_fps',
+                'upscaling' => 'lanczos_with_unsharp',
             ]));
 
             return self::SUCCESS;
