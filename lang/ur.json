@@ -1653,5 +1653,18 @@
     "Zernio accepted the publishing request. TikTok may still be processing the video.": "زیرنیو نے پوسٹ قبول کی ہے۔ ٹک ٹاک ویڈیو پروسیس کر رہا ہو سکتا ہے۔",
     "The publishing service is temporarily unavailable.": "پوسٹنگ سروس فی الحال دستیاب نہیں۔",
     "Your file is processed privately. Exports are kept for up to 1 hour before cleanup.": "فائل نجی طور پر پروسیس ہوتی ہے۔ ویڈیو زیادہ سے زیادہ ایک گھنٹے تک محفوظ رہتی ہے۔",
-    "Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.": "خودکار پوسٹنگ کے لیے زیرنیو API کلید اور آپ کی اجازت ضروری ہے۔ آپ خود بھی اپ لوڈ کر سکتے ہیں۔"
+    "Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.": "خودکار پوسٹنگ کے لیے زیرنیو API کلید اور آپ کی اجازت ضروری ہے۔ آپ خود بھی اپ لوڈ کر سکتے ہیں۔",
+    "ENHANCE": "بہتر بنائیں",
+    "Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.": "4K 120 FPS ویڈیو بنائیں۔ اصل دورانیہ اور رفتار برقرار رہیں گے۔ حد 90 سیکنڈ ہے۔",
+    "Rendering 4K 120 FPS. You can keep this page open to follow the progress.": "4K 120 FPS ویڈیو تیار ہو رہی ہے۔ پیش رفت کے لیے صفحہ کھلا رکھیں۔",
+    "4K processing could not finish. Please try a shorter clip.": "4K ویڈیو مکمل نہیں بن سکی۔ چھوٹی ویڈیو آزمائیں۔",
+    "4K 120 FPS mode outputs a 4K file with generated intermediate frames. It cannot restore detail that is not in the original. This mode is limited to 90 seconds.": "4K 120 FPS میں نئے فریم شامل کیے جاتے ہیں۔ اصل ویڈیو میں موجود نہ ہونے والی تفصیل واپس نہیں آ سکتی۔ زیادہ سے زیادہ 90 سیکنڈ۔",
+    "4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.": "4K 120 FPS موڈ درمیان کے فریم بناتا ہے، ویڈیو کو بڑا کرتا ہے اور آواز اور اصل مدت برقرار رکھتا ہے۔",
+    "4K 120 FPS supports videos up to 90 seconds on this server.": "یہ سرور 4K 120 FPS کے لیے 90 سیکنڈ تک کی ویڈیو قبول کرتا ہے۔",
+    "You already have a 4K 120 FPS render running.": "آپ کی 4K 120 FPS ویڈیو پہلے سے تیار ہو رہی ہے۔",
+    "Rendering 4K 120 FPS in the background. Keep this page open.": "4K 120 FPS ویڈیو پس منظر میں تیار ہو رہی ہے۔ صفحہ کھلا رکھیں۔",
+    "Unable to start the 4K render on this server.": "اس سرور پر 4K ویڈیو بنانا شروع نہیں ہو سکا۔",
+    "Video status temporarily unavailable.": "ویڈیو کی حالت فی الحال دستیاب نہیں۔",
+    "4K processing timed out. Try a shorter clip.": "4K ویڈیو تیار کرنے کا وقت ختم ہو گیا۔ مختصر ویڈیو آزمائیں۔",
+    "Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.": "4K 120 FPS کی تصدیق کی گئی، درمیان میں فریم شامل ہیں اور اصل دورانیہ برقرار ہے۔"
 }

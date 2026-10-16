@@ -128,11 +128,19 @@ class AppServiceProvider extends ServiceProvider
                 'retry_after' => (int) ($headers['Retry-After'] ?? 60),
             ], 429, $headers);
 
-            return [
+            $limits = [
                 Limit::perMinute(12)->by('video-upload-v2-minute:'.$visitor)->response($response),
                 Limit::perHour(48)->by('video-upload-v2-hour:'.$visitor)->response($response),
                 Limit::perHour(180)->by('video-upload-v2-ip:'.$request->ip())->response($response),
             ];
+
+            if ($request->input('mode') === '4k120') {
+                $limits[] = Limit::perHour(4)
+                    ->by('video-4k120-hour:'.$visitor)
+                    ->response($response);
+            }
+
+            return $limits;
         });
 
         RateLimiter::for('contact-form', static function (Request $request): array {

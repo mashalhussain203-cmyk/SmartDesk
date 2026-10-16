@@ -13,6 +13,9 @@
         'failure' => __('The video could not be optimized. Please try again.'),
         'network' => __('Network error or processing timeout. Try a shorter video.'),
         'other' => __('FFmpeg mode re-encodes using H.264 with high quality. Original frame timing is retained.'),
+        'fourK' => __('Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.'),
+        'rendering' => __('Rendering 4K 120 FPS. You can keep this page open to follow the progress.'),
+        'renderFailed' => __('4K processing could not finish. Please try a shorter clip.'),
         'original' => __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.'),
     ];
     $videoOptimizerPostLabels = [
@@ -33,8 +36,8 @@
     .vo-title{margin:14px 0 12px;font-size:clamp(33px,6vw,56px);line-height:1.12;text-align:center;font-weight:850;letter-spacing:-.04em}
     .vo-subtitle{max-width:620px;margin:0 auto 30px;color:#a6a7b6;text-align:center;font-size:14px;line-height:1.7}
     .vo-panel{padding:clamp(18px,4vw,32px);border-radius:24px;background:#111119;border:1px solid #30303b;box-shadow:0 24px 90px rgba(0,0,0,.27)}
-    .vo-modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;border-radius:44px;border:1px solid #41414a;background:#17171e}
-    .vo-mode{min-height:80px;padding:12px 8px;border:0;border-radius:38px;background:transparent;color:#9c9ca9;font-size:clamp(13px,2.5vw,18px);font-weight:850;cursor:pointer}
+     .vo-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px;border-radius:44px;border:1px solid #41414a;background:#17171e}
+    .vo-mode{min-width:0;min-height:80px;padding:12px 8px;border:0;border-radius:38px;background:transparent;color:#9c9ca9;font-size:clamp(13px,2.5vw,18px);font-weight:850;cursor:pointer}
     .vo-mode small{display:block;font-size:clamp(9px,1.7vw,11px);letter-spacing:.14em;margin-top:5px;font-weight:750}
     .vo-mode[aria-pressed="true"]{background:linear-gradient(105deg,#80cc0a,#a6ee21);color:#0b0915;box-shadow:0 8px 28px rgba(133,118,255,.2)}
     .vo-notice{margin-top:16px;padding:18px 20px;border:1px solid #585142;background:#24221d;border-radius:15px;text-align:center;line-height:1.65;font-size:14px}
@@ -52,6 +55,7 @@
     .vo-meta div{min-width:0;background:#181821;border:1px solid #2c2c38;border-radius:12px;padding:11px;text-align:center}
     .vo-meta small{color:#9e9caa;display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
     .vo-meta strong{font-size:13px;display:block;margin-top:6px;overflow-wrap:anywhere}
+     .vo-4k-note{border:1px solid #5a751a;border-radius:12px;color:#dae8c3;font-size:12px;line-height:1.65;padding:12px;margin:13px 0}.vo-4k-note[hidden]{display:none!important}
     .vo-check{display:flex;align-items:center;gap:11px;margin:20px 0;color:#d9d9e2;font-size:14px;cursor:pointer}
     .vo-check input{accent-color:#9987ff;min-width:19px;height:19px}
     .vo-btn{border:0;width:100%;min-height:64px;border-radius:14px;background:linear-gradient(100deg,#80ca08,#a9e91c);color:#102000;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
@@ -83,7 +87,7 @@
     .vo-tips strong{color:#f0eff9}
     .vo-tips ul{margin:9px 0 0;padding-inline-start:20px}
     .vo-tips li{margin:6px 0}
-    @media(max-width:520px){.vo-page{padding:32px 12px 70px}.vo-panel{border-radius:18px}.vo-drop{min-height:240px}.vo-meta{gap:5px}.vo-meta div{padding:10px 6px}.vo-mode{min-height:74px}.vo-notice{font-size:12px;padding:14px}.vo-btn{font-size:13px;letter-spacing:.05em}}
+    @media(max-width:520px){.vo-mode{font-size:12px;padding:8px 3px}.vo-mode small{font-size:8px;letter-spacing:0} .vo-page{padding:32px 12px 70px}.vo-panel{border-radius:18px}.vo-drop{min-height:240px}.vo-meta{gap:5px}.vo-meta div{padding:10px 6px}.vo-mode{min-height:74px}.vo-notice{font-size:12px;padding:14px}.vo-btn{font-size:13px;letter-spacing:.05em}}
 </style>
 @endpush
 
@@ -107,6 +111,10 @@
                         {{ __('FFmpeg') }}
                         <small>{{ __('HIGH QUALITY') }}</small>
                     </button>
+                    <button class="vo-mode" type="button" data-vo-mode="4k120" aria-pressed="false">
+                        4K / 120 FPS
+                        <small>{{ __('ENHANCE') }}</small>
+                    </button>
                 </div>
 
                 <div class="vo-notice" id="vo-mode-description">{{ __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.') }}</div>
@@ -129,7 +137,8 @@
                     <div><small>{{ __('File size') }}</small><strong id="vo-size">—</strong></div>
                 </div>
 
-                <label class="vo-check"><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
+                <p class="vo-4k-note" id="vo-4k-note" hidden>{{ __('4K 120 FPS mode outputs a 4K file with generated intermediate frames. It cannot restore detail that is not in the original. This mode is limited to 90 seconds.') }}</p>
+                <label class="vo-check" id="vo-hevc-row"><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
                 <div class="vo-status" id="vo-status" role="status" aria-live="polite"></div>
@@ -165,7 +174,7 @@
             <strong>{{ __('Important notes') }}</strong>
             <ul>
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
-                <li>{{ __('We do not artificially turn 30 FPS into 60 or 120 FPS; source timing is preserved.') }}</li>
+                <li>{{ __('4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
                 <li>{{ __('Your file is processed privately. Exports are kept for up to 1 hour before cleanup.') }}</li>
                 <li>{{ __('Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.') }}</li>
@@ -190,6 +199,7 @@
     var currentFile = null;
     var busy = false;
     var optimizedToken = null;
+    var renderTimer = null;
     var labels = @json($videoOptimizerLabels);
 
     function setStatus(text, error) {
@@ -265,9 +275,70 @@
             document.querySelectorAll('[data-vo-mode]').forEach(function (other) {
                 other.setAttribute('aria-pressed', other === button ? 'true' : 'false');
             });
-            document.getElementById('vo-mode-description').textContent = modeField.value === 'ffmpeg' ? labels.other : labels.original;
+            document.getElementById('vo-mode-description').textContent =
+                modeField.value === '4k120' ? labels.fourK : (modeField.value === 'ffmpeg' ? labels.other : labels.original);
+            document.getElementById('vo-4k-note').hidden = modeField.value !== '4k120';
+            document.getElementById('vo-hevc-row').hidden = modeField.value === '4k120';
         });
     });
+
+    function ready(response) {
+        if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
+        busy = false;
+        submit.disabled = !currentFile;
+        optimizedToken = response.token || null;
+        setProgress(100);
+        setStatus(labels.complete, false);
+        document.getElementById('vo-download').href = response.download_url;
+        document.getElementById('vo-result-note').textContent = response.note || '';
+        result.classList.add('is-visible');
+        result.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+
+    function pollRender(url) {
+        var polling = false;
+        var errors = 0;
+
+        function check() {
+            if (polling) { return; }
+            polling = true;
+            fetch(url, {
+                credentials: 'same-origin', cache: 'no-store',
+                headers: {'Accept': 'application/json'}
+            }).then(function (response) {
+                if (!response.ok) { throw new Error(labels.network); }
+                return response.json();
+            }).then(function (state) {
+                errors = 0;
+                if (state.status === 'ready' && state.download_url) {
+                    ready(state);
+                } else if (state.status === 'failed') {
+                    clearInterval(renderTimer);
+                    renderTimer = null;
+                    busy = false;
+                    submit.disabled = !currentFile;
+                    progress.classList.remove('is-visible');
+                    setStatus(state.message || labels.renderFailed, true);
+                } else {
+                    setProgress(Math.min(99, Math.max(90, 90 + Math.round((state.progress || 0) * .09))));
+                    setStatus(labels.rendering + ' ' + (state.progress || 0) + '%', false);
+                }
+            }).catch(function () {
+                errors += 1;
+                if (errors >= 6) {
+                    clearInterval(renderTimer);
+                    renderTimer = null;
+                    busy = false;
+                    submit.disabled = !currentFile;
+                    progress.classList.remove('is-visible');
+                    setStatus(labels.network, true);
+                }
+            }).finally(function () { polling = false; });
+        }
+
+        check();
+        renderTimer = setInterval(check, 4000);
+    }
 
     form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -282,6 +353,7 @@
         data.set('video', currentFile, currentFile.name);
         var xhr = new XMLHttpRequest();
         xhr.open('POST', form.action);
+        xhr.timeout = 120000;
         xhr.responseType = 'json';
         xhr.setRequestHeader('Accept', 'application/json');
         xhr.upload.onprogress = function (event) {
@@ -292,7 +364,13 @@
             busy = false;
             submit.disabled = !currentFile;
             var response = xhr.response || {};
-            if (xhr.status >= 200 && xhr.status < 300 && response.download_url) {
+            if (xhr.status === 202 && response.processing && response.status_url) {
+                busy = true;
+                submit.disabled = true;
+                setProgress(90);
+                setStatus(labels.rendering, false);
+                pollRender(response.status_url);
+            } else if (xhr.status >= 200 && xhr.status < 300 && response.download_url) {
                 setProgress(100);
                 optimizedToken = response.token || null;
                 setStatus(labels.complete, false);
@@ -411,6 +489,7 @@
     });
 
     document.getElementById('vo-again').addEventListener('click', function () {
+        if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
         result.classList.remove('is-visible');
         progress.classList.remove('is-visible');
         fileInput.value = '';

@@ -33,6 +33,20 @@ class VideoOptimizerTest extends TestCase
         }
     }
 
+    public function test_4k120_mode_is_accepted_by_validation(): void
+    {
+        $this->postJson('/tools/video-optimizer', [
+            'mode' => '4k120',
+            'video' => UploadedFile::fake()->create('invalid.txt', 2, 'text/plain'),
+        ])->assertUnprocessable()->assertJsonValidationErrors(['video']);
+    }
+
+    public function test_render_status_is_private_to_the_upload_session(): void
+    {
+        $this->get('/tools/video-optimizer/status/'.str_repeat('a', 40))
+            ->assertNotFound();
+    }
+
     public function test_download_cannot_be_accessed_without_session(): void
     {
         $this->get('/tools/video-optimizer/download/'.str_repeat('a', 40))
