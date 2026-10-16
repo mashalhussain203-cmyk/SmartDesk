@@ -71,9 +71,15 @@
     .ms-spec-grid .ms-spec strong.ms-success { color: #95d42f; }
     .ms-spec-grid .ms-spec .ms-flag { margin-right: 7px; white-space: nowrap; font-size: 23px; vertical-align: -2px; }
     .ms-spec-grid .ms-spec .ms-subtext { margin-top: 8px; display: block; color: #81899b; line-height: 1.6; font-size: 10px; }
-    .ms-check-steps { margin-top: 11px; padding: 10px 12px; background: rgba(255,255,255,.035); border: 1px solid #343948; border-radius: 10px; }
-    .ms-check-steps summary { color: #d1cafb; cursor: pointer; font-size: 11px; font-weight: 700; }
-    .ms-check-steps p { color: #aab1c1; font-size: 11px; line-height: 1.65; margin: 10px 0 0; }
+    .ms-fetch-indicator { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 168px; gap: 17px; margin-top: 16px; border: 1px solid #292d3b; border-radius: 19px; background: #0b0d13; text-align: center; color: #c5cad6; }
+    .ms-fetch-indicator[hidden] { display: none !important; }
+    .ms-fetch-spinner { width: 49px; height: 49px; border: 3px solid #293021; border-bottom-color: #8bd211; border-left-color: #8bd211; border-radius: 50%; animation: ms-fetch-spin .9s linear infinite; }
+    .ms-fetch-label { font-size: 14px; font-weight: 650; }
+    .ms-action.is-fetching { position: relative; pointer-events: none; opacity: .87; }
+    .ms-action.is-fetching::before { content: ''; display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-right: 9px; border: 2px solid rgba(9,15,5,.24); border-top-color: #0b1206; border-radius: 50%; animation: ms-fetch-spin .75s linear infinite; }
+    .ms-analysis.is-fetching .ms-results { opacity: .45; }
+    @keyframes ms-fetch-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .ms-fetch-spinner, .ms-action.is-fetching::before { animation-duration: 2s; } }
     .ms-download { display: flex; align-items: center; justify-content: center; width: 100%; background: #89cc07; color: #080a06; border-radius: 18px; min-height: 62px; margin: 24px 0 0; padding: 14px 17px; font-weight: 900; font-size: clamp(13px,2vw,18px); text-decoration: none; text-align: center; }
     .ms-download:hover { background: #a5ee30; color: #080a06; }
     .ms-download-note { color: #8d94a3; font-size: 11px; text-align: center; line-height: 1.65; margin: 10px 0 0; }
@@ -151,7 +157,7 @@
                     ? __('Plak een TikTok-videolink om de beschikbare kwaliteit, FPS, regio en engagement te bekijken.')
                     : __('Enter your TikTok username to see when your videos perform best.') }}
             </p>
-            <form class="ms-form" method="GET" action="{{ $isVideo ? route('tiktok-analytics.video') : route('tiktok-analytics.times') }}">
+            <form id="ms-primary-form" class="ms-form" method="GET" action="{{ $isVideo ? route('tiktok-analytics.video') : route('tiktok-analytics.times') }}">
                 <input class="ms-field" aria-label="{{ $isVideo ? 'TikTok video URL' : 'TikTok username' }}"
                        type="text" name="{{ $isVideo ? 'url' : 'username' }}"
                        placeholder="{{ $isVideo ? 'https://www.tiktok.com/@user/video/...' : '@yourusername' }}"
@@ -161,6 +167,10 @@
                 @endunless
                 <button class="ms-action" type="submit">{{ $isVideo ? 'ANALYZE' : 'CHECK' }} →</button>
             </form>
+            <div class="ms-fetch-indicator" id="ms-primary-loading" hidden role="status" aria-live="polite">
+                <span class="ms-fetch-spinner" aria-hidden="true"></span>
+                <span class="ms-fetch-label">{{ $isVideo ? 'Fetching video data...' : 'Fetching upload time data...' }}</span>
+            </div>
             <p class="ms-hint">{{ $isVideo
                 ? __('De framerate komt uit publieke videometadata of een echte meting met ffprobe. Zonder toegang tot de mediastream kunnen we geen FPS bevestigen.')
                 : __('Deze tool gebruikt uitsluitend verzamelde openbare posts. Het zijn historische weergavecijfers per uploadmoment, niet de officiële volgersactiviteit uit TikTok Studio. Zonder beschikbare posts tonen we geen verzonnen tijden.') }}</p>
@@ -235,16 +245,6 @@
                             <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility_label'] }}</strong>
                             <span class="ms-subtext">{{ $result['public_visibility_detail'] }}</span>
                             <span class="ms-subtext">Bron: {{ $result['public_visibility_source'] }}</span>
-                        </div>
-                        <div class="ms-spec">
-                            <small>Shadow ban / Voor jou-feed</small>
-                            <strong>{{ $result['shadowban'] }}</strong>
-                            <span class="ms-subtext">{{ $result['shadowban_detail'] }}</span>
-                            <details class="ms-check-steps">
-                                <summary>Controleer je echte TikTok-status ▾</summary>
-                                <p>Open deze video in de TikTok-app → Meer inzichten (of ⋯ → Analytics) → controleer of TikTok een melding toont dat de video niet geschikt is voor de Voor jou-feed. Staat er zo'n melding, dan kun je de reden bekijken en eventueel bezwaar maken.</p>
-                            </details>
-                            <a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">Officiële TikTok-instructies ↗</a>
                         </div>
                         <div class="ms-spec">
                             <small>Upload date</small>
@@ -353,16 +353,52 @@
             <section class="ms-panel" style="margin-top:24px">
                 <h2>Best Upload Times <span class="ms-version">v2.0</span></h2>
                 <p class="ms-panel-desc">Enter your TikTok username to see when your public videos historically performed best.</p>
-                <form method="GET" class="ms-form" action="{{ route('tiktok-analytics.times') }}">
+                <form id="ms-secondary-form" method="GET" class="ms-form" action="{{ route('tiktok-analytics.times') }}">
                     <input class="ms-field" type="text" name="username" placeholder="&#64;yourusername" required maxlength="255" aria-label="TikTok username">
                     <input type="hidden" name="timezone" value="Europe/Amsterdam">
                     <button class="ms-action" type="submit">CHECK →</button>
                 </form>
+                <div class="ms-fetch-indicator" id="ms-secondary-loading" hidden role="status" aria-live="polite">
+                    <span class="ms-fetch-spinner" aria-hidden="true"></span>
+                    <span class="ms-fetch-label">Fetching upload time data...</span>
+                </div>
                 <p class="ms-hint">Resultaten tonen de gegevensbron en steekproefbetrouwbaarheid. Dit zijn geen officiële TikTok-volgersactiviteitstijden.</p>
             </section>
         @endif
     </div>
 </main>
+<script>
+(function () {
+    function bindFetchAnimation(formId, indicatorId) {
+        const form = document.getElementById(formId);
+        const indicator = document.getElementById(indicatorId);
+        if (!form || !indicator) return;
+        const button = form.querySelector('button[type="submit"]');
+        function reset() {
+            indicator.hidden = true;
+            document.querySelector('.ms-analysis')?.classList.remove('is-fetching');
+            if (button) {
+                button.disabled = false;
+                button.classList.remove('is-fetching');
+                if (button.dataset.originalLabel) button.textContent = button.dataset.originalLabel;
+            }
+        }
+        form.addEventListener('submit', function () {
+            indicator.hidden = false;
+            document.querySelector('.ms-analysis')?.classList.add('is-fetching');
+            if (button) {
+                button.dataset.originalLabel = button.textContent;
+                button.textContent = 'Loading...';
+                button.classList.add('is-fetching');
+                button.disabled = true;
+            }
+        });
+        window.addEventListener('pageshow', reset);
+    }
+    bindFetchAnimation('ms-primary-form', 'ms-primary-loading');
+    bindFetchAnimation('ms-secondary-form', 'ms-secondary-loading');
+})();
+</script>
 @unless($isVideo)
 <script>
 (function () {
