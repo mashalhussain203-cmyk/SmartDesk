@@ -254,7 +254,7 @@ class Render4k120Video extends Command
 
             $verification = new Process([
                 'ffprobe', '-v', 'error', '-select_streams', 'v:0',
-                '-show_entries', 'stream=width,height,avg_frame_rate:format=duration',
+                '-show_entries', 'stream=codec_name,pix_fmt,width,height,avg_frame_rate:format=duration',
                 '-of', 'json', $partial,
             ]);
             $verification->setTimeout(30);
@@ -264,11 +264,27 @@ class Render4k120Video extends Command
             $parts = explode('/', (string) ($video['avg_frame_rate'] ?? '0/1'));
             $fps = (float) ($parts[1] ?? 0) > 0 ? (float) $parts[0] / (float) $parts[1] : 0;
             $finishedDuration = (float) ($info['format']['duration'] ?? 0);
-            if ((int) ($video['width'] ?? 0) !== $width
+            if (($video['codec_name'] ?? '') !== 'h264'
+                || ($video['pix_fmt'] ?? '') !== 'yuv420p'
+                || (int) ($video['width'] ?? 0) !== $width
                 || (int) ($video['height'] ?? 0) !== $height
                 || abs($fps - 120) > 0.1
                 || abs($finishedDuration - $duration) > 1) {
-                throw new \RuntimeException('Output resolution, FPS, or duration validation failed.');
+                throw new \RuntimeException('Output codec, resolution, FPS, or duration validation failed.');
+            }
+
+            // MP4 metadata can be valid even if the video data is corrupt.
+            // Decode samples from the beginning and near the end before
+            // publishing this file as a verified 4K/120 FPS download.
+            foreach ([0.0, max(0.0, $finishedDuration - 1.0)] as $sampleTime) {
+                $decode = new Process([
+                    'ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error',
+                    '-xerror', '-threads', '1', '-ss', (string) $sampleTime,
+                    '-i', $partial, '-map', '0:v:0', '-frames:v', '12',
+                    '-an', '-f', 'null', '-',
+                ]);
+                $decode->setTimeout(120);
+                $decode->mustRun();
             }
 
             if (! rename($partial, $output)) {
