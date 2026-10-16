@@ -242,15 +242,15 @@
                             <small>{{ __("Region") }}</small>
                             <strong>
                                 @if($result['region_flag'])<span class="ms-flag" aria-hidden="true">{{ $result['region_flag'] }}</span>@endif
-                                {{ $result['region_name'] ?? 'Niet bekend' }}
+                                {{ $result['region_name'] ?? __('Niet bekend') }}
                             </strong>
                             <span class="ms-subtext">{{ $result['region_source'] ?? __('TikTok heeft voor deze post geen landcode gedeeld') }}</span>
                         </div>
                         <div class="ms-spec">
                             <small>{{ __("Openbare zichtbaarheid") }}</small>
-                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility_label'] }}</strong>
-                            <span class="ms-subtext">{{ $result['public_visibility_detail'] }}</span>
-                            <span class="ms-subtext">{{ __('Bron:') }} {{ $result['public_visibility_source'] }}</span>
+                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ __($result['public_visibility_label']) }}</strong>
+                            <span class="ms-subtext">{{ __($result['public_visibility_detail']) }}</span>
+                            <span class="ms-subtext">{{ __('Bron:') }} {{ __($result['public_visibility_source']) }}</span>
                         </div>
                         <div class="ms-spec">
                             <small>{{ __("Upload date") }}</small>
@@ -260,24 +260,24 @@
                         <div class="ms-spec">
                             <small>{{ __("Video ID") }}</small>
                             <strong dir="ltr">{{ $result['video_id'] }}</strong>
-                            <span class="ms-subtext">TikTok openbaar video-ID · gecontroleerd {{ $result['checked_at'] }}</span>
+                            <span class="ms-subtext">{{ __('TikTok openbaar video-ID · gecontroleerd') }} {{ $result['checked_at'] }}</span>
                         </div>
                     </div>
                     <h3 class="ms-subhead">{{ __('Public video statistics') }}</h3>
                     <div class="ms-metrics">
                         @foreach(['views' => 'Views', 'likes' => 'Likes', 'comments' => 'Comments', 'shares' => 'Shares'] as $field => $label)
                             <div class="ms-metric">
-                                <small>{{ $label }}</small>
+                                <small>{{ __($label) }}</small>
                                 <strong>{{ $result[$field] !== null ? number_format($result[$field], 0, ',', '.') : '—' }}</strong>
                             </div>
                         @endforeach
                     </div>
                     @if($result['engagement'] !== null)
-                        <div class="ms-note">Engagement rate: <strong>{{ number_format($result['engagement'], 2, ',', '.') }}%</strong> (likes + comments + shares / views).</div>
+                        <div class="ms-note">{{ __('Engagement rate') }}: <strong>{{ number_format($result['engagement'], 2, ',', '.') }}%</strong> (likes + comments + shares / views).</div>
                     @endif
                     @if($result['download_url'])
                         <a class="ms-download" href="{{ $result['download_url'] }}" target="_blank" rel="nofollow noopener noreferrer">
-                            ↓ {{ __('Download HD Video') }}{{ $result['download_quality'] ? ' ('.$result['download_quality'].' · beschikbare versie)' : '' }}
+                            ↓ {{ __('Download HD Video') }}{{ $result['download_quality'] ? ' ('.$result['download_quality'].' · '.__('beschikbare versie').')' : '' }}
                         </a>
                         <p class="ms-download-note">{{ __('Beste beschikbare publieke videoversie. Dit is niet gegarandeerd het originele uploadbestand; sommige browsers openen de video eerst.') }}</p>
                     @else
@@ -305,20 +305,20 @@
                         @foreach($result['best'] as $slot)
                             <div class="ms-best">
                                 <div class="ms-best-top">
-                                    <strong>{{ __($weekDaysEN[$slot['day']]) }} {{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00–{{ str_pad(($slot['hour'] + 1) % 24, 2, '0', STR_PAD_LEFT) }}:00 {{ $result['timezone'] }}</strong>
-                                    <span class="ms-best-score">{{ number_format($slot['score_percent'], 2, '.', '') }}%</span>
+                                    <strong>{{ __($weekDaysEN[$slot['day']]) }} <bdi dir="ltr">{{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00–{{ str_pad(($slot['hour'] + 1) % 24, 2, '0', STR_PAD_LEFT) }}:00 {{ $result['timezone'] }}</bdi></strong>
+                                    <span class="ms-best-score" dir="ltr">{{ number_format($slot['score_percent'], 2, '.', '') }}%</span>
                                 </div>
-                                <div class="ms-progress" role="img" aria-label="{{ $slot['score_percent'] }} procent historisch relatief prestatieniveau"><span style="width: {{ round($slot['score_percent'] / max(1, $result['score_scale']) * 100, 1) }}%"></span></div>
+                                <div class="ms-progress" role="img" aria-label="{{ $slot['score_percent'] }} {{ __('procent historisch relatief prestatieniveau') }}"><span style="width: {{ round($slot['score_percent'] / max(1, $result['score_scale']) * 100, 1) }}%"></span></div>
                             </div>
                         @endforeach
                     </div>
                     <details class="ms-times-provenance">
                         <summary>{{ __("Hoe zijn de tijden berekend? · brongegevens") }}</summary>
                         <div class="ms-note">
-                            Deze percentages zijn berekend uit echte openbare videoweergaven: het aandeel van de gemiddelde weergaven per uploaduur binnen alle waargenomen uren. Het is geen kans op viraliteit en geen officiële activiteit van TikTok-volgers.
+                            {{ __('Deze percentages zijn berekend uit echte openbare videoweergaven: het aandeel van de gemiddelde weergaven per uploaduur binnen alle waargenomen uren. Het is geen kans op viraliteit en geen officiële activiteit van TikTok-volgers.') }}
                             <div style="margin-top:8px">
-                                {{ $result['estimated_dates'] }} uploaddatums zijn uit video-ID's afgeleid;
-                                {{ $result['repeated_slots'] }} uploaduren komen meerdere keren voor.
+                                {{ $result['estimated_dates'] }} {{ __("uploaddatums zijn uit video-ID's afgeleid;") }}
+                                {{ $result['repeated_slots'] }} {{ __('uploaduren komen meerdere keren voor.') }}
                                 @foreach($result['source_counts'] as $source => $count)
                                     <span style="display:inline-block; margin:3px 8px 0 0">{{ $source }}: {{ $count }}</span>
                                 @endforeach
