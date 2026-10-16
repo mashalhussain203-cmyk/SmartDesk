@@ -285,15 +285,15 @@ class VideoOptimizerController extends Controller
                     ? __('Not enough free storage for a 4K render. Clear old exports or expand the Railway volume.')
                     : __('Unable to start the 4K render on this server.'),
             ], 503);
-        } finally {
-            flock($reservation, LOCK_UN);
-            fclose($reservation);
         }
         } catch (Throwable $exception) {
             report($exception);
             return response()->json([
                 'message' => __('Could not inspect the 4K render queue. Please try again.'),
             ], 503);
+        } finally {
+            flock($reservation, LOCK_UN);
+            fclose($reservation);
         }
     }
 

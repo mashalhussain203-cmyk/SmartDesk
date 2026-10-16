@@ -79,7 +79,12 @@ final class VideoRenderGuard
 
         // Only delete unfinished intermediate media. Preserve completed
         // iPhone-compatible downloads and anything from a successful render.
-        foreach ([$token.'.partial.mp4', $token.'.iphone.partial.mp4'] as $part) {
+        foreach ([
+            $token.'.partial.mp4',
+            $token.'.iphone.partial.mp4',
+            $token.'.source.mp4',
+            $token.'.source.mov',
+        ] as $part) {
             @unlink($directory.DIRECTORY_SEPARATOR.$part);
         }
 
