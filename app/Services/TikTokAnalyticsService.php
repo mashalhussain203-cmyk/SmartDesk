@@ -123,7 +123,7 @@ class TikTokAnalyticsService
             }
 
             if (!is_array($item) && $embed === null && $mirror === [] && ($probe['success'] ?? false) !== true && $this->numbers($stats) === 0) {
-                throw new RuntimeException('TikTok kon deze openbare video niet laden. Controleer de link en probeer het opnieuw.');
+                throw new RuntimeException(__('TikTok kon deze openbare video niet laden. Controleer de link en probeer het opnieuw.'));
             }
 
             $postRegion = $this->postRegion($item);
@@ -357,9 +357,9 @@ class TikTokAnalyticsService
                     'chromium_available' => is_executable('/usr/bin/chromium'),
                 ]);
                 throw new RuntimeException(
-                    'Er zijn geen verifieerbare openbare videostatistieken ontvangen voor @'.$username.'. '.
-                    'Het profiel, de videofeed en aanvullende bronnen geven geen bruikbare weergavecijfers terug. '.
-                    'Dit kan gebeuren bij een privéaccount, regiobeperking of TikTok-blokkade.'
+                    __('Er zijn geen verifieerbare openbare videostatistieken ontvangen voor @:username.', ['username' => $username]).' '.
+                    __('Het profiel, de videofeed en aanvullende bronnen geven geen bruikbare weergavecijfers terug.').' '.
+                    __('Dit kan gebeuren bij een privéaccount, regiobeperking of TikTok-blokkade.')
                 );
             }
 
