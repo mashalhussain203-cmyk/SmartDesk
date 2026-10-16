@@ -122,7 +122,15 @@ class VideoPublishController extends Controller
                 return response()->json(['message' => __('Zernio video storage rejected the upload. Try again.')], 422);
             }
 
-            $post = $client->post(self::API.'/posts', [
+            $idempotencyKey = hash('sha256', implode('|', [
+                $token,
+                $accountId,
+                (string) ($data['caption'] ?? ''),
+                $request->boolean('ai_generated') ? 'ai' : 'not-ai',
+            ]));
+
+            $post = $client->withHeaders(['Idempotency-Key' => $idempotencyKey])
+                ->post(self::API.'/posts', [
                 'content' => (string) ($data['caption'] ?? ''),
                 'mediaItems' => [['type' => 'video', 'url' => $publicUrl]],
                 'platforms' => [['platform' => 'tiktok', 'accountId' => $accountId]],
@@ -145,10 +153,26 @@ class VideoPublishController extends Controller
                 ], 422);
             }
 
+            $postStatus = (string) $post->json('post.status', 'processing');
+            $platformStatus = (string) $post->json('post.platforms.0.status', '');
+            if ($post->status() === 207
+                || in_array(strtolower($postStatus), ['failed', 'partial'], true)
+                || strtolower($platformStatus) === 'failed') {
+                $platformError = $post->json('post.platforms.0.errorMessage');
+                $message = is_string($platformError) && $platformError !== ''
+                    ? mb_substr($platformError, 0, 350)
+                    : __('TikTok did not accept the video post. Please review your account permissions.');
+                return response()->json([
+                    'message' => $message,
+                    'status' => 'failed',
+                    'post_id' => (string) $post->json('post._id', ''),
+                ], 422)->header('Cache-Control', 'no-store');
+            }
+
             return response()->json([
                 'message' => __('Zernio accepted the publishing request. TikTok may still be processing the video.'),
                 'post_id' => (string) $post->json('post._id', ''),
-                'status' => (string) $post->json('post.status', 'processing'),
+                'status' => $postStatus,
             ])->header('Cache-Control', 'no-store');
         } catch (Throwable $exception) {
             report($exception);
