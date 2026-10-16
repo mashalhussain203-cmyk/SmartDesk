@@ -140,7 +140,7 @@
         <a class="ms-back" href="{{ route('live-counts.index') }}">← {{ __('Back to Live Counts') }}</a>
         <div class="ms-analysis-kicker">Mashal Studio · TikTok Tools</div>
         <h1>
-            @if($isVideo) TikTok <span>Analyzer.</span> @else Best Upload <span>Times.</span> @endif
+            @if($isVideo) TikTok <span>{{ __('Analyzer.') }}</span> @else {{ __('Best Upload') }} <span>{{ __('Times.') }}</span> @endif
         </h1>
         <p class="ms-analysis-intro">
             @if($isVideo)
@@ -150,12 +150,12 @@
             @endif
         </p>
         <nav class="ms-tabs" aria-label="TikTok Analytics tools">
-            <a class="ms-tab {{ $isVideo ? 'active' : '' }}" href="{{ route('tiktok-analytics.video') }}">◉ &nbsp; TikTok Video Analyzer</a>
-            <a class="ms-tab {{ !$isVideo ? 'active' : '' }}" href="{{ route('tiktok-analytics.times') }}">◷ &nbsp; Best Upload Times</a>
+            <a class="ms-tab {{ $isVideo ? 'active' : '' }}" href="{{ route('tiktok-analytics.video') }}">◉ &nbsp; {{ __('TikTok Video Analyzer') }}</a>
+            <a class="ms-tab {{ !$isVideo ? 'active' : '' }}" href="{{ route('tiktok-analytics.times') }}">◷ &nbsp; {{ __('Best Upload Times') }}</a>
         </nav>
         <section class="ms-panel">
             <h2>
-                {{ $isVideo ? 'TikTok Video Analyzer' : 'Best Upload Times' }}
+                {{ $isVideo ? __('TikTok Video Analyzer') : __('Best Upload Times') }}
                 <span class="ms-version">v2.0</span>
             </h2>
             <p class="ms-panel-desc">
@@ -164,18 +164,18 @@
                     : __('Enter your TikTok username to see when your videos perform best.') }}
             </p>
             <form id="ms-primary-form" class="ms-form" method="GET" action="{{ $isVideo ? route('tiktok-analytics.video') : route('tiktok-analytics.times') }}">
-                <input class="ms-field" aria-label="{{ $isVideo ? 'TikTok video URL' : 'TikTok username' }}"
+                <input class="ms-field" aria-label="{{ $isVideo ? __('TikTok video URL') : __('TikTok username') }}"
                        type="text" name="{{ $isVideo ? 'url' : 'username' }}"
                        placeholder="{{ $isVideo ? 'https://www.tiktok.com/@user/video/...' : '@yourusername' }}"
                        value="{{ $input }}" required autocomplete="off" maxlength="{{ $isVideo ? '2048' : '255' }}">
                 @unless($isVideo)
                     <input type="hidden" name="timezone" id="ms-timezone-input" value="{{ $result['timezone'] ?? 'UTC' }}">
                 @endunless
-                <button class="ms-action" type="submit">{{ $isVideo ? 'ANALYZE' : 'CHECK' }} →</button>
+                <button class="ms-action" type="submit">{{ $isVideo ? __('ANALYZE') : __('CHECK') }} →</button>
             </form>
             <div class="ms-fetch-indicator" id="ms-primary-loading" hidden role="status" aria-live="polite">
                 <span class="ms-fetch-spinner" aria-hidden="true"></span>
-                <span class="ms-fetch-label">{{ $isVideo ? 'Fetching video data...' : 'Fetching upload time data...' }}</span>
+                <span class="ms-fetch-label">{{ $isVideo ? __('Fetching video data...') : __('Fetching upload time data...') }}</span>
             </div>
             <p class="ms-hint">{{ $isVideo
                 ? __('De framerate komt uit publieke videometadata of een echte meting met ffprobe. Zonder toegang tot de mediastream kunnen we geen FPS bevestigen.')
@@ -198,7 +198,7 @@
                             @endif
                             <span class="ms-badge-public">{{ $result['public_visibility'] === 'Public' ? '● PUBLIC' : '● ONBEKEND' }}</span>
                             <div style="margin-top:10px">
-                                <a class="ms-link" href="{{ $result['video_url'] }}" rel="noopener noreferrer" target="_blank">Bekijk op TikTok ↗</a>
+                                <a class="ms-link" href="{{ $result['video_url'] }}" rel="noopener noreferrer" target="_blank">{{ __("Bekijk op TikTok ↗") }}</a>
                             </div>
                         </div>
                     </div>
@@ -225,41 +225,41 @@
                     <h3 class="ms-results-title">{{ __('Video analysis') }}</h3>
                     <div class="ms-spec-grid">
                         <div class="ms-spec">
-                            <small>Resolution</small>
-                            <strong>{{ $result['quality'] ? $result['quality'].' · ' : '' }}{{ $result['resolution'] ?? 'Niet beschikbaar' }}</strong>
+                            <small>{{ __("Resolution") }}</small>
+                            <strong>{{ $result['quality'] ? $result['quality'].' · ' : '' }}{{ $result['resolution'] ?? __('Niet beschikbaar') }}</strong>
                             <span class="ms-subtext">{{ $result['video_version'] }} · {{ $result['technical_source'] }}</span>
                         </div>
                         <div class="ms-spec">
                             <small>FPS</small>
-                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], (floor($result['fps']) == $result['fps'] ? 0 : 2), ',', '.').' fps' : 'FPS niet beschikbaar' }}</strong>
-                            <span class="ms-subtext">{{ $result['fps_source'] ?? 'Geen FPS beschikbaar in de openbare videometadata of onderzochte stream.' }}</span>
+                            <strong class="{{ $result['fps'] !== null ? 'ms-success' : '' }}">{{ $result['fps'] !== null ? number_format($result['fps'], (floor($result['fps']) == $result['fps'] ? 0 : 2), ',', '.').' fps' : __('FPS niet beschikbaar') }}</strong>
+                            <span class="ms-subtext">{{ $result['fps_source'] ?? __('Geen FPS beschikbaar in de openbare videometadata of onderzochte stream.') }}</span>
                         </div>
-                        <div class="ms-spec"><small>Engine / encodeerformaat</small><strong>{{ $result['engine'] ?? 'Niet beschikbaar' }}</strong></div>
-                        <div class="ms-spec"><small>Bitrate</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : 'Niet beschikbaar' }}</strong><span class="ms-subtext">Van de geselecteerde videoversie, indien gemeten</span></div>
-                        <div class="ms-spec"><small>File size</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : 'Niet beschikbaar' }}</strong><span class="ms-subtext">Beschikbare streamingversie, niet noodzakelijk het uploadbestand</span></div>
-                        <div class="ms-spec"><small>Codec</small><strong>{{ $result['codec'] ?? 'Niet beschikbaar' }}</strong></div>
+                        <div class="ms-spec"><small>{{ __("Engine / encodeerformaat") }}</small><strong>{{ $result['engine'] ?? __('Niet beschikbaar') }}</strong></div>
+                        <div class="ms-spec"><small>{{ __("Bitrate") }}</small><strong>{{ $result['bitrate'] !== null ? number_format($result['bitrate'] / 1000, 0, ',', '.').' Kbps' : __('Niet beschikbaar') }}</strong><span class="ms-subtext">{{ __("Van de geselecteerde videoversie, indien gemeten") }}</span></div>
+                        <div class="ms-spec"><small>{{ __("File size") }}</small><strong>{{ $result['file_size'] !== null ? number_format($result['file_size'] / 1048576, 1, ',', '.').' MB' : __('Niet beschikbaar') }}</strong><span class="ms-subtext">{{ __("Beschikbare streamingversie, niet noodzakelijk het uploadbestand") }}</span></div>
+                        <div class="ms-spec"><small>{{ __("Codec") }}</small><strong>{{ $result['codec'] ?? __('Niet beschikbaar') }}</strong></div>
                         <div class="ms-spec">
-                            <small>Region</small>
+                            <small>{{ __("Region") }}</small>
                             <strong>
                                 @if($result['region_flag'])<span class="ms-flag" aria-hidden="true">{{ $result['region_flag'] }}</span>@endif
                                 {{ $result['region_name'] ?? 'Niet bekend' }}
                             </strong>
-                            <span class="ms-subtext">{{ $result['region_source'] ?? 'TikTok heeft voor deze post geen landcode gedeeld' }}</span>
+                            <span class="ms-subtext">{{ $result['region_source'] ?? __('TikTok heeft voor deze post geen landcode gedeeld') }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Openbare zichtbaarheid</small>
+                            <small>{{ __("Openbare zichtbaarheid") }}</small>
                             <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility_label'] }}</strong>
                             <span class="ms-subtext">{{ $result['public_visibility_detail'] }}</span>
-                            <span class="ms-subtext">Bron: {{ $result['public_visibility_source'] }}</span>
+                            <span class="ms-subtext">{{ __('Bron:') }} {{ $result['public_visibility_source'] }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Upload date</small>
-                            <strong>{{ $result['published_at'] ?? 'Niet beschikbaar' }}</strong>
-                            <span class="ms-subtext">Tijdzone Nederland {{ $result['published_estimated'] ? '· datum afgeleid uit video-ID' : '' }}</span>
+                            <small>{{ __("Upload date") }}</small>
+                            <strong>{{ $result['published_at'] ?? __('Niet beschikbaar') }}</strong>
+                            <span class="ms-subtext">{{ __('Tijdzone Nederland') }} {{ $result['published_estimated'] ? '· '.__('datum afgeleid uit video-ID') : '' }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Video ID</small>
-                            <strong>{{ $result['video_id'] }}</strong>
+                            <small>{{ __("Video ID") }}</small>
+                            <strong dir="ltr">{{ $result['video_id'] }}</strong>
                             <span class="ms-subtext">TikTok openbaar video-ID · gecontroleerd {{ $result['checked_at'] }}</span>
                         </div>
                     </div>
@@ -284,7 +284,7 @@
                         <p class="ms-download-note">{{ __('Voor deze video is geen gecontroleerde publieke downloadlink beschikbaar. Je kunt de video wel op TikTok bekijken.') }}</p>
                     @endif
                     <div class="ms-note">
-                        <strong>{{ $result['availability'] }}</strong> · {{ __('Bijgewerkt') }} {{ $result['checked_at'] }}.
+                        <strong>{{ __($result['availability']) }}</strong> · {{ __('Bijgewerkt') }} {{ $result['checked_at'] }}.
                         {{ __('Metadata verschilt per video en bron. Resolutie en bestandsgrootte kunnen betrekking hebben op de beschikbare streamingversie, niet op het oorspronkelijke uploadbestand. Landvlaggen worden alleen getoond bij een echte landcode uit openbare videometadata.') }}
                     </div>
                 </div>
@@ -292,20 +292,20 @@
                 <div class="ms-results is-times">
                     <div class="ms-times-top">
                         <div>
-                            <strong>Resultaten voor &#64;{{ $result['username'] }}</strong>
+                            <strong>{{ __('Resultaten voor') }} &#64;{{ $result['username'] }}</strong>
                             <p>{{ $result['post_count'] }} {{ __('openbare video’s geanalyseerd') }} · {{ __('Bijgewerkt') }} {{ $result['checked_at'] }}</p>
                         </div>
                         <span class="ms-timezone">🕓 {{ $result['timezone'] }}</span>
                     </div>
                     <div class="ms-times-confidence">
-                        Based on {{ $result['post_count'] }} recent videos ·
-                        {{ $result['sample_reliable'] ? 'high confidence' : 'limited sample' }}
+                        {{ __('Based on') }} {{ $result['post_count'] }} {{ __('recent videos') }} ·
+                        {{ $result['sample_reliable'] ? __('high confidence') : __('limited sample') }}
                     </div>
                     <div class="ms-best-list">
                         @foreach($result['best'] as $slot)
                             <div class="ms-best">
                                 <div class="ms-best-top">
-                                    <strong>{{ $weekDaysEN[$slot['day']] }} {{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00–{{ str_pad(($slot['hour'] + 1) % 24, 2, '0', STR_PAD_LEFT) }}:00 {{ $result['timezone'] }}</strong>
+                                    <strong>{{ __($weekDaysEN[$slot['day']]) }} {{ str_pad($slot['hour'], 2, '0', STR_PAD_LEFT) }}:00–{{ str_pad(($slot['hour'] + 1) % 24, 2, '0', STR_PAD_LEFT) }}:00 {{ $result['timezone'] }}</strong>
                                     <span class="ms-best-score">{{ number_format($slot['score_percent'], 2, '.', '') }}%</span>
                                 </div>
                                 <div class="ms-progress" role="img" aria-label="{{ $slot['score_percent'] }} procent historisch relatief prestatieniveau"><span style="width: {{ round($slot['score_percent'] / max(1, $result['score_scale']) * 100, 1) }}%"></span></div>
@@ -313,7 +313,7 @@
                         @endforeach
                     </div>
                     <details class="ms-times-provenance">
-                        <summary>Hoe zijn de tijden berekend? · brongegevens</summary>
+                        <summary>{{ __("Hoe zijn de tijden berekend? · brongegevens") }}</summary>
                         <div class="ms-note">
                             Deze percentages zijn berekend uit echte openbare videoweergaven: het aandeel van de gemiddelde weergaven per uploaduur binnen alle waargenomen uren. Het is geen kans op viraliteit en geen officiële activiteit van TikTok-volgers.
                             <div style="margin-top:8px">
@@ -324,7 +324,7 @@
                                 @endforeach
                             </div>
                             @unless($result['sample_reliable'])
-                                <strong>Deze steekproef is beperkt. Gebruik de uitkomst alleen als indicatie.</strong>
+                                <strong>{{ __("Deze steekproef is beperkt. Gebruik de uitkomst alleen als indicatie.") }}</strong>
                             @endunless
                         </div>
                     </details>
@@ -333,18 +333,18 @@
         </section>
         @if($isVideo)
             <section class="ms-panel" style="margin-top:24px">
-                <h2>Best Upload Times <span class="ms-version">v2.0</span></h2>
-                <p class="ms-panel-desc">Enter your TikTok username to see when your public videos historically performed best.</p>
+                <h2>{{ __('Best Upload Times') }} <span class="ms-version">v2.0</span></h2>
+                <p class="ms-panel-desc">{{ __("Enter your TikTok username to see when your public videos historically performed best.") }}</p>
                 <form id="ms-secondary-form" method="GET" class="ms-form" action="{{ route('tiktok-analytics.times') }}">
                     <input class="ms-field" type="text" name="username" placeholder="&#64;yourusername" required maxlength="255" aria-label="TikTok username">
                     <input type="hidden" name="timezone" value="UTC">
-                    <button class="ms-action" type="submit">CHECK →</button>
+                    <button class="ms-action" type="submit">{{ __('CHECK') }} →</button>
                 </form>
                 <div class="ms-fetch-indicator" id="ms-secondary-loading" hidden role="status" aria-live="polite">
                     <span class="ms-fetch-spinner" aria-hidden="true"></span>
-                    <span class="ms-fetch-label">Fetching upload time data...</span>
+                    <span class="ms-fetch-label">{{ __("Fetching upload time data...") }}</span>
                 </div>
-                <p class="ms-hint">Resultaten tonen de gegevensbron en steekproefbetrouwbaarheid. Dit zijn geen officiële TikTok-volgersactiviteitstijden.</p>
+                <p class="ms-hint">{{ __("Resultaten tonen de gegevensbron en steekproefbetrouwbaarheid. Dit zijn geen officiële TikTok-volgersactiviteitstijden.") }}</p>
             </section>
         @endif
     </div>
@@ -370,7 +370,7 @@
             document.querySelector('.ms-analysis')?.classList.add('is-fetching');
             if (button) {
                 button.dataset.originalLabel = button.textContent;
-                button.textContent = 'Loading...';
+                button.textContent = @json(__('Loading...'));
                 button.classList.add('is-fetching');
                 button.disabled = true;
             }
