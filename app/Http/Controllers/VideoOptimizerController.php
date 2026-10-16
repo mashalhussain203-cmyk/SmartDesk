@@ -111,6 +111,36 @@ class VideoOptimizerController extends Controller
                 ], 422);
             }
 
+            // Never report the source dimensions as proof of a processed export.
+            $check = new Process([
+                'ffprobe', '-v', 'error', '-select_streams', 'v:0',
+                '-show_entries', 'stream=width,height,avg_frame_rate:format=duration',
+                '-of', 'json', $output,
+            ]);
+            $check->setTimeout(30);
+            $check->run();
+
+            if (! $check->isSuccessful()) {
+                return response()->json([
+                    'message' => __('The exported video could not be verified. Please try again.'),
+                ], 422);
+            }
+
+            $verified = json_decode($check->getOutput(), true);
+            $stream = $verified['streams'][0] ?? [];
+            $rate = explode('/', (string) ($stream['avg_frame_rate'] ?? '0/1'));
+            $verifiedFps = (float) ($rate[1] ?? 0) > 0
+                ? (float) $rate[0] / (float) $rate[1]
+                : 0.0;
+
+            if ((int) ($stream['width'] ?? 0) < 1
+                || (int) ($stream['height'] ?? 0) < 1
+                || $verifiedFps <= 0) {
+                return response()->json([
+                    'message' => __('The exported video has invalid technical specifications.'),
+                ], 422);
+            }
+
             $successful = true;
             $request->session()->put('video_optimizer.'.$token, [
                 'path' => $output,
@@ -124,9 +154,10 @@ class VideoOptimizerController extends Controller
                 'token' => $token,
                 'output_size' => filesize($output),
                 'input_size' => $uploaded->getSize(),
-                'width' => (int) ($videoStream['width'] ?? 0),
-                'height' => (int) ($videoStream['height'] ?? 0),
-                'duration' => round($duration, 2),
+                'width' => (int) $stream['width'],
+                'height' => (int) $stream['height'],
+                'fps' => round($verifiedFps, 2),
+                'duration' => round((float) ($verified['format']['duration'] ?? $duration), 2),
                 'mode' => $transcode ? 'ffmpeg' : 'original',
                 'note' => $transcode
                     ? __('Re-encoded at high quality, retaining the source frame timing.')
@@ -308,7 +339,7 @@ class VideoOptimizerController extends Controller
             $result['note'] = __('Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.');
             $result['width'] = (int) ($state['width'] ?? 0);
             $result['height'] = (int) ($state['height'] ?? 0);
-            $result['fps'] = 120;
+            $result['fps'] = (float) ($state['fps'] ?? 0);
             $result['duration'] = (float) ($state['duration'] ?? 0);
         }
 
@@ -337,7 +368,11 @@ class VideoOptimizerController extends Controller
             }
         }
 
-        return response()->download($expected, 'mashal-optimized-video.mp4', [
+        $filename = isset($entry['status_file'])
+            ? 'mashal-4k-120fps.mp4'
+            : 'mashal-optimized-original.mp4';
+
+        return response()->download($expected, $filename, [
             'Content-Type' => 'video/mp4',
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
@@ -346,8 +381,22 @@ class VideoOptimizerController extends Controller
 
     private function cleanExpiredFiles(string $directory): void
     {
-        foreach (glob($directory.DIRECTORY_SEPARATOR.'*.mp4') ?: [] as $file) {
-            if (is_file($file) && filemtime($file) < time() - 3600) {
+        foreach (glob($directory.DIRECTORY_SEPARATOR.'*') ?: [] as $file) {
+            if (! is_file($file)) {
+                continue;
+            }
+
+            $name = basename($file);
+            if (! preg_match('/^([a-f0-9]{40})(?:\.source)?\.(?:mp4|mov)$/', $name)
+                && ! preg_match('/^[a-f0-9]{40}\.(?:status\.json|log|partial\.mp4)$/', $name)) {
+                continue;
+            }
+
+            $token = substr($name, 0, 40);
+            $hasRenderStatus = is_file($directory.DIRECTORY_SEPARATOR.$token.'.status.json');
+            $maxAge = $hasRenderStatus ? 21600 : 3600;
+
+            if (filemtime($file) < time() - $maxAge) {
                 @unlink($file);
             }
         }

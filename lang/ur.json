@@ -1666,5 +1666,11 @@
     "Unable to start the 4K render on this server.": "اس سرور پر 4K ویڈیو بنانا شروع نہیں ہو سکا۔",
     "Video status temporarily unavailable.": "ویڈیو کی حالت فی الحال دستیاب نہیں۔",
     "4K processing timed out. Try a shorter clip.": "4K ویڈیو تیار کرنے کا وقت ختم ہو گیا۔ مختصر ویڈیو آزمائیں۔",
-    "Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.": "4K 120 FPS کی تصدیق کی گئی، درمیان میں فریم شامل ہیں اور اصل دورانیہ برقرار ہے۔"
+    "Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.": "4K 120 FPS کی تصدیق کی گئی، درمیان میں فریم شامل ہیں اور اصل دورانیہ برقرار ہے۔",
+    "The exported video could not be verified. Please try again.": "برآمد کی گئی ویڈیو کی تصدیق نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "The exported video has invalid technical specifications.": "برآمد کی گئی ویڈیو کی تکنیکی معلومات درست نہیں۔",
+    "The 4K / 120 FPS mode currently supports videos of up to 90 seconds.": "4K / 120 FPS موڈ فی الحال 90 سیکنڈ تک کی ویڈیوز قبول کرتا ہے۔",
+    "Export failed verification: this download is not 4K at 120 FPS.": "ویڈیو کی تصدیق ناکام ہوئی؛ یہ 4K 120 FPS نہیں ہے۔",
+    "Original export: this mode does not upgrade resolution or FPS.": "اصل موڈ ریزولوشن یا FPS میں اضافہ نہیں کرتا۔",
+    "Max 100 MB · 4K/120 FPS: max 90 seconds · Other modes: max 15 minutes": "زیادہ سے زیادہ 100 ایم بی۔ 4K/120: 90 سیکنڈ؛ دیگر موڈ: 15 منٹ۔"
 }

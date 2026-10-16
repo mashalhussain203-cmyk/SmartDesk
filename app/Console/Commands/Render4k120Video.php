@@ -136,7 +136,8 @@ class Render4k120Video extends Command
 
             $this->saveStatus($statusFile, array_merge($state, [
                 'status' => 'ready', 'progress' => 100,
-                'width' => $width, 'height' => $height, 'duration' => $finishedDuration,
+                'width' => $width, 'height' => $height, 'fps' => round($fps, 2),
+                'duration' => $finishedDuration,
             ]));
 
             return self::SUCCESS;

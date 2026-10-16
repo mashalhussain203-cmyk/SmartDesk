@@ -16,6 +16,9 @@
         'fourK' => __('Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.'),
         'rendering' => __('Rendering 4K 120 FPS. You can keep this page open to follow the progress.'),
         'renderFailed' => __('4K processing could not finish. Please try a shorter clip.'),
+        'tooLong' => __('The 4K / 120 FPS mode currently supports videos of up to 90 seconds.'),
+        'unverified' => __('Export failed verification: this download is not 4K at 120 FPS.'),
+        'exportOriginal' => __('Original export: this mode does not upgrade resolution or FPS.'),
         'original' => __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.'),
     ];
     $videoOptimizerPostLabels = [
@@ -56,6 +59,7 @@
     .vo-meta small{color:#9e9caa;display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
     .vo-meta strong{font-size:13px;display:block;margin-top:6px;overflow-wrap:anywhere}
      .vo-4k-note{border:1px solid #5a751a;border-radius:12px;color:#dae8c3;font-size:12px;line-height:1.65;padding:12px;margin:13px 0}.vo-4k-note[hidden]{display:none!important}
+    .vo-check[hidden]{display:none!important}
     .vo-check{display:flex;align-items:center;gap:11px;margin:20px 0;color:#d9d9e2;font-size:14px;cursor:pointer}
     .vo-check input{accent-color:#9987ff;min-width:19px;height:19px}
     .vo-btn{border:0;width:100%;min-height:64px;border-radius:14px;background:linear-gradient(100deg,#80ca08,#a9e91c);color:#102000;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
@@ -69,6 +73,7 @@
     .vo-result.is-visible{display:block}
     .vo-result h2{font-size:21px;margin:0 0 9px;color:#b5f0c5}
     .vo-result p{margin:0 0 16px;color:#b6cebd;font-size:13px;line-height:1.6}
+    .vo-result .vo-verified-spec{color:#eaf8cf;font-size:15px;font-weight:800}
     .vo-download{display:block;border-radius:12px;padding:18px;background:#95d60d;color:#152500;text-decoration:none;font-size:16px;font-weight:900}
     .vo-more{margin-top:12px;background:transparent;border:1px solid #617e6c;color:#daefe0;border-radius:12px;padding:12px 17px;cursor:pointer}
     .vo-tiktok{display:inline-block;margin-top:16px;color:#c9bfff;font-weight:650}
@@ -101,9 +106,9 @@
         <section class="vo-panel" aria-label="{{ __('Video optimization') }}">
             <form id="vo-form" action="{{ route('video-optimizer.optimize') }}" method="post" enctype="multipart/form-data">
                 @csrf
-                <input id="vo-mode-value" type="hidden" name="mode" value="original">
+                <input id="vo-mode-value" type="hidden" name="mode" value="4k120">
                 <div class="vo-modes" role="group" aria-label="{{ __('Processing method') }}">
-                    <button class="vo-mode" type="button" data-vo-mode="original" aria-pressed="true">
+                    <button class="vo-mode" type="button" data-vo-mode="original" aria-pressed="false">
                         {{ __('Original') }}
                         <small>{{ __('NO RE-ENCODING') }}</small>
                     </button>
@@ -111,19 +116,19 @@
                         {{ __('FFmpeg') }}
                         <small>{{ __('HIGH QUALITY') }}</small>
                     </button>
-                    <button class="vo-mode" type="button" data-vo-mode="4k120" aria-pressed="false">
+                    <button class="vo-mode" type="button" data-vo-mode="4k120" aria-pressed="true">
                         4K / 120 FPS
                         <small>{{ __('ENHANCE') }}</small>
                     </button>
                 </div>
 
-                <div class="vo-notice" id="vo-mode-description">{{ __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.') }}</div>
+                <div class="vo-notice" id="vo-mode-description">{{ __('Export a 4K 120 FPS MP4. Frame interpolation preserves the original duration, without slow motion. Processing may take a long time. Maximum 90 seconds.') }}</div>
 
                 <label class="vo-drop" for="vo-file" id="vo-drop" tabindex="0">
                     <span class="vo-drop-icon" aria-hidden="true">↓</span>
                     <strong>{{ __('Drop your video here') }}</strong>
                     <span>{{ __('or tap to browse · MP4 / MOV — H.264 or H.265 (HEVC)') }}</span>
-                    <b>{{ __('Maximum file size: 100 MB · Maximum duration: 15 minutes') }}</b>
+                    <b>{{ __('Max 100 MB · 4K/120 FPS: max 90 seconds · Other modes: max 15 minutes') }}</b>
                     <input id="vo-file" name="video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 </label>
 
@@ -137,8 +142,8 @@
                     <div><small>{{ __('File size') }}</small><strong id="vo-size">—</strong></div>
                 </div>
 
-                <p class="vo-4k-note" id="vo-4k-note" hidden>{{ __('4K 120 FPS mode outputs a 4K file with generated intermediate frames. It cannot restore detail that is not in the original. This mode is limited to 90 seconds.') }}</p>
-                <label class="vo-check" id="vo-hevc-row"><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
+                <p class="vo-4k-note" id="vo-4k-note">{{ __('4K 120 FPS mode outputs a 4K file with generated intermediate frames. It cannot restore detail that is not in the original. This mode is limited to 90 seconds.') }}</p>
+                <label class="vo-check" id="vo-hevc-row" hidden><input type="checkbox" name="convert_hevc" id="vo-hevc" value="1"> {{ __('Convert H.265 (HEVC) to H.264 (optional)') }}</label>
                 <button id="vo-submit" class="vo-btn" type="submit" disabled>⚡ {{ __('Optimize Video') }}</button>
                 <div id="vo-progress" class="vo-progress" role="progressbar" aria-label="{{ __('Upload progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="vo-progress-fill"></span></div>
                 <div class="vo-status" id="vo-status" role="status" aria-live="polite"></div>
@@ -147,6 +152,7 @@
             <div class="vo-result" id="vo-result" aria-live="polite">
                 <h2>✓ {{ __('Your video is ready') }}</h2>
                 <p id="vo-result-note"></p>
+                <p class="vo-verified-spec" id="vo-verified-spec" aria-live="polite"></p>
                 <a class="vo-download" href="#" id="vo-download" download="mashal-optimized-video.mp4">{{ __('Download optimized MP4') }} ↓</a>
                 <a class="vo-tiktok" href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer">{{ __('Open TikTok uploader') }} ↗</a>
                 <details class="vo-autopost" id="vo-auto-post">
@@ -200,6 +206,7 @@
     var busy = false;
     var optimizedToken = null;
     var renderTimer = null;
+    var measuredDuration = null;
     var labels = @json($videoOptimizerLabels);
 
     function setStatus(text, error) {
@@ -220,6 +227,7 @@
         setStatus('', false);
         currentFile = null;
         optimizedToken = null;
+        measuredDuration = null;
         submit.disabled = true;
         selected.classList.remove('is-visible');
         meta.hidden = true;
@@ -250,10 +258,23 @@
             document.getElementById('vo-resolution').textContent = video.videoWidth + ' × ' + video.videoHeight;
             document.getElementById('vo-duration').textContent = Number.isFinite(video.duration) ? Math.round(video.duration) + 's' : '—';
             meta.hidden = false;
+            measuredDuration = Number.isFinite(video.duration) ? video.duration : null;
+            checkLength();
             cleanup();
         };
         video.onerror = cleanup;
         video.src = objectUrl;
+    }
+
+    function checkLength() {
+        if (!currentFile || busy) { return; }
+        var tooLong = modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 90;
+        submit.disabled = tooLong;
+        if (tooLong) {
+            setStatus(labels.tooLong, true);
+        } else if (status.textContent === labels.tooLong) {
+            setStatus('', false);
+        }
     }
 
     fileInput.addEventListener('change', function () { showFile(fileInput.files && fileInput.files[0]); });
@@ -279,6 +300,7 @@
                 modeField.value === '4k120' ? labels.fourK : (modeField.value === 'ffmpeg' ? labels.other : labels.original);
             document.getElementById('vo-4k-note').hidden = modeField.value !== '4k120';
             document.getElementById('vo-hevc-row').hidden = modeField.value === '4k120';
+            checkLength();
         });
     });
 
@@ -286,11 +308,33 @@
         if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
         busy = false;
         submit.disabled = !currentFile;
+        checkLength();
+
+        var width = Number(response.width || 0);
+        var height = Number(response.height || 0);
+        var fps = Number(response.fps || 0);
+        var is4k120 = ((width === 2160 && height === 3840) ||
+                      (width === 3840 && height === 2160)) && Math.abs(fps - 120) < 0.1;
+        var is4kJob = response.mode === '4k120' ||
+                      (!!response.status && !!response.download_url);
+        if (width <= 0 || height <= 0 || fps <= 0 || (is4kJob && !is4k120)) {
+            result.classList.remove('is-visible');
+            progress.classList.remove('is-visible');
+            setStatus(labels.unverified, true);
+            return;
+        }
+
         optimizedToken = response.token || null;
         setProgress(100);
         setStatus(labels.complete, false);
         document.getElementById('vo-download').href = response.download_url;
+        document.getElementById('vo-download').download = is4kJob
+            ? 'mashal-4k-120fps.mp4'
+            : 'mashal-optimized-original.mp4';
         document.getElementById('vo-result-note').textContent = response.note || '';
+        document.getElementById('vo-verified-spec').textContent =
+            width + ' × ' + height + ' · ' + fps.toFixed(2).replace(/\.00$/, '') + ' FPS' +
+            (is4k120 ? ' · 4K / 120 FPS ✓' : ' · ' + labels.exportOriginal);
         result.classList.add('is-visible');
         result.scrollIntoView({behavior:'smooth',block:'nearest'});
     }
@@ -343,6 +387,10 @@
     form.addEventListener('submit', function (event) {
         event.preventDefault();
         if (!currentFile || busy) { return; }
+        if (modeField.value === '4k120' && measuredDuration !== null && measuredDuration > 90) {
+            setStatus(labels.tooLong, true);
+            return;
+        }
         busy = true;
         submit.disabled = true;
         setProgress(1);
@@ -371,13 +419,7 @@
                 setStatus(labels.rendering, false);
                 pollRender(response.status_url);
             } else if (xhr.status >= 200 && xhr.status < 300 && response.download_url) {
-                setProgress(100);
-                optimizedToken = response.token || null;
-                setStatus(labels.complete, false);
-                document.getElementById('vo-download').href = response.download_url;
-                document.getElementById('vo-result-note').textContent = response.note || '';
-                result.classList.add('is-visible');
-                result.scrollIntoView({behavior:'smooth',block:'nearest'});
+                ready(response);
             } else {
                 progress.classList.remove('is-visible');
                 var errorText = response.message || labels.failure;
@@ -512,6 +554,7 @@
         fileInput.value = '';
         currentFile = null;
         optimizedToken = null;
+        measuredDuration = null;
         selected.classList.remove('is-visible');
         meta.hidden = true;
         submit.disabled = true;
