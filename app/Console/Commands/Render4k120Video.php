@@ -212,7 +212,7 @@ class Render4k120Video extends Command
                 '-i', $source, '-map', '0:v:0', '-map', '0:a?', '-sn', '-dn',
                 '-vf', $filter, '-fps_mode', 'cfr', '-r', '120',
                 '-c:v', 'libx264', '-threads:v', '2',
-                '-preset', 'superfast', '-crf', '18',
+                '-preset', 'superfast', '-tune', 'zerolatency', '-crf', '18',
                 '-maxrate', $maxRateMbps.'M',
                 '-bufsize', ($maxRateMbps * 2).'M',
                 '-pix_fmt', 'yuv420p',
