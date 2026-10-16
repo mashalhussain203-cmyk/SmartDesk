@@ -25,7 +25,7 @@ class VideoOptimizerController extends Controller
     {
         $validated = $request->validate([
             'video' => ['required', 'file', 'mimes:mp4,mov', 'max:102400'],
-            'mode' => ['required', Rule::in(['original', 'ffmpeg'])],
+            'mode' => ['required', Rule::in(['original', 'ffmpeg', '4k120'])],
             'convert_hevc' => ['nullable', 'boolean'],
         ]);
 
@@ -72,6 +72,10 @@ class VideoOptimizerController extends Controller
                 return response()->json([
                     'message' => __('Your video must have a valid duration of at most 15 minutes.'),
                 ], 422);
+            }
+
+            if ($validated['mode'] === '4k120') {
+                return $this->queue4k120($request, $uploaded, $directory, $token, $output, $duration);
             }
 
             $convert = $request->boolean('convert_hevc') && ($videoStream['codec_name'] ?? '') === 'hevc';
@@ -141,6 +145,140 @@ class VideoOptimizerController extends Controller
         }
     }
 
+
+    private function queue4k120(
+        Request $request,
+        \Illuminate\Http\UploadedFile $uploaded,
+        string $directory,
+        string $token,
+        string $output,
+        float $duration
+    ): JsonResponse {
+        if ($duration > 90) {
+            return response()->json([
+                'message' => __('4K 120 FPS supports videos up to 90 seconds on this server.'),
+            ], 422);
+        }
+
+        foreach ((array) $request->session()->get('video_optimizer', []) as $previous) {
+            if (! is_array($previous) || (int) ($previous['expires_at'] ?? 0) <= time()) {
+                continue;
+            }
+
+            $previousFile = $previous['status_file'] ?? null;
+            if (is_string($previousFile) && is_file($previousFile)) {
+                $state = json_decode((string) file_get_contents($previousFile), true);
+                if (in_array($state['status'] ?? null, ['queued', 'processing'], true)
+                    && (int) ($state['created_at'] ?? 0) > time() - 3600) {
+                    return response()->json([
+                        'message' => __('You already have a 4K 120 FPS render running.'),
+                    ], 429);
+                }
+            }
+        }
+
+        $extension = strtolower((string) $uploaded->getClientOriginalExtension());
+        if (! in_array($extension, ['mp4', 'mov'], true)) {
+            $extension = 'mp4';
+        }
+
+        $filename = $token.'.source.'.$extension;
+        $inputPath = $directory.'/'.$filename;
+        $statusFile = $directory.'/'.$token.'.status.json';
+
+        try {
+            $uploaded->move($directory, $filename);
+            File::put($statusFile, json_encode([
+                'status' => 'queued',
+                'progress' => 0,
+                'created_at' => time(),
+                'duration' => $duration,
+                'source' => $filename,
+            ], JSON_THROW_ON_ERROR));
+
+            $request->session()->put('video_optimizer.'.$token, [
+                'path' => $output,
+                'status_file' => $statusFile,
+                'expires_at' => time() + 21600,
+                'duration' => $duration,
+            ]);
+
+            $shell = 'nohup php '.escapeshellarg(base_path('artisan'))
+                .' video-optimizer:render '.escapeshellarg($token)
+                .' > '.escapeshellarg($directory.'/'.$token.'.log')
+                .' 2>&1 < /dev/null &';
+
+            $launcher = Process::fromShellCommandline($shell, base_path());
+            $launcher->setTimeout(15);
+            $launcher->run();
+
+            if (! $launcher->isSuccessful()) {
+                throw new \RuntimeException('Video worker launch failed.');
+            }
+
+            return response()->json([
+                'message' => __('Rendering 4K 120 FPS in the background. Keep this page open.'),
+                'mode' => '4k120',
+                'processing' => true,
+                'token' => $token,
+                'status_url' => route('video-optimizer.status', ['token' => $token]),
+            ], 202)->header('Cache-Control', 'no-store');
+        } catch (Throwable $exception) {
+            report($exception);
+            $request->session()->forget('video_optimizer.'.$token);
+            @unlink($inputPath);
+            @unlink($statusFile);
+
+            return response()->json([
+                'message' => __('Unable to start the 4K render on this server.'),
+            ], 503);
+        }
+    }
+
+    public function status(Request $request, string $token): JsonResponse
+    {
+        $entry = $request->session()->get('video_optimizer.'.$token);
+        $directory = storage_path('app/private/video-optimizer');
+        $statusFile = $directory.'/'.$token.'.status.json';
+
+        if (! is_array($entry)
+            || ($entry['expires_at'] ?? 0) < time()
+            || ($entry['status_file'] ?? '') !== $statusFile
+            || ! is_file($statusFile)) {
+            abort(404);
+        }
+
+        $state = json_decode((string) file_get_contents($statusFile), true);
+        if (! is_array($state)) {
+            return response()->json(['message' => __('Video status temporarily unavailable.')], 503);
+        }
+
+        $status = (string) ($state['status'] ?? 'failed');
+        if (in_array($status, ['queued', 'processing'], true)
+            && (int) ($state['created_at'] ?? 0) < time() - 3600) {
+            $status = 'failed';
+            $state['message'] = __('4K processing timed out. Try a shorter clip.');
+        }
+
+        $result = [
+            'status' => $status,
+            'progress' => max(0, min(100, (int) ($state['progress'] ?? 0))),
+            'message' => (string) ($state['message'] ?? ''),
+        ];
+
+        if ($status === 'ready' && is_file($directory.'/'.$token.'.mp4')) {
+            $result['download_url'] = route('video-optimizer.download', ['token' => $token]);
+            $result['token'] = $token;
+            $result['note'] = __('Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.');
+            $result['width'] = (int) ($state['width'] ?? 0);
+            $result['height'] = (int) ($state['height'] ?? 0);
+            $result['fps'] = 120;
+            $result['duration'] = (float) ($state['duration'] ?? 0);
+        }
+
+        return response()->json($result)->header('Cache-Control', 'private, no-store');
+    }
+
     public function download(Request $request, string $token): BinaryFileResponse
     {
         $entry = $request->session()->get('video_optimizer.'.$token);
@@ -151,6 +289,16 @@ class VideoOptimizerController extends Controller
         $expected = storage_path('app/private/video-optimizer/'.$token.'.mp4');
         if (($entry['path'] ?? '') !== $expected || ! is_file($expected)) {
             abort(404);
+        }
+
+        if (isset($entry['status_file'])) {
+            $state = is_file($entry['status_file'])
+                ? json_decode((string) file_get_contents($entry['status_file']), true)
+                : null;
+
+            if (($state['status'] ?? '') !== 'ready') {
+                abort(404);
+            }
         }
 
         return response()->download($expected, 'mashal-optimized-video.mp4', [
