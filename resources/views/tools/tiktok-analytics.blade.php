@@ -71,6 +71,9 @@
     .ms-spec-grid .ms-spec strong.ms-success { color: #95d42f; }
     .ms-spec-grid .ms-spec .ms-flag { margin-right: 7px; white-space: nowrap; font-size: 23px; vertical-align: -2px; }
     .ms-spec-grid .ms-spec .ms-subtext { margin-top: 8px; display: block; color: #81899b; line-height: 1.6; font-size: 10px; }
+    .ms-check-steps { margin-top: 11px; padding: 10px 12px; background: rgba(255,255,255,.035); border: 1px solid #343948; border-radius: 10px; }
+    .ms-check-steps summary { color: #d1cafb; cursor: pointer; font-size: 11px; font-weight: 700; }
+    .ms-check-steps p { color: #aab1c1; font-size: 11px; line-height: 1.65; margin: 10px 0 0; }
     .ms-download { display: flex; align-items: center; justify-content: center; width: 100%; background: #89cc07; color: #080a06; border-radius: 18px; min-height: 62px; margin: 24px 0 0; padding: 14px 17px; font-weight: 900; font-size: clamp(13px,2vw,18px); text-decoration: none; text-align: center; }
     .ms-download:hover { background: #a5ee30; color: #080a06; }
     .ms-download-note { color: #8d94a3; font-size: 11px; text-align: center; line-height: 1.65; margin: 10px 0 0; }
@@ -228,14 +231,20 @@
                             <span class="ms-subtext">{{ $result['region_source'] ?? 'TikTok heeft voor deze post geen landcode gedeeld' }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Shadow ban / zichtbaarheid</small>
-                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility'] === 'Public' ? 'Video openbaar ✓' : 'Onbekend' }}</strong>
-                            <span class="ms-subtext">Dit test alleen de openbare bereikbaarheid. Of een video in de Voor jou-feed mag verschijnen, controleert de eigenaar in TikTok Studio.</span>
-                            <a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">Hoe controleer ik aanbevelingen? ↗</a>
+                            <small>Openbare zichtbaarheid</small>
+                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility_label'] }}</strong>
+                            <span class="ms-subtext">{{ $result['public_visibility_detail'] }}</span>
+                            <span class="ms-subtext">Bron: {{ $result['public_visibility_source'] }}</span>
                         </div>
                         <div class="ms-spec">
-                            <small>Status</small>
-                            <strong class="{{ $result['public_visibility'] === 'Public' ? 'ms-success' : '' }}">{{ $result['public_visibility'] }}</strong>
+                            <small>Shadow ban / Voor jou-feed</small>
+                            <strong>{{ $result['shadowban'] }}</strong>
+                            <span class="ms-subtext">{{ $result['shadowban_detail'] }}</span>
+                            <details class="ms-check-steps">
+                                <summary>Controleer je echte TikTok-status ▾</summary>
+                                <p>Open deze video in de TikTok-app → Meer inzichten (of ⋯ → Analytics) → controleer of TikTok een melding toont dat de video niet geschikt is voor de Voor jou-feed. Staat er zo'n melding, dan kun je de reden bekijken en eventueel bezwaar maken.</p>
+                            </details>
+                            <a class="ms-link" href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/content-violations-and-bans" target="_blank" rel="noopener noreferrer">Officiële TikTok-instructies ↗</a>
                         </div>
                         <div class="ms-spec">
                             <small>Upload date</small>
