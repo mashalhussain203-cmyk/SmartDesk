@@ -3,6 +3,28 @@
 @section('title', __('TikTok Video Optimizer | Mashal Studio'))
 @section('meta_description', __('Optimize MP4 and MOV videos for TikTok with lossless remuxing or high-quality FFmpeg conversion.'))
 
+@php
+    $videoOptimizerLabels = [
+        'choose' => __('Please choose an MP4 or MOV video.'),
+        'tooLarge' => __('The video must be no larger than 100 MB.'),
+        'upload' => __('Uploading video…'),
+        'processing' => __('Processing video… This can take several minutes.'),
+        'complete' => __('Optimization complete!'),
+        'failure' => __('The video could not be optimized. Please try again.'),
+        'network' => __('Network error or processing timeout. Try a shorter video.'),
+        'other' => __('FFmpeg mode re-encodes using H.264 with high quality. Original frame timing is retained.'),
+        'original' => __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.'),
+    ];
+    $videoOptimizerPostLabels = [
+        'missingKey' => __('Enter your Zernio API key first.'),
+        'connecting' => __('Checking connected TikTok accounts…'),
+        'noAccount' => __('No active TikTok account is connected to Zernio.'),
+        'connected' => __('Choose your connected TikTok account and review your caption.'),
+        'posting' => __('Uploading and submitting your video to Zernio…'),
+        'error' => __('Could not contact Zernio. Please try again.'),
+    ];
+@endphp
+
 @push('styles')
 <style>
     .vo-page{min-height:80vh;padding:56px 16px 100px;color:#f5f6f9;background:radial-gradient(ellipse at 50% 0,rgba(132,194,25,.12),transparent 55%),#08090e}
@@ -168,17 +190,7 @@
     var currentFile = null;
     var busy = false;
     var optimizedToken = null;
-    var labels = @json([
-        'choose' => __('Please choose an MP4 or MOV video.'),
-        'tooLarge' => __('The video must be no larger than 100 MB.'),
-        'upload' => __('Uploading video…'),
-        'processing' => __('Processing video… This can take several minutes.'),
-        'complete' => __('Optimization complete!'),
-        'failure' => __('The video could not be optimized. Please try again.'),
-        'network' => __('Network error or processing timeout. Try a shorter video.'),
-        'other' => __('FFmpeg mode re-encodes using H.264 with high quality. Original frame timing is retained.'),
-        'original' => __('Original mode keeps the video frames untouched. Choose FFmpeg to re-encode for better compatibility. TikTok may still compress uploads.'),
-    ]);
+    var labels = @json($videoOptimizerLabels);
 
     function setStatus(text, error) {
         status.textContent = text || '';
@@ -315,14 +327,7 @@
     var publish = document.getElementById('vo-publish');
     var consent = document.getElementById('vo-consent');
     var feedback = document.getElementById('vo-post-feedback');
-    var postLabels = @json([
-        'missingKey' => __('Enter your Zernio API key first.'),
-        'connecting' => __('Checking connected TikTok accounts…'),
-        'noAccount' => __('No active TikTok account is connected to Zernio.'),
-        'connected' => __('Choose your connected TikTok account and review your caption.'),
-        'posting' => __('Uploading and submitting your video to Zernio…'),
-        'error' => __('Could not contact Zernio. Please try again.'),
-    ]);
+    var postLabels = @json($videoOptimizerPostLabels);
 
     function postMessage(message, error) {
         feedback.textContent = message;
