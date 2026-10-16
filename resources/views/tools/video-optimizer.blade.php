@@ -25,6 +25,7 @@
     .vo-selected{margin:17px 0 5px;padding:13px 16px;background:#181822;border:1px solid #333342;border-radius:12px;display:none;align-items:center;gap:10px;overflow-wrap:anywhere;font-size:13px}
     .vo-selected.is-visible{display:flex}
     .vo-selected-name{flex:1;min-width:0}
+    .vo-meta[hidden]{display:none!important}
     .vo-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:16px}
     .vo-meta div{min-width:0;background:#181821;border:1px solid #2c2c38;border-radius:12px;padding:11px;text-align:center}
     .vo-meta small{color:#9e9caa;display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
@@ -54,7 +55,7 @@
 @endpush
 
 @section('content')
-<main class="vo-page">
+<section class="vo-page">
     <div class="vo-shell">
         <div class="vo-eyebrow">Mashal Studio · {{ __('Video tools') }}</div>
         <h1 class="vo-title">{{ __('TikTok Video Optimizer') }}</h1>
@@ -121,7 +122,7 @@
             </ul>
         </div>
     </div>
-</main>
+</section>
 <script>
 (function () {
     'use strict';
