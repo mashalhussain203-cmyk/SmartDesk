@@ -121,6 +121,19 @@ class VideoOptimizerTest extends TestCase
             ->assertSee('id="vo-phone-download"', false);
     }
 
+    public function test_4k_verification_is_private_and_rejects_unknown_token(): void
+    {
+        $token = str_repeat('a', 40);
+        $this->getJson('/tools/video-optimizer/verify/'.$token)->assertNotFound();
+    }
+
+    public function test_4k_verification_is_visible_on_optimizer_page(): void
+    {
+        $this->get('/tools/video-optimizer')
+            ->assertOk()
+            ->assertSee('id="vo-verified-proof"', false);
+    }
+
     public function test_render_status_is_private_to_the_upload_session(): void
     {
         $this->get('/tools/video-optimizer/status/'.str_repeat('a', 40))

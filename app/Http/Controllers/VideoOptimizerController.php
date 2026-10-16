@@ -372,6 +372,7 @@ class VideoOptimizerController extends Controller
 
         if ($status === 'ready' && is_file($directory.'/'.$token.'.mp4')) {
             $result['download_url'] = route('video-optimizer.download', ['token' => $token]);
+            $result['verify_url'] = route('video-optimizer.verify', ['token' => $token]);
             $result['token'] = $token;
             $result['note'] = __('Verified 4K at 120 FPS, with synthesized intermediate frames and original playback duration.');
             $result['width'] = (int) ($state['width'] ?? 0);
@@ -381,6 +382,98 @@ class VideoOptimizerController extends Controller
         }
 
         return response()->json($result)->header('Cache-Control', 'private, no-store');
+    }
+
+    /**
+     * Read the actual MP4 bytes on the server. These values are measured by
+     * ffprobe, not inferred from the filename or cached render status.
+     */
+    public function verify(Request $request, string $token): JsonResponse
+    {
+        $entry = $request->session()->get('video_optimizer.'.$token);
+        $directory = storage_path('app/private/video-optimizer');
+        $path = $directory.'/'.$token.'.mp4';
+        $statusFile = $directory.'/'.$token.'.status.json';
+
+        if (! is_array($entry)
+            || ($entry['expires_at'] ?? 0) < time()
+            || ($entry['path'] ?? '') !== $path
+            || ($entry['status_file'] ?? '') !== $statusFile
+            || ! is_file($path)
+            || ! is_file($statusFile)) {
+            abort(404);
+        }
+
+        $status = json_decode((string) file_get_contents($statusFile), true);
+        if (! is_array($status) || ($status['status'] ?? '') !== 'ready') {
+            return response()->json(['verified' => false, 'message' => __('Render has not completed.')], 409);
+        }
+
+        $info = $this->probe4k120File($path);
+        if ($info === null) {
+            return response()->json([
+                'verified' => false,
+                'message' => __('Server cannot read the exported MP4. Please render the video again.'),
+            ], 409)->header('Cache-Control', 'private, no-store');
+        }
+
+        $verified = $this->is4k120File($info);
+        return response()->json(array_merge($info, [
+            'verified' => $verified,
+            'bytes' => filesize($path),
+            'sha256' => $verified ? hash_file('sha256', $path) : null,
+            'message' => $verified
+                ? __('The actual MP4 stored on Mashal Studio is verified as 4K at 120 FPS.')
+                : __('The stored MP4 is not 4K at 120 FPS. Its measured specifications are shown below.'),
+        ]), $verified ? 200 : 409)->header('Cache-Control', 'private, no-store');
+    }
+
+    /** @return array<string, float|int|string>|null */
+    private function probe4k120File(string $path): ?array
+    {
+        try {
+            $probe = new Process([
+                'ffprobe', '-v', 'error', '-select_streams', 'v:0',
+                '-show_entries', 'stream=codec_name,width,height,avg_frame_rate,pix_fmt:format=duration',
+                '-of', 'json', $path,
+            ]);
+            $probe->setTimeout(30);
+            $probe->run();
+            if (! $probe->isSuccessful()) {
+                return null;
+            }
+            $json = json_decode($probe->getOutput(), true);
+            $stream = $json['streams'][0] ?? [];
+            $rate = explode('/', (string) ($stream['avg_frame_rate'] ?? '0/1'));
+            $fps = (float) ($rate[1] ?? 0) > 0
+                ? (float) ($rate[0] ?? 0) / (float) $rate[1]
+                : 0.0;
+
+            return [
+                'width' => (int) ($stream['width'] ?? 0),
+                'height' => (int) ($stream['height'] ?? 0),
+                'fps' => round($fps, 3),
+                'codec' => (string) ($stream['codec_name'] ?? ''),
+                'pix_fmt' => (string) ($stream['pix_fmt'] ?? ''),
+                'duration' => (float) ($json['format']['duration'] ?? 0),
+            ];
+        } catch (Throwable $exception) {
+            Log::warning('Video download ffprobe verification failed', [
+                'message' => mb_substr($exception->getMessage(), 0, 300),
+            ]);
+            return null;
+        }
+    }
+
+    /** @param array<string, float|int|string> $video */
+    private function is4k120File(array $video): bool
+    {
+        return (((int) $video['width'] === 2160 && (int) $video['height'] === 3840)
+                || ((int) $video['width'] === 3840 && (int) $video['height'] === 2160))
+            && abs((float) $video['fps'] - 120) < 0.1
+            && $video['codec'] === 'h264'
+            && $video['pix_fmt'] === 'yuv420p'
+            && (float) $video['duration'] > 0;
     }
 
     public function download(Request $request, string $token): BinaryFileResponse
@@ -424,11 +517,27 @@ class VideoOptimizerController extends Controller
             ? 'mashal-iphone-compatible-1080p60.mp4'
             : (isset($entry['status_file']) ? 'mashal-4k-120fps.mp4' : 'mashal-optimized-original.mp4');
 
-        return response()->download($expected, $filename, [
+        $headers = [
             'Content-Type' => 'video/mp4',
-            'Cache-Control' => 'private, no-store',
+            'Cache-Control' => 'private, no-store, no-transform',
             'X-Content-Type-Options' => 'nosniff',
-        ]);
+        ];
+
+        if (isset($entry['status_file']) && ! $iphone) {
+            // A "4k-120fps" filename must NEVER be served if the actual
+            // bytes are 512x910/30fps (or any other wrong specification).
+            $checked = $this->probe4k120File($expected);
+            if ($checked === null || ! $this->is4k120File($checked)) {
+                Log::error('Blocked incorrectly labelled 4K video download', [
+                    'token' => $token, 'measured' => $checked,
+                ]);
+                abort(409, __('Export verification failed. The file is not 4K at 120 FPS.'));
+            }
+            $headers['X-Mashal-Video-Resolution'] = $checked['width'].'x'.$checked['height'];
+            $headers['X-Mashal-Video-FPS'] = (string) $checked['fps'];
+        }
+
+        return response()->download($expected, $filename, $headers);
     }
 
     private function cleanExpiredFiles(string $directory): void

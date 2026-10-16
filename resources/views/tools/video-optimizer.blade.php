@@ -74,6 +74,7 @@
     .vo-result h2{font-size:21px;margin:0 0 9px;color:#b5f0c5}
     .vo-result p{margin:0 0 16px;color:#b6cebd;font-size:13px;line-height:1.6}
     .vo-result .vo-verified-spec{color:#eaf8cf;font-size:15px;font-weight:800}
+    .vo-result .vo-verified-proof{color:#bad1dd;font-size:12px;overflow-wrap:anywhere}
     .vo-phone-link{display:block;padding:14px 16px;margin-top:12px;border-radius:12px;background:#202e42;border:1px solid #5f8ac5;color:#e4efff;font-weight:800;text-align:center;text-decoration:none}
     .vo-phone-link[hidden]{display:none!important}
     .vo-download{display:block;border-radius:12px;padding:18px;background:#95d60d;color:#152500;text-decoration:none;font-size:16px;font-weight:900}
@@ -156,6 +157,7 @@
                 <h2>✓ {{ __('Your video is ready') }}</h2>
                 <p id="vo-result-note"></p>
                 <p class="vo-verified-spec" id="vo-verified-spec" aria-live="polite"></p>
+                <p class="vo-verified-proof" id="vo-verified-proof" aria-live="polite"></p>
                 <a class="vo-download" href="#" id="vo-download" download="mashal-optimized-video.mp4">{{ __('Download optimized MP4') }} ↓</a>
                 <a class="vo-phone-link" href="#" hidden id="vo-phone-download">{{ __('Download iPhone-compatible video (1080p / 60 FPS)') }} ↓</a>
                 <a class="vo-tiktok" href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer">{{ __('Open TikTok uploader') }} ↗</a>
@@ -186,6 +188,7 @@
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
                 <li>{{ __('4K 120 FPS mode generates intermediate frames and upscales the original image, preserving duration and audio. The normal modes leave FPS unchanged.') }}</li>
                 <li>{{ __('4K/120 FPS MP4 may be unsupported by iPhone Photos. Download the separate 1080p/60 FPS iPhone-compatible MP4 for saving to your camera roll and sharing.') }}</li>
+                <li>{{ __('Video uploads to chat and social apps may be compressed to 30 FPS and a smaller resolution. To check the original export, inspect the MP4 downloaded directly from this website in Files, not an app-generated preview.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
                 <li>{{ __('Your video is processed privately. 4K exports remain temporarily available for up to 6 hours.') }}</li>
                 <li>{{ __('Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.') }}</li>
@@ -245,6 +248,7 @@
     function showFile(file) {
         if (busy) { return; }
         resetPhoneLinks();
+        lastVerifiedToken = null;
         result.classList.remove('is-visible');
         progress.classList.remove('is-visible');
         setStatus('', false);
@@ -327,21 +331,21 @@
         });
     });
 
-    function ready(response) {
-        showPhoneDownload(response);
-        if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
+    var lastVerifiedToken = null;
+
+    function showVerifiedResult(response, checked) {
+        var width = Number(response.width || 0);
+        var height = Number(response.height || 0);
+        var fps = Number(response.fps || 0);
+        var is4kJob = !!response.verify_url;
+        var is4k120 = ((width === 2160 && height === 3840) ||
+                      (width === 3840 && height === 2160)) && Math.abs(fps - 120) < 0.1;
+
         busy = false;
         submit.disabled = !currentFile;
         checkLength();
 
-        var width = Number(response.width || 0);
-        var height = Number(response.height || 0);
-        var fps = Number(response.fps || 0);
-        var is4k120 = ((width === 2160 && height === 3840) ||
-                      (width === 3840 && height === 2160)) && Math.abs(fps - 120) < 0.1;
-        var is4kJob = response.mode === '4k120' ||
-                      (!!response.status && !!response.download_url);
-        if (width <= 0 || height <= 0 || fps <= 0 || (is4kJob && !is4k120)) {
+        if (width <= 0 || height <= 0 || fps <= 0 || (is4kJob && (!checked || !checked.verified || !is4k120))) {
             result.classList.remove('is-visible');
             progress.classList.remove('is-visible');
             setStatus(labels.unverified, true);
@@ -359,8 +363,49 @@
         document.getElementById('vo-verified-spec').textContent =
             width + ' × ' + height + ' · ' + fps.toFixed(2).replace(/\.00$/, '') + ' FPS' +
             (is4k120 ? ' · 4K / 120 FPS ✓' : ' · ' + labels.exportOriginal);
+        document.getElementById('vo-verified-proof').textContent = checked
+            ? ('Checked directly from the MP4 on the server · ' + (checked.bytes / 1048576).toFixed(1) +
+               ' MB · SHA-256: ' + checked.sha256.slice(0, 24) + '…')
+            : '';
         result.classList.add('is-visible');
         result.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+
+    function ready(response) {
+        showPhoneDownload(response);
+        if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
+        if (!response.verify_url) {
+            showVerifiedResult(response, null);
+            return;
+        }
+        if (lastVerifiedToken === response.token) { return; }
+        lastVerifiedToken = response.token;
+        busy = true;
+        submit.disabled = true;
+        setStatus('Verifying the actual MP4 on the server…', false);
+        fetch(response.verify_url, {
+            credentials: 'same-origin', cache: 'no-store',
+            headers: {'Accept': 'application/json'}
+        }).then(function (r) {
+            return r.json().then(function (body) {
+                if (!r.ok || !body.verified) {
+                    throw new Error(body.message || labels.unverified);
+                }
+                return body;
+            });
+        }).then(function (proof) {
+            response.width = proof.width;
+            response.height = proof.height;
+            response.fps = proof.fps;
+            showVerifiedResult(response, proof);
+        }).catch(function (error) {
+            busy = false;
+            submit.disabled = !currentFile;
+            lastVerifiedToken = null;
+            progress.classList.remove('is-visible');
+            result.classList.remove('is-visible');
+            setStatus(error.message || labels.unverified, true);
+        });
     }
 
     function pollRender(url) {
@@ -423,6 +468,7 @@
         result.classList.remove('is-visible');
         resetPhoneLinks();
 
+        lastVerifiedToken = null;
         var data = new FormData(form);
         data.set('video', currentFile, currentFile.name);
         var xhr = new XMLHttpRequest();
