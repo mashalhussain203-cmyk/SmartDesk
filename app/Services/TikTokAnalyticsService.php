@@ -250,7 +250,7 @@ class TikTokAnalyticsService
             $timezone = 'UTC';
         }
 
-        $posts = Cache::remember('mashal:posting-times:v4:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
+        $posts = Cache::remember('mashal:posting-times:v5:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
             $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en') ?? [];
             $scope = $state['__DEFAULT_SCOPE__'] ?? [];
             $sources = [
@@ -305,7 +305,7 @@ class TikTokAnalyticsService
 
             // When TikTok blocks its own endpoint on Railway, try a read-only
             // public third-party mirror; never send user credentials to it.
-            if (count($posts) < 10) {
+            if (count($posts) < 35) {
                 foreach ($this->mirrorUserPosts($username) as $post) {
                     // An official TikTok observation takes precedence over a mirror.
                     $posts[$post['id']] ??= $post;
@@ -314,7 +314,7 @@ class TikTokAnalyticsService
 
             // Browser fallback observes publicly loaded TikTok data with the
             // same Chromium dependencies already installed on Railway.
-            if (count($posts) < 10) {
+            if (count($posts) < 20) {
                 $browser = $this->browserData('posts', $username);
                 foreach ($browser['posts'] ?? [] as $row) {
                     if (!is_array($row) || !preg_match('/^[0-9]{15,22}$/', (string) ($row['id'] ?? ''))) {
@@ -331,7 +331,7 @@ class TikTokAnalyticsService
             }
 
             // Independent public profile extractor as a final fallback.
-            if (count($posts) < 10) {
+            if (count($posts) < 20) {
                 foreach ($this->ytDlpUserPosts($username) as $entry) {
                     $id = (string) ($entry['id'] ?? '');
                     $views = $this->number($entry['views'] ?? null);
@@ -356,7 +356,7 @@ class TikTokAnalyticsService
             $posts = array_values($posts);
             usort($posts, fn ($a, $b) => $b['published_at'] <=> $a['published_at']);
 
-            return array_slice($posts, 0, 60);
+            return array_slice($posts, 0, 35);
         });
 
         // Audit the origin of the observations. This is historical post
@@ -390,7 +390,18 @@ class TikTokAnalyticsService
             $slot['average'] = (int) round($slot['views'] / $slot['count']);
         }
         unset($slot);
-        uasort($slots, fn ($a, $b) => $b['average'] <=> $a['average'] ?: $b['count'] <=> $a['count']);
+        // Each percentage represents this hour's share of the sum of the
+        // observed per-slot average views. It is a historical relative
+        // performance score, NOT the probability of going viral and NOT
+        // private TikTok follower-activity data.
+        $totalSlotAverage = array_sum(array_column($slots, 'average'));
+        foreach ($slots as &$slot) {
+            $slot['score_percent'] = $totalSlotAverage > 0
+                ? round(100 * $slot['average'] / $totalSlotAverage, 2)
+                : 0.0;
+        }
+        unset($slot);
+        uasort($slots, fn ($a, $b) => $b['score_percent'] <=> $a['score_percent'] ?: $b['count'] <=> $a['count']);
 
         $best = array_slice(array_values($slots), 0, 5);
         $repeatSlots = count(array_filter($slots, fn ($slot) => $slot['count'] >= 2));
@@ -417,6 +428,7 @@ class TikTokAnalyticsService
             'repeated_slots' => $repeatSlots,
             'sample_reliable' => $sampleReliable,
             'best' => $best,
+            'score_scale' => max(25.0, (float) ($best[0]['score_percent'] ?? 0)),
             'matrix' => $matrix,
             'daily' => $daily,
             'checked_at' => now()->format('d-m-Y H:i'),
@@ -480,59 +492,83 @@ class TikTokAnalyticsService
      */
     private function mirrorUserPosts(string $username): array
     {
-        // The independent public service documents unique_id in both
-        // @username and username forms. Retry only if the first is empty.
-        foreach ([$username, '@'.$username] as $identifier) {
-            try {
-                $response = Http::withHeaders([
-                    'Accept' => 'application/json',
-                    'User-Agent' => 'Mozilla/5.0 (compatible; MashalStudio/1.0)',
-                ])->connectTimeout(4)->timeout(8)->get('https://www.tikwm.com/api/user/posts', [
-                    'unique_id' => $identifier,
-                    'count' => 30,
-                    'cursor' => 0,
-                ]);
-
-                $payload = $response->successful() ? $response->json() : null;
-                if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
-                    continue;
+        // TikWM's public profile feed is paginated (up to roughly 34 items
+        // per page). Read up to 3 pages instead of silently stopping at
+        // the first page, so profiles with 35+ posts can be analysed.
+        // Never send login credentials, cookies or account tokens.
+        foreach (['https://tikwm.com', 'https://www.tikwm.com'] as $host) {
+            $posts = [];
+            $cursor = '0';
+            for ($page = 0; $page < 3; $page++) {
+                try {
+                    $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        'User-Agent' => 'Mozilla/5.0 (compatible; MashalStudio/1.0)',
+                    ])->connectTimeout(3)->timeout(7)
+                        ->get($host.'/api/user/posts', [
+                            'unique_id' => $username,
+                            'count' => 30,
+                            'cursor' => $cursor,
+                        ]);
+                    $payload = $response->successful() ? $response->json() : null;
+                    if (!is_array($payload) || (int) ($payload['code'] ?? -1) !== 0) {
+                        break;
+                    }
+                    $data = $payload['data'] ?? [];
+                    if (!is_array($data)) {
+                        break;
+                    }
+                    $videos = $data['videos'] ?? $data['itemList'] ?? $data['aweme_list'] ?? [];
+                    if (!is_array($videos)) {
+                        break;
+                    }
+                    foreach ($videos as $video) {
+                        if (!is_array($video)) {
+                            continue;
+                        }
+                        $author = $video['author']['unique_id']
+                            ?? $video['author']['uniqueId']
+                            ?? $video['author']['unique_id_str'] ?? null;
+                        if (is_string($author) && strcasecmp(ltrim($author, '@'), $username) !== 0) {
+                            continue;
+                        }
+                        $id = (string) ($video['video_id'] ?? $video['aweme_id'] ?? $video['id'] ?? '');
+                        if (!preg_match('/^[0-9]{15,22}$/', $id)) {
+                            continue;
+                        }
+                        $statistics = $video['stats'] ?? $video['statistics'] ?? [];
+                        $statistics = is_array($statistics) ? $statistics : [];
+                        $views = $this->number(
+                            $video['play_count'] ?? $video['playCount']
+                            ?? $video['view_count'] ?? $statistics['playCount']
+                            ?? $statistics['play_count'] ?? $statistics['viewCount'] ?? null
+                        );
+                        $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
+                        $dateEstimated = $published === null;
+                        if ($published === null) {
+                            $published = intdiv((int) $id, 4294967296);
+                        }
+                        if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
+                            $posts[$id] = [
+                                'id' => $id, 'views' => $views,
+                                'published_at' => $published,
+                                'source' => 'TikWM publieke videofeed',
+                                'date_estimated' => $dateEstimated,
+                            ];
+                        }
+                    }
+                    $nextCursor = (string) ($data['cursor'] ?? '');
+                    $hasMore = !empty($data['hasMore']) || !empty($data['has_more']);
+                    if (!$hasMore || $nextCursor === '' || $nextCursor === $cursor || count($posts) >= 35) {
+                        break;
+                    }
+                    $cursor = $nextCursor;
+                } catch (Throwable $e) {
+                    break;
                 }
-                $items = $payload['data']['videos'] ?? [];
-                if (!is_array($items)) {
-                    continue;
-                }
-
-                $posts = [];
-                foreach (array_slice($items, 0, 60) as $video) {
-                    if (!is_array($video)) {
-                        continue;
-                    }
-                    $author = $video['author']['unique_id'] ?? $video['author']['uniqueId'] ?? null;
-                    if (is_string($author) && strcasecmp(ltrim($author, '@'), $username) !== 0) {
-                        continue;
-                    }
-
-                    $id = (string) ($video['video_id'] ?? $video['id'] ?? '');
-                    if (!preg_match('/^[0-9]{15,22}$/', $id)) {
-                        continue;
-                    }
-                    $views = $this->number($video['play_count'] ?? $video['playCount'] ?? $video['stats']['playCount'] ?? null);
-                    $published = $this->number($video['create_time'] ?? $video['createTime'] ?? null);
-                    $dateEstimated = $published === null;
-                    if ($published === null) {
-                        $published = intdiv((int) $id, 4294967296);
-                    }
-                    if ($views !== null && $published > 1577836800 && $published <= time() + 86400) {
-                        $posts[$id] = ['id' => $id, 'views' => $views, 'published_at' => $published,
-                            'source' => 'TikWM', 'date_estimated' => $dateEstimated];
-                    }
-                }
-
-                if ($posts !== []) {
-                    return array_values($posts);
-                }
-            } catch (Throwable $e) {
-                // Do not invent posts when TikWM is rate-limited or unavailable.
+            }
+            if ($posts !== []) {
+                return array_values($posts);
             }
         }
         return [];
