@@ -14,6 +14,20 @@ import { nextPollDelay } from './schedule.mjs';
 const ALLOWED_EXTRA_ACCOUNTS = new Set(['cutefacebigass', 'ricasashaa', 'emyii', 'julesxdann', 'knock1knock', 'leo_kitty']);
 const POLL_MS = 60_000;
 
+// These messages contain only broad failure categories, never signed HLS URLs,
+// user content, cookies, headers or extractor stderr.
+export function describePublicStreamIssue(source) {
+  const detail = String(source?.detail || '').slice(0, 180);
+  if (/HTTP 429/i.test(detail)) return 'tijdelijke limiet op de publieke streamcontrole (HTTP 429)';
+  if (/HTTP 403/i.test(detail)) return 'publieke streambron weigert toegang (HTTP 403)';
+  if (/HTTP 404/i.test(detail)) return 'publieke streambron niet gevonden (HTTP 404)';
+  if (/time-out/i.test(detail)) return 'publieke streambron reageert niet (time-out)';
+  if (/Geen afzonderlijke publieke video- en audiobron gevonden/i.test(detail)) {
+    return 'geen afzonderlijke publieke video- en audiotracks beschikbaar';
+  }
+  return 'publieke streambron niet toegankelijk of afspeelbaar';
+}
+
 export function isPlayable(source) {
   return source?.kind === 'live' && Array.isArray(source.urls) && source.urls.length >= 2;
 }
@@ -126,7 +140,7 @@ export async function runHlsMonitor({
   if (!ALLOWED_EXTRA_ACCOUNTS.has(account)) throw new Error('Unexpected extra account');
   if (!signal) throw new Error('Abort signal required');
   let recording = null;
-  let missing = 0;
+  let confirmedOffline = 0;
   let lastSaved = null;
   const abort = new Promise(resolve => {
     if (signal.aborted) resolve();
@@ -151,34 +165,40 @@ export async function runHlsMonitor({
         const key = await done.stop();
         console.log(account, 'completed', key.split('/').at(-1));
         lastSaved = key.split('/').at(-1);
-        missing = 0;
+        confirmedOffline = 0;
         await publish('unknown', 'Opname opgeslagen; wachten op volgende live');
       } else if (!recording && live) {
         recording = await startCapture({ s3, bucket, account, urls: source.urls });
-        missing = 0;
+        confirmedOffline = 0;
         await publish('recording', 'Live gedetecteerd: beeld en geluid worden automatisch opgenomen');
       } else if (recording) {
-        missing = live ? 0 : missing + 1;
-        if (missing >= 2) {
+        // A transient extractor outage (unknown/HTTP 403/429/timeout) does
+        // not prove the live HLS recorder has stopped. Only confirmed offline
+        // polls or FFmpeg finishing may close the recording.
+        confirmedOffline = source?.kind === 'offline' ? confirmedOffline + 1 : 0;
+        if (confirmedOffline >= 2) {
           const done = recording;
           recording = null;
           await publish('uploading', 'Stream niet meer beschikbaar; MP4 wordt afgerond');
           const key = await done.stop();
           console.log(account, 'completed', key.split('/').at(-1));
           lastSaved = key.split('/').at(-1);
-          missing = 0;
+          confirmedOffline = 0;
           await publish('offline', 'Opname opgeslagen; wachten op volgende live');
         } else {
           await publish('recording', live
             ? 'Livestream wordt automatisch opgenomen'
-            : 'Opname loopt; tijdelijke onderbreking van de statuscontrole');
+            : source?.kind === 'offline'
+              ? 'Opname loopt; offline nog niet bevestigd (volgende controle over een minuut)'
+              : 'Opname loopt; tijdelijke statusstoring (' + describePublicStreamIssue(source) + ')');
         }
       } else {
         // An inaccessible public HLS source does not prove the broadcaster is offline.
         const offline = source?.kind === 'offline';
         await publish(offline ? 'offline' : 'unknown',
           offline ? 'Stream is offline; automatisch wachten op volgende live'
-            : 'Geen afspeelbare publieke video en audio; volgende controle over een minuut');
+            : 'Livestatus niet bevestigd: ' + describePublicStreamIssue(source) +
+              '; automatische hercontrole over een minuut');
       }
     } catch {
       console.error(account, 'capture or status check failed; retrying');
@@ -187,7 +207,7 @@ export async function runHlsMonitor({
         recording = null;
         try { await failed.stop(); } catch { /* Invalid MP4 already removed. */ }
       }
-      missing = 0;
+      confirmedOffline = 0;
       await publish('error', 'Opnamecontrole mislukt; automatische nieuwe poging over een minuut');
     }
     if (!signal.aborted) {

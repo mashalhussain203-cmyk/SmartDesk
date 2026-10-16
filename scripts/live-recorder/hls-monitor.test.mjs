@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isPlayable, hlsContinuousArgs, runHlsMonitor } from './hls-monitor.mjs';
+import { isPlayable, hlsContinuousArgs, runHlsMonitor, describePublicStreamIssue } from './hls-monitor.mjs';
 
 const source = {
   kind: 'live',
@@ -33,8 +33,8 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   const broadcasts = [
     { kind: 'unknown', detail: 'stream niet publiek beschikbaar' },
     source, source,
-    { kind: 'unknown', detail: 'stream niet publiek beschikbaar' },
-    { kind: 'unknown', detail: 'stream niet publiek beschikbaar' },
+    { kind: 'offline', detail: 'broadcast stopped' },
+    { kind: 'offline', detail: 'broadcast stopped' },
     source,
   ];
   await runHlsMonitor({
@@ -70,6 +70,63 @@ test('every new live starts recording, offline finishes private MP4, and shutdow
   assert.ok(states.includes('uploading'));
   assert.ok(reported.some(x => x.lastSaved === 'stream-1.mp4'));
   assert.ok(reported.some(x => x.lastSaved === 'stream-2.mp4'));
+});
+
+
+test('temporary unknown checks never stop a running FFmpeg capture', async () => {
+  const controller = new AbortController();
+  const statuses = [];
+  let polls = 0;
+  let starts = 0;
+  let stops = 0;
+  const sources = [
+    source,
+    { kind: 'unknown', detail: 'HLS-controle: HTTP 429' },
+    { kind: 'unknown', detail: 'HLS-controle: time-out' },
+    source,
+  ];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'emyii', signal: controller.signal,
+    discover: async () => sources[Math.min(polls, sources.length - 1)],
+    startCapture: async () => {
+      starts++;
+      return {
+        check: async () => false,
+        stop: async () => {
+          stops++;
+          return 'recordings/emyii/finished.mp4';
+        },
+      };
+    },
+    report: async ({ state, message }) => statuses.push({ state, message }),
+    sleep: async () => {
+      polls++;
+      if (polls >= sources.length) controller.abort();
+    },
+  });
+  assert.equal(starts, 1);
+  assert.equal(stops, 1, 'only stop on explicit shutdown');
+  assert.ok(statuses.some(item => item.state === 'recording' && /429/.test(item.message)));
+  assert.ok(statuses.some(item => item.state === 'recording' && /time-out/.test(item.message)));
+  assert.ok(!statuses.some(item => item.state === 'offline'));
+});
+
+test('unknown status explains the public source problem without logging URLs', async () => {
+  const controller = new AbortController();
+  const messages = [];
+  await runHlsMonitor({
+    s3: {}, bucket: 'private', account: 'leo_kitty', signal: controller.signal,
+    discover: async () => ({
+      kind: 'unknown', detail: 'HLS-controle: HTTP 403 https://hidden.example/token=secret',
+    }),
+    report: async ({ state, message }) => messages.push({ state, message }),
+    sleep: async () => controller.abort(),
+  });
+  assert.equal(messages.at(-1).state, 'unknown');
+  assert.match(messages.at(-1).message, /HTTP 403/);
+  assert.doesNotMatch(messages.at(-1).message, /hidden|token|secret/);
+  assert.match(describePublicStreamIssue({ kind: 'unknown', detail: 'HLS-controle: HTTP 429' }), /429/);
+  assert.match(describePublicStreamIssue({ kind: 'unknown', detail: 'HLS-controle: time-out' }), /time-out/);
 });
 
 test('unavailable HLS source shows unknown, not falsely offline', async () => {
