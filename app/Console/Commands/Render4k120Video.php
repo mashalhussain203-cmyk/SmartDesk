@@ -181,6 +181,8 @@ class Render4k120Video extends Command
             if ((int) $stream['width'] < 1920 || (int) $stream['height'] < 1080) {
                 $filters[] = 'hqdn3d=1.2:1.2:4:4';
             }
+            // Sharpen before upscaling to avoid a second 4K-sized filter buffer.
+            $filters[] = 'unsharp=5:5:0.35:5:5:0.0';
             if ($needsInterpolation) {
                 $filters[] = 'minterpolate=fps=120:mi_mode=mci:mc_mode=obmc:'
                     .'me_mode=bidir:me=epzs:mb_size=16:vsbmc=1:'
@@ -190,7 +192,6 @@ class Render4k120Video extends Command
                 .':force_original_aspect_ratio=decrease:flags=lanczos';
             $filters[] = 'pad='.$width.':'.$height.':(ow-iw)/2:(oh-ih)/2';
             $filters[] = 'setsar=1';
-            $filters[] = 'unsharp=5:5:0.55:5:5:0.0';
             $filters[] = 'format=yuv420p';
             $filter = implode(',', $filters);
 
@@ -211,7 +212,7 @@ class Render4k120Video extends Command
                 '-i', $source, '-map', '0:v:0', '-map', '0:a?', '-sn', '-dn',
                 '-vf', $filter, '-fps_mode', 'cfr', '-r', '120',
                 '-c:v', 'libx264', '-threads:v', '2',
-                '-preset', 'veryfast', '-crf', '18',
+                '-preset', 'superfast', '-crf', '18',
                 '-maxrate', $maxRateMbps.'M',
                 '-bufsize', ($maxRateMbps * 2).'M',
                 '-pix_fmt', 'yuv420p',
