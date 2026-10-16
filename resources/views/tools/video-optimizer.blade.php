@@ -5,20 +5,20 @@
 
 @push('styles')
 <style>
-    .vo-page{min-height:80vh;padding:56px 16px 100px;color:#f5f6f9;background:radial-gradient(ellipse at 50% 0,rgba(128,112,255,.13),transparent 55%),#08090e}
+    .vo-page{min-height:80vh;padding:56px 16px 100px;color:#f5f6f9;background:radial-gradient(ellipse at 50% 0,rgba(132,194,25,.12),transparent 55%),#08090e}
     .vo-shell{max-width:780px;margin:auto}
-    .vo-eyebrow{text-align:center;font-size:11px;letter-spacing:.19em;text-transform:uppercase;color:#aaa1ff;font-weight:800}
+    .vo-eyebrow{text-align:center;font-size:11px;letter-spacing:.19em;text-transform:uppercase;color:#b1e643;font-weight:800}
     .vo-title{margin:14px 0 12px;font-size:clamp(33px,6vw,56px);line-height:1.12;text-align:center;font-weight:850;letter-spacing:-.04em}
     .vo-subtitle{max-width:620px;margin:0 auto 30px;color:#a6a7b6;text-align:center;font-size:14px;line-height:1.7}
     .vo-panel{padding:clamp(18px,4vw,32px);border-radius:24px;background:#111119;border:1px solid #30303b;box-shadow:0 24px 90px rgba(0,0,0,.27)}
     .vo-modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;border-radius:44px;border:1px solid #41414a;background:#17171e}
     .vo-mode{min-height:80px;padding:12px 8px;border:0;border-radius:38px;background:transparent;color:#9c9ca9;font-size:clamp(13px,2.5vw,18px);font-weight:850;cursor:pointer}
     .vo-mode small{display:block;font-size:clamp(9px,1.7vw,11px);letter-spacing:.14em;margin-top:5px;font-weight:750}
-    .vo-mode[aria-pressed="true"]{background:linear-gradient(105deg,#8a78ff,#aa96ff);color:#0b0915;box-shadow:0 8px 28px rgba(133,118,255,.2)}
+    .vo-mode[aria-pressed="true"]{background:linear-gradient(105deg,#80cc0a,#a6ee21);color:#0b0915;box-shadow:0 8px 28px rgba(133,118,255,.2)}
     .vo-notice{margin-top:16px;padding:18px 20px;border:1px solid #585142;background:#24221d;border-radius:15px;text-align:center;line-height:1.65;font-size:14px}
     .vo-drop{display:grid;place-items:center;gap:16px;min-height:278px;margin-top:18px;padding:25px;text-align:center;border:2px dashed #393948;border-radius:18px;background:#101017;cursor:pointer;transition:.2s;outline-offset:4px}
-    .vo-drop:hover,.vo-drop.is-dragging,.vo-drop:focus-visible{border-color:#ab9aff;background:#181625}
-    .vo-drop-icon{height:64px;width:64px;border:1px solid #4d436a;border-radius:17px;display:grid;place-items:center;background:#201d32;color:#b29fff;font-size:34px}
+    .vo-drop:hover,.vo-drop.is-dragging,.vo-drop:focus-visible{border-color:#a1da2b;background:#1a2112}
+    .vo-drop-icon{height:64px;width:64px;border:1px solid #4e6825;border-radius:17px;display:grid;place-items:center;background:#202910;color:#a9e62f;font-size:34px}
     .vo-drop strong{font-size:clamp(18px,3vw,23px);letter-spacing:-.02em}
     .vo-drop span{font-size:13px;line-height:1.65;color:#9d9daa}
     .vo-drop b{font-size:13px;line-height:1.65;color:#dedee5}
@@ -32,18 +32,18 @@
     .vo-meta strong{font-size:13px;display:block;margin-top:6px;overflow-wrap:anywhere}
     .vo-check{display:flex;align-items:center;gap:11px;margin:20px 0;color:#d9d9e2;font-size:14px;cursor:pointer}
     .vo-check input{accent-color:#9987ff;min-width:19px;height:19px}
-    .vo-btn{border:0;width:100%;min-height:64px;border-radius:14px;background:linear-gradient(100deg,#8f7cff,#b5a5ff);color:#100d20;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+    .vo-btn{border:0;width:100%;min-height:64px;border-radius:14px;background:linear-gradient(100deg,#80ca08,#a9e91c);color:#102000;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
     .vo-btn:disabled{opacity:.52;cursor:not-allowed}
     .vo-progress{height:9px;background:#30303d;border-radius:10px;overflow:hidden;margin-top:18px;display:none}
     .vo-progress.is-visible{display:block}
-    .vo-progress span{height:100%;width:0;display:block;background:#a996ff;transition:width .25s}
+    .vo-progress span{height:100%;width:0;display:block;background:#95d60d;transition:width .25s}
     .vo-status{min-height:24px;margin-top:12px;text-align:center;color:#c3c2d3;font-size:13px}
     .vo-status[role="alert"]{color:#ff9c9c}
     .vo-result{display:none;margin-top:20px;padding:22px;border-radius:18px;border:1px solid rgba(146,233,172,.35);background:#142019;text-align:center}
     .vo-result.is-visible{display:block}
     .vo-result h2{font-size:21px;margin:0 0 9px;color:#b5f0c5}
     .vo-result p{margin:0 0 16px;color:#b6cebd;font-size:13px;line-height:1.6}
-    .vo-download{display:block;border-radius:12px;padding:18px;background:#8cd4a1;color:#092013;text-decoration:none;font-size:16px;font-weight:900}
+    .vo-download{display:block;border-radius:12px;padding:18px;background:#95d60d;color:#152500;text-decoration:none;font-size:16px;font-weight:900}
     .vo-more{margin-top:12px;background:transparent;border:1px solid #617e6c;color:#daefe0;border-radius:12px;padding:12px 17px;cursor:pointer}
     .vo-tiktok{display:inline-block;margin-top:16px;color:#c9bfff;font-weight:650}
     .vo-autopost{margin-top:20px;padding:15px;text-align:start;border:1px solid #46504a;border-radius:13px}
@@ -94,7 +94,7 @@
                     <strong>{{ __('Drop your video here') }}</strong>
                     <span>{{ __('or tap to browse · MP4 / MOV — H.264 or H.265 (HEVC)') }}</span>
                     <b>{{ __('Maximum file size: 100 MB · Maximum duration: 15 minutes') }}</b>
-                    <input id="vo-file" name="video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden required>
+                    <input id="vo-file" name="video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden>
                 </label>
 
                 <div id="vo-selected" class="vo-selected" aria-live="polite">
