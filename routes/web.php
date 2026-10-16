@@ -39,6 +39,7 @@ use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
 use App\Http\Controllers\TikTokAnalyticsController;
 use App\Http\Controllers\VideoOptimizerController;
+use App\Http\Controllers\VideoPublishController;
 use App\Http\Controllers\YouTubeSubscriberController;
 use App\Http\Controllers\YouTubeViewCounterController;
 
@@ -1159,6 +1160,14 @@ Route::get('/tools/video-optimizer', [VideoOptimizerController::class, 'index'])
 Route::post('/tools/video-optimizer', [VideoOptimizerController::class, 'optimize'])
     ->middleware('throttle:3,60')
     ->name('video-optimizer.optimize');
+
+Route::post('/tools/video-optimizer/zernio/accounts', [VideoPublishController::class, 'accounts'])
+    ->middleware('throttle:15,1')
+    ->name('video-optimizer.zernio.accounts');
+
+Route::post('/tools/video-optimizer/zernio/publish', [VideoPublishController::class, 'publish'])
+    ->middleware('throttle:5,60')
+    ->name('video-optimizer.zernio.publish');
 
 Route::get('/tools/video-optimizer/download/{token}', [VideoOptimizerController::class, 'download'])
     ->where('token', '[a-f0-9]{40}')

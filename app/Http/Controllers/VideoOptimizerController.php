@@ -111,11 +111,13 @@ class VideoOptimizerController extends Controller
             $request->session()->put('video_optimizer.'.$token, [
                 'path' => $output,
                 'expires_at' => time() + 3600,
+                'duration' => $duration,
             ]);
 
             return response()->json([
                 'message' => __('Your optimized video is ready.'),
                 'download_url' => route('video-optimizer.download', ['token' => $token]),
+                'token' => $token,
                 'output_size' => filesize($output),
                 'input_size' => $uploaded->getSize(),
                 'width' => (int) ($videoStream['width'] ?? 0),
@@ -151,13 +153,11 @@ class VideoOptimizerController extends Controller
             abort(404);
         }
 
-        $request->session()->forget('video_optimizer.'.$token);
-
         return response()->download($expected, 'mashal-optimized-video.mp4', [
             'Content-Type' => 'video/mp4',
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
-        ])->deleteFileAfterSend(true);
+        ]);
     }
 
     private function cleanExpiredFiles(string $directory): void

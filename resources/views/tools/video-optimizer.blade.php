@@ -46,6 +46,17 @@
     .vo-download{display:block;border-radius:12px;padding:18px;background:#8cd4a1;color:#092013;text-decoration:none;font-size:16px;font-weight:900}
     .vo-more{margin-top:12px;background:transparent;border:1px solid #617e6c;color:#daefe0;border-radius:12px;padding:12px 17px;cursor:pointer}
     .vo-tiktok{display:inline-block;margin-top:16px;color:#c9bfff;font-weight:650}
+    .vo-autopost{margin-top:20px;padding:15px;text-align:start;border:1px solid #46504a;border-radius:13px}
+    .vo-autopost summary{cursor:pointer;color:#d5e7d8;font-weight:800}
+    .vo-autopost p{font-size:12px;line-height:1.7}
+    .vo-post-label{display:block;margin:12px 0 5px;color:#d8e8db;font-size:12px}
+    .vo-post-input{width:100%;box-sizing:border-box;padding:12px;color:#f6f6f7;background:#101914;border:1px solid #496050;border-radius:9px;font:inherit;min-height:43px}
+    .vo-post-actions{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .vo-post-btn{padding:12px 15px;background:#a1dcb2;color:#102515;border:0;border-radius:9px;font-weight:850;cursor:pointer}
+    .vo-post-btn:disabled{opacity:.45;cursor:not-allowed}
+    .vo-post-consent{display:flex;gap:9px;align-items:flex-start;margin:12px 0;color:#c9d8cb;font-size:12px;line-height:1.7}
+    .vo-post-consent input{accent-color:#99dcaa;min-width:17px;margin-top:4px}
+    .vo-post-feedback{color:#d3e4d7;font-size:12px;line-height:1.7;margin-top:12px}
     .vo-tips{margin-top:22px;border:1px solid #353445;border-radius:16px;padding:20px;color:#b7b6c7;line-height:1.8;font-size:13px}
     .vo-tips strong{color:#f0eff9}
     .vo-tips ul{margin:9px 0 0;padding-inline-start:20px}
@@ -107,6 +118,23 @@
                 <p id="vo-result-note"></p>
                 <a class="vo-download" href="#" id="vo-download" download="mashal-optimized-video.mp4">{{ __('Download optimized MP4') }} ↓</a>
                 <a class="vo-tiktok" href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer">{{ __('Open TikTok uploader') }} ↗</a>
+                <details class="vo-autopost" id="vo-auto-post">
+                    <summary>{{ __('Auto Post via Zernio (optional)') }}</summary>
+                    <p>{{ __('Connect your own Zernio API key and TikTok account. Your key is only used for this action, not stored by Mashal Studio. Posting is public and requires your explicit consent.') }}</p>
+                    <label class="vo-post-label" for="vo-api-key">{{ __('Zernio API key') }}</label>
+                    <input class="vo-post-input" id="vo-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk_…">
+                    <div class="vo-post-actions"><button type="button" id="vo-connect" class="vo-post-btn">{{ __('Connect Zernio') }}</button><a class="vo-tiktok" href="https://zernio.com/" target="_blank" rel="noopener noreferrer">{{ __('Get API key') }} ↗</a></div>
+                    <div id="vo-post-settings" hidden>
+                        <label class="vo-post-label" for="vo-account">{{ __('TikTok account') }}</label>
+                        <select class="vo-post-input" id="vo-account"></select>
+                        <label class="vo-post-label" for="vo-caption">{{ __('Caption (max 2200 characters)') }}</label>
+                        <textarea class="vo-post-input" id="vo-caption" maxlength="2200" rows="3"></textarea>
+                        <label class="vo-post-consent"><input id="vo-ai" type="checkbox"> {{ __('Mark as AI-generated content if applicable') }}</label>
+                        <label class="vo-post-consent"><input id="vo-consent" type="checkbox"> {{ __('I reviewed the final video and consent to publishing it publicly on the selected TikTok account.') }}</label>
+                        <button type="button" class="vo-post-btn" id="vo-publish" disabled>{{ __('Post to TikTok publicly') }}</button>
+                    </div>
+                    <p class="vo-post-feedback" id="vo-post-feedback" role="status" aria-live="polite"></p>
+                </details>
                 <div><button type="button" class="vo-more" id="vo-again">{{ __('Optimize another video') }}</button></div>
             </div>
         </section>
@@ -117,8 +145,8 @@
                 <li>{{ __('Original mode remuxes the source without changing the video or audio frames. FFmpeg mode re-encodes and cannot improve missing detail.') }}</li>
                 <li>{{ __('We do not artificially turn 30 FPS into 60 or 120 FPS; source timing is preserved.') }}</li>
                 <li>{{ __('TikTok decides playback resolution, FPS and compression. No tool can guarantee that TikTok will keep 4K/120 FPS.') }}</li>
-                <li>{{ __('Your file is processed privately. Unclaimed exports expire after 1 hour; downloads are deleted after transfer.') }}</li>
-                <li>{{ __('Auto-posting requires separate authorization with a supported TikTok publishing service. You can upload manually using the link above.') }}</li>
+                <li>{{ __('Your file is processed privately. Exports are kept for up to 1 hour before cleanup.') }}</li>
+                <li>{{ __('Auto-posting requires a Zernio API key and your separate consent. You can also upload manually using the link above.') }}</li>
             </ul>
         </div>
     </div>
@@ -139,6 +167,7 @@
     var modeField = document.getElementById('vo-mode-value');
     var currentFile = null;
     var busy = false;
+    var optimizedToken = null;
     var labels = @json([
         'choose' => __('Please choose an MP4 or MOV video.'),
         'tooLarge' => __('The video must be no larger than 100 MB.'),
@@ -168,6 +197,7 @@
         progress.classList.remove('is-visible');
         setStatus('', false);
         currentFile = null;
+        optimizedToken = null;
         submit.disabled = true;
         selected.classList.remove('is-visible');
         meta.hidden = true;
@@ -252,6 +282,7 @@
             var response = xhr.response || {};
             if (xhr.status >= 200 && xhr.status < 300 && response.download_url) {
                 setProgress(100);
+                optimizedToken = response.token || null;
                 setStatus(labels.complete, false);
                 document.getElementById('vo-download').href = response.download_url;
                 document.getElementById('vo-result-note').textContent = response.note || '';
@@ -276,15 +307,118 @@
         xhr.send(data);
     });
 
+
+    var apiKey = document.getElementById('vo-api-key');
+    var account = document.getElementById('vo-account');
+    var settings = document.getElementById('vo-post-settings');
+    var connect = document.getElementById('vo-connect');
+    var publish = document.getElementById('vo-publish');
+    var consent = document.getElementById('vo-consent');
+    var feedback = document.getElementById('vo-post-feedback');
+    var postLabels = @json([
+        'missingKey' => __('Enter your Zernio API key first.'),
+        'connecting' => __('Checking connected TikTok accounts…'),
+        'noAccount' => __('No active TikTok account is connected to Zernio.'),
+        'connected' => __('Choose your connected TikTok account and review your caption.'),
+        'posting' => __('Uploading and submitting your video to Zernio…'),
+        'error' => __('Could not contact Zernio. Please try again.'),
+    ]);
+
+    function postMessage(message, error) {
+        feedback.textContent = message;
+        feedback.style.color = error ? '#ffaaaa' : '#d3e4d7';
+    }
+
+    function postRequest(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        }).then(function (response) {
+            return response.json().then(function (body) {
+                return { ok: response.ok, data: body };
+            });
+        });
+    }
+
+    apiKey.addEventListener('input', function () {
+        settings.hidden = true;
+        consent.checked = false;
+        publish.disabled = true;
+        postMessage('', false);
+    });
+
+    consent.addEventListener('change', function () {
+        publish.disabled = !consent.checked || !account.value || !optimizedToken;
+    });
+
+    connect.addEventListener('click', function () {
+        if (!apiKey.value.trim()) { postMessage(postLabels.missingKey, true); return; }
+        connect.disabled = true;
+        settings.hidden = true;
+        postMessage(postLabels.connecting, false);
+        postRequest(@json(route('video-optimizer.zernio.accounts')), {api_key: apiKey.value.trim()})
+            .then(function (result) {
+                if (!result.ok) { throw new Error(result.data.message || postLabels.error); }
+                account.replaceChildren();
+                (result.data.accounts || []).forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = '@' + item.name;
+                    account.appendChild(option);
+                });
+                if (!account.options.length) { throw new Error(postLabels.noAccount); }
+                settings.hidden = false;
+                publish.disabled = true;
+                consent.checked = false;
+                postMessage(postLabels.connected, false);
+            })
+            .catch(function (error) { postMessage(error.message || postLabels.error, true); })
+            .finally(function () { connect.disabled = false; });
+    });
+
+    publish.addEventListener('click', function () {
+        if (!optimizedToken || !consent.checked || !account.value) { return; }
+        publish.disabled = true;
+        connect.disabled = true;
+        postMessage(postLabels.posting, false);
+        postRequest(@json(route('video-optimizer.zernio.publish')), {
+            api_key: apiKey.value.trim(),
+            token: optimizedToken,
+            account_id: account.value,
+            caption: document.getElementById('vo-caption').value,
+            ai_generated: document.getElementById('vo-ai').checked,
+            consent: true
+        }).then(function (result) {
+            if (!result.ok) { throw new Error(result.data.message || postLabels.error); }
+            postMessage(result.data.message || '', false);
+        }).catch(function (error) {
+            postMessage(error.message || postLabels.error, true);
+        }).finally(function () {
+            connect.disabled = false;
+            publish.disabled = !consent.checked || !optimizedToken;
+        });
+    });
+
     document.getElementById('vo-again').addEventListener('click', function () {
         result.classList.remove('is-visible');
         progress.classList.remove('is-visible');
         fileInput.value = '';
         currentFile = null;
+        optimizedToken = null;
         selected.classList.remove('is-visible');
         meta.hidden = true;
         submit.disabled = true;
         setStatus('', false);
+        settings.hidden = true;
+        consent.checked = false;
+        publish.disabled = true;
+        postMessage('', false);
         drop.scrollIntoView({behavior:'smooth',block:'center'});
     });
 }());
