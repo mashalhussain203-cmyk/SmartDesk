@@ -66,18 +66,18 @@
     </style>
 
     <div class="live-head">
-        <h1>Privé livestreamopnames</h1>
+        <h1>{{ __("Privé livestreamopnames") }}</h1>
         <p>Automatische privéopnames van jouw livestreams. De Railway-server blijft controleren en opnemen, ook wanneer deze pagina gesloten is. Hieronder zie je de actuele status en de opgeslagen MP4-bestanden.</p>
     </div>
 
     <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
-        <h2>Automatisch de volledige livestream opnemen</h2>
+        <h2>{{ __("Automatisch de volledige livestream opnemen") }}</h2>
         <p>De server controleert <strong>knock1knock, emyii, cutefacebigass, ricasashaa, julesxdann en leo_kitty</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
         <div class="live-automatic-facts">
-            <span>Automatische achtergrondcontrole: 60 sec.</span>
-            <span>Opnameduur: geen limiet van 30 sec.</span>
-            <span>Opslag: privé-MP4 na afloop</span>
-            <span>Status ververst: 15 sec.</span>
+            <span>{{ __("Automatische achtergrondcontrole: 60 sec.") }}</span>
+            <span>{{ __("Opnameduur: geen limiet van 30 sec.") }}</span>
+            <span>{{ __("Opslag: privé-MP4 na afloop") }}</span>
+            <span>{{ __("Status ververst: 15 sec.") }}</span>
         </div>
     </section>
 
@@ -96,7 +96,7 @@
                 <small class="live-last-check" data-live-checked>@if(!empty($statuses[$account]['checked_at']))Laatst gecontroleerd: {{ $statuses[$account]['checked_at'] }}@else Nog geen actuele controle @endif</small>
                 <small class="live-last-saved" data-live-saved>@if(!empty($statuses[$account]['last_saved']))Laatst opgeslagen: {{ $statuses[$account]['last_saved'] }}@endif</small>
                 <div style="margin-top: 10px;">
-                    <a href="https://chaturbate.com/{{ $account }}/" target="_blank" rel="noopener noreferrer" class="live-muted">Bekijk bronpagina ↗</a>
+                    <a href="https://chaturbate.com/{{ $account }}/" target="_blank" rel="noopener noreferrer" class="live-muted">{{ __("Bekijk bronpagina ↗") }}</a>
                 </div>
             </div>
         @endforeach
@@ -105,15 +105,15 @@
     <details class="live-capture">
         <summary id="live-capture-title">Extra optie: handmatige 30-secondenopname (niet nodig voor automatische opnames)</summary>
         <div class="live-capture-inner">
-        <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/knock1knock/" target="_blank" rel="noopener noreferrer">de knock1knock-stream</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>Chrome-tab → knock1knock → Tabgeluid delen</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
-        <button id="live-capture-button" class="live-btn" type="button">Neem 30 seconden op en sla privé op</button>
+        <p>Alleen als reserveoptie; de automatische serverrecorder werkt zonder jouw browser. Open <a href="https://chaturbate.com/knock1knock/" target="_blank" rel="noopener noreferrer">{{ __("de knock1knock-stream") }}</a> in een andere Chrome-tab en zorg dat de video afspeelt en het geluid aan staat. Klik hieronder en kies bij het delen <strong>{{ __("Chrome-tab → knock1knock → Tabgeluid delen") }}</strong>. Je browser vraagt eerst toestemming; SmartDesk kan niet zelfstandig je scherm bekijken.</p>
+        <button id="live-capture-button" class="live-btn" type="button">{{ __("Neem 30 seconden op en sla privé op") }}</button>
         <progress id="live-capture-progress" value="0" max="100" hidden aria-label="Opname-uploadvoortgang"></progress>
-        <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.</p>
+        <p id="live-capture-message" class="live-capture-message" role="status" aria-live="polite">{{ __("Alleen jouw gekozen tab wordt opgenomen. Na 30 seconden wordt de opname als MP4 in het privéarchief opgeslagen.") }}</p>
         </div>
     </details>
 
     <section class="live-upload" aria-labelledby="live-upload-title">
-        <h2 id="live-upload-title">MP4 privé toevoegen</h2>
+        <h2 id="live-upload-title">{{ __("MP4 privé toevoegen") }}</h2>
         <p>Heb je zelf een opname gemaakt? Upload het MP4-bestand rechtstreeks naar jouw privéarchief. Maximaal 250 MB. Dit start geen nieuwe livestreamopname.</p>
         <form id="live-manual-upload">
             <label>Account
@@ -126,7 +126,7 @@
             <label>MP4-bestand
                 <input id="live-upload-file" type="file" accept=".mp4,video/mp4" required>
             </label>
-            <button id="live-upload-button" type="submit" class="live-btn">Privé opslaan</button>
+            <button id="live-upload-button" type="submit" class="live-btn">{{ __("Privé opslaan") }}</button>
         </form>
         <progress id="live-upload-progress" value="0" max="100" hidden aria-label="Uploadvoortgang"></progress>
         <p id="live-upload-message" class="live-upload-message" role="status" aria-live="polite"></p>
@@ -149,21 +149,21 @@
                     {{ date('d-m-Y H:i', $recording['created_at']) }} ·
                     {{ number_format($recording['bytes'] / (1024 * 1024), 1, ',', '.') }} MB
                 </div>
-                <p class="live-video-error" data-video-error role="status">De videospeler kon dit bestand niet laden. Probeer ‘Open video’ of ‘Download MP4’.</p>
+                <p class="live-video-error" data-video-error role="status">{{ __("De videospeler kon dit bestand niet laden. Probeer ‘Open video’ of ‘Download MP4’.") }}</p>
                 <div class="live-actions">
                     <a class="live-btn" href="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" target="_blank" rel="noopener">Open video</a>
                     <a class="live-btn" href="{{ route('live.download', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" download="{{ $recording['filename'] }}">Download MP4</a>
                     <form action="{{ route('live.destroy', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" method="POST" onsubmit="return confirm('Deze privéopname definitief verwijderen?');">
                         @csrf
                         @method('DELETE')
-                        <button class="live-btn danger" type="submit">Verwijderen</button>
+                        <button class="live-btn danger" type="submit">{{ __("Verwijderen") }}</button>
                     </form>
                 </div>
             </div>
         </article>
         @if($loop->last)</div>@endif
     @empty
-        <div class="live-empty">Nog geen voltooide MP4-opnames. Controleer de recorderstatus en of de livestream toegankelijk is.</div>
+        <div class="live-empty">{{ __("Nog geen voltooide MP4-opnames. Controleer de recorderstatus en of de livestream toegankelijk is.") }}</div>
     @endforelse
 </div>
 <script>

@@ -4941,7 +4941,7 @@ body {
 
 
                     <div id="admin-live-chat-react-tools" aria-label="Antwoordwerkbalk">
-    <p class="lca-reply-hint-fallback">Kies Beantwoorden bij een bericht om daarop te reageren, of typ direct je antwoord.</p>
+    <p class="lca-reply-hint-fallback">{{ __("Kies Beantwoorden bij een bericht om daarop te reageren, of typ direct je antwoord.") }}</p>
 </div>
 
                     <form

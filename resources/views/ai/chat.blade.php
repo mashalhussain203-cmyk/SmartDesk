@@ -5460,13 +5460,13 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="ai-welcome-brand">'
             + '<div class="ai-welcome-mark" aria-hidden="true">M</div>'
             + '</div>'
-            + '<h1>Waarmee kan ik je helpen?</h1>'
-            + '<p>Stel een vraag, maak iets nieuws of voeg een bestand toe.</p>'
+            + '<h1>{{ __("Waarmee kan ik je helpen?") }}</h1>'
+            + '<p>{{ __("Stel een vraag, maak iets nieuws of voeg een bestand toe.") }}</p>'
             + '<div class="ai-suggestions">'
-            + '<button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit."><strong>Document begrijpen</strong><span>Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.</span></button>'
-            + '<button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is."><strong>Afbeelding analyseren</strong><span>Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.</span></button>'
-            + '<button type="button" class="ai-suggestion" data-prompt="Help me stap voor stap met mijn vraag."><strong>Stap voor stap helpen</strong><span>Vraag uitleg, code, planning of praktisch advies.</span></button>'
-            + '<button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen."><strong>Samenvatten</strong><span>Maak lange tekst of documenten snel begrijpelijk.</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Leg dit document duidelijk voor mij uit."><strong>{{ __("Document begrijpen") }}</strong><span>{{ __("Upload PDF, Word, Excel of PowerPoint en vraag wat het betekent.") }}</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Analyseer deze afbeelding en beschrijf alles wat belangrijk is."><strong>{{ __("Afbeelding analyseren") }}</strong><span>{{ __("Stuur JPG, PNG of WEBP en laat tekst en details uitlezen.") }}</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Help me stap voor stap met mijn vraag."><strong>{{ __("Stap voor stap helpen") }}</strong><span>{{ __("Vraag uitleg, code, planning of praktisch advies.") }}</span></button>'
+            + '<button type="button" class="ai-suggestion" data-prompt="Vat dit kort en duidelijk samen."><strong>{{ __("Samenvatten") }}</strong><span>{{ __("Maak lange tekst of documenten snel begrijpelijk.") }}</span></button>'
             + '</div>';
 
         return wrapper;

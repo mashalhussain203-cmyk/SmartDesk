@@ -740,7 +740,7 @@
                                         >
                                             @csrf
                                             @method('DELETE')
-                                            <button class="md-btn danger" type="submit" >Verwijderen</button>
+                                            <button class="md-btn danger" type="submit" >{{ __("Verwijderen") }}</button>
                                         </form>
                                     @else
                                         <span class="md-self-lock">{{ __('Eigen account') }}</span>
@@ -779,31 +779,31 @@
     <section class="md-panel">
         <div class="md-section-head">
             <div>
-                <span class="md-section-kicker">Administrator profile</span>
-                <h2>Jouw beheerderssessie</h2>
-                <p>Controleer met welk account je bent ingelogd voordat je gevoelige gebruikerswijzigingen uitvoert.</p>
+                <span class="md-section-kicker">{{ __("Administrator profile") }}</span>
+                <h2>{{ __("Jouw beheerderssessie") }}</h2>
+                <p>{{ __("Controleer met welk account je bent ingelogd voordat je gevoelige gebruikerswijzigingen uitvoert.") }}</p>
             </div>
         </div>
         <div class="md-admin-grid">
             <article class="md-info-card">
-                <small>Ingelogd als</small>
+                <small>{{ __("Ingelogd als") }}</small>
                 <strong>{{ auth()->user()->name }}</strong>
-                <p>Actieve beheerder van deze sessie.</p>
+                <p>{{ __("Actieve beheerder van deze sessie.") }}</p>
             </article>
             <article class="md-info-card">
                 <small>{{ __('E-mailadres') }}</small>
                 <strong>{{ auth()->user()->email }}</strong>
-                <p>Gekoppeld aan je administratoraccount.</p>
+                <p>{{ __("Gekoppeld aan je administratoraccount.") }}</p>
             </article>
             <article class="md-info-card">
-                <small>Rechten</small>
-                <strong>Volledige administratorrechten</strong>
-                <p>Je kunt gebruikers bekijken, wijzigen, aanmaken en verwijderen.</p>
+                <small>{{ __("Rechten") }}</small>
+                <strong>{{ __("Volledige administratorrechten") }}</strong>
+                <p>{{ __("Je kunt gebruikers bekijken, wijzigen, aanmaken en verwijderen.") }}</p>
             </article>
             <article class="md-info-card">
-                <small>Ingelogd via</small>
+                <small>{{ __("Ingelogd via") }}</small>
                 <strong>{{ auth()->user()->loginProvider() === 'password' ? 'Wachtwoord' : auth()->user()->loginProviderLabel() }}</strong>
-                <p>Laatst gebruikte authenticatiemethode voor deze beheerder.</p>
+                <p>{{ __("Laatst gebruikte authenticatiemethode voor deze beheerder.") }}</p>
             </article>
         </div>
     </section>
