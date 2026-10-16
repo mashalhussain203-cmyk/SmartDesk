@@ -39,7 +39,7 @@ def main():
         "no_warnings": True,
         "skip_download": True,
         "noplaylist": False,
-        "playlistend": 15,
+        "playlistend": 35,
         "cachedir": False,
         "socket_timeout": 5,
         "retries": 0,

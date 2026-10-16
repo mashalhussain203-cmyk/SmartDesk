@@ -250,7 +250,7 @@ class TikTokAnalyticsService
             $timezone = 'UTC';
         }
 
-        $posts = Cache::remember('mashal:posting-times:v5:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
+        $posts = Cache::remember('mashal:posting-times:v6:'.strtolower($username), now()->addMinutes(10), function () use ($username) {
             $state = $this->publicPage('https://www.tiktok.com/@'.rawurlencode($username).'?lang=en') ?? [];
             $scope = $state['__DEFAULT_SCOPE__'] ?? [];
             $sources = [
@@ -346,6 +346,16 @@ class TikTokAnalyticsService
             }
 
             if ($posts === []) {
+                // Public sources may reject datacenter IPs. Record diagnostics
+                // without exposing tokens, cookies or private account data.
+                logger()->warning('TikTok best upload times: public profile sources returned no posts', [
+                    'username' => $username,
+                    'python_available' => is_file('/opt/tiktok-venv/bin/python')
+                        || is_file(base_path('.venv/bin/python'))
+                        || is_executable('/usr/bin/python3')
+                        || is_executable('/usr/local/bin/python3'),
+                    'chromium_available' => is_executable('/usr/bin/chromium'),
+                ]);
                 throw new RuntimeException(
                     'Er zijn geen verifieerbare openbare videostatistieken ontvangen voor @'.$username.'. '.
                     'Het profiel, de videofeed en aanvullende bronnen geven geen bruikbare weergavecijfers terug. '.

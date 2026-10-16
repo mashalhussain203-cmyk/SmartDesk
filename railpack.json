@@ -1,9 +1,25 @@
 {
   "$schema": "https://schema.railpack.com",
+  "packages": {
+    "python": "3.12"
+  },
+  "steps": {
+    "build": {
+      "commands": [
+        "...",
+        "python3 -m pip install --disable-pip-version-check --no-cache-dir --target /app/.tiktok-python -r requirements-tiktok.txt"
+      ]
+    }
+  },
   "deploy": {
     "aptPackages": [
       "...",
-      "ffmpeg"
-    ]
+      "ffmpeg",
+      "chromium"
+    ],
+    "variables": {
+      "PYTHONPATH": "/app/.tiktok-python",
+      "CHROMIUM_PATH": "/usr/bin/chromium"
+    }
   }
 }
