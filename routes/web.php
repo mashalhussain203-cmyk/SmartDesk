@@ -1158,7 +1158,7 @@ Route::get('/tools/video-optimizer', [VideoOptimizerController::class, 'index'])
     ->name('video-optimizer.index');
 
 Route::post('/tools/video-optimizer', [VideoOptimizerController::class, 'optimize'])
-    ->middleware('throttle:3,60')
+    ->middleware('throttle:video-optimizer-upload-v2')
     ->name('video-optimizer.optimize');
 
 Route::post('/tools/video-optimizer/zernio/accounts', [VideoPublishController::class, 'accounts'])

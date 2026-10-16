@@ -23,6 +23,16 @@ class VideoOptimizerTest extends TestCase
             ->assertJsonValidationErrors(['video']);
     }
 
+    public function test_multiple_validation_attempts_do_not_trigger_the_old_three_per_hour_limit(): void
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->postJson('/tools/video-optimizer', [
+                'mode' => 'original',
+                'video' => UploadedFile::fake()->create('invalid.txt', 1, 'text/plain'),
+            ])->assertUnprocessable()->assertJsonValidationErrors(['video']);
+        }
+    }
+
     public function test_download_cannot_be_accessed_without_session(): void
     {
         $this->get('/tools/video-optimizer/download/'.str_repeat('a', 40))

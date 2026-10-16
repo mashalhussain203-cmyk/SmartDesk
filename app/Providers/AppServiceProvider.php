@@ -112,6 +112,29 @@ class AppServiceProvider extends ServiceProvider
          * De limiet per IP is ruim genoeg voor gedeelde netwerken. De
          * sessie- en e-maillimieten beperken herhaalde verzendingen.
          */
+        /*
+         * Video uploads were previously throttled at 3 requests per hour,
+         * which also counted unsuccessful uploads. Give each visitor a new,
+         * session-scoped limiter so existing hour-long lockouts stop immediately.
+         * An IP cap still prevents abuse through repeated fresh sessions.
+         */
+        RateLimiter::for('video-optimizer-upload-v2', static function (Request $request): array {
+            $visitor = $request->user()
+                ? 'user:'.$request->user()->getAuthIdentifier()
+                : 'session:'.$request->session()->getId();
+
+            $response = static fn (Request $request, array $headers) => response()->json([
+                'message' => __('Te veel video-uploads achter elkaar. Wacht even en probeer het opnieuw.'),
+                'retry_after' => (int) ($headers['Retry-After'] ?? 60),
+            ], 429, $headers);
+
+            return [
+                Limit::perMinute(12)->by('video-upload-v2-minute:'.$visitor)->response($response),
+                Limit::perHour(48)->by('video-upload-v2-hour:'.$visitor)->response($response),
+                Limit::perHour(180)->by('video-upload-v2-ip:'.$request->ip())->response($response),
+            ];
+        });
+
         RateLimiter::for('contact-form', static function (Request $request): array {
             $email = mb_strtolower(trim((string) $request->input('email', '')));
 
