@@ -16,12 +16,13 @@ class VideoOptimizerTest extends TestCase
             ->assertSee('TikTok Video Optimizer');
     }
 
-    public function test_default_video_mode_is_real_4k120_conversion(): void
+    public function test_default_video_mode_is_original_and_4k120_is_opt_in(): void
     {
         $this->get('/tools/video-optimizer')
             ->assertOk()
-            ->assertSee('name="mode" value="4k120"', false)
-            ->assertSee('data-vo-mode="4k120" aria-pressed="true"', false);
+            ->assertSee('name="mode" value="original"', false)
+            ->assertSee('data-vo-mode="4k120" aria-pressed="false"', false)
+            ->assertSee('data-vo-mode="original" aria-pressed="true"', false);
     }
 
     public function test_invalid_video_is_rejected_before_processing(): void
