@@ -11,7 +11,7 @@ class SetSiteLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->session()->get('site_locale', config('app.locale', 'nl'));
+        $locale = $request->session()->get('site_locale') ?: $request->cookie('site_locale') ?: config('app.locale', 'nl');
 
         // Never use arbitrary session values as locale identifiers.
         if (! in_array($locale, ['nl', 'ur'], true)) {

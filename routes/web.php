@@ -66,6 +66,7 @@ Route::post('/language', function (\Illuminate\Http\Request $request) {
     ]);
 
     $request->session()->put('site_locale', $validated['locale']);
+    cookie()->queue(cookie('site_locale', $validated['locale'], 60 * 24 * 365, '/', null, $request->isSecure(), false, false, 'lax'));
 
     $previousUrl = url()->previous(route('home'));
 

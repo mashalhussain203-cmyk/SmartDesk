@@ -6652,6 +6652,31 @@
 
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008-3">
+    <style id="mashal-urdu-rtl-fixes">
+      html[lang="ur"] { direction: rtl; }
+      html[lang="ur"] body { font-family: "Noto Naskh Arabic", "Noto Nastaliq Urdu", Tahoma, Arial, sans-serif; line-height: 1.7; }
+      html[lang="ur"] .expert-mobile-drawer, html[lang="ur"] .studio-mobile-drawer,
+      html[lang="ur"] .expert-mobile-nav, html[lang="ur"] .ms-analysis,
+      html[lang="ur"] .ms-panel { direction: rtl; text-align: right; }
+      html[lang="ur"] .expert-mobile-link, html[lang="ur"] .expert-mobile-language,
+      html[lang="ur"] .expert-mobile-user-copy, html[lang="ur"] .ms-form,
+      html[lang="ur"] .ms-times-top { min-width: 0; }
+      html[lang="ur"] .expert-mobile-link strong, html[lang="ur"] .expert-mobile-link small,
+      html[lang="ur"] .expert-mobile-user-copy, html[lang="ur"] .ms-panel-desc,
+      html[lang="ur"] .ms-hint { overflow-wrap: anywhere; }
+      html[lang="ur"] .expert-mobile-link > span:last-child { margin-inline-start: auto; }
+      html[lang="ur"] .expert-language-switcher { direction: ltr; }
+      html[lang="ur"] input[type="email"], html[lang="ur"] input[type="url"],
+      html[lang="ur"] input[type="tel"], html[lang="ur"] input[name="url"],
+      html[lang="ur"] [name="username"] { direction: ltr; text-align: left; }
+      html[lang="ur"] .ms-progress { direction: ltr; }
+      @media (max-width: 600px) {
+        html[lang="ur"] .expert-mobile-language { flex-wrap: wrap; }
+        html[lang="ur"] .expert-mobile-language .expert-language-switcher { max-width: 100%; width: 100%; }
+        html[lang="ur"] .ms-spec-grid > *, html[lang="ur"] .ms-metrics > * { min-width: 0; }
+      }
+    </style>
+
 </head>
 
 <body>
@@ -6753,7 +6778,7 @@
                                 ◉
                             </span>
 
-                            <span>Live Counts</span>
+                            <span>{{ __("Live Counts") }}</span>
                         </a>
                     @endif
 
@@ -6767,7 +6792,7 @@
                                     ▦
                                 </span>
 
-                                <span>Library</span>
+                                <span>{{ __("Library") }}</span>
 
                                 @if ($layoutImageCount !== null)
                                     <span class="expert-nav-badge">
@@ -7079,8 +7104,8 @@
                         >
                             <span class="expert-command-item-icon">◉</span>
                             <span>
-                                <strong>Live Counts</strong>
-                                <small>Kies followers of video views</small>
+                                <strong>{{ __("Live Counts") }}</strong>
+                                <small>{{ __("Kies followers of video views") }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7095,7 +7120,7 @@
                             <span class="expert-command-item-icon">◎</span>
                             <span>
                                 <strong>TikTok Live Followers</strong>
-                                <small>Volg followers, likes en profielstats</small>
+                                <small>{{ __("Volg followers, likes en profielstats") }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7110,7 +7135,7 @@
                             <span class="expert-command-item-icon">◉</span>
                             <span>
                                 <strong>TikTok Video Views</strong>
-                                <small>Volg views, likes, comments en shares</small>
+                                <small>{{ __("Volg views, likes, comments en shares") }}</small>
                             </span>
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
@@ -7124,7 +7149,7 @@
                         <span class="expert-command-item-icon">＋</span>
                         <span>
                             <strong>{{ __('Nieuwe afbeelding') }}</strong>
-                            <small>Upload JPG, PNG of WEBP</small>
+                            <small>{{ __("Upload JPG, PNG of WEBP") }}</small>
                         </span>
                         <span class="expert-command-item-arrow">↗</span>
                     </a>
@@ -7217,7 +7242,7 @@
         class="studio-mobile-drawer expert-mobile-drawer"
         id="studioMobileDrawer"
         aria-hidden="true"
-        aria-label="Mobiele navigatie"
+        aria-label="{{ __('Mobiele navigatie') }}"
     >
         <div class="expert-mobile-head">
             <a
@@ -7231,7 +7256,7 @@
 
                 <span>
                     <strong>Mashal Studio</strong>
-                    <small>Image workspace</small>
+                    <small>{{ __("Image workspace") }}</small>
                 </span>
             </a>
 
@@ -7239,7 +7264,7 @@
                 class="expert-mobile-close"
                 id="studioMobileClose"
                 type="button"
-                aria-label="Menu sluiten"
+                aria-label="{{ __('Menu sluiten') }}"
             >
                 ×
             </button>
@@ -7261,7 +7286,7 @@
 
             <span>
                 <strong>{{ __('Nieuwe afbeelding') }}</strong>
-                <small>JPG, PNG of WEBP uploaden</small>
+                <small>{{ __("JPG, PNG of WEBP uploaden") }}</small>
             </span>
 
             <span>↗</span>
@@ -7314,7 +7339,7 @@
                 >
                     <span class="expert-mobile-link-icon">◉</span>
                     <span>
-                        <strong>Live Counts</strong>
+                        <strong>{{ __("Live Counts") }}</strong>
                         <small>{{ __('Kies je live counter') }}</small>
                     </span>
                     <span>→</span>
