@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\VideoRenderGuard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -191,34 +192,35 @@ class VideoOptimizerController extends Controller
             ], 422);
         }
 
-        foreach ((array) $request->session()->get('video_optimizer', []) as $previous) {
-            if (! is_array($previous) || (int) ($previous['expires_at'] ?? 0) <= time()) {
-                continue;
-            }
+        // Serialize job reservations so concurrent POSTs cannot both start
+        // a 4K encode. This lock is released immediately after launch.
+        $reservation = @fopen($directory.'/4k120-submit.lock', 'c');
+        if (! is_resource($reservation)) {
+            return response()->json([
+                'message' => __('The renderer is unavailable. Please try again shortly.'),
+            ], 503);
+        }
 
-            $previousFile = $previous['status_file'] ?? null;
-            if (is_string($previousFile) && is_file($previousFile)) {
-                $state = json_decode((string) file_get_contents($previousFile), true);
-                if (in_array($state['status'] ?? null, ['queued', 'processing'], true)
-                    && (int) ($state['created_at'] ?? 0) > time() - 11400) {
+        if (! flock($reservation, LOCK_EX | LOCK_NB)) {
+            fclose($reservation);
+            return response()->json([
+                'message' => __('Another video is being submitted. Please try again in a moment.'),
+            ], 429);
+        }
+
+        try {
+            foreach (glob($directory.'/*.status.json') ?: [] as $jobFile) {
+                if (! preg_match('/^([a-f0-9]{40})\.status\.json$/', basename($jobFile), $match)) {
+                    continue;
+                }
+
+                $job = VideoRenderGuard::inspect($directory, $match[1]);
+                if (in_array($job['status'] ?? null, ['queued', 'processing'], true)) {
                     return response()->json([
-                        'message' => __('You already have a 4K 120 FPS render running.'),
+                        'message' => __('A 4K render is actively running. Please wait for it to finish.'),
                     ], 429);
                 }
             }
-        }
-
-        // Avoid competing 4K jobs on this memory-constrained Railway instance.
-        foreach (glob($directory.'/*.status.json') ?: [] as $jobFile) {
-            $job = json_decode((string) @file_get_contents($jobFile), true);
-            if (is_array($job)
-                && in_array($job['status'] ?? null, ['queued', 'processing'], true)
-                && (int) ($job['created_at'] ?? 0) > time() - 11400) {
-                return response()->json([
-                    'message' => __('The 4K renderer is busy. Wait for the current export to finish.'),
-                ], 429);
-            }
-        }
 
         $extension = strtolower((string) $uploaded->getClientOriginalExtension());
         if (! in_array($extension, ['mp4', 'mov'], true)) {
@@ -283,6 +285,15 @@ class VideoOptimizerController extends Controller
                     ? __('Not enough free storage for a 4K render. Clear old exports or expand the Railway volume.')
                     : __('Unable to start the 4K render on this server.'),
             ], 503);
+        } finally {
+            flock($reservation, LOCK_UN);
+            fclose($reservation);
+        }
+        } catch (Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('Could not inspect the 4K render queue. Please try again.'),
+            ], 503);
         }
     }
 
@@ -303,7 +314,7 @@ class VideoOptimizerController extends Controller
                 continue;
             }
 
-            $state = json_decode((string) file_get_contents($expected), true);
+            $state = VideoRenderGuard::inspect(storage_path('app/private/video-optimizer'), $token);
             $created = (int) ($state['created_at'] ?? 0);
             if (! is_array($state) || $created < $newest
                 || ! in_array($state['status'] ?? '', ['queued', 'processing', 'ready', 'failed'], true)) {
@@ -335,17 +346,13 @@ class VideoOptimizerController extends Controller
             abort(404);
         }
 
-        $state = json_decode((string) file_get_contents($statusFile), true);
+        $state = VideoRenderGuard::inspect($directory, $token);
         if (! is_array($state)) {
             return response()->json(['message' => __('Video status temporarily unavailable.')], 503);
         }
 
         $status = (string) ($state['status'] ?? 'failed');
-        if (in_array($status, ['queued', 'processing'], true)
-            && (int) ($state['created_at'] ?? 0) < time() - 11400) {
-            $status = 'failed';
-            $state['message'] = __('4K processing timed out. Try a shorter clip.');
-        }
+
 
         $result = [
             'status' => $status,

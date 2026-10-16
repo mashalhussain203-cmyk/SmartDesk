@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Support\VideoRenderGuard;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class VideoOptimizerTest extends TestCase
@@ -52,6 +54,49 @@ class VideoOptimizerTest extends TestCase
             'mode' => '4k120',
             'video' => UploadedFile::fake()->create('invalid.txt', 2, 'text/plain'),
         ])->assertUnprocessable()->assertJsonValidationErrors(['video']);
+    }
+
+
+    public function test_stale_video_processing_is_recovered_without_blocking_other_uploads(): void
+    {
+        $directory = sys_get_temp_dir().'/video-render-guard-'.bin2hex(random_bytes(6));
+        File::ensureDirectoryExists($directory);
+        $token = str_repeat('e', 40);
+        $statusFile = $directory.'/'.$token.'.status.json';
+
+        try {
+            file_put_contents($statusFile, json_encode([
+                'status' => 'processing',
+                'created_at' => time() - 500,
+                'progress' => 25,
+                'source' => $token.'.source.mp4',
+            ]));
+
+            $state = VideoRenderGuard::inspect($directory, $token);
+            $this->assertSame('failed', $state['status']);
+            $this->assertStringContainsString('new export', $state['message']);
+            $this->assertSame('failed', json_decode((string) file_get_contents($statusFile), true)['status']);
+        } finally {
+            File::deleteDirectory($directory);
+        }
+    }
+
+    public function test_recently_queued_video_is_not_interrupted(): void
+    {
+        $directory = sys_get_temp_dir().'/video-render-guard-'.bin2hex(random_bytes(6));
+        File::ensureDirectoryExists($directory);
+        $token = str_repeat('d', 40);
+
+        try {
+            file_put_contents($directory.'/'.$token.'.status.json', json_encode([
+                'status' => 'queued', 'created_at' => time(), 'progress' => 0,
+            ]));
+
+            $state = VideoRenderGuard::inspect($directory, $token);
+            $this->assertSame('queued', $state['status']);
+        } finally {
+            File::deleteDirectory($directory);
+        }
     }
 
     public function test_active_render_without_session_returns_inactive(): void

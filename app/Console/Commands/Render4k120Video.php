@@ -57,6 +57,7 @@ class Render4k120Video extends Command
 
             $this->saveStatus($statusFile, array_merge($state, [
                 'status' => 'processing', 'progress' => 1,
+                'heartbeat_at' => time(),
             ]));
 
             $probe = new Process([
@@ -189,7 +190,8 @@ class Render4k120Video extends Command
             ]);
             $ffmpeg->setTimeout(10800);
             $previousProgress = 1;
-            $ffmpeg->run(function (string $type, string $buffer) use ($statusFile, $renderState, $duration, &$previousProgress): void {
+            $lastHeartbeat = time();
+            $ffmpeg->run(function (string $type, string $buffer) use ($statusFile, $renderState, $duration, &$previousProgress, &$lastHeartbeat): void {
                 if ($type !== Process::OUT || $duration <= 0) {
                     return;
                 }
@@ -197,10 +199,12 @@ class Render4k120Video extends Command
                 if (preg_match_all('/out_time_us=(\d+)/', $buffer, $matches)) {
                     $microseconds = (int) end($matches[1]);
                     $progress = min(98, max(1, (int) (($microseconds / 1000000) / $duration * 98)));
-                    if ($progress >= $previousProgress + 3) {
+                    if ($progress >= $previousProgress + 3 || time() - $lastHeartbeat >= 15) {
                         $previousProgress = $progress;
+                        $lastHeartbeat = time();
                         $this->saveStatus($statusFile, array_merge($renderState, [
                             'status' => 'processing', 'progress' => $progress,
+                            'heartbeat_at' => $lastHeartbeat,
                         ]));
                     }
                 }
@@ -279,6 +283,7 @@ class Render4k120Video extends Command
      */
     private function saveStatus(string $path, array $status): void
     {
+        $status['heartbeat_at'] = time();
         $temporary = $path.'.'.bin2hex(random_bytes(4)).'.tmp';
         File::put($temporary, json_encode($status, JSON_THROW_ON_ERROR));
         if (! rename($temporary, $path)) {
