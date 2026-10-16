@@ -235,6 +235,42 @@ class VideoOptimizerController extends Controller
         }
     }
 
+    public function active(Request $request): JsonResponse
+    {
+        $entries = (array) $request->session()->get('video_optimizer', []);
+        $candidate = null;
+        $newest = 0;
+
+        foreach ($entries as $token => $entry) {
+            if (! is_string($token) || ! preg_match('/^[a-f0-9]{40}$/', $token)
+                || ! is_array($entry) || (int) ($entry['expires_at'] ?? 0) < time()) {
+                continue;
+            }
+
+            $expected = storage_path('app/private/video-optimizer/'.$token.'.status.json');
+            if (($entry['status_file'] ?? null) !== $expected || ! is_file($expected)) {
+                continue;
+            }
+
+            $state = json_decode((string) file_get_contents($expected), true);
+            $created = (int) ($state['created_at'] ?? 0);
+            if (! is_array($state) || $created < $newest
+                || ! in_array($state['status'] ?? '', ['queued', 'processing', 'ready'], true)) {
+                continue;
+            }
+
+            $candidate = $token;
+            $newest = $created;
+        }
+
+        return response()->json($candidate === null
+            ? ['active' => false]
+            : [
+                'active' => true,
+                'status_url' => route('video-optimizer.status', ['token' => $candidate]),
+            ])->header('Cache-Control', 'private, no-store');
+    }
+
     public function status(Request $request, string $token): JsonResponse
     {
         $entry = $request->session()->get('video_optimizer.'.$token);

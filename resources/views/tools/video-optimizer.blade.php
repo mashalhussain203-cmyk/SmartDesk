@@ -488,6 +488,23 @@
         });
     });
 
+    fetch(@json(route('video-optimizer.active')), {
+        credentials: 'same-origin', cache: 'no-store',
+        headers: {'Accept': 'application/json'}
+    }).then(function (response) {
+        if (!response.ok) { return null; }
+        return response.json();
+    }).then(function (state) {
+        if (!state || !state.active || !state.status_url || busy) { return; }
+        busy = true;
+        submit.disabled = true;
+        setProgress(90);
+        setStatus(labels.rendering, false);
+        pollRender(state.status_url);
+    }).catch(function () {
+        // Recovery is optional; normal new uploads remain available.
+    });
+
     document.getElementById('vo-again').addEventListener('click', function () {
         if (renderTimer) { clearInterval(renderTimer); renderTimer = null; }
         result.classList.remove('is-visible');

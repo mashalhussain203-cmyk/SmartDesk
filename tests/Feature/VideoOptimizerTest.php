@@ -41,6 +41,13 @@ class VideoOptimizerTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors(['video']);
     }
 
+    public function test_active_render_without_session_returns_inactive(): void
+    {
+        $this->getJson('/tools/video-optimizer/active')
+            ->assertOk()
+            ->assertJsonPath('active', false);
+    }
+
     public function test_render_status_is_private_to_the_upload_session(): void
     {
         $this->get('/tools/video-optimizer/status/'.str_repeat('a', 40))

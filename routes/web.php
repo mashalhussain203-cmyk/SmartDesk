@@ -1169,6 +1169,10 @@ Route::post('/tools/video-optimizer/zernio/publish', [VideoPublishController::cl
     ->middleware('throttle:5,60')
     ->name('video-optimizer.zernio.publish');
 
+Route::get('/tools/video-optimizer/active', [VideoOptimizerController::class, 'active'])
+    ->middleware('throttle:30,1')
+    ->name('video-optimizer.active');
+
 Route::get('/tools/video-optimizer/status/{token}', [VideoOptimizerController::class, 'status'])
     ->where('token', '[a-f0-9]{40}')
     ->middleware('throttle:60,1')
