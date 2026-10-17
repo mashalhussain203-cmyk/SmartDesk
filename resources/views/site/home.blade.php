@@ -1908,6 +1908,144 @@ body {
         filter: none !important;
     }
 }
+
+/* Homepage presentation only: existing forms, links and scripts are preserved. */
+#msHome {
+    --ms-text: #162e2b;
+    --ms-muted: #536660;
+    --ms-line: rgba(24,54,46,.13);
+    --ms-line-2: rgba(24,54,46,.22);
+    --ms-accent: #17634e;
+    --ms-accent-2: #358a70;
+    --ms-shadow: 0 24px 70px rgba(22,46,39,.12);
+    color: #162e2b;
+    background: #f7f8f2;
+    color-scheme: light;
+}
+#msHome::before, #msHome::after, #msHome .ms-hero-orbit,
+#msHome .ms-studio-glow { display: none; }
+#msHome .ms-shell { width: min(calc(100% - 80px), 1240px); }
+#msHome .ms-hero { min-height: auto; padding: 88px 0 80px; }
+#msHome .ms-hero-grid { grid-template-columns: minmax(0,1fr) minmax(0,.92fr); gap: 64px; }
+#msHome .ms-kicker { color: #17634e; font-size: 11px; letter-spacing: .13em; }
+#msHome .ms-kicker::before { background: #17634e; box-shadow: none; border-radius: 50%; }
+#msHome .ms-hero-title { color: #162e2b; font-size: clamp(46px,5vw,72px); line-height: 1.06; letter-spacing: -.055em; font-weight: 650; }
+#msHome .ms-hero-title .muted { color: #738178; }
+#msHome .ms-hero-title .gradient { color: #17634e; background: none; }
+#msHome .ms-hero-lead { color: #536660; font-size: 16px; line-height: 1.8; max-width: 510px; }
+#msHome .ms-button { color: #24483e; background: transparent; border-color: #c2cfc4; border-radius: 100px; font-size: 13px; padding: 0 22px; min-height: 52px; box-shadow: none; }
+#msHome .ms-button--primary, #msHome .ms-upload-choose, #msHome .ms-preview-submit {
+    color: #fff; background: #17634e; border-color: #17634e; box-shadow: none;
+}
+#msHome .ms-button:hover { background: #e7eee2; border-color: #17634e; }
+#msHome .ms-button--primary:hover, #msHome .ms-upload-choose:hover, #msHome .ms-preview-submit:hover { color: #fff; background: #104b3b; }
+#msHome .ms-proof { gap: 12px 18px; }
+#msHome .ms-proof-item { color: #536660; font-size: 11px; }
+#msHome .ms-proof-item::before { background: #17634e; box-shadow: none; }
+#msHome .ms-studio-card { padding: 0; background: #fff; border: 1px solid #d9e1d6; border-radius: 24px; box-shadow: 0 24px 64px rgba(29,65,46,.10); transform: none !important; }
+#msHome .ms-studio-window { border: 0; background: #fff; border-radius: 24px; }
+#msHome .ms-windowbar { min-height: 60px; background: #fff; border-bottom-color: #e6ebe2; padding: 0 22px; }
+#msHome .ms-window-title { color: #274d40; font-size: 11px; }
+#msHome .ms-window-secure { color: #17634e; }
+#msHome .ms-window-body { padding: 20px; }
+#msHome .ms-dropzone { min-height: 350px; padding: 28px 20px; border: 1.5px dashed #a7bca6; border-radius: 16px; background: #f3f6ed; }
+#msHome .ms-dropzone::before, #msHome .ms-dropzone::after { display: none; }
+#msHome .ms-dropzone:hover, #msHome .ms-dropzone.is-dragging { background: #eaf2e4; border-color: #17634e; }
+#msHome .ms-upload-icon { width: 64px; height: 64px; color: #17634e; background: #e2ecd9; border: 0; border-radius: 18px; box-shadow: none; }
+#msHome .ms-upload-icon::after { display: none; }
+#msHome .ms-upload-empty h2 { color: #183b30; font-size: 27px; letter-spacing: -.035em; }
+#msHome .ms-upload-empty p { color: #536660; font-size: 13px; }
+#msHome .ms-upload-choose { border-radius: 100px; font-size: 13px; padding: 0 24px; }
+#msHome .ms-format { color: #536660; background: #fff; font-size: 9px; }
+#msHome .ms-upload-foot { color: #536660; font-size: 10px; flex-wrap: wrap; }
+#msHome .ms-preview-file strong { color: #183b30; }
+#msHome .ms-preview-file span { color: #536660; }
+#msHome .ms-preview-change { color: #24483e; background: #eaf2e4; }
+#msHome .ms-alert--success { color: #17634e; background: #eaf2e4; }
+#msHome .ms-alert--error { color: #9c243d; background: #fff0f0; }
+#msHome .ms-signal { background: #eaf0e4; }
+#msHome .ms-signal-item { padding: 20px 12px; gap: 10px; }
+#msHome .ms-signal-icon { color: #17634e; background: #f7f8f2; border: 0; }
+#msHome .ms-signal-item strong { color: #26473b; font-size: 12px; }
+#msHome .ms-signal-item span { color: #536660; font-size: 10px; }
+#msHome .ms-section { padding: 88px 0; }
+#msHome .ms-section--soft { background: #eef2e9; }
+#msHome .ms-heading, #msHome .ms-flow-copy h2, #msHome .ms-faq-side h2 {
+    color: #162e2b; font-size: clamp(34px,4vw,54px); letter-spacing: -.045em; line-height: 1.1;
+}
+#msHome .ms-heading em { color: #6d8171; }
+#msHome .ms-copy, #msHome .ms-flow-copy p, #msHome .ms-faq-side p { color: #536660; font-size: 15px; line-height: 1.8; }
+#msHome .ms-showcase-head { margin-bottom: 36px; }
+#msHome .ms-editor-shell { min-height: 480px; border-radius: 20px; --ms-line: rgba(255,255,255,.1); }
+#msHome .ms-editor-sidebar, #msHome .ms-editor-inspector { background: #172b29; }
+#msHome .ms-editor-label, #msHome .ms-field label { color: #a4bdb4; font-size: 10px; }
+#msHome .ms-editor-tool { color: #b3c6be; font-size: 12px; }
+#msHome .ms-editor-tool.active { color: #e4f3d8; background: #294a3e; }
+#msHome .ms-editor-tool-icon { color: #bbd8a9; }
+#msHome .ms-create-version, #msHome .ms-toggle-dot { background: #287458; }
+#msHome .ms-demo-image::before { background: radial-gradient(ellipse at 65% 30%, #e7eab4 0%, transparent 44%), linear-gradient(140deg, #a2b99b, #335b4b 55%, #102f29); }
+#msHome .ms-bento { gap: 18px; }
+#msHome .ms-bento-card { background: #fff; border-color: #dbe3d6; padding: 30px; border-radius: 18px; min-height: 240px; }
+#msHome .ms-bento-card:hover { background: #fff; border-color: #98b297; transform: translateY(-3px); }
+#msHome .ms-bento-index { color: #17634e; font-size: 10px; }
+#msHome .ms-bento-card h3 { color: #183b30; font-size: 24px; margin-top: 36px; }
+#msHome .ms-bento-card p { color: #536660; font-size: 14px; }
+#msHome .ms-bento-card:first-child { padding-inline-end: 180px; }
+#msHome .ms-version-stack span { background: linear-gradient(135deg,#e4ebc3,#678f70); border-color: #b8cab4; box-shadow: 0 8px 20px rgba(24,54,46,.12); }
+#msHome .ms-flow { gap: 72px; }
+#msHome .ms-flow-number { color: #17634e; background: #eaf0e4; border: 0; border-radius: 50%; font-size: 12px; }
+#msHome .ms-flow-step h3 { color: #183b30; font-size: 20px; }
+#msHome .ms-flow-step p { color: #536660; font-size: 14px; }
+#msHome .ms-workspace { background: #183c31; border: 0; box-shadow: none; border-radius: 24px; padding: 48px; gap: 48px; --ms-line: rgba(255,255,255,.14); }
+#msHome .ms-workspace h2 { font-size: clamp(34px,4vw,52px); line-height: 1.1; letter-spacing: -.04em; }
+#msHome .ms-workspace p, #msHome .ms-final-copy p { color: #b9cec1; font-size: 15px; }
+#msHome .ms-workspace .ms-kicker, #msHome .ms-final .ms-kicker { color: #d5e9b5; }
+#msHome .ms-workspace .ms-kicker::before, #msHome .ms-final .ms-kicker::before { background: #d5e9b5; }
+#msHome .ms-workspace .ms-button, #msHome .ms-final .ms-button { color: #eff5e8; border-color: #6a8b79; }
+#msHome .ms-workspace .ms-button:hover, #msHome .ms-final .ms-button:hover { color: #183c31; }
+#msHome .ms-workspace .ms-button--primary, #msHome .ms-final .ms-button--primary { background: #d5e9b5; color: #183c31; border-color: #d5e9b5; }
+#msHome .ms-library-window { background: #102d25; box-shadow: none; transform: rotate(2deg); }
+#msHome .ms-faq-item { background: #fff; border-radius: 14px; }
+#msHome .ms-faq-question { color: #183b30; font-size: 14px; text-align: start; padding: 18px 22px; }
+#msHome .ms-faq-answer-inner { color: #536660; font-size: 13px; padding: 0 22px 22px; }
+#msHome .ms-faq-icon { background: #edf2e7; }
+#msHome .ms-faq-icon::before, #msHome .ms-faq-icon::after { background: #17634e; }
+#msHome .ms-final { padding-bottom: 80px; }
+#msHome .ms-final-panel { background: #183c31; min-height: 360px; box-shadow: none; border: 0; padding: 52px; }
+#msHome .ms-final-copy h2 { font-size: clamp(38px,4.5vw,60px); line-height: 1.08; letter-spacing: -.045em; }
+#msHome :focus-visible { outline: 3px solid #36826a; outline-offset: 4px; }
+html[dir="rtl"] #msHome .ms-hero-title, html[dir="rtl"] #msHome h2 { letter-spacing: normal; line-height: 1.5; }
+html[dir="rtl"] #msHome .ms-flow-step { padding-left: 0; padding-right: 78px; }
+html[dir="rtl"] #msHome .ms-flow-number { left: auto; right: 0; }
+@media (max-width: 1050px) {
+    #msHome .ms-shell { width: min(calc(100% - 48px), 800px); }
+    #msHome .ms-hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    #msHome .ms-hero { padding: 56px 0; }
+    #msHome .ms-hero-title { max-width: 680px; font-size: clamp(44px,7vw,66px); }
+    #msHome .ms-studio-wrap { width: 100%; }
+    #msHome .ms-signal-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    #msHome .ms-flow { grid-template-columns: 1fr; gap: 32px; }
+    #msHome .ms-bento-card:first-child { padding-inline-end: 30px; padding-bottom: 150px; }
+}
+@media (max-width: 680px) {
+    #msHome .ms-shell { width: calc(100% - 36px); }
+    #msHome .ms-hero { padding: 40px 0; }
+    #msHome .ms-hero-title { font-size: clamp(37px,10vw,54px); letter-spacing: -.04em; }
+    #msHome .ms-hero-lead { font-size: 14px; }
+    #msHome .ms-hero-actions { margin-top: 24px; }
+    #msHome .ms-window-body { padding: 12px; }
+    #msHome .ms-dropzone { min-height: 320px; padding: 24px 14px; }
+    #msHome .ms-upload-empty h2 { font-size: 25px; }
+    #msHome .ms-signal-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    #msHome .ms-section { padding: 56px 0; }
+    #msHome .ms-heading, #msHome .ms-flow-copy h2, #msHome .ms-faq-side h2 { font-size: 34px; }
+    #msHome .ms-bento-card { padding: 24px; }
+    #msHome .ms-workspace { padding: 28px 22px; gap: 32px; }
+    #msHome .ms-final-panel { padding: 36px 24px; }
+    #msHome .ms-final { padding-bottom: 48px; }
+    #msHome .ms-editor-canvas { min-height: 320px; }
+}
+
 </style>
 @endpush
 
