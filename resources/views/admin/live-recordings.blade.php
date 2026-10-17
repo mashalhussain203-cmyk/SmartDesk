@@ -72,7 +72,7 @@
 
     <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
         <h2>{{ __("Automatisch de volledige livestream opnemen") }}</h2>
-        <p>De server controleert <strong>knock1knock, emyii, cutefacebigass, ricasashaa, julesxdann en leo_kitty</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
+        <p>De server controleert <strong>knock1knock, emyii, cutefacebigass, ricasashaa, en julesxdann</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
         <div class="live-automatic-facts">
             <span>{{ __("Automatische achtergrondcontrole: 60 sec.") }}</span>
             <span>{{ __("Opnameduur: geen limiet van 30 sec.") }}</span>
@@ -86,7 +86,7 @@
     @endif
 
     <div class="live-status-grid">
-        @foreach($accounts as $account)
+        @foreach(array_diff($accounts, ['leo_kitty']) as $account)
             <div class="live-status-box" data-live-account="{{ $account }}">
                 <span class="live-pill {{ $statuses[$account]['status'] ?? 'unknown' }}" data-live-state>
                     {{ strtoupper($statuses[$account]['status'] ?? 'unknown') }}
@@ -118,7 +118,7 @@
         <form id="live-manual-upload">
             <label>Account
                 <select id="live-upload-account" required>
-                    @foreach($accounts as $account)
+                    @foreach(array_diff($accounts, ['leo_kitty']) as $account)
                         <option value="{{ $account }}" @selected($account === 'knock1knock')>{{ '@' . $account }}</option>
                     @endforeach
                 </select>
