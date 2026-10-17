@@ -30,11 +30,17 @@ export function hlsFfmpegArgs(urls) {
   }
   return [
     '-hide_banner', '-loglevel', 'warning', '-nostdin',
+    // Keep both inputs on the source clock; opening each live playlist can
+    // select a different first segment. Resetting each input loses that offset.
+    '-copyts',
     '-rw_timeout', '15000000', '-i', urls[0],
     '-rw_timeout', '15000000', '-i', urls[1],
     '-map', '0:v:0', '-map', '1:a:0',
     '-c:v', 'copy', '-c:a', 'copy',
-    '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
+    '-bsf:a', 'aac_adtstoasc',
+    // Shift the combined output once, and retain track offsets in the MP4.
+    '-avoid_negative_ts', 'make_zero',
+    '-movflags', '+frag_keyframe+empty_moov+delay_moov+default_base_moof',
     '-f', 'mp4', 'pipe:1',
   ];
 }

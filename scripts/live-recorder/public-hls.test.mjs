@@ -18,7 +18,7 @@ test('FFmpeg remuxes video and audio to a streamable MP4', () => {
   assert.deepEqual(args.slice(args.indexOf('-map'), args.indexOf('-c:v')), [
     '-map', '0:v:0', '-map', '1:a:0',
   ]);
-  assert.ok(args.includes('+frag_keyframe+empty_moov+default_base_moof'));
+  assert.ok(args.includes('+frag_keyframe+empty_moov+delay_moov+default_base_moof'));
   assert.equal(args.at(-1), 'pipe:1');
   assert.throws(() => hlsFfmpegArgs([video]), /separate/);
 });
