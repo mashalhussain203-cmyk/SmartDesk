@@ -3,7 +3,7 @@
  * One instance per account. No Chaturbate API or access-control bypass.
  */
 import { chromium } from 'playwright-core';
-import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand, ListMultipartUploadsCommand, ListPartsCommand, CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -64,6 +64,48 @@ const ricasashaaMonitor = account === 'emyii'
       console.error('ricasashaa continuous monitor unexpectedly stopped');
     })
   : null;
+
+// Recover Jules' already-uploaded MP4 parts if the previous container exited
+// before completing its multipart upload. Recording for this room is disabled,
+// so no active uploader can still be writing these parts.
+async function recoverStoppedJulesUpload() {
+  if (account !== 'emyii') return;
+  const prefix = 'recordings/julesxdann/';
+  const pending = await s3.send(new ListMultipartUploadsCommand({
+    Bucket: bucket, Prefix: prefix,
+  }));
+  for (const upload of pending.Uploads || []) {
+    if (!upload.Key?.startsWith(prefix) || !upload.Key.endsWith('.mp4')) continue;
+    if (!upload.UploadId || !upload.Initiated || upload.Initiated.getTime() > Date.parse('2026-10-17T13:18:53Z')) continue;
+    const parts = [];
+    let partMarker;
+    do {
+      const page = await s3.send(new ListPartsCommand({
+        Bucket: bucket, Key: upload.Key, UploadId: upload.UploadId,
+        PartNumberMarker: partMarker,
+      }));
+      for (const part of page.Parts || []) {
+        if (part.ETag && part.PartNumber) parts.push({
+          ETag: part.ETag, PartNumber: part.PartNumber,
+        });
+      }
+      partMarker = page.IsTruncated ? page.NextPartNumberMarker : undefined;
+    } while (partMarker);
+    if (!parts.length) continue;
+    await s3.send(new CompleteMultipartUploadCommand({
+      Bucket: bucket, Key: upload.Key, UploadId: upload.UploadId,
+      MultipartUpload: { Parts: parts },
+    }));
+    const saved = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: upload.Key }));
+    console.log(new Date().toISOString(), 'julesxdann', 'RECOVERED_UPLOADED_MP4',
+      upload.Key.split('/').at(-1), saved.ContentLength, 'bytes');
+  }
+}
+try {
+  await recoverStoppedJulesUpload();
+} catch {
+  console.error('julesxdann multipart recovery incomplete; uploaded parts retained');
+}
 
 // These two rooms were manually stopped by the owner. Keep their status
 // current while the remaining room monitors continue normally.
