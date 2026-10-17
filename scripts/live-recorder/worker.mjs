@@ -101,6 +101,26 @@ async function recoverStoppedJulesUpload() {
       upload.Key.split('/').at(-1), saved.ContentLength, 'bytes');
   }
 }
+// Remove only the Leo recording the owner explicitly discarded.
+if (account === 'emyii') {
+  const discardedKey = 'recordings/leo_kitty/2026-10-17T12-46-21-801Z_leo_kitty.mp4';
+  try {
+    await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: discardedKey }));
+    let exists = true;
+    try {
+      await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: discardedKey }));
+    } catch (error) {
+      if (error?.$metadata?.httpStatusCode !== 404 && error?.name !== 'NotFound') throw error;
+      exists = false;
+    }
+    if (!exists) console.log('leo_kitty DISCARDED_RECORDING_REMOVED',
+      discardedKey.split('/').at(-1));
+    else console.error('leo_kitty discarded recording still present');
+  } catch {
+    console.error('leo_kitty discarded recording removal not confirmed');
+  }
+}
+
 try {
   await recoverStoppedJulesUpload();
 } catch {
