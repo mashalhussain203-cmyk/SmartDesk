@@ -14,7 +14,7 @@ import { acceptAdultTerms, isAdultTermsScreen } from './age-consent.mjs';
 import { newNetworkSummary, recordHttpResponse, diagnoseAccess } from './access-diagnostics.mjs';
 import { findPublicMedia, hlsFfmpegArgs } from './public-hls.mjs';
 import { mergePlaybackStatus } from './playback-status.mjs';
-import { runHlsMonitor } from './hls-monitor.mjs';
+import { runHlsMonitor, reportHlsStatus } from './hls-monitor.mjs';
 import { runEmyiiOneShot } from './one-shot-emyii.mjs';
 
 const account = process.env.LIVE_ACCOUNT || 'knock1knock';
@@ -65,24 +65,25 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
-// julesxdann: monitor its public, playable livestream separately while sharing
-// the existing emyii worker's private S3 configuration.
+// These two rooms were manually stopped by the owner. Keep their status
+// current while the remaining room monitors continue normally.
+async function reportStoppedAccount(stoppedAccount) {
+  while (!exiting) {
+    try {
+      await reportHlsStatus({
+        s3, bucket, account: stoppedAccount, state: 'offline',
+        message: 'Handmatig gestopt; automatische opname uitgeschakeld',
+      });
+    } catch {
+      console.error(stoppedAccount, 'stopped status update failed');
+    }
+    if (!exiting) await pause(interval);
+  }
+}
 const julesxdannMonitor = account === 'emyii'
-  ? runHlsMonitor({
-      s3, bucket, account: 'julesxdann', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('julesxdann continuous monitor unexpectedly stopped');
-    })
-  : null;
-
-// leo_kitty: monitor the owner's public stream through the same HLS flow.
+  ? reportStoppedAccount('julesxdann') : null;
 const leoKittyMonitor = account === 'emyii'
-  ? runHlsMonitor({
-      s3, bucket, account: 'leo_kitty', signal: extraAbort.signal,
-    }).catch(() => {
-      console.error('leo_kitty continuous monitor unexpectedly stopped');
-    })
-  : null;
+  ? reportStoppedAccount('leo_kitty') : null;
 
 // A one-time 30-second emyii proof, independent of the ongoing recorder.
 // It waits until the public stream becomes playable, then saves to private S3.
