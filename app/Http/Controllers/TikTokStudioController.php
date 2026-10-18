@@ -48,7 +48,7 @@ class TikTokStudioController extends Controller
             'client_key' => $clientKey,
             'response_type' => 'code',
             'scope' => 'video.upload',
-            'redirect_uri' => route('tiktok-studio.callback'),
+            'redirect_uri' => $this->redirectUri(),
             'state' => $state,
         ]));
     }
@@ -83,7 +83,7 @@ class TikTokStudioController extends Controller
                 'client_secret' => config('services.tiktok.client_secret'),
                 'code' => $code,
                 'grant_type' => 'authorization_code',
-                'redirect_uri' => route('tiktok-studio.callback'),
+                'redirect_uri' => $this->redirectUri(),
             ]);
 
             $payload = $response->json();
@@ -117,6 +117,15 @@ class TikTokStudioController extends Controller
             return redirect()->route('tiktok-studio.index')
                 ->withErrors(['tiktok' => 'TikTok is tijdelijk niet bereikbaar. Probeer opnieuw.']);
         }
+    }
+
+    /**
+     * Use the registered TikTok Login Kit redirect URL shared with regular
+     * TikTok sign-in. The auth callback distinguishes Studio OAuth by state.
+     */
+    private function redirectUri(): string
+    {
+        return (string) (config('services.tiktok.redirect') ?: route('tiktok.callback'));
     }
 
     public function disconnect(Request $request): RedirectResponse

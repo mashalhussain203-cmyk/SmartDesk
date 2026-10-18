@@ -28,6 +28,21 @@ class TikTokAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse
     {
+        // The Upload Studio reuses this registered Login Kit callback URL.
+        // Dispatch only when its own unguessable OAuth state is an exact match;
+        // all other callbacks retain the existing TikTok sign-in behavior.
+        $studioOauth = $request->session()->get('tiktok_studio.oauth');
+        $state = $request->query('state');
+
+        if (
+            Auth::check()
+            && is_array($studioOauth)
+            && is_string($state)
+            && hash_equals((string) ($studioOauth['state'] ?? ''), $state)
+        ) {
+            return app(TikTokStudioController::class)->callback($request);
+        }
+
         try {
             $tiktokUser = Socialite::driver('tiktok')->user();
 
