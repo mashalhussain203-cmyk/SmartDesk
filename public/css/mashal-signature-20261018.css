@@ -1,0 +1,374 @@
+
+/* Mashal Studio / Corporate Signature
+   2026-10-18 — visual layer only, leaves existing functionality intact. */
+:root{--signature-blue:#4e7df3;--signature-indigo:#6958ee;--signature-ink:#182643;--signature-ease:cubic-bezier(.22,1,.36,1)}
+/* ── PREMIUM NAVIGATION ── */
+.studio-header-expert{
+ --nav-accent:#9b8fff;--nav-accent-2:#6aaaff;min-height:82px;isolation:isolate;
+ background:linear-gradient(110deg,rgba(11,18,39,.95),rgba(18,18,49,.94) 67%,rgba(15,26,54,.94))!important;
+ border-bottom:1px solid rgba(179,189,245,.20)!important;
+ box-shadow:0 19px 49px rgba(8,16,42,.21),inset 0 1px rgba(255,255,255,.08)!important;
+ backdrop-filter:blur(26px) saturate(150%)!important;
+ -webkit-backdrop-filter:blur(26px) saturate(150%)!important
+}
+.studio-header-expert::before{
+ inset:auto 0 -2px!important;height:2px!important;opacity:.95!important;
+ background:linear-gradient(90deg,transparent,#786eff,#a9a6ff,#5dafff,transparent)!important;
+ background-size:250% 100%!important;
+ animation:signatureLine 9s linear infinite
+}
+.studio-header-expert::after{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(380px circle at var(--signature-pointer-x,55%) -88px,rgba(173,163,255,.19),transparent 80%)
+}
+.studio-header-expert.is-scrolled{
+ background:rgba(9,14,35,.965)!important;
+ box-shadow:0 20px 60px rgba(6,11,31,.30)!important
+}
+.studio-header-expert .expert-nav{
+ min-height:81px;gap:17px;
+ grid-template-columns:minmax(296px,auto) minmax(0,1fr) auto
+}
+.studio-header-expert .expert-brand{gap:11px}
+.studio-header-expert .expert-brand-mark{
+ position:relative;width:46px;height:46px;flex-basis:46px;border-radius:15px;
+ border:1px solid rgba(207,199,255,.48);
+ background:linear-gradient(135deg,#a18cff,#7162f0 53%,#5194f6);
+ box-shadow:0 13px 27px rgba(100,97,235,.27),inset 0 1px rgba(255,255,255,.4);
+ animation:signatureFloat 6s ease-in-out infinite
+}
+.studio-header-expert .expert-brand-mark::before{
+ content:"";position:absolute;inset:-50%;pointer-events:none;
+ background:linear-gradient(120deg,transparent 36%,rgba(255,255,255,.57) 50%,transparent 62%);
+ transform:translateX(-90%) rotate(20deg);animation:signatureShine 6s ease-in-out infinite
+}
+.studio-header-expert .expert-brand-glyph{position:relative;font-size:19px;font-weight:900}
+.studio-header-expert .expert-brand-copy strong{font-size:17px;letter-spacing:-.045em;color:#fff}
+.studio-header-expert .expert-brand-copy small{font-size:9px;letter-spacing:.18em;color:#bdc7eb}
+.studio-header-expert .expert-brand-divider{height:33px;background:rgba(197,201,250,.19)}
+.studio-header-expert .expert-command-trigger{
+ min-width:178px;min-height:44px;border:1px solid rgba(174,187,242,.20);
+ border-radius:13px;background:rgba(255,255,255,.05);
+ box-shadow:inset 0 1px rgba(255,255,255,.06)
+}
+.studio-header-expert .expert-command-trigger:hover,.studio-header-expert .expert-command-trigger[aria-expanded="true"]{
+ border-color:rgba(158,154,252,.57);background:rgba(126,119,246,.14);
+ box-shadow:0 10px 27px rgba(5,8,26,.19)
+}
+.studio-header-expert .expert-command-icon{
+ font-size:14px;color:#d2c6ff;border-color:rgba(178,174,255,.25);background:rgba(126,115,247,.14)
+}
+.studio-header-expert .expert-command-copy strong{font-size:11px;color:#ecf0ff}
+.studio-header-expert .expert-command-copy small{font-size:9px;color:#a4b1ce}
+.studio-header-expert .expert-command-key{font-size:10px;color:#adb8d7}
+.studio-header-expert .expert-nav-center{
+ position:relative;isolation:isolate;gap:4px;padding:5px;
+ border:1px solid rgba(183,192,242,.15);border-radius:16px;
+ background:rgba(255,255,255,.035)
+}
+.studio-header-expert .expert-nav-link{
+ z-index:1;min-height:41px;padding:0 12px;font-size:12px;font-weight:750;
+ border:1px solid transparent;border-radius:11px;color:#b9c5e2;white-space:nowrap;
+ transition:color .23s ease,background .25s ease,transform .3s var(--signature-ease)!important
+}
+.studio-header-expert .expert-nav-link:hover{
+ color:#fff;transform:translateY(-1px);
+ background:rgba(145,139,249,.12);border-color:transparent
+}
+.studio-header-expert .expert-nav-link.active{
+ color:#fff;background:rgba(125,116,240,.12);
+ border-color:rgba(163,165,255,.13)
+}
+.studio-header-expert .expert-nav-link.active::after{display:none}
+.studio-header-expert .expert-nav-link-icon{font-size:14px;color:#aca8ff}
+.studio-header-expert .signature-nav-indicator{
+ position:absolute;z-index:0;left:0;top:0;width:0;height:0;border-radius:11px;
+ background:linear-gradient(115deg,rgba(137,119,255,.26),rgba(75,138,249,.18));
+ box-shadow:0 0 0 1px rgba(178,173,255,.26),0 9px 26px rgba(61,70,205,.20),inset 0 1px rgba(255,255,255,.16);
+ opacity:0;pointer-events:none;transform:translate3d(0,0,0);
+ transition:transform .44s cubic-bezier(.16,1,.3,1),width .44s,height .44s,opacity .22s
+}
+.studio-header-expert .signature-nav-indicator.is-visible{opacity:1}
+.studio-header-expert .expert-new-project,.studio-header-expert .expert-auth-link-primary{
+ border-radius:12px;border-color:rgba(193,198,255,.3);
+ background:linear-gradient(110deg,#7763f0,#5487f1);
+ box-shadow:0 11px 28px rgba(74,75,210,.28),inset 0 1px rgba(255,255,255,.25)
+}
+.studio-header-expert .expert-new-project:hover,.studio-header-expert .expert-auth-link-primary:hover{
+ transform:translateY(-3px);box-shadow:0 17px 37px rgba(74,75,210,.4)
+}
+.studio-header-expert .expert-auth-link{font-size:12px;font-weight:750}
+.studio-header-expert .expert-account-trigger{
+ border-radius:13px;background:rgba(255,255,255,.06);border-color:rgba(195,200,248,.18)
+}
+.studio-header-expert .expert-account-copy strong{font-size:12px}
+.studio-header-expert .expert-account-copy small{font-size:10px}
+.studio-header-expert .expert-menu-toggle{
+ border:1px solid rgba(188,194,255,.24)!important;border-radius:12px!important;
+ background:rgba(132,119,247,.13)!important
+}
+.expert-mobile-drawer{
+ background:linear-gradient(160deg,#111c3c,#10152e 66%,#202046)!important;
+ border-left:1px solid rgba(187,193,255,.19);
+ box-shadow:-23px 0 90px rgba(5,10,31,.38)!important
+}
+.expert-mobile-drawer .expert-mobile-link{border-radius:13px;transition:background .25s,transform .25s}
+.expert-mobile-drawer .expert-mobile-link:hover{
+ background:rgba(144,133,255,.13);transform:translateX(-3px)
+}
+.expert-mobile-drawer .expert-mobile-link.active{background:rgba(131,113,255,.19)}
+/* ── LIGHT CORPORATE HOMEPAGE ── */
+#msHome{
+ --ms-text:#192945;--ms-muted:#67758d;--ms-line:rgba(37,55,96,.13);
+ --ms-line-2:rgba(37,55,96,.20);--ms-accent:#6958ee;--ms-accent-2:#488bf1;
+ --ms-success:#239b79;--ms-shadow:0 30px 72px rgba(32,51,109,.12);
+ background:linear-gradient(180deg,#f8faff,#fff 28%,#f7f9ff 73%,#fff);
+ color:var(--ms-text);color-scheme:light
+}
+#msHome::before{
+ display:block;position:absolute;inset:0 0 auto;height:850px;opacity:1;pointer-events:none;
+ background:radial-gradient(ellipse 46% 60% at 91% 12%,rgba(126,116,247,.14),transparent),
+ radial-gradient(ellipse 44% 48% at 7% 20%,rgba(97,162,249,.10),transparent),
+ linear-gradient(rgba(86,105,158,.035) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(86,105,158,.035) 1px,transparent 1px);
+ background-size:auto,auto,60px 60px,60px 60px;
+ mask-image:linear-gradient(#000 58%,transparent)
+}
+#msHome::after,#msHome .ms-hero-orbit,#msHome .ms-studio-glow{display:none}
+#msHome .ms-shell{width:min(calc(100% - 72px),1320px)}
+#msHome .ms-hero{min-height:auto;padding:104px 0 92px;overflow:visible}
+#msHome .ms-hero-grid{grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);gap:clamp(38px,5vw,80px);align-items:center}
+#msHome .ms-hero-copy{max-width:690px}
+#msHome .ms-kicker{color:#6459d9;letter-spacing:.11em;font-size:12px;font-weight:830}
+#msHome .ms-kicker::before{
+ width:9px;height:9px;border-radius:50%;background:#7264f4;
+ box-shadow:0 0 0 5px rgba(116,103,244,.13)
+}
+#msHome .ms-hero-title{
+ max-width:700px;margin:25px 0 0;color:#142443;font-weight:800;
+ font-size:clamp(52px,5.6vw,84px);line-height:1.045;letter-spacing:-.068em
+}
+#msHome .ms-hero-title .muted{color:#233253}
+#msHome .ms-hero-title .gradient{
+ color:#6859ec;background:linear-gradient(115deg,#6956eb 8%,#3e82ee 82%);
+ -webkit-background-clip:text;background-clip:text
+}
+#msHome .ms-hero-lead{max-width:540px;margin-top:27px;color:#5e6c84;font-size:16px;line-height:1.85}
+#msHome .ms-hero-actions{margin-top:29px;gap:12px}
+#msHome .ms-button{
+ min-height:52px;padding:0 22px;border:1px solid #d7dded;border-radius:13px;
+ color:#30405d;background:#fff;font-size:13px;font-weight:780;
+ box-shadow:0 4px 14px rgba(30,55,115,.045)
+}
+#msHome .ms-button--primary{
+ color:#fff;background:linear-gradient(115deg,#6858e9,#4f81f0);
+ border-color:transparent;box-shadow:0 15px 34px rgba(87,83,211,.25)
+}
+#msHome .ms-button:hover{transform:translateY(-3px);border-color:#8277ed;box-shadow:0 14px 30px rgba(38,50,111,.13)}
+#msHome .ms-button--primary:hover{color:#fff;background:linear-gradient(110deg,#5546d6,#3d71de)}
+#msHome .ms-proof{margin-top:29px;gap:12px 22px}
+#msHome .ms-proof-item{font-size:11px;font-weight:700;color:#6a7890}
+#msHome .ms-proof-item::before{background:#24a882;box-shadow:0 0 0 4px rgba(36,168,130,.12)}
+#msHome .ms-studio-wrap{perspective:none}
+#msHome .ms-studio-card{
+ padding:7px;background:linear-gradient(145deg,#fff,#f0f3ff);
+ border:1px solid rgba(111,132,186,.21);border-radius:27px;
+ box-shadow:0 34px 86px rgba(25,45,103,.14),0 3px 8px rgba(31,52,108,.06);
+ transform:none!important
+}
+#msHome .ms-studio-window{border:1px solid #e6e9f5;background:#fff;border-radius:20px;overflow:hidden}
+#msHome .ms-windowbar{min-height:63px;padding:0 24px;background:#fafbff;border-bottom-color:#e9edf7}
+#msHome .ms-window-title{font-size:12px;color:#273853;font-weight:790}
+#msHome .ms-window-secure{color:#27826a;font-size:10px}
+#msHome .ms-window-body{padding:21px}
+#msHome .ms-dropzone{
+ min-height:330px;padding:29px 18px;border:1.5px dashed #b1baf0;
+ border-radius:18px;background:radial-gradient(circle at 50% 10%,rgba(125,124,245,.08),transparent 65%),#f7f9ff
+}
+#msHome .ms-dropzone::before,#msHome .ms-dropzone::after,#msHome .ms-upload-icon::after{display:none}
+#msHome .ms-dropzone:hover,#msHome .ms-dropzone.is-dragging{background:#eef2ff;border-color:#7464ef}
+#msHome .ms-upload-icon{
+ width:65px;height:65px;border-radius:18px;background:linear-gradient(145deg,#f2eeff,#e8f0ff);
+ border:1px solid #dfdefa;color:#6859e8;box-shadow:0 11px 24px rgba(87,78,201,.10)
+}
+#msHome .ms-upload-empty h2{color:#19294b;font-size:26px;letter-spacing:-.045em}
+#msHome .ms-upload-empty p{color:#66758b;font-size:13px;line-height:1.7}
+#msHome .ms-upload-choose,#msHome .ms-preview-submit{
+ color:#fff;background:#6757e9;border-color:#6757e9;border-radius:12px;font-size:13px;
+ box-shadow:0 10px 20px rgba(94,79,221,.16)
+}
+#msHome .ms-upload-choose:hover,#msHome .ms-preview-submit:hover{color:#fff;background:#5848d9}
+#msHome .ms-format{color:#586986;background:#fff;border:1px solid #e5e9f5;font-size:10px}
+#msHome .ms-upload-foot{color:#6e7d96;font-size:10px}
+#msHome .ms-preview-file strong{color:#192b50}
+#msHome .ms-preview-file span{color:#64758d}
+#msHome .ms-preview-change{color:#3b4e77;background:#eef0fc}
+#msHome .ms-alert--success{background:#e8f8ee;color:#176b4b}
+#msHome .ms-alert--error{background:#fff0f2;color:#98344a}
+#msHome .ms-signal{background:#fff;border-block:1px solid #e8ecf5}
+#msHome .ms-signal-item{padding:22px 12px;gap:12px}
+#msHome .ms-signal-icon{color:#685aeb;background:#f0f1ff;border:1px solid #e4e5ff;border-radius:12px}
+#msHome .ms-signal-item strong{color:#273957;font-size:12px}
+#msHome .ms-signal-item span{color:#6f7b91;font-size:10px}
+#msHome .ms-section{padding:95px 0}
+#msHome .ms-section--soft{background:#f6f8ff;border-color:#e8edf6}
+#msHome .ms-heading,#msHome .ms-flow-copy h2,#msHome .ms-faq-side h2{
+ color:#1c2b49;font-size:clamp(38px,4.45vw,64px);line-height:1.12;letter-spacing:-.053em
+}
+#msHome .ms-heading em{color:#7264e8}
+#msHome .ms-copy,#msHome .ms-flow-copy p,#msHome .ms-faq-side p{color:#66768c;font-size:15px;line-height:1.83}
+#msHome .ms-showcase-head{margin-bottom:40px}
+#msHome .ms-editor-shell{border:1px solid #e0e6f4;border-radius:24px;box-shadow:0 24px 55px rgba(28,46,91,.13)}
+#msHome .ms-editor-sidebar,#msHome .ms-editor-inspector{background:#172540}
+#msHome .ms-editor-tool.active{background:#574ac9;color:#fff}
+#msHome .ms-editor-tool{font-size:12px;color:#c4cfe0}
+#msHome .ms-editor-tool-icon{color:#b7c0ff}
+#msHome .ms-create-version,#msHome .ms-toggle-dot{background:#6657e9}
+#msHome .ms-demo-image::before{
+ background:radial-gradient(ellipse at 62% 28%,#f6c0da 0%,transparent 45%),
+ linear-gradient(140deg,#cee0fb,#7d72d5 55%,#1c3159)
+}
+#msHome .ms-bento{gap:19px}
+#msHome .ms-bento-card{
+ min-height:240px;padding:30px;border:1px solid #e2e8f5;background:#fff;
+ border-radius:20px;box-shadow:0 10px 27px rgba(39,58,111,.035)
+}
+#msHome .ms-bento-card:hover{
+ border-color:#b1b0f0;transform:translateY(-5px);
+ box-shadow:0 18px 40px rgba(48,59,135,.11)
+}
+#msHome .ms-bento-index{color:#6858ea;font-size:10px}
+#msHome .ms-bento-card h3{color:#20324f;font-size:24px;margin-top:35px}
+#msHome .ms-bento-card p{color:#69778b;font-size:14px}
+#msHome .ms-version-stack span{
+ background:linear-gradient(135deg,#f0f1ff,#9585ee);border-color:#d0d4f4;
+ box-shadow:0 9px 22px rgba(73,77,166,.12)
+}
+#msHome .ms-flow-number{color:#6557e9;background:#eeefff;border-radius:14px;border:1px solid #e0e3ff}
+#msHome .ms-flow-step h3{color:#253654;font-size:20px}
+#msHome .ms-flow-step p{color:#687991;font-size:14px}
+#msHome .ms-workspace{
+ background:linear-gradient(120deg,#172843,#262860 65%,#39347b);
+ border:1px solid rgba(255,255,255,.14);border-radius:27px;box-shadow:0 26px 56px rgba(27,36,95,.15);
+ padding:48px;--ms-line:rgba(255,255,255,.14)
+}
+#msHome .ms-workspace h2{font-size:clamp(35px,4vw,53px);line-height:1.1}
+#msHome .ms-workspace p,#msHome .ms-final-copy p{color:#bbc8e0}
+#msHome .ms-workspace .ms-kicker,#msHome .ms-final .ms-kicker{color:#c0baff}
+#msHome .ms-workspace .ms-button,#msHome .ms-final .ms-button{
+ color:#f1f2ff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.25)
+}
+#msHome .ms-workspace .ms-button--primary,#msHome .ms-final .ms-button--primary{
+ background:#fff;border-color:#fff;color:#33316f
+}
+#msHome .ms-library-window{background:#142440;box-shadow:0 22px 47px rgba(0,0,0,.14)}
+#msHome .ms-faq-item{background:#fff;border:1px solid #e5eaf5;border-radius:15px}
+#msHome .ms-faq-question{color:#283954;font-size:14px;text-align:start;padding:18px 22px}
+#msHome .ms-faq-answer-inner{color:#6a7b94;font-size:13px;padding:0 22px 22px}
+#msHome .ms-faq-icon{background:#f0f1ff}
+#msHome .ms-faq-icon::before,#msHome .ms-faq-icon::after{background:#6859e9}
+#msHome .ms-final{padding-bottom:82px}
+#msHome .ms-final-panel{
+ min-height:360px;border-radius:27px;border:1px solid rgba(255,255,255,.14);
+ background:linear-gradient(110deg,#172945,#27265f 65%,#44368b);
+ box-shadow:0 28px 62px rgba(26,32,86,.20);padding:52px
+}
+#msHome .ms-final-copy h2{font-size:clamp(39px,4.6vw,64px);line-height:1.08}
+/* Service cards form the new corporate product navigation. */
+#msHome .ms-corporate{position:relative;z-index:2;background:linear-gradient(180deg,#f8faff,#f2f6ff);padding:88px 0 94px}
+#msHome .ms-corporate-head{display:flex;align-items:end;justify-content:space-between;gap:34px;margin-bottom:29px}
+#msHome .ms-corporate-head h2{
+ max-width:650px;color:#182747;margin:15px 0 0;
+ font-size:clamp(32px,3.75vw,52px);line-height:1.13;letter-spacing:-.05em
+}
+#msHome .ms-corporate-head p{max-width:335px;color:#64738c;font-size:14px;line-height:1.8;margin:0}
+#msHome .ms-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px}
+#msHome .ms-service-card{
+ position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;
+ min-height:237px;padding:27px 28px;text-decoration:none;
+ border:1px solid #e1e7f5;border-radius:23px;background:#fff;
+ box-shadow:0 14px 37px rgba(32,52,109,.05);
+ transition:transform .35s var(--signature-ease),box-shadow .35s,border-color .35s
+}
+#msHome .ms-service-card::after{
+ content:"";position:absolute;bottom:-115px;right:-85px;width:220px;height:220px;pointer-events:none;
+ border-radius:50%;background:radial-gradient(circle,rgba(110,99,234,.12),transparent 68%);
+ transition:transform .65s
+}
+#msHome .ms-service-card:hover{
+ transform:translateY(-7px);border-color:#bbb9f3;box-shadow:0 27px 50px rgba(50,64,134,.13)
+}
+#msHome .ms-service-card:hover::after{transform:translate(-28px,-30px)}
+#msHome .ms-service-icon{
+ display:grid;place-items:center;width:55px;height:55px;
+ border-radius:17px;font-size:24px;font-weight:800;color:#6554df;
+ background:linear-gradient(135deg,#f0ecff,#e8f1ff);border:1px solid #e0e3ff
+}
+#msHome .ms-service-card h3{margin:26px 0 9px;color:#1b2d4c;font-size:21px;letter-spacing:-.034em}
+#msHome .ms-service-card p{margin:0;max-width:312px;color:#697a93;font-size:13px;line-height:1.75}
+#msHome .ms-service-arrow{
+ position:absolute;right:27px;top:31px;color:#96a1b8;font-size:21px;
+ transition:transform .26s,color .26s
+}
+#msHome .ms-service-card:hover .ms-service-arrow{transform:translate(4px,-4px);color:#6a59e6}
+#msHome .ms-corporate-note{
+ display:flex;align-items:center;gap:12px;margin-top:29px;color:#64748d;font-size:12px
+}
+#msHome .ms-corporate-note::before{
+ content:"";width:7px;height:7px;border-radius:50%;background:#25a67b;box-shadow:0 0 0 5px rgba(37,166,123,.10)
+}
+#msHome :focus-visible{outline:3px solid #6f60ed;outline-offset:4px}
+html[dir="rtl"] #msHome .ms-hero-title,html[dir="rtl"] #msHome h2{letter-spacing:normal;line-height:1.55}
+@keyframes signatureLine{to{background-position:250% 0}}
+@keyframes signatureFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes signatureShine{0%,63%,100%{transform:translateX(-95%) rotate(20deg)}74%{transform:translateX(95%) rotate(20deg)}}
+@media(max-width:1320px) and (min-width:1121px){
+ .studio-header-expert .expert-nav{grid-template-columns:minmax(260px,auto) minmax(0,1fr) auto;gap:9px}
+ .studio-header-expert .expert-nav-link{font-size:11px;padding-inline:8px}
+ .studio-header-expert .expert-command-trigger{min-width:148px}
+ .studio-header-expert .expert-brand-divider{display:none}
+}
+@media(max-width:1120px){
+ .studio-header-expert .expert-nav{grid-template-columns:minmax(0,1fr) auto;min-height:74px}
+ .studio-header-expert .expert-nav-center{display:none}
+ #msHome .ms-shell{width:min(calc(100% - 48px),840px)}
+ #msHome .ms-hero{padding:65px 0}
+ #msHome .ms-hero-grid{grid-template-columns:1fr;gap:43px}
+ #msHome .ms-studio-wrap{width:100%}
+ #msHome .ms-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #msHome .ms-corporate-head{align-items:flex-start;flex-direction:column}
+ #msHome .ms-signal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .studio-header-expert .expert-command-trigger,.studio-header-expert .expert-brand-divider{display:none}
+ .studio-header-expert .expert-nav{min-height:70px}
+ .studio-header-expert .expert-brand-mark{width:41px;height:41px;flex-basis:41px}
+ .studio-header-expert .expert-brand-copy strong{font-size:15px}
+}
+@media(max-width:680px){
+ #msHome .ms-shell{width:calc(100% - 34px)}
+ #msHome .ms-hero{padding:45px 0 52px}
+ #msHome .ms-hero-title{font-size:clamp(39px,10.8vw,60px);letter-spacing:-.055em}
+ #msHome .ms-hero-lead{font-size:14px}
+ #msHome .ms-hero-actions{gap:10px}
+ #msHome .ms-button{min-height:48px;padding:0 16px;font-size:12px}
+ #msHome .ms-window-body{padding:13px}
+ #msHome .ms-dropzone{min-height:310px;padding:23px 14px}
+ #msHome .ms-upload-empty h2{font-size:24px}
+ #msHome .ms-signal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #msHome .ms-section{padding:65px 0}
+ #msHome .ms-heading,#msHome .ms-flow-copy h2,#msHome .ms-faq-side h2{font-size:36px}
+ #msHome .ms-corporate{padding:58px 0 64px}
+ #msHome .ms-service-grid{grid-template-columns:1fr}
+ #msHome .ms-service-card{min-height:195px;padding:24px}
+ #msHome .ms-service-card h3{margin-top:19px}
+ #msHome .ms-workspace{padding:29px 21px;gap:32px}
+ #msHome .ms-final-panel{padding:37px 24px}
+ #msHome .ms-editor-canvas{min-height:320px}
+ #msHome .ms-final{padding-bottom:55px}
+}
+@media(prefers-reduced-motion:reduce){
+ .studio-header-expert::before,.studio-header-expert .expert-brand-mark,
+ .studio-header-expert .expert-brand-mark::before{animation:none!important}
+ .studio-header-expert .signature-nav-indicator,#msHome .ms-service-card,#msHome .ms-service-card::after{transition:none!important}
+}

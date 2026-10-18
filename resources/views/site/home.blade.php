@@ -1,6 +1,6 @@
 @extends('layouts.site-layout')
 
-@section('title', 'Mashal Studio | Intelligent Image Workspace')
+@section('title', 'Mashal Studio | Professionele creatieve tools')
 
 @section(
     'meta_description',
@@ -2062,21 +2062,21 @@ html[dir="rtl"] #msHome .ms-flow-number { left: auto; right: 0; }
             <div class="ms-hero-grid">
                 <div class="ms-hero-copy" data-reveal>
                     <span class="ms-kicker">
-                        Mashal Image Workspace
+                        {{ __('Mashal Studio · Creative Workspace') }}
                     </span>
 
                     <h1 class="ms-hero-title">
-                        {{ __('Edit images.') }}
+                        {{ __('Creëer meer.') }}
                         <span class="muted">
-                            {{ __('Keep the original.') }}
+                            {{ __('Werk slimmer.') }}
                         </span>
                         <span class="gradient">
-                            {{ __('Build better versions.') }}
+                            {{ __('Alles in één studio.') }}
                         </span>
                     </h1>
 
                     <p class="ms-hero-lead">
-                        {{ __('Eén snelle workspace voor resize, crop, rotate, flip, compress en convert. Elke bewerking wordt een nieuwe versie, zodat je altijd terug kunt naar het origineel.') }}
+                        {{ __('Een professionele werkplek voor je afbeeldingen, video-optimalisatie en live statistieken. Start direct met een upload, werk overzichtelijk en bewaar elke bewerking als een nieuwe versie.') }}
                     </p>
 
                     <div class="ms-hero-actions">
@@ -2144,7 +2144,7 @@ html[dir="rtl"] #msHome .ms-flow-number { left: auto; right: 0; }
                                 </div>
 
                                 <div class="ms-window-title">
-                                    Mashal / New project
+                                    Mashal / {{ __('Nieuw project') }}
                                 </div>
 
                                 <div class="ms-window-secure">
@@ -2291,6 +2291,55 @@ html[dir="rtl"] #msHome .ms-flow-number { left: auto; right: 0; }
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+
+    {{-- Service links use existing named routes; upload/form and editor remain unchanged. --}}
+    <section class="ms-corporate" id="studioTools" aria-labelledby="signatureToolsHeading">
+        <div class="ms-shell">
+            <div class="ms-corporate-head" data-reveal>
+                <div>
+                    <span class="ms-kicker">{{ __('Mashal Studio platform') }}</span>
+                    <h2 id="signatureToolsHeading">{{ __('Professionele tools. Eén vertrouwde werkplek.') }}</h2>
+                </div>
+                <p>{{ __('Van creatie tot publicatie. Open de juiste tool en ga verder in je bestaande workflow.') }}</p>
+            </div>
+            <div class="ms-service-grid" data-stagger>
+                <a class="ms-service-card" href="#upload">
+                    <span class="ms-service-icon" aria-hidden="true">◇</span>
+                    <span class="ms-service-arrow" aria-hidden="true">↗</span>
+                    <h3>{{ __('Image Studio') }}</h3>
+                    <p>{{ __('Upload, bewerk en exporteer afbeeldingen. Je origineel en iedere nieuwe versie blijven behouden.') }}</p>
+                </a>
+                @if (\Illuminate\Support\Facades\Route::has('video-optimizer.index'))
+                    <a class="ms-service-card" href="{{ route('video-optimizer.index') }}">
+                        <span class="ms-service-icon" aria-hidden="true">⚡</span>
+                        <span class="ms-service-arrow" aria-hidden="true">↗</span>
+                        <h3>{{ __('Video Optimizer') }}</h3>
+                        <p>{{ __('Optimaliseer je video voor een scherp resultaat en een efficiënte export.') }}</p>
+                    </a>
+                @endif
+                @if (\Illuminate\Support\Facades\Route::has('live-counts.index'))
+                    <a class="ms-service-card" href="{{ route('live-counts.index') }}">
+                        <span class="ms-service-icon" aria-hidden="true">◉</span>
+                        <span class="ms-service-arrow" aria-hidden="true">↗</span>
+                        <h3>{{ __('Live Counts') }}</h3>
+                        <p>{{ __('Volg je counters en statistieken vanuit je bestaande live-overzicht.') }}</p>
+                    </a>
+                @endif
+                @auth
+                    @if (\Illuminate\Support\Facades\Route::has('images.index'))
+                        <a class="ms-service-card" href="{{ route('images.index') }}">
+                            <span class="ms-service-icon" aria-hidden="true">▦</span>
+                            <span class="ms-service-arrow" aria-hidden="true">↗</span>
+                            <h3>{{ __('Mijn bibliotheek') }}</h3>
+                            <p>{{ __('Beheer je opgeslagen afbeeldingen en versies in jouw persoonlijke workspace.') }}</p>
+                        </a>
+                    @endif
+                @endauth
+            </div>
+            <div class="ms-corporate-note">{{ __('Ontworpen voor overzicht, kwaliteit en snelheid.') }}</div>
         </div>
     </section>
 

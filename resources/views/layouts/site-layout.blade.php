@@ -6677,6 +6677,7 @@
       }
     </style>
 
+    <link rel="stylesheet" href="{{ asset('css/mashal-signature-20261018.css') }}?v=1">
 </head>
 
 <body>
@@ -9046,6 +9047,7 @@
     </script>
 
 
+    <script src="{{ asset('js/mashal-signature-20261018.js') }}?v=1" defer></script>
     @stack('scripts')
 
     {{-- 
