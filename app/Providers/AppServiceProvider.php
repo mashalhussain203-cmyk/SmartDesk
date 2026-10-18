@@ -143,6 +143,31 @@ class AppServiceProvider extends ServiceProvider
             return $limits;
         });
 
+        /*
+         * TikTok Upload Studio has its own per-user AND per-action limits.
+         * Laravel's bare numeric throttles can share cache buckets across
+         * unrelated routes, which caused POST /connect to return 429 even
+         * when the user had not connected TikTok yet.
+         */
+        RateLimiter::for('tiktok-studio', static function (Request $request): Limit {
+            $routeName = (string) ($request->route()?->getName() ?? 'unknown');
+            $user = $request->user();
+            $identity = $user
+                ? 'user:'.$user->getAuthIdentifier()
+                : 'session:'.$request->session()->getId();
+
+            $limit = match ($routeName) {
+                'tiktok-studio.connect' => Limit::perMinute(8),
+                'tiktok-studio.callback' => Limit::perMinute(15),
+                'tiktok-studio.disconnect' => Limit::perMinute(5),
+                'tiktok-studio.upload' => Limit::perHour(5),
+                'tiktok-studio.status' => Limit::perMinute(20),
+                default => Limit::perMinute(5),
+            };
+
+            return $limit->by('tiktok-studio:'.$routeName.':'.$identity);
+        });
+
         RateLimiter::for('contact-form', static function (Request $request): array {
             $email = mb_strtolower(trim((string) $request->input('email', '')));
 
