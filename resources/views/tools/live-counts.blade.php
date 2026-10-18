@@ -317,6 +317,17 @@
         </div>
 
         <div class="livehub-grid">
+            <a class="livehub-tool" href="{{ route('tiktok-studio.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap"><span style="font-size:30px;color:#7ae3ed" aria-hidden="true">♫</span></div>
+                    <div class="livehub-live"><i></i> {{ __('Creator tool') }}</div>
+                </div>
+                <h3>TikTok Upload Studio</h3>
+                <p>{{ __('Upload een videoconcept, voeg je eigen muziek toe en ga verder met favoriete TikTok-geluiden en publiceren in TikTok.') }}</p>
+                <div class="livehub-metrics"><span>Video</span><span>Audio</span><span>Hashtags</span><span>TikTok inbox</span></div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
+
             <a class="livehub-tool" href="{{ route('youtube-subscribers.index') }}">
                 <div class="livehub-tool-top">
                     <div class="livehub-icon-wrap">
