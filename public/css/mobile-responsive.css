@@ -543,3 +543,91 @@ html[dir="rtl"] :is(input[type="email"], input[type="url"], input[type="tel"]) {
         min-height: 270px;
     }
 }
+
+
+/* Homepage commerce-inspired presentation. Other pages retain their existing styling. */
+#msHome {
+    --workspace-surface: #fff;
+    --workspace-canvas: #f1f2f4;
+    --workspace-ink: #202523;
+    --workspace-muted: #616963;
+    --workspace-line: #dce1dd;
+    --workspace-green: #087f5b;
+}
+body:has(#msHome) .studio-header.studio-header-expert { background: #202724; border-bottom: 1px solid #38433d; box-shadow: 0 2px 8px #00000014; backdrop-filter: none; }
+body:has(#msHome) .studio-header-expert .expert-nav { min-height: 68px; }
+body:has(#msHome) .studio-header-expert .expert-brand-mark { background: #c6f6cf; color: #174b35; border: 0; border-radius: 10px; box-shadow: none; }
+body:has(#msHome) .studio-header-expert .expert-brand-copy strong { font-size: 18px; letter-spacing: -.5px; }
+body:has(#msHome) .studio-header-expert .expert-brand-copy small { color: #aebeb3; }
+body:has(#msHome) .studio-header-expert .expert-command-trigger { background: #303b34; border: 1px solid #4c5a50; border-radius: 8px; box-shadow: none; }
+body:has(#msHome) .studio-header-expert .expert-nav-link { border-radius: 8px; color: #c8d4cc; font-size: 13px; }
+body:has(#msHome) .studio-header-expert .expert-nav-link.active { color: #fff; background: #3b4c41; box-shadow: inset 3px 0 #b4efbf; }
+body:has(#msHome) .studio-header-expert .expert-auth-link-primary,
+body:has(#msHome) .studio-header-expert .expert-new-project { background: #cef5d6; color: #1b4931; border-color: #cef5d6; box-shadow: none; border-radius: 8px; }
+#msHome { background: var(--workspace-canvas); color: var(--workspace-ink); color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+#msHome .ms-shell { max-width: 1240px; }
+#msHome {
+    --ms-bg: #f1f2f4; --ms-bg-2: #e9eeeb; --ms-panel: #fff; --ms-panel-2: #f6f8f6; --ms-panel-3: #e9efeb;
+    --ms-text: #202523; --ms-text-2: #4d5c52; --ms-muted: #617267; --ms-muted-2: #68776d;
+    --ms-line: #dce1dd; --ms-line-2: #bbc9c0; --ms-accent: #087f5b; --ms-accent-2: #176849; --ms-accent-3: #24644b;
+}
+#msHome .ms-hero { padding-block: 64px 48px; min-height: auto; background: #eef3ef; }
+#msHome .ms-hero-grid { gap: 48px; }
+#msHome .ms-hero-title { font-size: clamp(36px, 4.2vw, 62px); line-height: 1.08; letter-spacing: -.045em; }
+#msHome .ms-hero-title .muted { color: #65776b; }
+#msHome .ms-hero-title .gradient { background: none; -webkit-text-fill-color: #087f5b; color: #087f5b; }
+#msHome .ms-kicker { color: #087f5b; font-size: 11px; letter-spacing: .1em; }
+#msHome .ms-hero-lead { color: #53685b; font-size: 15px; line-height: 1.75; }
+#msHome :is(.ms-studio-card, .ms-studio-window, .ms-library-window, .ms-bento-card, .ms-editor-shell) { background: #fff; border: 1px solid #d5dfd8; border-radius: 14px; box-shadow: 0 8px 30px #263c2e0a; }
+#msHome .ms-windowbar { background: #f7faf8; border-color: #e1e8e3; }
+#msHome .ms-window-body { background: #fff; }
+#msHome .ms-dropzone { background: #f2f8f4; border: 1px dashed #91b69f; border-radius: 10px; }
+#msHome .ms-dropzone::before, #msHome .ms-dropzone::after { display: none; }
+#msHome :is(.ms-upload-icon, .ms-format, .ms-signal-icon, .ms-flow-number) { background: #e6f2e9; color: #176849; border-color: #cde1d3; box-shadow: none; }
+#msHome :is(.ms-button--primary, .ms-upload-choose, .ms-preview-submit, .ms-create-version) { color: #fff; background: #087f5b; border: 1px solid #06694b; box-shadow: 0 2px 2px #12452c18; border-radius: 8px; }
+#msHome .ms-button--ghost { background: #fff; color: #28543b; border-color: #c4d3c9; border-radius: 8px; }
+#msHome .ms-section { padding-block: 64px; }
+#msHome .ms-section--soft { background: #e9eeeb; }
+#msHome .ms-final-panel { background: #173f2c; color: #fff; border-radius: 18px; }
+#msHome .ms-final-panel :is(h2, p) { color: #eef8f0; }
+#msHome .ms-editor-shell { overflow: hidden; }
+#msHome :focus-visible { outline: 3px solid #23865a; outline-offset: 3px; }
+@media  (max-width: 900px) {
+#msHome .ms-hero-grid { grid-template-columns: 1fr; gap: 28px; }
+#msHome .ms-hero { padding-block: 36px; }
+}
+@media  (max-width: 600px) {
+#msHome .ms-hero-title { font-size: 36px; }
+#msHome .ms-section { padding-block: 40px; }
+}
+@media  (prefers-reduced-motion: reduce) {
+#msHome *, #msHome *::before { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+#msHome :is(h1, h2, h3, .ms-signal-item strong, .ms-preview-file, .ms-inspector-title, .ms-faq-question) { color: #202523; }
+#msHome :is(.ms-proof-item, .ms-upload-foot, .ms-signal-item p, .ms-window-title, .ms-window-secure, .ms-copy, .ms-field, .ms-faq-answer, .ms-flow-copy p) { color: #596e60; }
+#msHome :is(.ms-editor-sidebar, .ms-editor-inspector, .ms-library-head) { background: #f6f8f6; }
+#msHome :is(.ms-editor-tool.active, .ms-fake-input, .ms-preview-change) { color: #28543b; background: #e7f1ea; border-color: #c6d8cc; }
+#msHome .ms-final-panel :is(h2, p) { color: #eef8f0; }
+
+#msHome .ms-workspace :is(h2, h3, .ms-heading) { color: #f3f8f4; }
+#msHome .ms-workspace .ms-library-window { background: #f8faf8; transform: none; }
+#msHome .ms-library-head { color: #28543b; }
+#msHome :is(.ms-hero-orbit, .ms-studio-glow) { display: none; }
+#msHome .ms-editor-label, #msHome .ms-field label { color: #53685b; }
+#msHome .ms-editor-tool { color: #53685b; }
+#msHome .ms-bento-card h3 { margin-top: 24px; }
+#msHome .ms-studio-card { padding: 0; }
+#msHome .ms-studio-window { border: 0; }
+#msHome .ms-dropzone { min-height: 320px; }
+#msHome .ms-heading { font-size: clamp(30px, 3.4vw, 46px); font-weight: 650; }
+#msHome .ms-signal { background: #e4ece6; border-block: 1px solid #d3dfd6; }
+#msHome .ms-button { border-radius: 8px; min-height: 46px; }
+#msHome .ms-final-copy h2 { color: #eef8f0; }
+@media (min-width: 1060px) {
+    #msHome .ms-hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+    #msHome .ms-shell { width: calc(100% - 32px); }
+    #msHome .ms-hero-title { font-size: clamp(32px, 9vw, 44px); }
+    #msHome .ms-window-body { padding: 12px; }
+}
