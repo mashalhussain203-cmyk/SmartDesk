@@ -149,6 +149,8 @@ class User extends Authenticatable implements MustVerifyEmail
         */
         'google_access_token',
         'google_refresh_token',
+        'tiktok_post_access_token',
+        'tiktok_post_refresh_token',
     ];
 
     /**
@@ -172,6 +174,10 @@ class User extends Authenticatable implements MustVerifyEmail
             |--------------------------------------------------------------------------
             */
             'google_token_expires_at' => 'datetime',
+            'tiktok_post_access_token' => 'encrypted',
+            'tiktok_post_refresh_token' => 'encrypted',
+            'tiktok_post_expires_at' => 'datetime',
+            'tiktok_post_connected_at' => 'datetime',
             'gmail_connected_at' => 'datetime',
         ];
     }
