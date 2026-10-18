@@ -770,7 +770,7 @@ Route::middleware('guest')->group(function () {
 
         [TikTokAuthController::class, 'callback']
 
-    )->name('tiktok.callback');
+    )->withoutMiddleware('guest')->name('tiktok.callback');
 
     Route::get(
 
