@@ -2120,3 +2120,6 @@ require __DIR__ . '/live-chat.php';
 
 // Afgeschermde live-opnames; eigen admincontrole per endpoint.
 require __DIR__ . '/live-recordings.php';
+
+// Opt-in TikTok Upload Studio; current TikTok login remains unchanged.
+require __DIR__ . '/tiktok-studio.php';
