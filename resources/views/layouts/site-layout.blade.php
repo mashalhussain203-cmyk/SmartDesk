@@ -6784,6 +6784,11 @@
                             <span>{{ __("Live Counts") }}</span>
                         </a>
                     @endif
+                    <a class="expert-nav-link {{ request()->routeIs('tiktok-studio.*') ? 'active' : '' }}"
+                       href="{{ route('tiktok-studio.index') }}">
+                        <span class="expert-nav-link-icon" aria-hidden="true">♫</span>
+                        <span>TikTok Upload Studio</span>
+                    </a>
 
                     @auth
                         @if ($hasImagesIndex)
@@ -7118,6 +7123,12 @@
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
                     @endif
+                    <a class="expert-command-item" href="{{ route('tiktok-studio.index') }}"
+                       data-command-search="tiktok upload studio video concept music geluid audio hashtags">
+                        <span class="expert-command-item-icon">♫</span>
+                        <span><strong>TikTok Upload Studio</strong><small>{{ __('Video maken en naar TikTok sturen') }}</small></span>
+                        <span class="expert-command-item-arrow">↗</span>
+                    </a>
 
                     @if ($hasTikTokFollowerCounter)
                         <a
@@ -7359,6 +7370,12 @@
                     <span>→</span>
                 </a>
             @endif
+            <a class="expert-mobile-link {{ request()->routeIs('tiktok-studio.*') ? 'active' : '' }}"
+               href="{{ route('tiktok-studio.index') }}">
+                <span class="expert-mobile-link-icon">♫</span>
+                <span><strong>TikTok Upload Studio</strong><small>{{ __('Video, muziek en TikTok-concepten') }}</small></span>
+                <span>→</span>
+            </a>
 
             @auth
                 @if ($hasImagesIndex)
@@ -7648,6 +7665,7 @@
                                 {{ __("Live Counts") }}
                             </a>
                         @endif
+                        <a href="{{ route('tiktok-studio.index') }}">TikTok Upload Studio</a>
 
                         @if ($hasTikTokFollowerCounter)
                             <a href="{{ route('tiktok-follower-counter.index') }}">
