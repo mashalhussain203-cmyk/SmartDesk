@@ -127,8 +127,7 @@ try {
   console.error('julesxdann multipart recovery incomplete; uploaded parts retained');
 }
 
-// These two rooms were manually stopped by the owner. Keep their status
-// current while the remaining room monitors continue normally.
+// Leo remains manually stopped; Jules uses separate status-only monitoring.
 async function reportStoppedAccount(stoppedAccount) {
   while (!exiting) {
     try {
@@ -142,8 +141,34 @@ async function reportStoppedAccount(stoppedAccount) {
     if (!exiting) await pause(interval);
   }
 }
+// Jules: public live-status checks only; no automatic capture or MP4 storage.
+async function monitorJulesStatus() {
+  while (!exiting) {
+    try {
+      const source = await findPublicMedia('julesxdann');
+      const offline = source?.kind === 'offline';
+      const live = source?.kind === 'live';
+      await reportHlsStatus({
+        s3, bucket, account: 'julesxdann',
+        state: offline ? 'offline' : live ? 'live' : 'unknown',
+        message: offline
+          ? 'Stream is offline; automatisch wachten op volgende live'
+          : live
+            ? 'Livestream is online; automatische statuscontrole actief (geen opname)'
+            : 'Livestatus niet bevestigd; automatische hercontrole over een minuut',
+      });
+    } catch {
+      console.error('julesxdann public status check failed');
+      await reportHlsStatus({
+        s3, bucket, account: 'julesxdann', state: 'unknown',
+        message: 'Livestatus niet bevestigd; automatische hercontrole over een minuut',
+      }).catch(() => {});
+    }
+    if (!exiting) await pause(interval);
+  }
+}
 const julesxdannMonitor = account === 'emyii'
-  ? reportStoppedAccount('julesxdann') : null;
+  ? monitorJulesStatus() : null;
 const leoKittyMonitor = account === 'emyii'
   ? reportStoppedAccount('leo_kitty') : null;
 
