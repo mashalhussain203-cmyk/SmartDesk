@@ -40,6 +40,7 @@
         $hasTikTokCounter = \Illuminate\Support\Facades\Route::has('tiktok-counter.index');
         $hasTikTokFollowerCounter = \Illuminate\Support\Facades\Route::has('tiktok-follower-counter.index');
         $hasLiveCounts = \Illuminate\Support\Facades\Route::has('live-counts.index');
+        $hasTikTokDownloader = \Illuminate\Support\Facades\Route::has('tiktok-downloader.index');
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
@@ -6784,6 +6785,11 @@
                             <span>{{ __("Live Counts") }}</span>
                         </a>
                     @endif
+                    @if ($hasTikTokDownloader)
+                        <a class="expert-nav-link {{ request()->routeIs('tiktok-downloader.*') ? 'active' : '' }}" href="{{ route('tiktok-downloader.index') }}">
+                            <span class="expert-nav-link-icon" aria-hidden="true">↓</span><span>TikTok Downloader</span>
+                        </a>
+                    @endif
                     <a class="expert-nav-link {{ request()->routeIs('tiktok-studio.*') ? 'active' : '' }}"
                        href="{{ route('tiktok-studio.index') }}">
                         <span class="expert-nav-link-icon" aria-hidden="true">♫</span>
@@ -7123,6 +7129,12 @@
                             <span class="expert-command-item-arrow">↗</span>
                         </a>
                     @endif
+                    @if ($hasTikTokDownloader)
+                        <a class="expert-command-item" href="{{ route('tiktok-downloader.index') }}" data-command-search="tiktok downloader download mp4 mp3 fotos zonder watermerk">
+                            <span class="expert-command-item-icon">↓</span><span><strong>TikTok Downloader</strong><small>{{ __('Download publieke TikTok-video of audio') }}</small></span>
+                            <span class="expert-command-item-arrow">↗</span>
+                        </a>
+                    @endif
                     <a class="expert-command-item" href="{{ route('tiktok-studio.index') }}"
                        data-command-search="tiktok upload studio video concept music geluid audio hashtags">
                         <span class="expert-command-item-icon">♫</span>
@@ -7368,6 +7380,11 @@
                         <small>{{ __('Kies je live counter') }}</small>
                     </span>
                     <span>→</span>
+                </a>
+            @endif
+            @if ($hasTikTokDownloader)
+                <a class="expert-mobile-link {{ request()->routeIs('tiktok-downloader.*') ? 'active' : '' }}" href="{{ route('tiktok-downloader.index') }}">
+                    <span class="expert-mobile-link-icon">↓</span><span><strong>TikTok Downloader</strong><small>{{ __('Video, MP3 en foto’s opslaan') }}</small></span><span>→</span>
                 </a>
             @endif
             <a class="expert-mobile-link {{ request()->routeIs('tiktok-studio.*') ? 'active' : '' }}"
@@ -7664,6 +7681,9 @@
                             <a href="{{ route('live-counts.index') }}">
                                 {{ __("Live Counts") }}
                             </a>
+                        @endif
+                        @if ($hasTikTokDownloader)
+                            <a href="{{ route('tiktok-downloader.index') }}">TikTok Downloader</a>
                         @endif
                         <a href="{{ route('tiktok-studio.index') }}">TikTok Upload Studio</a>
 

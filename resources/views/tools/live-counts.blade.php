@@ -317,6 +317,13 @@
         </div>
 
         <div class="livehub-grid">
+            <a class="livehub-tool" href="{{ route('tiktok-downloader.index') }}">
+                <div class="livehub-tool-top"><div class="livehub-icon-wrap"><span style="font-size:30px;color:#9eb2ff" aria-hidden="true">↓</span></div><div class="livehub-live" style="color:#9eb2ff"><i style="background:#9eb2ff"></i> {{ __('Download tool') }}</div></div>
+                <h3>TikTok Downloader</h3>
+                <p>{{ __('Plak een openbare TikTok-link en download MP4-video, MP3-audio of fotoposts wanneer beschikbaar.') }}</p>
+                <div class="livehub-metrics"><span>MP4</span><span>HD</span><span>MP3</span><span>Photos</span></div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
             <a class="livehub-tool" href="{{ route('tiktok-studio.index') }}">
                 <div class="livehub-tool-top">
                     <div class="livehub-icon-wrap"><span style="font-size:30px;color:#7ae3ed" aria-hidden="true">♫</span></div>

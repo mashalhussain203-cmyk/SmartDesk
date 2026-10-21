@@ -38,6 +38,7 @@ use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\TikTokAuthController;
 use App\Http\Controllers\TikTokCounterController;
 use App\Http\Controllers\TikTokAnalyticsController;
+use App\Http\Controllers\TikTokDownloaderController;
 use App\Http\Controllers\VideoOptimizerController;
 use App\Http\Controllers\VideoPublishController;
 use App\Http\Controllers\YouTubeSubscriberController;
@@ -1154,6 +1155,12 @@ Route::get(
 |--------------------------------------------------------------------------
 | Read public TikTok metadata. No private stats or API keys required.
 */
+Route::get('/tools/tiktok-downloader', [TikTokDownloaderController::class, 'index'])->name('tiktok-downloader.index');
+Route::post('/tools/tiktok-downloader/analyze', [TikTokDownloaderController::class, 'analyze'])->middleware('throttle:8,1')->name('tiktok-downloader.analyze');
+Route::post('/tools/tiktok-downloader/prepare', [TikTokDownloaderController::class, 'prepare'])->middleware('throttle:3,1')->name('tiktok-downloader.prepare');
+Route::get('/tools/tiktok-downloader/status/{token}', [TikTokDownloaderController::class, 'status'])->where('token', '[a-f0-9]{40}')->middleware('throttle:60,1')->name('tiktok-downloader.status');
+Route::get('/tools/tiktok-downloader/download/{token}', [TikTokDownloaderController::class, 'download'])->where('token', '[a-f0-9]{40}')->name('tiktok-downloader.download');
+
 Route::get('/tools/video-optimizer', [VideoOptimizerController::class, 'index'])
     ->name('video-optimizer.index');
 

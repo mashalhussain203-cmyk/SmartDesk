@@ -2328,6 +2328,14 @@ html[dir="rtl"] #msHome .ms-flow-number { left: auto; right: 0; }
                         <p>{{ __('Volg je counters en statistieken vanuit je bestaande live-overzicht.') }}</p>
                     </a>
                 @endif
+                @if (\Illuminate\Support\Facades\Route::has('tiktok-downloader.index'))
+                    <a class="ms-service-card" href="{{ route('tiktok-downloader.index') }}">
+                        <span class="ms-service-icon" aria-hidden="true">↓</span>
+                        <span class="ms-service-arrow" aria-hidden="true">↗</span>
+                        <h3>TikTok Downloader</h3>
+                        <p>{{ __('Download beschikbare publieke TikTok-video’s, MP3-audio en foto’s.') }}</p>
+                    </a>
+                @endif
                 @auth
                     @if (\Illuminate\Support\Facades\Route::has('images.index'))
                         <a class="ms-service-card" href="{{ route('images.index') }}">
