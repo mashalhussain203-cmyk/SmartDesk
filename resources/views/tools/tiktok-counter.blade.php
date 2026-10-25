@@ -1561,6 +1561,7 @@
         shares: document.querySelector('[data-livecounts-stat="shares"]')
     };
     var livecountsTimer = null;
+    var livecountsRequestInFlight = false;
 
 
     function animateOdometer(element, value) {
@@ -1626,7 +1627,7 @@
         if (livecountsTimer !== null) {
             window.clearTimeout(livecountsTimer);
         }
-        livecountsTimer = window.setTimeout(loadLivecountsCards, 5000);
+        livecountsTimer = window.setTimeout(loadLivecountsCards, 8000);
     }
 
     function applyLivecountsPayload(data) {
@@ -1665,6 +1666,12 @@
     function loadLivecountsCards() {
         var xhr;
 
+        if (!livecountsEndpoint || livecountsRequestInFlight) {
+            return;
+        }
+
+        livecountsRequestInFlight = true;
+
         if (!livecountsEndpoint) {
             return;
         }
@@ -1693,6 +1700,8 @@
                 return;
             }
 
+            livecountsRequestInFlight = false;
+
             if (xhr.status < 200 || xhr.status >= 300) {
                 setStatus('Livecounts-data kon niet worden opgehaald', false);
                 scheduleLivecounts();
@@ -1715,11 +1724,13 @@
         };
 
         xhr.onerror = function () {
+            livecountsRequestInFlight = false;
             setStatus('Netwerkfout bij Livecounts', false);
             scheduleLivecounts();
         };
 
         xhr.ontimeout = function () {
+            livecountsRequestInFlight = false;
             setStatus('Livecounts ophalen duurde te lang', false);
             scheduleLivecounts();
         };
