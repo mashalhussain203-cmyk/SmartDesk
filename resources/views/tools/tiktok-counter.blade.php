@@ -1672,10 +1672,6 @@
 
         livecountsRequestInFlight = true;
 
-        if (!livecountsEndpoint) {
-            return;
-        }
-
         xhr = new XMLHttpRequest();
         xhr.open(
             'GET',
