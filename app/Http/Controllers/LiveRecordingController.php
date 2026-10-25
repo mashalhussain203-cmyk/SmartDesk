@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\LiveArchiveS3;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -137,8 +139,29 @@ class LiveRecordingController extends Controller
 
             $updatedAt = isset($status['checked_at']) ? strtotime((string) $status['checked_at']) : false;
             if (! $updatedAt || $updatedAt < time() - 180) {
-                // Do not claim OFFLINE until an active recorder has checked the stream.
-                $data[$account] = ['status' => 'unknown', 'message' => 'Recorder niet actief of status verouderd'];
+                $probe = Cache::remember('live-room-probe:'.$account, 45, function () use ($account): array {
+                    try {
+                        $response = Http::connectTimeout(4)->timeout(7)
+                            ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; SmartDeskLiveStatus/1.0)'])
+                            ->get('https://chaturbate.com/'.rawurlencode($account).'/');
+                        if (! $response->successful()) {
+                            return ['status' => 'unknown', 'message' => 'Bronpagina tijdelijk niet bereikbaar'];
+                        }
+                        $html = $response->body();
+                        if (preg_match('/room_status.{0,12}(public|private|group|away|chat|hidden|offline|disconnected)/i', $html, $match)) {
+                            $roomState = strtolower($match[1]);
+                            $isLive = in_array($roomState, ['public', 'private', 'group', 'away', 'chat'], true);
+                            return ['status' => $isLive ? 'live' : 'offline',
+                                'message' => $isLive ? 'Bronpagina meldt een actieve kamer' : 'Bronpagina meldt offline',
+                                'checked_at' => now()->toIso8601String()];
+                        }
+                        return ['status' => 'unknown', 'message' => 'Bronpagina bevat geen herkenbare live-status'];
+                    } catch (\\Throwable $exception) {
+                        report($exception);
+                        return ['status' => 'unknown', 'message' => 'Live-controle tijdelijk niet beschikbaar'];
+                    }
+                });
+                $data[$account] = $probe;
                 continue;
             }
 
