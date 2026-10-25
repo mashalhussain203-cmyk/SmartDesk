@@ -343,7 +343,7 @@ class TikTokVideoStatsService
                 }
             }
 
-            Cache::put($cacheKey, $stats, now()->addSeconds(5));
+            Cache::put($cacheKey, $stats, now()->addSeconds(15));
 
             return $stats;
         } finally {
