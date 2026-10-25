@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\LiveArchiveS3;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -137,8 +139,57 @@ class LiveRecordingController extends Controller
 
             $updatedAt = isset($status['checked_at']) ? strtotime((string) $status['checked_at']) : false;
             if (! $updatedAt || $updatedAt < time() - 180) {
-                // Never claim OFFLINE until a recorder has checked the stream.
-                $data[$account] = ['status' => 'unknown', 'message' => 'Recorder niet actief of status verouderd'];
+                // If the recorder has not refreshed status.json, probe the public room page.
+                // Cache each result to avoid repeatedly requesting the provider on 15-second UI refreshes.
+                $probe = Cache::remember('live-room-probe:'.$account, now()->addSeconds(60), function () use ($account): array {
+                    try {
+                        $response = Http::timeout(8)
+                            ->connectTimeout(4)
+                            ->withUserAgent('Mozilla/5.0 (compatible; SmartDeskLiveStatus/1.0)')
+                            ->acceptHtml()
+                            ->get('https://chaturbate.com/'.$account.'/');
+
+                        if (! $response->successful()) {
+                            return ['status' => 'unknown', 'message' => 'Bronpagina reageert niet (HTTP '.$response->status().')'];
+                        }
+
+                        $html = strtolower($response->body());
+                        $liveMarkers = [
+                            '"room_status":"public"', '"room_status": "public"',
+                            '"room_status":"private"', '"room_status": "private"',
+                            '"room_status":"group"', '"room_status": "group"',
+                            '"room_status":"away"', '"room_status": "away"',
+                        ];
+                        foreach ($liveMarkers as $marker) {
+                            if (str_contains($html, $marker)) {
+                                return ['status' => 'live', 'message' => 'Live-status gecontroleerd via openbare bronpagina', 'checked_at' => gmdate('c')];
+                            }
+                        }
+
+                        $offlineMarkers = [
+                            '"room_status":"offline"', '"room_status": "offline"',
+                            'is currently offline', 'model is offline',
+                        ];
+                        foreach ($offlineMarkers as $marker) {
+                            if (str_contains($html, $marker)) {
+                                return ['status' => 'offline', 'message' => 'Offline-status gecontroleerd via openbare bronpagina', 'checked_at' => gmdate('c')];
+                            }
+                        }
+
+                        return ['status' => 'unknown', 'message' => 'Bronpagina geladen, maar live-status niet herkenbaar'];
+                    } catch (\\Throwable $exception) {
+                        report($exception);
+                        return ['status' => 'unknown', 'message' => 'Live-status tijdelijk niet bereikbaar'];
+                    }
+                });
+
+                $probeUpdatedAt = isset($probe['checked_at']) ? strtotime((string) $probe['checked_at']) : false;
+                $data[$account] = [
+                    'status' => in_array($probe['status'] ?? 'unknown', ['live', 'offline'], true) ? $probe['status'] : 'unknown',
+                    'checked_at' => $probeUpdatedAt ? gmdate('c', $probeUpdatedAt) : null,
+                    'message' => mb_substr((string) ($probe['message'] ?? 'Status niet beschikbaar'), 0, 180),
+                    'last_saved' => null,
+                ];
                 continue;
             }
 
