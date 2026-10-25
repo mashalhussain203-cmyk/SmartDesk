@@ -177,7 +177,7 @@ class LiveRecordingController extends Controller
                         }
 
                         return ['status' => 'unknown', 'message' => 'Bronpagina geladen, maar live-status niet herkenbaar'];
-                    } catch (\\Throwable $exception) {
+                    } catch (\Throwable $exception) {
                         report($exception);
                         return ['status' => 'unknown', 'message' => 'Live-status tijdelijk niet bereikbaar'];
                     }
