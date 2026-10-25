@@ -66,18 +66,17 @@
     </style>
 
     <div class="live-head">
-        <h1>{{ __("Privé livestreamopnames") }}</h1>
-        <p>Automatische privéopnames van jouw livestreams. De Railway-server blijft controleren en opnemen, ook wanneer deze pagina gesloten is. Hieronder zie je de actuele status en de opgeslagen MP4-bestanden.</p>
+        <h1>{{ __("Privé livestreamarchief") }}</h1>
+        <p>Bekijk de statuscontrole en beheer MP4-bestanden in je privéarchief. De statuscontrole is geen opnameworker: er wordt alleen automatisch opgenomen als een afzonderlijke, actieve recorderworker correct is ingericht en draait.</p>
     </div>
 
-    <section class="live-automatic" aria-label="Automatisch volledige livestream opnemen">
-        <h2>{{ __("Automatisch de volledige livestream opnemen") }}</h2>
-        <p>De server controleert <strong>knock1knock, emyii, cutefacebigass, ricasashaa, en julesxdann</strong> elke 60 seconden. Zodra een publieke stream met beeld én geluid afspeelbaar is, start de opname vanzelf en loopt deze door totdat de uitzending stopt. Daarna wordt de MP4 in het privéarchief gecontroleerd en opgeslagen. Je hoeft niets aan te klikken en deze pagina hoeft niet open te blijven. Door de detectietijd of verbindingsproblemen kan het begin ontbreken of een opname onderbroken zijn.</p>
+    <section class="live-automatic" aria-label="Status automatische opname">
+        <h2>{{ __("Automatische opname: worker niet bevestigd") }}</h2>
+        <p>SmartDesk kan momenteel niet bevestigen dat een achtergrondworker de accounts <strong>knock1knock, emyii, cutefacebigass, ricasashaa en julesxdann</strong> elke 60 seconden controleert en volledige streams opneemt. De huidige Railway-recorderdeployment start een Laravel-webserver; er is geen werkende opnameworker of automatische MP4-afhandeling aangetoond. Daarom belooft deze pagina niet langer dat livestreams vanzelf worden opgenomen. Je kunt bestaande MP4-bestanden privé uploaden of beheren hieronder.</p>
         <div class="live-automatic-facts">
-            <span>{{ __("Automatische achtergrondcontrole: 60 sec.") }}</span>
-            <span>{{ __("Opnameduur: geen limiet van 30 sec.") }}</span>
-            <span>{{ __("Opslag: privé-MP4 na afloop") }}</span>
-            <span>{{ __("Status ververst: 15 sec.") }}</span>
+            <span>{{ __("Statusweergave ververst: 15 sec.") }}</span>
+            <span>{{ __("Opnameworker: niet bevestigd") }}</span>
+            <span>{{ __("Privéarchief: bestaande MP4-bestanden") }}</span>
         </div>
     </section>
 
