@@ -25,8 +25,7 @@ class ContactController extends Controller
      * Verwerk en verstuur het contactformulier.
      */
     public function send(
-        Request $request,
-        GmailLiveChatService $gmail
+        Request $request
     ): RedirectResponse {
         $validated = $request->validate(
             [
@@ -62,6 +61,9 @@ class ContactController extends Controller
         // First deliver the actual customer request to the site owner.
         // If this fails, the request has not been confirmed as received.
         try {
+            // Resolve inside the try block: the service constructor can throw
+            // when the Gmail sender address/configuration is missing.
+            $gmail = app(GmailLiveChatService::class);
             $gmail->sendContactMessage($data);
         } catch (Throwable $exception) {
             report($exception);
