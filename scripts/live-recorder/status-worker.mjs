@@ -1,15 +1,16 @@
 /**
- * Status-only worker for publicly accessible livestream pages.
- * It never downloads, records, or stores stream media.
+ * Status worker for the shared emyii recorder service.
+ * Most auxiliary rooms remain status-only; ricasashaa is a full HLS recorder.
  */
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { findPublicMedia } from './public-hls.mjs';
+import { runHlsMonitor } from './hls-monitor.mjs';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const primary = process.env.LIVE_ACCOUNT;
 const accountSets = {
   knock1knock: ['knock1knock'],
-  emyii: ['emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'leo_kitty'],
+  emyii: ['emyii', 'cutefacebigass', 'julesxdann', 'leo_kitty'],
 };
 if (!accountSets[primary]) throw new Error('LIVE_ACCOUNT must be knock1knock or emyii');
 const required = ['LIVE_S3_ENDPOINT','LIVE_S3_BUCKET','LIVE_S3_REGION','LIVE_S3_ACCESS_KEY_ID','LIVE_S3_SECRET_ACCESS_KEY'];
@@ -28,6 +29,7 @@ const s3 = new S3Client({
 });
 const bucket = process.env.LIVE_S3_BUCKET;
 const accounts = accountSets[primary];
+const abort = new AbortController();
 
 async function publish(account, status, message) {
   const checked_at = new Date().toISOString();
@@ -41,11 +43,11 @@ async function publish(account, status, message) {
   console.log(checked_at, account, status, message);
 }
 
-async function check(account) {
+async function checkStatusOnly(account) {
   try {
     const source = await findPublicMedia(account);
     if (source.kind === 'live' && Array.isArray(source.urls) && source.urls.length >= 2) {
-      await publish(account, 'live', 'Publieke livestreambron gecontroleerd; status-only modus (geen opname)');
+      await publish(account, 'live', 'Publieke livestreambron gecontroleerd; status-only modus');
     } else if (source.kind === 'offline') {
       await publish(account, 'offline', 'Publieke bron bevestigt dat de stream offline is');
     } else {
@@ -57,10 +59,35 @@ async function check(account) {
   }
 }
 
-console.log('SmartDesk status-only worker started for', accounts.join(', '));
-while (true) {
-  const started = Date.now();
-  for (const account of accounts) await check(account);
-  const remaining = Math.max(1000, 60_000 - (Date.now() - started));
-  await delay(remaining);
+async function statusLoop() {
+  while (!abort.signal.aborted) {
+    const started = Date.now();
+    for (const account of accounts) await checkStatusOnly(account);
+    await Promise.race([
+      delay(Math.max(1000, 60_000 - (Date.now() - started))),
+      new Promise(resolve => abort.signal.addEventListener('abort', resolve, { once: true })),
+    ]);
+  }
 }
+
+// ricasashaa is intentionally NOT part of the status-only list above.
+// It gets the continuous HLS recording pipeline: one-minute discovery,
+// full-live FFmpeg capture, multipart upload, MP4 verification and private S3 storage.
+async function startRicasashaaRecorder() {
+  if (primary !== 'emyii') return;
+  return runHlsMonitor({
+    s3,
+    bucket,
+    account: 'ricasashaa',
+    signal: abort.signal,
+  }).catch(error => {
+    console.error('ricasashaa recorder stopped unexpectedly:', error?.message || error);
+  });
+}
+
+process.once('SIGTERM', () => abort.abort());
+process.once('SIGINT', () => abort.abort());
+
+console.log('SmartDesk recorder worker started for', accounts.join(', '),
+  primary === 'emyii' ? '+ ricasashaa FULL RECORDING' : '');
+await Promise.all([statusLoop(), startRicasashaaRecorder()]);
