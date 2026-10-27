@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Services\\GmailLiveChatService;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Http\\Response;
+use App\Services\GmailLiveChatService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Throwable;
 
 class ContactController extends Controller
@@ -15,7 +15,6 @@ class ContactController extends Controller
      */
     public function show(): Response
     {
-        // A contact form must never reuse a cached session/CSRF token.
         return response()->view('site.contact')
             ->header('Cache-Control', 'private, no-store, no-cache, max-age=0')
             ->header('Pragma', 'no-cache');
@@ -24,9 +23,8 @@ class ContactController extends Controller
     /**
      * Verwerk en verstuur het contactformulier.
      */
-    public function send(
-        Request $request
-    ): RedirectResponse {
+    public function send(Request $request): RedirectResponse
+    {
         $validated = $request->validate(
             [
                 'first_name' => ['required', 'string', 'max:100'],
@@ -58,11 +56,9 @@ class ContactController extends Controller
             'message' => trim($validated['message']),
         ];
 
-        // First deliver the actual customer request to the site owner.
-        // If this fails, the request has not been confirmed as received.
         try {
-            // Resolve inside the try block: the service constructor can throw
-            // when the Gmail sender address/configuration is missing.
+            // Resolve the service inside the try block because its constructor
+            // can throw when the Gmail configuration is incomplete.
             $gmail = app(GmailLiveChatService::class);
             $gmail->sendContactMessage($data);
         } catch (Throwable $exception) {
@@ -73,8 +69,8 @@ class ContactController extends Controller
                 ->with('error', __('Uw bericht kon op dit moment niet worden verzonden. Probeer het later opnieuw.'));
         }
 
-        // A confirmation email is secondary. Do not tell the visitor their
-        // request failed after the site owner has already received it.
+        // The owner's message has already been sent. Confirmation failure
+        // must not incorrectly tell the visitor that the request failed.
         try {
             $gmail->sendContactConfirmation($data);
         } catch (Throwable $exception) {
