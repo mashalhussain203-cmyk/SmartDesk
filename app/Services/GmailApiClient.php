@@ -747,54 +747,44 @@ class GmailApiClient
 
 
     private function refreshToken(): string
-
     {
-
         $environment = trim(
-
             (string) config('live-chat-email.gmail_refresh_token')
-
         );
 
-
-
         if ($environment !== '') {
-
             return $environment;
-
         }
 
+        // A missing table or an unreadable legacy token must not prevent
+        // trying the other supported token stores.
+        if (Schema::hasTable('live_chat_settings')) {
+            try {
+                $encrypted = (string) DB::table('live_chat_settings')
+                    ->where('key', 'gmail_refresh_token')
+                    ->value('value');
 
+                if ($encrypted !== '') {
+                    try {
+                        $decrypted = trim(Crypt::decryptString($encrypted));
 
+                        if ($decrypted !== '') {
+                            return $decrypted;
+                        }
+                    } catch (Throwable $exception) {
+                        // APP_KEY may have changed during a deployment/account
+                        // migration. Continue to the existing user OAuth token.
+                        report($exception);
+                    }
+                }
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        // Mashal Mail's existing Google OAuth flow stores its refresh token
+        // on users. Reuse it only for the exact configured sender mailbox.
         try {
-
-            if (! Schema::hasTable('live_chat_settings')) {
-
-                return '';
-
-            }
-
-
-
-            $encrypted = (string) DB::table('live_chat_settings')
-
-                ->where('key', 'gmail_refresh_token')
-
-                ->value('value');
-
-
-
-            if ($encrypted !== '') {
-
-                return trim(Crypt::decryptString($encrypted));
-
-            }
-
-            // Backward-compatible fallback: the existing Mashal Mail OAuth
-            // flow stores its encrypted refresh token on the connected user,
-            // while the contact-form sender uses live_chat_settings. Reuse
-            // that token only when the connected Gmail address matches the
-            // configured sender address.
             if (
                 Schema::hasTable('users')
                 && Schema::hasColumn('users', 'google_gmail_email')
@@ -808,22 +798,24 @@ class GmailApiClient
                         ->value('google_refresh_token');
 
                     if (is_string($userToken) && trim($userToken) !== '') {
-                        return trim(Crypt::decryptString($userToken));
+                        try {
+                            $decrypted = trim(Crypt::decryptString($userToken));
+
+                            if ($decrypted !== '') {
+                                return $decrypted;
+                            }
+                        } catch (Throwable $exception) {
+                            report($exception);
+                        }
                     }
                 }
             }
-
-            return '';
-
-        } catch (Throwable) {
-
-            return '';
-
+        } catch (Throwable $exception) {
+            report($exception);
         }
 
+        return '';
     }
-
-
 
     private function clientId(): string
 
