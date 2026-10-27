@@ -784,15 +784,36 @@ class GmailApiClient
 
 
 
-            if ($encrypted === '') {
+            if ($encrypted !== '') {
 
-                return '';
+                return trim(Crypt::decryptString($encrypted));
 
             }
 
+            // Backward-compatible fallback: the existing Mashal Mail OAuth
+            // flow stores its encrypted refresh token on the connected user,
+            // while the contact-form sender uses live_chat_settings. Reuse
+            // that token only when the connected Gmail address matches the
+            // configured sender address.
+            if (
+                Schema::hasTable('users')
+                && Schema::hasColumn('users', 'google_gmail_email')
+                && Schema::hasColumn('users', 'google_refresh_token')
+            ) {
+                $sender = $this->username();
 
+                if ($sender !== '') {
+                    $userToken = DB::table('users')
+                        ->whereRaw('LOWER(google_gmail_email) = ?', [$sender])
+                        ->value('google_refresh_token');
 
-            return trim(Crypt::decryptString($encrypted));
+                    if (is_string($userToken) && trim($userToken) !== '') {
+                        return trim(Crypt::decryptString($userToken));
+                    }
+                }
+            }
+
+            return '';
 
         } catch (Throwable) {
 
