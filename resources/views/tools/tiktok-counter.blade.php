@@ -1850,6 +1850,9 @@
         if (livecountsTimer !== null) {
             window.clearTimeout(livecountsTimer);
         }
+        if (supplementalTimer !== null) {
+            window.clearTimeout(supplementalTimer);
+        }
     });
 }());
 </script>
