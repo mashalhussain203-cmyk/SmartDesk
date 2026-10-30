@@ -124,7 +124,13 @@ class LiveRecordingController extends Controller
         foreach (self::MONITORED_ACCOUNTS as $account) {
             $path = "live-recordings/{$account}/status.json";
             $status = null;
-            if ($archive->configured()) {
+            // Prefer worker status stored on the app's persistent private volume.
+            // This keeps status visible when the object-store quota is exhausted.
+            if (Storage::disk('local')->exists($path)) {
+                $parsed = json_decode(Storage::disk('local')->get($path), true);
+                if (is_array($parsed)) $status = $parsed;
+            }
+            if ($status === null && $archive->configured()) {
                 try {
                     $status = $archive->getStatus($account);
                 } catch (\Throwable $exception) {
@@ -132,9 +138,6 @@ class LiveRecordingController extends Controller
                     $data[$account] = ['status' => 'error', 'message' => 'Privéopslag tijdelijk niet bereikbaar'];
                     continue;
                 }
-            } elseif (Storage::disk('local')->exists($path)) {
-                $parsed = json_decode(Storage::disk('local')->get($path), true);
-                if (is_array($parsed)) $status = $parsed;
             }
 
             $updatedAt = isset($status['checked_at']) ? strtotime((string) $status['checked_at']) : false;
