@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class LiveRecorderIngestController extends Controller
 {
-    private const ACCOUNTS = ['knock1knock', 'emyii'];
+    private const ACCOUNTS = ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'leo_kitty'];
     private const CHUNK_BYTES = 2 * 1024 * 1024;
     private const MAX_PARTS = 15000;
 
@@ -27,6 +27,7 @@ class LiveRecorderIngestController extends Controller
         $validated = $request->validate([
             'status' => ['required', 'in:offline,live,recording,uploading,error,needs_setup,unknown'],
             'message' => ['nullable', 'string', 'max:180'],
+            'last_saved' => ['nullable', 'string', 'regex:/^[A-Za-z0-9_.-]+\\.mp4$/D', 'max:180'],
         ]);
 
         Storage::disk('local')->put(
@@ -35,6 +36,7 @@ class LiveRecorderIngestController extends Controller
                 'status' => $validated['status'],
                 'message' => $validated['message'] ?? '',
                 'checked_at' => now()->toIso8601String(),
+                'last_saved' => $validated['last_saved'] ?? null,
             ], JSON_THROW_ON_ERROR)
         );
 
