@@ -321,6 +321,19 @@ async function detect(page) {
   };
 }
 
+// knock1knock: recording has been permanently disabled at the owner's request.
+// Keep the Railway worker alive only to publish a stable offline status; do not
+// discover HLS media, start FFmpeg, or create new MP4 files for this account.
+async function monitorKnockDisabled() {
+  while (!exiting) {
+    await reportHlsStatus({
+      s3, bucket, account: 'knock1knock', state: 'offline',
+      message: 'Automatische opnames permanent uitgeschakeld op verzoek van de eigenaar',
+    }).catch(() => console.error('knock1knock disabled status update failed'));
+    if (!exiting) await pause(interval);
+  }
+}
+
 async function main() {
   await update('unknown', 'Chrome-recorder wordt gestart');
   const launchBrowser = () => chromium.launchPersistentContext(profile, {
@@ -471,7 +484,9 @@ try {
   // Use the same browser-independent HLS workflow as the other rooms for
   // emyii. This prevents recurring Chromium page.goto/ERR_ABORTED failures
   // from hiding public stream activity or interrupting live capture.
-  if (account === 'emyii' || account === 'knock1knock') {
+  if (account === 'knock1knock') {
+    await monitorKnockDisabled();
+  } else if (account === 'emyii') {
     await runHlsMonitor({ s3, bucket, account, signal: extraAbort.signal });
   } else {
     await main();
