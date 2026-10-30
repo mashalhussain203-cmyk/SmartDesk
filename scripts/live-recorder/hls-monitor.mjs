@@ -41,11 +41,23 @@ export function hlsContinuousArgs(urls) {
 
 export async function reportHlsStatus({ s3, bucket, account, state, message, lastSaved = null }) {
   const checked_at = new Date().toISOString();
-  await s3.send(new PutObjectCommand({
-    Bucket: bucket, Key: 'status/' + account + '.json',
-    Body: JSON.stringify({ account, status: state, message, checked_at, last_saved: lastSaved }),
-    ContentType: 'application/json', CacheControl: 'no-store',
-  }));
+  const ingestBase = process.env.LIVE_RECORDER_URL?.replace(/\/$/, '');
+  const ingestSecret = process.env.LIVE_RECORDER_SECRET;
+  if (ingestBase && ingestSecret) {
+    const response = await fetch(`${ingestBase}/api/internal/live-recordings/${encodeURIComponent(account)}/status`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${ingestSecret}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ status: state, message, last_saved: lastSaved }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(`SmartDesk status ingest failed (HTTP ${response.status})`);
+  } else {
+    await s3.send(new PutObjectCommand({
+      Bucket: bucket, Key: 'status/' + account + '.json',
+      Body: JSON.stringify({ account, status: state, message, checked_at, last_saved: lastSaved }),
+      ContentType: 'application/json', CacheControl: 'no-store',
+    }));
+  }
   console.log(checked_at, account, state, message);
 }
 
