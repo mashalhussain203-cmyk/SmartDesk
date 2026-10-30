@@ -148,7 +148,7 @@ export async function runHlsMonitor({
   });
   const publish = async (state, message) => {
     try { await report({ s3, bucket, account, state, message, lastSaved }); }
-    catch { console.error(account, 'status update failed; retrying next poll'); }
+    catch (error) { console.error(account, 'status update failed; retrying next poll', error?.name || 'S3Error', error?.$metadata?.httpStatusCode || 'no-http-status', error?.Code || error?.code || 'no-error-code'); }
   };
 
   await publish('unknown', 'Automatische recorder gestart; controle elke minuut');
