@@ -1461,7 +1461,6 @@
                 data-direct-livecounts="1"
                 data-livecounts-endpoint="{{ route('tiktok-counter.livecounts-cards', ['videoId' => $videoId]) }}"
                 data-supplemental-endpoint="{{ route('tiktok-counter.supplemental', ['videoId' => $videoId]) }}"
-                data-video-url="{{ $videoUrl }}"
             >
                 <aside class="ttc-card ttc-preview">
                     <iframe
