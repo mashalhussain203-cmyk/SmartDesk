@@ -1,9 +1,10 @@
 /**
- * Shared live recorder worker. Each Railway worker owns a disjoint account set;
- * every account gets the same continuous HLS recording and private MP4 pipeline.
+ * Shared live recorder worker. Each Railway worker owns a disjoint account set.
+ * knock1knock is status-only: automatic recording is permanently disabled.
  */
 import { S3Client } from '@aws-sdk/client-s3';
-import { runHlsMonitor } from './hls-monitor.mjs';
+import { runHlsMonitor, reportHlsStatus } from './hls-monitor.mjs';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const primary = process.env.LIVE_ACCOUNT;
 const accountSets = {
@@ -37,23 +38,42 @@ const s3 = new S3Client({
   },
 });
 const bucket = process.env.LIVE_S3_BUCKET;
-const accounts = accountSets[primary];
 const abort = new AbortController();
-
 process.once('SIGTERM', () => abort.abort());
 process.once('SIGINT', () => abort.abort());
 
-console.log(
-  'SmartDesk continuous HLS recorder started for',
-  accounts.join(', '),
-  '- discovery every 60 seconds; private MP4 verification enabled',
-);
-
-await Promise.all(accounts.map(async (account) => {
-  try {
-    await runHlsMonitor({ s3, bucket, account, signal: abort.signal });
-  } catch (error) {
-    console.error(account, 'recorder monitor stopped unexpectedly:', error?.message || error);
-    process.exitCode = 1;
+if (primary === 'knock1knock') {
+  console.log('knock1knock status-only worker started; automatic MP4 recording is permanently disabled');
+  while (!abort.signal.aborted) {
+    try {
+      await reportHlsStatus({
+        s3, bucket, account: 'knock1knock', state: 'offline',
+        message: 'Automatische opnames permanent uitgeschakeld op verzoek van de eigenaar',
+      });
+    } catch (error) {
+      console.error('knock1knock disabled status update failed:', error?.name || 'Error',
+        error?.$metadata?.httpStatusCode || 'no-http-status', error?.Code || error?.code || 'no-error-code');
+    }
+    if (!abort.signal.aborted) {
+      await Promise.race([
+        delay(60_000),
+        new Promise(resolve => abort.signal.addEventListener('abort', resolve, { once: true })),
+      ]);
+    }
   }
-}));
+} else {
+  const accounts = accountSets[primary];
+  console.log(
+    'SmartDesk continuous HLS recorder started for',
+    accounts.join(', '),
+    '- discovery every 60 seconds; private MP4 verification enabled',
+  );
+  await Promise.all(accounts.map(async (account) => {
+    try {
+      await runHlsMonitor({ s3, bucket, account, signal: abort.signal });
+    } catch (error) {
+      console.error(account, 'recorder monitor stopped unexpectedly:', error?.message || error);
+      process.exitCode = 1;
+    }
+  }));
+}
