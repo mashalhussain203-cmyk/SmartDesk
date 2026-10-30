@@ -39,26 +39,53 @@ export function hlsContinuousArgs(urls) {
   return args;
 }
 
+function safeErrorDetails(error) {
+  const message = String(error?.message || error)
+    .replace(/https?:\/\/\S+/gi, '[url]')
+    .replace(/(token|signature|authorization|secret|key)=([^&\s]+)/gi, '$1=[redacted]')
+    .slice(0, 160);
+  const code = error?.Code || error?.code || '';
+  const status = error?.$metadata?.httpStatusCode || '';
+  return [error?.name || 'Error', status, code, message].filter(Boolean).join(' ').slice(0, 220);
+}
+
+function classifyFfmpegIssue(value) {
+  const message = String(value || '').toLowerCase();
+  if (/403|forbidden/.test(message)) return 'HTTP 403';
+  if (/429|too many requests/.test(message)) return 'HTTP 429';
+  if (/404|not found/.test(message)) return 'HTTP 404';
+  if (/timed out|timeout|etimedout/.test(message)) return 'network timeout';
+  if (/server returned 5\d\d/.test(message)) return 'HTTP 5xx';
+  if (/connection refused|network is unreachable|connection reset/.test(message)) return 'network connection error';
+  if (/invalid data|could not find codec|matches no streams/.test(message)) return 'invalid or unsupported media stream';
+  return 'FFmpeg input/output error';
+}
+
 export async function reportHlsStatus({ s3, bucket, account, state, message, lastSaved = null }) {
   const checked_at = new Date().toISOString();
   const ingestBase = process.env.LIVE_RECORDER_URL?.replace(/\/$/, '');
   const ingestSecret = process.env.LIVE_RECORDER_SECRET;
   if (ingestBase && ingestSecret) {
-    const response = await fetch(`${ingestBase}/api/internal/live-recordings/${encodeURIComponent(account)}/status`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${ingestSecret}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ status: state, message, last_saved: lastSaved }),
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!response.ok) throw new Error(`SmartDesk status ingest failed (HTTP ${response.status})`);
-  } else {
-    await s3.send(new PutObjectCommand({
-      Bucket: bucket, Key: 'status/' + account + '.json',
-      Body: JSON.stringify({ account, status: state, message, checked_at, last_saved: lastSaved }),
-      ContentType: 'application/json', CacheControl: 'no-store',
-    }));
+    try {
+      const response = await fetch(`${ingestBase}/api/internal/live-recordings/${encodeURIComponent(account)}/status`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${ingestSecret}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ status: state, message, last_saved: lastSaved }),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) throw new Error(`SmartDesk status ingest failed (HTTP ${response.status})`);
+      console.log(checked_at, account, state, message);
+      return;
+    } catch (error) {
+      console.error(account, 'SmartDesk status ingest unavailable; falling back to private S3', safeErrorDetails(error));
+    }
   }
-  console.log(checked_at, account, state, message);
+  await s3.send(new PutObjectCommand({
+    Bucket: bucket, Key: 'status/' + account + '.json',
+    Body: JSON.stringify({ account, status: state, message, checked_at, last_saved: lastSaved }),
+    ContentType: 'application/json', CacheControl: 'no-store',
+  }));
+  console.log(checked_at, account, state, message, ingestBase ? '(S3 status fallback)' : '');
 }
 
 async function bounded(promise, ms, onTimeout) {
@@ -83,8 +110,10 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
   const filename = new Date().toISOString().replace(/[:.]/g, '-') + '_' + account + '.mp4';
   const key = 'recordings/' + account + '/' + filename;
   // Never print the signed URLs embedded in these process arguments.
-  const proc = spawn('ffmpeg', hlsContinuousArgs(urls), { stdio: ['ignore', 'pipe', 'ignore'] });
+  const proc = spawn('ffmpeg', hlsContinuousArgs(urls), { stdio: ['ignore', 'pipe', 'pipe'] });
   let exitInfo = null;
+  let ffmpegIssue = 'no FFmpeg diagnostic';
+  proc.stderr.on('data', chunk => { ffmpegIssue = classifyFfmpegIssue(chunk); });
   const exited = new Promise((resolve, reject) => {
     proc.once('error', reject);
     proc.once('exit', (code, signal) => {
@@ -102,15 +131,17 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
     },
     queueSize: 2, partSize: 8 * 1024 * 1024, leavePartsOnError: false,
   });
+  let uploadFailure = null;
   const uploaded = upload.done().then(
-    () => ({ ok: true }), () => ({ ok: false }),
+    () => ({ ok: true }),
+    error => { uploadFailure = error; return { ok: false }; },
   );
   let finished = false;
   return {
     key,
     async check() {
       const result = await Promise.race([uploaded, delay(15).then(() => null)]);
-      if (result && !result.ok) throw new Error('Private S3 upload interrupted');
+      if (result && !result.ok) throw new Error('Private S3 upload interrupted: ' + safeErrorDetails(uploadFailure));
       return exitInfo !== null || proc.exitCode !== null;
     },
     async stop() {
@@ -121,9 +152,9 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
         // On a stopped stream, FFmpeg must finalize the MP4 and close stdout.
         const exit = await bounded(exited, 30_000, () => proc.kill('SIGKILL'));
         const result = await bounded(uploaded, 30_000);
-        if (!result.ok) throw new Error('Private S3 upload failed');
+        if (!result.ok) throw new Error('Private S3 upload failed: ' + safeErrorDetails(uploadFailure));
         if (exit.code !== 0 && exit.code !== 255 && exit.signal !== 'SIGINT') {
-          throw new Error('FFmpeg could not finalize MP4');
+          throw new Error('FFmpeg exited with code ' + exit.code + ' (' + ffmpegIssue + ')');
         }
         const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
         if (!head.ContentLength || head.ContentLength < 100_000) {
@@ -131,9 +162,9 @@ export async function startHlsCapture({ s3, bucket, account, urls }) {
         }
         console.log(new Date().toISOString(), account, 'S3_MP4_SAVED', filename, head.ContentLength, 'bytes');
         return key;
-      } catch {
+      } catch (error) {
         await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key })).catch(() => {});
-        throw new Error('Recording was not verified in private S3');
+        throw new Error('Recording was not verified in private S3: ' + safeErrorDetails(error));
       }
     },
   };
@@ -212,12 +243,13 @@ export async function runHlsMonitor({
             : 'Livestatus niet bevestigd: ' + describePublicStreamIssue(source) +
               '; automatische hercontrole over een minuut');
       }
-    } catch {
-      console.error(account, 'capture or status check failed; retrying');
+    } catch (error) {
+      console.error(account, 'capture or status check failed; retrying', safeErrorDetails(error));
       if (recording) {
         const failed = recording;
         recording = null;
-        try { await failed.stop(); } catch { /* Invalid MP4 already removed. */ }
+        try { await failed.stop(); }
+        catch (stopError) { console.error(account, 'incomplete MP4 discarded', safeErrorDetails(stopError)); }
       }
       confirmedOffline = 0;
       await publish('error', 'Opnamecontrole mislukt; automatische nieuwe poging over een minuut');
