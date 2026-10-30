@@ -1398,7 +1398,7 @@
             </h1>
 
             <p class="ttc-subtitle">
-                {{ __('Volg publieke TikTok views, likes, comments en shares in één realtime dashboard. Nieuwe data wordt automatisch opnieuw opgehaald.') }}
+                {{ __('Volg publieke TikTok views, likes, comments, shares en favorieten in één realtime dashboard. Nieuwe data wordt automatisch opnieuw opgehaald.') }}
             </p>
         </header>
 
@@ -1460,6 +1460,8 @@
                 data-video-url="{{ $videoUrl }}"
                 data-direct-livecounts="1"
                 data-livecounts-endpoint="{{ route('tiktok-counter.livecounts-cards', ['videoId' => $videoId]) }}"
+                data-supplemental-endpoint="{{ route('tiktok-counter.supplemental', ['videoId' => $videoId]) }}"
+                data-video-url="{{ $videoUrl }}"
             >
                 <aside class="ttc-card ttc-preview">
                     <iframe
@@ -1520,6 +1522,17 @@
                             </div>
                             <div class="ttc-stat-value ttc-loading" data-livecounts-stat="shares">0</div>
                         </div>
+
+                        <div class="ttc-stat ttc-stat--favorites">
+                            <div class="ttc-stat-head">
+                                <div class="ttc-stat-label">{{ __('Favorites') }}</div>
+                                <div class="ttc-stat-badge" aria-hidden="true">
+                                    <span style="font-size:30px;line-height:1;color:#f5c451;">★</span>
+                                </div>
+                            </div>
+                            <div class="ttc-stat-value ttc-loading" data-supplemental-stat="favorites">—</div>
+                            <div class="ttc-stat-delta">{{ __('Opgeslagen video’s') }}</div>
+                        </div>
                     </div>
 
                                                                             </div>
@@ -1554,6 +1567,11 @@
     var statusDot = document.getElementById('ttc-status-dot');
     var updatedElement = document.getElementById('ttc-updated');
     var livecountsEndpoint = root.getAttribute('data-livecounts-endpoint') || '';
+    var supplementalEndpoint = root.getAttribute('data-supplemental-endpoint') || '';
+    var videoUrl = root.getAttribute('data-video-url') || '';
+    var favoritesElement = document.querySelector('[data-supplemental-stat="favorites"]');
+    var supplementalTimer = null;
+    var supplementalRequestInFlight = false;
     var livecountsElements = {
         views: document.querySelector('[data-livecounts-stat="views"]'),
         likes: document.querySelector('[data-livecounts-stat="likes"]'),
@@ -1623,9 +1641,69 @@
         }
     }
 
+    function scheduleSupplemental() {
+        if (supplementalTimer !== null) {
+            window.clearTimeout(supplementalTimer);
+        }
+        supplementalTimer = window.setTimeout(loadSupplementalStats, 15000);
+    }
+
+    function loadSupplementalStats() {
+        if (!supplementalEndpoint || !videoUrl || supplementalRequestInFlight) {
+            return;
+        }
+
+        supplementalRequestInFlight = true;
+        var url = supplementalEndpoint
+            + '?url=' + encodeURIComponent(videoUrl)
+            + '&_=' + encodeURIComponent(String(Date.now()));
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            cache: 'no-store',
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Supplemental TikTok stats request failed');
+            }
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || data.success !== true || !data.stats || !favoritesElement) {
+                return;
+            }
+
+            var favorites = data.stats.favorites;
+
+            if (favorites === null || typeof favorites === 'undefined' || !isFinite(Number(favorites))) {
+                favoritesElement.textContent = '—';
+                favoritesElement.setAttribute('aria-label', 'Niet beschikbaar');
+                favoritesElement.classList.remove('ttc-loading');
+                return;
+            }
+
+            animateOdometer(favoritesElement, favorites);
+        })
+        .catch(function () {
+            // Keep the last known real value; never replace it with a fake zero.
+        })
+        .finally(function () {
+            supplementalRequestInFlight = false;
+            scheduleSupplemental();
+        });
+    }
+
     function scheduleLivecounts() {
         if (livecountsTimer !== null) {
             window.clearTimeout(livecountsTimer);
+        }
+        if (supplementalTimer !== null) {
+            window.clearTimeout(supplementalTimer);
         }
         livecountsTimer = window.setTimeout(loadLivecountsCards, 8000);
     }
@@ -1746,6 +1824,8 @@
                 : '0 0 13px rgba(110,231,168,.62)';
         }
     }
+
+    loadSupplementalStats();
 
     if (
         window.__ttcInitialStatsPromise
