@@ -141,34 +141,10 @@ async function reportStoppedAccount(stoppedAccount) {
     if (!exiting) await pause(interval);
   }
 }
-// Jules: public live-status checks only; no automatic capture or MP4 storage.
-async function monitorJulesStatus() {
-  while (!exiting) {
-    try {
-      const source = await findPublicMedia('julesxdann');
-      const offline = source?.kind === 'offline';
-      const live = source?.kind === 'live';
-      await reportHlsStatus({
-        s3, bucket, account: 'julesxdann',
-        state: offline ? 'offline' : live ? 'live' : 'unknown',
-        message: offline
-          ? 'Stream is offline; automatisch wachten op volgende live'
-          : live
-            ? 'Livestream is online; automatische statuscontrole actief (geen opname)'
-            : 'Livestatus niet bevestigd; automatische hercontrole over een minuut',
-      });
-    } catch {
-      console.error('julesxdann public status check failed');
-      await reportHlsStatus({
-        s3, bucket, account: 'julesxdann', state: 'unknown',
-        message: 'Livestatus niet bevestigd; automatische hercontrole over een minuut',
-      }).catch(() => {});
-    }
-    if (!exiting) await pause(interval);
-  }
-}
+// Jules: independent full-length HLS recording on the existing emyii worker.
 const julesxdannMonitor = account === 'emyii'
-  ? monitorJulesStatus() : null;
+  ? runHlsMonitor({ s3, bucket, account: 'julesxdann', signal: extraAbort.signal })
+  : null;
 const leoKittyMonitor = account === 'emyii'
   ? reportStoppedAccount('leo_kitty') : null;
 
@@ -319,19 +295,6 @@ async function detect(page) {
       ', gepauzeerd: ' + counts.paused + ', geladen: ' + counts.ready +
       ', mediabron: ' + counts.withSource + ', mediafouten: ' + counts.mediaErrors + ')',
   };
-}
-
-// knock1knock: recording has been permanently disabled at the owner's request.
-// Keep the Railway worker alive only to publish a stable offline status; do not
-// discover HLS media, start FFmpeg, or create new MP4 files for this account.
-async function monitorKnockDisabled() {
-  while (!exiting) {
-    await reportHlsStatus({
-      s3, bucket, account: 'knock1knock', state: 'offline',
-      message: 'Automatische opnames permanent uitgeschakeld op verzoek van de eigenaar',
-    }).catch(() => console.error('knock1knock disabled status update failed'));
-    if (!exiting) await pause(interval);
-  }
 }
 
 async function main() {
@@ -485,7 +448,7 @@ try {
   // emyii. This prevents recurring Chromium page.goto/ERR_ABORTED failures
   // from hiding public stream activity or interrupting live capture.
   if (account === 'knock1knock') {
-    await monitorKnockDisabled();
+    await runHlsMonitor({ s3, bucket, account: 'knock1knock', signal: extraAbort.signal });
   } else if (account === 'emyii') {
     await runHlsMonitor({ s3, bucket, account, signal: extraAbort.signal });
   } else {
