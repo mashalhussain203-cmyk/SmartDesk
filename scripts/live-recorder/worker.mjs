@@ -65,9 +65,8 @@ const ricasashaaMonitor = account === 'emyii'
     })
   : null;
 
-// Recover Jules' already-uploaded MP4 parts if the previous container exited
-// before completing its multipart upload. Recording for this room is disabled,
-// so no active uploader can still be writing these parts.
+// Recover only Jules multipart uploads created before automatic recording was
+// re-enabled. New uploads have a later initiation time and are left untouched.
 async function recoverStoppedJulesUpload() {
   if (account !== 'emyii') return;
   const prefix = 'recordings/julesxdann/';
