@@ -149,7 +149,7 @@ class LiveRecordingController extends Controller
                         $response = Http::timeout(8)
                             ->connectTimeout(4)
                             ->withUserAgent('Mozilla/5.0 (compatible; SmartDeskLiveStatus/1.0)')
-                            ->acceptHtml()
+                            ->accept('text/html,application/xhtml+xml')
                             ->get('https://chaturbate.com/'.$account.'/');
 
                         if (! $response->successful()) {
