@@ -193,18 +193,9 @@
                         : 'Nog geen actuele controle';
                     const saved = card.querySelector('[data-live-saved]');
                     saved.textContent = status.last_saved ? 'Laatst opgeslagen: ' + status.last_saved : '';
-                    const filename = status.last_saved ||
-                        ((status.message || '').startsWith('Opname opgeslagen: ')
-                            ? status.message.slice('Opname opgeslagen: '.length).trim() : '');
-                    if (filename) {
-                        if (/^[A-Za-z0-9_.-]+\.mp4$/.test(filename)) {
-                            const exists = Array.from(document.querySelectorAll('.live-item video')).some(video =>
-                                decodeURIComponent(new URL(video.src).pathname).endsWith('/' + filename + '/watch')
-                            );
-                            const playing = Array.from(document.querySelectorAll('.live-item video')).some(video => !video.paused);
-                            if (!exists && !playing) window.location.reload();
-                        }
-                    }
+                    // Status polling must never reload the whole page. The archive list
+                    // is rendered independently; refreshing a status must not interrupt
+                    // playback or create a reload loop when a new filename appears.
                 });
             } catch (_error) {
                 // Keep previous status; do not falsely report OFFLINE on network failure.
