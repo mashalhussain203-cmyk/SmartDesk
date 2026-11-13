@@ -210,6 +210,16 @@ final class LiveArchiveS3
             if (in_array($segment, $allowed, true)) return $segment;
         }
 
+        // Older recorder uploads stored account names in the MP4 filename,
+        // e.g. recordings/2026-11-12T18-34-06-898Z_cutefacebigass.mp4.
+        // Resolve the suffix against the monitored account allowlist so these
+        // root-level recordings are shown under the correct account.
+        foreach ($allowed as $account) {
+            if (str_ends_with(strtolower($filename), '_'.strtolower($account).'.mp4')) {
+                return $account;
+            }
+        }
+
         // Preserve a useful folder label for legacy layouts outside the current
         // monitored-account allowlist. Root-level MP4s are grouped as "archief".
         $parent = count($segments) > 1 ? $segments[count($segments) - 2] : 'archief';
