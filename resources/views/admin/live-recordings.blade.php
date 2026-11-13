@@ -143,8 +143,8 @@
                 src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}"
                 aria-label="Privéopname van {{ $recording['account'] }}"></video>
             <div class="live-body">
-                <h3>{{ $recording['account'] }}</h3>
-                <div class="live-muted">
+                <h3>{{ $recording['filename'] }}</h3>
+                <div class="live-muted">{{ '@' . $recording['account'] }} · 
                     {{ date('d-m-Y H:i', $recording['created_at']) }} ·
                     {{ number_format($recording['bytes'] / (1024 * 1024), 1, ',', '.') }} MB
                 </div>
