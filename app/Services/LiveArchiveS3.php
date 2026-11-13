@@ -162,7 +162,7 @@ final class LiveArchiveS3
 
                 $key = $read($entry, 'Key');
                 $filename = basename($key);
-                if ($key === '' || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename) || isset($seen[$key])) {
+                if ($key === '' || !preg_match('/^[A-Za-z0-9_.-]+\.mp4$/Di', $filename) || isset($seen[$key])) {
                     continue;
                 }
 
