@@ -154,11 +154,17 @@ final class LiveArchiveS3
                     throw new RuntimeException('Invalid bucket list response for '.$account.'.');
                 }
 
-                $namespace = $xml->getNamespaces(true)[''] ?? null;
-                $bucketResult = $namespace ? $xml->children($namespace) : $xml;
+                // Use namespace-independent XPath: Railway's S3 XML can
+                // return ListBucketResult/Contents in a default XML namespace.
+                $entries = $xml->xpath('//*[local-name()="Contents"]') ?: [];
 
-                foreach ($bucketResult->Contents as $entry) {
-                    $key = (string) $entry->Key;
+                foreach ($entries as $entry) {
+                    $read = static function (\\SimpleXMLElement $node, string $name): string {
+                        $value = $node->xpath('./*[local-name()="'.$name.'"]');
+                        return isset($value[0]) ? (string) $value[0] : '';
+                    };
+
+                    $key = $read($entry, 'Key');
                     $filename = basename($key);
                     if (!str_starts_with($key, $prefix)
                         || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename)
@@ -171,13 +177,15 @@ final class LiveArchiveS3
                         'account' => $account,
                         'filename' => $filename,
                         'key' => $key,
-                        'bytes' => (int) $entry->Size,
-                        'created_at' => strtotime((string) $entry->LastModified) ?: time(),
+                        'bytes' => (int) $read($entry, 'Size'),
+                        'created_at' => strtotime($read($entry, 'LastModified')) ?: time(),
                     ];
                 }
 
-                $truncated = strtolower((string) $bucketResult->IsTruncated) === 'true';
-                $next = trim((string) $bucketResult->NextContinuationToken);
+                $truncatedNodes = $xml->xpath('//*[local-name()="IsTruncated"]') ?: [];
+                $tokenNodes = $xml->xpath('//*[local-name()="NextContinuationToken"]') ?: [];
+                $truncated = strtolower(isset($truncatedNodes[0]) ? (string) $truncatedNodes[0] : '') === 'true';
+                $next = trim(isset($tokenNodes[0]) ? (string) $tokenNodes[0] : '');
                 $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
                 if ($token !== null) {
                     $seenTokens[$token] = true;
