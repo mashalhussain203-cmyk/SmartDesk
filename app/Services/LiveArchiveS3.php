@@ -155,7 +155,7 @@ final class LiveArchiveS3
 
             $entries = $xml->xpath('//*[local-name()="Contents"]') ?: [];
             foreach ($entries as $entry) {
-                $read = static function (\\SimpleXMLElement $node, string $name): string {
+                $read = static function (\SimpleXMLElement $node, string $name): string {
                     $value = $node->xpath('./*[local-name()="'.$name.'"]');
                     return isset($value[0]) ? (string) $value[0] : '';
                 };
