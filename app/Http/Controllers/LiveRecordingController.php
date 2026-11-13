@@ -72,7 +72,7 @@ class LiveRecordingController extends Controller
     {
         $this->requireAdmin();
 
-        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, false);
+        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, false, $this->storedObjectKey($request));
         return response()->file($this->safePath($account, $filename), [
             'Content-Type' => 'video/mp4',
             'Cache-Control' => 'private, no-store, max-age=0',
@@ -85,7 +85,7 @@ class LiveRecordingController extends Controller
     {
         $this->requireAdmin();
 
-        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, true);
+        if ($archive->configured()) return $archive->streamVideo($request, $account, $filename, true, $this->storedObjectKey($request));
         return response()->download($this->safePath($account, $filename), $filename, [
             'Cache-Control' => 'private, no-store, max-age=0',
             'X-Content-Type-Options' => 'nosniff',
@@ -96,13 +96,23 @@ class LiveRecordingController extends Controller
     {
         $this->requireAdmin();
         if ($archive->configured()) {
-            $archive->removeVideo($account, $filename);
+            $archive->removeVideo($account, $filename, $this->storedObjectKey($request));
         } else {
             $this->safePath($account, $filename);
             Storage::disk('local')->delete("live-recordings/{$account}/{$filename}");
         }
 
         return redirect()->route('live.index')->with('success', 'Opname verwijderd.');
+    }
+
+    private function storedObjectKey(Request $request): ?string
+    {
+        $encoded = $request->query('object_key');
+        if (!is_string($encoded) || $encoded === '') return null;
+        $padding = (4 - strlen($encoded) % 4) % 4;
+        $decoded = base64_decode(strtr($encoded, '-_', '+/').str_repeat('=', $padding), true);
+        abort_unless(is_string($decoded) && $decoded !== '' && !str_contains($decoded, "\\0"), 404);
+        return $decoded;
     }
 
     private function safePath(string $account, string $filename): string
