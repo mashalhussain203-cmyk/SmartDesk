@@ -147,7 +147,7 @@ final class LiveArchiveS3
             foreach ($xml->Contents as $entry) {
                 $key = (string) $entry->Key;
                 $filename = basename($key);
-                if (!preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/D', $filename)) {
+                if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename)) {
                     continue;
                 }
 
@@ -193,7 +193,7 @@ final class LiveArchiveS3
         }
 
         foreach ($allowed as $account) {
-            if (preg_match('/(?:^|[_-])'.preg_quote($account, '/').'\\.mp4$/i', $filename)) {
+            if (preg_match('/(?:^|[_-])'.preg_quote($account, '/').'\.mp4$/i', $filename)) {
                 return $account;
             }
         }
@@ -263,7 +263,7 @@ final class LiveArchiveS3
     {
         if ($storedKey === null || $storedKey === '') return $this->objectKey($account, $filename);
         if (!in_array($account, ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'leo_kitty', 'dellris'], true)
-            || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/D', $filename)
+            || !preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename)
             || basename($storedKey) !== $filename
             || $this->accountForRecordingKey($storedKey, $filename, [$account]) !== $account) {
             abort(404);
