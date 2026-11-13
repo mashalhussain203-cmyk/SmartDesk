@@ -139,7 +139,7 @@
     @forelse($recordings as $recording)
         @if($loop->first)<div class="live-items">@endif
         <article class="live-item">
-            <video controls preload="metadata" playsinline webkit-playsinline
+            <video controls preload="none" playsinline webkit-playsinline
                 src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}"
                 aria-label="Privéopname van {{ $recording['account'] }}"></video>
             <div class="live-body">
