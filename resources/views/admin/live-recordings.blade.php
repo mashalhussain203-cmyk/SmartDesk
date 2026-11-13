@@ -140,7 +140,7 @@
         @if($loop->first)<div class="live-items">@endif
         <article class="live-item">
             <video controls preload="metadata" playsinline webkit-playsinline
-                src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}"
+                src="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}"
                 aria-label="Privéopname van {{ $recording['account'] }}"></video>
             <div class="live-body">
                 <h3>{{ $recording['account'] }}</h3>
@@ -150,9 +150,9 @@
                 </div>
                 <p class="live-video-error" data-video-error role="status">{{ __("De videospeler kon dit bestand niet laden. Probeer ‘Open video’ of ‘Download MP4’.") }}</p>
                 <div class="live-actions">
-                    <a class="live-btn" href="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" target="_blank" rel="noopener">Open video</a>
-                    <a class="live-btn" href="{{ route('live.download', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" download="{{ $recording['filename'] }}">Download MP4</a>
-                    <form action="{{ route('live.destroy', ['account' => $recording['account'], 'filename' => $recording['filename']]) }}" method="POST" onsubmit="return confirm('Deze privéopname definitief verwijderen?');">
+                    <a class="live-btn" href="{{ route('live.play', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}" target="_blank" rel="noopener">Open video</a>
+                    <a class="live-btn" href="{{ route('live.download', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}" download="{{ $recording['filename'] }}">Download MP4</a>
+                    <form action="{{ route('live.destroy', ['account' => $recording['account'], 'filename' => $recording['filename'], 'object_key' => rtrim(strtr(base64_encode($recording['key'] ?? ''), '+/', '-_'), '=')]) }}" method="POST" onsubmit="return confirm('Deze privéopname definitief verwijderen?');">
                         @csrf
                         @method('DELETE')
                         <button class="live-btn danger" type="submit">{{ __("Verwijderen") }}</button>
