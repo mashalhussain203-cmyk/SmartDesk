@@ -30,9 +30,7 @@ class LiveRecordingController extends Controller
         $archiveError = null;
         if ($archive->configured()) {
             try {
-                foreach (self::ACCOUNTS as $account) {
-                    $recordings = array_merge($recordings, $archive->listVideos($account));
-                }
+                $recordings = $archive->listVideosForAccounts(self::ACCOUNTS);
             } catch (\Throwable $exception) {
                 report($exception);
                 $archiveError = 'De privéopslag is tijdelijk niet bereikbaar.';
