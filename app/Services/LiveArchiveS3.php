@@ -145,7 +145,13 @@ final class LiveArchiveS3
                 throw new RuntimeException('Invalid bucket list response.');
             }
 
-            foreach ($xml->Contents as $entry) {
+            // S3 ListObjectsV2 responses use a default XML namespace.
+            // Accessing $xml->Contents directly silently returns an empty list
+            // when that namespace is present, making the archive show 0 videos.
+            $namespace = $xml->getNamespaces(true)[''] ?? null;
+            $bucketResult = $namespace ? $xml->children($namespace) : $xml;
+
+            foreach ($bucketResult->Contents as $entry) {
                 $key = (string) $entry->Key;
                 $filename = basename($key);
                 if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/Di', $filename)) {
@@ -167,8 +173,8 @@ final class LiveArchiveS3
                 ];
             }
 
-            $truncated = strtolower((string) $xml->IsTruncated) === 'true';
-            $next = trim((string) $xml->NextContinuationToken);
+            $truncated = strtolower((string) $bucketResult->IsTruncated) === 'true';
+            $next = trim((string) $bucketResult->NextContinuationToken);
             $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
             if ($token !== null) $seenTokens[$token] = true;
             $pages++;
