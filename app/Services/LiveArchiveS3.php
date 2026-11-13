@@ -18,8 +18,9 @@ final class LiveArchiveS3
 
     public function configured(): bool
     {
-        foreach (['LIVE_S3_ENDPOINT','LIVE_S3_BUCKET','LIVE_S3_REGION','LIVE_S3_ACCESS_KEY_ID','LIVE_S3_SECRET_ACCESS_KEY'] as $name) {
-            if (!is_string(env($name)) || trim(env($name)) === '') return false;
+        $settings = config('services.live_archive', []);
+        foreach (['endpoint', 'bucket', 'region', 'access_key_id', 'secret_access_key'] as $name) {
+            if (!is_string($settings[$name] ?? null) || trim($settings[$name]) === '') return false;
         }
         return true;
     }
@@ -27,14 +28,15 @@ final class LiveArchiveS3
     private function config(): array
     {
         if (!$this->configured()) throw new RuntimeException('Private live archive bucket is not configured.');
-        $endpoint = rtrim((string) env('LIVE_S3_ENDPOINT'), '/');
+        $settings = config('services.live_archive', []);
+        $endpoint = rtrim((string) $settings['endpoint'], '/');
         if (!str_starts_with($endpoint, 'https://')) throw new RuntimeException('HTTPS S3 endpoint required.');
         return [
             'endpoint' => $endpoint,
-            'bucket' => (string) env('LIVE_S3_BUCKET'),
-            'region' => (string) env('LIVE_S3_REGION'),
-            'key' => (string) env('LIVE_S3_ACCESS_KEY_ID'),
-            'secret' => (string) env('LIVE_S3_SECRET_ACCESS_KEY'),
+            'bucket' => (string) $settings['bucket'],
+            'region' => (string) $settings['region'],
+            'key' => (string) $settings['access_key_id'],
+            'secret' => (string) $settings['secret_access_key'],
         ];
     }
 
@@ -47,7 +49,7 @@ final class LiveArchiveS3
     {
         $cfg = $this->config();
         $endpoint = parse_url($cfg['endpoint']);
-        $virtual = env('LIVE_S3_URL_STYLE', 'path') === 'virtual-host';
+        $virtual = (config('services.live_archive.url_style', 'path') === 'virtual-host');
         $host = (string) ($endpoint['host'] ?? '');
         if ($host === '') throw new RuntimeException('S3 endpoint has no host.');
         if ($virtual) $host = $cfg['bucket'].'.'.$host;
