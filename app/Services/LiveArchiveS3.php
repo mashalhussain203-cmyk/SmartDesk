@@ -119,66 +119,72 @@ final class LiveArchiveS3
      */
     public function listVideosForAccounts(array $accounts): array
     {
-        $knownAccounts = [
-            'knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa',
-            'julesxdann', 'leo_kitty', 'dellris',
-        ];
+        // Keep the original, proven archive strategy: list each account folder
+        // explicitly instead of scanning the entire 22 GB bucket.
         $result = [];
         $seen = [];
-        $token = null;
-        $seenTokens = [];
-        $pages = 0;
 
-        do {
-            $query = ['list-type' => '2', 'max-keys' => '1000'];
-            if (is_string($token) && $token !== '') {
-                $query['continuation-token'] = $token;
+        foreach (array_values(array_unique($accounts)) as $account) {
+            if (!preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $account)) {
+                continue;
             }
 
-            $response = $this->request('GET', null, $query);
-            if ($response->getStatusCode() !== 200) {
-                throw new RuntimeException('Unable to list archived recordings ('.$response->getStatusCode().').');
-            }
+            $prefix = "recordings/{$account}/";
+            $token = null;
+            $seenTokens = [];
+            $pages = 0;
 
-            $xml = @simplexml_load_string((string) $response->getBody());
-            if ($xml === false) {
-                throw new RuntimeException('Invalid bucket list response.');
-            }
-
-            // S3 ListObjectsV2 responses use a default XML namespace.
-            // Accessing $xml->Contents directly silently returns an empty list
-            // when that namespace is present, making the archive show 0 videos.
-            $namespace = $xml->getNamespaces(true)[''] ?? null;
-            $bucketResult = $namespace ? $xml->children($namespace) : $xml;
-
-            foreach ($bucketResult->Contents as $entry) {
-                $key = (string) $entry->Key;
-                $filename = basename($key);
-                if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/Di', $filename)) {
-                    continue;
-                }
-
-                $account = $this->accountForRecordingKey($key, $filename, $knownAccounts);
-                if ($account === null || isset($seen[$key])) {
-                    continue;
-                }
-
-                $seen[$key] = true;
-                $result[] = [
-                    'account' => $account,
-                    'filename' => $filename,
-                    'key' => $key,
-                    'bytes' => (int) $entry->Size,
-                    'created_at' => strtotime((string) $entry->LastModified) ?: time(),
+            do {
+                $query = [
+                    'list-type' => '2',
+                    'prefix' => $prefix,
+                    'max-keys' => '1000',
                 ];
-            }
+                if (is_string($token) && $token !== '') {
+                    $query['continuation-token'] = $token;
+                }
 
-            $truncated = strtolower((string) $bucketResult->IsTruncated) === 'true';
-            $next = trim((string) $bucketResult->NextContinuationToken);
-            $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
-            if ($token !== null) $seenTokens[$token] = true;
-            $pages++;
-        } while ($token !== null && $pages < 1000);
+                $response = $this->request('GET', null, $query);
+                if ($response->getStatusCode() !== 200) {
+                    throw new RuntimeException('Unable to list archived recordings for '.$account.' ('.$response->getStatusCode().').');
+                }
+
+                $xml = @simplexml_load_string((string) $response->getBody());
+                if ($xml === false) {
+                    throw new RuntimeException('Invalid bucket list response for '.$account.'.');
+                }
+
+                $namespace = $xml->getNamespaces(true)[''] ?? null;
+                $bucketResult = $namespace ? $xml->children($namespace) : $xml;
+
+                foreach ($bucketResult->Contents as $entry) {
+                    $key = (string) $entry->Key;
+                    $filename = basename($key);
+                    if (!str_starts_with($key, $prefix)
+                        || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename)
+                        || isset($seen[$key])) {
+                        continue;
+                    }
+
+                    $seen[$key] = true;
+                    $result[] = [
+                        'account' => $account,
+                        'filename' => $filename,
+                        'key' => $key,
+                        'bytes' => (int) $entry->Size,
+                        'created_at' => strtotime((string) $entry->LastModified) ?: time(),
+                    ];
+                }
+
+                $truncated = strtolower((string) $bucketResult->IsTruncated) === 'true';
+                $next = trim((string) $bucketResult->NextContinuationToken);
+                $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
+                if ($token !== null) {
+                    $seenTokens[$token] = true;
+                }
+                $pages++;
+            } while ($token !== null && $pages < 1000);
+        }
 
         return $result;
     }
