@@ -134,9 +134,11 @@ final class LiveArchiveS3
         $pages = 0;
 
         do {
+            // Recorder generations have used several key layouts. Scan the
+            // bucket index (paginated) and filter strictly to monitored accounts
+            // below, rather than silently missing objects outside recordings/.
             $query = [
                 'list-type' => '2',
-                'prefix' => 'recordings/',
                 'max-keys' => '1000',
             ];
             if (is_string($token) && $token !== '') {
@@ -167,7 +169,7 @@ final class LiveArchiveS3
                 }
 
                 $account = $this->accountForRecordingKey($key, $filename, $allowed);
-                if ($account === null || !str_starts_with($key, 'recordings/')) {
+                if ($account === null) {
                     continue;
                 }
 
@@ -220,19 +222,9 @@ final class LiveArchiveS3
             }
         }
 
-        // Preserve a useful folder label for legacy layouts outside the current
-        // monitored-account allowlist. Root-level MP4s are grouped as "archief".
-        $parent = count($segments) > 1 ? $segments[count($segments) - 2] : 'archief';
-        $reserved = ['recordings', 'live-recordings', 'archive', 'archives', 'videos'];
-        if (in_array(strtolower($parent), $reserved, true)) {
-            $parent = count($segments) > 2 ? $segments[count($segments) - 3] : 'archief';
-        }
-
-        if (!preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $parent) || in_array(strtolower($parent), $reserved, true)) {
-            return 'archief';
-        }
-
-        return $parent;
+        // Never expose unrelated bucket MP4s in the admin archive. Only
+        // recordings belonging to an explicitly monitored account are listed.
+        return null;
     }
 
     public function getStatus(string $account): ?array
