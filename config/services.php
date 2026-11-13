@@ -722,4 +722,13 @@ return [
             '/auth/linkedin/callback'
         ),
     ],
+
+    'live_archive' => [
+        'endpoint' => env('LIVE_S3_ENDPOINT'),
+        'bucket' => env('LIVE_S3_BUCKET'),
+        'region' => env('LIVE_S3_REGION'),
+        'access_key_id' => env('LIVE_S3_ACCESS_KEY_ID'),
+        'secret_access_key' => env('LIVE_S3_SECRET_ACCESS_KEY'),
+        'url_style' => env('LIVE_S3_URL_STYLE', 'path'),
+    ],
 ];
