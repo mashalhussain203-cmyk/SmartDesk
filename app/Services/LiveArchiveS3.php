@@ -148,7 +148,7 @@ final class LiveArchiveS3
             foreach ($xml->Contents as $entry) {
                 $key = (string) $entry->Key;
                 $filename = basename($key);
-                if (!preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename)) {
+                if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/Di', $filename)) {
                     continue;
                 }
 
@@ -269,9 +269,11 @@ final class LiveArchiveS3
     private function resolveStoredObjectKey(string $account, string $filename, ?string $storedKey): string
     {
         if ($storedKey === null || $storedKey === '') return $this->objectKey($account, $filename);
-        if (!in_array($account, ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'leo_kitty', 'dellris'], true)
+        if (!preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $account)
             || !preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename)
             || basename($storedKey) !== $filename
+            || str_contains($storedKey, "..") 
+            || str_starts_with($storedKey, '/')
             || $this->accountForRecordingKey($storedKey, $filename, [$account]) !== $account) {
             abort(404);
         }
