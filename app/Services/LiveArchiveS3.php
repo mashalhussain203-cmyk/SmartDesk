@@ -119,13 +119,14 @@ final class LiveArchiveS3
      */
     public function listVideosForAccounts(array $accounts): array
     {
-        $allowed = array_values(array_intersect($accounts, [
+        $knownAccounts = [
             'knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa',
             'julesxdann', 'leo_kitty', 'dellris',
-        ]));
+        ];
         $result = [];
         $seen = [];
         $token = null;
+        $seenTokens = [];
         $pages = 0;
 
         do {
@@ -147,11 +148,11 @@ final class LiveArchiveS3
             foreach ($xml->Contents as $entry) {
                 $key = (string) $entry->Key;
                 $filename = basename($key);
-                if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename)) {
+                if (!preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename)) {
                     continue;
                 }
 
-                $account = $this->accountForRecordingKey($key, $filename, $allowed);
+                $account = $this->accountForRecordingKey($key, $filename, $knownAccounts);
                 if ($account === null || isset($seen[$key])) {
                     continue;
                 }
@@ -168,9 +169,10 @@ final class LiveArchiveS3
 
             $truncated = strtolower((string) $xml->IsTruncated) === 'true';
             $next = trim((string) $xml->NextContinuationToken);
-            $token = ($truncated && $next !== '') ? $next : null;
+            $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
+            if ($token !== null) $seenTokens[$token] = true;
             $pages++;
-        } while ($token !== null && $pages < 100);
+        } while ($token !== null && $pages < 1000);
 
         return $result;
     }
@@ -185,22 +187,27 @@ final class LiveArchiveS3
 
     private function accountForRecordingKey(string $key, string $filename, array $allowed): ?string
     {
-        $segments = explode('/', trim($key, '/'));
-        foreach ($segments as $index => $segment) {
-            if (in_array($segment, $allowed, true) && isset($segments[$index + 1])) {
-                return $segment;
-            }
+        $segments = array_values(array_filter(explode('/', trim($key, '/')), static fn ($part) => $part !== ''));
+        if (!$segments || end($segments) !== $filename) return null;
+
+        foreach ($segments as $segment) {
+            if (in_array($segment, $allowed, true)) return $segment;
         }
 
-        foreach ($allowed as $account) {
-            if (preg_match('/(?:^|[_-])'.preg_quote($account, '/').'\.mp4$/i', $filename)) {
-                return $account;
-            }
+        // Preserve a useful folder label for legacy layouts outside the current
+        // monitored-account allowlist. Root-level MP4s are grouped as "archief".
+        $parent = count($segments) > 1 ? $segments[count($segments) - 2] : 'archief';
+        $reserved = ['recordings', 'live-recordings', 'archive', 'archives', 'videos'];
+        if (in_array(strtolower($parent), $reserved, true)) {
+            $parent = count($segments) > 2 ? $segments[count($segments) - 3] : 'archief';
         }
 
-        return null;
+        if (!preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $parent) || in_array(strtolower($parent), $reserved, true)) {
+            return 'archief';
+        }
+
+        return $parent;
     }
-
 
     public function getStatus(string $account): ?array
     {
