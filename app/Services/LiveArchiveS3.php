@@ -158,6 +158,7 @@ final class LiveArchiveS3
                 $result[] = [
                     'account' => $account,
                     'filename' => $filename,
+                    'key' => $key,
                     'bytes' => (int) $entry->Size,
                     'created_at' => strtotime((string) $entry->LastModified) ?: time(),
                 ];
@@ -256,9 +257,21 @@ final class LiveArchiveS3
         return $size;
     }
 
-    public function streamVideo(Request $request, string $account, string $filename, bool $download): StreamedResponse
+    private function resolveStoredObjectKey(string $account, string $filename, ?string $storedKey): string
     {
-        $key = $this->objectKey($account, $filename);
+        if ($storedKey === null || $storedKey === '') return $this->objectKey($account, $filename);
+        if (!in_array($account, ['knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa', 'julesxdann', 'leo_kitty', 'dellris'], true)
+            || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/D', $filename)
+            || basename($storedKey) !== $filename
+            || $this->accountForRecordingKey($storedKey, $filename, [$account]) !== $account) {
+            abort(404);
+        }
+        return $storedKey;
+    }
+
+    public function streamVideo(Request $request, string $account, string $filename, bool $download, ?string $storedKey = null): StreamedResponse
+    {
+        $key = $this->resolveStoredObjectKey($account, $filename, $storedKey);
         $headers = [];
         // iOS Safari and mobile download managers both use byte ranges.
         if ($request->hasHeader('Range')) {
@@ -309,9 +322,9 @@ final class LiveArchiveS3
         }, $code, $responseHeaders);
     }
 
-    public function removeVideo(string $account, string $filename): void
+    public function removeVideo(string $account, string $filename, ?string $storedKey = null): void
     {
-        $key = $this->objectKey($account, $filename);
+        $key = $this->resolveStoredObjectKey($account, $filename, $storedKey);
         $res = $this->request('DELETE', $key);
         if (!in_array($res->getStatusCode(), [200, 202, 204], true)) {
             throw new RuntimeException('Could not remove archived recording.');
