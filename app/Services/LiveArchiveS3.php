@@ -119,80 +119,76 @@ final class LiveArchiveS3
      */
     public function listVideosForAccounts(array $accounts): array
     {
-        // Keep the original, proven archive strategy: list each account folder
-        // explicitly instead of scanning the entire 22 GB bucket.
+        // List the archive namespace once instead of guessing individual folder
+        // prefixes. This also finds nested layouts such as
+        // recordings/<account>/<date>/<file>.mp4.
+        $allowed = array_values(array_unique(array_filter($accounts, static fn ($account) =>
+            is_string($account) && preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $account)
+        )));
+        if (!$allowed) return [];
+
         $result = [];
         $seen = [];
+        $token = null;
+        $seenTokens = [];
+        $pages = 0;
 
-        foreach (array_values(array_unique($accounts)) as $account) {
-            if (!preg_match('/^[A-Za-z0-9_.-]{1,64}$/D', $account)) {
-                continue;
+        do {
+            $query = [
+                'list-type' => '2',
+                'prefix' => 'recordings/',
+                'max-keys' => '1000',
+            ];
+            if (is_string($token) && $token !== '') {
+                $query['continuation-token'] = $token;
             }
 
-            $prefix = "recordings/{$account}/";
-            $token = null;
-            $seenTokens = [];
-            $pages = 0;
+            $response = $this->request('GET', null, $query);
+            if ($response->getStatusCode() !== 200) {
+                throw new RuntimeException('Unable to list private live recordings (HTTP '.$response->getStatusCode().').');
+            }
 
-            do {
-                $query = [
-                    'list-type' => '2',
-                    'prefix' => $prefix,
-                    'max-keys' => '1000',
+            $xml = @simplexml_load_string((string) $response->getBody());
+            if ($xml === false) {
+                throw new RuntimeException('Invalid private archive list response.');
+            }
+
+            $entries = $xml->xpath('//*[local-name()="Contents"]') ?: [];
+            foreach ($entries as $entry) {
+                $read = static function (\\SimpleXMLElement $node, string $name): string {
+                    $value = $node->xpath('./*[local-name()="'.$name.'"]');
+                    return isset($value[0]) ? (string) $value[0] : '';
+                };
+
+                $key = $read($entry, 'Key');
+                $filename = basename($key);
+                if ($key === '' || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename) || isset($seen[$key])) {
+                    continue;
+                }
+
+                $account = $this->accountForRecordingKey($key, $filename, $allowed);
+                if ($account === null || !str_starts_with($key, 'recordings/')) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $result[] = [
+                    'account' => $account,
+                    'filename' => $filename,
+                    'key' => $key,
+                    'bytes' => (int) $read($entry, 'Size'),
+                    'created_at' => strtotime($read($entry, 'LastModified')) ?: time(),
                 ];
-                if (is_string($token) && $token !== '') {
-                    $query['continuation-token'] = $token;
-                }
+            }
 
-                $response = $this->request('GET', null, $query);
-                if ($response->getStatusCode() !== 200) {
-                    throw new RuntimeException('Unable to list archived recordings for '.$account.' ('.$response->getStatusCode().').');
-                }
-
-                $xml = @simplexml_load_string((string) $response->getBody());
-                if ($xml === false) {
-                    throw new RuntimeException('Invalid bucket list response for '.$account.'.');
-                }
-
-                // Use namespace-independent XPath: Railway's S3 XML can
-                // return ListBucketResult/Contents in a default XML namespace.
-                $entries = $xml->xpath('//*[local-name()="Contents"]') ?: [];
-
-                foreach ($entries as $entry) {
-                    $read = static function (\SimpleXMLElement $node, string $name): string {
-                        $value = $node->xpath('./*[local-name()="'.$name.'"]');
-                        return isset($value[0]) ? (string) $value[0] : '';
-                    };
-
-                    $key = $read($entry, 'Key');
-                    $filename = basename($key);
-                    if (!str_starts_with($key, $prefix)
-                        || !preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/Di', $filename)
-                        || isset($seen[$key])) {
-                        continue;
-                    }
-
-                    $seen[$key] = true;
-                    $result[] = [
-                        'account' => $account,
-                        'filename' => $filename,
-                        'key' => $key,
-                        'bytes' => (int) $read($entry, 'Size'),
-                        'created_at' => strtotime($read($entry, 'LastModified')) ?: time(),
-                    ];
-                }
-
-                $truncatedNodes = $xml->xpath('//*[local-name()="IsTruncated"]') ?: [];
-                $tokenNodes = $xml->xpath('//*[local-name()="NextContinuationToken"]') ?: [];
-                $truncated = strtolower(isset($truncatedNodes[0]) ? (string) $truncatedNodes[0] : '') === 'true';
-                $next = trim(isset($tokenNodes[0]) ? (string) $tokenNodes[0] : '');
-                $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
-                if ($token !== null) {
-                    $seenTokens[$token] = true;
-                }
-                $pages++;
-            } while ($token !== null && $pages < 1000);
-        }
+            $truncatedNodes = $xml->xpath('//*[local-name()="IsTruncated"]') ?: [];
+            $tokenNodes = $xml->xpath('//*[local-name()="NextContinuationToken"]') ?: [];
+            $truncated = strtolower(isset($truncatedNodes[0]) ? (string) $truncatedNodes[0] : '') === 'true';
+            $next = trim(isset($tokenNodes[0]) ? (string) $tokenNodes[0] : '');
+            $token = ($truncated && $next !== '' && !isset($seenTokens[$next])) ? $next : null;
+            if ($token !== null) $seenTokens[$token] = true;
+            $pages++;
+        } while ($token !== null && $pages < 1000);
 
         return $result;
     }
