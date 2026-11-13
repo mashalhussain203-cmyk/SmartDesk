@@ -109,26 +109,95 @@ final class LiveArchiveS3
         }
     }
 
-    public function listVideos(string $account): array
+    /**
+     * Scan the private bucket and recognize current and legacy recorder key layouts.
+     * Supported examples: recordings/<account>/<file>.mp4,
+     * live-recordings/<account>/<file>.mp4, <account>/<file>.mp4,
+     * and timestamp_<account>.mp4.
+     */
+    public function listVideosForAccounts(array $accounts): array
     {
-        $response = $this->request('GET', null, ['list-type' => '2', 'prefix' => "recordings/{$account}/", 'max-keys' => '1000']);
-        if ($response->getStatusCode() !== 200) throw new RuntimeException('Unable to list archived recordings ('.$response->getStatusCode().').');
-        $xml = @simplexml_load_string((string) $response->getBody());
-        if ($xml === false) throw new RuntimeException('Invalid bucket list response.');
+        $allowed = array_values(array_intersect($accounts, [
+            'knock1knock', 'emyii', 'cutefacebigass', 'ricasashaa',
+            'julesxdann', 'leo_kitty', 'dellris',
+        ]));
         $result = [];
-        foreach ($xml->Contents as $entry) {
-            $key = (string) $entry->Key;
-            $filename = basename($key);
-            if (!preg_match('/^[A-Za-z0-9_.-]+\.mp4$/D', $filename) || !str_starts_with($key, "recordings/{$account}/")) continue;
-            $result[] = [
-                'account' => $account,
-                'filename' => $filename,
-                'bytes' => (int) $entry->Size,
-                'created_at' => strtotime((string) $entry->LastModified) ?: time(),
-            ];
-        }
+        $seen = [];
+        $token = null;
+        $pages = 0;
+
+        do {
+            $query = ['list-type' => '2', 'max-keys' => '1000'];
+            if (is_string($token) && $token !== '') {
+                $query['continuation-token'] = $token;
+            }
+
+            $response = $this->request('GET', null, $query);
+            if ($response->getStatusCode() !== 200) {
+                throw new RuntimeException('Unable to list archived recordings ('.$response->getStatusCode().').');
+            }
+
+            $xml = @simplexml_load_string((string) $response->getBody());
+            if ($xml === false) {
+                throw new RuntimeException('Invalid bucket list response.');
+            }
+
+            foreach ($xml->Contents as $entry) {
+                $key = (string) $entry->Key;
+                $filename = basename($key);
+                if (!preg_match('/^[A-Za-z0-9_.-]+\\.mp4$/D', $filename)) {
+                    continue;
+                }
+
+                $account = $this->accountForRecordingKey($key, $filename, $allowed);
+                if ($account === null || isset($seen[$key])) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $result[] = [
+                    'account' => $account,
+                    'filename' => $filename,
+                    'bytes' => (int) $entry->Size,
+                    'created_at' => strtotime((string) $entry->LastModified) ?: time(),
+                ];
+            }
+
+            $truncated = strtolower((string) $xml->IsTruncated) === 'true';
+            $next = trim((string) $xml->NextContinuationToken);
+            $token = ($truncated && $next !== '') ? $next : null;
+            $pages++;
+        } while ($token !== null && $pages < 100);
+
         return $result;
     }
+
+    public function listVideos(string $account): array
+    {
+        return array_values(array_filter(
+            $this->listVideosForAccounts([$account]),
+            static fn (array $recording): bool => $recording['account'] === $account
+        ));
+    }
+
+    private function accountForRecordingKey(string $key, string $filename, array $allowed): ?string
+    {
+        $segments = explode('/', trim($key, '/'));
+        foreach ($segments as $index => $segment) {
+            if (in_array($segment, $allowed, true) && isset($segments[$index + 1])) {
+                return $segment;
+            }
+        }
+
+        foreach ($allowed as $account) {
+            if (preg_match('/(?:^|[_-])'.preg_quote($account, '/').'\\.mp4$/i', $filename)) {
+                return $account;
+            }
+        }
+
+        return null;
+    }
+
 
     public function getStatus(string $account): ?array
     {
