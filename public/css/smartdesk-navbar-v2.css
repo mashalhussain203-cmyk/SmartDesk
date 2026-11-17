@@ -408,3 +408,112 @@
     color: #78e2ae;
     background: linear-gradient(145deg, rgba(32,201,130,.14), rgba(255,255,255,.018));
 }
+
+
+/* Final emerald override — targets the actual Blade navbar selectors. */
+:root {
+    --nav-bg: rgba(5, 37, 25, .97);
+    --nav-bg-solid: rgba(4, 29, 20, .99);
+    --nav-accent: #25d28a;
+    --nav-accent-2: #82e9b7;
+    --nav-green: #9af3c7;
+}
+
+.studio-header-expert,
+.studio-header-expert.is-scrolled {
+    background: linear-gradient(112deg, rgba(5, 47, 31, .985), rgba(4, 31, 23, .985) 56%, rgba(3, 43, 29, .985)) !important;
+    border-bottom: 1px solid rgba(47, 218, 143, .28) !important;
+    box-shadow: 0 14px 42px rgba(0, 0, 0, .30), inset 0 1px 0 rgba(132, 246, 190, .035) !important;
+}
+
+.studio-header-expert::before {
+    background: linear-gradient(90deg, transparent 3%, rgba(35, 211, 135, .85) 38%, rgba(129, 238, 183, .72) 62%, transparent 97%) !important;
+    opacity: 1 !important;
+}
+
+.studio-header-expert .expert-brand-glyph,
+.studio-header-expert .expert-brand-mark {
+    border-color: rgba(111, 240, 176, .56) !important;
+    background: radial-gradient(circle at 25% 15%, rgba(255,255,255,.32), transparent 30%), linear-gradient(145deg, #39e69a, #159b67 54%, #086b49) !important;
+    box-shadow: 0 9px 26px rgba(10, 161, 98, .30), inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+
+.studio-header-expert .expert-brand-divider {
+    background: linear-gradient(180deg, transparent, rgba(82, 222, 155, .42), transparent) !important;
+}
+
+.studio-header-expert .expert-nav-center {
+    border-color: rgba(78, 213, 147, .18) !important;
+    background: linear-gradient(180deg, rgba(20, 107, 71, .22), rgba(9, 54, 38, .20)) !important;
+}
+
+.studio-header-expert .expert-nav-link-icon,
+.studio-header-expert .expert-command-icon {
+    color: #78e8b3 !important;
+}
+
+.studio-header-expert .expert-nav-link:hover {
+    color: #f0fff7 !important;
+    border-color: rgba(91, 231, 163, .32) !important;
+    background: rgba(37, 210, 138, .13) !important;
+}
+
+.studio-header-expert .expert-nav-link.active {
+    color: #f4fff9 !important;
+    border-color: rgba(79, 227, 151, .42) !important;
+    background: linear-gradient(135deg, rgba(37, 210, 138, .27), rgba(92, 231, 166, .12)) !important;
+    box-shadow: 0 5px 18px rgba(10, 126, 76, .20), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+.studio-header-expert .expert-nav-link.active::after {
+    background: linear-gradient(90deg, transparent, #38df96, #a2f4c8, transparent) !important;
+    box-shadow: 0 0 12px rgba(48, 220, 137, .62) !important;
+}
+
+.studio-header-expert .expert-new-project,
+.studio-header-expert .expert-auth-link-primary {
+    border-color: rgba(114, 244, 180, .42) !important;
+    background: linear-gradient(135deg, #2bd58b, #0b9863) !important;
+    box-shadow: 0 8px 24px rgba(17, 151, 91, .30), inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+
+.studio-header-expert .expert-account-trigger:hover,
+.studio-header-expert .expert-account-trigger[aria-expanded="true"],
+.studio-header-expert .expert-command-trigger:hover,
+.studio-header-expert .expert-command-trigger[aria-expanded="true"] {
+    border-color: rgba(86, 229, 157, .46) !important;
+    background: rgba(37, 210, 138, .12) !important;
+}
+
+.studio-header-expert .expert-menu-toggle,
+.studio-header-expert .studio-menu-toggle {
+    border-color: rgba(81, 220, 150, .34) !important;
+    background: linear-gradient(145deg, rgba(37, 210, 138, .20), rgba(91, 224, 163, .07)) !important;
+}
+
+.studio-header-expert .expert-menu-toggle:hover,
+.studio-header-expert .studio-menu-toggle:hover {
+    border-color: rgba(99, 239, 169, .62) !important;
+    box-shadow: 0 0 0 4px rgba(37, 210, 138, .10), 0 14px 34px rgba(0,0,0,.3) !important;
+}
+
+.expert-mobile-drawer {
+    border-left-color: rgba(65, 214, 139, .30) !important;
+    background: radial-gradient(ellipse at 100% 0%, rgba(19, 157, 99, .22), transparent 42%), linear-gradient(180deg, #09271b, #06150f 72%) !important;
+}
+
+.expert-mobile-link:hover,
+.expert-mobile-link.active {
+    border-color: rgba(65, 214, 139, .36) !important;
+    background: linear-gradient(100deg, rgba(32, 201, 130, .20), rgba(91, 224, 163, .06)) !important;
+}
+
+.expert-mobile-link.active {
+    box-shadow: inset 3px 0 0 #35d68b !important;
+}
+
+.expert-mobile-link-icon {
+    border-color: rgba(65, 214, 139, .24) !important;
+    color: #78e2ae !important;
+    background: linear-gradient(145deg, rgba(32, 201, 130, .18), rgba(255,255,255,.025)) !important;
+}
