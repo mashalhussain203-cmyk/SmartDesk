@@ -296,3 +296,86 @@ main, .main, .page, .page-content, .app-content, .content-wrapper {
   border-color:rgba(61,220,145,.7) !important;
   box-shadow:0 0 0 3px rgba(39,214,139,.12) !important;
 }
+
+
+/* --------------------------------------------------------------------------
+   FINAL EMERALD PASS — shared navigation, AI workspace, homepage and legacy UI
+   Loaded after page styles so older inline palettes cannot reintroduce purple/blue.
+   -------------------------------------------------------------------------- */
+:root {
+  --nav-accent:#27d68b !important; --nav-accent-2:#78edb4 !important;
+  --nav-green:#9af3c7 !important; --nav-bg:rgba(4,28,17,.96) !important;
+  --nav-bg-solid:rgba(4,28,17,.98) !important; --nav-panel:#0b2116 !important;
+  --nav-panel-2:#0e2a1c !important; --nav-line:rgba(87,220,151,.16) !important;
+  --ms-bg:#06130d !important; --ms-bg-2:#091b12 !important;
+  --ms-panel:#0b2116 !important; --ms-panel-2:#0e2a1c !important;
+  --ms-panel-3:#123523 !important; --ms-accent:#27d68b !important;
+  --ms-accent-2:#78edb4 !important; --ms-accent-3:#9af3c7 !important;
+  --mashal-bg:#06130d !important; --mashal-sidebar:#081a11 !important;
+  --mashal-sidebar-hover:#123523 !important; --mashal-panel:#0b2116 !important;
+  --mashal-panel-hover:#123523 !important; --mashal-border:rgba(87,220,151,.18) !important;
+  --mashal-text:#effff5 !important; --mashal-muted:#b4c9bc !important;
+  --mashal-subtle:#8fa99a !important; --mashal-user:#123523 !important;
+  --mashal-accent:#27d68b !important;
+  --ai-bg:#06130d !important; --ai-card:#0b2116 !important; --ai-card-2:#0e2a1c !important;
+  --ai-border:rgba(87,220,151,.18) !important; --ai-text:#effff5 !important;
+  --ai-muted:#b4c9bc !important;
+}
+.studio-header-expert {
+  --nav-accent:#27d68b !important; --nav-accent-blue:#78edb4 !important;
+  border-color:rgba(87,220,151,.22) !important;
+  background:radial-gradient(ellipse at 50% -90%,rgba(39,214,139,.13),transparent 58%),rgba(4,28,17,.96) !important;
+}
+.studio-header-expert::before { background:linear-gradient(90deg,transparent 3%,#27d68b 50%,#9af3c7 65%,transparent 97%) !important; }
+.studio-header-expert .expert-brand-mark,
+.studio-header-expert .expert-new-project {
+  color:#03150b !important; border-color:#38df98 !important;
+  background:linear-gradient(145deg,#39df98,#0d9b64) !important;
+  box-shadow:0 8px 24px rgba(13,155,100,.22) !important;
+}
+.studio-header-expert .expert-nav-center,
+.studio-header-expert .expert-command-trigger,
+.studio-header-expert .expert-account-trigger {
+  border-color:rgba(87,220,151,.18) !important;
+  background:linear-gradient(180deg,rgba(18,53,35,.78),rgba(7,29,18,.72)) !important;
+}
+.studio-header-expert .expert-nav-link,
+.studio-header-expert .expert-nav-link-icon { color:#b4d8c3 !important; }
+.studio-header-expert .expert-nav-link:hover,
+.studio-header-expert .expert-nav-link.active,
+.studio-header-expert .expert-command-trigger:hover,
+.studio-header-expert .expert-account-trigger:hover {
+  color:#effff5 !important; border-color:rgba(75,224,147,.42) !important;
+  background:rgba(39,214,139,.14) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+.studio-header-expert .expert-nav-link.active::after { background:linear-gradient(90deg,transparent,#27d68b,#9af3c7,transparent) !important; box-shadow:0 0 12px rgba(39,214,139,.45) !important; }
+.expert-mobile-drawer { border-color:rgba(87,220,151,.2) !important; background:radial-gradient(ellipse at 100% 0%,rgba(19,157,99,.2),transparent 42%),linear-gradient(180deg,#09271b,#06150f 72%) !important; }
+.expert-mobile-link.active,.expert-mobile-link:hover { border-color:rgba(75,224,147,.4) !important; background:rgba(39,214,139,.14) !important; box-shadow:inset 3px 0 #27d68b !important; }
+.expert-mobile-link-icon { border-color:rgba(87,220,151,.2) !important; background:rgba(39,214,139,.12) !important; }
+#msHome, .ms-home { color:#effff5 !important; background:radial-gradient(circle at 72% -5%,rgba(39,214,139,.14),transparent 31rem),radial-gradient(circle at 20% 20%,rgba(11,132,79,.09),transparent 29rem),linear-gradient(180deg,#06130d,#07180f 45%,#041009) !important; }
+#msHome, #msHome *, .ms-home, .ms-home * { --ms-accent:#27d68b !important; --ms-accent-2:#78edb4 !important; --ms-warm:#9af3c7 !important; }
+#msHome :is(.ms-studio-card,.ms-studio-window,.ms-library-window,.ms-bento-card,.ms-editor-shell,.ms-window-body,.ms-editor-sidebar,.ms-editor-inspector,.ms-library-head),
+.ms-home :is(.ms-studio-card,.ms-studio-window,.ms-library-window,.ms-bento-card,.ms-editor-shell) {
+  color:#effff5 !important; background:#0b2116 !important; border-color:rgba(87,220,151,.2) !important; box-shadow:0 12px 34px rgba(0,0,0,.22) !important;
+}
+#msHome :is(.ms-windowbar,.ms-section--soft,.ms-signal) { color:#d9ffea !important; background:#0e2a1c !important; border-color:rgba(87,220,151,.2) !important; }
+#msHome :is(h1,h2,h3,.ms-signal-item strong,.ms-preview-file,.ms-inspector-title,.ms-faq-question,.ms-proof-item,.ms-upload-foot,.ms-signal-item p,.ms-window-title,.ms-window-secure,.ms-copy,.ms-field,.ms-faq-answer,.ms-flow-copy p,.ms-editor-label,.ms-field label,.ms-editor-tool) { color:#dff9e9 !important; }
+#msHome :is(.ms-button--primary,.ms-upload-choose,.ms-preview-submit,.ms-create-version) { color:#03150b !important; background:linear-gradient(135deg,#39df98,#0d9b64) !important; border-color:#38df98 !important; }
+#msHome :is(.ms-button--ghost,.ms-editor-tool.active,.ms-fake-input,.ms-preview-change,.ms-upload-icon,.ms-format,.ms-signal-icon,.ms-flow-number) { color:#9af3c7 !important; background:rgba(39,214,139,.12) !important; border-color:rgba(87,220,151,.28) !important; }
+#msHome .ms-final-panel { background:linear-gradient(135deg,#0d6b46,#0b2116) !important; color:#effff5 !important; }
+#msHome :focus-visible { outline-color:#78edb4 !important; }
+.mashal-chat-app, .mashal-chat-app .mashal-ai-messages { color:#effff5 !important; background:#06130d !important; }
+.mashal-chat-app .chat-sidebar { background:#081a11 !important; border-color:rgba(87,220,151,.18) !important; }
+.mashal-chat-app :is(.chat-new-button,.chat-sidebar-button,.chat-topbar-button,.chat-row,.workspace-file-row,.ai-suggestion,.ai-message-bubble,.mashal-ai-composer,.ai-input,.workspace-select,.workspace-action,.ai-attach-menu) {
+  color:#effff5 !important; border-color:rgba(87,220,151,.18) !important;
+}
+.mashal-chat-app :is(.chat-row:hover,.chat-row.active,.chat-sidebar-button:hover,.chat-topbar-button:hover,.ai-suggestion:hover,.workspace-action:hover,.ai-attach-menu) { background:rgba(39,214,139,.12) !important; }
+.mashal-chat-app :is(.chat-search,.ai-input,.workspace-select,.mashal-ai-composer) { color:#effff5 !important; background:#0b2116 !important; border-color:rgba(87,220,151,.22) !important; }
+.mashal-chat-app :is(.chat-new-button .brand-dot,.workspace-action.primary,.ai-send,.ai-send:not(.is-stopping)) { color:#03150b !important; background:linear-gradient(135deg,#39df98,#0d9b64) !important; border-color:#38df98 !important; }
+.mashal-chat-app :is(.chat-sidebar-label,.chat-list-empty,.workspace-panel-title,.workspace-status,.ai-message-meta,.composer-note,.ai-suggestion span) { color:#a9c5b4 !important; }
+.mashal-chat-app :is(.ai-message.assistant .ai-message-bubble,.ai-message.assistant .ai-message-content) { color:#effff5 !important; }
+.studio-page { color:#effff5 !important; background:#06130d !important; }
+.studio-page :is(.studio-stat,.template-card,.panel,.studio-search input,.studio-search button) { color:#effff5 !important; background:#0b2116 !important; border-color:rgba(87,220,151,.2) !important; }
+.studio-page :is(.studio-primary,.studio-search button) { color:#03150b !important; background:linear-gradient(135deg,#39df98,#0d9b64) !important; border-color:#38df98 !important; }
+.studio-page .template-category { color:#78edb4 !important; }
+.studio-page .template-card:hover { background:rgba(39,214,139,.12) !important; border-color:rgba(75,224,147,.4) !important; }
