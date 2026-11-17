@@ -87,3 +87,133 @@ input:focus, select:focus, textarea:focus,
 }
 hr { border-color:rgba(76,207,139,.16) !important; }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important;}}
+
+/* Full-site override: cover the separate admin system and legacy page components too. */
+:root {
+  --admin-bg:#06130d !important;
+  --admin-bg-soft:#081a11 !important;
+  --admin-panel:#0b2116 !important;
+  --admin-panel-2:#0e2a1c !important;
+  --admin-panel-3:#123523 !important;
+  --admin-panel-hover:#16442c !important;
+  --admin-gold:#27d68b !important;
+  --admin-gold-light:#78edb4 !important;
+  --admin-gold-deep:#0c9d68 !important;
+  --admin-gold-soft:rgba(39,214,139,.10) !important;
+  --admin-blue:#65dca2 !important;
+  --admin-green:#55e39b !important;
+  --studio-blue:#65dca2 !important;
+  --studio-indigo:#27d68b !important;
+  --primary:#27d68b !important;
+  --primary-color:#27d68b !important;
+  --accent:#27d68b !important;
+  --accent-color:#27d68b !important;
+}
+body,
+body.admin-mobile-open,
+.admin-app,
+.admin-main,
+.admin-content,
+.admin-page,
+.admin-sidebar,
+.admin-topbar,
+.admin-header,
+.admin-mobile-header,
+.admin-mobile-drawer,
+.admin-sidebar-footer,
+.admin-sidebar-nav,
+.admin-nav,
+.admin-card,
+.admin-panel,
+.admin-widget,
+.admin-table-wrap,
+.admin-modal,
+.admin-dropdown,
+.admin-search,
+.admin-stat-card {
+  color:var(--studio-text,#effff5);
+  border-color:rgba(87,220,151,.16) !important;
+}
+body.admin-mobile-open,
+.admin-app,
+.admin-main,
+.admin-content,
+.admin-page {
+  background-color:#06130d !important;
+  background-image:
+    radial-gradient(circle at 84% 6%,rgba(27,190,112,.10),transparent 26rem),
+    radial-gradient(circle at 16% 86%,rgba(83,220,150,.06),transparent 28rem),
+    linear-gradient(180deg,#06130d,#041009) !important;
+}
+.admin-sidebar,
+.admin-topbar,
+.admin-mobile-header,
+.admin-mobile-drawer,
+.admin-card,
+.admin-panel,
+.admin-widget,
+.admin-stat-card,
+.admin-table-wrap,
+.admin-modal,
+.admin-dropdown {
+  background-color:#0b2116 !important;
+  background-image:linear-gradient(145deg,rgba(16,54,34,.96),rgba(7,26,16,.98)) !important;
+}
+.admin-sidebar:hover,
+.admin-sidebar:focus-within,
+.admin-sidebar.is-pinned,
+.admin-nav a:hover,
+.admin-nav a.active,
+.admin-sidebar a:hover,
+.admin-sidebar a.active,
+.admin-mobile-drawer a:hover,
+.admin-mobile-drawer a.active {
+  border-color:rgba(75,224,147,.38) !important;
+  background-color:rgba(39,214,139,.13) !important;
+}
+.admin-progress-bar,
+.admin-button-primary,
+.admin-btn-primary,
+.admin-action-primary,
+.admin-brand-mark {
+  background:linear-gradient(110deg,#087c4e,#27d68b,#78edb4) !important;
+  border-color:#27d68b !important;
+  box-shadow:0 0 18px rgba(39,214,139,.22) !important;
+}
+.admin-brand-mark,
+.admin-sidebar a,
+.admin-nav a,
+.admin-icon,
+.admin-accent,
+.admin-link,
+.text-primary,
+.text-blue,
+.text-indigo,
+.text-purple,
+.text-violet {
+  color:#78edb4 !important;
+}
+.admin-sidebar a.active,
+.admin-nav a.active,
+.admin-tab.active,
+.admin-badge-primary,
+.admin-pill-primary {
+  color:#d9ffea !important;
+  background:rgba(39,214,139,.14) !important;
+  border-color:rgba(75,224,147,.36) !important;
+}
+.admin-sidebar *,
+.admin-main *,
+.studio-header *,
+.studio-mobile-drawer * {
+  --tw-ring-color:rgba(39,214,139,.35);
+}
+:where(.bg-purple-50,.bg-purple-100,.bg-purple-500,.bg-purple-600,.bg-violet-50,.bg-violet-100,.bg-violet-500,.bg-violet-600,.bg-indigo-50,.bg-indigo-100,.bg-indigo-500,.bg-indigo-600,.bg-blue-50,.bg-blue-100,.bg-blue-500,.bg-blue-600) {
+  background-color:rgba(39,214,139,.14) !important;
+}
+:where(.text-purple-400,.text-purple-500,.text-purple-600,.text-violet-400,.text-violet-500,.text-violet-600,.text-indigo-400,.text-indigo-500,.text-indigo-600,.text-blue-400,.text-blue-500,.text-blue-600) {
+  color:#78edb4 !important;
+}
+:where(.border-purple-400,.border-purple-500,.border-purple-600,.border-violet-400,.border-violet-500,.border-violet-600,.border-indigo-400,.border-indigo-500,.border-indigo-600,.border-blue-400,.border-blue-500,.border-blue-600) {
+  border-color:rgba(75,224,147,.38) !important;
+}
