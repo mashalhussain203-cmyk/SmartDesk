@@ -6679,6 +6679,7 @@
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/mashal-signature-20261018.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/smartdesk-navbar-v2.css') }}?v=1">
 </head>
 
 <body>
