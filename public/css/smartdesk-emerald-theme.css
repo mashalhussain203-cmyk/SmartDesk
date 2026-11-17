@@ -1,0 +1,89 @@
+/* SmartDesk — complete emerald green theme. Semantic warning/error colours remain distinct. */
+:root {
+  --studio-gold:#27d68b !important;
+  --studio-gold-light:#78edb4 !important;
+  --studio-gold-deep:#0c9d68 !important;
+  --studio-gold-soft:rgba(39,214,139,.10) !important;
+  --studio-cyan:#8be8bc !important;
+  --studio-purple:#65dca2 !important;
+  --studio-success:#55e39b !important;
+  --studio-success-soft:rgba(85,227,155,.12) !important;
+  --studio-bg:#06130d !important;
+  --studio-bg-deep:#030d08 !important;
+  --studio-bg-soft:#091b12 !important;
+  --studio-surface:#0b2116 !important;
+  --studio-surface-2:#0e2a1c !important;
+  --studio-surface-3:#123523 !important;
+  --studio-surface-glass:rgba(7,29,18,.88) !important;
+  --studio-line:rgba(87,220,151,.13) !important;
+  --studio-line-strong:rgba(87,220,151,.24) !important;
+}
+html, body { background-color:#06130d !important; }
+body { color:#effff5; }
+::selection { color:#03140b !important; background:#78edb4 !important; }
+:focus-visible { outline-color:rgba(91,235,158,.9) !important; }
+.studio-atmosphere,
+.studio-atmosphere::before {
+  background:
+    radial-gradient(circle at 10% 12%,rgba(27,190,112,.14),transparent 29rem),
+    radial-gradient(circle at 88% 8%,rgba(83,220,150,.09),transparent 31rem),
+    radial-gradient(circle at 74% 82%,rgba(11,132,79,.12),transparent 32rem),
+    linear-gradient(180deg,#06130d 0%,#07180f 52%,#041009 100%) !important;
+}
+.studio-orb, .studio-orb.one, .studio-orb.two, .studio-orb.three {
+  background:rgba(26,190,112,.18) !important;
+}
+.studio-progress-bar {
+  background:linear-gradient(90deg,#087c4e,#27d68b,#a1f4c8) !important;
+  box-shadow:0 0 18px rgba(39,214,139,.38) !important;
+}
+.studio-header, .studio-header.is-scrolled {
+  border-color:rgba(61,211,137,.20) !important;
+  background:rgba(4,28,17,.94) !important;
+}
+.studio-brand-mark, .studio-header .studio-brand-mark {
+  color:#9af3c7 !important;
+  border-color:rgba(85,226,155,.42) !important;
+  background:linear-gradient(145deg,rgba(39,214,139,.25),rgba(8,104,64,.10)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.2) !important;
+}
+.studio-nav a:hover, .studio-nav a.active,
+.studio-mobile-drawer a:hover, .studio-mobile-drawer a.active {
+  color:#eafff2 !important;
+  border-color:rgba(75,224,147,.32) !important;
+  background:rgba(39,214,139,.12) !important;
+}
+button:not(.danger):not(.btn-danger):not([data-danger]),
+[role="button"]:not(.danger):not(.btn-danger):not([data-danger]),
+.btn-primary, .button-primary, .studio-button-primary,
+input[type="submit"], .expert-auth-link-primary {
+  --tw-ring-color:rgba(39,214,139,.35);
+}
+.btn-primary, .button-primary, .studio-button-primary,
+button.primary, a.primary, .action-primary {
+  color:#03150b !important;
+  border-color:#38df98 !important;
+  background:linear-gradient(135deg,#39df98,#0d9b64) !important;
+  box-shadow:0 8px 24px rgba(13,155,100,.22) !important;
+}
+button:not(.danger):not(.btn-danger):not([data-danger]):hover,
+.btn-primary:hover, .button-primary:hover, .studio-button-primary:hover {
+  border-color:rgba(115,240,178,.55);
+}
+a, .text-accent, .studio-accent { --tw-text-opacity:1; }
+a:hover { color:#9af3c7; }
+input:focus, select:focus, textarea:focus,
+.form-control:focus, .studio-input:focus {
+  border-color:rgba(61,220,145,.65) !important;
+  box-shadow:0 0 0 3px rgba(39,214,139,.12) !important;
+}
+.card, .studio-card, .panel, .surface, .glass-card {
+  border-color:rgba(76,207,139,.14);
+}
+.badge-primary, .pill-primary, .tab.active, [aria-current="page"] {
+  color:#caffdf !important;
+  border-color:rgba(68,221,143,.32) !important;
+  background:rgba(39,214,139,.12) !important;
+}
+hr { border-color:rgba(76,207,139,.16) !important; }
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto !important;}}
