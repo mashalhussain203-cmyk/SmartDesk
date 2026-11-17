@@ -6680,7 +6680,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/mashal-signature-20261018.css') }}?v=1">
     <link rel="stylesheet" href="{{ asset('css/smartdesk-navbar-v2.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('css/smartdesk-emerald-theme.css') }}?v=1.0.0">
+    <link rel="stylesheet" href="{{ asset('css/smartdesk-emerald-theme.css') }}?v=3.0.0">
 </head>
 
 <body>
