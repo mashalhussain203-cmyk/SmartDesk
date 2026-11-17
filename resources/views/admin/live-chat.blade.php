@@ -3490,7 +3490,7 @@ body {
 }
 
 </style>
-<link rel="stylesheet" href="{{ asset('css/admin-live-chat.css') }}?v=20261008-1">
+<link rel="stylesheet" href="{{ asset('css/admin-live-chat.css') }}?v=20261117-emerald">
 
 
 
