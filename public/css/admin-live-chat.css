@@ -141,3 +141,30 @@
 @media(prefers-reduced-motion:reduce) {
     .lca .lca-message-action { transition:none; }
 }
+
+
+/* Emerald skin — operator inbox */
+.lca {
+  --lca-bg:#06130d !important; --lca-bg-soft:#081a11 !important;
+  --lca-panel:#0b2116 !important; --lca-panel-2:#0e2a1c !important;
+  --lca-panel-3:#123523 !important; --lca-panel-4:#16442c !important;
+  --lca-border:rgba(87,220,151,.16) !important; --lca-border-strong:rgba(87,220,151,.28) !important;
+  --lca-text:#effff5 !important; --lca-text-soft:#d2e9db !important;
+  --lca-muted:#a9c5b4 !important; --lca-muted-2:#829b8c !important;
+  --lca-accent:#27d68b !important; --lca-accent-2:#78edb4 !important;
+  --lca-accent-soft:rgba(39,214,139,.12) !important;
+}
+.lca::before { background:radial-gradient(circle at 78% 0%,rgba(39,214,139,.12),transparent 30rem),radial-gradient(circle at 8% 40%,rgba(11,132,79,.10),transparent 24rem),linear-gradient(180deg,#06130d,#07180f 55%,#041009) !important; }
+.lca .lca-top,.lca .lca-inbox,.lca .lca-detail,.lca .lca-heading,.lca .lca-log,
+.lca .lca-composer-wrap,.lca .lca-form,.lca .lca-item,.lca .lca-presence,
+.lca .lca-stat,.lca .lca-reply-hint-fallback {
+  color:#effff5 !important; background-color:#0b2116 !important; border-color:rgba(87,220,151,.2) !important;
+}
+.lca .lca-inbox__head,.lca .lca-heading,.lca .lca-composer-wrap { background:#0e2a1c !important; }
+.lca :is(h1,h2,h3,strong,.lca-heading strong,.lca-inbox__title strong) { color:#effff5 !important; }
+.lca :is(p,small,.lca-eyebrow,.lca-item__meta,.lca-item__time,.lca-presence__copy small,.lca-stat__copy small,.lca-composer-info) { color:#a9c5b4 !important; }
+.lca :is(.lca-item.is-active,.lca-item.active,.lca-item:hover,.lca-tool:hover,.lca-message-action:hover) { background:rgba(39,214,139,.12) !important; border-color:rgba(75,224,147,.35) !important; }
+.lca :is(.lca-submit,.lca-button-primary,.lca-action-primary) { color:#03150b !important; background:linear-gradient(135deg,#39df98,#0d9b64) !important; border-color:#38df98 !important; }
+.lca :is(.lca-form textarea,.lca input,.lca textarea,.lca select) { color:#effff5 !important; background:#081a11 !important; border-color:rgba(87,220,151,.24) !important; }
+.lca :is(.lca-message,.lca-message-bubble,.lca-message.is-agent) { color:#effff5 !important; background:#123523 !important; border-color:rgba(87,220,151,.18) !important; }
+.lca :focus-visible { outline-color:#78edb4 !important; }
