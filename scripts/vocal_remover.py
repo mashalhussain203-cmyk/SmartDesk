@@ -78,6 +78,7 @@ try:
     command = [
         sys.executable, "-m", "demucs.separate",
         "-n", "htdemucs", "--two-stems", "vocals",
+        "--shifts", "0", "--segment", "7", "--overlap", "0.25",
         "--mp3", "--mp3-bitrate", "192",
         "-o", str(output), str(model_input.resolve())
     ]
@@ -100,6 +101,15 @@ except Exception as exc:
     with (directory / "worker.log").open("a", encoding="utf-8") as log:
         log.write("\n" + repr(exc) + "\n")
 finally:
-    # Keep only the finished result files for the download window.
+    # Remove the original upload and all intermediate data on success or failure.
     source.unlink(missing_ok=True)
     temporary_audio.unlink(missing_ok=True)
+    shutil.rmtree(directory / "separated", ignore_errors=True)
+
+    # Keep only the two downloadable MP3s for at most one hour, then erase the job.
+    try:
+        created_at = int(json.loads(state_file.read_text(encoding="utf-8")).get("created_at", time.time()))
+    except Exception:
+        created_at = int(time.time())
+    time.sleep(max(0, 3600 - (time.time() - created_at)))
+    shutil.rmtree(directory, ignore_errors=True)
