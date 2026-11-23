@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 import time
+# Railpack installs the existing Python toolchain into this application-local target.
+sys.path.insert(0, "/app/.tiktok-python")
 from pathlib import Path
 
 token, source, workdir = sys.argv[1:4]
@@ -19,7 +21,6 @@ def state(status, **extra):
 
 try:
     import torch
-    from demucs.separate import main as demucs_main
     # Respect the small shared web-service CPU budget and serialize jobs.
     torch.set_num_threads(max(1, min(2, os.cpu_count() or 1)))
     os.environ["OMP_NUM_THREADS"] = "2"
