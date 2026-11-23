@@ -1153,7 +1153,7 @@ Route::get(
 // Mashal Studio Vocal Remover: private, server-side open-source separation.
 Route::get('/tools/vocal-remover', fn () => view('tools.vocal-remover'))->name('vocal-remover.index');
 Route::post('/tools/vocal-remover/process', [VocalRemoverController::class, 'start'])
-    ->middleware('throttle:3,1')->name('vocal-remover.start');
+    ->middleware('throttle:10,1')->name('vocal-remover.start');
 Route::get('/tools/vocal-remover/status/{token}', [VocalRemoverController::class, 'status'])
     ->where('token', '[a-f0-9]{40}')->middleware('throttle:60,1')->name('vocal-remover.status');
 Route::get('/tools/vocal-remover/download/{token}/{stem}', [VocalRemoverController::class, 'download'])
