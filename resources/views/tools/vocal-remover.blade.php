@@ -28,8 +28,7 @@
 .vr-status.show{display:block}
 .vr-status-line{display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:750}
 .vr-track{height:7px;margin-top:13px;overflow:hidden;border-radius:99px;background:#203729}
-.vr-fill{width:15%;height:100%;border-radius:99px;background:linear-gradient(90deg,#26a85b,#8cf0aa);animation:vrpulse 1.6s ease-in-out infinite alternate}
-@keyframes vrpulse{from{width:12%}to{width:88%}}
+.vr-fill{width:2%;height:100%;border-radius:99px;background:linear-gradient(90deg,#26a85b,#8cf0aa);transition:width .6s ease}
 .vr-results{display:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
 .vr-results.show{display:grid}
 .vr-result{padding:17px;border:1px solid #28583a;border-radius:15px;background:#0b1b11}
@@ -68,8 +67,8 @@
    </form>
    <div class="vr-error" id="errorBox" role="alert"></div>
    <div class="vr-status" id="statusBox" aria-live="polite">
-    <div class="vr-status-line"><span id="statusText">{{ __('Audio wordt verwerkt…') }}</span><span id="statusTime"></span></div>
-    <div class="vr-track"><div class="vr-fill"></div></div>
+    <div class="vr-status-line"><span id="statusText">{{ __('Audio wordt verwerkt…') }}</span><span><span id="statusPercent">0%</span> · <span id="statusTime"></span></span></div>
+    <div class="vr-track"><div class="vr-fill" id="progressFill"></div></div>
    </div>
    <div class="vr-results" id="resultsBox">
     <div class="vr-result"><h3>🎤 {{ __('Geïsoleerde vocals') }}</h3><audio id="vocalsPlayer" controls preload="none"></audio><a id="vocalsDownload" href="#">{{ __('Download vocals ↓') }}</a></div>
@@ -91,7 +90,7 @@
  ['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
  drop.addEventListener('drop',e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
  reset.addEventListener('click',clear);
- async function poll(token){try{const r=await fetch('{{ route('vocal-remover.status', ['token'=>'TOKEN']) }}'.replace('TOKEN',token),{headers:{'Accept':'application/json'}});const d=await r.json();if(!r.ok)throw new Error(d.message||'Status niet beschikbaar');if(d.status==='ready'){statusText.textContent='{{ __('Je audio is klaar!') }}';status.classList.remove('show');results.classList.add('show');document.getElementById('vocalsPlayer').src=d.vocals_url;document.getElementById('instrumentalPlayer').src=d.instrumental_url;document.getElementById('vocalsDownload').href=d.vocals_url;document.getElementById('instrumentalDownload').href=d.instrumental_url;submit.disabled=false;submit.textContent='{{ __('Klaar') }}';return}if(d.status==='failed')throw new Error(d.message||'Audioverwerking mislukt');statusText.textContent='{{ __('AI scheidt de zang en instrumenten…') }}';document.getElementById('statusTime').textContent=Math.floor((Date.now()-started)/1000)+'s';timer=setTimeout(()=>poll(token),2500)}catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}}
+ async function poll(token){try{const r=await fetch('{{ route('vocal-remover.status', ['token'=>'TOKEN']) }}'.replace('TOKEN',token),{headers:{'Accept':'application/json'},cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.message||'Status niet beschikbaar');if(d.status==='ready'){statusText.textContent='{{ __('Je audio is klaar!') }}';document.getElementById('statusPercent').textContent='100%';document.getElementById('progressFill').style.width='100%';status.classList.remove('show');results.classList.add('show');document.getElementById('vocalsPlayer').src=d.vocals_url;document.getElementById('instrumentalPlayer').src=d.instrumental_url;document.getElementById('vocalsDownload').href=d.vocals_url;document.getElementById('instrumentalDownload').href=d.instrumental_url;submit.disabled=false;submit.textContent='{{ __('Klaar') }}';return}if(d.status==='failed')throw new Error(d.message||'Audioverwerking mislukt');const pct=Math.max(0,Math.min(99,Number(d.progress)||0));document.getElementById('statusPercent').textContent=pct+'%';document.getElementById('progressFill').style.width=Math.max(2,pct)+'%';statusText.textContent=d.stage==='loading_model'?'{{ __('AI-model wordt geladen (eerste keer kan langer duren)…') }}':'{{ __('AI scheidt de zang en instrumenten…') }}';document.getElementById('statusTime').textContent=Math.floor((Date.now()-started)/1000)+'s';timer=setTimeout(()=>poll(token),2500)}catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}}
  form.addEventListener('submit',async e=>{e.preventDefault();if(!input.files.length)return;error.classList.remove('show');results.classList.remove('show');status.classList.add('show');statusText.textContent='{{ __('Uploaden en verwerking starten…') }}';submit.disabled=true;submit.textContent='{{ __('Bezig…') }}';started=Date.now();try{const tokenResponse=await fetch('{{ route('vocal-remover.csrf') }}',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});const tokenData=await tokenResponse.json();if(!tokenResponse.ok||!tokenData.token)throw new Error('Beveiligde sessie vernieuwen mislukt. Vernieuw de pagina en probeer opnieuw.');form.querySelector('input[name="_token"]').value=tokenData.token;const data=new FormData(form);const r=await fetch('{{ route('vocal-remover.start') }}',{method:'POST',body:data,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json','X-CSRF-TOKEN':tokenData.token}});const d=await r.json();if(!r.ok)throw new Error(d.message||(r.status===419?'Je beveiligde sessie is verlopen. Vernieuw de pagina en probeer opnieuw.':'Upload mislukt'));poll(d.token)}catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}});
 })();
 </script>
