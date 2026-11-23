@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\\Http\\Controllers;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\Process\Process;
+use Illuminate\\Http\\JsonResponse;
+use Illuminate\\Http\\Request;
+use Illuminate\\Support\\Facades\\File;
+use Illuminate\\Support\\Facades\\Log;
+use Symfony\\Component\\HttpFoundation\\BinaryFileResponse;
+use Symfony\\Component\\Process\\Process;
 use Throwable;
 
 final class VocalRemoverController extends Controller
 {
     private const MAX_BYTES = 1024 * 1024 * 1024;
-    private const MAX_SECONDS = 600;
 
     public function start(Request $request): JsonResponse
     {
@@ -23,27 +22,6 @@ final class VocalRemoverController extends Controller
         $upload = $validated['audio'];
         if ($upload->getSize() > self::MAX_BYTES) {
             return response()->json(['message' => __('Audio mag maximaal 1 GB zijn.')], 422);
-        }
-
-        $probe = new Process([
-            'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-            '-of', 'default=noprint_wrappers=1:nokey=1', $upload->getRealPath(),
-        ]);
-        $probe->setTimeout(20);
-        $probe->run();
-        $duration = $probe->isSuccessful() ? (float) trim($probe->getOutput()) : 0.0;
-        if ($duration <= 0 || $duration > self::MAX_SECONDS) {
-            return response()->json(['message' => __('Gebruik een leesbaar audio- of videobestand van maximaal 10 minuten.')], 422);
-        }
-
-        $audioProbe = new Process([
-            'ffprobe', '-v', 'error', '-select_streams', 'a:0',
-            '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', $upload->getRealPath(),
-        ]);
-        $audioProbe->setTimeout(20);
-        $audioProbe->run();
-        if (! $audioProbe->isSuccessful() || trim($audioProbe->getOutput()) !== 'audio') {
-            return response()->json(['message' => __('Dit bestand bevat geen leesbaar audiospoor.')], 422);
         }
 
         $root = storage_path('app/private/vocal-remover');
@@ -69,38 +47,26 @@ final class VocalRemoverController extends Controller
             File::ensureDirectoryExists($dir, 0700, true);
             $extension = strtolower($upload->getClientOriginalExtension() ?: 'audio');
             $uploadedSource = $upload->move($dir, 'upload.'.$extension);
-            $source = $uploadedSource;
-            if (in_array($extension, ['mp4', 'mov', 'webm'], true)) {
-                $extracted = $dir.'/source-audio.wav';
-                $extract = new Process([
-                    'ffmpeg', '-y', '-i', $uploadedSource->getPathname(),
-                    '-vn', '-ac', '2', '-ar', '44100', '-c:a', 'pcm_s16le', $extracted,
-                ]);
-                $extract->setTimeout(180);
-                $extract->run();
-                if (! $extract->isSuccessful() || ! is_file($extracted) || filesize($extracted) < 1000) {
-                    throw new \RuntimeException('Unable to extract audio from uploaded video');
-                }
-                File::delete($uploadedSource->getPathname());
-                $source = new \Illuminate\Http\File($extracted);
-            }
             File::put($dir.'/status.json', json_encode([
-                'status' => 'queued', 'created_at' => time(), 'duration' => $duration,
+                'status' => 'queued', 'created_at' => time(),
             ], JSON_THROW_ON_ERROR));
 
             $request->session()->put('vocal_remover.'.$token, [
                 'expires_at' => time() + 3600,
             ]);
 
-            $python = is_file('/opt/tiktok-venv/bin/python') ? '/opt/tiktok-venv/bin/python' : 'python3';
+            // Packages are installed into /app/.tiktok-python by Railpack.
+            // The worker adds that exact directory to sys.path; do not use the
+            // unrelated optional /opt/tiktok-venv interpreter here.
+            $python = 'python3';
             $command = 'nohup '.escapeshellarg($python).' '.escapeshellarg(base_path('scripts/vocal_remover.py'))
-                .' '.escapeshellarg($token).' '.escapeshellarg($source->getPathname())
+                .' '.escapeshellarg($token).' '.escapeshellarg($uploadedSource->getPathname())
                 .' '.escapeshellarg($dir).' > '.escapeshellarg($dir.'/worker.log').' 2>&1 < /dev/null &';
             $launcher = Process::fromShellCommandline($command, base_path());
             $launcher->setTimeout(10);
             $launcher->run();
             if (! $launcher->isSuccessful()) {
-                throw new \RuntimeException('Unable to launch audio worker');
+                throw new \\RuntimeException('Unable to launch audio worker');
             }
 
             return response()->json(['token' => $token], 202)->header('Cache-Control', 'private, no-store');
@@ -134,7 +100,7 @@ final class VocalRemoverController extends Controller
 
         return response()->json([
             'status' => $status,
-            'message' => $status === 'failed' ? __('Verwerking mislukt. Probeer een korter of ander audiobestand.') : null,
+            'message' => $status === 'failed' ? __('Verwerking mislukt. Probeer een korter of ander audio-/videobestand.') : null,
         ])->header('Cache-Control', 'private, no-store');
     }
 
