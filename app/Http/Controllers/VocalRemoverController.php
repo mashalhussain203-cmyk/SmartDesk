@@ -18,7 +18,7 @@ final class VocalRemoverController extends Controller
     public function start(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg', 'max:1048576'],
+            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg,mp4,mov,webm', 'max:1048576'],
         ]);
         $upload = $validated['audio'];
         if ($upload->getSize() > self::MAX_BYTES) {
@@ -33,7 +33,17 @@ final class VocalRemoverController extends Controller
         $probe->run();
         $duration = $probe->isSuccessful() ? (float) trim($probe->getOutput()) : 0.0;
         if ($duration <= 0 || $duration > self::MAX_SECONDS) {
-            return response()->json(['message' => __('Gebruik een leesbaar audiobestand van maximaal 10 minuten.')], 422);
+            return response()->json(['message' => __('Gebruik een leesbaar audio- of videobestand van maximaal 10 minuten.')], 422);
+        }
+
+        $audioProbe = new Process([
+            'ffprobe', '-v', 'error', '-select_streams', 'a:0',
+            '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', $upload->getRealPath(),
+        ]);
+        $audioProbe->setTimeout(20);
+        $audioProbe->run();
+        if (! $audioProbe->isSuccessful() || trim($audioProbe->getOutput()) !== 'audio') {
+            return response()->json(['message' => __('Dit bestand bevat geen leesbaar audiospoor.')], 422);
         }
 
         $root = storage_path('app/private/vocal-remover');
@@ -58,7 +68,22 @@ final class VocalRemoverController extends Controller
             $dir = $root.'/'.$token;
             File::ensureDirectoryExists($dir, 0700, true);
             $extension = strtolower($upload->getClientOriginalExtension() ?: 'audio');
-            $source = $upload->move($dir, 'source.'.$extension);
+            $uploadedSource = $upload->move($dir, 'upload.'.$extension);
+            $source = $uploadedSource;
+            if (in_array($extension, ['mp4', 'mov', 'webm'], true)) {
+                $extracted = $dir.'/source-audio.wav';
+                $extract = new Process([
+                    'ffmpeg', '-y', '-i', $uploadedSource->getPathname(),
+                    '-vn', '-ac', '2', '-ar', '44100', '-c:a', 'pcm_s16le', $extracted,
+                ]);
+                $extract->setTimeout(180);
+                $extract->run();
+                if (! $extract->isSuccessful() || ! is_file($extracted) || filesize($extracted) < 1000) {
+                    throw new \RuntimeException('Unable to extract audio from uploaded video');
+                }
+                File::delete($uploadedSource->getPathname());
+                $source = new \Illuminate\Http\File($extracted);
+            }
             File::put($dir.'/status.json', json_encode([
                 'status' => 'queued', 'created_at' => time(), 'duration' => $duration,
             ], JSON_THROW_ON_ERROR));
