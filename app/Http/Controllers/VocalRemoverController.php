@@ -65,7 +65,7 @@ final class VocalRemoverController extends Controller
             // Launch with that exact interpreter, not the system Python.
             $python = (string) (getenv('TIKTOK_PYTHON') ?: '/opt/tiktok-venv/bin/python');
             if (! is_executable($python)) {
-                throw new \\RuntimeException('Audio-engine Python environment is missing: '.$python);
+                throw new \RuntimeException('Audio-engine Python environment is missing: '.$python);
             }
             $command = 'nohup '.escapeshellarg($python).' '.escapeshellarg(base_path('scripts/vocal_remover.py'))
                 .' '.escapeshellarg($token).' '.escapeshellarg($uploadedSource->getPathname())
