@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Private CPU Demucs worker for Mashal Studio. No third-party inference API."""
+import importlib.util
 import json
 import os
 import re
@@ -10,14 +11,12 @@ import sys
 import time
 from pathlib import Path
 
-PACKAGE_DIR = "/app/.tiktok-python"
-sys.path.insert(0, PACKAGE_DIR)
-os.environ["PYTHONPATH"] = PACKAGE_DIR + os.pathsep + os.environ.get("PYTHONPATH", "")
 # Keep CPU and memory use predictable on the small Railway instance.
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["PYTHONUNBUFFERED"] = "1"
 os.environ["TORCH_HOME"] = "/app/storage/app/private/vocal-remover/model-cache"
 Path(os.environ["TORCH_HOME"]).mkdir(parents=True, exist_ok=True)
 
@@ -75,6 +74,11 @@ def update_progress(text, current):
 
 
 try:
+    demucs_spec = importlib.util.find_spec("demucs")
+    if demucs_spec is None:
+        raise RuntimeError(f"Demucs is niet geïnstalleerd in deze Python-omgeving: {sys.executable}")
+    log(f"Worker interpreter: {sys.executable}")
+    log(f"Demucs module: {demucs_spec.origin}")
     if not source.is_file() or source.stat().st_size < 1:
         raise RuntimeError("Het geüploade audiobestand ontbreekt of is leeg.")
 
@@ -111,7 +115,7 @@ try:
     command = [
         sys.executable, "-m", "demucs.separate",
         "-n", "htdemucs", "--two-stems", "vocals",
-        "--shifts", "0", "--segment", "3", "--overlap", "0.25",
+        "--shifts", "0", "--segment", "1.5", "--overlap", "0.1", "--device", "cpu",
         "--mp3", "--mp3-bitrate", "192",
         "-o", str(output), str(model_input.resolve())
     ]
@@ -133,6 +137,7 @@ try:
     pending = ""
     progress_value = 0
     last_state_write = 0.0
+    current_stage = "separating"
     deadline = time.monotonic() + 1800
 
     with selectors.DefaultSelector() as selector:
@@ -144,8 +149,11 @@ try:
                 raise RuntimeError("Audioverwerking duurde langer dan 30 minuten en is gestopt.")
 
             events = selector.select(timeout=1)
-            if not events and process.poll() is not None:
-                # Wait for the pipe's EOF event; do not discard final output.
+            if not events:
+                now = time.monotonic()
+                if process.poll() is None and now - last_state_write >= 5:
+                    state("processing", stage=current_stage, progress=progress_value)
+                    last_state_write = now
                 continue
 
             for key, _ in events:
@@ -162,6 +170,8 @@ try:
                 pending = parts.pop() if parts else ""
 
                 for line in parts:
+                    if "Separating track" in line or "%" in line:
+                        current_stage = "separating"
                     new_progress = update_progress(line, progress_value)
                     if new_progress != progress_value:
                         progress_value = new_progress
