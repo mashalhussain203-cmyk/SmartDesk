@@ -1149,6 +1149,9 @@ Route::get(
     [TikTokCounterController::class, 'liveCountsIndex']
 )->name('live-counts.index');
 
+// Vocal Remover: external audio separation workspace.
+Route::view('/tools/vocal-remover', 'tools.vocal-remover')->name('vocal-remover.index');
+
 /*
 |--------------------------------------------------------------------------
 | TikTok Video Analyzer & Best Upload Times
