@@ -58,7 +58,7 @@
      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
      <strong id="fileTitle">{{ __('Sleep je audiobestand hierheen') }}</strong>
      <small id="fileHint">{{ __('of tik om een bestand te kiezen · MP3, WAV, M4A, FLAC, OGG · max. 1 GB') }}</small>
-     <input class="vr-file" id="audioFile" name="audio" type="file" accept=".mp3,.wav,.m4a,.aac,.flac,.ogg,audio/*">
+     <input class="vr-file" id="audioFile" name="audio" type="file" accept=".mp3,.wav,.m4a,.aac,.flac,.ogg,.mp4,.mov,.webm,audio/*">
     </label>
     <div class="vr-actions">
      <button class="vr-btn primary" id="processBtn" type="submit" disabled>{{ __('Splits vocals & instrumentaal') }}</button>
