@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 # Railpack installs the existing Python toolchain into this application-local target.
 sys.path.insert(0, "/app/.tiktok-python")
+os.environ["PYTHONPATH"] = "/app/.tiktok-python" + os.pathsep + os.environ.get("PYTHONPATH", "")
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
 os.environ["TORCH_HOME"] = "/app/storage/app/private/vocal-remover/model-cache"
