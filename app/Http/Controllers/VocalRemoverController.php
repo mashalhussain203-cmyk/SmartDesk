@@ -73,12 +73,9 @@ final class VocalRemoverController extends Controller
                 'expires_at' => time() + 3600,
             ]);
 
-            // Demucs and PyTorch are installed by nixpacks.toml into this venv.
-            // Launch with that exact interpreter, not the system Python.
-            $python = (string) (getenv('TIKTOK_PYTHON') ?: '/opt/tiktok-venv/bin/python');
-            if (! is_executable($python)) {
-                throw new \RuntimeException('Audio-engine Python environment is missing: '.$python);
-            }
+            // Railpack installs requirements-tiktok.txt into /app/.tiktok-python
+            // and exposes its matching Python as python3 on PATH.
+            $python = (string) (getenv('PYTHON') ?: 'python3');
             $command = 'nohup '.escapeshellarg($python).' '.escapeshellarg(base_path('scripts/vocal_remover.py'))
                 .' '.escapeshellarg($token).' '.escapeshellarg($uploadedSource->getPathname())
                 .' '.escapeshellarg($dir).' > '.escapeshellarg($dir.'/worker.log').' 2>&1 < /dev/null &';
