@@ -80,7 +80,7 @@ try:
     command = [
         sys.executable, "-m", "demucs.separate",
         "-n", "htdemucs", "--two-stems", "vocals",
-        "--shifts", "0", "--segment", "7", "--overlap", "0.25",
+        "--shifts", "0", "--segment", "3", "--overlap", "0.25",
         "--mp3", "--mp3-bitrate", "192",
         "-o", str(output), str(model_input.resolve())
     ]
