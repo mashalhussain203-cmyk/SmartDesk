@@ -2,7 +2,7 @@
 nixPkgs = ["...", "python313", "chromium", "ffmpeg"]
 
 [phases.install]
-cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt"]
+cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt && /opt/tiktok-venv/bin/pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple torch torchaudio && /opt/tiktok-venv/bin/pip install --no-cache-dir demucs==4.0.1"]
 
 [variables]
 TIKTOK_PYTHON = "/opt/tiktok-venv/bin/python"
