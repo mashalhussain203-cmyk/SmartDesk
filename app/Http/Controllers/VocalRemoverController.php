@@ -12,17 +12,17 @@ use Throwable;
 
 final class VocalRemoverController extends Controller
 {
-    private const MAX_BYTES = 100 * 1024 * 1024;
+    private const MAX_BYTES = 1024 * 1024 * 1024;
     private const MAX_SECONDS = 600;
 
     public function start(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg', 'max:102400'],
+            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg', 'max:1048576'],
         ]);
         $upload = $validated['audio'];
         if ($upload->getSize() > self::MAX_BYTES) {
-            return response()->json(['message' => __('Audio mag maximaal 100 MB zijn.')], 422);
+            return response()->json(['message' => __('Audio mag maximaal 1 GB zijn.')], 422);
         }
 
         $probe = new Process([
