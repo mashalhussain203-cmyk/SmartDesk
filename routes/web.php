@@ -1164,18 +1164,18 @@ Route::get('/tools/vocal-remover/csrf', function () {
         ->header('Cache-Control', 'private, no-store, no-cache, must-revalidate')
         ->header('Pragma', 'no-cache')
         ->header('Vary', 'Cookie');
-})->middleware('throttle:60,1')->name('vocal-remover.csrf');
+})->middleware('throttle:120,1')->name('vocal-remover.csrf');
 Route::post('/tools/vocal-remover/process', [VocalRemoverController::class, 'start'])
-    ->middleware('throttle:10,1')->name('vocal-remover.start');
+    ->middleware('throttle:30,1')->name('vocal-remover.start');
 Route::post('/tools/vocal-remover/upload/{uploadId}/chunk', [VocalRemoverController::class, 'uploadChunk'])
-    ->where('uploadId', '[a-f0-9]{40}')->middleware('throttle:600,1')->name('vocal-remover.chunk');
+    ->where('uploadId', '[a-f0-9]{40}')->middleware('throttle:1200,1')->name('vocal-remover.chunk');
 Route::post('/tools/vocal-remover/upload/{uploadId}/finish', [VocalRemoverController::class, 'finishUpload'])
-    ->where('uploadId', '[a-f0-9]{40}')->middleware('throttle:10,1')->name('vocal-remover.finish');
+    ->where('uploadId', '[a-f0-9]{40}')->middleware('throttle:30,1')->name('vocal-remover.finish');
 Route::get('/tools/vocal-remover/status/{token}', [VocalRemoverController::class, 'status'])
-    ->where('token', '[a-f0-9]{40}')->middleware('throttle:60,1')->name('vocal-remover.status');
+    ->where('token', '[a-f0-9]{40}')->middleware('throttle:120,1')->name('vocal-remover.status');
 Route::get('/tools/vocal-remover/download/{token}/{stem}', [VocalRemoverController::class, 'download'])
     ->where(['token' => '[a-f0-9]{40}', 'stem' => 'vocals|no_vocals'])
-    ->middleware('throttle:30,1')->name('vocal-remover.download');
+    ->middleware('throttle:60,1')->name('vocal-remover.download');
 
 /*
 |--------------------------------------------------------------------------
