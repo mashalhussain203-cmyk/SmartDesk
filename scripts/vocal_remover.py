@@ -5,8 +5,13 @@ import os
 import subprocess
 import sys
 import time
+from pathlib import Path
 # Railpack installs the existing Python toolchain into this application-local target.
 sys.path.insert(0, "/app/.tiktok-python")
+os.environ["OMP_NUM_THREADS"] = "2"
+os.environ["MKL_NUM_THREADS"] = "2"
+os.environ["TORCH_HOME"] = "/app/storage/app/private/vocal-remover/model-cache"
+Path(os.environ["TORCH_HOME"]).mkdir(parents=True, exist_ok=True)
 from pathlib import Path
 
 token, source, workdir = sys.argv[1:4]
@@ -14,7 +19,11 @@ directory = Path(workdir)
 state_file = directory / "status.json"
 
 def state(status, **extra):
-    data = {"status": status, "created_at": int(time.time()), **extra}
+    try:
+        created_at = json.loads(state_file.read_text(encoding="utf-8")).get("created_at", int(time.time()))
+    except Exception:
+        created_at = int(time.time())
+    data = {"status": status, "created_at": created_at, **extra}
     temp = state_file.with_suffix(".tmp")
     temp.write_text(json.dumps(data), encoding="utf-8")
     temp.replace(state_file)
@@ -23,8 +32,6 @@ try:
     import torch
     # Respect the small shared web-service CPU budget and serialize jobs.
     torch.set_num_threads(max(1, min(2, os.cpu_count() or 1)))
-    os.environ["OMP_NUM_THREADS"] = "2"
-    os.environ["MKL_NUM_THREADS"] = "2"
     state("processing")
     output = directory / "separated"
     output.mkdir(exist_ok=True)
