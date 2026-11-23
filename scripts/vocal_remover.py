@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Private CPU Demucs worker for Mashal Studio. No third-party inference API."""
 import importlib.util
+import fcntl
 import json
 import os
 import re
@@ -77,6 +78,18 @@ def update_progress(text, current):
     if match and float(match.group(2)) > 0:
         return max(current, min(99, int(float(match.group(1)) / float(match.group(2)) * 100)))
     return current
+
+
+# Queue jobs safely: only one Demucs process uses the server's limited RAM/CPU
+# at a time, while every other upload waits and refreshes its heartbeat.
+engine_lock = open(directory.parent / "engine.lock", "a", encoding="utf-8")
+while True:
+    try:
+        fcntl.flock(engine_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        break
+    except BlockingIOError:
+        state("queued", stage="waiting_for_engine", progress=0)
+        time.sleep(5)
 
 
 try:
@@ -223,5 +236,8 @@ finally:
         created_at = int(json.loads(state_file.read_text(encoding="utf-8")).get("created_at", time.time()))
     except Exception:
         created_at = int(time.time())
+    # Release the shared inference slot before retaining the downloadable files.
+    fcntl.flock(engine_lock.fileno(), fcntl.LOCK_UN)
+    engine_lock.close()
     time.sleep(max(0, 3600 - (time.time() - created_at)))
     shutil.rmtree(directory, ignore_errors=True)
