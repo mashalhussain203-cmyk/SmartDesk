@@ -91,7 +91,42 @@
  drop.addEventListener('drop',e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
  reset.addEventListener('click',clear);
  async function poll(token){try{const r=await fetch('{{ route('vocal-remover.status', ['token'=>'TOKEN']) }}'.replace('TOKEN',token),{headers:{'Accept':'application/json'},cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.message||'Status niet beschikbaar');if(d.status==='ready'){statusText.textContent='{{ __('Je audio is klaar!') }}';document.getElementById('statusPercent').textContent='100%';document.getElementById('progressFill').style.width='100%';status.classList.remove('show');results.classList.add('show');document.getElementById('vocalsPlayer').src=d.vocals_url;document.getElementById('instrumentalPlayer').src=d.instrumental_url;document.getElementById('vocalsDownload').href=d.vocals_url;document.getElementById('instrumentalDownload').href=d.instrumental_url;submit.disabled=false;submit.textContent='{{ __('Klaar') }}';return}if(d.status==='failed')throw new Error(d.message||'Audioverwerking mislukt');const pct=Math.max(0,Math.min(99,Number(d.progress)||0));document.getElementById('statusPercent').textContent=pct+'%';document.getElementById('progressFill').style.width=Math.max(2,pct)+'%';statusText.textContent=d.stage==='loading_model'?'{{ __('AI-model wordt geladen (eerste keer kan langer duren)…') }}':'{{ __('AI scheidt de zang en instrumenten…') }}';document.getElementById('statusTime').textContent=Math.floor((Date.now()-started)/1000)+'s';timer=setTimeout(()=>poll(token),2500)}catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}}
- form.addEventListener('submit',async e=>{e.preventDefault();if(!input.files.length)return;error.classList.remove('show');results.classList.remove('show');status.classList.add('show');statusText.textContent='{{ __('Uploaden en verwerking starten…') }}';submit.disabled=true;submit.textContent='{{ __('Bezig…') }}';started=Date.now();try{const tokenResponse=await fetch('{{ route('vocal-remover.csrf') }}',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});const tokenData=await tokenResponse.json();if(!tokenResponse.ok||!tokenData.token)throw new Error('Beveiligde sessie vernieuwen mislukt. Vernieuw de pagina en probeer opnieuw.');form.querySelector('input[name="_token"]').value=tokenData.token;const data=new FormData(form);const r=await fetch('{{ route('vocal-remover.start') }}',{method:'POST',body:data,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json','X-CSRF-TOKEN':tokenData.token}});const d=await r.json();if(!r.ok)throw new Error(d.message||(r.status===419?'Je beveiligde sessie is verlopen. Vernieuw de pagina en probeer opnieuw.':'Upload mislukt'));poll(d.token)}catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}});
+ async function sendChunk(url, body, csrfToken, onProgress){
+  await new Promise((resolve,reject)=>{
+   const xhr=new XMLHttpRequest();xhr.open('POST',url);xhr.withCredentials=true;xhr.setRequestHeader('Accept','application/json');xhr.setRequestHeader('X-CSRF-TOKEN',csrfToken);
+   xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded/e.total)};
+   xhr.onload=()=>{let d={};try{d=JSON.parse(xhr.responseText)}catch(_){}
+    if(xhr.status>=200&&xhr.status<300)resolve(d);else reject(new Error(d.message||'Uploaddeel mislukt (HTTP '+xhr.status+').'))};
+   xhr.onerror=()=>reject(new Error('Verbinding verbroken tijdens uploaden. Probeer opnieuw.'));
+   xhr.send(body);
+  });
+ }
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();const file=input.files[0];if(!file)return;
+  if(file.size>1024*1048576){fail('Bestand is groter dan 1 GB.');return}
+  error.classList.remove('show');results.classList.remove('show');status.classList.add('show');statusText.textContent='{{ __('Beveiligde verbinding voorbereiden…') }}';submit.disabled=true;submit.textContent='{{ __('Uploaden…') }}';started=Date.now();
+  try{
+   const tokenResponse=await fetch('{{ route('vocal-remover.csrf') }}',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json'}});
+   const tokenData=await tokenResponse.json();if(!tokenResponse.ok||!tokenData.token)throw new Error('Beveiligde sessie vernieuwen mislukt. Vernieuw de pagina en probeer opnieuw.');
+   const csrfToken=tokenData.token;form.querySelector('input[name="_token"]').value=csrfToken;
+   const uploadId=Array.from(crypto.getRandomValues(new Uint8Array(20)),b=>b.toString(16).padStart(2,'0')).join('');
+   const chunkSize=8*1024*1024,total=Math.ceil(file.size/chunkSize);
+   if(total<1||total>128)throw new Error('Bestand is groter dan 1 GB.');
+   for(let i=0;i<total;i++){
+    const part=file.slice(i*chunkSize,Math.min(file.size,(i+1)*chunkSize));
+    const body=new FormData();body.append('chunk',part,'chunk.bin');body.append('index',String(i));body.append('total',String(total));
+    statusText.textContent='{{ __('Uploaden') }} · '+(i+1)+'/'+total;
+    await sendChunk('{{ route('vocal-remover.chunk',['uploadId'=>'UPLOAD']) }}'.replace('UPLOAD',uploadId),body,csrfToken,f=>{
+     const pct=Math.min(84,Math.round(((i+f)/total)*84));document.getElementById('statusPercent').textContent=pct+'%';document.getElementById('progressFill').style.width=Math.max(2,pct)+'%';document.getElementById('statusTime').textContent=Math.floor((Date.now()-started)/1000)+'s';
+    });
+   }
+   statusText.textContent='{{ __('Upload compleet · verwerking starten…') }}';
+   const finishBody=new FormData();finishBody.append('total',String(total));finishBody.append('extension',(file.name.split('.').pop()||'mp3').toLowerCase());
+   const finish=await fetch('{{ route('vocal-remover.finish',['uploadId'=>'UPLOAD']) }}'.replace('UPLOAD',uploadId),{method:'POST',body:finishBody,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrfToken}});
+   const d=await finish.json();if(!finish.ok)throw new Error(d.message||'Upload kon niet worden afgerond.');
+   document.getElementById('statusPercent').textContent='85%';document.getElementById('progressFill').style.width='85%';poll(d.token);
+  }catch(e){fail(e.message);submit.disabled=false;submit.textContent='{{ __('Opnieuw proberen') }}'}
+ });
 })();
 </script>
 @endsection
