@@ -100,6 +100,8 @@ final class VocalRemoverController extends Controller
 
         return response()->json([
             'status' => $status,
+            'stage' => (string) ($state['stage'] ?? 'queued'),
+            'progress' => (int) ($state['progress'] ?? 0),
             'message' => $status === 'failed' ? (string) ($state['error'] ?? __('Verwerking mislukt. Controleer het bestand en probeer opnieuw.')) : null,
         ])->header('Cache-Control', 'private, no-store');
     }
