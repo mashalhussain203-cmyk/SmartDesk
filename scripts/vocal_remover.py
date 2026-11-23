@@ -134,7 +134,7 @@ try:
     command = [
         sys.executable, "-m", "demucs.separate",
         "-n", "htdemucs", "--two-stems", "vocals",
-        "--shifts", "0", "--segment", "1.5", "--overlap", "0.1", "--device", "cpu",
+        "--shifts", "0", "--segment", "7", "--overlap", "0.1", "--device", "cpu",
         "--mp3", "--mp3-bitrate", "192",
         "-o", str(output), str(model_input.resolve())
     ]
