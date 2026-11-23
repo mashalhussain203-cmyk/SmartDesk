@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\GmailLiveChatService;
+use App\Services\BrevoMailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -57,10 +57,23 @@ class ContactController extends Controller
         ];
 
         try {
-            // Resolve the service inside the try block because its constructor
-            // can throw when the Gmail configuration is incomplete.
-            $gmail = app(GmailLiveChatService::class);
-            $gmail->sendContactMessage($data);
+            // Public contact email uses Brevo and does not depend on Gmail OAuth.
+            $brevo = app(BrevoMailService::class);
+            $recipient = trim((string) config('mail.contact_to', ''));
+
+            if ($recipient === '') {
+                throw new \RuntimeException('CONTACT_MAIL_TO ontbreekt.');
+            }
+
+            $templateData = ['data' => $data];
+
+            $brevo->send(
+                toEmail: $recipient,
+                toName: 'Mashal Studio',
+                subject: 'Nieuw contactbericht via SmartDesk',
+                view: 'emails.contact-received',
+                data: $templateData
+            );
         } catch (Throwable $exception) {
             report($exception);
 
@@ -69,10 +82,15 @@ class ContactController extends Controller
                 ->with('error', __('Uw bericht kon op dit moment niet worden verzonden. Probeer het later opnieuw.'));
         }
 
-        // The owner's message has already been sent. Confirmation failure
-        // must not incorrectly tell the visitor that the request failed.
+        // The owner notification is accepted; confirmation failure is non-fatal.
         try {
-            $gmail->sendContactConfirmation($data);
+            $brevo->send(
+                toEmail: $data['email'],
+                toName: trim($data['first_name'].' '.$data['last_name']),
+                subject: 'We hebben uw bericht ontvangen | SmartDesk',
+                view: 'emails.contact-confirmation',
+                data: $templateData
+            );
         } catch (Throwable $exception) {
             report($exception);
         }
