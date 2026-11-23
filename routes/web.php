@@ -40,6 +40,7 @@ use App\Http\Controllers\TikTokCounterController;
 use App\Http\Controllers\TikTokAnalyticsController;
 use App\Http\Controllers\TikTokDownloaderController;
 use App\Http\Controllers\VideoOptimizerController;
+use App\Http\Controllers\VocalRemoverController;
 use App\Http\Controllers\VideoPublishController;
 use App\Http\Controllers\YouTubeSubscriberController;
 use App\Http\Controllers\YouTubeViewCounterController;
@@ -1149,8 +1150,15 @@ Route::get(
     [TikTokCounterController::class, 'liveCountsIndex']
 )->name('live-counts.index');
 
-// Vocal Remover: external audio separation workspace.
-Route::view('/tools/vocal-remover', 'tools.vocal-remover')->name('vocal-remover.index');
+// Mashal Studio Vocal Remover: private, server-side open-source separation.
+Route::get('/tools/vocal-remover', fn () => view('tools.vocal-remover'))->name('vocal-remover.index');
+Route::post('/tools/vocal-remover/process', [VocalRemoverController::class, 'start'])
+    ->middleware('throttle:3,1')->name('vocal-remover.start');
+Route::get('/tools/vocal-remover/status/{token}', [VocalRemoverController::class, 'status'])
+    ->where('token', '[a-f0-9]{40}')->middleware('throttle:60,1')->name('vocal-remover.status');
+Route::get('/tools/vocal-remover/download/{token}/{stem}', [VocalRemoverController::class, 'download'])
+    ->where(['token' => '[a-f0-9]{40}', 'stem' => 'vocals|no_vocals'])
+    ->middleware('throttle:30,1')->name('vocal-remover.download');
 
 /*
 |--------------------------------------------------------------------------
