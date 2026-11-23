@@ -11,6 +11,12 @@ import sys
 import time
 from pathlib import Path
 
+# Railpack installs the audio dependencies into this shared target directory.
+# Add it before importing or locating Demucs so the runtime uses the built packages.
+PACKAGE_DIR = "/app/.tiktok-python"
+if os.path.isdir(PACKAGE_DIR) and PACKAGE_DIR not in sys.path:
+    sys.path.insert(0, PACKAGE_DIR)
+
 # Keep CPU and memory use predictable on the small Railway instance.
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
