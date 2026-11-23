@@ -1151,7 +1151,20 @@ Route::get(
 )->name('live-counts.index');
 
 // Mashal Studio Vocal Remover: private, server-side open-source separation.
-Route::get('/tools/vocal-remover', fn () => view('tools.vocal-remover'))->name('vocal-remover.index');
+Route::get('/tools/vocal-remover', function () {
+    return response()->view('tools.vocal-remover')
+        ->header('Cache-Control', 'private, no-store, no-cache, must-revalidate')
+        ->header('Pragma', 'no-cache');
+})->name('vocal-remover.index');
+
+// Issue a fresh session-bound CSRF token immediately before large uploads.
+// This avoids submitting a stale token from an HTML page left open in Safari.
+Route::get('/tools/vocal-remover/csrf', function () {
+    return response()->json(['token' => csrf_token()])
+        ->header('Cache-Control', 'private, no-store, no-cache, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Vary', 'Cookie');
+})->middleware('throttle:60,1')->name('vocal-remover.csrf');
 Route::post('/tools/vocal-remover/process', [VocalRemoverController::class, 'start'])
     ->middleware('throttle:10,1')->name('vocal-remover.start');
 Route::get('/tools/vocal-remover/status/{token}', [VocalRemoverController::class, 'status'])
