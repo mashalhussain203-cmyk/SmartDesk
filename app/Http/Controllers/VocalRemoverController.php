@@ -151,7 +151,10 @@ final class VocalRemoverController extends Controller
     private function cleanup(string $root): void
     {
         foreach (File::directories($root) as $dir) {
-            if ((filemtime($dir) ?: time()) < time() - 3600) File::deleteDirectory($dir);
+            if (preg_match('/^[a-f0-9]{40}$/', basename($dir))
+                && (filemtime($dir) ?: time()) < time() - 3600) {
+                File::deleteDirectory($dir);
+            }
         }
     }
 }
