@@ -58,7 +58,7 @@ final class VocalRemoverController extends Controller
             // Packages are installed into /app/.tiktok-python by Railpack.
             // The worker adds that exact directory to sys.path; do not use the
             // unrelated optional /opt/tiktok-venv interpreter here.
-            $python = env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
+            $python = 'python3';
             $command = 'nohup '.escapeshellarg($python).' '.escapeshellarg(base_path('scripts/vocal_remover.py'))
                 .' '.escapeshellarg($token).' '.escapeshellarg($uploadedSource->getPathname())
                 .' '.escapeshellarg($dir).' > '.escapeshellarg($dir.'/worker.log').' 2>&1 < /dev/null &';
@@ -100,7 +100,7 @@ final class VocalRemoverController extends Controller
 
         return response()->json([
             'status' => $status,
-            'message' => $status === 'failed' ? __('Verwerking mislukt. Probeer een korter of ander audio-/videobestand.') : null,
+            'message' => $status === 'failed' ? (string) ($state['error'] ?? __('Verwerking mislukt. Controleer het bestand en probeer opnieuw.')) : null,
         ])->header('Cache-Control', 'private, no-store');
     }
 
