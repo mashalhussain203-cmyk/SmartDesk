@@ -57,7 +57,7 @@
     <label class="vr-drop" id="dropZone" for="audioFile">
      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
      <strong id="fileTitle">{{ __('Sleep je audiobestand hierheen') }}</strong>
-     <small id="fileHint">{{ __('of tik om een bestand te kiezen · MP3, WAV, M4A, FLAC, OGG · max. 25 MB') }}</small>
+     <small id="fileHint">{{ __('of tik om een bestand te kiezen · MP3, WAV, M4A, FLAC, OGG · max. 100 MB') }}</small>
      <input class="vr-file" id="audioFile" name="audio" type="file" accept=".mp3,.wav,.m4a,.aac,.flac,.ogg,audio/*">
     </label>
     <div class="vr-actions">
@@ -86,7 +86,7 @@
  const csrf=form.querySelector('input[name="_token"]').value;
  function fail(message){error.textContent=message;error.classList.add('show');status.classList.remove('show')}
  function clear(){if(timer)clearTimeout(timer);timer=null;form.reset();title.textContent='{{ __('Sleep je audiobestand hierheen') }}';hint.textContent='{{ __('of tik om een bestand te kiezen · MP3, WAV, M4A, FLAC, OGG · max. 25 MB') }}';submit.disabled=true;submit.textContent='{{ __('Splits vocals & instrumentaal') }}';status.classList.remove('show');error.classList.remove('show');results.classList.remove('show');document.getElementById('vocalsPlayer').removeAttribute('src');document.getElementById('instrumentalPlayer').removeAttribute('src')}
- input.addEventListener('change',()=>{const f=input.files[0];if(!f)return;title.textContent=f.name;hint.textContent=(f.size/1048576).toFixed(1)+' MB';submit.disabled=f.size>25*1048576;if(f.size>25*1048576)fail('{{ __('Bestand is groter dan 25 MB.') }}');else error.classList.remove('show')});
+ input.addEventListener('change',()=>{const f=input.files[0];if(!f)return;title.textContent=f.name;hint.textContent=(f.size/1048576).toFixed(1)+' MB';submit.disabled=f.size>100*1048576;if(f.size>25*1048576)fail('{{ __('Bestand is groter dan 100 MB.') }}');else error.classList.remove('show')});
  ['dragenter','dragover'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('drag')}));
  ['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
  drop.addEventListener('drop',e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
