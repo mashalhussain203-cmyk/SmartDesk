@@ -1,3 +1,10 @@
 curl_cffi>=0.16.1,<0.17
 playwright>=1.55,<2
 yt-dlp>=2026.6.0,<2027
+
+# CPU-only open-source audio separation (no paid inference API)
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+torch
+torchaudio
+demucs==4.0.1
