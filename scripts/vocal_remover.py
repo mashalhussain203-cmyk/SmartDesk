@@ -2,6 +2,8 @@
 """Private CPU Demucs worker for Mashal Studio. No third-party API calls."""
 import json
 import os
+import re
+import selectors
 import shutil
 import subprocess
 import sys
@@ -82,9 +84,47 @@ try:
         "--mp3", "--mp3-bitrate", "192",
         "-o", str(output), str(model_input.resolve())
     ]
-    result = subprocess.run(command, cwd=str(directory), capture_output=True, text=True, timeout=1800)
-    if result.returncode != 0:
-        raise RuntimeError((result.stderr or result.stdout or "Demucs processing failed")[-12000:])
+    # Report model loading separately, then stream tqdm progress to status.json.
+    state("processing", stage="loading_model", progress=0)
+    process = subprocess.Popen(command, cwd=str(directory), stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, bufsize=0)
+    output_tail = ""
+    pending = ""
+    progress_value = 0
+    last_state_write = 0.0
+    started = time.monotonic()
+    with selectors.DefaultSelector() as selector:
+        selector.register(process.stdout, selectors.EVENT_READ)
+        while process.poll() is None:
+            if time.monotonic() - started > 1800:
+                process.kill()
+                raise RuntimeError("Audioverwerking duurde langer dan 30 minuten en is gestopt.")
+            for key, _ in selector.select(timeout=1):
+                chunk = os.read(key.fd, 4096)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                decoded = chunk.decode("utf-8", errors="replace")
+                output_tail = (output_tail + decoded)[-12000:]
+                pending += decoded
+                parts = re.split(r"[\r\n]+", pending)
+                pending = parts.pop() if parts else ""
+                for line in parts:
+                    match = re.search(r"(\d{1,3})%|([\d.]+)\s*/\s*([\d.]+)\s*\[", line)
+                    if not match:
+                        continue
+                    if match.group(1) is not None:
+                        progress_value = max(progress_value, min(99, int(match.group(1))))
+                    elif float(match.group(3)) > 0:
+                        progress_value = max(progress_value, min(99, int(float(match.group(2)) / float(match.group(3)) * 100)))
+                    now = time.monotonic()
+                    if progress_value > 0 or now - last_state_write >= 5:
+                        state("processing", stage="separating", progress=progress_value)
+                        last_state_write = now
+        remainder = process.stdout.read().decode("utf-8", errors="replace") if process.stdout else ""
+        output_tail = (output_tail + remainder)[-12000:]
+    if process.returncode != 0:
+        raise RuntimeError((output_tail or "Demucs processing failed")[-12000:])
 
     stem_dir = output / "htdemucs" / model_input.stem
     vocals = stem_dir / "vocals.mp3"
@@ -95,7 +135,7 @@ try:
     shutil.copy2(vocals, directory / "vocals.mp3")
     shutil.copy2(instrumental, directory / "no_vocals.mp3")
     shutil.rmtree(output, ignore_errors=True)
-    state("ready")
+    state("ready", progress=100)
 except Exception as exc:
     state("failed", error=str(exc)[-1000:])
     with (directory / "worker.log").open("a", encoding="utf-8") as log:
