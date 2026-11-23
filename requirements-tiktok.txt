@@ -5,6 +5,6 @@ yt-dlp>=2026.6.0,<2027
 # CPU-only open-source audio separation (no paid inference API)
 --index-url https://download.pytorch.org/whl/cpu
 --extra-index-url https://pypi.org/simple
-torch
-torchaudio
+torch==2.11.1
+torchaudio==2.11.1
 demucs==4.0.1
