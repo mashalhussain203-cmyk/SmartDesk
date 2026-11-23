@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use Illuminate\\Http\\JsonResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\File;
-use Illuminate\\Support\\Facades\\Log;
-use Symfony\\Component\\HttpFoundation\\BinaryFileResponse;
-use Symfony\\Component\\Process\\Process;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 final class VocalRemoverController extends Controller
@@ -66,7 +66,7 @@ final class VocalRemoverController extends Controller
             $launcher->setTimeout(10);
             $launcher->run();
             if (! $launcher->isSuccessful()) {
-                throw new \\RuntimeException('Unable to launch audio worker');
+                throw new \RuntimeException('Unable to launch audio worker');
             }
 
             return response()->json(['token' => $token], 202)->header('Cache-Control', 'private, no-store');
