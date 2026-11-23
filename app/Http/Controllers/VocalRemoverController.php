@@ -40,25 +40,9 @@ final class VocalRemoverController extends Controller
         }
 
         try {
-            foreach (File::directories($root) as $dir) {
-                $state = $this->readState($dir);
-                if (in_array($state['status'] ?? '', ['queued', 'processing'], true)) {
-                    // The worker refreshes updated_at every few seconds. Use its heartbeat,
-                    // not created_at: a crashed worker must not block every future upload
-                    // for 30 minutes just because its old status.json still says processing.
-                    $lastActivity = (int) ($state['updated_at'] ?? $state['created_at'] ?? 0);
-                    if ($lastActivity > 0 && time() - $lastActivity < 120) {
-                        return response()->json(['message' => __('De gratis audio-engine verwerkt momenteel een ander bestand. Probeer het zo opnieuw.')], 429);
-                    }
-
-                    $state['status'] = 'failed';
-                    $state['stage'] = 'failed';
-                    $state['error'] = __('De vorige audioverwerking is vastgelopen. Je kunt opnieuw proberen.');
-                    $state['updated_at'] = time();
-                    File::put($dir.'/status.json', json_encode($state, JSON_THROW_ON_ERROR));
-                    Log::warning('Stale Vocal Remover job released', ['job' => basename($dir)]);
-                }
-            }
+            // Every upload gets its own job. The Python worker serializes actual
+            // Demucs inference with a process-wide lock and keeps later jobs queued,
+            // instead of rejecting users while another song is being separated.
 
             $token = bin2hex(random_bytes(20));
             $dir = $root.'/'.$token;
