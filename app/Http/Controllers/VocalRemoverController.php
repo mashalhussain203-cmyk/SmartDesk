@@ -118,7 +118,7 @@ final class VocalRemoverController extends Controller
         $assembled = storage_path('app/private/vocal-remover/.uploads/'.$uploadId.'.'.$validated['extension']);
         $output = fopen($assembled, 'wb');
         if (! $output) {
-            throw new \\RuntimeException('Uploadbestand kan niet worden samengesteld.');
+            throw new \RuntimeException('Uploadbestand kan niet worden samengesteld.');
         }
         $bytes = 0;
         try {
@@ -136,7 +136,7 @@ final class VocalRemoverController extends Controller
             fclose($output);
         }
         abort_if($bytes < 1, 422, 'Het audiobestand is leeg.');
-        $file = new \\Illuminate\\Http\\UploadedFile($assembled, 'audio.'.$validated['extension'], null, UPLOAD_ERR_OK, true);
+        $file = new \Illuminate\Http\UploadedFile($assembled, 'audio.'.$validated['extension'], null, UPLOAD_ERR_OK, true);
         $request->files->set('audio', $file);
         try {
             return $this->start($request);
