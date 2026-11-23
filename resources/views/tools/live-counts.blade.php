@@ -317,6 +317,16 @@
         </div>
 
         <div class="livehub-grid">
+            <a class="livehub-tool" href="{{ route('vocal-remover.index') }}">
+                <div class="livehub-tool-top">
+                    <div class="livehub-icon-wrap"><span style="font-size:30px;color:#75dfaa" aria-hidden="true">♫</span></div>
+                    <div class="livehub-live"><i></i> {{ __('Audio Tool') }}</div>
+                </div>
+                <h3>Vocal Remover</h3>
+                <p>{{ __('Haal zang uit muziek voor een karaoke/instrumentale versie of isoleer de vocals voor je eigen covers en remixes.') }}</p>
+                <div class="livehub-metrics"><span>Instrumental</span><span>Acapella</span><span>Audio Splitter</span><span>Free tool</span></div>
+                <span class="livehub-arrow" aria-hidden="true">→</span>
+            </a>
             <a class="livehub-tool" href="{{ route('tiktok-downloader.index') }}">
                 <div class="livehub-tool-top"><div class="livehub-icon-wrap"><span style="font-size:30px;color:#9eb2ff" aria-hidden="true">↓</span></div><div class="livehub-live" style="color:#9eb2ff"><i style="background:#9eb2ff"></i> {{ __('Download tool') }}</div></div>
                 <h3>TikTok Downloader</h3>
