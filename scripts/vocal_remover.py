@@ -8,8 +8,10 @@ import sys
 import time
 from pathlib import Path
 
-# The worker is launched with /opt/tiktok-venv/bin/python, matching
-# the virtual environment created by nixpacks.toml and TIKTOK_PYTHON.
+# Railpack installs requirements into this target directory during build.
+PACKAGE_DIR = "/app/.tiktok-python"
+sys.path.insert(0, PACKAGE_DIR)
+os.environ["PYTHONPATH"] = PACKAGE_DIR + os.pathsep + os.environ.get("PYTHONPATH", "")
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["MKL_NUM_THREADS"] = "2"
 os.environ["TORCH_HOME"] = "/app/storage/app/private/vocal-remover/model-cache"
