@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -14,12 +15,17 @@ final class VocalRemoverController extends Controller
 {
     private const MAX_BYTES = 1024 * 1024 * 1024;
 
-    public function start(Request $request): JsonResponse
+    public function start(Request $request, ?UploadedFile $assembledUpload = null): JsonResponse
     {
-        $validated = $request->validate([
-            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg,mp4,mov,webm', 'max:1048576'],
-        ]);
-        $upload = $validated['audio'];
+        if ($assembledUpload === null) {
+            $validated = $request->validate([
+                'audio' => ['required', 'file', 'mimes:mp3,wav,m4a,aac,flac,ogg,mp4,mov,webm', 'max:1048576'],
+            ]);
+            $upload = $validated['audio'];
+        } else {
+            $upload = $assembledUpload;
+            abort_unless($upload->isValid() && $upload->getSize() > 0, 422, 'Het audiobestand is leeg of ongeldig.');
+        }
         if ($upload->getSize() > self::MAX_BYTES) {
             return response()->json(['message' => __('Audio mag maximaal 1 GB zijn.')], 422);
         }
@@ -137,9 +143,8 @@ final class VocalRemoverController extends Controller
         }
         abort_if($bytes < 1, 422, 'Het audiobestand is leeg.');
         $file = new \Illuminate\Http\UploadedFile($assembled, 'audio.'.$validated['extension'], null, UPLOAD_ERR_OK, true);
-        $request->files->set('audio', $file);
         try {
-            return $this->start($request);
+            return $this->start($request, $file);
         } finally {
             File::deleteDirectory($root);
             @unlink($assembled);
