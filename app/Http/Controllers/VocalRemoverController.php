@@ -79,6 +79,74 @@ final class VocalRemoverController extends Controller
         }
     }
 
+
+    public function uploadChunk(Request $request, string $uploadId): JsonResponse
+    {
+        abort_unless((bool) preg_match('/^[a-f0-9]{40}$/', $uploadId), 404);
+        $validated = $request->validate([
+            'chunk' => ['required', 'file', 'max:16384'],
+            'index' => ['required', 'integer', 'min:0', 'max:127'],
+            'total' => ['required', 'integer', 'min:1', 'max:128'],
+        ]);
+        $key = 'vocal_remover_upload.'.$uploadId;
+        $request->session()->put($key, ['expires_at' => time() + 7200]);
+        $root = storage_path('app/private/vocal-remover/.uploads/'.$uploadId);
+        File::ensureDirectoryExists($root, 0700, true);
+        $chunk = $validated['chunk'];
+        $chunk->move($root, sprintf('chunk-%03d', (int) $validated['index']));
+        File::put($root.'/meta.json', json_encode([
+            'total' => (int) $validated['total'],
+            'updated_at' => time(),
+        ], JSON_THROW_ON_ERROR));
+        return response()->json(['received' => (int) $validated['index']])
+            ->header('Cache-Control', 'private, no-store');
+    }
+
+    public function finishUpload(Request $request, string $uploadId): JsonResponse
+    {
+        abort_unless((bool) preg_match('/^[a-f0-9]{40}$/', $uploadId), 404);
+        $expires = (int) $request->session()->get('vocal_remover_upload.'.$uploadId.'.expires_at', 0);
+        abort_unless($expires > time(), 404);
+        $validated = $request->validate([
+            'total' => ['required', 'integer', 'min:1', 'max:128'],
+            'extension' => ['required', 'in:mp3,wav,m4a,aac,flac,ogg,mp4,mov,webm'],
+        ]);
+        $root = storage_path('app/private/vocal-remover/.uploads/'.$uploadId);
+        $total = (int) $validated['total'];
+        $meta = is_file($root.'/meta.json') ? json_decode((string) File::get($root.'/meta.json'), true) : [];
+        abort_unless(is_array($meta) && (int) ($meta['total'] ?? 0) === $total, 422, 'Uploadgegevens kloppen niet.');
+        $assembled = storage_path('app/private/vocal-remover/.uploads/'.$uploadId.'.'.$validated['extension']);
+        $output = fopen($assembled, 'wb');
+        if (! $output) {
+            throw new \\RuntimeException('Uploadbestand kan niet worden samengesteld.');
+        }
+        $bytes = 0;
+        try {
+            for ($i = 0; $i < $total; $i++) {
+                $part = $root.'/'.sprintf('chunk-%03d', $i);
+                abort_unless(is_file($part), 422, 'Een uploaddeel ontbreekt. Probeer opnieuw.');
+                $size = filesize($part);
+                $bytes += $size;
+                abort_if($bytes > self::MAX_BYTES, 413, 'Audio mag maximaal 1 GB zijn.');
+                $input = fopen($part, 'rb');
+                stream_copy_to_stream($input, $output);
+                fclose($input);
+            }
+        } finally {
+            fclose($output);
+        }
+        abort_if($bytes < 1, 422, 'Het audiobestand is leeg.');
+        $file = new \\Illuminate\\Http\\UploadedFile($assembled, 'audio.'.$validated['extension'], null, UPLOAD_ERR_OK, true);
+        $request->files->set('audio', $file);
+        try {
+            return $this->start($request);
+        } finally {
+            File::deleteDirectory($root);
+            @unlink($assembled);
+            $request->session()->forget('vocal_remover_upload.'.$uploadId);
+        }
+    }
+
     public function status(Request $request, string $token): JsonResponse
     {
         abort_unless($this->owns($request, $token), 404);
