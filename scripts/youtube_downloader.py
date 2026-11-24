@@ -94,6 +94,7 @@ def download(url, mode, quality, directory):
     # Prefer clients that do not require the same web PO-token flow.
     # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
     client_sets = [
+        ["mweb", "tv", "web_safari"],
         ["tv"],
         ["web_safari"],
         ["android"],
@@ -112,7 +113,12 @@ def download(url, mode, quality, directory):
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
-                "extractor_args": {"youtube": {"player_client": clients}},
+                "extractor_args": {
+                    "youtube": {"player_client": clients},
+                    "youtubepot-bgutilscript": {
+                        "server_home": "/app/bgutil-ytdlp-pot-provider/server"
+                    },
+                },
                 "format": format_selector,
             }
             if mode == "mp3":
