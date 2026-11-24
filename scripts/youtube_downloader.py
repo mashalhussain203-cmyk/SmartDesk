@@ -93,7 +93,7 @@ def download(url, mode, quality, directory):
             f"best[height={height}]"
         )
         common["merge_output_format"] = "mp4"
-        common["postprocessors"] = [{"key": "FFmpegVideoRemuxer", "preferedformat": "mp4"}]
+        common["postprocessors"] = [{"key": "FFmpegVideoRemuxer", "preferredformat": "mp4"}]
 
     with yt_dlp.YoutubeDL(common) as ydl:
         ydl.download([url])
@@ -156,7 +156,7 @@ def main():
             raise RuntimeError("Ongeldige downloadmap.")
         write_status(directory, "processing")
         output = download(url, mode, quality, directory)
-        write_status(directory, "ready", file=output.name)
+        write_status(directory, "ready", file=output.name, size=output.stat().st_size)
         return 0
     except Exception as exc:
         if action == "info":
@@ -165,7 +165,7 @@ def main():
             try:
                 directory = Path(sys.argv[5]).resolve()
                 if re.fullmatch(r"[a-f0-9]{40}", directory.name) and directory.is_dir():
-                    write_status(directory, "failed", message="Download mislukt: controleer of de video openbaar beschikbaar is en probeer een lagere kwaliteit.")
+                    write_status(directory, "failed", message="Download mislukt: controleer of de video openbaar beschikbaar is en probeer een lagere kwaliteit.", detail=(type(exc).__name__ + ": " + str(exc))[:350])
             except Exception:
                 pass
         print(type(exc).__name__ + ": " + str(exc)[:500], file=sys.stderr)
