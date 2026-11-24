@@ -74,29 +74,78 @@ def video_heights(info):
 def download(url, mode, quality, directory):
     import yt_dlp
     output = str(directory / "source.%(ext)s")
-    common = {
-        "quiet": True, "no_warnings": True, "noplaylist": True,
-        "cachedir": False, "socket_timeout": 25, "retries": 2,
-        "fragment_retries": 2, "extractor_retries": 1,
-        "outtmpl": output, "max_filesize": MAX_BYTES,
-        "overwrites": True, "continuedl": True,
-    }
+    if mode == "mp3" and not shutil.which("ffmpeg"):
+        raise RuntimeError("MP3-conversie vereist FFmpeg, dat niet beschikbaar is.")
+
+    # YouTube can reject one player client's signed media URLs with HTTP 403.
+    # Re-extract formats with alternate public clients and fall back to the
+    # best stream at or below the selected resolution.
     if mode == "mp3":
-        if not shutil.which("ffmpeg"):
-            raise RuntimeError("MP3-conversie vereist FFmpeg, dat niet beschikbaar is.")
-        common["format"] = "bestaudio/best"
-        common["postprocessors"] = [{"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "192"}]
+        formats = ["bestaudio/best"]
     else:
         height = int(quality)
-        common["format"] = (
-            f"bestvideo[height={height}]+bestaudio/"
-            f"best[height={height}]"
-        )
-        common["merge_output_format"] = "mp4"
-        common["postprocessors"] = [{"key": "FFmpegVideoRemuxer", "preferedformat": "mp4"}]
+        formats = [
+            f"bestvideo[height={height}]+bestaudio/best[height={height}]",
+            f"best[height={height}]",
+            f"bestvideo[height<={height}]+bestaudio/best[height<={height}]",
+            f"best[height<={height}]/best",
+        ]
 
-    with yt_dlp.YoutubeDL(common) as ydl:
-        ydl.download([url])
+    client_sets = [
+        ["web"],
+        ["ios"],
+        ["android"],
+    ]
+    last_error = None
+    succeeded = False
+
+    for clients in client_sets:
+        for format_selector in formats:
+            for old in directory.glob("source.*"):
+                old.unlink(missing_ok=True)
+            common = {
+                "quiet": True, "no_warnings": True, "noplaylist": True,
+                "cachedir": False, "socket_timeout": 35, "retries": 5,
+                "fragment_retries": 5, "extractor_retries": 3,
+                "file_access_retries": 3, "outtmpl": output,
+                "max_filesize": MAX_BYTES, "overwrites": True,
+                "continuedl": False,
+                "extractor_args": {"youtube": {"player_client": clients}},
+                "impersonate": "chrome",
+                "format": format_selector,
+            }
+            if mode == "mp3":
+                common["postprocessors"] = [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "192",
+                }]
+            else:
+                common["merge_output_format"] = "mp4"
+                common["postprocessors"] = [{
+                    "key": "FFmpegVideoRemuxer",
+                    "preferedformat": "mp4",
+                }]
+            try:
+                with yt_dlp.YoutubeDL(common) as ydl:
+                    ydl.download([url])
+                succeeded = True
+                break
+            except Exception as exc:
+                last_error = exc
+                message = str(exc).lower()
+                # A 403 is commonly specific to a player client or format;
+                # try the next public client/format before giving up.
+                if "403" not in message and "forbidden" not in message:
+                    raise
+        if succeeded:
+            break
+
+    if not succeeded:
+        raise RuntimeError(
+            "YouTube weigerde de mediastream (HTTP 403), ook na alternatieve "
+            "publieke clients en beschikbare kwaliteiten. Probeer later opnieuw."
+        ) from last_error
 
     extension = "mp3" if mode == "mp3" else "mp4"
     candidates = list(directory.glob("source." + extension))
@@ -123,7 +172,6 @@ def download(url, mode, quality, directory):
     if source != target:
         os.replace(source, target)
     return target
-
 
 def main():
     if len(sys.argv) < 3 or not valid_url(sys.argv[2]):
