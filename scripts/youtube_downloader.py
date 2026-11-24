@@ -140,11 +140,13 @@ def download(url, mode, quality, directory):
 
     # Prefer clients that do not require the same web PO-token flow.
     # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
+    # Avoid clients currently returning UNPLAYABLE / SABR-only responses.
+    # web_embedded has been a more reliable public client for these responses.
     client_sets = [
-        ["mweb"],
-        ["web_safari"],
-        ["tv"],
+        ["web_embedded"],
+        ["web_safari", "web_embedded"],
         ["android"],
+        ["tv"],
     ]
     last_error = None
     succeeded = False
