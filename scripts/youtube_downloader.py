@@ -138,9 +138,18 @@ def download(url, mode, quality, directory):
                 # A 403 is commonly specific to a player client or format;
                 # try the next public client/format before giving up.
                 bot_challenge = ("sign in to confirm" in message or "not a bot" in message or "confirm you’re not a bot" in message)
-                if "403" not in message and "forbidden" not in message and not bot_challenge:
+                format_unavailable = (
+                    "requested format is not available" in message
+                    or "no video formats found" in message
+                    or "format is not available" in message
+                    or "requested format not available" in message
+                )
+                # A player client can expose different formats than the analyser.
+                # Continue with the next selector/client if this resolution is absent.
+                if ("403" not in message and "forbidden" not in message
+                        and not bot_challenge and not format_unavailable):
                     raise
-                time.sleep(2)
+                time.sleep(1)
         if succeeded:
             break
 
