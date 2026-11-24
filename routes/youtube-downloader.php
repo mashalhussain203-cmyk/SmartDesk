@@ -89,9 +89,12 @@ Route::post('/tools/youtube-downloader/upload', function (Request $request) {
     $audio = collect($info['streams'] ?? [])->contains(fn ($stream) => ($stream['codec_type'] ?? null) === 'audio');
     $height = (int) ($video['height'] ?? 0);
     $width = (int) ($video['width'] ?? 0);
+    // Video quality is conventionally named after the shorter edge (1080p also
+    // applies to portrait 1080x1920 footage).
+    $sourceResolution = min($width, $height);
     $qualities = $video
         ? collect([144, 240, 360, 480, 720, 1080, 1440, 2160])
-            ->filter(fn ($quality) => $quality <= $height)
+            ->filter(fn ($quality) => $quality <= $sourceResolution)
             ->values()->all()
         : [];
 
@@ -132,16 +135,19 @@ Route::post('/tools/youtube-downloader/convert', function (Request $request) {
 
     $input = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
     $probe = new \Symfony\Component\Process\Process([
-        'ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=height',
-        '-of', 'default=noprint_wrappers=1:nokey=1', $input,
+        'ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height',
+        '-of', 'csv=p=0:s=x', $input,
     ]);
     $probe->setTimeout(20);
     $probe->run();
-    $sourceHeight = (int) trim($probe->getOutput());
+    $dimensions = array_map('intval', explode('x', trim($probe->getOutput())));
+    $sourceWidth = $dimensions[0] ?? 0;
+    $sourceHeight = $dimensions[1] ?? 0;
+    $sourceResolution = min($sourceWidth, $sourceHeight);
     $format = $validated['format'];
     $quality = (int) ($validated['quality'] ?? 0);
 
-    if ($format === 'mp4' && ($sourceHeight < 1 || $quality < 1 || $quality > $sourceHeight)) {
+    if ($format === 'mp4' && ($sourceResolution < 1 || $quality < 1 || $quality > $sourceResolution)) {
         return response()->json(['message' => 'Kies een resolutie die daadwerkelijk in het bronbestand beschikbaar is.'], 422);
     }
 
@@ -154,7 +160,9 @@ Route::post('/tools/youtube-downloader/convert', function (Request $request) {
     $command = ['ffmpeg', '-y', '-i', $input, '-map', '0:v:0?', '-map', '0:a:0?'];
     if ($format === 'mp4') {
         $command = array_merge($command, [
-            '-vf', 'scale=-2:' . $quality . ':force_original_aspect_ratio=decrease',
+            '-vf', ($sourceWidth >= $sourceHeight
+                ? 'scale=-2:' . $quality . ':force_original_aspect_ratio=decrease'
+                : 'scale=' . $quality . ':-2:force_original_aspect_ratio=decrease'),
             '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22',
             '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', $output,
         ]);
