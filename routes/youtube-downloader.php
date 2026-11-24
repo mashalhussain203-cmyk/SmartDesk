@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Support\\Facades\\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/tools/youtube-downloader', function () {
     return view('tools.youtube-downloader');
@@ -53,7 +53,7 @@ Route::post('/tools/youtube-downloader/inspect', function (Request $request) {
             'watch_url' => 'https://www.youtube.com/watch?v=' . $videoId,
             'embed_url' => 'https://www.youtube-nocookie.com/embed/' . $videoId,
         ]);
-    } catch (\\Throwable $exception) {
+    } catch (\Throwable $exception) {
         report($exception);
         return response()->json(['message' => 'YouTube is tijdelijk niet bereikbaar. Probeer het later opnieuw.'], 503);
     }
