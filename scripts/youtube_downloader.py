@@ -178,11 +178,12 @@ def download(url, mode, quality, directory):
         height = int(quality)
         # Audio-only formats have no height field. Never apply a height
         # filter to bestaudio; doing so can hide valid video/audio pairs.
+        # Never fall back to a stream above the resolution the user selected.
+        # The first selector prefers an exact-height video; the second accepts
+        # the best available stream below that ceiling if a player exposes less.
         formats = [
             f"bv*[height={height}]+ba/b[height={height}]",
             f"bv*[height<={height}]+ba/b[height<={height}]",
-            "bv*+ba/b",
-            "best",
         ]
 
     # Start with yt-dlp's own maintained client selection. Explicitly forcing
@@ -307,6 +308,23 @@ def download(url, mode, quality, directory):
     source = candidates[0]
     if source.stat().st_size < 1024 or source.stat().st_size > MAX_BYTES:
         raise RuntimeError("Het bestand is leeg of groter dan de toegestane 520 MB.")
+    if mode == "mp4":
+        probe = shutil.which("ffprobe")
+        if not probe:
+            raise RuntimeError("FFprobe ontbreekt; de MP4 kan niet veilig worden gecontroleerd.")
+        checked = subprocess.run(
+            [probe, "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=height", "-of", "csv=p=0", str(source)],
+            capture_output=True, text=True, timeout=30,
+        )
+        if checked.returncode != 0:
+            raise RuntimeError("Het gemaakte videobestand kon niet worden gecontroleerd.")
+        try:
+            actual_height = int(checked.stdout.strip().splitlines()[0])
+        except (ValueError, IndexError):
+            raise RuntimeError("Het gemaakte MP4-bestand bevat geen geldige videostream.")
+        if actual_height < 1 or actual_height > int(quality):
+            raise RuntimeError("De server heeft een andere resolutie geleverd dan gevraagd; het bestand wordt niet aangeboden.")
     target = directory / ("download." + extension)
     if source != target:
         os.replace(source, target)
