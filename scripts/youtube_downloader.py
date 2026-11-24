@@ -111,7 +111,6 @@ def download(url, mode, quality, directory):
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
                 "extractor_args": {"youtube": {"player_client": clients}},
-                "impersonate": "chrome",
                 "format": format_selector,
             }
             if mode == "mp3":
@@ -133,7 +132,7 @@ def download(url, mode, quality, directory):
                 break
             except Exception as exc:
                 last_error = exc
-                message = str(exc).lower()
+                message = (repr(exc) + " " + str(exc)).lower()
                 # A 403 is commonly specific to a player client or format;
                 # try the next public client/format before giving up.
                 if "403" not in message and "forbidden" not in message:
@@ -213,7 +212,7 @@ def main():
             try:
                 directory = Path(sys.argv[5]).resolve()
                 if re.fullmatch(r"[a-f0-9]{40}", directory.name) and directory.is_dir():
-                    write_status(directory, "failed", message="Download mislukt: controleer of de video openbaar beschikbaar is en probeer een lagere kwaliteit.", detail=(type(exc).__name__ + ": " + str(exc))[:350])
+                    write_status(directory, "failed", message="Download mislukt: controleer of de video openbaar beschikbaar is en probeer een lagere kwaliteit.", detail=(type(exc).__name__ + ": " + repr(exc))[:350])
             except Exception:
                 pass
         print(type(exc).__name__ + ": " + str(exc)[:500], file=sys.stderr)
