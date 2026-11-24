@@ -2158,3 +2158,6 @@ require __DIR__ . '/live-recordings.php';
 
 // Opt-in TikTok Upload Studio; current TikTok login remains unchanged.
 require __DIR__ . '/tiktok-studio.php';
+
+// YouTube downloader workspace.
+require __DIR__ . '/youtube-downloader.php';
