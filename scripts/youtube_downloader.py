@@ -71,9 +71,56 @@ def video_heights(info):
     return sorted(heights, reverse=True), has_audio
 
 
+
+def ensure_pot_provider():
+    """Install the matching bgutil PO-token script provider on the persistent volume."""
+    import fcntl
+
+    home = Path("/app/storage/app/private/youtube-pot-provider")
+    server = home / "server"
+    script = server / "src" / "generate_once.ts"
+    lock_path = home.parent / ".youtube-pot-provider.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+
+    deno = shutil.which("deno")
+    git = shutil.which("git")
+    if not deno:
+        raise RuntimeError("Deno 2.4.3+ ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet starten.")
+    if not git:
+        raise RuntimeError("Git ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet worden geïnstalleerd.")
+
+    os.environ["DENO_NO_PROMPT"] = "1"
+    os.environ["DENO_NO_UPDATE_CHECK"] = "1"
+    os.environ["FORCE_COLOR"] = "false"
+
+    with open(lock_path, "w", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        if not script.is_file():
+            if home.exists():
+                shutil.rmtree(home)
+            result = subprocess.run(
+                [git, "clone", "--depth", "1", "--branch", "2.0.2",
+                 "https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git", str(home)],
+                capture_output=True, text=True, timeout=180,
+            )
+            if result.returncode != 0:
+                raise RuntimeError("YouTube-tokenprovider downloaden mislukt: " + (result.stderr or result.stdout)[-500:])
+        if not (server / "node_modules").is_dir():
+            result = subprocess.run(
+                [deno, "install", "--allow-scripts=npm:canvas", "--frozen"],
+                cwd=str(server), capture_output=True, text=True, timeout=300,
+            )
+            if result.returncode != 0:
+                raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+    return server
+
+
 def download(url, mode, quality, directory):
     import yt_dlp
     output = str(directory / "source.%(ext)s")
+    provider_server = ensure_pot_provider()
     if mode == "mp3" and not shutil.which("ffmpeg"):
         raise RuntimeError("MP3-conversie vereist FFmpeg, dat niet beschikbaar is.")
 
@@ -94,9 +141,9 @@ def download(url, mode, quality, directory):
     # Prefer clients that do not require the same web PO-token flow.
     # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
     client_sets = [
-        ["mweb", "tv", "web_safari"],
-        ["tv"],
+        ["mweb"],
         ["web_safari"],
+        ["tv"],
         ["android"],
     ]
     last_error = None
@@ -116,7 +163,7 @@ def download(url, mode, quality, directory):
                 "extractor_args": {
                     "youtube": {"player_client": clients},
                     "youtubepot-bgutilscript": {
-                        "server_home": "/app/bgutil-ytdlp-pot-provider/server"
+                        "server_home": str(provider_server)
                     },
                 },
                 "format": format_selector,
@@ -164,7 +211,7 @@ def download(url, mode, quality, directory):
         if "sign in to confirm" in detail or "not a bot" in detail:
             reason = "YouTube blokkeert momenteel downloads vanaf de Railway-server met een botcontrole. De video is wel gevonden, maar YouTube geeft geen downloadstream vrij. Probeer later opnieuw; dit is een beperking aan YouTube-kant."
         elif "403" in detail or "forbidden" in detail:
-            reason = "YouTube weigert de mediastream (HTTP 403) vanaf de downloadserver. Probeer later opnieuw of een lagere kwaliteit."
+            reason = "YouTube weigert de mediastream vanaf de Railway-downloadserver (HTTP 403), ook na de PO-tokenpoging. Dit kan een blokkade van het server-IP zijn; een lagere kwaliteit alleen lost dat niet altijd op."
         else:
             reason = "YouTube heeft geen downloadbare mediastream teruggegeven. Probeer later opnieuw."
         raise RuntimeError(reason) from last_error
