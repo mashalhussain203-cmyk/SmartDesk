@@ -139,6 +139,7 @@ def download(url, mode, quality, directory):
             f"bestvideo[height<={height}]+bestaudio/best[height<={height}]/best",
             f"best[height<={height}]/best",
             "bestvideo+bestaudio/best",
+            "best",
         ]
 
     # Prefer clients that do not require the same web PO-token flow.
@@ -147,15 +148,19 @@ def download(url, mode, quality, directory):
     # Keep yt-dlp's maintained defaults as a secondary attempt, excluding
     # web_embedded because some YouTube experiments bind its GVS token.
     client_sets = [
+        ["default"],
+        ["android_vr"],
+        ["ios"],
+        ["tv"],
         ["mweb"],
-        ["default", "-web_embedded"],
-        ["web_safari"],
     ]
     last_error = None
+    last_attempt = "onbekende speler"
     succeeded = False
 
     for clients in client_sets:
         for format_selector in formats:
+            last_attempt = "player_client=" + ",".join(clients) + "; format=" + format_selector
             for old in directory.glob("source.*"):
                 old.unlink(missing_ok=True)
             common = {
@@ -225,10 +230,9 @@ def download(url, mode, quality, directory):
         elif "requested format is not available" in detail or "no video formats found" in detail:
             reason = "YouTube heeft voor deze speler geen passende stream aangeboden. Kies een lagere beschikbare kwaliteit of probeer later opnieuw."
         else:
-            # Keep the real yt-dlp failure in the worker log and job status.
-            # This prevents unrelated extractor/provider failures being hidden
-            # behind the same generic 'no media stream' message.
-            reason = "Download mislukt: " + raw_detail[:220]
+            reason = "Download mislukt (" + last_attempt + "): " + raw_detail[:220]
+        if "requested format is not available" in detail or "no video formats found" in detail:
+            reason = "Geen MP4-stream beschikbaar (" + last_attempt + "). Technische fout: " + raw_detail[:180]
         raise RuntimeError(reason) from last_error
 
     extension = "mp3" if mode == "mp3" else "mp4"
