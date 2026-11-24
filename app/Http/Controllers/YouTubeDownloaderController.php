@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use Illuminate\\Http\\JsonResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\File;
-use Illuminate\\Support\\Facades\\Log;
-use Illuminate\\View\\View;
-use Symfony\\Component\\HttpFoundation\\BinaryFileResponse;
-use Symfony\\Component\\Process\\Process;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 final class YouTubeDownloaderController extends Controller
@@ -188,7 +188,7 @@ final class YouTubeDownloaderController extends Controller
     private function validYouTubeUrl(string $input): ?string
     {
         $input = trim($input);
-        if (preg_match('~https?://[^\\s<>]+~i', $input, $matches)) {
+        if (preg_match('~https?://[^\s<>]+~i', $input, $matches)) {
             $input = rtrim($matches[0], '.,)');
         }
         $parts = parse_url($input);
