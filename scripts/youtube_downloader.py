@@ -134,6 +134,21 @@ def ensure_pot_provider():
     return server
 
 
+class PotDebugLogger:
+    """Expose only PO-token diagnostics; never log signed media URLs."""
+    def debug(self, message):
+        value = str(message)
+        lowered = value.lower()
+        if "[pot]" in lowered or "generating a " in lowered or "po token providers" in lowered:
+            print("[youtube-pot] " + value, flush=True)
+
+    def warning(self, message):
+        pass
+
+    def error(self, message):
+        print("[youtube-dlp-error] " + str(message)[:500], flush=True)
+
+
 def download(url, mode, quality, directory):
     import yt_dlp
     output = str(directory / "source.%(ext)s")
@@ -183,6 +198,7 @@ def download(url, mode, quality, directory):
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
+                "verbose": True, "logger": PotDebugLogger(),
                 "format": format_selector,
             }
             if mode == "mp3":
