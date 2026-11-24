@@ -131,11 +131,14 @@ def download(url, mode, quality, directory):
         formats = ["bestaudio/best"]
     else:
         height = int(quality)
+        # Audio-only formats have no height field. Never apply a height
+        # filter to bestaudio; doing so can hide valid video/audio pairs.
         formats = [
             f"bestvideo[height={height}]+bestaudio/best[height={height}]",
             f"best[height={height}]",
-            f"bestvideo[height<={height}]+bestaudio/best[height<={height}]",
+            f"bestvideo[height<={height}]+bestaudio/best[height<={height}]/best",
             f"best[height<={height}]/best",
+            "bestvideo+bestaudio/best",
         ]
 
     # Prefer clients that do not require the same web PO-token flow.
