@@ -43,6 +43,20 @@
 </div>
 </section>
 <section class="ytd-info"><article><strong>1. Link plakken</strong><span>Gebruik een YouTube- of Shorts-link.</span></article><article><strong>2. Kwaliteit ophalen</strong><span>De backend leest de beschikbare streamformaten uit.</span></article><article><strong>3. Downloaden</strong><span>Kies een echte beschikbare resolutie of MP3-audio.</span></article></section>
+
+<section class="ytd-panel" style="margin:22px auto 0" aria-label="Eigen videobestand converteren">
+ <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span class="ytd-pill">MASHAL STUDIO · LOCAL FILE</span></div>
+ <h2 style="margin:12px 0 8px;color:#f5f6fa;font-size:clamp(21px,4vw,29px);letter-spacing:-.035em">Download je eigen videobestand</h2>
+ <p class="ytd-sub" style="text-align:left;margin:0 0 18px">Upload een video die van jou is of waarvoor je toestemming hebt. De bronresolutie wordt automatisch gelezen; de hoogste passende MP4-kwaliteit wordt voorgeselecteerd.</p>
+ <div class="ytd-inputrow" style="align-items:center"><input class="ytd-input" id="ytd-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska,video/x-msvideo,audio/*"><button class="ytd-btn" id="ytd-file-analyze" type="button">Bestand analyseren →</button></div>
+ <p class="ytd-hint">Maximaal 500 MB. De browser uploadt het bestand veilig naar je SmartDesk-server voor verwerking.</p>
+ <div class="ytd-error" id="ytd-file-error" role="alert"></div>
+ <div id="ytd-file-result" style="display:none;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)">
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><strong id="ytd-file-name" style="display:block;color:#f5f6fa;font-size:14px;overflow-wrap:anywhere"></strong><span id="ytd-file-meta" class="ytd-hint"></span></div><span id="ytd-file-source" class="ytd-pill"></span></div>
+  <div class="ytd-inputrow"><select id="ytd-file-quality" class="ytd-input" aria-label="MP4-resolutie"></select><button class="ytd-btn" id="ytd-file-download" type="button">MP4 downloaden ↓</button></div>
+  <p class="ytd-status" id="ytd-file-status" aria-live="polite"></p>
+ </div>
+</section>
 <p class="ytd-note">Gebruik downloads alleen voor content die van jou is of waarvoor je toestemming hebt. Privévideo’s, DRM en accountbeperkingen worden niet omzeild. Beschikbaarheid kan veranderen door YouTube.</p>
 </div></main>
 @endsection
@@ -53,6 +67,52 @@
  const form=document.getElementById('ytd-form'), input=document.getElementById('ytd-url'), submit=document.getElementById('ytd-submit');
  const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
  const csrf=form.querySelector('input[name="_token"]').value;
+ const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
+ const fileError=document.getElementById('ytd-file-error'), fileResult=document.getElementById('ytd-file-result');
+ const fileQuality=document.getElementById('ytd-file-quality'), fileDownload=document.getElementById('ytd-file-download');
+ const fileStatus=document.getElementById('ytd-file-status');
+ let uploadToken=null, uploadBusy=false;
+ const fileFail=(message)=>{fileError.textContent=message;fileError.classList.add('show');};
+ fileAnalyze.addEventListener('click',async()=>{
+  fileError.classList.remove('show');fileResult.style.display='none';
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file){fileFail('Kies eerst een video- of audiobestand.');return;}
+  if(file.size>500*1024*1024){fileFail('Dit bestand is groter dan 500 MB.');return;}
+  fileAnalyze.disabled=true;fileAnalyze.textContent='Analyseren…';
+  try{
+   const body=new FormData();body.append('_token',csrf);body.append('media',file);
+   const response=await fetch(@json(route('youtube-downloader.upload')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
+   const data=await response.json();if(!response.ok)throw new Error(data.message||'Bestand kon niet worden geanalyseerd.');
+   uploadToken=data.token;
+   document.getElementById('ytd-file-name').textContent=data.name||file.name;
+   document.getElementById('ytd-file-meta').textContent=data.width&&data.height?data.width+' × '+data.height+' px':'Audiobestand';
+   document.getElementById('ytd-file-source').textContent=data.width&&data.height?'BRON '+Math.min(data.width,data.height)+'p':'AUDIO';
+   fileQuality.innerHTML='';
+   (data.qualities||[]).slice().sort((a,b)=>b-a).forEach((q,index)=>{
+    const option=document.createElement('option');option.value=String(q);option.textContent=q+'p MP4'+(index===0?' · hoogste bronkwaliteit':'');fileQuality.appendChild(option);
+   });
+   if(!(data.qualities||[]).length)throw new Error('Dit bestand bevat geen videostream met een ondersteunde resolutie.');
+   fileQuality.value=String(Math.max(...data.qualities));
+   fileResult.style.display='block';fileStatus.textContent='Bron gecontroleerd. Hoogste beschikbare resolutie automatisch geselecteerd.';
+  }catch(e){fileFail(e.message||'Analyseren mislukt.');}
+  finally{fileAnalyze.disabled=false;fileAnalyze.textContent='Bestand analyseren →';}
+ });
+ fileDownload.addEventListener('click',async()=>{
+  if(!uploadToken||uploadBusy)return;uploadBusy=true;fileDownload.disabled=true;fileDownload.textContent='Converteren…';fileError.classList.remove('show');
+  try{
+   const body=new FormData();body.append('_token',csrf);body.append('token',uploadToken);body.append('format','mp4');body.append('quality',fileQuality.value);
+   fileStatus.textContent='MP4 wordt opgebouwd en gecontroleerd…';
+   const response=await fetch(@json(route('youtube-downloader.convert')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
+   if(!response.ok){let data={};try{data=await response.json();}catch(_){}throw new Error(data.message||'MP4-conversie mislukt.');}
+   const blob=await response.blob();if(!blob.size)throw new Error('De server heeft een leeg bestand teruggegeven.');
+   const disposition=response.headers.get('Content-Disposition')||'';const match=disposition.match(/filename="?([^";]+)"?/i);
+   const name=match?match[1]:'mashal-studio-'+fileQuality.value+'p.mp4';
+   const objectUrl=URL.createObjectURL(blob),link=document.createElement('a');link.href=objectUrl;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+   fileStatus.textContent='Klaar. MP4-bestand is gegenereerd en de download is gestart.';
+  }catch(e){fileFail(e.message||'Download mislukt.');fileStatus.textContent='';}
+  finally{uploadBusy=false;fileDownload.disabled=false;fileDownload.textContent='MP4 downloaden ↓';}
+ });
+
  let token=null, qualities=[], hasAudio=false, mode='video', busy=false;
  const showError=(message)=>{error.textContent=message;error.classList.add('show');};
  const duration=(s)=>{s=Number(s||0);if(!s)return '';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return [h,m,sec].map((n,i)=>i===0&&h===0?null:String(n).padStart(2,'0')).filter(Boolean).join(':');};
