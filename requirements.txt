@@ -1,3 +1,4 @@
 --pre
 yt-dlp[default,curl-cffi]
 playwright>=1.55,<2
+bgutil-ytdlp-pot-provider==2.0.2
