@@ -91,9 +91,11 @@ def download(url, mode, quality, directory):
             f"best[height<={height}]/best",
         ]
 
+    # Prefer clients that do not require the same web PO-token flow.
+    # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
     client_sets = [
-        ["web"],
-        ["ios"],
+        ["tv"],
+        ["web_safari"],
         ["android"],
     ]
     last_error = None
@@ -105,7 +107,7 @@ def download(url, mode, quality, directory):
                 old.unlink(missing_ok=True)
             common = {
                 "quiet": True, "no_warnings": True, "noplaylist": True,
-                "cachedir": False, "socket_timeout": 35, "retries": 5,
+                "cachedir": False, "socket_timeout": 45, "retries": 3,
                 "fragment_retries": 5, "extractor_retries": 3,
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
@@ -135,16 +137,22 @@ def download(url, mode, quality, directory):
                 message = (repr(exc) + " " + str(exc)).lower()
                 # A 403 is commonly specific to a player client or format;
                 # try the next public client/format before giving up.
-                if "403" not in message and "forbidden" not in message:
+                bot_challenge = ("sign in to confirm" in message or "not a bot" in message or "confirm you’re not a bot" in message)
+                if "403" not in message and "forbidden" not in message and not bot_challenge:
                     raise
+                time.sleep(2)
         if succeeded:
             break
 
     if not succeeded:
-        raise RuntimeError(
-            "YouTube weigerde de mediastream (HTTP 403), ook na alternatieve "
-            "publieke clients en beschikbare kwaliteiten. Probeer later opnieuw."
-        ) from last_error
+        detail = (str(last_error) if last_error else "").lower()
+        if "sign in to confirm" in detail or "not a bot" in detail:
+            reason = "YouTube blokkeert momenteel downloads vanaf de Railway-server met een botcontrole. De video is wel gevonden, maar YouTube geeft geen downloadstream vrij. Probeer later opnieuw; dit is een beperking aan YouTube-kant."
+        elif "403" in detail or "forbidden" in detail:
+            reason = "YouTube weigert de mediastream (HTTP 403) vanaf de downloadserver. Probeer later opnieuw of een lagere kwaliteit."
+        else:
+            reason = "YouTube heeft geen downloadbare mediastream teruggegeven. Probeer later opnieuw."
+        raise RuntimeError(reason) from last_error
 
     extension = "mp3" if mode == "mp3" else "mp4"
     candidates = list(directory.glob("source." + extension))
@@ -212,7 +220,7 @@ def main():
             try:
                 directory = Path(sys.argv[5]).resolve()
                 if re.fullmatch(r"[a-f0-9]{40}", directory.name) and directory.is_dir():
-                    write_status(directory, "failed", message="Download mislukt: controleer of de video openbaar beschikbaar is en probeer een lagere kwaliteit.", detail=(type(exc).__name__ + ": " + repr(exc))[:350])
+                    write_status(directory, "failed", message=str(exc)[:300], detail=(type(exc).__name__ + ": " + repr(exc))[:700])
             except Exception:
                 pass
         print(type(exc).__name__ + ": " + str(exc)[:500], file=sys.stderr)
