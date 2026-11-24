@@ -230,7 +230,7 @@ def download(url, mode, quality, directory):
             # Install and invoke the matching bgutil script provider so yt-dlp
             # can request GVS PO tokens where YouTube requires them.
             common["extractor_args"] = {
-                "youtubepot-bgutilscript": {
+                "youtube-bgutilscript": {
                     "server_home": str(provider_server),
                 },
             }
