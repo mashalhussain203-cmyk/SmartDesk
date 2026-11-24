@@ -41,7 +41,7 @@
         $hasTikTokFollowerCounter = \Illuminate\Support\Facades\Route::has('tiktok-follower-counter.index');
         $hasLiveCounts = \Illuminate\Support\Facades\Route::has('live-counts.index');
         $hasTikTokDownloader = \Illuminate\Support\Facades\Route::has('tiktok-downloader.index');
-        $hasYouTubeDownloader = \\Illuminate\\Support\\Facades\\Route::has('youtube-downloader.index');
+        $hasYouTubeDownloader = \Illuminate\Support\Facades\Route::has('youtube-downloader.index');
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
