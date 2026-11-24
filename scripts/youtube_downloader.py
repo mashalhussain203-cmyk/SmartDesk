@@ -151,30 +151,20 @@ def download(url, mode, quality, directory):
         # Audio-only formats have no height field. Never apply a height
         # filter to bestaudio; doing so can hide valid video/audio pairs.
         formats = [
-            f"bestvideo[height={height}]+bestaudio/best[height={height}]",
-            f"best[height={height}]",
-            f"bestvideo[height<={height}]+bestaudio/best[height<={height}]/best",
-            f"best[height<={height}]/best",
-            "bestvideo+bestaudio/best",
+            f"bv*[height={height}]+ba/b[height={height}]",
+            f"bv*[height<={height}]+ba/b[height<={height}]",
+            "bv*+ba/b",
             "best",
         ]
 
-    # Prefer clients that do not require the same web PO-token flow.
-    # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
-    # Current yt-dlp guidance recommends mweb with a PO-token provider.
-    # Keep yt-dlp's maintained defaults as a secondary attempt, excluding
-    # web_embedded because some YouTube experiments bind its GVS token.
+    # Start with yt-dlp's own maintained client selection. Explicitly forcing
+    # mweb/web_embedded can return an empty format list for otherwise public videos.
+    # Only try alternate public clients after the automatic default strategy.
     client_sets = [
-        # YouTube's tv_downgraded client is currently returning
-        # "The page needs to be reloaded" for some public videos.
-        # web_embedded is a separate public player path; default is also
-        # tried with tv_downgraded explicitly excluded.
-        ["web_embedded"],
-        ["default", "-tv_downgraded"],
+        None,
         ["web_safari"],
-        ["android_vr"],
         ["ios"],
-        ["mweb"],
+        ["android_vr"],
     ]
     last_error = None
     last_attempt = "onbekende speler"
@@ -192,16 +182,6 @@ def download(url, mode, quality, directory):
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
-                "extractor_args": {
-                    "youtube": {
-                        "player_client": clients,
-                        "fetch_pot": ["always"],
-                        "pot_trace": ["true"],
-                    },
-                    "youtubepot-bgutilscript": {
-                        "server_home": str(provider_server)
-                    },
-                },
                 "format": format_selector,
             }
             if mode == "mp3":
@@ -216,6 +196,10 @@ def download(url, mode, quality, directory):
                     "key": "FFmpegVideoRemuxer",
                     "preferedformat": "mp4",
                 }]
+            if clients:
+                common["extractor_args"] = {
+                    "youtube": {"player_client": clients},
+                }
             try:
                 with yt_dlp.YoutubeDL(common) as ydl:
                     ydl.download([url])
