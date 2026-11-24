@@ -192,7 +192,7 @@ def download(url, mode, quality, directory):
     # Try that combination first; retain automatic and other public clients
     # only as fallbacks for videos where mweb exposes no usable formats.
     client_sets = [
-        ["mweb"],
+        ["mweb", "tv", "web_safari"],
         None,
         ["web_safari"],
         ["ios"],
@@ -233,7 +233,11 @@ def download(url, mode, quality, directory):
             # Install and invoke the matching bgutil script provider so yt-dlp
             # can request GVS PO tokens where YouTube requires them.
             common["extractor_args"] = {
-                "youtubepot-bgutilscript": {
+                # v2.0.2 uses the youtube-bgutilscript namespace for script mode.
+                # The youtubepot-bgutilscript namespace is for the HTTP provider
+                # and older plugin variants; using it here silently disables
+                # script token generation.
+                "youtube-bgutilscript": {
                     "server_home": str(provider_server),
                 },
             }
