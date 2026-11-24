@@ -38,6 +38,7 @@
 <div class="ytd-result" id="ytd-result">
 <div class="ytd-videohead"><img class="ytd-thumb" id="ytd-thumb" alt="YouTube-videominiatuur"><div><h3 id="ytd-video-title"></h3><p id="ytd-author"></p><p class="ytd-hint" id="ytd-duration"></p></div></div>
 <div class="ytd-tabs"><button class="ytd-tab active" type="button" data-mode="video">▣ Video (MP4)</button><button class="ytd-tab" type="button" data-mode="audio">♫ Audio (MP3)</button></div>
+<div id="ytd-best-wrap" style="display:none;margin:0 0 13px;padding:14px 15px;border:1px solid rgba(103,217,144,.22);border-radius:14px;background:linear-gradient(110deg,rgba(18,111,79,.17),rgba(143,130,255,.07));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong style="display:block;color:#eafff4;font-size:13px" id="ytd-best-label">Hoogste beschikbare kwaliteit</strong><span style="display:block;margin-top:4px;color:#8fa99c;font-size:11px">Automatisch geselecteerd op basis van de bronvideo</span></div><button class="ytd-download" id="ytd-best-button" type="button">↓ Beste kwaliteit</button></div>
 <div class="ytd-table-wrap"><table class="ytd-table"><thead id="ytd-head"><tr><th>FILE TYPE</th><th>FORMAT</th><th>ACTION</th></tr></thead><tbody id="ytd-rows"></tbody></table><div class="ytd-empty" id="ytd-empty" hidden>Geen downloadformaten beschikbaar.</div></div>
 <p class="ytd-hint" id="ytd-status" aria-live="polite"></p>
 </div>
@@ -67,6 +68,7 @@
  const form=document.getElementById('ytd-form'), input=document.getElementById('ytd-url'), submit=document.getElementById('ytd-submit');
  const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
  const csrf=form.querySelector('input[name="_token"]').value;
+ const bestWrap=document.getElementById('ytd-best-wrap'), bestButton=document.getElementById('ytd-best-button'), bestLabel=document.getElementById('ytd-best-label');
  const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
  const fileError=document.getElementById('ytd-file-error'), fileResult=document.getElementById('ytd-file-result');
  const fileQuality=document.getElementById('ytd-file-quality'), fileDownload=document.getElementById('ytd-file-download');
@@ -119,7 +121,10 @@
  const render=()=>{
   document.querySelectorAll('.ytd-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
   rows.innerHTML='';
-  const items=mode==='video'?qualities.map(q=>({label:q+'p',format:'mp4',quality:q})): (hasAudio?[{label:'Audio · beste beschikbare kwaliteit',format:'mp3',quality:null}]:[]);
+  const sorted=qualities.slice().sort((a,b)=>b-a), best=sorted[0]||null;
+  bestWrap.style.display=(mode==='video'&&best)?'flex':'none';
+  if(best){bestLabel.textContent='Automatisch gekozen: '+best+'p · hoogste beschikbare resolutie';bestButton.textContent='↓ Download '+best+'p MP4';bestButton.onclick=()=>startDownload({label:best+'p',format:'mp4',quality:best},bestButton);}
+  const items=mode==='video'?sorted.map(q=>({label:q+'p',format:'mp4',quality:q})): (hasAudio?[{label:'Audio · beste beschikbare kwaliteit',format:'mp3',quality:null}]:[]);
   empty.hidden=items.length>0;
   items.forEach(item=>{
    const tr=document.createElement('tr'), name=document.createElement('td'), fmt=document.createElement('td'), action=document.createElement('td'), btn=document.createElement('button');
