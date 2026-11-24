@@ -213,13 +213,19 @@ def download(url, mode, quality, directory):
             break
 
     if not succeeded:
-        detail = (str(last_error) if last_error else "").lower()
+        raw_detail = (str(last_error) if last_error else "Geen foutdetails ontvangen.")
+        detail = raw_detail.lower()
         if "sign in to confirm" in detail or "not a bot" in detail:
-            reason = "YouTube blokkeert momenteel downloads vanaf de Railway-server met een botcontrole. De video is wel gevonden, maar YouTube geeft geen downloadstream vrij. Probeer later opnieuw; dit is een beperking aan YouTube-kant."
+            reason = "YouTube blokkeert deze downloadserver met een botcontrole. Probeer later opnieuw of gebruik een toegestane downloadmethode."
         elif "403" in detail or "forbidden" in detail:
-            reason = "YouTube weigert de mediastream vanaf de Railway-downloadserver (HTTP 403), ook na de PO-tokenpoging. Dit kan een blokkade van het server-IP zijn; een lagere kwaliteit alleen lost dat niet altijd op."
+            reason = "YouTube weigert de mediastream vanaf de downloadserver (HTTP 403). Een lagere kwaliteit lost een server-IP-blokkade niet op."
+        elif "requested format is not available" in detail or "no video formats found" in detail:
+            reason = "YouTube heeft voor deze speler geen passende stream aangeboden. Kies een lagere beschikbare kwaliteit of probeer later opnieuw."
         else:
-            reason = "YouTube heeft geen downloadbare mediastream teruggegeven. Probeer later opnieuw."
+            # Keep the real yt-dlp failure in the worker log and job status.
+            # This prevents unrelated extractor/provider failures being hidden
+            # behind the same generic 'no media stream' message.
+            reason = "Download mislukt: " + raw_detail[:220]
         raise RuntimeError(reason) from last_error
 
     extension = "mp3" if mode == "mp3" else "mp4"
