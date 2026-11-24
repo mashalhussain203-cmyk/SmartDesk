@@ -41,6 +41,7 @@
         $hasTikTokFollowerCounter = \Illuminate\Support\Facades\Route::has('tiktok-follower-counter.index');
         $hasLiveCounts = \Illuminate\Support\Facades\Route::has('live-counts.index');
         $hasTikTokDownloader = \Illuminate\Support\Facades\Route::has('tiktok-downloader.index');
+        $hasYouTubeDownloader = \\Illuminate\\Support\\Facades\\Route::has('youtube-downloader.index');
         $hasAccount = \Illuminate\Support\Facades\Route::has('account');
         $hasSecurity = \Illuminate\Support\Facades\Route::has('security.index');
         $hasAdmin = \Illuminate\Support\Facades\Route::has('admin.dashboard');
@@ -6790,6 +6791,11 @@
                     @if ($hasTikTokDownloader)
                         <a class="expert-nav-link {{ request()->routeIs('tiktok-downloader.*') ? 'active' : '' }}" href="{{ route('tiktok-downloader.index') }}">
                             <span class="expert-nav-link-icon" aria-hidden="true">↓</span><span>TikTok Downloader</span>
+                        </a>
+                    @endif
+                    @if ($hasYouTubeDownloader)
+                        <a class="expert-nav-link {{ request()->routeIs('youtube-downloader.*') ? 'active' : '' }}" href="{{ route('youtube-downloader.index') }}">
+                            <span class="expert-nav-link-icon" aria-hidden="true">▶</span><span>YouTube Downloader</span>
                         </a>
                     @endif
                     <a class="expert-nav-link {{ request()->routeIs('tiktok-studio.*') ? 'active' : '' }}"
