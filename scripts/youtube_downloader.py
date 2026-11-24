@@ -20,15 +20,32 @@ def emit(data):
     print(json.dumps(data, ensure_ascii=False), flush=True)
 
 
-def valid_url(value):
+def normalize_url(value):
+    """Accept standard YouTube share URLs and strip tracking parameters."""
     try:
-        p = urlsplit(value)
-        if p.scheme != "https" or p.hostname not in ALLOWED_HOSTS or p.username or p.password or p.port:
-            return False
-        return bool(re.fullmatch(r"https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}", value))
-    except ValueError:
-        return False
+        p = urlsplit(value.strip())
+        host = (p.hostname or "").lower()
+        if p.scheme not in {"https", "http"} or host not in ALLOWED_HOSTS or p.username or p.password or p.port:
+            return None
+        video_id = None
+        if host in {"youtu.be", "www.youtu.be"}:
+            video_id = p.path.strip("/").split("/")[0]
+        elif p.path == "/watch":
+            from urllib.parse import parse_qs
+            video_id = (parse_qs(p.query).get("v") or [None])[0]
+        else:
+            match = re.fullmatch(r"/(?:shorts|embed|live)/([A-Za-z0-9_-]{11})/?", p.path)
+            if match:
+                video_id = match.group(1)
+        if not video_id or not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id):
+            return None
+        return "https://www.youtube.com/watch?v=" + video_id
+    except (ValueError, TypeError):
+        return None
 
+
+def valid_url(value):
+    return normalize_url(value) is not None
 
 def write_status(directory, status, **extra):
     data = {"status": status, "updated_at": int(time.time()), **extra}
@@ -265,7 +282,11 @@ def main():
     if len(sys.argv) < 3 or not valid_url(sys.argv[2]):
         emit({"success": False, "message": "Ongeldige YouTube-link."})
         return 2
-    action, url = sys.argv[1:3]
+    action, raw_url = sys.argv[1:3]
+    url = normalize_url(raw_url)
+    if not url:
+        emit({"success": False, "message": "Ongeldige YouTube-link."})
+        return 2
     try:
         if action == "info":
             info = extract_info(url)
