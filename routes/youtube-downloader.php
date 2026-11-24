@@ -88,9 +88,21 @@ Route::post('/tools/youtube-downloader/convert', function (Request $request) {
     $process->run();
     if (! $process->isSuccessful() || ! is_file($output) || filesize($output) === 0) {
         @unlink($output);
-        report(new \RuntimeException('FFmpeg conversion failed: '.$process->getErrorOutput()));
+        report(new \\RuntimeException('FFmpeg conversion failed: '.$process->getErrorOutput()));
         return response()->json(['message' => 'Converteren is mislukt. Probeer een kleiner bestand of een lagere kwaliteit.'], 500);
     }
+    if ($format === 'mp4') {
+        $verify = new Process(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0:s=x', $output]);
+        $verify->setTimeout(20);
+        $verify->run();
+        $actual = array_map('intval', explode('x', trim($verify->getOutput())));
+        if (! $verify->isSuccessful() || min($actual[0] ?? 0, $actual[1] ?? 0) !== $quality) {
+            @unlink($output);
+            return response()->json(['message' => 'De MP4-resolutie kwam niet overeen met de gekozen bronkwaliteit. Probeer opnieuw.'], 500);
+        }
+    }
     $downloadName = pathinfo($path, PATHINFO_FILENAME).'-'.($format === 'mp4' ? $quality.'p' : 'audio').'.'.$format;
+    Storage::disk('local')->delete($path);
+    $request->session()->forget($key);
     return response()->download($output, $downloadName)->deleteFileAfterSend(true);
 })->middleware('throttle:5,1')->name('youtube-downloader.convert');
