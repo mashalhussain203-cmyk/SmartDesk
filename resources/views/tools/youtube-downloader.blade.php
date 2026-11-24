@@ -46,13 +46,15 @@
     <div style="min-width:0;flex:1">
      <h3 id="ytd-video-title"></h3><p id="ytd-author"></p>
      <div class="ytd-actions">
-      <a class="ytd-link primary" id="ytd-watch" target="_blank" rel="noopener">Video openen</a>
-      <a class="ytd-link" id="ytd-studio" href="https://studio.youtube.com/channel/" target="_blank" rel="noopener">Eigen upload downloaden via YouTube Studio</a>
+      <a class="ytd-link" id="ytd-watch" target="_blank" rel="noopener">Video openen</a>
+      <a class="ytd-link primary" id="ytd-studio" href="https://studio.youtube.com/" target="_blank" rel="noopener">Eigen upload downloaden via YouTube Studio ↗</a>
+      <button class="ytd-link" id="ytd-go-convert" type="button">Eigen bestand converteren ↓</button>
      </div>
+     <p class="ytd-hint" style="margin-top:12px">YouTube geeft bij openbare links geen officiële lijst met downloadbare MP4/MP3-kwaliteiten. Voor je eigen upload open je YouTube Studio. Heb je het videobestand al? Gebruik dan hieronder de converter voor echte kwaliteitsdetectie en downloaden.</p>
     </div>
    </div>
   </section>
-  <section class="ytd-panel" style="margin:22px auto 0" aria-label="Echte kwaliteitscontrole en downloaden">
+  <section class="ytd-panel" id="ytd-upload-panel" style="margin:22px auto 0" aria-label="Echte kwaliteitscontrole en downloaden">
    <h2 style="font-size:22px;margin:0 0 8px;color:#fff">Echte kwaliteit controleren & downloaden</h2>
    <p class="ytd-sub" style="margin:0 0 18px">Upload je eigen video of een bestand dat je mag gebruiken. Mashal Studio leest de bron met FFprobe en toont uitsluitend resoluties die het bestand aankan.</p>
    <form id="ytd-upload-form">
@@ -104,6 +106,7 @@
    document.getElementById('ytd-author').textContent='Kanaal: '+data.author;
    document.getElementById('ytd-watch').href=data.watch_url;
    result.classList.add('show');
+   document.getElementById('ytd-go-convert').onclick=()=>document.getElementById('ytd-upload-panel').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){error.textContent=e.message||'Er ging iets mis.';error.classList.add('show');}
   finally{button.disabled=false;button.textContent='Video bekijken →';}
  });
