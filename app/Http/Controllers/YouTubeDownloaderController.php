@@ -123,7 +123,7 @@ final class YouTubeDownloaderController extends Controller
             exec('nohup '.$command, $workerOutput, $workerExitCode);
             $workerPid = isset($workerOutput[0]) ? (int) trim($workerOutput[0]) : 0;
             if ($workerExitCode !== 0 || $workerPid < 1) {
-                throw new \\RuntimeException('YouTube worker could not be started.');
+                throw new \RuntimeException('YouTube worker could not be started.');
             }
 
             $record['job'] = $job;
