@@ -93,7 +93,7 @@ def download(url, mode, quality, directory):
             f"best[height={height}]"
         )
         common["merge_output_format"] = "mp4"
-        common["postprocessors"] = [{"key": "FFmpegVideoRemuxer", "preferredformat": "mp4"}]
+        common["postprocessors"] = [{"key": "FFmpegVideoRemuxer", "preferedformat": "mp4"}]
 
     with yt_dlp.YoutubeDL(common) as ydl:
         ydl.download([url])
