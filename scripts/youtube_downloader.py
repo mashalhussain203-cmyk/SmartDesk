@@ -165,10 +165,15 @@ def download(url, mode, quality, directory):
     # Keep yt-dlp's maintained defaults as a secondary attempt, excluding
     # web_embedded because some YouTube experiments bind its GVS token.
     client_sets = [
-        ["default"],
+        # YouTube's tv_downgraded client is currently returning
+        # "The page needs to be reloaded" for some public videos.
+        # web_embedded is a separate public player path; default is also
+        # tried with tv_downgraded explicitly excluded.
+        ["web_embedded"],
+        ["default", "-tv_downgraded"],
+        ["web_safari"],
         ["android_vr"],
         ["ios"],
-        ["tv"],
         ["mweb"],
     ]
     last_error = None
