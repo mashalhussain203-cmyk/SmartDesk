@@ -69,6 +69,7 @@
  const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
  const csrf=form.querySelector('input[name="_token"]').value;
  const bestWrap=document.getElementById('ytd-best-wrap'), bestButton=document.getElementById('ytd-best-button'), bestLabel=document.getElementById('ytd-best-label');
+ bestWrap.style.display='none';
  const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
  const fileError=document.getElementById('ytd-file-error'), fileResult=document.getElementById('ytd-file-result');
  const fileQuality=document.getElementById('ytd-file-quality'), fileDownload=document.getElementById('ytd-file-download');
