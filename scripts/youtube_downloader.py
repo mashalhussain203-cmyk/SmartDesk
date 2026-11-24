@@ -121,16 +121,9 @@ def ensure_pot_provider():
                 raise RuntimeError("YouTube-tokenprovider downloaden mislukt: " + (result.stderr or result.stdout)[-500:])
         if not (server / "node_modules").is_dir():
             result = subprocess.run(
-                [npm, "ci", "--omit=dev", "--ignore-scripts"],
-                cwd=str(server), capture_output=True, text=True, timeout=300,
+                [npm, "ci"],
+                cwd=str(server), capture_output=True, text=True, timeout=420,
             )
-            if result.returncode != 0:
-                # canvas and other native packages may require their install scripts;
-                # retry the official lockfile install without suppressing scripts.
-                result = subprocess.run(
-                    [npm, "ci"],
-                    cwd=str(server), capture_output=True, text=True, timeout=300,
-                )
             if result.returncode != 0:
                 raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
         if not script.is_file():
