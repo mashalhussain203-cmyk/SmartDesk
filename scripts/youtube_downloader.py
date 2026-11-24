@@ -162,6 +162,7 @@ def download(url, mode, quality, directory):
     # Only try alternate public clients after the automatic default strategy.
     client_sets = [
         None,
+        ["mweb"],
         ["web_safari"],
         ["ios"],
         ["android_vr"],
@@ -196,9 +197,17 @@ def download(url, mode, quality, directory):
                     "key": "FFmpegVideoRemuxer",
                     "preferedformat": "mp4",
                 }]
+            # The provider directory is persisted on Railway's mounted volume.
+            # Install and invoke the matching bgutil script provider so yt-dlp
+            # can request GVS PO tokens where YouTube requires them.
+            common["extractor_args"] = {
+                "youtubepot-bgutilscript": {
+                    "server_home": str(provider_server),
+                },
+            }
             if clients:
-                common["extractor_args"] = {
-                    "youtube": {"player_client": clients},
+                common["extractor_args"]["youtube"] = {
+                    "player_client": clients,
                 }
             try:
                 with yt_dlp.YoutubeDL(common) as ydl:
@@ -232,7 +241,7 @@ def download(url, mode, quality, directory):
         if "sign in to confirm" in detail or "not a bot" in detail:
             reason = "YouTube blokkeert deze downloadserver met een botcontrole. Probeer later opnieuw of gebruik een toegestane downloadmethode."
         elif "403" in detail or "forbidden" in detail:
-            reason = "YouTube weigert de mediastream vanaf de downloadserver (HTTP 403). Een lagere kwaliteit lost een server-IP-blokkade niet op."
+            reason = "YouTube weigert de mediastream vanaf de downloadserver (HTTP 403). Dit kan door ontbrekende/ongeldige PO-tokens of een netwerk-/IP-beperking komen; een lagere kwaliteit lost dit niet automatisch op."
         elif "requested format is not available" in detail or "no video formats found" in detail:
             reason = "YouTube heeft voor deze speler geen passende stream aangeboden. Kies een lagere beschikbare kwaliteit of probeer later opnieuw."
         else:
