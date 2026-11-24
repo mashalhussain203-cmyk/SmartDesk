@@ -188,9 +188,12 @@ def download(url, mode, quality, directory):
     # Start with yt-dlp's own maintained client selection. Explicitly forcing
     # mweb/web_embedded can return an empty format list for otherwise public videos.
     # Only try alternate public clients after the automatic default strategy.
+    # yt-dlp's current PO Token guide recommends mweb with a GVS PO token.
+    # Try that combination first; retain automatic and other public clients
+    # only as fallbacks for videos where mweb exposes no usable formats.
     client_sets = [
-        None,
         ["mweb"],
+        None,
         ["web_safari"],
         ["ios"],
         ["android_vr"],
@@ -230,7 +233,7 @@ def download(url, mode, quality, directory):
             # Install and invoke the matching bgutil script provider so yt-dlp
             # can request GVS PO tokens where YouTube requires them.
             common["extractor_args"] = {
-                "youtube-bgutilscript": {
+                "youtubepot-bgutilscript": {
                     "server_home": str(provider_server),
                 },
             }
