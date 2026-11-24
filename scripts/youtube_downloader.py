@@ -172,7 +172,7 @@ def download(url, mode, quality, directory):
 
     for clients in client_sets:
         for format_selector in formats:
-            last_attempt = "player_client=" + ",".join(clients) + "; format=" + format_selector
+            last_attempt = "player_client=" + (",".join(clients) if clients else "yt-dlp-auto") + "; format=" + format_selector
             for old in directory.glob("source.*"):
                 old.unlink(missing_ok=True)
             common = {
