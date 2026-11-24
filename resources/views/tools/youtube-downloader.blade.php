@@ -17,6 +17,7 @@
 .ytd-hint{font-size:11px;color:#747e8f;margin:12px 2px 0}.ytd-result{display:none;margin-top:22px;border:1px solid #2b3140;border-radius:17px;padding:14px;gap:16px;align-items:center;background:#0b0e15}.ytd-result.show{display:flex}.ytd-thumb{width:180px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#161a24}.ytd-result h3{font-size:15px;margin:0 0 6px;color:white}.ytd-result p{margin:0;color:#8e98a9;font-size:12px}.ytd-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.ytd-link{display:inline-flex;text-decoration:none;border:1px solid #3b4353;color:#d9dce5;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:750}.ytd-link.primary{background:#25203d;border-color:#6657a7;color:#d0c7ff}.ytd-error{display:none;margin-top:14px;color:#ff9caa;font-size:12px}.ytd-error.show{display:block}
 .ytd-info{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.ytd-info article{border:1px solid #242a36;border-radius:15px;padding:16px;background:#0d1017}.ytd-info strong{display:block;font-size:12px;color:#e8eaf1;margin-bottom:6px}.ytd-info span{font-size:11px;line-height:1.6;color:#818b9b}
 .ytd-note{max-width:820px;margin:18px auto 0;color:#737d8e;font-size:11px;line-height:1.7;text-align:center}
+#ytd-quality,#ytd-format{color:#fff;color-scheme:dark}#ytd-media{padding:12px}
 @media(max-width:620px){.ytd-inputrow{flex-direction:column}.ytd-btn{height:48px}.ytd-result{align-items:flex-start;flex-direction:column}.ytd-thumb{width:100%}.ytd-info{grid-template-columns:1fr}.ytd-tabs{flex-wrap:wrap}}
 </style>
 @endpush
@@ -49,6 +50,27 @@
       <a class="ytd-link" id="ytd-studio" href="https://studio.youtube.com/channel/" target="_blank" rel="noopener">Eigen upload downloaden via YouTube Studio</a>
      </div>
     </div>
+   </div>
+  </section>
+  <section class="ytd-panel" style="margin:22px auto 0" aria-label="Echte kwaliteitscontrole en downloaden">
+   <h2 style="font-size:22px;margin:0 0 8px;color:#fff">Echte kwaliteit controleren & downloaden</h2>
+   <p class="ytd-sub" style="margin:0 0 18px">Upload je eigen video of een bestand dat je mag gebruiken. Mashal Studio leest de bron met FFprobe en toont uitsluitend resoluties die het bestand aankan.</p>
+   <form id="ytd-upload-form">
+    @csrf
+    <div class="ytd-inputrow">
+     <input class="ytd-input" id="ytd-media" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska,video/x-msvideo,audio/*" required>
+     <button class="ytd-btn" id="ytd-analyze" type="submit">Kwaliteit controleren</button>
+    </div>
+   </form>
+   <p class="ytd-error" id="ytd-upload-error" role="alert"></p>
+   <div id="ytd-upload-result" style="display:none;margin-top:18px">
+    <p id="ytd-source-info" class="ytd-sub"></p>
+    <div class="ytd-inputrow" style="margin-top:12px">
+     <select class="ytd-input" id="ytd-quality" aria-label="Beschikbare videokwaliteit"></select>
+     <select class="ytd-input" id="ytd-format" aria-label="Downloadformaat"><option value="mp4">MP4-video</option><option value="mp3">MP3-audio</option></select>
+     <button class="ytd-btn" id="ytd-convert" type="button">Downloaden</button>
+    </div>
+    <p class="ytd-hint" id="ytd-quality-note"></p>
    </div>
   </section>
   <section class="ytd-info">
@@ -84,6 +106,58 @@
    result.classList.add('show');
   }catch(e){error.textContent=e.message||'Er ging iets mis.';error.classList.add('show');}
   finally{button.disabled=false;button.textContent='Video bekijken →';}
+ });
+})();
+</script>
+@endpush
+
+
+@push('scripts')
+<script>
+(() => {
+ const form=document.getElementById('ytd-upload-form');
+ if(!form)return;
+ const file=document.getElementById('ytd-media'), analyze=document.getElementById('ytd-analyze');
+ const error=document.getElementById('ytd-upload-error'), result=document.getElementById('ytd-upload-result');
+ const quality=document.getElementById('ytd-quality'), format=document.getElementById('ytd-format');
+ const convert=document.getElementById('ytd-convert'), note=document.getElementById('ytd-quality-note');
+ let token=null, available=[];
+ const csrf=form.querySelector('input[name="_token"]').value;
+ form.addEventListener('submit',async e=>{
+  e.preventDefault(); error.classList.remove('show');
+  if(!file.files.length)return;
+  analyze.disabled=true; analyze.textContent='Bronbestand analyseren…';
+  try{
+   const body=new FormData(); body.append('_token',csrf); body.append('media',file.files[0]);
+   const response=await fetch(@json(route('youtube-downloader.upload')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
+   const data=await response.json(); if(!response.ok)throw new Error(data.message||'Upload/analyse mislukt.');
+   token=data.token; available=data.qualities||[];
+   document.getElementById('ytd-source-info').textContent=data.name+' · '+(data.width&&data.height?data.width+' × '+data.height+' pixels':'alleen audio');
+   quality.innerHTML='';
+   available.forEach(q=>{const o=document.createElement('option');o.value=String(q);o.textContent=q+'p'+(q===720?' HD':q===1080?' Full HD':q===1440?' 2K':q===2160?' 4K':'');quality.appendChild(o);});
+   if(!available.length){const o=document.createElement('option');o.value='';o.textContent='Geen videoresoluties beschikbaar';quality.appendChild(o);}
+   format.value=data.has_video?'mp4':'mp3';
+   format.querySelector('option[value="mp4"]').disabled=!data.has_video;
+   quality.disabled=!available.length;
+   note.textContent=data.message;
+   result.style.display='block';
+  }catch(err){error.textContent=err.message;error.classList.add('show');}
+  finally{analyze.disabled=false;analyze.textContent='Kwaliteit controleren';}
+ });
+ format.addEventListener('change',()=>{quality.disabled=format.value==='mp3'||!available.length;});
+ convert.addEventListener('click',async()=>{
+  if(!token)return;
+  convert.disabled=true;convert.textContent='Converteren…';
+  try{
+   const body=new FormData();body.append('_token',csrf);body.append('token',token);body.append('format',format.value);
+   if(format.value==='mp4')body.append('quality',quality.value);
+   const response=await fetch(@json(route('youtube-downloader.convert')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
+   if(!response.ok){const data=await response.json();throw new Error(data.message||'Download mislukt.');}
+   const blob=await response.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');
+   a.href=url;a.download=(file.files[0].name.replace(/\.[^.]+$/,'')||'video')+'-'+(format.value==='mp4'?quality.value+'p':'audio')+'.'+format.value;
+   document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  }catch(err){error.textContent=err.message;error.classList.add('show');}
+  finally{convert.disabled=false;convert.textContent='Downloaden';}
  });
 })();
 </script>
