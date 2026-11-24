@@ -90,25 +90,22 @@ def video_heights(info):
 
 
 def ensure_pot_provider():
-    """Install the matching bgutil PO-token script provider on the persistent volume."""
+    """Install and compile bgutil's Node script provider on the persistent volume."""
     import fcntl
 
     home = Path("/app/storage/app/private/youtube-pot-provider")
     server = home / "server"
-    script = server / "src" / "generate_once.ts"
+    script = server / "build" / "generate_once.js"
     lock_path = home.parent / ".youtube-pot-provider.lock"
     lock_path.parent.mkdir(parents=True, exist_ok=True)
 
-    deno = shutil.which("deno")
+    node = shutil.which("node")
+    npm = shutil.which("npm")
     git = shutil.which("git")
-    if not deno:
-        raise RuntimeError("Deno 2.4.3+ ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet starten.")
+    if not node or not npm:
+        raise RuntimeError("Node.js 22+ en npm zijn vereist voor de YouTube-tokenprovider.")
     if not git:
         raise RuntimeError("Git ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet worden geïnstalleerd.")
-
-    os.environ["DENO_NO_PROMPT"] = "1"
-    os.environ["DENO_NO_UPDATE_CHECK"] = "1"
-    os.environ["FORCE_COLOR"] = "false"
 
     with open(lock_path, "w", encoding="utf-8") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
@@ -124,11 +121,27 @@ def ensure_pot_provider():
                 raise RuntimeError("YouTube-tokenprovider downloaden mislukt: " + (result.stderr or result.stdout)[-500:])
         if not (server / "node_modules").is_dir():
             result = subprocess.run(
-                [deno, "install", "--allow-scripts=npm:canvas", "--frozen"],
+                [npm, "ci", "--omit=dev", "--ignore-scripts"],
                 cwd=str(server), capture_output=True, text=True, timeout=300,
             )
             if result.returncode != 0:
+                # canvas and other native packages may require their install scripts;
+                # retry the official lockfile install without suppressing scripts.
+                result = subprocess.run(
+                    [npm, "ci"],
+                    cwd=str(server), capture_output=True, text=True, timeout=300,
+                )
+            if result.returncode != 0:
                 raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
+        if not script.is_file():
+            result = subprocess.run(
+                [npm, "exec", "--", "tsc"],
+                cwd=str(server), capture_output=True, text=True, timeout=300,
+            )
+            if result.returncode != 0:
+                raise RuntimeError("YouTube-tokenprovider compileren mislukt: " + (result.stderr or result.stdout)[-500:])
+        if not script.is_file():
+            raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: generate_once.js ontbreekt.")
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     return server
@@ -142,8 +155,15 @@ class PotDebugLogger:
         if "[pot]" in lowered or "generating a " in lowered or "po token providers" in lowered:
             print("[youtube-pot] " + value, flush=True)
 
+    def info(self, message):
+        value = str(message)
+        if "generating a " in value.lower() or "po token" in value.lower():
+            print("[youtube-pot] " + value, flush=True)
+
     def warning(self, message):
-        pass
+        value = str(message)
+        if "provider" in value.lower() or "script" in value.lower() or "token" in value.lower():
+            print("[youtube-pot-warning] " + value[:500], flush=True)
 
     def error(self, message):
         print("[youtube-dlp-error] " + str(message)[:500], flush=True)
