@@ -1,11 +1,10 @@
 <?php
 
-use App\\Http\\Controllers\\YouTubeDownloaderController;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Support\\Facades\\Route;
-use Illuminate\\Support\\Facades\\Storage;
-use Symfony\\Component\\Process\\Process;
+use App\Http\Controllers\YouTubeDownloaderController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
 
 // Public YouTube URL workflow, using the same queued Python/yt-dlp pattern as TikTok Downloader.
 Route::get('/tools/youtube-downloader', [YouTubeDownloaderController::class, 'index'])->name('youtube-downloader.index');
@@ -89,7 +88,7 @@ Route::post('/tools/youtube-downloader/convert', function (Request $request) {
     $process->run();
     if (! $process->isSuccessful() || ! is_file($output) || filesize($output) === 0) {
         @unlink($output);
-        report(new \\RuntimeException('FFmpeg conversion failed: '.$process->getErrorOutput()));
+        report(new \RuntimeException('FFmpeg conversion failed: '.$process->getErrorOutput()));
         return response()->json(['message' => 'Converteren is mislukt. Probeer een kleiner bestand of een lagere kwaliteit.'], 500);
     }
     $downloadName = pathinfo($path, PATHINFO_FILENAME).'-'.($format === 'mp4' ? $quality.'p' : 'audio').'.'.$format;
