@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 // Public YouTube URL workflow, using the same queued Python/yt-dlp pattern as TikTok Downloader.
 Route::get('/tools/youtube-downloader', [YouTubeDownloaderController::class, 'index'])->name('youtube-downloader.index');
 Route::post('/tools/youtube-downloader/analyze', [YouTubeDownloaderController::class, 'analyze'])->middleware('throttle:8,1')->name('youtube-downloader.analyze');
-Route::post('/tools/youtube-downloader/prepare', [YouTubeDownloaderController::class, 'prepare'])->middleware('throttle:10,1')->name('youtube-downloader.prepare');
+Route::post('/tools/youtube-downloader/prepare', [YouTubeDownloaderController::class, 'prepare'])->middleware('throttle:30,1')->name('youtube-downloader.prepare');
 Route::get('/tools/youtube-downloader/status/{token}', [YouTubeDownloaderController::class, 'status'])->where('token', '[a-f0-9]{40}')->middleware('throttle:60,1')->name('youtube-downloader.status');
 Route::get('/tools/youtube-downloader/download/{token}', [YouTubeDownloaderController::class, 'download'])->where('token', '[a-f0-9]{40}')->middleware('throttle:30,1')->name('youtube-downloader.download');
 
