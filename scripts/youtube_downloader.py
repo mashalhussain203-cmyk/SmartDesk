@@ -140,13 +140,13 @@ def download(url, mode, quality, directory):
 
     # Prefer clients that do not require the same web PO-token flow.
     # Deno is installed in the Railway image to let yt-dlp solve supported JS challenges.
-    # YouTube currently returns UNPLAYABLE for several individual clients.
-    # Community-confirmed workaround: request Safari and embedded together;
-    # do not fall back to tv/tv_downgraded or mweb for this error.
+    # Current yt-dlp guidance recommends mweb with a PO-token provider.
+    # Keep yt-dlp's maintained defaults as a secondary attempt, excluding
+    # web_embedded because some YouTube experiments bind its GVS token.
     client_sets = [
-        ["web_safari", "web_embedded"],
-        ["web_embedded", "web_safari"],
-        ["android"],
+        ["mweb"],
+        ["default", "-web_embedded"],
+        ["web_safari"],
     ]
     last_error = None
     succeeded = False
@@ -163,7 +163,11 @@ def download(url, mode, quality, directory):
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
                 "extractor_args": {
-                    "youtube": {"player_client": clients},
+                    "youtube": {
+                        "player_client": clients,
+                        "fetch_pot": ["always"],
+                        "pot_trace": ["true"],
+                    },
                     "youtubepot-bgutilscript": {
                         "server_home": str(provider_server)
                     },
