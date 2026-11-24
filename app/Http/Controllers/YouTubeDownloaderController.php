@@ -119,8 +119,12 @@ final class YouTubeDownloaderController extends Controller
             $command = implode(' ', array_map('escapeshellarg', [
                 $this->python(), $this->script(), 'download', $record['url'],
                 $input['format'], (string) ($input['quality'] ?? 0), $directory,
-            ])).' > '.escapeshellarg($directory.'/worker.log').' 2>&1 < /dev/null &';
-            exec($command);
+            ])).' > '.escapeshellarg($directory.'/worker.log').' 2>&1 < /dev/null & echo $!';
+            exec('nohup '.$command, $workerOutput, $workerExitCode);
+            $workerPid = isset($workerOutput[0]) ? (int) trim($workerOutput[0]) : 0;
+            if ($workerExitCode !== 0 || $workerPid < 1) {
+                throw new \\RuntimeException('YouTube worker could not be started.');
+            }
 
             $record['job'] = $job;
             $record['format'] = $input['format'];
@@ -159,6 +163,7 @@ final class YouTubeDownloaderController extends Controller
         $payload = ['status' => $status];
         if ($status === 'failed') {
             $payload['message'] = (string) ($state['message'] ?? 'Download mislukt. Probeer het opnieuw.');
+            Log::warning('YouTube downloader worker failed', ['detail' => mb_substr((string) ($state['detail'] ?? ''), 0, 350)]);
         } elseif ($status === 'ready' && $this->validOutputFile($directory, $state, $record['format'])) {
             $payload['download_url'] = route('youtube-downloader.download', ['token' => $token]);
         } elseif ($status === 'ready') {
