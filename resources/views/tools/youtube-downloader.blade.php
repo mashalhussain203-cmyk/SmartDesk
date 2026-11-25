@@ -35,7 +35,9 @@
 <section class="ytd-panel" aria-label="YouTube downloader">
 <form id="ytd-form">@csrf<div class="ytd-inputrow"><input class="ytd-input" id="ytd-url" type="url" placeholder="Plak je YouTube-videolink hier" autocomplete="url" required><button class="ytd-utility" id="ytd-paste" type="button">Plakken</button><button class="ytd-utility" id="ytd-clear" type="button">Wissen</button><button class="ytd-btn" id="ytd-submit" type="submit">Download</button></div><p class="ytd-hint">Plak een YouTube-video- of Shorts-link en druk op Download. Daarna verschijnen de beschikbare MP4-kwaliteiten.</p></form>
 <p class="ytd-error" id="ytd-error" role="alert"></p>
+<div id="ytd-entry-stage"><p class="ytd-hint" style="margin:15px 2px 0;text-align:center">Gratis · Geen account nodig · MP4-video en MP3-audio</p></div>
 <div class="ytd-result" id="ytd-result">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:17px"><span class="ytd-pill">VIDEO GEVONDEN · KIES FORMAAT</span><button type="button" class="ytd-utility" id="ytd-another">← Andere URL</button></div>
 <div class="ytd-videohead"><img class="ytd-thumb" id="ytd-thumb" alt="YouTube-videominiatuur"><div><h3 id="ytd-video-title"></h3><p id="ytd-author"></p><p class="ytd-hint" id="ytd-duration"></p></div></div>
 <div class="ytd-tabs"><button class="ytd-tab active" type="button" data-mode="video">▣ Video (MP4)</button><button class="ytd-tab" type="button" data-mode="audio">♫ Audio (MP3)</button></div>
 <div id="ytd-best-wrap" style="display:none;margin:0 0 13px;padding:14px 15px;border:1px solid rgba(103,217,144,.22);border-radius:14px;background:linear-gradient(110deg,rgba(18,111,79,.17),rgba(143,130,255,.07));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong style="display:block;color:#eafff4;font-size:13px" id="ytd-best-label">Hoogste beschikbare kwaliteit</strong><span style="display:block;margin-top:4px;color:#8fa99c;font-size:11px">Automatisch geselecteerd op basis van de bronvideo</span></div><button class="ytd-download" id="ytd-best-button" type="button">↓ Beste kwaliteit</button></div>
@@ -66,11 +68,12 @@
 <script>
 (() => {
  const form=document.getElementById('ytd-form'), input=document.getElementById('ytd-url'), submit=document.getElementById('ytd-submit');
- const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
+ const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), entryStage=document.getElementById('ytd-entry-stage'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
  const csrf=form.querySelector('input[name="_token"]').value;
- const pasteButton=document.getElementById('ytd-paste'),clearButton=document.getElementById('ytd-clear');
+ const pasteButton=document.getElementById('ytd-paste'),clearButton=document.getElementById('ytd-clear'),anotherButton=document.getElementById('ytd-another');
  pasteButton.addEventListener('click',async()=>{try{const value=await navigator.clipboard.readText();if(value){input.value=value;input.focus();}}catch(_){showError('Plakken is niet beschikbaar. Houd het invoerveld ingedrukt en kies Plak.');}});
- clearButton.addEventListener('click',()=>{input.value='';input.focus();error.classList.remove('show');result.classList.remove('show');status.textContent='';});
+ clearButton.addEventListener('click',()=>{input.value='';input.focus();error.classList.remove('show');result.classList.remove('show');entryStage.style.display='block';status.textContent='';});
+ anotherButton.addEventListener('click',()=>{input.value='';token=null;qualities=[];result.classList.remove('show');entryStage.style.display='block';form.style.display='block';document.querySelector('.ytd-hint').style.display='block';error.classList.remove('show');status.textContent='';submit.disabled=false;submit.textContent='Download';input.focus();window.scrollTo({top:0,behavior:'smooth'});});
  const bestWrap=document.getElementById('ytd-best-wrap'), bestButton=document.getElementById('ytd-best-button'), bestLabel=document.getElementById('ytd-best-label');
  bestWrap.style.display='none';
  const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
@@ -168,7 +171,7 @@
    const data=await response.json();if(!response.ok)throw new Error(data.message||'De YouTube-link kon niet worden geanalyseerd.');
    token=data.token;qualities=data.qualities||[];hasAudio=!!data.has_audio;
    document.getElementById('ytd-thumb').src=data.thumbnail||'';document.getElementById('ytd-video-title').textContent=data.title||'YouTube-video';document.getElementById('ytd-author').textContent='Kanaal: '+(data.author||'YouTube');document.getElementById('ytd-duration').textContent=duration(data.duration);
-   mode='video';render();result.classList.add('show');status.textContent=qualities.length+' echte videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');
+   mode='video';render();entryStage.style.display='none';form.style.display='none';document.querySelector('.ytd-hint').style.display='none';result.classList.add('show');status.textContent=qualities.length+' echte videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');result.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
   finally{submit.disabled=false;submit.textContent='Download';}
  });
