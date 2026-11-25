@@ -107,7 +107,7 @@ def pot_extractor_args():
     # provider's documented script-mode argument is server_home (not script_path).
     return {
         "youtube": {"player_client": ["mweb"]},
-        "youtube-bgutilscript": {"server_home": [str(server_home)]},
+        "youtubepot-bgutilscript": {"server_home": [str(server_home)]},
     }
 
 
