@@ -13,7 +13,7 @@
 .ytd-sub{max-width:680px;margin:0 auto;color:#929aa8;font-size:14px;line-height:1.75}
 .ytd-panel{position:relative;overflow:hidden;max-width:850px;margin:auto;padding:clamp(17px,4vw,30px);border:1px solid rgba(255,255,255,.105);border-radius:25px;background:linear-gradient(145deg,rgba(19,22,30,.96),rgba(10,12,17,.98));box-shadow:0 32px 90px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.035)}
 .ytd-panel:before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(169,159,255,.55),rgba(115,215,255,.35),transparent)}
-.ytd-inputrow{display:flex;gap:10px}.ytd-input{min-width:0;flex:1;height:54px;padding:0 17px;border:1px solid rgba(255,255,255,.12);border-radius:14px;outline:none;background:#080a0f;color:#f6f7fa;font-size:14px;transition:border-color .2s,box-shadow .2s}.ytd-input::placeholder{color:#596270}.ytd-input:focus{border-color:rgba(169,159,255,.65);box-shadow:0 0 0 4px rgba(143,130,255,.1)}
+.ytd-inputrow{display:flex;gap:10px}.ytd-utility{min-height:54px;padding:0 15px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#11151d;color:#c5cbd6;font-size:12px;font-weight:800;cursor:pointer}.ytd-utility:hover{border-color:rgba(169,159,255,.5);color:#fff}.ytd-input{min-width:0;flex:1;height:54px;padding:0 17px;border:1px solid rgba(255,255,255,.12);border-radius:14px;outline:none;background:#080a0f;color:#f6f7fa;font-size:14px;transition:border-color .2s,box-shadow .2s}.ytd-input::placeholder{color:#596270}.ytd-input:focus{border-color:rgba(169,159,255,.65);box-shadow:0 0 0 4px rgba(143,130,255,.1)}
 .ytd-btn{min-height:54px;padding:0 22px;border:1px solid rgba(189,180,255,.28);border-radius:14px;background:linear-gradient(135deg,#9184ff,#6456d8);color:#fff;font-size:12px;font-weight:850;letter-spacing:.01em;cursor:pointer;box-shadow:0 8px 26px rgba(100,86,216,.22);transition:transform .2s,filter .2s}.ytd-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.ytd-btn:disabled{opacity:.55;cursor:wait;transform:none}
 .ytd-hint{margin:11px 2px 0;color:#737d8c;font-size:11px;line-height:1.6}.ytd-error{display:none;margin-top:14px;padding:12px 14px;border:1px solid rgba(244,125,125,.2);border-radius:12px;background:rgba(244,125,125,.07);color:#ff9ca6;font-size:12px;line-height:1.5}.ytd-error.show{display:block}
 .ytd-result{display:none;margin-top:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08)}.ytd-result.show{display:block}
@@ -33,7 +33,7 @@
 <main class="ytd-page"><div class="ytd-wrap">
 <header class="ytd-hero"><div class="ytd-pill">● MASHAL STUDIO · VIDEO TOOLS</div><h1 class="ytd-title">YouTube <span>Downloader</span></h1><p class="ytd-sub">Plak een openbare YouTube-link. Mashal Studio controleert de werkelijk beschikbare video- en audioformaten en toont alleen kwaliteiten die YouTube voor die video teruggeeft.</p></header>
 <section class="ytd-panel" aria-label="YouTube downloader">
-<form id="ytd-form">@csrf<div class="ytd-inputrow"><input class="ytd-input" id="ytd-url" type="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url" required><button class="ytd-btn" id="ytd-submit" type="submit">Kwaliteit ophalen →</button></div><p class="ytd-hint">Ondersteunt youtube.com, youtu.be, Shorts en openbare video's.</p></form>
+<form id="ytd-form">@csrf<div class="ytd-inputrow"><input class="ytd-input" id="ytd-url" type="url" placeholder="Plak je YouTube-videolink hier" autocomplete="url" required><button class="ytd-utility" id="ytd-paste" type="button">Plakken</button><button class="ytd-utility" id="ytd-clear" type="button">Wissen</button><button class="ytd-btn" id="ytd-submit" type="submit">Download</button></div><p class="ytd-hint">Plak een YouTube-video- of Shorts-link en druk op Download. Daarna verschijnen de beschikbare MP4-kwaliteiten.</p></form>
 <p class="ytd-error" id="ytd-error" role="alert"></p>
 <div class="ytd-result" id="ytd-result">
 <div class="ytd-videohead"><img class="ytd-thumb" id="ytd-thumb" alt="YouTube-videominiatuur"><div><h3 id="ytd-video-title"></h3><p id="ytd-author"></p><p class="ytd-hint" id="ytd-duration"></p></div></div>
@@ -68,6 +68,9 @@
  const form=document.getElementById('ytd-form'), input=document.getElementById('ytd-url'), submit=document.getElementById('ytd-submit');
  const error=document.getElementById('ytd-error'), result=document.getElementById('ytd-result'), rows=document.getElementById('ytd-rows'), empty=document.getElementById('ytd-empty'), status=document.getElementById('ytd-status');
  const csrf=form.querySelector('input[name="_token"]').value;
+ const pasteButton=document.getElementById('ytd-paste'),clearButton=document.getElementById('ytd-clear');
+ pasteButton.addEventListener('click',async()=>{try{const value=await navigator.clipboard.readText();if(value){input.value=value;input.focus();}}catch(_){showError('Plakken is niet beschikbaar. Houd het invoerveld ingedrukt en kies Plak.');}});
+ clearButton.addEventListener('click',()=>{input.value='';input.focus();error.classList.remove('show');result.classList.remove('show');status.textContent='';});
  const bestWrap=document.getElementById('ytd-best-wrap'), bestButton=document.getElementById('ytd-best-button'), bestLabel=document.getElementById('ytd-best-label');
  bestWrap.style.display='none';
  const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
@@ -167,7 +170,7 @@
    document.getElementById('ytd-thumb').src=data.thumbnail||'';document.getElementById('ytd-video-title').textContent=data.title||'YouTube-video';document.getElementById('ytd-author').textContent='Kanaal: '+(data.author||'YouTube');document.getElementById('ytd-duration').textContent=duration(data.duration);
    mode='video';render();result.classList.add('show');status.textContent=qualities.length+' echte videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');
   }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
-  finally{submit.disabled=false;submit.textContent='Kwaliteit ophalen →';}
+  finally{submit.disabled=false;submit.textContent='Download';}
  });
 })();
 </script>
