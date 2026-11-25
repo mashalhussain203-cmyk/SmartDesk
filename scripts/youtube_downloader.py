@@ -265,10 +265,18 @@ def ensure_pot_provider():
         while time.monotonic() < deadline and not provider_is_ready():
             time.sleep(0.5)
 
-    if not provider_is_ready():
-        raise RuntimeError("bgutil HTTP-provider startte niet; zie " + str(server_log))
+    if provider_is_ready():
+        print("[youtube-pot] bgutil HTTP provider ready: " + ping_url, flush=True)
+    else:
+        # The script provider was already built and its --version probe passed.
+        # Do not disable all PO-token support just because the optional HTTP
+        # daemon could not bind or remain alive; yt-dlp can invoke the script.
+        print(
+            "[youtube-pot-warning] HTTP provider is unavailable; using the "
+            "verified bgutil script provider at " + str(server),
+            flush=True,
+        )
 
-    print("[youtube-pot] bgutil HTTP provider ready: " + ping_url, flush=True)
     return server, "node"
 
 class PotDebugLogger:
