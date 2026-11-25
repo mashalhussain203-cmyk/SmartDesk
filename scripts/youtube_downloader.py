@@ -60,6 +60,11 @@ def extract_info(url):
         "quiet": True, "no_warnings": True, "noplaylist": True,
         "skip_download": True, "cachedir": False, "socket_timeout": 20,
         "retries": 1, "extractor_retries": 1, "ignoreerrors": False,
+        # Railway has Node 24 installed; explicitly enable it because yt-dlp
+        # enables Deno by default, which is absent in this container.
+        "js_runtimes": {"node": {}},
+        # Permit yt-dlp to fetch the matching YouTube EJS challenge solver.
+        "remote_components": ["ejs:github"],
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -238,6 +243,11 @@ def download(url, mode, quality, directory):
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
+                # Explicitly enable the installed Node runtime and allow the
+                # matching EJS challenge solver. Without this, YouTube signature
+                # solving fails and its media URLs can return HTTP 403.
+                "js_runtimes": {"node": {}},
+                "remote_components": ["ejs:github"],
                 "verbose": True, "logger": PotDebugLogger(),
                 "format": format_selector,
             }
