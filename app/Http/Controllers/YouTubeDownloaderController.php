@@ -31,11 +31,10 @@ final class YouTubeDownloaderController extends Controller
 
         try {
             $process = new Process([$this->python(), $this->script(), 'info', $url]);
-            $process->setTimeout(180); // Allow provider startup and alternate public player-client attempts.
+            $process->setTimeout(180); // Allow normal public-video analysis to finish.
             $process->run();
-            // The bgutil script provider writes its readiness message to stdout
-            // before our JSON payload. Parse the last valid JSON line, not the
-            // entire mixed stdout stream.
+            // Parse the last valid JSON line so harmless yt-dlp diagnostics cannot
+            // corrupt the structured analysis response.
             $details = null;
             $outputLines = preg_split('/\\R/', trim($process->getOutput())) ?: [];
             foreach (array_reverse($outputLines) as $outputLine) {
@@ -191,7 +190,7 @@ final class YouTubeDownloaderController extends Controller
             $payload['message'] = (string) ($state['message'] ?? 'Download mislukt. Probeer het opnieuw.');
             $workerLog = $directory.'/worker.log';
             $diagnostics = is_file($workerLog) ? (string) File::get($workerLog) : '';
-            // Keep useful yt-dlp/provider diagnostics, but never write signed media URLs or query tokens to application logs.
+            // Keep useful yt-dlp diagnostics, but never write signed media URLs or query tokens to application logs.
             $diagnostics = preg_replace('~https?://[^\\s]+~i', '[redacted-url]', $diagnostics) ?? '';
             $diagnosticLines = array_slice(preg_split('/\\R/', $diagnostics) ?: [], -100);
             Log::warning('YouTube downloader worker failed', [
@@ -272,8 +271,8 @@ final class YouTubeDownloaderController extends Controller
 
     private function python(): string
     {
-        // The downloader must run in the same environment that contains both
-        // yt-dlp and its bgutil plugin. Railway variables can override
+        // The downloader must run in the environment that contains yt-dlp.
+        // Railway variables can override
         // TIKTOK_PYTHON, so validate candidates instead of trusting the first path.
         $configured = trim((string) env('TIKTOK_PYTHON', ''));
         $candidates = array_values(array_unique(array_filter([
@@ -284,7 +283,7 @@ final class YouTubeDownloaderController extends Controller
             'python3',
         ])));
 
-        $probe = 'import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutil_http';
+        $probe = 'import yt_dlp';
         foreach ($candidates as $candidate) {
             if ($candidate !== 'python3' && ! is_file($candidate)) {
                 continue;
@@ -302,7 +301,7 @@ final class YouTubeDownloaderController extends Controller
             }
         }
 
-        Log::error('No Python interpreter has both yt-dlp and the bgutil HTTP plugin installed', [
+        Log::error('No Python interpreter has yt-dlp installed', [
             'checked' => $candidates,
         ]);
         return 'python3';
