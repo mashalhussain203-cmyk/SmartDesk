@@ -69,6 +69,7 @@ def extract_info(url):
         "ignoreerrors": False,
         "js_runtimes": {"node": {}} if shutil.which("node") else {},
         "remote_components": ["ejs:github"],
+        "extractor_args": pot_extractor_args(),
     }
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -91,21 +92,23 @@ def extract_info(url):
         raise
 
 def pot_extractor_args():
-    """Use the matching bgutil PO-token script built into this Railway image."""
-    server_home = os.getenv(
+    """Configure bgutil's script provider and the mweb client for GVS PO tokens."""
+    server_home = Path(os.getenv(
         "BGUTIL_POT_SERVER_HOME",
         "/app/bgutil-ytdlp-pot-provider/server",
-    )
-    args = {
-        "youtube": {
-            # mweb is the recommended client for GVS PO tokens; the other
-            # clients provide compatible fallbacks where YouTube permits them.
-            "player_client": ["mweb", "tv", "web_safari"],
-        },
+    )).resolve()
+    script = server_home / "build" / "generate_once.js"
+    if not script.is_file():
+        raise RuntimeError(
+            "De bgutil PO-token-generator ontbreekt op de server; "
+            "de download wordt veilig afgebroken in plaats van zonder PO-token te proberen."
+        )
+    # yt-dlp expects extractor_args grouped by extractor/provider. The
+    # provider's documented script-mode argument is server_home (not script_path).
+    return {
+        "youtube": {"player_client": ["mweb"]},
+        "youtubepot-bgutilscript": {"server_home": [str(server_home)]},
     }
-    if (Path(server_home) / "build" / "generate_once.js").is_file():
-        args["youtubepot-bgutilscript"] = {"server_home": [server_home]}
-    return args
 
 
 def video_heights(info):
@@ -193,7 +196,8 @@ def download(url, mode, quality, directory):
             "continuedl": False,
             "js_runtimes": {"node": {}} if shutil.which("node") else {},
             "remote_components": ["ejs:github"],
-                "format": format_selector,
+            "extractor_args": pot_extractor_args(),
+            "format": format_selector,
         }
 
         if mode == "mp3":
