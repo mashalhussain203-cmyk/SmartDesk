@@ -69,7 +69,6 @@ def extract_info(url):
         "ignoreerrors": False,
         "js_runtimes": {"node": {}} if shutil.which("node") else {},
         "remote_components": ["ejs:github"],
-        "extractor_args": pot_extractor_args(),
     }
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
@@ -194,8 +193,7 @@ def download(url, mode, quality, directory):
             "continuedl": False,
             "js_runtimes": {"node": {}} if shutil.which("node") else {},
             "remote_components": ["ejs:github"],
-            "extractor_args": pot_extractor_args(),
-            "format": format_selector,
+                "format": format_selector,
         }
 
         if mode == "mp3":
