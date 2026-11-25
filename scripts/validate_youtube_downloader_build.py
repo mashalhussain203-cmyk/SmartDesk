@@ -15,7 +15,7 @@ subprocess.run(
      "from youtube_downloader import pot_extractor_args; "
      "a=pot_extractor_args(); "
      "assert a['youtube']['player_client'] == ['mweb']; "
-     "assert a['youtubepot-bgutilscript']['server_home'] == "
+     "assert a['youtube-bgutilscript']['server_home'] == "
      "['/app/bgutil-ytdlp-pot-provider/server']; "
      "print('bgutil provider wired into yt-dlp options')"],
     check=True,
