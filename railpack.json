@@ -8,8 +8,8 @@
     "build": {
       "commands": [
         "...",
-        "python3 -m pip install --disable-pip-version-check --no-cache-dir --target /app/.tiktok-python -r requirements-tiktok.txt",
-        "PYTHONPATH=/app/.tiktok-python python3 -m yt_dlp --version && php -l /app/app/Http/Controllers/YouTubeDownloaderController.php && python3 -m py_compile /app/scripts/youtube_downloader.py"
+        "git clone --depth 1 --single-branch --branch 2.0.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /app/bgutil-ytdlp-pot-provider && cd /app/bgutil-ytdlp-pot-provider/server && npm ci --no-audit --no-fund && npx tsc && cd /app && python3 -m pip install --disable-pip-version-check --no-cache-dir --target /app/.tiktok-python -r requirements-tiktok.txt",
+        "test -s /app/bgutil-ytdlp-pot-provider/server/build/generate_once.js && node --check /app/bgutil-ytdlp-pot-provider/server/build/generate_once.js && PYTHONPATH=/app/.tiktok-python python3 -c \"import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutil_script; print(\\\"bgutil PO-token plugin loaded\\\")\" && PYTHONPATH=/app/.tiktok-python python3 -m yt_dlp --version && php -l /app/app/Http/Controllers/YouTubeDownloaderController.php && python3 -m py_compile /app/scripts/youtube_downloader.py"
       ]
     }
   },
