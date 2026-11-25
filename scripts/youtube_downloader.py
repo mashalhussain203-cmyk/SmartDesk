@@ -57,10 +57,14 @@ def write_status(directory, status, **extra):
 def extract_info(url):
     import yt_dlp
 
-    # YouTube may reject the default web client on datacenter IPs before
-    # returning formats. Try the supported public clients used by yt-dlp's
-    # PO-token guidance, rather than making analysis use a different path
-    # from the downloader.
+    # Use the same PO-token provider during analysis and download.
+    provider_home = None
+    provider_runtime = "deno"
+    try:
+        provider_home, provider_runtime = ensure_pot_provider()
+    except Exception as exc:
+        print("[youtube-pot-warning] Provider setup failed during analysis: " + str(exc)[:400], flush=True)
+
     client_sets = [
         ["mweb", "tv", "web_safari"],
         ["mweb", "tv"],
@@ -74,11 +78,16 @@ def extract_info(url):
             "quiet": True, "no_warnings": True, "noplaylist": True,
             "skip_download": True, "cachedir": False, "socket_timeout": 25,
             "retries": 1, "extractor_retries": 1, "ignoreerrors": False,
-            "js_runtimes": {"node": {}},
+            "js_runtimes": {provider_runtime: {}},
             "remote_components": ["ejs:github"],
         }
+        extractor_args = {}
+        if provider_home is not None:
+            extractor_args["youtubepot-bgutilscript"] = {"server_home": str(provider_home)}
         if clients:
-            opts["extractor_args"] = {"youtube": {"player_client": clients}}
+            extractor_args["youtube"] = {"player_client": clients}
+        if extractor_args:
+            opts["extractor_args"] = extractor_args
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
@@ -106,7 +115,6 @@ def extract_info(url):
             )
             time.sleep(0.5)
     raise RuntimeError(str(last_error) if last_error else "YouTube-analyse mislukt.")
-
 
 def video_heights(info):
     heights = set()
@@ -152,26 +160,28 @@ def estimate_quality_sizes(info):
 
 
 def ensure_pot_provider():
-    """Install and compile bgutil's Node script provider on the persistent volume."""
+    """Install bgutil's generation script using Node or Deno on Railway."""
     import fcntl
 
     home = Path("/app/storage/app/private/youtube-pot-provider")
     server = home / "server"
-    script = server / "build" / "generate_once.js"
+    node_script = server / "build" / "generate_once.js"
+    deno_script = server / "src" / "generate_once.ts"
     lock_path = home.parent / ".youtube-pot-provider.lock"
     lock_path.parent.mkdir(parents=True, exist_ok=True)
 
     node = shutil.which("node")
     npm = shutil.which("npm")
+    deno = shutil.which("deno")
     git = shutil.which("git")
-    if not node or not npm:
-        raise RuntimeError("Node.js 22+ en npm zijn vereist voor de YouTube-tokenprovider.")
+    if not (node and npm) and not deno:
+        raise RuntimeError("Voor de YouTube-tokenprovider is Node.js + npm of Deno 2+ vereist.")
     if not git:
         raise RuntimeError("Git ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet worden geïnstalleerd.")
 
     with open(lock_path, "w", encoding="utf-8") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-        if not script.is_file():
+        if not (node_script.is_file() or deno_script.is_file()):
             if home.exists():
                 shutil.rmtree(home)
             result = subprocess.run(
@@ -181,26 +191,42 @@ def ensure_pot_provider():
             )
             if result.returncode != 0:
                 raise RuntimeError("YouTube-tokenprovider downloaden mislukt: " + (result.stderr or result.stdout)[-500:])
-        if not (server / "node_modules").is_dir():
-            result = subprocess.run(
-                [npm, "ci"],
-                cwd=str(server), capture_output=True, text=True, timeout=420,
-            )
-            if result.returncode != 0:
-                raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
-        if not script.is_file():
-            result = subprocess.run(
-                [npm, "exec", "--", "tsc"],
-                cwd=str(server), capture_output=True, text=True, timeout=300,
-            )
-            if result.returncode != 0:
-                raise RuntimeError("YouTube-tokenprovider compileren mislukt: " + (result.stderr or result.stdout)[-500:])
-        if not script.is_file():
-            raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: generate_once.js ontbreekt.")
+
+        if node and npm:
+            if not (server / "node_modules").is_dir():
+                result = subprocess.run(
+                    [npm, "ci"], cwd=str(server),
+                    capture_output=True, text=True, timeout=420,
+                )
+                if result.returncode != 0:
+                    raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
+            if not node_script.is_file():
+                result = subprocess.run(
+                    [npm, "exec", "--", "tsc"], cwd=str(server),
+                    capture_output=True, text=True, timeout=300,
+                )
+                if result.returncode != 0:
+                    raise RuntimeError("YouTube-tokenprovider compileren mislukt: " + (result.stderr or result.stdout)[-500:])
+            if not node_script.is_file():
+                raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: generate_once.js ontbreekt.")
+            runtime = "node"
+        else:
+            # Railway nixpacks.toml already provisions Deno. Use it instead of
+            # silently falling back to the unreachable default HTTP endpoint.
+            if not deno_script.is_file():
+                result = subprocess.run(
+                    [deno, "install", "--allow-scripts=npm:canvas", "--frozen"],
+                    cwd=str(server), capture_output=True, text=True, timeout=420,
+                )
+                if result.returncode != 0:
+                    raise RuntimeError("YouTube-tokenprovider installeren met Deno mislukt: " + (result.stderr or result.stdout)[-500:])
+            if not deno_script.is_file():
+                raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: src/generate_once.ts ontbreekt.")
+            runtime = "deno"
+
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
-    return server
-
+    return server, runtime
 
 class PotDebugLogger:
     """Expose only PO-token diagnostics; never log signed media URLs."""
@@ -251,8 +277,9 @@ def download(url, mode, quality, directory):
     # installed in the same virtualenv as yt-dlp by requirements-tiktok.txt.
     # Build the provider on the persistent Railway volume when it is missing.
     provider_home = None
+    provider_runtime = "deno"
     try:
-        provider_home = ensure_pot_provider()
+        provider_home, provider_runtime = ensure_pot_provider()
     except Exception as exc:
         # Keep a normal yt-dlp attempt available if the optional provider cannot
         # be built (for example, during a temporary GitHub/npm outage).
@@ -281,7 +308,7 @@ def download(url, mode, quality, directory):
                 # Explicitly enable the installed Node runtime and allow the
                 # matching EJS challenge solver. Without this, YouTube signature
                 # solving fails and its media URLs can return HTTP 403.
-                "js_runtimes": {"node": {}},
+                "js_runtimes": {provider_runtime: {}},
                 "remote_components": ["ejs:github"],
                 "verbose": True, "logger": PotDebugLogger(),
                 "format": format_selector,
