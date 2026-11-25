@@ -367,7 +367,16 @@ def main():
         return 1
     except Exception as exc:
         if action == "info":
-            emit({"success": False, "message": "Deze YouTube-video is privé, beperkt, niet beschikbaar of kon niet worden geanalyseerd. Alleen openbaar toegankelijke video's worden ondersteund."})
+            safe_message = str(exc)
+            if not (
+                safe_message.startswith("YouTube vereist aanmelding")
+                or safe_message.startswith("YouTube weigert toegang")
+            ):
+                safe_message = (
+                    "Deze YouTube-video is privé, beperkt, niet beschikbaar of kon niet worden "
+                    "geanalyseerd. Alleen openbaar toegankelijke video's worden ondersteund."
+                )
+            emit({"success": False, "message": safe_message[:300]})
         else:
             try:
                 directory = Path(sys.argv[5]).resolve()
