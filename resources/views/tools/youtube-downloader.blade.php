@@ -103,7 +103,7 @@
  <div class="ytd-error" id="ytd-file-error" role="alert"></div>
  <div id="ytd-file-result" style="display:none;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)">
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><strong id="ytd-file-name" style="display:block;color:#f5f6fa;font-size:14px;overflow-wrap:anywhere"></strong><span id="ytd-file-meta" class="ytd-hint"></span></div><span id="ytd-file-source" class="ytd-pill"></span></div>
-  <div class="ytd-inputrow"><select id="ytd-file-quality" class="ytd-input" aria-label="MP4-resolutie"></select><button class="ytd-btn" id="ytd-file-download" type="button">MP4 downloaden ↓</button></div>
+  <div class="ytd-inputrow"><select id="ytd-file-format" class="ytd-input" aria-label="Bestandsformaat"><option value="mp4">MP4-video</option><option value="mp3">MP3-audio</option></select><select id="ytd-file-quality" class="ytd-input" aria-label="MP4-resolutie"></select><button class="ytd-btn" id="ytd-file-download" type="button">MP4 downloaden ↓</button></div>
   <p class="ytd-status" id="ytd-file-status" aria-live="polite"></p>
  </div>
 </section>
@@ -146,8 +146,10 @@
 
  const fileInput=document.getElementById('ytd-file'), fileAnalyze=document.getElementById('ytd-file-analyze');
  const fileError=document.getElementById('ytd-file-error'), fileResult=document.getElementById('ytd-file-result');
- const fileQuality=document.getElementById('ytd-file-quality'), fileDownload=document.getElementById('ytd-file-download');
+ const fileQuality=document.getElementById('ytd-file-quality'), fileFormat=document.getElementById('ytd-file-format'), fileDownload=document.getElementById('ytd-file-download');
  const fileStatus=document.getElementById('ytd-file-status');
+ const syncFileFormat=()=>{const mp4=fileFormat.value==='mp4';fileQuality.style.display=mp4?'':'none';fileDownload.textContent=mp4?'MP4 downloaden ↓':'MP3 downloaden ↓';};
+ fileFormat.addEventListener('change',syncFileFormat);
  let uploadToken=null, uploadBusy=false;
  const fileFail=(message)=>{fileError.textContent=message;fileError.classList.add('show');};
  fileAnalyze.addEventListener('click',async()=>{
@@ -164,30 +166,36 @@
    document.getElementById('ytd-file-name').textContent=data.name||file.name;
    document.getElementById('ytd-file-meta').textContent=data.width&&data.height?data.width+' × '+data.height+' px':'Audiobestand';
    document.getElementById('ytd-file-source').textContent=data.width&&data.height?'BRON '+Math.min(data.width,data.height)+'p':'AUDIO';
-   fileQuality.innerHTML='';
-   (data.qualities||[]).slice().sort((a,b)=>b-a).forEach((q,index)=>{
+   fileQuality.innerHTML='';fileFormat.innerHTML='';
+   const qualities=(data.qualities||[]).slice().sort((a,b)=>b-a), hasVideo=Boolean(data.has_video&&qualities.length), hasAudio=Boolean(data.has_audio);
+   if(!hasVideo&&!hasAudio)throw new Error('Dit bestand bevat geen ondersteunde video- of audiostream.');
+   if(hasVideo){const mp4=document.createElement('option');mp4.value='mp4';mp4.textContent='MP4-video';fileFormat.appendChild(mp4);}
+   if(hasAudio){const mp3=document.createElement('option');mp3.value='mp3';mp3.textContent='MP3-audio';fileFormat.appendChild(mp3);}
+   qualities.forEach((q,index)=>{
     const option=document.createElement('option');option.value=String(q);option.textContent=q+'p MP4'+(index===0?' · hoogste bronkwaliteit':'');fileQuality.appendChild(option);
    });
-   if(!(data.qualities||[]).length)throw new Error('Dit bestand bevat geen videostream met een ondersteunde resolutie.');
-   fileQuality.value=String(Math.max(...data.qualities));
-   fileResult.style.display='block';fileStatus.textContent='Bron gecontroleerd. Hoogste beschikbare resolutie automatisch geselecteerd.';
+   fileFormat.value=hasVideo?'mp4':'mp3';
+   if(qualities.length)fileQuality.value=String(Math.max(...qualities));
+   syncFileFormat();
+   fileResult.style.display='block';fileStatus.textContent=hasVideo?'Bron gecontroleerd. Kies MP4 of MP3 en selecteer de gewenste resolutie.':'Audiobestand herkend. MP3-conversie is beschikbaar.';
   }catch(e){fileFail(e.message||'Analyseren mislukt.');}
   finally{fileAnalyze.disabled=false;fileAnalyze.textContent='Bestand analyseren →';}
  });
  fileDownload.addEventListener('click',async()=>{
   if(!uploadToken||uploadBusy)return;uploadBusy=true;fileDownload.disabled=true;fileDownload.textContent='Converteren…';fileError.classList.remove('show');
   try{
-   const body=new FormData();body.append('_token',csrf);body.append('token',uploadToken);body.append('format','mp4');body.append('quality',fileQuality.value);
-   fileStatus.textContent='MP4 wordt opgebouwd en gecontroleerd…';
+   const format=fileFormat.value||'mp4';
+   const body=new FormData();body.append('_token',csrf);body.append('token',uploadToken);body.append('format',format);if(format==='mp4')body.append('quality',fileQuality.value);
+   fileStatus.textContent=(format==='mp4'?'MP4':'MP3')+' wordt opgebouwd en gecontroleerd…';
    const response=await fetch(@json(route('youtube-downloader.convert')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
-   if(!response.ok){let data={};try{data=await response.json();}catch(_){}throw new Error(data.message||'MP4-conversie mislukt.');}
+   if(!response.ok){let data={};try{data=await response.json();}catch(_){}throw new Error(data.message||'Conversie mislukt.');}
    const blob=await response.blob();if(!blob.size)throw new Error('De server heeft een leeg bestand teruggegeven.');
    const disposition=response.headers.get('Content-Disposition')||'';const match=disposition.match(/filename="?([^";]+)"?/i);
-   const name=match?match[1]:'mashal-studio-'+fileQuality.value+'p.mp4';
+   const name=match?match[1]:(format==='mp3'?'mashal-studio-audio.mp3':'mashal-studio-'+fileQuality.value+'p.mp4');
    const objectUrl=URL.createObjectURL(blob),link=document.createElement('a');link.href=objectUrl;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
-   fileStatus.textContent='Klaar. MP4-bestand is gegenereerd en de download is gestart.';
+   fileStatus.textContent='Klaar. '+format.toUpperCase()+'-bestand is gegenereerd en de download is gestart.';
   }catch(e){fileFail(e.message||'Download mislukt.');fileStatus.textContent='';}
-  finally{uploadBusy=false;fileDownload.disabled=false;fileDownload.textContent='MP4 downloaden ↓';}
+  finally{uploadBusy=false;fileDownload.disabled=false;syncFileFormat();}
  });
 
  let token=null, qualities=[], hasAudio=false, mode='video', busy=false, currentDuration=0, currentViews=null, currentLikes=null, currentComments=null, currentSizes={};
