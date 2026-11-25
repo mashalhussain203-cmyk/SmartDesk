@@ -75,6 +75,10 @@ final class YouTubeDownloaderController extends Controller
                 'duration' => (int) ($details['duration'] ?? 0),
                 'qualities' => $qualities,
                 'has_audio' => $hasAudio,
+                'view_count' => isset($details['view_count']) ? (int) $details['view_count'] : null,
+                'like_count' => isset($details['like_count']) ? (int) $details['like_count'] : null,
+                'comment_count' => isset($details['comment_count']) ? (int) $details['comment_count'] : null,
+                'quality_sizes' => is_array($details['quality_sizes'] ?? null) ? $details['quality_sizes'] : [],
                 'watch_url' => $url,
             ])->header('Cache-Control', 'private, no-store');
         } catch (Throwable $exception) {
