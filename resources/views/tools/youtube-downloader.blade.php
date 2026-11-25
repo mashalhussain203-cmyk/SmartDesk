@@ -225,15 +225,25 @@
    let finished=false;
    for(let i=0;i<180;i++){
     await new Promise(resolve=>setTimeout(resolve,2000));
-    const poll=await fetch(data.status_url,{headers:{'Accept':'application/json'}});
-    const state=await poll.json();
-    if(!poll.ok)throw new Error(state.message||'Downloadstatus kon niet worden opgehaald.');
+    const poll=await fetch(data.status_url,{headers:{'Accept':'application/json'},credentials:'same-origin',cache:'no-store'});
+    let state={};try{state=await poll.json();}catch(_){throw new Error('De server gaf geen geldige downloadstatus terug (HTTP '+poll.status+').');}
+    if(!poll.ok)throw new Error(state.message||'Downloadstatus kon niet worden opgehaald (HTTP '+poll.status+').');
     if(state.status==='failed')throw new Error(state.message||'Download mislukt.');
+    if(state.status==='queued'||state.status==='processing'){
+     status.textContent=state.status==='queued'?'Download staat in de wachtrij…':'Video wordt verwerkt…';
+     document.getElementById('ytd-process').textContent=state.status==='queued'?'Queued…':'Processing…';
+    }
     if(state.status==='ready'&&state.download_url){window.location.assign(state.download_url);status.textContent='Bestand klaar — de download wordt geopend.';document.getElementById('ytd-process').textContent='Ready';finished=true;break;}
    }
    if(!finished)throw new Error('De download duurt te lang. Probeer het opnieuw.');
-  }catch(e){status.textContent='';document.getElementById('ytd-process').textContent='Needs processing';showError(e.message||'Er ging iets mis.');}
-  finally{busy=false;cardDownload.disabled=false;button.textContent='↓ Download';}
+  }catch(e){
+   const message=e&&e.message?e.message:'Download mislukt.';
+   status.textContent=message;
+   document.getElementById('ytd-process').textContent='Download mislukt';
+   showError(message);
+   error.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  finally{busy=false;cardDownload.disabled=false;button.textContent='↓ Opnieuw proberen';}
  }
  form.addEventListener('submit',async e=>{
   e.preventDefault();error.classList.remove('show');result.classList.remove('show');status.textContent='YouTube-formaten ophalen…';submit.disabled=true;submit.textContent='Analyseren…';token=null;
