@@ -269,6 +269,15 @@ def download(url, mode, quality, directory):
                 common["extractor_args"]["youtube"] = {
                     "player_client": clients,
                 }
+                if "web_safari" in clients and mode == "mp4":
+                    # Prefer Safari HLS playlists first: current YouTube PO-token
+                    # guidance notes these HLS GVS streams may be available without
+                    # a GVS token, unlike many direct DASH media URLs.
+                    hls_formats = [
+                        f"bv*[protocol^=m3u8][height={int(quality)}]+ba/b[protocol^=m3u8][height={int(quality)}]",
+                        f"bv*[protocol^=m3u8][height<={int(quality)}]+ba/b[protocol^=m3u8][height<={int(quality)}]",
+                    ]
+                    common["format"] = "/".join(hls_formats + [format_selector])
             try:
                 with yt_dlp.YoutubeDL(common) as ydl:
                     ydl.download([url])
