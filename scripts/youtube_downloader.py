@@ -57,67 +57,38 @@ def write_status(directory, status, **extra):
 def extract_info(url):
     import yt_dlp
 
-    # Use the same PO-token provider during analysis and download.
-    provider_home = None
-    provider_runtime = "deno"
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "noplaylist": True,
+        "skip_download": True,
+        "cachedir": False,
+        "socket_timeout": 25,
+        "retries": 1,
+        "extractor_retries": 1,
+        "ignoreerrors": False,
+        "js_runtimes": {"node": {}} if shutil.which("node") else {},
+        "remote_components": ["ejs:github"],
+    }
     try:
-        provider_home, provider_runtime = ensure_pot_provider()
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+        if isinstance(info, dict):
+            return info
+        raise RuntimeError("YouTube gaf geen videogegevens terug.")
     except Exception as exc:
-        print("[youtube-pot-warning] Provider setup failed during analysis: " + str(exc)[:400], flush=True)
-
-    client_sets = [
-        ["mweb", "tv", "web_safari"],
-        ["mweb", "tv"],
-        ["mweb"],
-        ["web_safari"],
-        None,
-    ]
-    last_error = None
-    for clients in client_sets:
-        opts = {
-            "quiet": True, "no_warnings": True, "noplaylist": True,
-            "skip_download": True, "cachedir": False, "socket_timeout": 25,
-            "retries": 1, "extractor_retries": 1, "ignoreerrors": False,
-            "js_runtimes": {provider_runtime: {}},
-            "remote_components": ["ejs:github"],
-        }
-        extractor_args = {}
-        if provider_home is not None:
-            # Prefer the local HTTP provider, but explicitly configure the
-            # script provider as a fallback because it lives outside the worker's home.
-            extractor_args["youtubepot-bgutilhttp"] = {"base_url": "http://127.0.0.1:4416"}
-            extractor_args["youtubepot-bgutilscript"] = {"server_home": str(provider_home)}
-        if clients:
-            extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
-        if extractor_args:
-            opts["extractor_args"] = extractor_args
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-            if isinstance(info, dict):
-                return info
-            raise RuntimeError("YouTube gaf geen videogegevens terug.")
-        except Exception as exc:
-            last_error = exc
-            message = str(exc).lower()
-            retryable = (
-                "sign in to confirm" in message
-                or "not a bot" in message
-                or "login_required" in message
-                or "403" in message
-                or "forbidden" in message
-                or "no video formats found" in message
-            )
-            if not retryable:
-                raise
-            print(
-                "[youtube-analyze] client="
-                + (",".join(clients) if clients else "yt-dlp-auto")
-                + " failed: " + str(exc)[:260],
-                flush=True,
-            )
-            time.sleep(0.5)
-    raise RuntimeError(str(last_error) if last_error else "YouTube-analyse mislukt.")
+        message = str(exc).lower()
+        if "sign in to confirm" in message or "not a bot" in message or "login_required" in message:
+            raise RuntimeError(
+                "YouTube vereist aanmelding of blokkeert automatische toegang. "
+                "Gebruik YouTube Studio of Google Takeout voor je eigen video's."
+            ) from exc
+        if "403" in message or "forbidden" in message:
+            raise RuntimeError(
+                "YouTube weigert toegang vanaf deze server (HTTP 403). "
+                "Deze video is niet beschikbaar via een toegestane downloadroute."
+            ) from exc
+        raise
 
 def video_heights(info):
     heights = set()
@@ -162,264 +133,118 @@ def estimate_quality_sizes(info):
     return sizes
 
 
-def ensure_pot_provider():
-    """Use the provider prebuilt into the Railway image; never install it during a web request."""
-    import urllib.request
-
-    server = Path("/app/bgutil-ytdlp-pot-provider/server")
-    node_script = server / "build" / "generate_once.js"
-    main_script = server / "build" / "main.js"
-    node = shutil.which("node")
-
-    if not node:
-        raise RuntimeError("Node.js ontbreekt op de downloadserver.")
-    if not (server / "package.json").is_file() or not node_script.is_file() or not main_script.is_file():
-        raise RuntimeError(
-            "De bgutil-provider ontbreekt in de Railway-build. "
-            "Controleer de Railpack-installatiestap voor bgutil-ytdlp-pot-provider."
-        )
-
-    # Confirm the prebuilt script can actually execute before advertising it
-    # to yt-dlp as a token provider.
-    probe = subprocess.run(
-        [node, str(node_script), "--version"],
-        cwd=str(server),
-        capture_output=True,
-        text=True,
-        timeout=30,
-        stdin=subprocess.DEVNULL,
-    )
-    if probe.returncode != 0:
-        raise RuntimeError(
-            "bgutil-scriptprovider kan niet starten: "
-            + (probe.stderr or probe.stdout)[-700:]
-        )
-
-    ping_url = "http://127.0.0.1:4416/ping"
-    server_log = Path("/tmp/youtube-pot-provider-http.log")
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-
-    def provider_is_ready():
-        try:
-            with opener.open(ping_url, timeout=2) as response:
-                return response.status == 200
-        except Exception:
-            return False
-
-    if not provider_is_ready():
-        log_handle = open(server_log, "ab")
-        try:
-            subprocess.Popen(
-                [node, str(main_script), "--port", "4416"],
-                cwd=str(server),
-                stdin=subprocess.DEVNULL,
-                stdout=log_handle,
-                stderr=subprocess.STDOUT,
-                start_new_session=True,
-                close_fds=True,
-            )
-        finally:
-            log_handle.close()
-
-        deadline = time.monotonic() + 15
-        while time.monotonic() < deadline and not provider_is_ready():
-            time.sleep(0.5)
-
-    if provider_is_ready():
-        print("[youtube-pot] bgutil HTTP provider ready: " + ping_url, flush=True)
-    else:
-        # The prebuilt script provider remains usable even if the optional
-        # long-running HTTP daemon cannot bind or remain alive.
-        print(
-            "[youtube-pot-warning] HTTP provider unavailable; using the "
-            "verified script provider at " + str(server),
-            flush=True,
-        )
-
-    return server, "node"
-
-class PotDebugLogger:
-    """Expose only PO-token diagnostics; never log signed media URLs."""
-    def debug(self, message):
-        value = str(message)
-        lowered = value.lower()
-        if "[pot]" in lowered or "generating a " in lowered or "po token providers" in lowered:
-            print("[youtube-pot] " + value, flush=True)
-
-    def info(self, message):
-        value = str(message)
-        if "generating a " in value.lower() or "po token" in value.lower():
-            print("[youtube-pot] " + value, flush=True)
-
-    def warning(self, message):
-        value = str(message)
-        if "provider" in value.lower() or "script" in value.lower() or "token" in value.lower():
-            print("[youtube-pot-warning] " + value[:500], flush=True)
-
-    def error(self, message):
-        print("[youtube-dlp-error] " + str(message)[:500], flush=True)
-
-
 def download(url, mode, quality, directory):
     import yt_dlp
+
     output = str(directory / "source.%(ext)s")
     if mode == "mp3" and not shutil.which("ffmpeg"):
         raise RuntimeError("MP3-conversie vereist FFmpeg, dat niet beschikbaar is.")
 
-    # YouTube can reject one player client's signed media URLs with HTTP 403.
-    # Re-extract formats with alternate public clients and fall back to the
-    # best stream at or below the selected resolution.
     if mode == "mp3":
         formats = ["bestaudio/best"]
     else:
         height = int(quality)
-        # Audio-only formats have no height field. Never apply a height
-        # filter to bestaudio; doing so can hide valid video/audio pairs.
-        # Never fall back to a stream above the resolution the user selected.
-        # The first selector prefers an exact-height video; the second accepts
-        # the best available stream below that ceiling if a player exposes less.
         formats = [
             f"bv*[height={height}]+ba/b[height={height}]",
             f"bv*[height<={height}]+ba/b[height<={height}]",
         ]
 
-    # Activate the bgutil PO-token generation script. The Python plugin is
-    # installed in the same virtualenv as yt-dlp by requirements-tiktok.txt.
-    # Build the provider on the persistent Railway volume when it is missing.
-    provider_home = None
-    provider_runtime = "deno"
-    try:
-        provider_home, provider_runtime = ensure_pot_provider()
-    except Exception as exc:
-        # Keep a normal yt-dlp attempt available if the optional provider cannot
-        # be built (for example, during a temporary GitHub/npm outage).
-        print("[youtube-pot-warning] Provider setup failed: " + str(exc)[:400], flush=True)
-
-    # YouTube exposes different formats and token requirements per player.
-    # Try modern public clients in turn; never use login cookies or private access.
-    client_sets = [["mweb", "tv", "web_safari"], ["mweb", "tv"], ["mweb"], ["web_safari"], None]
     last_error = None
     network_block_error = None
-    last_attempt = "onbekende speler"
+    last_attempt = "onbekend formaat"
     succeeded = False
 
-    for clients in client_sets:
-        for format_selector in formats:
-            last_attempt = "player_client=" + (",".join(clients) if clients else "yt-dlp-auto") + "; format=" + format_selector
-            for old in directory.glob("source.*"):
-                old.unlink(missing_ok=True)
-            common = {
-                "quiet": True, "no_warnings": True, "noplaylist": True,
-                "cachedir": False, "socket_timeout": 45, "retries": 3,
-                "fragment_retries": 5, "extractor_retries": 3,
-                "file_access_retries": 3, "outtmpl": output,
-                "max_filesize": MAX_BYTES, "overwrites": True,
-                "continuedl": False,
-                # Explicitly enable the installed JS runtime and allow the
-                # matching EJS challenge solver. Without this, YouTube signature
-                # solving fails and its media URLs can return HTTP 403.
-                "js_runtimes": {provider_runtime: {}},
-                "remote_components": ["ejs:github"],
-                "verbose": True, "logger": PotDebugLogger(),
-                "format": format_selector,
-            }
-            extractor_args = {}
-            if provider_home is not None:
-                extractor_args["youtubepot-bgutilhttp"] = {
-                    "base_url": "http://127.0.0.1:4416",
-                }
-                # Explicit server_home is required because the provider lives
-                # on Railway's persistent volume rather than the worker's home.
-                extractor_args["youtubepot-bgutilscript"] = {
-                    "server_home": str(provider_home),
-                }
-            if clients:
-                extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
-            if extractor_args:
-                common["extractor_args"] = extractor_args
-            if mode == "mp3":
-                common["postprocessors"] = [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "192",
-                }]
-            else:
-                common["merge_output_format"] = "mp4"
-                common["postprocessors"] = [{
-                    "key": "FFmpegVideoRemuxer",
-                    "preferedformat": "mp4",
-                }]
-            if clients:
-                if "web_safari" in clients and mode == "mp4":
-                    # Prefer Safari HLS playlists first: current YouTube PO-token
-                    # guidance notes these HLS GVS streams may be available without
-                    # a GVS token, unlike many direct DASH media URLs.
-                    hls_formats = [
-                        f"bv*[protocol^=m3u8][height={int(quality)}]+ba/b[protocol^=m3u8][height={int(quality)}]",
-                        f"bv*[protocol^=m3u8][height<={int(quality)}]+ba/b[protocol^=m3u8][height<={int(quality)}]",
-                    ]
-                    common["format"] = "/".join(hls_formats + [format_selector])
-            try:
-                with yt_dlp.YoutubeDL(common) as ydl:
-                    ydl.download([url])
-                # yt-dlp can return without raising even when a media request
-                # was rejected or no usable output was written. Never mark that
-                # attempt as successful unless a real, non-empty media file exists.
-                produced = [
-                    p for p in directory.glob("source.*")
-                    if p.is_file()
-                    and p.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".mp3", ".m4a", ".opus", ".ogg"}
-                    and p.stat().st_size >= 1024
-                ]
-                if not produced:
-                    raise RuntimeError("yt-dlp beëindigde de poging zonder een bruikbaar mediabestand te maken.")
-                succeeded = True
-                break
-            except Exception as exc:
-                last_error = exc
-                message = (repr(exc) + " " + str(exc)).lower()
-                if "403" in message or "forbidden" in message or "sign in to confirm" in message or "not a bot" in message:
-                    network_block_error = exc
-                # A 403 is commonly specific to a player client or format;
-                # try the next public client/format before giving up.
-                bot_challenge = ("sign in to confirm" in message or "not a bot" in message or "confirm you’re not a bot" in message)
-                format_unavailable = (
-                    "requested format is not available" in message
-                    or "no video formats found" in message
-                    or "format is not available" in message
-                    or "requested format not available" in message
-                )
-                # YouTube's UNPLAYABLE response is client-specific in some
-                # cases. Treat this like a player/format mismatch and continue
-                # to the next explicitly selected public client.
-                reload_required = "the page needs to be reloaded" in message
-                # A player client can expose different formats than the analyser.
-                # Continue with the next selector/client if this resolution is absent.
-                if ("403" not in message and "forbidden" not in message
-                        and not bot_challenge and not format_unavailable
-                        and not reload_required):
-                    raise
-                time.sleep(1)
-        if succeeded:
+    for format_selector in formats:
+        last_attempt = format_selector
+        for old in directory.glob("source.*"):
+            old.unlink(missing_ok=True)
+
+        common = {
+            "quiet": True,
+            "no_warnings": True,
+            "noplaylist": True,
+            "cachedir": False,
+            "socket_timeout": 45,
+            "retries": 3,
+            "fragment_retries": 5,
+            "extractor_retries": 3,
+            "file_access_retries": 3,
+            "outtmpl": output,
+            "max_filesize": MAX_BYTES,
+            "overwrites": True,
+            "continuedl": False,
+            "js_runtimes": {"node": {}} if shutil.which("node") else {},
+            "remote_components": ["ejs:github"],
+            "format": format_selector,
+        }
+
+        if mode == "mp3":
+            common["postprocessors"] = [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }]
+        else:
+            common["merge_output_format"] = "mp4"
+            common["postprocessors"] = [{
+                "key": "FFmpegVideoRemuxer",
+                "preferedformat": "mp4",
+            }]
+
+        try:
+            with yt_dlp.YoutubeDL(common) as ydl:
+                ydl.download([url])
+            produced = [
+                p for p in directory.glob("source.*")
+                if p.is_file()
+                and p.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".mp3", ".m4a", ".opus", ".ogg"}
+                and p.stat().st_size >= 1024
+            ]
+            if not produced:
+                raise RuntimeError("yt-dlp beëindigde de poging zonder een bruikbaar mediabestand te maken.")
+            succeeded = True
             break
+        except Exception as exc:
+            last_error = exc
+            message = (repr(exc) + " " + str(exc)).lower()
+            if "403" in message or "forbidden" in message:
+                network_block_error = exc
+            bot_challenge = (
+                "sign in to confirm" in message
+                or "not a bot" in message
+                or "confirm you’re not a bot" in message
+                or "login_required" in message
+            )
+            format_unavailable = (
+                "requested format is not available" in message
+                or "no video formats found" in message
+                or "format is not available" in message
+                or "requested format not available" in message
+            )
+            if not bot_challenge and not format_unavailable and "403" not in message and "forbidden" not in message:
+                raise
+            time.sleep(1)
 
     if not succeeded:
-        # Prefer the original YouTube access denial over a later, less useful
-        # fallback error such as an empty output file.
         effective_error = network_block_error or last_error
-        raw_detail = (str(effective_error) if effective_error else "Geen foutdetails ontvangen.")
+        raw_detail = str(effective_error) if effective_error else "Geen foutdetails ontvangen."
         detail = raw_detail.lower()
-        if "sign in to confirm" in detail or "not a bot" in detail:
-            reason = "YouTube blokkeert deze downloadserver met een botcontrole. Probeer later opnieuw of gebruik een toegestane downloadmethode."
+        if "sign in to confirm" in detail or "not a bot" in detail or "login_required" in detail:
+            reason = (
+                "YouTube vereist aanmelding of blokkeert automatische toegang. "
+                "Gebruik YouTube Studio of Google Takeout voor je eigen video's."
+            )
         elif "403" in detail or "forbidden" in detail:
-            reason = "YouTube weigert de mediastream vanaf de downloadserver (HTTP 403). Dit kan door ontbrekende/ongeldige PO-tokens of een netwerk-/IP-beperking komen; een lagere kwaliteit lost dit niet automatisch op."
+            reason = (
+                "YouTube weigert toegang vanaf deze server (HTTP 403). "
+                "De video is niet beschikbaar via een toegestane downloadroute."
+            )
         elif "requested format is not available" in detail or "no video formats found" in detail:
-            reason = "YouTube heeft voor deze speler geen passende stream aangeboden. Kies een lagere beschikbare kwaliteit of probeer later opnieuw."
+            reason = "Geen passende MP4-stream beschikbaar (" + last_attempt + ")."
         else:
             reason = "Download mislukt (" + last_attempt + "): " + raw_detail[:220]
-        if "requested format is not available" in detail or "no video formats found" in detail:
-            reason = "Geen MP4-stream beschikbaar (" + last_attempt + "). Technische fout: " + raw_detail[:180]
         raise RuntimeError(reason) from last_error
+
 
     extension = "mp3" if mode == "mp3" else "mp4"
     if mode == "mp4":
