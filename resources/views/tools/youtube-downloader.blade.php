@@ -43,6 +43,31 @@
 .ytd-page{background:#f1f0f5;color:#24242a;padding:24px 13px 70px}.ytd-wrap{max-width:760px}.ytd-hero{text-align:left;margin:0 auto 18px}.ytd-hero .ytd-pill{display:none}.ytd-title{font-size:clamp(30px,7vw,44px);color:#24242a;letter-spacing:-.04em}.ytd-title span{background:none;color:inherit}.ytd-sub{color:#62616b}.ytd-panel{background:#fff;color:#25252b;border:0;border-radius:24px;box-shadow:0 8px 30px #20202a0c}.ytd-panel:before{display:none}.ytd-result{border:0;padding:0;margin:0}.yd-card{padding:18px 0 0}.yd-review{display:flex;gap:12px;align-items:center;color:#67666f;font-size:14px;font-weight:600;line-height:1.45;margin:0 0 28px}.yd-video-image{position:relative;overflow:hidden;border-radius:15px;background:#e5e5e8;aspect-ratio:16/9}.yd-video-image img{width:100%;height:100%;object-fit:cover;display:block}.yd-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;background:#0008;font-size:21px}.yd-title{margin:17px 0 18px;color:#17171b;font-size:25px;line-height:1.2;font-weight:850;letter-spacing:-.035em}.yd-stats{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 30px}.yd-stat{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:30px;background:#ededf0;color:#55545c;font-size:13px;font-weight:750}.yd-select-wrap{display:block;position:relative;margin-bottom:13px}.yd-select-wrap select{appearance:none;width:100%;height:78px;padding:0 52px 0 36px;border:0;border-radius:20px;background:#e7e6eb;color:#25252b;font-size:23px;font-weight:800}.yd-chevron{position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:24px;pointer-events:none}.yd-download-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px 25px;border-radius:19px;background:#efeff3}.yd-download-info{display:flex;flex-direction:column;gap:8px;color:#595861;font-size:17px}.yd-process{align-self:flex-start;padding:7px 13px;border-radius:20px;background:#e1e1e7;color:#595963;font-weight:800;font-size:14px}.yd-download{min-width:0;min-height:52px;padding:0 24px;border:0;border-radius:30px;background:#17171b;color:white;font-size:16px;font-weight:800;white-space:nowrap}.yd-another{width:100%;margin-top:31px;min-height:72px;border:0;border-radius:20px;background:#efeff3;color:#17171b;font-size:20px;font-weight:800}.yd-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.yd-howto{margin:24px auto 0;padding:24px;border-radius:24px;background:#fff;color:#202027}.yd-howto h2{margin:0 0 18px;font-size:23px}.yd-howto p{color:#55545c;line-height:1.65}.ytd-info article{background:#fff;border-color:#e6e5eb}.ytd-info strong{color:#24242a}.ytd-info span{color:#666}.ytd-faq details{background:#f8f8fa;border-color:#e6e5eb}.ytd-faq summary{color:#25252b}.ytd-faq p{color:#666}
 @media(max-width:520px){.ytd-page{padding:16px 13px 60px}.ytd-panel{padding:16px;border-radius:23px}.yd-card{padding-top:2px}.yd-title{font-size:24px}.yd-select-wrap select{height:78px;font-size:21px;padding-left:24px}.yd-download-card{padding:15px 17px}.yd-download{padding:0 17px;font-size:15px}.yd-another{min-height:70px;font-size:19px}.yd-stats{gap:7px}.yd-stat{padding:8px 11px}}
 
+
+/* Visibility and contrast fixes for the YTDown-style page */
+.ytd-panel h2{color:#24242a!important}
+.ytd-panel .ytd-pill{color:#6558bd;background:#f2f0ff;border-color:#e3defe}
+.ytd-panel .ytd-pill:before{background:#7868e8;box-shadow:none}
+.ytd-panel .ytd-input{background:#f7f7fa;color:#24242a;border-color:#dedee6}
+.ytd-panel .ytd-input::placeholder{color:#777783}
+.ytd-panel .ytd-utility{background:#f0eff4;color:#33323b;border-color:#dedee6}
+.ytd-panel .ytd-hint{color:#666672}
+.ytd-panel .ytd-sub{color:#666672}
+.ytd-panel .ytd-error.show{background:#fff0f1;color:#a51e2b;border-color:#f1c8cc}
+.ytd-panel .ytd-status{color:#55545f}
+.ytd-panel .yd-download-card{background:#efeff3}
+.ytd-panel .yd-download-info{color:#4b4a53}
+.ytd-panel .yd-process{background:#e0e0e7;color:#4d4c56}
+.ytd-panel .yd-download{background:#17171b;color:#fff}
+.ytd-panel .yd-another{background:#efeff3;color:#17171b}
+.ytd-panel .ytd-result{color:#25252b}
+.ytd-panel .yd-title{color:#17171b!important}
+.ytd-panel .ytd-faq summary{color:#25252b}
+.ytd-panel .ytd-faq p{color:#666}
+.ytd-panel .ytd-info strong{color:#25252b}
+.ytd-panel .ytd-info span{color:#666}
+@media(max-width:620px){.yd-sitebar{position:relative}.yd-tools{font-size:14px}}
+
 </style>
 @endpush
 
