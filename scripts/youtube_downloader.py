@@ -257,11 +257,11 @@ def download(url, mode, quality, directory):
             # Install and invoke the matching bgutil script provider so yt-dlp
             # can request GVS PO tokens where YouTube requires them.
             common["extractor_args"] = {
-                # v2.0.2 uses the youtube-bgutilscript namespace for script mode.
-                # The youtubepot-bgutilscript namespace is for the HTTP provider
-                # and older plugin variants; using it here silently disables
-                # script token generation.
-                "youtube-bgutilscript": {
+                # The bgutil script provider's documented extractor namespace
+                # includes "pot". Without this exact key, yt-dlp silently ignores
+                # server_home and may request YouTube media without the generated
+                # GVS PO token, resulting in HTTP 403 responses.
+                "youtubepot-bgutilscript": {
                     "server_home": str(provider_server),
                 },
             }
