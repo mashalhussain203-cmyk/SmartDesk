@@ -171,7 +171,15 @@ final class YouTubeDownloaderController extends Controller
         $payload = ['status' => $status];
         if ($status === 'failed') {
             $payload['message'] = (string) ($state['message'] ?? 'Download mislukt. Probeer het opnieuw.');
-            Log::warning('YouTube downloader worker failed', ['detail' => mb_substr((string) ($state['detail'] ?? ''), 0, 350)]);
+            $workerLog = $directory.'/worker.log';
+            $diagnostics = is_file($workerLog) ? (string) File::get($workerLog) : '';
+            // Keep useful yt-dlp/provider diagnostics, but never write signed media URLs or query tokens to application logs.
+            $diagnostics = preg_replace('~https?://[^\\s]+~i', '[redacted-url]', $diagnostics) ?? '';
+            $diagnosticLines = array_slice(preg_split('/\\R/', $diagnostics) ?: [], -100);
+            Log::warning('YouTube downloader worker failed', [
+                'detail' => mb_substr((string) ($state['detail'] ?? ''), 0, 350),
+                'worker_diagnostics' => mb_substr(implode("\\n", $diagnosticLines), 0, 12000),
+            ]);
         } elseif ($status === 'ready' && $this->validOutputFile($directory, $state, $record['format'])) {
             $payload['download_url'] = route('youtube-downloader.download', ['token' => $token]);
         } elseif ($status === 'ready') {
