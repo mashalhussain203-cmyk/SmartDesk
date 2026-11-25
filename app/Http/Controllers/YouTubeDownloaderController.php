@@ -60,6 +60,9 @@ final class YouTubeDownloaderController extends Controller
                 'url' => $url,
                 'qualities' => $qualities,
                 'has_audio' => $hasAudio,
+                'view_count' => isset($details['view_count']) ? (int) $details['view_count'] : null,
+                'like_count' => isset($details['like_count']) ? (int) $details['like_count'] : null,
+                'comment_count' => isset($details['comment_count']) ? (int) $details['comment_count'] : null,
                 'expires_at' => time() + self::EXPIRES_AFTER,
             ]);
 
