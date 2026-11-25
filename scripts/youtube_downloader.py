@@ -83,7 +83,10 @@ def extract_info(url):
         }
         extractor_args = {}
         if provider_home is not None:
+            # Prefer the local HTTP provider, but explicitly configure the
+            # script provider as a fallback because it lives outside the worker's home.
             extractor_args["youtubepot-bgutilhttp"] = {"base_url": "http://127.0.0.1:4416"}
+            extractor_args["youtubepot-bgutilscript"] = {"server_home": str(provider_home)}
         if clients:
             extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
         if extractor_args:
@@ -357,6 +360,11 @@ def download(url, mode, quality, directory):
             if provider_home is not None:
                 extractor_args["youtubepot-bgutilhttp"] = {
                     "base_url": "http://127.0.0.1:4416",
+                }
+                # Explicit server_home is required because the provider lives
+                # on Railway's persistent volume rather than the worker's home.
+                extractor_args["youtubepot-bgutilscript"] = {
+                    "server_home": str(provider_home),
                 }
             if clients:
                 extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
