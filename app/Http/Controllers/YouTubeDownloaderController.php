@@ -297,7 +297,7 @@ final class YouTubeDownloaderController extends Controller
                 if ($process->isSuccessful()) {
                     return $candidate;
                 }
-            } catch (Throwable $exception) {
+            } catch (\\Throwable $exception) {
                 // Try the next installed interpreter; do not break the page.
             }
         }
