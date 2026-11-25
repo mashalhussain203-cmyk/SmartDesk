@@ -9,7 +9,7 @@
       "commands": [
         "...",
         "python3 -m pip install --disable-pip-version-check --no-cache-dir --target /app/.tiktok-python -r requirements-tiktok.txt",
-        "PYTHONPATH=/app/.tiktok-python python3 -c 'import yt_dlp' && php -l /app/app/Http/Controllers/YouTubeDownloaderController.php && python3 -m py_compile /app/scripts/youtube_downloader.py"
+        "PYTHONPATH=/app/.tiktok-python python3 -m yt_dlp --version && php -l /app/app/Http/Controllers/YouTubeDownloaderController.php && python3 -m py_compile /app/scripts/youtube_downloader.py"
       ]
     }
   },
