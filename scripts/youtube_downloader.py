@@ -56,21 +56,56 @@ def write_status(directory, status, **extra):
 
 def extract_info(url):
     import yt_dlp
-    opts = {
-        "quiet": True, "no_warnings": True, "noplaylist": True,
-        "skip_download": True, "cachedir": False, "socket_timeout": 20,
-        "retries": 1, "extractor_retries": 1, "ignoreerrors": False,
-        # Railway has Node 24 installed; explicitly enable it because yt-dlp
-        # enables Deno by default, which is absent in this container.
-        "js_runtimes": {"node": {}},
-        # Permit yt-dlp to fetch the matching YouTube EJS challenge solver.
-        "remote_components": ["ejs:github"],
-    }
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-    if not isinstance(info, dict):
-        raise RuntimeError("YouTube gaf geen videogegevens terug.")
-    return info
+
+    # YouTube may reject the default web client on datacenter IPs before
+    # returning formats. Try the supported public clients used by yt-dlp's
+    # PO-token guidance, rather than making analysis use a different path
+    # from the downloader.
+    client_sets = [
+        ["mweb", "tv", "web_safari"],
+        ["mweb", "tv"],
+        ["mweb"],
+        ["web_safari"],
+        None,
+    ]
+    last_error = None
+    for clients in client_sets:
+        opts = {
+            "quiet": True, "no_warnings": True, "noplaylist": True,
+            "skip_download": True, "cachedir": False, "socket_timeout": 25,
+            "retries": 1, "extractor_retries": 1, "ignoreerrors": False,
+            "js_runtimes": {"node": {}},
+            "remote_components": ["ejs:github"],
+        }
+        if clients:
+            opts["extractor_args"] = {"youtube": {"player_client": clients}}
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+            if isinstance(info, dict):
+                return info
+            raise RuntimeError("YouTube gaf geen videogegevens terug.")
+        except Exception as exc:
+            last_error = exc
+            message = str(exc).lower()
+            retryable = (
+                "sign in to confirm" in message
+                or "not a bot" in message
+                or "login_required" in message
+                or "403" in message
+                or "forbidden" in message
+                or "no video formats found" in message
+            )
+            if not retryable:
+                raise
+            print(
+                "[youtube-analyze] client="
+                + (",".join(clients) if clients else "yt-dlp-auto")
+                + " failed: " + str(exc)[:260],
+                flush=True,
+            )
+            time.sleep(0.5)
+    raise RuntimeError(str(last_error) if last_error else "YouTube-analyse mislukt.")
 
 
 def video_heights(info):
