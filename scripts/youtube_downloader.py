@@ -262,6 +262,7 @@ def download(url, mode, quality, directory):
     # Try modern public clients in turn; never use login cookies or private access.
     client_sets = [["mweb", "tv", "web_safari"], ["mweb", "tv"], ["mweb"], ["web_safari"], None]
     last_error = None
+    network_block_error = None
     last_attempt = "onbekende speler"
     succeeded = False
 
@@ -319,11 +320,24 @@ def download(url, mode, quality, directory):
             try:
                 with yt_dlp.YoutubeDL(common) as ydl:
                     ydl.download([url])
+                # yt-dlp can return without raising even when a media request
+                # was rejected or no usable output was written. Never mark that
+                # attempt as successful unless a real, non-empty media file exists.
+                produced = [
+                    p for p in directory.glob("source.*")
+                    if p.is_file()
+                    and p.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".mp3", ".m4a", ".opus", ".ogg"}
+                    and p.stat().st_size >= 1024
+                ]
+                if not produced:
+                    raise RuntimeError("yt-dlp beëindigde de poging zonder een bruikbaar mediabestand te maken.")
                 succeeded = True
                 break
             except Exception as exc:
                 last_error = exc
                 message = (repr(exc) + " " + str(exc)).lower()
+                if "403" in message or "forbidden" in message or "sign in to confirm" in message or "not a bot" in message:
+                    network_block_error = exc
                 # A 403 is commonly specific to a player client or format;
                 # try the next public client/format before giving up.
                 bot_challenge = ("sign in to confirm" in message or "not a bot" in message or "confirm you’re not a bot" in message)
@@ -348,7 +362,10 @@ def download(url, mode, quality, directory):
             break
 
     if not succeeded:
-        raw_detail = (str(last_error) if last_error else "Geen foutdetails ontvangen.")
+        # Prefer the original YouTube access denial over a later, less useful
+        # fallback error such as an empty output file.
+        effective_error = network_block_error or last_error
+        raw_detail = (str(effective_error) if effective_error else "Geen foutdetails ontvangen.")
         detail = raw_detail.lower()
         if "sign in to confirm" in detail or "not a bot" in detail:
             reason = "YouTube blokkeert deze downloadserver met een botcontrole. Probeer later opnieuw of gebruik een toegestane downloadmethode."
