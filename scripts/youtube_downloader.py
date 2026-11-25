@@ -89,6 +89,28 @@ def video_heights(info):
 
 
 
+
+def estimate_quality_sizes(info):
+    sizes = {}
+    formats = [f for f in (info.get("formats") or []) if isinstance(f, dict)]
+    audio_sizes = [int(f.get("filesize") or f.get("filesize_approx") or 0) for f in formats
+                   if f.get("vcodec") in (None, "none") and f.get("acodec") not in (None, "none")]
+    audio_size = max(audio_sizes, default=0)
+    for height in {int(f.get("height") or 0) for f in formats if f.get("vcodec") not in (None, "none")}:
+        candidates = [f for f in formats if int(f.get("height") or 0) == height and f.get("vcodec") not in (None, "none")]
+        if not candidates:
+            continue
+        chosen = max(candidates, key=lambda f: int(f.get("filesize") or f.get("filesize_approx") or 0))
+        size = int(chosen.get("filesize") or chosen.get("filesize_approx") or 0)
+        approximate = chosen.get("filesize") is None
+        if chosen.get("acodec") in (None, "none") and audio_size:
+            size += audio_size
+            approximate = True
+        if size > 0:
+            sizes[str(height)] = {"bytes": size, "approx": approximate}
+    return sizes
+
+
 def ensure_pot_provider():
     """Install and compile bgutil's Node script provider on the persistent volume."""
     import fcntl
@@ -360,6 +382,7 @@ def main():
                 "view_count": info.get("view_count"),
                 "like_count": info.get("like_count"),
                 "comment_count": info.get("comment_count"),
+                "quality_sizes": estimate_quality_sizes(info),
             })
             return 0
 
