@@ -36,13 +36,20 @@ final class YouTubeDownloaderController extends Controller
             $details = json_decode(trim($process->getOutput()), true);
 
             if (! $process->isSuccessful() || ! is_array($details) || ! ($details['success'] ?? false)) {
+                $stdout = trim($process->getOutput());
+                $stderr = trim($process->getErrorOutput());
                 Log::warning('YouTube downloader analysis unavailable', [
-                    'error' => mb_substr($process->getErrorOutput(), 0, 500),
+                    'error' => mb_substr($stderr, 0, 700),
+                    'stdout_preview' => mb_substr($stdout, 0, 500),
+                    'stdout_bytes' => strlen($stdout),
                     'exit' => $process->getExitCode(),
                 ]);
-                return response()->json([
-                    'message' => is_array($details) ? (string) ($details['message'] ?? 'YouTube kon geen downloadgegevens teruggeven.') : 'YouTube kon deze video niet analyseren. Controleer of de video openbaar en beschikbaar is.',
-                ], 422);
+                $message = is_array($details)
+                    ? (string) ($details['message'] ?? 'YouTube kon geen downloadgegevens teruggeven.')
+                    : ($stdout === ''
+                        ? 'De YouTube-worker stopte zonder resultaat. De server heeft de foutdetails vastgelegd; probeer het over een minuut opnieuw.'
+                        : 'YouTube gaf een ongeldig analyseresultaat terug. Probeer het later opnieuw.');
+                return response()->json(['message' => $message], 422);
             }
 
             $qualities = array_values(array_unique(array_filter(
