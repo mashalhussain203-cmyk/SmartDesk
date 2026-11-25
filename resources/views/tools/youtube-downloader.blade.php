@@ -30,6 +30,7 @@
 @media(max-width:620px){.ytd-page{padding:30px 13px 65px}.ytd-inputrow{flex-direction:column}.ytd-btn{width:100%}.ytd-videohead{align-items:flex-start}.ytd-thumb{width:100%;flex:0 0 auto}.ytd-videohead h3{font-size:14px}.ytd-info{grid-template-columns:1fr;gap:9px}.ytd-info article{min-height:0;padding:13px}.ytd-tabs{display:grid;grid-template-columns:1fr 1fr}.ytd-tab{padding:0 9px}.ytd-table th,.ytd-table td{padding:11px 9px;font-size:11px}.ytd-download{min-width:94px;min-height:36px;padding:0 9px;font-size:10px}.ytd-table td:nth-child(2){font-size:10px}}
 @media(prefers-reduced-motion:reduce){.ytd-status:not(:empty):before{animation:none}.ytd-btn,.ytd-download{transition:none}}
 
+.ytd-faq{display:grid;gap:9px}.ytd-faq details{padding:14px 16px;border:1px solid rgba(255,255,255,.09);border-radius:13px;background:rgba(7,9,14,.55)}.ytd-faq summary{color:#e8eaf1;font-size:13px;font-weight:750;cursor:pointer}.ytd-faq p{margin:10px 0 0;color:#929baa;font-size:12px;line-height:1.7}
 /* Final YTDown-style result layout overrides */
 .ytd-result-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:18px;align-items:start}.ytd-preview-panel,.ytd-format-panel{min-width:0;padding:16px;border:1px solid rgba(255,255,255,.085);border-radius:18px;background:linear-gradient(145deg,rgba(17,20,28,.86),rgba(8,10,15,.92))}.ytd-preview-panel .ytd-videohead{display:block;margin:0}.ytd-preview-panel .ytd-thumb{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}.ytd-video-meta{padding:15px 2px 2px}.ytd-video-meta h3{font-size:16px}.ytd-format-panel .ytd-tabs{margin:0 0 13px}.ytd-format-panel .ytd-table-wrap{margin-top:12px}.ytd-format-panel .ytd-table th,.ytd-format-panel .ytd-table td{padding:12px 10px}.ytd-format-panel .ytd-status:not(:empty){padding:12px 13px;border:1px solid rgba(143,130,255,.16);border-radius:12px;background:rgba(143,130,255,.055)}
 @media(max-width:760px){.ytd-result-grid{grid-template-columns:1fr}.ytd-preview-panel,.ytd-format-panel{padding:13px}}
@@ -67,6 +68,26 @@
   <div class="ytd-inputrow"><select id="ytd-file-quality" class="ytd-input" aria-label="MP4-resolutie"></select><button class="ytd-btn" id="ytd-file-download" type="button">MP4 downloaden ↓</button></div>
   <p class="ytd-status" id="ytd-file-status" aria-live="polite"></p>
  </div>
+</section>
+<section class="ytd-panel" style="margin:22px auto 0" aria-label="Downloader informatie">
+ <div class="ytd-pill">YTDOWN-STYLE · NOTICES</div>
+ <h2 style="margin:13px 0 9px;color:#f5f6fa;font-size:clamp(21px,4vw,29px)">Best YouTube Downloader</h2>
+ <p class="ytd-sub" style="text-align:left;margin:0">Mashal Studio biedt een eenvoudige downloader-interface voor video’s en audio. Plak een link, controleer de beschikbare formaten en kies zelf de kwaliteit. De werkelijke opties zijn afhankelijk van de bron en de technische beschikbaarheid.</p>
+ <div class="ytd-info" style="margin-top:18px">
+  <article><strong>Fast and simple</strong><span>Geen account of aparte software nodig om de link te analyseren.</span></article>
+  <article><strong>Android and iOS</strong><span>De pagina past zich aan mobiele telefoons, tablets en desktop aan.</span></article>
+  <article><strong>HD video options</strong><span>Beschikbare resoluties worden uit de broninformatie gelezen; niet iedere video biedt dezelfde kwaliteit.</span></article>
+ </div>
+ <h3 style="margin:25px 0 12px;color:#f5f6fa;font-size:18px">Frequently Asked Questions</h3>
+ <div class="ytd-faq">
+  <details><summary>Where are downloads saved?</summary><p>Downloads worden doorgaans opgeslagen in de standaard Downloads-map van je browser of apparaat. Op iPhone kun je ze terugvinden in Bestanden, afhankelijk van je browserinstellingen.</p></details>
+  <details><summary>How do I download audio?</summary><p>Plak de link, druk op Download en kies daarna Audio (MP3), als de bron een geschikte audiostream aanbiedt.</p></details>
+  <details><summary>How long does processing take?</summary><p>Dat hangt af van de lengte, kwaliteit, bestandsgrootte en de bereikbaarheid van de bron. De voortgang verschijnt tijdens de verwerking.</p></details>
+  <details><summary>Why is a video or quality unavailable?</summary><p>Niet elke video biedt dezelfde formaten. Leeftijdsbeperkingen, privacy-instellingen, regiobeperkingen, auteursrechtelijke beperkingen of weigering door de bron kunnen downloads verhinderen.</p></details>
+  <details><summary>Can I use this on iPhone or Android?</summary><p>Ja, de interface is responsive. De browser bepaalt hoe het bestand na een succesvolle download wordt opgeslagen.</p></details>
+ </div>
+ <h3 style="margin:25px 0 10px;color:#f5f6fa;font-size:18px">Notices</h3>
+ <p class="ytd-hint" style="margin:0">Mashal Studio is geen onderdeel van YouTube en wordt niet door YouTube onderschreven. Download alleen materiaal dat van jou is of waarvoor je toestemming hebt. Auteursrechtelijk beschermde content waarvoor je geen toestemming hebt, is niet bedoeld om via deze tool te downloaden. De gebruiker is verantwoordelijk voor naleving van toepasselijke wetgeving en platformvoorwaarden.</p>
 </section>
 <p class="ytd-note">Gebruik downloads alleen voor content die van jou is of waarvoor je toestemming hebt. Privévideo’s, DRM en accountbeperkingen worden niet omzeild. Beschikbaarheid kan veranderen door YouTube.</p>
 </div></main>
