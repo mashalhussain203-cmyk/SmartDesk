@@ -160,73 +160,78 @@ def estimate_quality_sizes(info):
 
 
 def ensure_pot_provider():
-    """Install bgutil's generation script using Node or Deno on Railway."""
+    """Build and verify the bgutil script provider on the persistent Railway volume."""
     import fcntl
 
     home = Path("/app/storage/app/private/youtube-pot-provider")
     server = home / "server"
     node_script = server / "build" / "generate_once.js"
-    deno_script = server / "src" / "generate_once.ts"
     lock_path = home.parent / ".youtube-pot-provider.lock"
     lock_path.parent.mkdir(parents=True, exist_ok=True)
 
     node = shutil.which("node")
     npm = shutil.which("npm")
-    deno = shutil.which("deno")
     git = shutil.which("git")
-    if not (node and npm) and not deno:
-        raise RuntimeError("Voor de YouTube-tokenprovider is Node.js + npm of Deno 2+ vereist.")
-    if not git:
-        raise RuntimeError("Git ontbreekt op de downloadserver; de YouTube-tokenprovider kan niet worden geïnstalleerd.")
+    if not node or not npm or not git:
+        raise RuntimeError(
+            "YouTube-tokenprovider vereist Node.js, npm en Git; "
+            f"gevonden: node={bool(node)}, npm={bool(npm)}, git={bool(git)}"
+        )
 
     with open(lock_path, "w", encoding="utf-8") as lock_file:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-        if not (node_script.is_file() or deno_script.is_file()):
-            if home.exists():
-                shutil.rmtree(home)
-            result = subprocess.run(
-                [git, "clone", "--depth", "1", "--branch", "2.0.2",
-                 "https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git", str(home)],
-                capture_output=True, text=True, timeout=180,
-            )
-            if result.returncode != 0:
-                raise RuntimeError("YouTube-tokenprovider downloaden mislukt: " + (result.stderr or result.stdout)[-500:])
-
-        if node and npm:
-            if not (server / "node_modules").is_dir():
+        try:
+            package_json = server / "package.json"
+            lock_json = server / "package-lock.json"
+            if not (package_json.is_file() and lock_json.is_file()):
+                if home.exists():
+                    shutil.rmtree(home)
                 result = subprocess.run(
-                    [npm, "ci"], cwd=str(server),
-                    capture_output=True, text=True, timeout=420,
+                    [git, "clone", "--depth", "1", "--branch", "2.0.2",
+                     "https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git", str(home)],
+                    capture_output=True, text=True, timeout=180,
                 )
                 if result.returncode != 0:
-                    raise RuntimeError("YouTube-tokenprovider installeren mislukt: " + (result.stderr or result.stdout)[-500:])
-            if not node_script.is_file():
+                    raise RuntimeError("Provider clone mislukt: " + (result.stderr or result.stdout)[-700:])
+
+            # Railway sets NODE_ENV=production. npm ci then omits TypeScript,
+            # which is a devDependency needed to create generate_once.js.
+            if not (server / "node_modules" / ".bin" / "tsc").exists():
                 result = subprocess.run(
-                    [npm, "exec", "--", "tsc"], cwd=str(server),
+                    [npm, "ci", "--include=dev", "--no-audit", "--no-fund"],
+                    cwd=str(server), capture_output=True, text=True, timeout=600,
+                    env={**os.environ, "NODE_ENV": "development"},
+                )
+                if result.returncode != 0:
+                    raise RuntimeError("Provider npm-install mislukt: " + (result.stderr or result.stdout)[-900:])
+
+            if not node_script.is_file():
+                tsc = server / "node_modules" / ".bin" / "tsc"
+                if not tsc.exists():
+                    raise RuntimeError("TypeScript compiler ontbreekt na npm ci --include=dev.")
+                result = subprocess.run(
+                    [str(tsc), "-p", "tsconfig.json"], cwd=str(server),
                     capture_output=True, text=True, timeout=300,
                 )
                 if result.returncode != 0:
-                    raise RuntimeError("YouTube-tokenprovider compileren mislukt: " + (result.stderr or result.stdout)[-500:])
+                    raise RuntimeError("Provider TypeScript-build mislukt: " + (result.stderr or result.stdout)[-900:])
+
             if not node_script.is_file():
-                raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: generate_once.js ontbreekt.")
-            runtime = "node"
-        else:
-            # Railway nixpacks.toml already provisions Deno. Use it instead of
-            # silently falling back to the unreachable default HTTP endpoint.
-            if not (server / "node_modules").is_dir():
-                result = subprocess.run(
-                    [deno, "install", "--allow-scripts=npm:canvas", "--frozen"],
-                    cwd=str(server), capture_output=True, text=True, timeout=420,
-                )
-                if result.returncode != 0:
-                    raise RuntimeError("YouTube-tokenprovider installeren met Deno mislukt: " + (result.stderr or result.stdout)[-500:])
-            if not deno_script.is_file():
-                raise RuntimeError("YouTube-tokenprovider is niet correct gebouwd: src/generate_once.ts ontbreekt.")
-            runtime = "deno"
+                raise RuntimeError("Provider-build mist server/build/generate_once.js.")
 
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            # yt-dlp marks the provider unavailable if this version probe fails.
+            probe = subprocess.run(
+                [node, str(node_script), "--version"], cwd=str(server),
+                capture_output=True, text=True, timeout=30,
+                stdin=subprocess.DEVNULL,
+            )
+            if probe.returncode != 0:
+                raise RuntimeError("Provider --version-controle mislukt: " + (probe.stderr or probe.stdout)[-700:])
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
-    return server, runtime
+    print("[youtube-pot] bgutil script-node provider ready: " + (probe.stdout.strip() or "version verified"), flush=True)
+    return server, "node"
 
 class PotDebugLogger:
     """Expose only PO-token diagnostics; never log signed media URLs."""
