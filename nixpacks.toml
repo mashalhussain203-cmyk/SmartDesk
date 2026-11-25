@@ -1,8 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "python313", "chromium", "ffmpeg", "git"]
+nixPkgs = ["...", "chromium", "ffmpeg", "git"]
 
-[phases.install]
-cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt"]
-
-[variables]
-TIKTOK_PYTHON = "/opt/tiktok-venv/bin/python"
+# Python dependencies are installed once by railpack.json into
+# /app/.tiktok-python. Do not create a second, conflicting virtualenv here.
