@@ -64,7 +64,7 @@ def extract_info(url):
         # enables Deno by default, which is absent in this container.
         "js_runtimes": {"node": {}},
         # Permit yt-dlp to fetch the matching YouTube EJS challenge solver.
-        "remote_components": ["ejs:github"],
+        "remote_components": ["ejs:npm"],
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -192,7 +192,6 @@ class PotDebugLogger:
 def download(url, mode, quality, directory):
     import yt_dlp
     output = str(directory / "source.%(ext)s")
-    provider_server = ensure_pot_provider()
     if mode == "mp3" and not shutil.which("ffmpeg"):
         raise RuntimeError("MP3-conversie vereist FFmpeg, dat niet beschikbaar is.")
 
@@ -213,20 +212,9 @@ def download(url, mode, quality, directory):
             f"bv*[height<={height}]+ba/b[height<={height}]",
         ]
 
-    # YouTube's current yt-dlp PO Token guide recommends mweb with a
-    # provider-generated GVS token. The previous deployment never tried mweb,
-    # so its configured bgutil provider could not help the first attempts.
-    # Keep each strategy isolated: web_embedded only exposes videos that allow
-    # embedding, while web_safari can expose HLS formats. The final None lets
-    # the installed yt-dlp release choose its maintained default clients.
-    client_sets = [
-        ["mweb"],
-        ["mweb", "web_safari"],
-        ["web_safari"],
-        ["android_vr"],
-        ["default"],
-        None,
-    ]
+    # Avoid the intermittent invalid playback tokens reported for bgutil.
+    # Let the installed yt-dlp release choose its maintained default clients.
+    client_sets = [None]
     last_error = None
     last_attempt = "onbekende speler"
     succeeded = False
@@ -247,7 +235,7 @@ def download(url, mode, quality, directory):
                 # matching EJS challenge solver. Without this, YouTube signature
                 # solving fails and its media URLs can return HTTP 403.
                 "js_runtimes": {"node": {}},
-                "remote_components": ["ejs:github"],
+                "remote_components": ["ejs:npm"],
                 "verbose": True, "logger": PotDebugLogger(),
                 "format": format_selector,
             }
@@ -263,22 +251,8 @@ def download(url, mode, quality, directory):
                     "key": "FFmpegVideoRemuxer",
                     "preferedformat": "mp4",
                 }]
-            # The provider directory is persisted on Railway's mounted volume.
-            # Install and invoke the matching bgutil script provider so yt-dlp
-            # can request GVS PO tokens where YouTube requires them.
-            common["extractor_args"] = {
-                # The bgutil script provider's documented extractor namespace
-                # includes "pot". Without this exact key, yt-dlp silently ignores
-                # server_home and may request YouTube media without the generated
-                # GVS PO token, resulting in HTTP 403 responses.
-                "youtubepot-bgutilscript": {
-                    "server_home": str(provider_server),
-                },
-            }
             if clients:
-                common["extractor_args"]["youtube"] = {
-                    "player_client": clients,
-                }
+                common["extractor_args"] = {"youtube": {"player_client": clients}}
                 if "web_safari" in clients and mode == "mp4":
                     # Prefer Safari HLS playlists first: current YouTube PO-token
                     # guidance notes these HLS GVS streams may be available without
