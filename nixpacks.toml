@@ -2,7 +2,7 @@
 nixPkgs = ["...", "python313", "chromium", "ffmpeg", "git"]
 
 [phases.install]
-cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt", "git clone --depth 1 --branch 2.0.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /app/bgutil-ytdlp-pot-provider && cd /app/bgutil-ytdlp-pot-provider/server && deno install --allow-scripts=npm:canvas --frozen"]
+cmds = ["...", "python3 -m venv /opt/tiktok-venv && /opt/tiktok-venv/bin/pip install --no-cache-dir -r requirements-tiktok.txt"]
 
 [variables]
 TIKTOK_PYTHON = "/opt/tiktok-venv/bin/python"
