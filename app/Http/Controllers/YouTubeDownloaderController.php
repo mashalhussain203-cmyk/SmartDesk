@@ -275,12 +275,15 @@ final class YouTubeDownloaderController extends Controller
         // Railway variables can override
         // TIKTOK_PYTHON, so validate candidates instead of trusting the first path.
         $configured = trim((string) env('TIKTOK_PYTHON', ''));
+        // Railpack installs yt-dlp into /app/.tiktok-python and exposes it
+        // through PYTHONPATH. Prefer the same system Python used by the build,
+        // otherwise a stale Nixpacks virtualenv can shadow the working runtime.
         $candidates = array_values(array_unique(array_filter([
-            '/opt/tiktok-venv/bin/python',
+            'python3',
+            $configured,
             base_path('.venv/bin/python'),
             base_path('.tiktok-python/bin/python'),
-            $configured,
-            'python3',
+            '/opt/tiktok-venv/bin/python',
         ])));
 
         $probe = 'import yt_dlp';
