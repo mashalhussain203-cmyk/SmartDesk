@@ -10,7 +10,14 @@ subprocess.run(["node", "--check", str(provider_script)], check=True)
 env = dict(__import__("os").environ)
 env["PYTHONPATH"] = "/app/.tiktok-python"
 subprocess.run(
-    [sys.executable, "-c", "import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutil_script; print('bgutil PO-token plugin loaded')"],
+    [sys.executable, "-c",
+     "import sys; sys.path.insert(0, '/app/scripts'); "
+     "from youtube_downloader import pot_extractor_args; "
+     "a=pot_extractor_args(); "
+     "assert a['youtube']['player_client'] == ['mweb']; "
+     "assert a['youtubepot-bgutilscript']['server_home'] == "
+     "['/app/bgutil-ytdlp-pot-provider/server']; "
+     "print('bgutil provider wired into yt-dlp options')"],
     check=True,
     env=env,
 )
