@@ -212,9 +212,20 @@ def download(url, mode, quality, directory):
             f"bv*[height<={height}]+ba/b[height<={height}]",
         ]
 
-    # Avoid the intermittent invalid playback tokens reported for bgutil.
-    # Let the installed yt-dlp release choose its maintained default clients.
-    client_sets = [None]
+    # Activate the bgutil PO-token generation script. The Python plugin is
+    # installed in the same virtualenv as yt-dlp by requirements-tiktok.txt.
+    # Build the provider on the persistent Railway volume when it is missing.
+    provider_home = None
+    try:
+        provider_home = ensure_pot_provider()
+    except Exception as exc:
+        # Keep a normal yt-dlp attempt available if the optional provider cannot
+        # be built (for example, during a temporary GitHub/npm outage).
+        print("[youtube-pot-warning] Provider setup failed: " + str(exc)[:400], flush=True)
+
+    # YouTube exposes different formats and token requirements per player.
+    # Try modern public clients in turn; never use login cookies or private access.
+    client_sets = [["mweb", "tv", "web_safari"], ["mweb", "tv"], ["mweb"], ["web_safari"], None]
     last_error = None
     last_attempt = "onbekende speler"
     succeeded = False
@@ -239,6 +250,15 @@ def download(url, mode, quality, directory):
                 "verbose": True, "logger": PotDebugLogger(),
                 "format": format_selector,
             }
+            extractor_args = {}
+            if provider_home is not None:
+                extractor_args["youtubepot-bgutilscript"] = {
+                    "server_home": str(provider_home),
+                }
+            if clients:
+                extractor_args["youtube"] = {"player_client": clients}
+            if extractor_args:
+                common["extractor_args"] = extractor_args
             if mode == "mp3":
                 common["postprocessors"] = [{
                     "key": "FFmpegExtractAudio",
@@ -252,7 +272,6 @@ def download(url, mode, quality, directory):
                     "preferedformat": "mp4",
                 }]
             if clients:
-                common["extractor_args"] = {"youtube": {"player_client": clients}}
                 if "web_safari" in clients and mode == "mp4":
                     # Prefer Safari HLS playlists first: current YouTube PO-token
                     # guidance notes these HLS GVS streams may be available without
