@@ -272,9 +272,40 @@ final class YouTubeDownloaderController extends Controller
 
     private function python(): string
     {
-        $project = base_path('.venv/bin/python');
-        $configured = (string) env('TIKTOK_PYTHON', '/opt/tiktok-venv/bin/python');
-        return is_file($project) ? $project : (is_file($configured) ? $configured : 'python3');
+        // The downloader must run in the same environment that contains both
+        // yt-dlp and its bgutil plugin. Railway variables can override
+        // TIKTOK_PYTHON, so validate candidates instead of trusting the first path.
+        $configured = trim((string) env('TIKTOK_PYTHON', ''));
+        $candidates = array_values(array_unique(array_filter([
+            '/opt/tiktok-venv/bin/python',
+            base_path('.venv/bin/python'),
+            base_path('.tiktok-python/bin/python'),
+            $configured,
+            'python3',
+        ])));
+
+        $probe = 'import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutilhttp';
+        foreach ($candidates as $candidate) {
+            if ($candidate !== 'python3' && ! is_file($candidate)) {
+                continue;
+            }
+
+            try {
+                $process = new Process([$candidate, '-c', $probe]);
+                $process->setTimeout(8);
+                $process->run();
+                if ($process->isSuccessful()) {
+                    return $candidate;
+                }
+            } catch (Throwable $exception) {
+                // Try the next installed interpreter; do not break the page.
+            }
+        }
+
+        Log::error('No Python interpreter has both yt-dlp and the bgutil HTTP plugin installed', [
+            'checked' => $candidates,
+        ]);
+        return 'python3';
     }
 
     private function script(): string
