@@ -213,7 +213,7 @@ def ensure_pot_provider():
         else:
             # Railway nixpacks.toml already provisions Deno. Use it instead of
             # silently falling back to the unreachable default HTTP endpoint.
-            if not deno_script.is_file():
+            if not (server / "node_modules").is_dir():
                 result = subprocess.run(
                     [deno, "install", "--allow-scripts=npm:canvas", "--frozen"],
                     cwd=str(server), capture_output=True, text=True, timeout=420,
@@ -305,7 +305,7 @@ def download(url, mode, quality, directory):
                 "file_access_retries": 3, "outtmpl": output,
                 "max_filesize": MAX_BYTES, "overwrites": True,
                 "continuedl": False,
-                # Explicitly enable the installed Node runtime and allow the
+                # Explicitly enable the installed JS runtime and allow the
                 # matching EJS challenge solver. Without this, YouTube signature
                 # solving fails and its media URLs can return HTTP 403.
                 "js_runtimes": {provider_runtime: {}},
