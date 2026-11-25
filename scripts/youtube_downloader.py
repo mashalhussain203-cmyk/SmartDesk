@@ -357,6 +357,9 @@ def main():
                 "duration": int(info.get("duration") or 0),
                 "qualities": heights,
                 "has_audio": has_audio,
+                "view_count": info.get("view_count"),
+                "like_count": info.get("like_count"),
+                "comment_count": info.get("comment_count"),
             })
             return 0
 
