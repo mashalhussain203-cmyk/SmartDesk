@@ -61,7 +61,7 @@
   <h2 class="yd-title" id="ytd-video-title"></h2>
   <div class="yd-stats" id="ytd-stats"></div>
   <label class="yd-select-wrap"><span class="yd-sr">Kies videokwaliteit</span><select id="ytd-quality-select" aria-label="Videokwaliteit"></select><span class="yd-chevron">⌄</span></label>
-  <div class="yd-download-card"><div class="yd-download-info"><span class="yd-process" id="ytd-process">Ready to process</span><span id="ytd-format-description">MP4 · HD</span></div><button class="yd-download" id="ytd-card-download" type="button">↓ Download</button></div>
+  <div class="yd-download-card"><div class="yd-download-info"><span class="yd-process" id="ytd-process">Needs processing</span><span id="ytd-format-description">MP4 · HD</span></div><button class="yd-download" id="ytd-card-download" type="button">↓ Download</button></div>
   <p class="ytd-status" id="ytd-status" aria-live="polite"></p>
   <button type="button" class="yd-another" id="ytd-another">↗　Download another video</button>
  </div>
@@ -173,7 +173,7 @@
  const qualitySelect=document.getElementById('ytd-quality-select'), cardDownload=document.getElementById('ytd-card-download'), formatDescription=document.getElementById('ytd-format-description');
  const render=()=>{
   qualitySelect.innerHTML='';
-  qualities.slice().sort((a,b)=>b-a).forEach(q=>{const option=document.createElement('option');option.value=String(q);option.textContent=q+'p · MP4'+(q>=2160?' · 4K':q>=1440?' · 2K':q>=1080?' · FHD':q>=720?' · HD':'');qualitySelect.appendChild(option);});
+  qualities.slice().sort((a,b)=>b-a).forEach(q=>{const option=document.createElement('option');option.value=String(q);const size=currentSizes[q];option.textContent=q+'p · MP4'+(q>=2160?' · 4K':q>=1440?' · 2K':q>=1080?' · FHD':q>=720?' · HD':'')+(size&&size.bytes?' · '+(size.approx?'~':'')+(Number(size.bytes)/1000000).toFixed(2)+' MB':'');qualitySelect.appendChild(option);});
   if(hasAudio){const audio=document.createElement('option');audio.value='audio';audio.textContent='Audio · MP3';qualitySelect.appendChild(audio);}
   updateSelected();
   const stats=document.getElementById('ytd-stats');stats.innerHTML='';
