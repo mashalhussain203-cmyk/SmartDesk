@@ -447,26 +447,46 @@ def download(url, mode, quality, directory):
         raise RuntimeError(reason) from last_error
 
     extension = "mp3" if mode == "mp3" else "mp4"
-    candidates = list(directory.glob("source." + extension))
-    if not candidates and mode == "mp4":
-        candidates = [p for p in directory.glob("source.*") if p.suffix.lower() in {".mkv", ".webm", ".mov"}]
-        if candidates:
-            source = candidates[0]
-            target = directory / "download.mp4"
-            result = subprocess.run([
-                "ffmpeg", "-y", "-i", str(source), "-map", "0:v:0", "-map", "0:a:0?",
-                "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
-                "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(target)
-            ], capture_output=True, timeout=600)
-            if result.returncode != 0:
-                raise RuntimeError("YouTube-stream kon niet naar MP4 worden omgezet.")
-            source.unlink(missing_ok=True)
-            candidates = [target]
-    if not candidates:
-        raise RuntimeError("YouTube heeft het gevraagde MP4/MP3-bestand niet geleverd.")
-    source = candidates[0]
-    if source.stat().st_size < 1024 or source.stat().st_size > MAX_BYTES:
-        raise RuntimeError("Het bestand is leeg of groter dan de toegestane 520 MB.")
+    if mode == "mp4":
+        # Always create a standards-compatible MP4 instead of assuming that
+        # a remuxed source file is already H.264/AAC and browser compatible.
+        ffmpeg = shutil.which("ffmpeg")
+        if not ffmpeg:
+            raise RuntimeError("FFmpeg ontbreekt op de downloadserver; MP4-conversie kan niet worden uitgevoerd.")
+        sources = [
+            p for p in directory.glob("source.*")
+            if p.is_file()
+            and p.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
+            and p.stat().st_size >= 1024
+        ]
+        if not sources:
+            raise RuntimeError("YouTube heeft geen videobestand geleverd; er is niets om naar MP4 om te zetten.")
+        source = max(sources, key=lambda p: p.stat().st_size)
+        target = directory / "download.mp4"
+        result = subprocess.run([
+            ffmpeg, "-y", "-i", str(source),
+            "-map", "0:v:0", "-map", "0:a:0?",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+            "-movflags", "+faststart", "-f", "mp4", str(target)
+        ], capture_output=True, text=True, timeout=900)
+        if result.returncode != 0 or not target.is_file() or target.stat().st_size < 1024:
+            target.unlink(missing_ok=True)
+            detail = (result.stderr or result.stdout or "onbekende FFmpeg-fout")[-500:]
+            raise RuntimeError("FFmpeg kon de gedownloade video niet naar MP4 omzetten: " + detail)
+        for item in sources:
+            if item != target:
+                item.unlink(missing_ok=True)
+        source = target
+    else:
+        candidates = list(directory.glob("source.mp3"))
+        if not candidates:
+            raise RuntimeError("YouTube heeft het gevraagde MP3-bestand niet geleverd.")
+        source = candidates[0]
+        target = directory / "download.mp3"
+        if source != target:
+            os.replace(source, target)
+        source = target
     if mode == "mp4":
         probe = shutil.which("ffprobe")
         if not probe:
