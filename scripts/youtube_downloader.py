@@ -186,22 +186,18 @@ def download(url, mode, quality, directory):
             f"bv*[height<={height}]+ba/b[height<={height}]",
         ]
 
-    # Start with yt-dlp's own maintained client selection. Explicitly forcing
-    # mweb/web_embedded can return an empty format list for otherwise public videos.
-    # Only try alternate public clients after the automatic default strategy.
-    # yt-dlp's current PO Token guide recommends mweb with a GVS PO token.
-    # Try that combination first; retain automatic and other public clients
-    # only as fallbacks for videos where mweb exposes no usable formats.
-    # Avoid the tv_downgraded player response that currently returns
-    # "The page needs to be reloaded" for otherwise playable public videos.
-    # Prefer the public web clients that yt-dlp users have reported working
-    # around this specific UNPLAYABLE response, then try Android VR and the
-    # extractor's current defaults as fallbacks.
+    # YouTube's current yt-dlp PO Token guide recommends mweb with a
+    # provider-generated GVS token. The previous deployment never tried mweb,
+    # so its configured bgutil provider could not help the first attempts.
+    # Keep each strategy isolated: web_embedded only exposes videos that allow
+    # embedding, while web_safari can expose HLS formats. The final None lets
+    # the installed yt-dlp release choose its maintained default clients.
     client_sets = [
-        ["web_safari", "web_embedded", "-tv_downgraded"],
+        ["mweb"],
+        ["mweb", "web_safari"],
+        ["web_safari"],
         ["android_vr"],
-        ["default", "-tv_downgraded"],
-        ["web_safari", "-tv_downgraded"],
+        ["default"],
         None,
     ]
     last_error = None
