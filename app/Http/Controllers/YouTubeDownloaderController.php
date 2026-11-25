@@ -33,7 +33,18 @@ final class YouTubeDownloaderController extends Controller
             $process = new Process([$this->python(), $this->script(), 'info', $url]);
             $process->setTimeout(90);
             $process->run();
-            $details = json_decode(trim($process->getOutput()), true);
+            // The bgutil script provider writes its readiness message to stdout
+            // before our JSON payload. Parse the last valid JSON line, not the
+            // entire mixed stdout stream.
+            $details = null;
+            $outputLines = preg_split('/\\R/', trim($process->getOutput())) ?: [];
+            foreach (array_reverse($outputLines) as $outputLine) {
+                $candidate = json_decode(trim($outputLine), true);
+                if (is_array($candidate) && array_key_exists('success', $candidate)) {
+                    $details = $candidate;
+                    break;
+                }
+            }
 
             if (! $process->isSuccessful() || ! is_array($details) || ! ($details['success'] ?? false)) {
                 $stdout = trim($process->getOutput());
