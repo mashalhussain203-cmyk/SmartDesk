@@ -192,12 +192,17 @@ def download(url, mode, quality, directory):
     # yt-dlp's current PO Token guide recommends mweb with a GVS PO token.
     # Try that combination first; retain automatic and other public clients
     # only as fallbacks for videos where mweb exposes no usable formats.
+    # Avoid the tv_downgraded player response that currently returns
+    # "The page needs to be reloaded" for otherwise playable public videos.
+    # Prefer the public web clients that yt-dlp users have reported working
+    # around this specific UNPLAYABLE response, then try Android VR and the
+    # extractor's current defaults as fallbacks.
     client_sets = [
-        ["mweb", "tv", "web_safari"],
-        None,
-        ["web_safari"],
-        ["ios"],
+        ["web_safari", "web_embedded", "-tv_downgraded"],
         ["android_vr"],
+        ["default", "-tv_downgraded"],
+        ["web_safari", "-tv_downgraded"],
+        None,
     ]
     last_error = None
     last_attempt = "onbekende speler"
@@ -263,10 +268,15 @@ def download(url, mode, quality, directory):
                     or "format is not available" in message
                     or "requested format not available" in message
                 )
+                # YouTube's UNPLAYABLE response is client-specific in some
+                # cases. Treat this like a player/format mismatch and continue
+                # to the next explicitly selected public client.
+                reload_required = "the page needs to be reloaded" in message
                 # A player client can expose different formats than the analyser.
                 # Continue with the next selector/client if this resolution is absent.
                 if ("403" not in message and "forbidden" not in message
-                        and not bot_challenge and not format_unavailable):
+                        and not bot_challenge and not format_unavailable
+                        and not reload_required):
                     raise
                 time.sleep(1)
         if succeeded:
