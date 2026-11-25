@@ -8,3 +8,5 @@ yt-dlp>=2026.6.0,<2027
 torch==2.11.0+cpu
 torchaudio==2.11.0+cpu
 demucs==4.0.1
+# yt-dlp PO-token provider; version must match the bgutil script built in railpack.json
+bgutil-ytdlp-pot-provider==2.0.2
