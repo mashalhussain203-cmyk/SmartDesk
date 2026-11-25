@@ -36,6 +36,8 @@
 @media(max-width:760px){.ytd-result-grid{grid-template-columns:1fr}.ytd-preview-panel,.ytd-format-panel{padding:13px}}
 
 /* Screenshot-matched YTDown mobile result card */
+.yd-sitebar{height:72px;padding:0 max(22px,calc((100vw - 760px)/2));display:flex;align-items:center;justify-content:space-between;background:#e7e6eb;color:#53525a}.yd-brand{display:flex;align-items:center;gap:12px;font-size:22px;color:#25252b}.yd-brand-icon{width:45px;height:33px;border-radius:8px;background:#ef202b;color:white;display:grid;place-items:center;font-size:21px}.yd-tools{display:flex;align-items:center;gap:19px;font-size:17px;font-weight:800}.yd-tools button{border:0;background:none;color:inherit;font-size:18px;font-weight:800}.yd-hero{display:none}@media(max-width:520px){.yd-sitebar{height:72px;padding:0 22px}.yd-tools{gap:14px;font-size:15px}.yd-tools button{font-size:15px}}
+
 .ytd-page{background:#f1f0f5;color:#24242a;padding:24px 13px 70px}.ytd-wrap{max-width:760px}.ytd-hero{text-align:left;margin:0 auto 18px}.ytd-hero .ytd-pill{display:none}.ytd-title{font-size:clamp(30px,7vw,44px);color:#24242a;letter-spacing:-.04em}.ytd-title span{background:none;color:inherit}.ytd-sub{color:#62616b}.ytd-panel{background:#fff;color:#25252b;border:0;border-radius:24px;box-shadow:0 8px 30px #20202a0c}.ytd-panel:before{display:none}.ytd-result{border:0;padding:0;margin:0}.yd-card{padding:18px 0 0}.yd-review{display:flex;gap:12px;align-items:center;color:#67666f;font-size:14px;font-weight:600;line-height:1.45;margin:0 0 28px}.yd-video-image{position:relative;overflow:hidden;border-radius:15px;background:#e5e5e8;aspect-ratio:16/9}.yd-video-image img{width:100%;height:100%;object-fit:cover;display:block}.yd-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;background:#0008;font-size:21px}.yd-title{margin:17px 0 18px;color:#17171b;font-size:25px;line-height:1.2;font-weight:850;letter-spacing:-.035em}.yd-stats{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 30px}.yd-stat{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:30px;background:#ededf0;color:#55545c;font-size:13px;font-weight:750}.yd-select-wrap{display:block;position:relative;margin-bottom:13px}.yd-select-wrap select{appearance:none;width:100%;height:78px;padding:0 52px 0 36px;border:0;border-radius:20px;background:#e7e6eb;color:#25252b;font-size:23px;font-weight:800}.yd-chevron{position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:24px;pointer-events:none}.yd-download-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px 25px;border-radius:19px;background:#efeff3}.yd-download-info{display:flex;flex-direction:column;gap:8px;color:#595861;font-size:17px}.yd-process{align-self:flex-start;padding:7px 13px;border-radius:20px;background:#e1e1e7;color:#595963;font-weight:800;font-size:14px}.yd-download{min-width:0;min-height:52px;padding:0 24px;border:0;border-radius:30px;background:#17171b;color:white;font-size:16px;font-weight:800;white-space:nowrap}.yd-another{width:100%;margin-top:31px;min-height:72px;border:0;border-radius:20px;background:#efeff3;color:#17171b;font-size:20px;font-weight:800}.yd-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.yd-howto{margin:24px auto 0;padding:24px;border-radius:24px;background:#fff;color:#202027}.yd-howto h2{margin:0 0 18px;font-size:23px}.yd-howto p{color:#55545c;line-height:1.65}.ytd-info article{background:#fff;border-color:#e6e5eb}.ytd-info strong{color:#24242a}.ytd-info span{color:#666}.ytd-faq details{background:#f8f8fa;border-color:#e6e5eb}.ytd-faq summary{color:#25252b}.ytd-faq p{color:#666}
 @media(max-width:520px){.ytd-page{padding:16px 13px 60px}.ytd-panel{padding:16px;border-radius:23px}.yd-card{padding-top:2px}.yd-title{font-size:24px}.yd-select-wrap select{height:78px;font-size:21px;padding-left:24px}.yd-download-card{padding:15px 17px}.yd-download{padding:0 17px;font-size:15px}.yd-another{min-height:70px;font-size:19px}.yd-stats{gap:7px}.yd-stat{padding:8px 11px}}
 
@@ -43,6 +45,7 @@
 @endpush
 
 @section('content')
+<div class="yd-sitebar"><div class="yd-brand"><span class="yd-brand-icon">⬇</span><strong>YTDown</strong></div><div class="yd-tools"><span>◎ EN</span><button type="button" id="yd-theme" aria-label="Thema wijzigen">◐</button><button type="button" id="yd-menu">☰ Menu</button></div></div>
 <main class="ytd-page"><div class="ytd-wrap">
 <header class="ytd-hero"><div class="ytd-pill">MASHAL STUDIO · VIDEO TOOLS</div><h1 class="ytd-title">YouTube Video Downloader</h1><p class="ytd-sub">Free. No signup. Download now.</p></header>
 <section class="ytd-panel" aria-label="YouTube downloader"><h2 style="margin:0 0 16px;color:#f5f6fa;font-size:clamp(21px,3vw,28px)">Download a YouTube video</h2>
@@ -160,7 +163,7 @@
   finally{uploadBusy=false;fileDownload.disabled=false;fileDownload.textContent='MP4 downloaden ↓';}
  });
 
- let token=null, qualities=[], hasAudio=false, mode='video', busy=false, currentDuration=0, currentViews=null, currentLikes=null, currentComments=null;
+ let token=null, qualities=[], hasAudio=false, mode='video', busy=false, currentDuration=0, currentViews=null, currentLikes=null, currentComments=null, currentSizes={};
  const showError=(message)=>{error.textContent=message;error.classList.add('show');};
  const duration=(s)=>{s=Number(s||0);if(!s)return '';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return [h,m,sec].map((n,i)=>i===0&&h===0?null:String(n).padStart(2,'0')).filter(Boolean).join(':');};
  const qualitySelect=document.getElementById('ytd-quality-select'), cardDownload=document.getElementById('ytd-card-download'), formatDescription=document.getElementById('ytd-format-description');
@@ -177,19 +180,19 @@
   const value=qualitySelect.value;
   if(value==='audio'){formatDescription.textContent='MP3 · Audio';cardDownload.onclick=()=>startDownload({label:'Audio',format:'mp3',quality:null},cardDownload);return;}
   const q=Number(value||qualities[0]||0),label=q>=2160?'4K':q>=1440?'2K':q>=1080?'FHD':q>=720?'HD':q+'p';
-  formatDescription.textContent='MP4 · '+label;
+  const size=currentSizes[q];formatDescription.textContent='MP4 · '+label+(size&&size.bytes?' · '+(size.approx?'~':'')+(Number(size.bytes)/1000000).toFixed(2)+' MB':'');
   cardDownload.onclick=()=>startDownload({label:q+'p',format:'mp4',quality:q},cardDownload);
  }
  qualitySelect.addEventListener('change',updateSelected);
 
  document.querySelectorAll('.ytd-tab').forEach(t=>t.addEventListener('click',()=>{mode=t.dataset.mode;render();}));
  async function startDownload(item,button){
-  if(busy||!token)return;busy=true;cardDownload.disabled=true;button.textContent='Starten…';status.textContent='Download wordt voorbereid…';
+  if(busy||!token)return;busy=true;cardDownload.disabled=true;button.textContent='Starten…';status.textContent='Download wordt voorbereid…';document.getElementById('ytd-process').textContent='Needs processing';
   try{
    const body=new FormData();body.append('_token',csrf);body.append('token',token);body.append('format',item.format);if(item.quality)body.append('quality',String(item.quality));
    const response=await fetch(@json(route('youtube-downloader.prepare')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
    const data=await response.json();if(!response.ok)throw new Error(data.message||'Download kon niet starten.');
-   status.textContent='Video wordt verwerkt. Dit kan even duren…';
+   status.textContent='Video wordt verwerkt. Dit kan even duren…';document.getElementById('ytd-process').textContent='Processing…';
    let finished=false;
    for(let i=0;i<180;i++){
     await new Promise(resolve=>setTimeout(resolve,2000));
@@ -197,10 +200,10 @@
     const state=await poll.json();
     if(!poll.ok)throw new Error(state.message||'Downloadstatus kon niet worden opgehaald.');
     if(state.status==='failed')throw new Error(state.message||'Download mislukt.');
-    if(state.status==='ready'&&state.download_url){window.location.assign(state.download_url);status.textContent='Bestand klaar — de download wordt geopend.';finished=true;break;}
+    if(state.status==='ready'&&state.download_url){window.location.assign(state.download_url);status.textContent='Bestand klaar — de download wordt geopend.';document.getElementById('ytd-process').textContent='Ready';finished=true;break;}
    }
    if(!finished)throw new Error('De download duurt te lang. Probeer het opnieuw.');
-  }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
+  }catch(e){status.textContent='';document.getElementById('ytd-process').textContent='Needs processing';showError(e.message||'Er ging iets mis.');}
   finally{busy=false;cardDownload.disabled=false;button.textContent='↓ Download';}
  }
  form.addEventListener('submit',async e=>{
@@ -208,7 +211,7 @@
   try{
    const response=await fetch(@json(route('youtube-downloader.analyze')),{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf},body:JSON.stringify({url:input.value.trim()})});
    const data=await response.json();if(!response.ok)throw new Error(data.message||'De YouTube-link kon niet worden geanalyseerd.');
-   token=data.token;qualities=data.qualities||[];hasAudio=!!data.has_audio;currentDuration=Number(data.duration||0);currentViews=data.view_count;currentLikes=data.like_count;currentComments=data.comment_count;
+   token=data.token;qualities=data.qualities||[];hasAudio=!!data.has_audio;currentDuration=Number(data.duration||0);currentViews=data.view_count;currentLikes=data.like_count;currentComments=data.comment_count;currentSizes=data.quality_sizes||{};
    document.getElementById('ytd-preview-image').src=data.thumbnail||'';document.getElementById('ytd-video-title').textContent=data.title||'YouTube-video';
    mode='video';render();entryStage.style.display='none';form.style.display='none';document.querySelector('.ytd-hint').style.display='none';result.classList.add('show');status.textContent=qualities.length+' beschikbare videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');result.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
