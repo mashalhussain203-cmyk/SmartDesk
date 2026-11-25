@@ -284,7 +284,7 @@ final class YouTubeDownloaderController extends Controller
             'python3',
         ])));
 
-        $probe = 'import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutilhttp';
+        $probe = 'import yt_dlp; import yt_dlp_plugins.extractor.getpot_bgutil_http';
         foreach ($candidates as $candidate) {
             if ($candidate !== 'python3' && ! is_file($candidate)) {
                 continue;
