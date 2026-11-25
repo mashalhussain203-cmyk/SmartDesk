@@ -495,6 +495,21 @@ def main():
         output = download(url, mode, quality, directory)
         write_status(directory, "ready", file=output.name, size=output.stat().st_size)
         return 0
+    except SystemExit as exc:
+        # Some extractor/plugin paths may terminate the interpreter directly.
+        # Do not let SystemExit(0) look like a successful, empty analysis.
+        detail = "yt-dlp beëindigde het analyseproces onverwacht (SystemExit: " + repr(exc.code) + ")."
+        if action == "info":
+            emit({"success": False, "message": detail})
+        else:
+            try:
+                directory = Path(sys.argv[5]).resolve()
+                if re.fullmatch(r"[a-f0-9]{40}", directory.name) and directory.is_dir():
+                    write_status(directory, "failed", message=detail, detail=detail)
+            except Exception:
+                pass
+        print(detail, file=sys.stderr)
+        return 1
     except Exception as exc:
         if action == "info":
             emit({"success": False, "message": "Deze YouTube-video is privé, beperkt, niet beschikbaar of kon niet worden geanalyseerd. Alleen openbaar toegankelijke video's worden ondersteund."})
