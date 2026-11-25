@@ -163,85 +163,45 @@ def estimate_quality_sizes(info):
 
 
 def ensure_pot_provider():
-    """Build and verify the bgutil script provider on the persistent Railway volume."""
-    import fcntl
+    """Use the provider prebuilt into the Railway image; never install it during a web request."""
+    import urllib.request
 
-    home = Path("/app/storage/app/private/youtube-pot-provider")
-    server = home / "server"
+    server = Path("/app/bgutil-ytdlp-pot-provider/server")
     node_script = server / "build" / "generate_once.js"
-    lock_path = home.parent / ".youtube-pot-provider.lock"
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-
+    main_script = server / "build" / "main.js"
     node = shutil.which("node")
-    npm = shutil.which("npm")
-    git = shutil.which("git")
-    if not node or not npm or not git:
+
+    if not node:
+        raise RuntimeError("Node.js ontbreekt op de downloadserver.")
+    if not (server / "package.json").is_file() or not node_script.is_file() or not main_script.is_file():
         raise RuntimeError(
-            "YouTube-tokenprovider vereist Node.js, npm en Git; "
-            f"gevonden: node={bool(node)}, npm={bool(npm)}, git={bool(git)}"
+            "De bgutil-provider ontbreekt in de Railway-build. "
+            "Controleer de Railpack-installatiestap voor bgutil-ytdlp-pot-provider."
         )
 
-    with open(lock_path, "w", encoding="utf-8") as lock_file:
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-        try:
-            package_json = server / "package.json"
-            lock_json = server / "package-lock.json"
-            if not (package_json.is_file() and lock_json.is_file()):
-                if home.exists():
-                    shutil.rmtree(home)
-                result = subprocess.run(
-                    [git, "clone", "--depth", "1", "--branch", "2.0.2",
-                     "https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git", str(home)],
-                    capture_output=True, text=True, timeout=180,
-                )
-                if result.returncode != 0:
-                    raise RuntimeError("Provider clone mislukt: " + (result.stderr or result.stdout)[-700:])
+    # Confirm the prebuilt script can actually execute before advertising it
+    # to yt-dlp as a token provider.
+    probe = subprocess.run(
+        [node, str(node_script), "--version"],
+        cwd=str(server),
+        capture_output=True,
+        text=True,
+        timeout=30,
+        stdin=subprocess.DEVNULL,
+    )
+    if probe.returncode != 0:
+        raise RuntimeError(
+            "bgutil-scriptprovider kan niet starten: "
+            + (probe.stderr or probe.stdout)[-700:]
+        )
 
-            # Railway sets NODE_ENV=production. npm ci then omits TypeScript,
-            # which is a devDependency needed to create generate_once.js.
-            if not (server / "node_modules" / ".bin" / "tsc").exists():
-                result = subprocess.run(
-                    [npm, "ci", "--include=dev", "--no-audit", "--no-fund"],
-                    cwd=str(server), capture_output=True, text=True, timeout=600,
-                    env={**os.environ, "NODE_ENV": "development"},
-                )
-                if result.returncode != 0:
-                    raise RuntimeError("Provider npm-install mislukt: " + (result.stderr or result.stdout)[-900:])
-
-            if not node_script.is_file():
-                tsc = server / "node_modules" / ".bin" / "tsc"
-                if not tsc.exists():
-                    raise RuntimeError("TypeScript compiler ontbreekt na npm ci --include=dev.")
-                result = subprocess.run(
-                    [str(tsc), "-p", "tsconfig.json"], cwd=str(server),
-                    capture_output=True, text=True, timeout=300,
-                )
-                if result.returncode != 0:
-                    raise RuntimeError("Provider TypeScript-build mislukt: " + (result.stderr or result.stdout)[-900:])
-
-            if not node_script.is_file():
-                raise RuntimeError("Provider-build mist server/build/generate_once.js.")
-
-            # yt-dlp marks the provider unavailable if this version probe fails.
-            probe = subprocess.run(
-                [node, str(node_script), "--version"], cwd=str(server),
-                capture_output=True, text=True, timeout=30,
-                stdin=subprocess.DEVNULL,
-            )
-            if probe.returncode != 0:
-                raise RuntimeError("Provider --version-controle mislukt: " + (probe.stderr or probe.stdout)[-700:])
-        finally:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
-
-    # Keep a local HTTP provider alive so yt-dlp can request PO tokens
-    # without spawning a fresh BotGuard generator for every format attempt.
-    import urllib.request
     ping_url = "http://127.0.0.1:4416/ping"
-    server_log = home / "provider-http.log"
+    server_log = Path("/tmp/youtube-pot-provider-http.log")
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def provider_is_ready():
         try:
-            with urllib.request.urlopen(ping_url, timeout=2) as response:
+            with opener.open(ping_url, timeout=2) as response:
                 return response.status == 200
         except Exception:
             return False
@@ -250,7 +210,7 @@ def ensure_pot_provider():
         log_handle = open(server_log, "ab")
         try:
             subprocess.Popen(
-                [node, str(server / "build" / "main.js"), "--port", "4416"],
+                [node, str(main_script), "--port", "4416"],
                 cwd=str(server),
                 stdin=subprocess.DEVNULL,
                 stdout=log_handle,
@@ -268,12 +228,11 @@ def ensure_pot_provider():
     if provider_is_ready():
         print("[youtube-pot] bgutil HTTP provider ready: " + ping_url, flush=True)
     else:
-        # The script provider was already built and its --version probe passed.
-        # Do not disable all PO-token support just because the optional HTTP
-        # daemon could not bind or remain alive; yt-dlp can invoke the script.
+        # The prebuilt script provider remains usable even if the optional
+        # long-running HTTP daemon cannot bind or remain alive.
         print(
-            "[youtube-pot-warning] HTTP provider is unavailable; using the "
-            "verified bgutil script provider at " + str(server),
+            "[youtube-pot-warning] HTTP provider unavailable; using the "
+            "verified script provider at " + str(server),
             flush=True,
         )
 
