@@ -160,30 +160,31 @@
   finally{uploadBusy=false;fileDownload.disabled=false;fileDownload.textContent='MP4 downloaden ↓';}
  });
 
- let token=null, qualities=[], hasAudio=false, mode='video', busy=false;
+ let token=null, qualities=[], hasAudio=false, mode='video', busy=false, currentDuration=0, currentViews=null, currentLikes=null, currentComments=null;
  const showError=(message)=>{error.textContent=message;error.classList.add('show');};
  const duration=(s)=>{s=Number(s||0);if(!s)return '';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return [h,m,sec].map((n,i)=>i===0&&h===0?null:String(n).padStart(2,'0')).filter(Boolean).join(':');};
+ const qualitySelect=document.getElementById('ytd-quality-select'), cardDownload=document.getElementById('ytd-card-download'), formatDescription=document.getElementById('ytd-format-description');
  const render=()=>{
-  document.querySelectorAll('.ytd-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
-  rows.innerHTML='';
-  const sorted=qualities.slice().sort((a,b)=>b-a), best=sorted[0]||null;
-  bestWrap.style.display=(mode==='video'&&best)?'flex':'none';
-  if(best){bestLabel.textContent='Automatisch gekozen: '+best+'p · hoogste beschikbare resolutie';bestButton.textContent='↓ Download '+best+'p MP4';bestButton.onclick=()=>startDownload({label:best+'p',format:'mp4',quality:best},bestButton);}
-  const items=mode==='video'?sorted.map(q=>({label:q+'p',format:'mp4',quality:q})): (hasAudio?[{label:'Audio · beste beschikbare kwaliteit',format:'mp3',quality:null}]:[]);
-  empty.hidden=items.length>0;
-  items.forEach(item=>{
-   const tr=document.createElement('tr'), name=document.createElement('td'), fmt=document.createElement('td'), action=document.createElement('td'), btn=document.createElement('button');
-   name.textContent=item.label;
-   if(mode==='video'&&item.quality>=2160){const badge=document.createElement('span');badge.textContent='4K';badge.style.cssText='margin-left:7px;background:#ff9d18;color:white;border-radius:6px;padding:3px 6px;font-size:10px';name.appendChild(badge);}
-   else if(mode==='video'&&item.quality>=1440){const badge=document.createElement('span');badge.textContent='2K';badge.style.cssText='margin-left:7px;background:#ff9d18;color:white;border-radius:6px;padding:3px 6px;font-size:10px';name.appendChild(badge);}
-   fmt.textContent=item.format;
-   btn.className='ytd-download';btn.type='button';btn.textContent='↓ Download';btn.addEventListener('click',()=>startDownload(item,btn));
-   action.appendChild(btn);tr.append(name,fmt,action);rows.appendChild(tr);
-  });
+  qualitySelect.innerHTML='';
+  qualities.slice().sort((a,b)=>b-a).forEach(q=>{const option=document.createElement('option');option.value=String(q);option.textContent=q+'p · MP4'+(q>=2160?' · 4K':q>=1440?' · 2K':q>=1080?' · FHD':q>=720?' · HD':'');qualitySelect.appendChild(option);});
+  if(hasAudio){const audio=document.createElement('option');audio.value='audio';audio.textContent='Audio · MP3';qualitySelect.appendChild(audio);}
+  updateSelected();
+  const stats=document.getElementById('ytd-stats');stats.innerHTML='';
+  [[ '◷',duration(currentDuration) ],[ '◉',formatCount(currentViews) ],[ '♡',formatCount(currentLikes) ],[ '◯',formatCount(currentComments) ]].forEach(([icon,value])=>{if(!value)return;const item=document.createElement('span');item.className='yd-stat';item.textContent=icon+' '+value;stats.appendChild(item);});
  };
+ function formatCount(value){const n=Number(value||0);if(!n)return '';if(n>=1000000)return (n/1000000).toFixed(1).replace('.0','')+'M';if(n>=1000)return (n/1000).toFixed(1).replace('.0','')+'K';return String(n);}
+ function updateSelected(){
+  const value=qualitySelect.value;
+  if(value==='audio'){formatDescription.textContent='MP3 · Audio';cardDownload.onclick=()=>startDownload({label:'Audio',format:'mp3',quality:null},cardDownload);return;}
+  const q=Number(value||qualities[0]||0),label=q>=2160?'4K':q>=1440?'2K':q>=1080?'FHD':q>=720?'HD':q+'p';
+  formatDescription.textContent='MP4 · '+label;
+  cardDownload.onclick=()=>startDownload({label:q+'p',format:'mp4',quality:q},cardDownload);
+ }
+ qualitySelect.addEventListener('change',updateSelected);
+
  document.querySelectorAll('.ytd-tab').forEach(t=>t.addEventListener('click',()=>{mode=t.dataset.mode;render();}));
  async function startDownload(item,button){
-  if(busy||!token)return;busy=true;document.querySelectorAll('.ytd-download').forEach(b=>b.disabled=true);button.textContent='Starten…';status.textContent='Download wordt voorbereid…';
+  if(busy||!token)return;busy=true;cardDownload.disabled=true;button.textContent='Starten…';status.textContent='Download wordt voorbereid…';
   try{
    const body=new FormData();body.append('_token',csrf);body.append('token',token);body.append('format',item.format);if(item.quality)body.append('quality',String(item.quality));
    const response=await fetch(@json(route('youtube-downloader.prepare')),{method:'POST',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf},body});
@@ -200,16 +201,16 @@
    }
    if(!finished)throw new Error('De download duurt te lang. Probeer het opnieuw.');
   }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
-  finally{busy=false;document.querySelectorAll('.ytd-download').forEach(b=>b.disabled=false);button.textContent='↓ Download';}
+  finally{busy=false;cardDownload.disabled=false;button.textContent='↓ Download';}
  }
  form.addEventListener('submit',async e=>{
   e.preventDefault();error.classList.remove('show');result.classList.remove('show');status.textContent='YouTube-formaten ophalen…';submit.disabled=true;submit.textContent='Analyseren…';token=null;
   try{
    const response=await fetch(@json(route('youtube-downloader.analyze')),{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf},body:JSON.stringify({url:input.value.trim()})});
    const data=await response.json();if(!response.ok)throw new Error(data.message||'De YouTube-link kon niet worden geanalyseerd.');
-   token=data.token;qualities=data.qualities||[];hasAudio=!!data.has_audio;
-   const videoId=(data.watch_url||'').match(/[?&]v=([A-Za-z0-9_-]{11})/);document.getElementById('ytd-preview').src=videoId?'https://www.youtube-nocookie.com/embed/'+videoId[1]+'?rel=0':'';document.getElementById('ytd-video-title').textContent=data.title||'YouTube-video';document.getElementById('ytd-author').textContent='Kanaal: '+(data.author||'YouTube');document.getElementById('ytd-duration').textContent=duration(data.duration);
-   mode='video';render();entryStage.style.display='none';form.style.display='none';document.querySelector('.ytd-hint').style.display='none';result.classList.add('show');status.textContent=qualities.length+' echte videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');result.scrollIntoView({behavior:'smooth',block:'start'});
+   token=data.token;qualities=data.qualities||[];hasAudio=!!data.has_audio;currentDuration=Number(data.duration||0);currentViews=data.view_count;currentLikes=data.like_count;currentComments=data.comment_count;
+   document.getElementById('ytd-preview-image').src=data.thumbnail||'';document.getElementById('ytd-video-title').textContent=data.title||'YouTube-video';
+   mode='video';render();entryStage.style.display='none';form.style.display='none';document.querySelector('.ytd-hint').style.display='none';result.classList.add('show');status.textContent=qualities.length+' beschikbare videokwaliteiten gevonden'+(hasAudio?' · audio beschikbaar':'');result.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){status.textContent='';showError(e.message||'Er ging iets mis.');}
   finally{submit.disabled=false;submit.textContent='Download';}
  });
