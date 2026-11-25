@@ -83,7 +83,7 @@ def extract_info(url):
         }
         extractor_args = {}
         if provider_home is not None:
-            extractor_args["youtubepot-bgutilscript"] = {"server_home": str(provider_home)}
+            extractor_args["youtubepot-bgutilhttp"] = {"base_url": "http://127.0.0.1:4416"}
         if clients:
             extractor_args["youtube"] = {"player_client": clients}
         if extractor_args:
@@ -230,7 +230,42 @@ def ensure_pot_provider():
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
-    print("[youtube-pot] bgutil script-node provider ready: " + (probe.stdout.strip() or "version verified"), flush=True)
+    # Keep a local HTTP provider alive so yt-dlp can request PO tokens
+    # without spawning a fresh BotGuard generator for every format attempt.
+    import urllib.request
+    ping_url = "http://127.0.0.1:4416/ping"
+    server_log = home / "provider-http.log"
+
+    def provider_is_ready():
+        try:
+            with urllib.request.urlopen(ping_url, timeout=2) as response:
+                return response.status == 200
+        except Exception:
+            return False
+
+    if not provider_is_ready():
+        log_handle = open(server_log, "ab")
+        try:
+            subprocess.Popen(
+                [node, str(server / "build" / "main.js"), "--port", "4416"],
+                cwd=str(server),
+                stdin=subprocess.DEVNULL,
+                stdout=log_handle,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+                close_fds=True,
+            )
+        finally:
+            log_handle.close()
+
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline and not provider_is_ready():
+            time.sleep(0.5)
+
+    if not provider_is_ready():
+        raise RuntimeError("bgutil HTTP-provider startte niet; zie " + str(server_log))
+
+    print("[youtube-pot] bgutil HTTP provider ready: " + ping_url, flush=True)
     return server, "node"
 
 class PotDebugLogger:
@@ -320,8 +355,8 @@ def download(url, mode, quality, directory):
             }
             extractor_args = {}
             if provider_home is not None:
-                extractor_args["youtubepot-bgutilscript"] = {
-                    "server_home": str(provider_home),
+                extractor_args["youtubepot-bgutilhttp"] = {
+                    "base_url": "http://127.0.0.1:4416",
                 }
             if clients:
                 extractor_args["youtube"] = {"player_client": clients}
