@@ -85,7 +85,7 @@ def extract_info(url):
         if provider_home is not None:
             extractor_args["youtubepot-bgutilhttp"] = {"base_url": "http://127.0.0.1:4416"}
         if clients:
-            extractor_args["youtube"] = {"player_client": clients}
+            extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
         if extractor_args:
             opts["extractor_args"] = extractor_args
         try:
@@ -359,7 +359,7 @@ def download(url, mode, quality, directory):
                     "base_url": "http://127.0.0.1:4416",
                 }
             if clients:
-                extractor_args["youtube"] = {"player_client": clients}
+                extractor_args["youtube"] = {"player_client": clients, "fetch_pot": ["always"], "pot_trace": ["true"]}
             if extractor_args:
                 common["extractor_args"] = extractor_args
             if mode == "mp3":
