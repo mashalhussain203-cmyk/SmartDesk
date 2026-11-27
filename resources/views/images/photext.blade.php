@@ -42,6 +42,9 @@
         <section class="photext-toolbar" aria-label="PhoText besturing">
             <label class="photext-btn" for="photext-file">Afbeelding uploaden</label>
             <input id="photext-file" type="file" accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
+            <button class="photext-btn" id="photext-reopen" type="button" disabled>Afbeelding opnieuw openen</button>
+            <label class="photext-btn" for="photext-format">Formaat <select id="photext-format" style="margin-left:8px;background:#111a15;color:#eaf5ee;border:0"><option value="png">PNG</option><option value="jpeg">JPG</option><option value="webp">WEBP</option></select></label>
+            <label class="photext-btn" for="photext-quality">Kwaliteit <input id="photext-quality" type="range" min="50" max="100" value="92" style="width:82px;vertical-align:middle;margin-left:6px"></label>
             <button class="photext-btn primary" id="photext-export" type="button" disabled>Bewerkte afbeelding opslaan</button>
             <span class="photext-status" id="photext-status" role="status" aria-live="polite">Editor wordt geladen. Upload daarna een JPG, PNG, WEBP of BMP.</span>
         </section>
@@ -67,12 +70,17 @@
     const frame = document.getElementById('photext-frame');
     const fileInput = document.getElementById('photext-file');
     const exportButton = document.getElementById('photext-export');
+    const reopenButton = document.getElementById('photext-reopen');
+    const formatInput = document.getElementById('photext-format');
+    const qualityInput = document.getElementById('photext-quality');
     const status = document.getElementById('photext-status');
     let ready = false;
     let queuedFile = null;
     let pendingRequest = null;
     let readyPoll = null;
     let currentFileName = 'photext-edited.png';
+    let currentRecordId = null;
+    let exportTimeout = null;
 
     const setStatus = (message) => { status.textContent = message; };
 
@@ -80,7 +88,10 @@
         if (!ready || !file) return;
         const requestId = 'open-' + Date.now();
         currentFileName = (file.name.replace(/\.[^.]+$/, '') || 'image') + '-edited.png';
-        setStatus('Afbeelding wordt veilig doorgestuurd naar PhoText…');
+        currentRecordId = null;
+        reopenButton.disabled = true;
+        exportButton.disabled = true;
+        setStatus('Afbeelding wordt doorgestuurd naar PhoText…');
         frame.contentWindow.postMessage({
             type: 'editor:open-image',
             requestId,
@@ -137,30 +148,41 @@
         }
         if (data.type === 'editor:open-image-progress') {
             const percent = Number(data.percentage);
+            exportButton.disabled = true;
             setStatus('Afbeelding uploaden naar PhoText… ' + (Number.isFinite(percent) ? Math.max(0,Math.min(100,percent)) : 0) + '%');
         }
         if (data.type === 'editor:image-opened') {
-            setStatus('Afbeelding geopend. Bewerk de tekst in de editor en klik daarna op “Bewerkte afbeelding opslaan”.');
+            currentRecordId = typeof data.recordId === 'string' ? data.recordId : null;
+            exportButton.disabled = false;
+            reopenButton.disabled = !currentRecordId;
+            setStatus('Afbeelding geopend. Bewerk de tekst en sla daarna het resultaat op.');
         }
         if (data.type === 'editor:open-image-error') {
+            exportButton.disabled = true;
+            reopenButton.disabled = true;
             setStatus('Afbeelding kon niet worden geopend: ' + (data.error || data.code || 'onbekende fout'));
         }
         if (data.type === 'editor:result-error' && pendingRequest === data.requestId) {
             pendingRequest = null;
+            if (exportTimeout) window.clearTimeout(exportTimeout);
+            exportTimeout = null;
             exportButton.disabled = false;
             setStatus('Export mislukt: ' + (data.error || data.code || 'onbekende fout'));
         }
         if (data.type === 'editor:result' && pendingRequest === data.requestId) {
             pendingRequest = null;
+            if (exportTimeout) window.clearTimeout(exportTimeout);
+            exportTimeout = null;
             exportButton.disabled = false;
-            if (typeof data.dataUrl !== 'string' || !/^data:image\\/(png|jpeg|webp);base64,/i.test(data.dataUrl) || data.dataUrl.length > 60 * 1024 * 1024) {
+            if (typeof data.dataUrl !== 'string' || !/^data:image\/(png|jpeg|webp);base64,/i.test(data.dataUrl) || data.dataUrl.length > 60 * 1024 * 1024) {
                 setStatus('PhoText gaf geen geldige afbeeldings-export terug. Probeer opnieuw.');
                 return;
             }
             try {
                 const link = document.createElement('a');
                 link.href = data.dataUrl;
-                link.download = currentFileName;
+                const ext = formatInput.value === 'jpeg' ? 'jpg' : formatInput.value;
+                link.download = currentFileName.replace(/\.[^.]+$/, '') + '.' + ext;
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -176,17 +198,29 @@
         pendingRequest = 'result-' + Date.now();
         exportButton.disabled = true;
         setStatus('Bewerkte afbeelding wordt klaargemaakt…');
-        frame.contentWindow.postMessage({
-            type:'editor:get-result',
-            requestId:pendingRequest,
-            format:'png'
-        }, origin);
+        const format = formatInput.value;
+        const quality = Math.max(0.5, Math.min(1, Number(qualityInput.value) / 100));
+        frame.contentWindow.postMessage({type:'editor:get-result', requestId:pendingRequest, format, quality}, origin);
+        exportTimeout = window.setTimeout(() => {
+            if (!pendingRequest) return;
+            pendingRequest = null;
+            exportButton.disabled = false;
+            setStatus('Export duurt te lang. Controleer of PhoText klaar is en probeer opnieuw.');
+        }, 60000);
+    });
+
+    reopenButton.addEventListener('click', () => {
+        if (!ready || !currentRecordId) return;
+        exportButton.disabled = true;
+        frame.contentWindow.postMessage({type:'editor:open-record', requestId:'reopen-' + Date.now(), recordId:currentRecordId}, origin);
+        setStatus('Opgeslagen PhoText-afbeelding wordt opnieuw geopend…');
     });
 
     window.addEventListener('beforeunload', () => {
         queuedFile = null;
         pendingRequest = null;
         if (readyPoll) window.clearInterval(readyPoll);
+        if (exportTimeout) window.clearTimeout(exportTimeout);
     });
 })();
 </script>
