@@ -120,6 +120,7 @@
     let currentFileName = 'photext-edited.png';
     let currentRecordId = null;
     let pendingUploadRequest = null;
+    let uploadUsedBlob = false;
     let exportTimeout = null;
 
     const setStatus = (message) => { status.textContent = message; };
@@ -139,6 +140,7 @@
             if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
             setStatus('Afbeelding uploaden naar PhoText…');
             try {
+                uploadUsedBlob = true;
                 frame.contentWindow.postMessage({
                     type: 'editor:open-image',
                     requestId,
@@ -221,6 +223,26 @@
             setStatus('Afbeelding geopend. Bewerk de tekst en sla daarna het resultaat op.');
         }
         if (data.type === 'editor:open-image-error' && (!data.requestId || data.requestId === pendingUploadRequest)) {
+            if (uploadUsedBlob && data.code === 'bad_payload' && queuedFile) {
+                const failedRequestId = pendingUploadRequest;
+                uploadUsedBlob = false;
+                setStatus('PhoText vraagt een alternatieve upload. Opnieuw proberen…');
+                queuedFile.arrayBuffer().then((buffer) => {
+                    if (pendingUploadRequest !== failedRequestId || !frame.contentWindow) return;
+                    frame.contentWindow.postMessage({
+                        type: 'editor:open-image',
+                        requestId: failedRequestId,
+                        arrayBuffer: buffer,
+                        filename: queuedFile.name,
+                        mimeType: queuedFile.type || 'application/octet-stream'
+                    }, origin, [buffer]);
+                }).catch(() => {
+                    pendingUploadRequest = null;
+                    exportButton.disabled = true;
+                    setStatus('Afbeelding kon niet worden voorbereid. Probeer het opnieuw.');
+                });
+                return;
+            }
             pendingUploadRequest = null;
             exportButton.disabled = true;
             reopenButton.disabled = true;
