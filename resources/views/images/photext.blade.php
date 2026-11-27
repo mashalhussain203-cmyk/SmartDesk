@@ -71,6 +71,7 @@
     let ready = false;
     let queuedFile = null;
     let pendingRequest = null;
+    let readyPoll = null;
     let currentFileName = 'photext-edited.png';
 
     const setStatus = (message) => { status.textContent = message; };
@@ -107,8 +108,19 @@
         else setStatus('Afbeelding gekozen. PhoText wordt nog geladen…');
     });
 
-    frame.addEventListener('load', () => {
+    function pingEditor() {
+        if (ready) {
+            if (readyPoll) window.clearInterval(readyPoll);
+            readyPoll = null;
+            return;
+        }
         frame.contentWindow.postMessage({type:'editor:ping'}, origin);
+    }
+
+    frame.addEventListener('load', () => {
+        pingEditor();
+        if (readyPoll) window.clearInterval(readyPoll);
+        readyPoll = window.setInterval(pingEditor, 600);
     });
 
     window.addEventListener('message', (event) => {
@@ -118,6 +130,8 @@
 
         if (data.type === 'editor:ready') {
             ready = true;
+            if (readyPoll) window.clearInterval(readyPoll);
+            readyPoll = null;
             setStatus('PhoText is klaar. Upload een afbeelding om te beginnen.');
             if (queuedFile) sendImage(queuedFile);
         }
@@ -139,6 +153,10 @@
         if (data.type === 'editor:result' && pendingRequest === data.requestId) {
             pendingRequest = null;
             exportButton.disabled = false;
+            if (typeof data.dataUrl !== 'string' || !/^data:image\\/(png|jpeg|webp);base64,/i.test(data.dataUrl) || data.dataUrl.length > 60 * 1024 * 1024) {
+                setStatus('PhoText gaf geen geldige afbeeldings-export terug. Probeer opnieuw.');
+                return;
+            }
             try {
                 const link = document.createElement('a');
                 link.href = data.dataUrl;
@@ -168,6 +186,7 @@
     window.addEventListener('beforeunload', () => {
         queuedFile = null;
         pendingRequest = null;
+        if (readyPoll) window.clearInterval(readyPoll);
     });
 })();
 </script>
