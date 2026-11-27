@@ -134,18 +134,29 @@
         exportButton.disabled = true;
         setStatus('Afbeelding voorbereiden voor PhoText…');
         try {
-            // Transfer binary data explicitly: this is the documented fallback
-            // for browsers where cross-origin File/Blob cloning is unreliable.
-            const buffer = await file.arrayBuffer();
+            // PhoText documents Blob/File as the preferred cross-origin payload.
+            // Only fall back to a transferable ArrayBuffer if Blob transfer throws.
             if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
             setStatus('Afbeelding uploaden naar PhoText…');
-            frame.contentWindow.postMessage({
-                type: 'editor:open-image',
-                requestId,
-                arrayBuffer: buffer,
-                filename: file.name,
-                mimeType: file.type || 'application/octet-stream'
-            }, origin, [buffer]);
+            try {
+                frame.contentWindow.postMessage({
+                    type: 'editor:open-image',
+                    requestId,
+                    blob: file,
+                    filename: file.name,
+                    mimeType: file.type || 'application/octet-stream'
+                }, origin);
+            } catch (blobError) {
+                const buffer = await file.arrayBuffer();
+                if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
+                frame.contentWindow.postMessage({
+                    type: 'editor:open-image',
+                    requestId,
+                    arrayBuffer: buffer,
+                    filename: file.name,
+                    mimeType: file.type || 'application/octet-stream'
+                }, origin, [buffer]);
+            }
         } catch (error) {
             pendingUploadRequest = null;
             setStatus('De afbeelding kon niet worden voorbereid. Probeer een JPG-, PNG- of WEBP-bestand opnieuw.');
