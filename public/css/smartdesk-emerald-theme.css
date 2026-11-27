@@ -379,3 +379,137 @@ main, .main, .page, .page-content, .app-content, .content-wrapper {
 .studio-page :is(.studio-primary,.studio-search button) { color:#03150b !important; background:linear-gradient(135deg,#39df98,#0d9b64) !important; border-color:#38df98 !important; }
 .studio-page .template-category { color:#78edb4 !important; }
 .studio-page .template-card:hover { background:rgba(39,214,139,.12) !important; border-color:rgba(75,224,147,.4) !important; }
+
+
+/* ==========================================================
+   Mashal Studio — original emerald design system
+   Restores one consistent visual language across all modules.
+   UI-only overrides: routes, forms, uploads and JS are untouched.
+   ========================================================== */
+:root {
+  --ms-green:#27d68b;
+  --ms-green-bright:#78edb4;
+  --ms-green-soft:#9af3c7;
+  --ms-ink:#06130d;
+  --ms-surface:#0b2116;
+  --ms-surface-raised:#0e2a1c;
+  --ms-line:rgba(87,220,151,.20);
+  --ms-muted:#a9c5b4;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) {
+  color:#effff5 !important;
+  background:
+    radial-gradient(ellipse at 82% 0%,rgba(39,214,139,.12),transparent 34rem),
+    radial-gradient(ellipse at 12% 18%,rgba(11,132,79,.10),transparent 30rem),
+    linear-gradient(180deg,#06130d 0%,#07180f 52%,#041009 100%) !important;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(h1,h2,h3,h4,strong,label,.eyebrow,.section-label) {
+  color:#effff5;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(p,.muted,.subtitle,.description,.hint,.helper-text,.meta,.eyebrow) {
+  color:#a9c5b4;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(input,select,textarea) {
+  color:#effff5 !important;
+  background:#071a11 !important;
+  border-color:rgba(87,220,151,.22) !important;
+  color-scheme:dark;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(input,select,textarea)::placeholder {
+  color:#789786 !important;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(button,.button,.btn,[role="button"],.editor-link,.photext-btn,.ttc-button,.ytv-button,.yts-button,.ttd-btn,.vr-btn) {
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :is(button,.button,.btn,.editor-link,.photext-btn,.ttc-button,.ytv-button,.yts-button,.ttd-btn,.vr-btn):focus-visible {
+  outline:2px solid #78edb4 !important;
+  outline-offset:3px;
+}
+/* Image editor and private image library */
+.image-editor-page :is(.editor-topbar,.editor-sidebar,.editor-canvas-toolbar,.editor-properties,.property-card,.editor-operation-panel,.editor-stage,.editor-action-stack,.version-item,.editor-alert,.editor-tool,.editor-choice,.editor-source-note) ,
+.library-page :is(.library-head,.image-card,.library-summary-item,.pagination-wrap) {
+  color:#effff5 !important;
+  background-color:#0b2116 !important;
+  border-color:rgba(87,220,151,.20) !important;
+}
+.image-editor-page :is(.editor-brand-mark,.editor-tool.active,.editor-choice.active,.editor-submit,.editor-link.primary,.editor-action-button.primary,.editor-top-actions .primary) {
+  color:#03150b !important;
+  border-color:#38df98 !important;
+  background:linear-gradient(145deg,#39df98,#0d9b64) !important;
+  box-shadow:0 8px 24px rgba(13,155,100,.18) !important;
+}
+.image-editor-page :is(.editor-tool,.editor-choice,.editor-link:not(.primary),.editor-action-button,.editor-canvas-toolbar button) {
+  color:#b4d8c3 !important;
+  border-color:rgba(87,220,151,.20) !important;
+  background:rgba(12,43,27,.72) !important;
+}
+.image-editor-page :is(.editor-tool:hover,.editor-choice:hover,.editor-link:not(.primary):hover,.editor-action-button:hover) {
+  color:#effff5 !important;
+  border-color:rgba(75,224,147,.42) !important;
+  background:rgba(39,214,139,.13) !important;
+}
+.library-page :is(.image-card-heading a,.image-card-actions a,.image-card-actions button,.library-action,.pagination-wrap a) {
+  color:#9af3c7 !important;
+  border-color:rgba(87,220,151,.24) !important;
+}
+.library-page :is(.image-card:hover,.library-summary-item:hover) {
+  border-color:rgba(75,224,147,.42) !important;
+  box-shadow:0 16px 38px rgba(0,0,0,.24),0 0 0 1px rgba(39,214,139,.06) !important;
+}
+/* PhoText host shell — the embedded third-party editor keeps its own UI */
+.photext-page :is(.photext-upload-card,.photext-dropzone,.photext-toolbar,.photext-frame-wrap,.photext-status) {
+  color:#effff5 !important;
+  background-color:#0b2116 !important;
+  border-color:rgba(87,220,151,.22) !important;
+}
+.photext-page :is(.photext-upload-icon,.photext-upload-button,.photext-btn,.photext-toolbar button) {
+  color:#03150b !important;
+  border-color:#38df98 !important;
+  background:linear-gradient(145deg,#39df98,#0d9b64) !important;
+}
+.photext-page :is(.photext-upload-status,.photext-upload-formats,.photext-status) { color:#a9c5b4 !important; }
+/* Live hub and social/video analytics */
+:is(.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page) :is(.livehub-tool,.livehub-tool-top,.ttc-card,.ttc-stat,.ytv-panel,.ytv-card,.ytv-stat,.ytv-tool-panel,.yts-panel,.yts-card,.yts-stat,.yts-tool-panel,.yts-extra-card,.ttd-panel,.vr-panel,.vr-drop,.livehub-hero) {
+  color:#effff5 !important;
+  background-color:#0b2116 !important;
+  border-color:rgba(87,220,151,.20) !important;
+}
+:is(.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page) :is(.livehub-icon-wrap,.ttc-button,.ytv-button,.yts-button,.ttd-btn,.vr-btn,.yts-action-button,.livehub-tool a,.livehub-tool button) {
+  color:#03150b !important;
+  border-color:#38df98 !important;
+  background:linear-gradient(145deg,#39df98,#0d9b64) !important;
+}
+:is(.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page) :is(.ttc-stat-label,.ytv-stat-label,.yts-stat-label,.livehub-tool p,.vr-status,.ttd-status) { color:#a9c5b4 !important; }
+:is(.ttc-page,.ytv-page,.yts-page) :is(.ttc-input-shell,.ytv-input-shell,.yts-input-shell) {
+  background:#071a11 !important;
+  border-color:rgba(87,220,151,.24) !important;
+}
+:is(.ttc-page,.ytv-page,.yts-page) :is(.ttc-stat--views,.ytv-stat,.yts-stat) { box-shadow:inset 0 1px rgba(255,255,255,.025) !important; }
+/* Authentication surfaces */
+.glass-auth-page :is(.glass-card-shell,.login-glass-card,.register-glass-card,.glass-card,.login-passwordless-card,.register-passwordless-card,.login-panel-section,.register-panel-section,.glass-code-panel) {
+  color:#effff5 !important;
+  background:linear-gradient(155deg,rgba(13,43,28,.97),rgba(6,23,14,.98)) !important;
+  border-color:rgba(87,220,151,.22) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.035) !important;
+}
+.glass-auth-page :is(.glass-input-wrap,.glass-input-wrap input,.glass-input-wrap select) {
+  color:#effff5 !important;
+  background:#071a11 !important;
+  border-color:rgba(87,220,151,.22) !important;
+}
+.glass-auth-page :is(button[type="submit"],.primary,.btn-primary,.login-submit,.register-submit) {
+  color:#03150b !important;
+  border-color:#38df98 !important;
+  background:linear-gradient(145deg,#39df98,#0d9b64) !important;
+}
+.glass-auth-page a { color:#9af3c7; }
+:is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) :focus-visible {
+  outline-color:#78edb4 !important;
+}
+@media (max-width:720px) {
+  :is(.image-editor-page,.library-page,.photext-page,.livehub-page,.ttc-page,.ytv-page,.yts-page,.ttd-page,.vr-page,.glass-auth-page) {
+    background:
+      radial-gradient(ellipse at 85% 0%,rgba(39,214,139,.10),transparent 22rem),
+      linear-gradient(180deg,#06130d,#041009) !important;
+  }
+}
