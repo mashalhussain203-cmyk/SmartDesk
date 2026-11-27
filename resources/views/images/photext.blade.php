@@ -225,10 +225,15 @@
     let uploadUsedBlob = false;
     let exportTimeout = null;
 
-    const setStatus = (message) => { status.textContent = message; };
+    const setStatus = (message) => { if (status) status.textContent = message; if (uploadStatus && uploadCard && uploadCard.style.display !== 'none') uploadStatus.textContent = message; };
 
     async function sendImage(file) {
-        if (!ready || !file) return;
+        if (!file) return;
+        if (!ready) {
+            queuedFile = file;
+            setStatus('Afbeelding geselecteerd. Verbinding met de editor wordt gemaakt…');
+            return;
+        }
         const requestId = 'open-' + Date.now();
         pendingUploadRequest = requestId;
         currentFileName = (file.name.replace(/\.[^.]+$/, '') || 'image') + '-edited.png';
@@ -241,7 +246,6 @@
             // Only fall back to a transferable ArrayBuffer if Blob transfer throws.
             if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
             setStatus('Afbeelding uploaden naar PhoText…');
-            if (uploadStatus) uploadStatus.textContent = 'Afbeelding uploaden naar de bewerkingsengine…';
             try {
                 uploadUsedBlob = true;
                 frame.contentWindow.postMessage({
@@ -272,6 +276,7 @@
         const file = fileInput.files && fileInput.files[0];
         if (!file) return;
         if (!/^image\/(jpeg|png|webp|bmp)$/.test(file.type)) {
+            setStatus('Dit bestandstype wordt niet ondersteund. Kies JPG, PNG, WEBP of BMP.');
             setStatus('Kies een JPG-, PNG-, WEBP- of BMP-afbeelding.');
             fileInput.value = '';
             return;
@@ -282,8 +287,8 @@
             return;
         }
         queuedFile = file;
+        setStatus('Afbeelding geselecteerd. Bezig met verbinden…');
         if (ready) sendImage(file);
-        else setStatus('Afbeelding gekozen. PhoText wordt nog geladen…');
     });
 
     if (dropzone) {
@@ -321,7 +326,7 @@
             ready = true;
             if (readyPoll) window.clearInterval(readyPoll);
             readyPoll = null;
-            setStatus('PhoText is klaar. Upload een afbeelding om te beginnen.');
+            setStatus(queuedFile ? 'Editor verbonden. Je afbeelding wordt nu geopend…' : 'Editor verbonden. Kies een afbeelding om te beginnen.');
             if (queuedFile) sendImage(queuedFile);
         }
         if (data.type === 'editor:open-image-progress' && (!data.requestId || data.requestId === pendingUploadRequest)) {
@@ -363,7 +368,6 @@
             exportButton.disabled = true;
             reopenButton.disabled = true;
             setStatus('Afbeelding kon niet worden geopend: ' + (data.error || data.code || 'onbekende fout'));
-            if (uploadStatus) uploadStatus.textContent = 'Upload mislukt. Kies een andere afbeelding of probeer opnieuw.';
         }
         if (data.type === 'editor:result-error' && pendingRequest === data.requestId) {
             pendingRequest = null;
