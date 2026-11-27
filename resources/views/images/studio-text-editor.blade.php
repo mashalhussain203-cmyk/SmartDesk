@@ -96,7 +96,7 @@ canvas.on('selection:created',sync);canvas.on('selection:updated',sync);canvas.o
 canvas.on('object:modified',snapshot);canvas.on('object:added',()=>{if(!restoring) snapshot();});canvas.on('object:removed',()=>{if(!restoring)snapshot();});
 snapshot();resizeCanvas();
 }
-function resizeCanvas(){if(!canvas)return;const stage=$('se-stage');const max=Math.max(250,stage.clientWidth-56);const scale=Math.min(1,max/canvas.getWidth());canvas.setZoom(scale);canvas.setWidth(canvas.getWidth()*scale);canvas.setHeight(canvas.getHeight()*scale);canvas.requestRenderAll();}
+function resizeCanvas(){if(!canvas)return;const stage=$('se-stage');const max=Math.max(250,stage.clientWidth-56);const scale=Math.min(1,max/canvas.getWidth());canvas.setZoom(scale);canvas.requestRenderAll();}
 function snapshot(){if(!canvas||restoring)return;const json=JSON.stringify(canvas.toJSON());if(history[historyIndex]===json)return;history=history.slice(0,historyIndex+1);history.push(json);if(history.length>40)history.shift();historyIndex=history.length-1;updateHistoryButtons();renderLayers();}
 function updateHistoryButtons(){$('se-undo').disabled=historyIndex<=0;$('se-redo').disabled=historyIndex>=history.length-1;}
 function restore(index){if(index<0||index>=history.length)return;historyIndex=index;restoring=true;canvas.loadFromJSON(JSON.parse(history[index])).then(()=>{restoring=false;canvas.requestRenderAll();sync();renderLayers();updateHistoryButtons();});}
