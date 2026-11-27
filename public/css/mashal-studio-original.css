@@ -1,0 +1,151 @@
+/* Mashal Studio — original unified emerald visual layer.
+   Presentation only: keep Blade markup, routes, forms, uploads and JS untouched. */
+:root{
+  --studio-gold:#27d68b!important;--studio-gold-light:#78edb4!important;
+  --studio-gold-deep:#0c9d68!important;--studio-gold-soft:rgba(39,214,139,.10)!important;
+  --studio-cyan:#8be8bc!important;--studio-purple:#65dca2!important;
+  --studio-success:#55e39b!important;--studio-bg:#06130d!important;
+  --studio-bg-deep:#030d08!important;--studio-bg-soft:#091b12!important;
+  --studio-surface:#0b2116!important;--studio-surface-2:#0e2a1c!important;
+  --studio-surface-3:#123523!important;--studio-line:rgba(87,220,151,.15)!important;
+  --studio-line-strong:rgba(87,220,151,.25)!important;
+  --ms-accent:#27d68b;--ms-accent-2:#78edb4;--ms-accent-3:#a1f4c8;
+}
+html,body{background:#06130d}
+::selection{background:#78edb4;color:#03150b}
+:focus-visible{outline-color:#78edb4!important}
+.studio-main{background:#06130d}
+
+/* Shared Mashal Studio navigation and footer */
+.studio-header-expert,.studio-header-expert.is-scrolled{
+  background:rgba(4,28,17,.96)!important;border-bottom:1px solid rgba(61,211,137,.2)!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.24)!important;backdrop-filter:blur(22px) saturate(135%)!important
+}
+.studio-header-expert:before{background:linear-gradient(90deg,transparent,#27d68b,#9af3c7,transparent)!important}
+.studio-header-expert .expert-brand-mark,.studio-header-expert .expert-new-project,
+.studio-header-expert .expert-auth-link-primary{
+  color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;
+  box-shadow:0 8px 24px rgba(13,155,100,.22)!important
+}
+.studio-header-expert .expert-nav-center,.studio-header-expert .expert-command-trigger,
+.studio-header-expert .expert-account-trigger{
+  border-color:rgba(87,220,151,.18)!important;background:linear-gradient(180deg,rgba(18,53,35,.78),rgba(7,29,18,.72))!important
+}
+.studio-header-expert .expert-nav-link,.studio-header-expert .expert-nav-link-icon{color:#b4d8c3!important}
+.studio-header-expert .expert-nav-link:hover,.studio-header-expert .expert-nav-link.active,
+.studio-header-expert .expert-command-trigger:hover,.studio-header-expert .expert-account-trigger:hover{
+  color:#effff5!important;border-color:rgba(75,224,147,.42)!important;background:rgba(39,214,139,.14)!important
+}
+.studio-header-expert .expert-nav-link.active:after{background:linear-gradient(90deg,transparent,#27d68b,#9af3c7,transparent)!important}
+.expert-mobile-drawer{border-color:rgba(87,220,151,.2)!important;background:radial-gradient(ellipse at 100% 0%,rgba(19,157,99,.2),transparent 42%),linear-gradient(180deg,#09271b,#06150f 72%)!important}
+.expert-mobile-link.active,.expert-mobile-link:hover{border-color:rgba(75,224,147,.4)!important;background:rgba(39,214,139,.14)!important;box-shadow:inset 3px 0 #27d68b!important}
+.studio-footer{border-color:rgba(87,220,151,.15)!important}
+.studio-footer:before{background:linear-gradient(90deg,transparent,rgba(39,214,139,.55),transparent)!important}
+
+/* Homepage: preserve its existing structure and uploader, unify any remaining accents. */
+#msHome,.ms-home{--ms-accent:#27d68b!important;--ms-accent-2:#78edb4!important;--ms-accent-3:#a1f4c8!important;--ms-warm:#9af3c7!important}
+#msHome .ms-kicker,#msHome .ms-heading em{color:#78edb4!important}
+#msHome .ms-kicker:before{background:#27d68b!important;box-shadow:0 0 0 5px rgba(39,214,139,.13)!important}
+#msHome .ms-hero-title .gradient{background:linear-gradient(115deg,#27d68b,#78edb4)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+#msHome :is(.ms-button--primary,.ms-upload-choose,.ms-preview-submit,.ms-create-version){
+ color:#03150b!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;border-color:#38df98!important
+}
+#msHome :is(.ms-upload-icon,.ms-format,.ms-signal-icon,.ms-flow-number,.ms-editor-tool.active,.ms-preview-change){
+ color:#9af3c7!important;background:rgba(39,214,139,.12)!important;border-color:rgba(87,220,151,.28)!important
+}
+#msHome :focus-visible{outline-color:#78edb4!important}
+
+/* Image Editor — same dark emerald workspace, with the editor engine untouched. */
+.image-editor-page{
+ color:#effff5!important;background:
+ radial-gradient(circle at 15% 12%,rgba(39,214,139,.11),transparent 28rem),
+ radial-gradient(circle at 88% 18%,rgba(12,157,104,.08),transparent 30rem),
+ linear-gradient(180deg,#06130d,#091b12)!important
+}
+.image-editor-page :is(.editor-topbar,.editor-sidebar,.editor-canvas-toolbar,.property-card,.editor-operation-panel,.editor-stage,.editor-action-stack){
+ border-color:rgba(87,220,151,.18)!important
+}
+.image-editor-page .editor-topbar,.image-editor-page .editor-sidebar,
+.image-editor-page .property-card,.image-editor-page .editor-operation-panel{
+ background:linear-gradient(145deg,#0b2116,#081a11)!important;color:#effff5!important
+}
+.image-editor-page .editor-brand-mark{color:#9af3c7!important;border-color:rgba(87,220,151,.3)!important;background:rgba(39,214,139,.12)!important}
+.image-editor-page .editor-link.primary,.image-editor-page .editor-submit{
+ color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;
+ box-shadow:0 8px 24px rgba(13,155,100,.2)!important
+}
+.image-editor-page .editor-tool.active{color:#dfffee!important;border-color:rgba(75,224,147,.4)!important;background:rgba(39,214,139,.16)!important}
+.image-editor-page .editor-tool:hover,.image-editor-page .editor-link:hover{color:#effff5!important;border-color:rgba(75,224,147,.4)!important;background:rgba(39,214,139,.09)!important}
+.image-editor-page :is(.editor-brand-copy strong,.property-card h3,.editor-properties-heading,.editor-canvas-toolbar strong){color:#effff5!important}
+.image-editor-page :is(.editor-brand-copy span,.property-card p,.editor-source-note,.canvas-toolbar-meta span){color:#a9c5b4!important}
+.image-editor-page :is(input,select,textarea){accent-color:#27d68b}
+.image-editor-page :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+ color:#effff5!important;border-color:rgba(87,220,151,.22)!important;background:#071a10!important
+}
+
+/* Private image library */
+.library-page{
+ color:#effff5!important;background:
+ radial-gradient(circle at 10% 4%,rgba(39,214,139,.10),transparent 29rem),
+ radial-gradient(circle at 88% 9%,rgba(12,157,104,.07),transparent 34rem),
+ linear-gradient(180deg,#06130d,#091b12 52%,#06130d)!important
+}
+.library-page :is(.image-card,.image-card-body,.library-empty,.library-toolbar,.library-filter,.library-panel){
+ color:#effff5!important;border-color:rgba(87,220,151,.18)!important;background:#0b2116!important
+}
+.library-page .library-action.primary{
+ color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important
+}
+.library-page :is(.library-action,.image-card-actions a,.image-card-actions button){border-color:rgba(87,220,151,.22)!important}
+.library-page :is(.image-card-heading h2,.image-card h2,.image-card h3){color:#effff5!important}
+.library-page :is(.image-card p,.image-card small,.library-muted){color:#a9c5b4!important}
+
+/* Live Counts hub */
+.livehub-page{
+ color:#effff5!important;background:
+ radial-gradient(circle at 50% -140px,rgba(39,214,139,.15),transparent 470px),
+ radial-gradient(circle at 90% 18%,rgba(12,157,104,.08),transparent 380px),
+ linear-gradient(180deg,#06130d,#030d08)!important
+}
+.livehub-eyebrow{border-color:rgba(39,214,139,.25)!important;color:#9af3c7!important;background:rgba(39,214,139,.07)!important}
+.livehub-tool{border-color:rgba(87,220,151,.18)!important;background:radial-gradient(circle at 92% 8%,rgba(39,214,139,.11),transparent 36%),linear-gradient(180deg,#0e2a1c,#07180f)!important}
+.livehub-tool:hover{border-color:rgba(75,224,147,.42)!important;background:radial-gradient(circle at 92% 8%,rgba(39,214,139,.17),transparent 36%),linear-gradient(180deg,#123523,#081b11)!important}
+.livehub-arrow,.livehub-live{color:#78edb4!important}
+.livehub-feature{border-color:rgba(87,220,151,.16)!important;background:rgba(39,214,139,.035)!important}
+
+/* TikTok / YouTube live counters — platform logos remain platform-coloured. */
+.ttc-page{--bg:#06130d!important;--panel:rgba(11,33,22,.94)!important;--panel-soft:rgba(255,255,255,.025)!important;--panel-hover:rgba(39,214,139,.08)!important;--line:rgba(87,220,151,.16)!important;--line-strong:rgba(87,220,151,.28)!important;--purple:#27d68b!important;--purple-2:#78edb4!important;--blue:#8be8bc!important}
+.ttc-page :is(.ttc-button,.ttc-play,.ttc-action){border-color:rgba(87,220,151,.24)!important}
+.ttc-page .ttc-button:not(:disabled){color:#03150b!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important}
+.ttc-page .ttc-card,.ttc-page .ttc-settings-panel{border-color:rgba(87,220,151,.18)!important;background:#0b2116!important}
+.ytv-page{--ytv-bg:#06130d!important;--ytv-panel:rgba(11,33,22,.94)!important;--ytv-line:rgba(87,220,151,.18)!important;--ytv-purple:#27d68b!important;--ytv-green:#78edb4!important}
+.ytv-page :is(.ytv-panel,.ytv-card,.ytv-tool-panel){border-color:rgba(87,220,151,.18)!important;background:#0b2116!important}
+.ytv-page .ytv-button:not(:disabled){color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important}
+.yts-page{--yts-panel:rgba(11,33,22,.94)!important;--yts-line:rgba(87,220,151,.18)!important;--yts-green:#78edb4!important}
+.yts-page :is(.yts-panel,.yts-card,.yts-tool-panel,.yts-extra-card){border-color:rgba(87,220,151,.18)!important;background:#0b2116!important}
+.yts-page .yts-button:not(:disabled){color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important}
+.ttd{color:#effff5!important;background:radial-gradient(ellipse 58% 32% at 50% 4%,rgba(39,214,139,.15),transparent 90%),#06130d!important}
+.ttd :is(.ttd-panel,.ttd-result,.ttd-format){border-color:rgba(87,220,151,.18)!important;background:#0b2116!important}
+.ttd :is(.ttd-submit,.ttd-btn.primary){color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important}
+
+/* PhoText wrapper and local controls. The cross-origin editor itself is vendor-owned. */
+.photext-page{color:#effff5!important;background:radial-gradient(circle at 12% 4%,rgba(39,214,139,.12),transparent 30rem),radial-gradient(circle at 88% 10%,rgba(12,157,104,.07),transparent 34rem),linear-gradient(180deg,#06130d,#091b12 54%,#06130d)!important}
+.photext-page :is(.photext-upload-card,.photext-toolbar,.photext-frame-wrap){border-color:rgba(87,220,151,.2)!important}
+.photext-page .photext-btn.primary,.photext-page .photext-upload-button{color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important}
+.photext-page .photext-dropzone{border-color:rgba(87,220,151,.48)!important;background:rgba(39,214,139,.06)!important}
+
+/* Login and registration — recolour accents, retain auth states and motion. */
+.glass-auth-page{
+ --glass-yellow:#27d68b!important;--glass-yellow-2:#78edb4!important;--glass-orange:#0c9d68!important;
+ --home-accent:#27d68b!important;--home-accent-2:#78edb4!important;--home-accent-3:#a1f4c8!important
+}
+.glass-auth-page :is(.glass-primary,.login-tab.active,.register-tab.active,.glass-auth-switch a.active){
+ color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important
+}
+.glass-auth-page :is(.glass-card,.glass-code-panel){border-color:rgba(87,220,151,.2)!important}
+.glass-auth-page :is(.glass-corner,.glass-fold-seal){border-color:rgba(87,220,151,.42)!important}
+
+/* Mashal AI and other shared workspace surfaces */
+.mashal-chat-app{--mashal-accent:#27d68b!important}
+.mashal-chat-app :is(.ai-send,.workspace-action.primary,.chat-new-button){color:#03150b!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;border-color:#38df98!important}
+.studio-page{--studio-accent:#27d68b!important}
