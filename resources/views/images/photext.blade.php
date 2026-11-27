@@ -231,7 +231,7 @@
     let currentFileName = 'photext-edited.png';
     let currentRecordId = null;
     let pendingUploadRequest = null;
-    let uploadUsedBlob = false;
+    let uploadPayloadMode = null;
     let exportTimeout = null;
 
     const setStatus = (message) => { if (status) status.textContent = message; if (uploadStatus && uploadCard && uploadCard.style.display !== 'none') uploadStatus.textContent = message; };
@@ -256,7 +256,7 @@
             if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
             setStatus('Afbeelding uploaden naar PhoText…');
             try {
-                uploadUsedBlob = true;
+                uploadPayloadMode = 'blob';
                 frame.contentWindow.postMessage({
                     type: 'editor:open-image',
                     requestId,
@@ -267,6 +267,7 @@
             } catch (blobError) {
                 const buffer = await file.arrayBuffer();
                 if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
+                uploadPayloadMode = 'arrayBuffer';
                 frame.contentWindow.postMessage({
                     type: 'editor:open-image',
                     requestId,
@@ -350,6 +351,7 @@
         }
         if (data.type === 'editor:image-opened' && (!data.requestId || data.requestId === pendingUploadRequest)) {
             pendingUploadRequest = null;
+            uploadPayloadMode = null;
             currentRecordId = typeof data.recordId === 'string' ? data.recordId : null;
             exportButton.disabled = false;
             reopenButton.disabled = !currentRecordId;
@@ -358,10 +360,10 @@
             if (editorWorkspace) editorWorkspace.classList.add('is-active');
         }
         if (data.type === 'editor:open-image-error' && (!data.requestId || data.requestId === pendingUploadRequest)) {
-            if (uploadUsedBlob && data.code === 'bad_payload' && queuedFile) {
+            if (uploadPayloadMode === 'blob' && queuedFile) {
                 const failedRequestId = pendingUploadRequest;
-                uploadUsedBlob = false;
-                setStatus('PhoText vraagt een alternatieve upload. Opnieuw proberen…');
+                uploadPayloadMode = 'arrayBuffer';
+                setStatus('Eerste overdracht is niet geaccepteerd. Alternatieve upload wordt geprobeerd…');
                 queuedFile.arrayBuffer().then((buffer) => {
                     if (pendingUploadRequest !== failedRequestId || !frame.contentWindow) return;
                     frame.contentWindow.postMessage({
@@ -381,7 +383,7 @@
             pendingUploadRequest = null;
             exportButton.disabled = true;
             reopenButton.disabled = true;
-            setStatus('Afbeelding kon niet worden geopend: ' + (data.error || data.code || 'onbekende fout'));
+            setStatus('Upload mislukt (' + (data.code || 'fout') + '): ' + (data.error || 'PhoText kon de afbeelding niet openen. Kies de afbeelding opnieuw.'));
         }
         if (data.type === 'editor:result-error' && pendingRequest === data.requestId) {
             pendingRequest = null;
