@@ -149,3 +149,71 @@ html,body{background:#06130d}
 .mashal-chat-app{--mashal-accent:#27d68b!important}
 .mashal-chat-app :is(.ai-send,.workspace-action.primary,.chat-new-button){color:#03150b!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;border-color:#38df98!important}
 .studio-page{--studio-accent:#27d68b!important}
+
+
+/* Remaining creator tools, account screens and secondary workspaces */
+.ms-analysis,.tfc-page,.ts-page,.vo-page,.ytd-page,.account-page,.security-page,.legal-page{
+ color:#effff5!important;
+ background:
+  radial-gradient(ellipse at 82% 0%,rgba(39,214,139,.11),transparent 34rem),
+  radial-gradient(ellipse at 12% 18%,rgba(11,132,79,.08),transparent 30rem),
+  linear-gradient(180deg,#06130d,#07180f 52%,#041009)!important
+}
+.ms-analysis :is(.ms-panel,.ms-card,.ms-stat,.ms-profile-card,.ms-chart-card,.ms-history-card),
+.tfc-page :is(.tfc-search-wrap,.tfc-card,.tfc-panel,.tfc-stat),
+.ts-page :is(.ts-card,.ts-panel,.ts-drop,.ts-choice),
+.vo-page :is(.vo-panel,.vo-card,.vo-option,.vo-result),
+.ytd-page :is(.ytd-panel,.yd-card,.ytd-result,.ytd-download-card),
+.account-page :is(.account-hero,.profile-card,.account-nav-card,.account-panel,.stat-card,.overview-card,.project-card,.security-card,.photo-editor),
+.security-page :is(.security-summary,.security-action-card,.security-toolbar,.login-card,.security-stat){
+ color:#effff5!important;
+ background:linear-gradient(145deg,#0b2116,#081a11)!important;
+ border-color:rgba(87,220,151,.2)!important
+}
+.ms-analysis :is(.ms-tab.active,.ms-tab:hover,.ms-submit,.ms-button,.ms-primary),
+.tfc-page :is(.tfc-button,.tfc-action-button),
+.ts-page :is(.ts-button,.ts-submit,.ts-choice.active),
+.vo-page :is(.vo-btn.primary,.vo-submit,.vo-post-btn),
+.ytd-page :is(.ytd-btn.primary,.ytd-btn[type=submit],.ytd-submit),
+.account-page :is(.account-action.primary,.account-button.primary,.photo-button.primary),
+.security-page :is(.security-action-btn.primary,.security-button.primary){
+ color:#03150b!important;border-color:#38df98!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;
+ box-shadow:0 8px 24px rgba(13,155,100,.18)!important
+}
+.ms-analysis :is(.ms-tab,.ms-field,.ms-version),
+.tfc-page :is(.tfc-input,.tfc-search-wrap),
+.ts-page :is(.ts-input,.ts-select,.ts-textarea,.ts-drop),
+.vo-page :is(input,select,textarea),
+.ytd-page :is(.ytd-input,.ytd-utility),
+.account-page :is(input,select,textarea),
+.security-page :is(input,select,textarea){
+ color:#effff5!important;background:#071a11!important;border-color:rgba(87,220,151,.22)!important;color-scheme:dark
+}
+.ms-analysis :is(.ms-analysis-kicker,.ms-back,.ms-tab),
+.tfc-page :is(.tfc-eyebrow,.tfc-back),
+.ts-page :is(.ts-eyebrow,.ts-back,.ts-pill),
+.vo-page :is(.vo-eyebrow,.vo-back),
+.ytd-page :is(.ytd-pill,.ytd-back,.ytd-title span),
+.account-page :is(.account-kicker,.account-nav-link.active),
+.security-page :is(.security-kicker,.security-title span){
+ color:#78edb4!important
+}
+.ms-analysis :is(.ms-panel-desc,.ms-analysis-intro,.ms-field-hint,.ms-back),
+.tfc-page :is(.tfc-subtitle,.tfc-muted),
+.ts-page :is(.ts-card p,.ts-head p,.ts-drop small),
+.vo-page :is(.vo-copy,.vo-hint),
+.ytd-page :is(.ytd-sub,.ytd-hint),
+.account-page :is(.account-copy,.panel-copy,.account-nav-title,.stat-card span),
+.security-page :is(.security-copy,.security-summary em,.security-summary small){
+ color:#a9c5b4!important
+}
+.account-page .account-hero{background:radial-gradient(circle at 92% 12%,rgba(39,214,139,.13),transparent 21rem),linear-gradient(145deg,#0e2a1c,#081a11)!important}
+.account-page .account-nav-link.active{border-color:rgba(75,224,147,.35)!important;background:rgba(39,214,139,.12)!important}
+.security-page .security-action-btn{border-color:rgba(87,220,151,.22)!important}
+.legal-page :is(.legal-card,.contact-form-card,.contact-box,.contact-note){background:#0b2116!important;border-color:rgba(87,220,151,.2)!important;color:#effff5!important}
+.legal-page :is(.legal-title,.contact-title,.legal-card h2,.legal-card h3){color:#effff5!important}
+.legal-page :is(.legal-kicker,.legal-link,.contact-link){color:#78edb4!important}
+.studio-page{--ai-bg:#06130d!important;--ai-card:#0b2116!important;--ai-card-2:#0e2a1c!important;--ai-border:rgba(87,220,151,.2)!important;--ai-text:#effff5!important;--ai-muted:#a9c5b4!important}
+.studio-page .studio-primary{color:#03150b!important;background:linear-gradient(135deg,#39df98,#0d9b64)!important;border:1px solid #38df98!important}
+.studio-page :is(.studio-stat,.template-card,.status-card,.panel){background:#0b2116!important;border-color:rgba(87,220,151,.2)!important;color:#effff5!important}
+.studio-page .template-card:hover{background:rgba(39,214,139,.12)!important;border-color:rgba(75,224,147,.4)!important}
