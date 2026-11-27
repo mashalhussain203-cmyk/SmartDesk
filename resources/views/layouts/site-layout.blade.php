@@ -6682,7 +6682,7 @@
     <link rel="stylesheet" href="{{ asset('css/mashal-signature-20261018.css') }}?v=1">
     <link rel="stylesheet" href="{{ asset('css/smartdesk-navbar-v2.css') }}?v=2">
     <link rel="stylesheet" href="{{ asset('css/smartdesk-emerald-theme.css') }}?v=4.0.0">
-    <link rel="stylesheet" href="{{ asset('css/mashal-studio-original.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/mashal-studio-original.css') }}?v=3">
 </head>
 
 <body>
