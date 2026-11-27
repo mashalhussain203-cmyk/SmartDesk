@@ -6823,6 +6823,15 @@
                                 @endif
                             </a>
                         @endif
+                        @if (\Illuminate\Support\Facades\Route::has('images.photext'))
+                            <a
+                                class="expert-nav-link {{ request()->routeIs('images.photext') ? 'active' : '' }}"
+                                href="{{ route('images.photext') }}"
+                            >
+                                <span class="expert-nav-link-icon" aria-hidden="true">✎</span>
+                                <span>AI Text Editor</span>
+                            </a>
+                        @endif
 
                     @endauth
                 </nav>
