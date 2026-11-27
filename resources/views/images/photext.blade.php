@@ -119,25 +119,37 @@
     let readyPoll = null;
     let currentFileName = 'photext-edited.png';
     let currentRecordId = null;
+    let pendingUploadRequest = null;
     let exportTimeout = null;
 
     const setStatus = (message) => { status.textContent = message; };
 
-    function sendImage(file) {
+    async function sendImage(file) {
         if (!ready || !file) return;
         const requestId = 'open-' + Date.now();
+        pendingUploadRequest = requestId;
         currentFileName = (file.name.replace(/\.[^.]+$/, '') || 'image') + '-edited.png';
         currentRecordId = null;
         reopenButton.disabled = true;
         exportButton.disabled = true;
-        setStatus('Afbeelding wordt doorgestuurd naar PhoText…');
-        frame.contentWindow.postMessage({
-            type: 'editor:open-image',
-            requestId,
-            blob: file,
-            filename: file.name,
-            mimeType: file.type
-        }, origin);
+        setStatus('Afbeelding voorbereiden voor PhoText…');
+        try {
+            // Transfer binary data explicitly: this is the documented fallback
+            // for browsers where cross-origin File/Blob cloning is unreliable.
+            const buffer = await file.arrayBuffer();
+            if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
+            setStatus('Afbeelding uploaden naar PhoText…');
+            frame.contentWindow.postMessage({
+                type: 'editor:open-image',
+                requestId,
+                arrayBuffer: buffer,
+                filename: file.name,
+                mimeType: file.type || 'application/octet-stream'
+            }, origin, [buffer]);
+        } catch (error) {
+            pendingUploadRequest = null;
+            setStatus('De afbeelding kon niet worden voorbereid. Probeer een JPG-, PNG- of WEBP-bestand opnieuw.');
+        }
     }
 
     fileInput.addEventListener('change', () => {
@@ -185,18 +197,20 @@
             setStatus('PhoText is klaar. Upload een afbeelding om te beginnen.');
             if (queuedFile) sendImage(queuedFile);
         }
-        if (data.type === 'editor:open-image-progress') {
+        if (data.type === 'editor:open-image-progress' && (!data.requestId || data.requestId === pendingUploadRequest)) {
             const percent = Number(data.percentage);
             exportButton.disabled = true;
             setStatus('Afbeelding uploaden naar PhoText… ' + (Number.isFinite(percent) ? Math.max(0,Math.min(100,percent)) : 0) + '%');
         }
-        if (data.type === 'editor:image-opened') {
+        if (data.type === 'editor:image-opened' && (!data.requestId || data.requestId === pendingUploadRequest)) {
+            pendingUploadRequest = null;
             currentRecordId = typeof data.recordId === 'string' ? data.recordId : null;
             exportButton.disabled = false;
             reopenButton.disabled = !currentRecordId;
             setStatus('Afbeelding geopend. Bewerk de tekst en sla daarna het resultaat op.');
         }
-        if (data.type === 'editor:open-image-error') {
+        if (data.type === 'editor:open-image-error' && (!data.requestId || data.requestId === pendingUploadRequest)) {
+            pendingUploadRequest = null;
             exportButton.disabled = true;
             reopenButton.disabled = true;
             setStatus('Afbeelding kon niet worden geopend: ' + (data.error || data.code || 'onbekende fout'));
