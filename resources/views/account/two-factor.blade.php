@@ -830,6 +830,24 @@
 
         }
 
+    
+        /* Mashal Studio original emerald appearance; authentication behavior is unchanged. */
+        :root{
+            color-scheme:dark;
+            --bg:#06130d;--card:#0b2116;--text:#effff5;--muted:#a9c5b4;--border:rgba(87,220,151,.2);
+            --primary:#0c9d68;--primary-hover:#087f53;
+            --success-bg:rgba(39,214,139,.10);--success-text:#9af3c7;--success-border:rgba(87,220,151,.28);
+        }
+        body{background:radial-gradient(ellipse at 82% 0%,rgba(39,214,139,.12),transparent 34rem),linear-gradient(180deg,#06130d,#041009);color:var(--text)}
+        .card,.badge,.secret-box,.recovery-code{background:#0b2116;color:var(--text);border-color:var(--border);box-shadow:0 18px 48px rgba(0,0,0,.2)}
+        .btn-primary{background:linear-gradient(135deg,#39df98,#0d9b64);color:#03150b}
+        .btn-primary:hover{background:#087f53}
+        .btn-secondary{background:#0e2a1c;color:#dfffee;border-color:var(--border)}
+        .input{background:#071a11;color:var(--text);border-color:var(--border);color-scheme:dark}
+        .input:focus{border-color:#39df98;box-shadow:0 0 0 4px rgba(39,214,139,.12)}
+        .danger-zone{border-color:rgba(244,125,125,.4)}
+        .qr-wrap{background:#fff;border-color:#dce1dd}
+
     </style>
 
 </head>
