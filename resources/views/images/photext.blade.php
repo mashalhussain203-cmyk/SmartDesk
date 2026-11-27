@@ -56,6 +56,73 @@
         .photext-frame-top{padding:10px 12px}.photext-frame{height:76vh;min-height:560px}
     }
     @media(max-width:420px){.photext-btn{min-height:41px;padding-inline:11px;font-size:10px}.photext-frame-label{font-size:8px}}
+
+    /* PhoText page: apply Mashal Studio emerald identity to the shared top navigation too.
+       Scoped to this page so the rest of SmartDesk keeps its existing appearance. */
+    body:has(.photext-page){
+        --studio-gold:#36c98b;
+        --studio-gold-light:#8ce8b6;
+        --studio-gold-deep:#087b50;
+        --studio-gold-soft:rgba(54,201,139,.09);
+        --studio-cyan:#63dca5;
+        --studio-purple:#36c98b;
+    }
+    body:has(.photext-page) .studio-header,
+    body:has(.photext-page) .studio-header.is-scrolled{
+        border-bottom:1px solid rgba(54,201,139,.24);
+        background:linear-gradient(105deg,rgba(5,24,16,.97),rgba(8,31,22,.94) 55%,rgba(5,20,15,.97));
+        box-shadow:0 12px 36px rgba(0,0,0,.28),0 1px 0 rgba(54,201,139,.08);
+        backdrop-filter:blur(18px) saturate(135%);
+        -webkit-backdrop-filter:blur(18px) saturate(135%);
+    }
+    body:has(.photext-page) .studio-brand-mark{
+        border-color:rgba(54,201,139,.55);
+        box-shadow:0 0 22px rgba(54,201,139,.16);
+    }
+    body:has(.photext-page) .studio-nav-link.active,
+    body:has(.photext-page) .studio-nav-link.ai-link{
+        border-color:rgba(54,201,139,.26);
+        color:#a7f3c8;
+        background:rgba(54,201,139,.09);
+    }
+    body:has(.photext-page) .studio-nav-link:hover{
+        color:#effff5;
+        border-color:rgba(54,201,139,.2);
+        background:rgba(54,201,139,.07);
+    }
+    body:has(.photext-page) .studio-menu-toggle,
+    body:has(.photext-page) .studio-account-trigger,
+    body:has(.photext-page) .studio-action-link{
+        border-color:rgba(54,201,139,.25);
+    }
+    body:has(.photext-page) .studio-menu-toggle:hover,
+    body:has(.photext-page) .studio-account-trigger:hover,
+    body:has(.photext-page) .studio-action-link:hover{
+        border-color:rgba(54,201,139,.55);
+        background:rgba(54,201,139,.09);
+    }
+    body:has(.photext-page) .studio-progress-bar{
+        background:linear-gradient(90deg,#087b50,#36c98b,#a7f3c8);
+        box-shadow:0 0 18px rgba(54,201,139,.3);
+    }
+    body:has(.photext-page) .studio-mobile-drawer{
+        border-left-color:rgba(54,201,139,.25);
+        background:linear-gradient(160deg,rgba(6,28,18,.99),rgba(5,13,10,.99));
+    }
+    body:has(.photext-page) .studio-mobile-nav a.active,
+    body:has(.photext-page) .studio-mobile-nav a:hover{
+        border-color:rgba(54,201,139,.28);
+        color:#a7f3c8;
+        background:rgba(54,201,139,.09);
+    }
+    @media(max-width:620px){
+        body:has(.photext-page) .studio-header,
+        body:has(.photext-page) .studio-header.is-scrolled{
+            background:linear-gradient(105deg,rgba(5,24,16,.985),rgba(8,31,22,.97));
+            border-bottom-color:rgba(54,201,139,.27);
+        }
+    }
+
 </style>
 @endpush
 
