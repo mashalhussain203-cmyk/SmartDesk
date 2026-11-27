@@ -69,8 +69,12 @@
     .photext-upload-formats{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-top:18px}
     .photext-upload-formats span{padding:6px 10px;border:1px solid rgba(255,255,255,.07);border-radius:999px;color:#8c9b91;background:rgba(255,255,255,.025);font-size:9px;font-weight:800;letter-spacing:.06em}
     .photext-upload-status{min-height:18px;margin-top:14px;color:#8ce8b6;font-size:11px;text-align:center}
-    .photext-editor-workspace{display:none;margin-top:25px}
+    .photext-editor-workspace{display:block;margin-top:25px}
     .photext-editor-workspace.is-active{display:block}
+    .photext-preview{display:none;width:min(100%,520px);margin:18px auto 0;padding:9px;border:1px solid rgba(92,225,163,.22);border-radius:16px;background:rgba(255,255,255,.025)}
+    .photext-preview.is-visible{display:block}
+    .photext-preview img{display:block;width:100%;max-height:300px;object-fit:contain;border-radius:10px;background:#050806}
+    .photext-preview small{display:block;margin:8px 2px 0;color:#9eb2a5;font-size:10px;text-align:left;overflow-wrap:anywhere}
     .photext-change-file{margin-left:auto}
     @media(max-width:620px){.photext-upload-card{margin:22px auto;padding:22px 15px;border-radius:21px}.photext-dropzone{min-height:220px;padding:20px 12px}.photext-editor-workspace{margin-top:18px}}
 
@@ -168,7 +172,8 @@
                 <label class="photext-upload-button" for="photext-file">Afbeelding kiezen</label>
                 <div class="photext-upload-formats"><span>JPG</span><span>JPEG</span><span>PNG</span><span>WEBP</span><span>BMP</span></div>
             </div>
-            <div class="photext-upload-status" id="photext-upload-status" role="status" aria-live="polite">Je afbeelding wordt rechtstreeks naar PhoText verzonden voor verwerking.</div>
+            <div class="photext-preview" id="photext-preview"><img id="photext-preview-image" alt="Voorbeeld van geselecteerde afbeelding"><small id="photext-preview-name"></small></div>
+            <div class="photext-upload-status" id="photext-upload-status" role="status" aria-live="polite">Kies een afbeelding. Je ziet eerst een voorbeeld; daarna wordt deze naar PhoText verzonden.</div>
         </section>
         <input id="photext-file" type="file" accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
 
@@ -215,6 +220,10 @@
     const uploadCard = document.getElementById('photext-upload-card');
     const editorWorkspace = document.getElementById('photext-editor-workspace');
     const dropzone = document.getElementById('photext-dropzone');
+    const preview = document.getElementById('photext-preview');
+    const previewImage = document.getElementById('photext-preview-image');
+    const previewName = document.getElementById('photext-preview-name');
+    let previewUrl = null;
     let ready = false;
     let queuedFile = null;
     let pendingRequest = null;
@@ -287,7 +296,12 @@
             return;
         }
         queuedFile = file;
-        setStatus('Afbeelding geselecteerd. Bezig met verbinden…');
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        previewImage.src = previewUrl;
+        previewName.textContent = file.name + ' · ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        preview.classList.add('is-visible');
+        setStatus('Voorbeeld geladen. Verbinding met PhoText controleren…');
         if (ready) sendImage(file);
     });
 
@@ -425,6 +439,7 @@
 
     window.addEventListener('beforeunload', () => {
         queuedFile = null;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
         pendingRequest = null;
         if (readyPoll) window.clearInterval(readyPoll);
         if (exportTimeout) window.clearTimeout(exportTimeout);
