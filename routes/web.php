@@ -1435,7 +1435,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('images')->group(function () {
 
-        Route::view('/photext', 'images.photext')->name('images.photext');
+        Route::view('/photext', 'images.studio-text-editor')->name('images.photext');
 
         Route::get(
 
