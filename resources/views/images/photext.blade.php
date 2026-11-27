@@ -5,22 +5,57 @@
 
 @push('styles')
 <style>
-    .photext-page{min-height:calc(100vh - 80px);padding:34px 0 64px;color:#f4f7f5;background:radial-gradient(circle at 12% 5%,rgba(24,180,112,.12),transparent 30rem),linear-gradient(180deg,#070b09,#0a100d)}
-    .photext-shell{width:min(100% - 32px,1500px);margin:auto}
-    .photext-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}
-    .photext-kicker{color:#55d99b;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-    .photext-head h1{margin:10px 0 8px;font-size:clamp(32px,5vw,54px);line-height:1;letter-spacing:-.055em}
-    .photext-head p{max-width:720px;margin:0;color:#99a59e;font-size:13px;line-height:1.7}
-    .photext-actions{display:flex;gap:9px;flex-wrap:wrap}
-    .photext-btn{min-height:42px;padding:0 15px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.12);border-radius:11px;background:#111a15;color:#eaf5ee;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}
-    .photext-btn.primary{border-color:#24a96c;background:linear-gradient(135deg,#26b875,#13784e);color:#fff}
-    .photext-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 15px;margin-bottom:12px;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(255,255,255,.035)}
-    .photext-toolbar input{max-width:100%;color:#dbe8df;font-size:12px}
-    .photext-status{flex:1;min-width:220px;color:#9eaaa3;font-size:12px}
-    .photext-frame-wrap{overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:#101511;box-shadow:0 28px 80px rgba(0,0,0,.28)}
+    .photext-page{
+        position:relative;isolation:isolate;min-height:calc(100vh - 78px);overflow:hidden;
+        padding:58px 0 88px;color:var(--studio-text,#f7f7f4);
+        background:
+            radial-gradient(circle at 12% 4%,rgba(143,130,255,.12),transparent 30rem),
+            radial-gradient(circle at 88% 10%,rgba(115,215,255,.055),transparent 34rem),
+            linear-gradient(180deg,#07080b 0%,#090b0f 54%,#07080b 100%);
+    }
+    .photext-page::before{
+        content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.12;
+        background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+        background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 78%);
+    }
+    .photext-shell{position:relative;z-index:1;width:min(100% - 38px,1360px);margin-inline:auto}
+    .photext-head{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:26px}
+    .photext-head-copy{min-width:0}
+    .photext-kicker{display:inline-flex;align-items:center;gap:9px;color:var(--studio-gold-light,#a99fff);font-size:9px;font-weight:950;letter-spacing:.19em;text-transform:uppercase}
+    .photext-kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--studio-gold,#8f82ff);box-shadow:0 0 16px rgba(143,130,255,.75)}
+    .photext-head h1{margin:12px 0 9px;color:#f7f7f4;font-size:clamp(34px,5vw,58px);font-weight:850;line-height:1.02;letter-spacing:-.06em}
+    .photext-head h1 span{color:var(--studio-gold-light,#a99fff)!important}
+    .photext-head p{max-width:710px;margin:0;color:var(--studio-muted,#8d949e);font-size:13px;line-height:1.8}
+    .photext-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .photext-btn{min-height:43px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--studio-line-strong,rgba(255,255,255,.13));border-radius:12px;background:rgba(18,22,28,.88);color:var(--studio-text-soft,#d8dbe0);text-decoration:none;font:800 11px/1 var(--studio-font,Inter,system-ui,sans-serif);letter-spacing:.015em;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+    .photext-btn:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(169,159,255,.55);background:#171c24;box-shadow:0 9px 28px rgba(0,0,0,.2)}
+    .photext-btn:focus-visible,.photext-toolbar select:focus-visible,.photext-toolbar input:focus-visible{outline:2px solid var(--studio-gold-light,#a99fff);outline-offset:3px}
+    .photext-btn.primary{border-color:rgba(143,130,255,.75);background:linear-gradient(135deg,#8f82ff,#5f7dff);color:#fff;box-shadow:0 8px 25px rgba(95,125,255,.17)}
+    .photext-btn:disabled{opacity:.42;cursor:not-allowed;transform:none;box-shadow:none}
+    .photext-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;margin-bottom:13px;border:1px solid var(--studio-line,rgba(255,255,255,.075));border-radius:17px;background:linear-gradient(135deg,rgba(18,22,28,.94),rgba(12,15,20,.88));box-shadow:var(--studio-shadow-soft,0 20px 55px rgba(0,0,0,.25));backdrop-filter:blur(18px)}
+    .photext-toolbar select{max-width:100%;padding:0 2px;background:transparent;color:inherit;border:0;font:inherit;cursor:pointer}
+    .photext-toolbar select option{background:#12161c;color:#f7f7f4}
+    .photext-toolbar input[type=range]{width:78px;accent-color:var(--studio-gold,#8f82ff);vertical-align:middle}
+    .photext-toolbar input[type=file]{max-width:100%;color:var(--studio-muted,#8d949e);font:11px var(--studio-font,Inter,system-ui,sans-serif)}
+    .photext-status{flex:1 1 230px;min-width:180px;padding:0 5px;color:var(--studio-muted,#8d949e);font-size:11px;line-height:1.6}
+    .photext-frame-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border:1px solid var(--studio-line,rgba(255,255,255,.075));border-bottom:0;border-radius:19px 19px 0 0;background:linear-gradient(135deg,#12161c,#0e1116)}
+    .photext-frame-brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .photext-brand-mark{width:29px;height:29px;display:grid;place-items:center;border:1px solid rgba(143,130,255,.38);border-radius:9px;background:rgba(143,130,255,.12);color:#b4acff;font-size:12px;font-weight:950}
+    .photext-frame-brand strong{display:block;color:#f7f7f4;font-size:11px;letter-spacing:.02em}
+    .photext-frame-brand small{display:block;color:var(--studio-muted,#8d949e);font-size:9px}
+    .photext-frame-label{padding:5px 9px;border:1px solid var(--studio-line,rgba(255,255,255,.075));border-radius:999px;color:var(--studio-muted,#8d949e);font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .photext-frame-wrap{overflow:hidden;border:1px solid var(--studio-line-strong,rgba(255,255,255,.13));border-radius:0 0 19px 19px;background:#0e1116;box-shadow:var(--studio-shadow,0 38px 110px rgba(0,0,0,.42))}
     .photext-frame{display:block;width:100%;height:min(78vh,980px);min-height:620px;border:0;background:#fff}
-    .photext-notice{margin:12px 2px 0;color:#84928a;font-size:11px;line-height:1.65}
-    @media(max-width:700px){.photext-page{padding-top:24px}.photext-head{display:block}.photext-actions{margin-top:16px}.photext-frame{height:76vh;min-height:560px}.photext-toolbar{align-items:flex-start}.photext-status{flex-basis:100%}}
+    .photext-notice{display:flex;align-items:flex-start;gap:9px;margin:14px 3px 0;color:var(--studio-muted-2,#656d77);font-size:10px;line-height:1.7}
+    .photext-notice::before{content:"i";flex:0 0 17px;width:17px;height:17px;display:grid;place-items:center;border:1px solid var(--studio-line-strong);border-radius:50%;color:var(--studio-muted);font-size:10px;font-weight:900}
+    @media(max-width:760px){
+        .photext-page{padding:34px 0 60px}.photext-shell{width:min(100% - 26px,1360px)}
+        .photext-head{display:block;margin-bottom:20px}.photext-actions{margin-top:17px}
+        .photext-toolbar{gap:8px;padding:11px}.photext-toolbar .photext-btn{flex:1 1 auto}
+        .photext-status{flex-basis:100%;padding:5px 2px 0}
+        .photext-frame-top{padding:10px 12px}.photext-frame{height:76vh;min-height:560px}
+    }
+    @media(max-width:420px){.photext-btn{min-height:41px;padding-inline:11px;font-size:10px}.photext-frame-label{font-size:8px}}
 </style>
 @endpush
 
@@ -49,6 +84,10 @@
             <span class="photext-status" id="photext-status" role="status" aria-live="polite">Editor wordt geladen. Upload daarna een JPG, PNG, WEBP of BMP.</span>
         </section>
 
+        <div class="photext-frame-top">
+            <div class="photext-frame-brand"><span class="photext-brand-mark">M</span><span><strong>Mashal Studio Editor</strong><small>AI-powered image text editing</small></span></div>
+            <span class="photext-frame-label">Secure workspace</span>
+        </div>
         <div class="photext-frame-wrap">
             <iframe
                 id="photext-frame"
