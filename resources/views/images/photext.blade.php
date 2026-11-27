@@ -57,6 +57,23 @@
     }
     @media(max-width:420px){.photext-btn{min-height:41px;padding-inline:11px;font-size:10px}.photext-frame-label{font-size:8px}}
 
+    .photext-upload-card{max-width:900px;margin:30px auto 24px;padding:34px;border:1px solid rgba(54,201,139,.2);border-radius:26px;background:radial-gradient(circle at 92% 4%,rgba(54,201,139,.11),transparent 260px),linear-gradient(145deg,rgba(15,27,21,.96),rgba(8,13,10,.98));box-shadow:0 28px 80px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.025)}
+    .photext-upload-card h2{margin:0;color:#f7fff9;font-size:clamp(25px,4vw,38px);font-weight:850;letter-spacing:-.045em;text-align:center}
+    .photext-upload-card>p{max-width:580px;margin:11px auto 25px;color:#8b9b91;font-size:13px;line-height:1.75;text-align:center}
+    .photext-dropzone{min-height:245px;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;border:1px dashed rgba(92,225,163,.42);border-radius:20px;background:rgba(3,12,7,.42);text-align:center;transition:border-color .2s,background .2s,transform .2s}
+    .photext-dropzone.is-dragging{border-color:#8ce8b6;background:rgba(54,201,139,.1);transform:scale(1.006)}
+    .photext-upload-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid rgba(54,201,139,.24);border-radius:19px;background:rgba(54,201,139,.1);color:#8ce8b6;font-size:27px}
+    .photext-dropzone strong{color:#edf9f1;font-size:14px;font-weight:800}
+    .photext-dropzone small{color:#718178;font-size:11px}
+    .photext-upload-button{min-height:47px;padding:0 23px;border:1px solid rgba(91,230,159,.55);border-radius:13px;background:linear-gradient(135deg,#24c77a,#087b50);color:white;font:850 12px var(--studio-font,Inter,system-ui,sans-serif);cursor:pointer;box-shadow:0 10px 28px rgba(36,199,122,.16)}
+    .photext-upload-formats{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-top:18px}
+    .photext-upload-formats span{padding:6px 10px;border:1px solid rgba(255,255,255,.07);border-radius:999px;color:#8c9b91;background:rgba(255,255,255,.025);font-size:9px;font-weight:800;letter-spacing:.06em}
+    .photext-upload-status{min-height:18px;margin-top:14px;color:#8ce8b6;font-size:11px;text-align:center}
+    .photext-editor-workspace{display:none;margin-top:25px}
+    .photext-editor-workspace.is-active{display:block}
+    .photext-change-file{margin-left:auto}
+    @media(max-width:620px){.photext-upload-card{margin:22px auto;padding:22px 15px;border-radius:21px}.photext-dropzone{min-height:220px;padding:20px 12px}.photext-editor-workspace{margin-top:18px}}
+
     /* PhoText page: apply Mashal Studio emerald identity to the shared top navigation too.
        Scoped to this page so the rest of SmartDesk keeps its existing appearance. */
     body:has(.photext-page){
@@ -141,30 +158,44 @@
             </div>
         </header>
 
-        <section class="photext-toolbar" aria-label="PhoText besturing">
-            <label class="photext-btn" for="photext-file">Afbeelding uploaden</label>
-            <input id="photext-file" type="file" accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
-            <button class="photext-btn" id="photext-reopen" type="button" disabled>Afbeelding opnieuw openen</button>
-            <label class="photext-btn" for="photext-format">Formaat <select id="photext-format" style="margin-left:8px;background:#111a15;color:#eaf5ee;border:0"><option value="png">PNG</option><option value="jpeg">JPG</option><option value="webp">WEBP</option></select></label>
-            <label class="photext-btn" for="photext-quality">Kwaliteit <input id="photext-quality" type="range" min="50" max="100" value="92" style="width:82px;vertical-align:middle;margin-left:6px"></label>
-            <button class="photext-btn primary" id="photext-export" type="button" disabled>Bewerkte afbeelding opslaan</button>
-            <span class="photext-status" id="photext-status" role="status" aria-live="polite">Editor wordt geladen. Upload daarna een JPG, PNG, WEBP of BMP.</span>
+        <section class="photext-upload-card" id="photext-upload-card" aria-label="Afbeelding uploaden">
+            <h2>Maak je afbeelding klaar om te bewerken</h2>
+            <p>Upload een afbeelding. Mashal Studio opent daarna de PhoText-bewerkingsfuncties in je eigen werkruimte.</p>
+            <div class="photext-dropzone" id="photext-dropzone">
+                <span class="photext-upload-icon" aria-hidden="true">↑</span>
+                <strong>Sleep je afbeelding hierheen</strong>
+                <small>Of kies een bestand vanaf je apparaat</small>
+                <label class="photext-upload-button" for="photext-file">Afbeelding kiezen</label>
+                <div class="photext-upload-formats"><span>JPG</span><span>JPEG</span><span>PNG</span><span>WEBP</span><span>BMP</span></div>
+            </div>
+            <div class="photext-upload-status" id="photext-upload-status" role="status" aria-live="polite">Je afbeelding wordt rechtstreeks naar PhoText verzonden voor verwerking.</div>
         </section>
+        <input id="photext-file" type="file" accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
 
-        <div class="photext-frame-top">
-            <div class="photext-frame-brand"><span class="photext-brand-mark">M</span><span><strong>Mashal Studio Editor</strong><small>AI-powered image text editing</small></span></div>
-            <span class="photext-frame-label">Secure workspace</span>
-        </div>
-        <div class="photext-frame-wrap">
-            <iframe
-                id="photext-frame"
-                class="photext-frame"
-                src="https://photext.ai/en/editor?responsive=true&hide_header=true"
-                title="PhoText AI image text editor"
-                allow="clipboard-read; clipboard-write"
-                referrerpolicy="strict-origin-when-cross-origin"
-            ></iframe>
-        </div>
+        <section class="photext-editor-workspace" id="photext-editor-workspace" aria-label="Afbeelding bewerken">
+            <section class="photext-toolbar" aria-label="PhoText besturing">
+                <label class="photext-btn photext-change-file" for="photext-file">Andere afbeelding kiezen</label>
+                <button class="photext-btn" id="photext-reopen" type="button" disabled>Afbeelding opnieuw openen</button>
+                <label class="photext-btn" for="photext-format">Formaat <select id="photext-format" style="margin-left:8px;background:#111a15;color:#eaf5ee;border:0"><option value="png">PNG</option><option value="jpeg">JPG</option><option value="webp">WEBP</option></select></label>
+                <label class="photext-btn" for="photext-quality">Kwaliteit <input id="photext-quality" type="range" min="50" max="100" value="92" style="width:82px;vertical-align:middle;margin-left:6px"></label>
+                <button class="photext-btn primary" id="photext-export" type="button" disabled>Bewerkte afbeelding opslaan</button>
+                <span class="photext-status" id="photext-status" role="status" aria-live="polite">Editor wordt geladen…</span>
+            </section>
+            <div class="photext-frame-top">
+                <div class="photext-frame-brand"><span class="photext-brand-mark">M</span><span><strong>Mashal Studio Editor</strong><small>AI-powered image text editing</small></span></div>
+                <span class="photext-frame-label">Secure workspace</span>
+            </div>
+            <div class="photext-frame-wrap">
+                <iframe
+                    id="photext-frame"
+                    class="photext-frame"
+                    src="https://photext.ai/en/editor?responsive=true&hide_header=true&disable_upload=true"
+                    title="PhoText AI image text editor"
+                    allow="clipboard-read; clipboard-write"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                ></iframe>
+            </div>
+        </section>
         <p class="photext-notice">Privacy: wanneer je een afbeelding uploadt, wordt deze rechtstreeks naar PhoText verzonden voor verwerking volgens hun voorwaarden en privacybeleid. Upload alleen afbeeldingen die je mag bewerken. De export wordt op je apparaat opgeslagen; deze pagina bewaart geen kopie in je Mashal Studio-bibliotheek.</p>
     </div>
 </main>
@@ -180,6 +211,10 @@
     const formatInput = document.getElementById('photext-format');
     const qualityInput = document.getElementById('photext-quality');
     const status = document.getElementById('photext-status');
+    const uploadStatus = document.getElementById('photext-upload-status');
+    const uploadCard = document.getElementById('photext-upload-card');
+    const editorWorkspace = document.getElementById('photext-editor-workspace');
+    const dropzone = document.getElementById('photext-dropzone');
     let ready = false;
     let queuedFile = null;
     let pendingRequest = null;
@@ -206,6 +241,7 @@
             // Only fall back to a transferable ArrayBuffer if Blob transfer throws.
             if (pendingUploadRequest !== requestId || !frame.contentWindow) return;
             setStatus('Afbeelding uploaden naar PhoText…');
+            if (uploadStatus) uploadStatus.textContent = 'Afbeelding uploaden naar de bewerkingsengine…';
             try {
                 uploadUsedBlob = true;
                 frame.contentWindow.postMessage({
@@ -250,6 +286,17 @@
         else setStatus('Afbeelding gekozen. PhoText wordt nog geladen…');
     });
 
+    if (dropzone) {
+        ['dragenter','dragover'].forEach((name) => dropzone.addEventListener(name, (event) => { event.preventDefault(); dropzone.classList.add('is-dragging'); }));
+        ['dragleave','drop'].forEach((name) => dropzone.addEventListener(name, (event) => { event.preventDefault(); dropzone.classList.remove('is-dragging'); }));
+        dropzone.addEventListener('drop', (event) => {
+            const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+            if (!file) return;
+            const transfer = new DataTransfer(); transfer.items.add(file); fileInput.files = transfer.files;
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
+
     function pingEditor() {
         if (ready) {
             if (readyPoll) window.clearInterval(readyPoll);
@@ -288,6 +335,8 @@
             exportButton.disabled = false;
             reopenButton.disabled = !currentRecordId;
             setStatus('Afbeelding geopend. Bewerk de tekst en sla daarna het resultaat op.');
+            if (uploadCard) uploadCard.style.display = 'none';
+            if (editorWorkspace) editorWorkspace.classList.add('is-active');
         }
         if (data.type === 'editor:open-image-error' && (!data.requestId || data.requestId === pendingUploadRequest)) {
             if (uploadUsedBlob && data.code === 'bad_payload' && queuedFile) {
@@ -314,6 +363,7 @@
             exportButton.disabled = true;
             reopenButton.disabled = true;
             setStatus('Afbeelding kon niet worden geopend: ' + (data.error || data.code || 'onbekende fout'));
+            if (uploadStatus) uploadStatus.textContent = 'Upload mislukt. Kies een andere afbeelding of probeer opnieuw.';
         }
         if (data.type === 'editor:result-error' && pendingRequest === data.requestId) {
             pendingRequest = null;
