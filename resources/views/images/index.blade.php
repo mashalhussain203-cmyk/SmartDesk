@@ -1767,6 +1767,19 @@
                 </a>
 
 
+                <a
+
+                    class="library-action"
+
+                    href="{{ route('images.photext') }}"
+
+                >
+
+                    {{ __('AI Text Editor') }}
+
+                </a>
+
+
 
                 <a
 
