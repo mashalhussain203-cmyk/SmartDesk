@@ -2905,6 +2905,7 @@
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}?v=20261008-3">
     <link rel="stylesheet" href="{{ asset('css/smartdesk-emerald-theme.css') }}?v=4.0.0">
+    <link rel="stylesheet" href="{{ asset('css/mashal-studio-original.css') }}?v=2">
 </head>
 
 
